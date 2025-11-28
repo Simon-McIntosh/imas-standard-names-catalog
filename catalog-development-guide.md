@@ -1,13 +1,13 @@
 # IMAS Standard Names Catalog Development Guide
 
-This guide explains how to set up and develop the separate `imas-standard-names-catalog` repository containing YAML source files for standard names.
+This guide explains the `imas-standard-names-catalog` repository structure and development workflow.
 
 ## Overview
 
 The IMAS Standard Names project uses a **two-repository architecture**:
 
-1. **imas-standard-names** (this repo): Tools, MCP server, grammar, validation
-2. **imas-standard-names-catalog** (separate repo): YAML catalog files only
+1. **imas-standard-names**: Tools, MCP server, grammar, validation
+2. **imas-standard-names-catalog** (this repo): YAML catalog files only
 
 This separation allows:
 - **Independent versioning**: Catalog data evolves separately from tools
@@ -56,48 +56,11 @@ imas-standard-names-catalog/
 └── pyproject.toml               # Minimal metadata only (no Python dependencies)
 ```
 
-### Initial Setup
+### pyproject.toml
 
-```bash
-# Create the repository
-mkdir imas-standard-names-catalog
-cd imas-standard-names-catalog
+This repository has **no Python dependencies** - it is a pure data repository.
 
-# Initialize git
-git init
-git branch -m main
-
-# Create directory structure
-mkdir -p standard_names/{physics,geometry,diagnostics}
-mkdir -p docs
-mkdir -p .github/workflows
-```
-
-### pyproject.toml (Minimal)
-
-**Important**: This repository has **no Python dependencies** - it is a pure data repository.
-
-```toml
-[project]
-name = "imas-standard-names-catalog"
-version = "0.1.0"
-description = "IMAS Standard Names YAML catalog source files - resource-only repository"
-readme = "README.md"
-authors = [
-    {name = "ITER Organization", email = "iter@iter.org"},
-]
-requires-python = ">=3.13"
-# NO dependencies - this is a resource-only repository
-dependencies = []
-
-[project.urls]
-Homepage = "https://github.com/iterorg/imas-standard-names-catalog"
-Repository = "https://github.com/iterorg/imas-standard-names-catalog"
-
-[build-system]
-requires = ["hatchling>=1.25.0"]
-build-backend = "hatchling.build"
-```
+See `pyproject.toml` in the repository root for current metadata.
 
 **Note**: Build and validation tools come from the separate `imas-standard-names` package.
 
@@ -171,53 +134,35 @@ export STANDARD_NAMES_CATALOG_ROOT=$(pwd)/standard_names
 python -c "from imas_standard_names import StandardNameCatalog; cat = StandardNameCatalog(); print(f'Entries: {len(cat)}')"
 \`\`\`
 
-## Repository Structure
+## Editing Standard Names
 
-- \`standard_names/\` - YAML source files organized by domain
-- \`docs/\` - MkDocs documentation (auto-generated from YAML)
-- \`.github/workflows/\` - CI/CD for building .db and deploying docs
+Never edit YAML files directly. Use MCP tools from [`imas-standard-names`](https://github.com/iterorg/imas-standard-names).
 
-## Adding New Standard Names
+### Setup for Development
 
-### 1. Create YAML File
+```bash
+# Clone catalog
+git clone https://github.com/iterorg/imas-standard-names-catalog.git
 
-\`\`\`bash
-# Example: Add new physics quantity
-touch standard_names/physics/temperature/bulk_ion_temperature.yml
-\`\`\`
+# Link to catalog directory
+export STANDARD_NAMES_CATALOG_ROOT=/path/to/imas-standard-names-catalog/standard_names
+```
 
-### 2. Edit YAML
+### Workflow
 
-\`\`\`yaml
-name: bulk_ion_temperature
-kind: scalar
-unit: keV
-status: draft
-description: Average temperature of bulk ion population.
-tags:
-  - physics
-  - temperature
-  - ions
-\`\`\`
+```bash
+# 1. Use MCP tools from imas-standard-names to edit catalog
+# (See imas-standard-names AGENTS.md for tool details)
 
-### 3. Validate Locally
+# 2. Review changes
+git status
+git diff
 
-\`\`\`bash
-# Requires imas-standard-names tools
-validate_catalog standard_names/
-\`\`\`
-
-### 4. Commit and Push
-
-\`\`\`bash
-git add standard_names/physics/temperature/bulk_ion_temperature.yml
-git commit -m "Add bulk_ion_temperature standard name"
-git push origin main
-\`\`\`
-
-### 5. Create Pull Request
-
-Open PR for review. CI will validate your changes.
+# 3. Commit changes made by MCP tools
+git add standard_names/
+git commit -m "Add/modify standard names via MCP tools"
+git push
+```
 
 ## Releasing
 

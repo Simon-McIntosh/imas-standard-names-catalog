@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  validate:
+    uses: ./.github/workflows/validate.yml
+  
+  build:
+    needs: validate
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      
+      - name: Build catalog.db
+        run: uv run standard-names build standard_names/ --db catalog.db
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: catalog.db
+          body: |
+            ## IMAS Standard Names Catalog ${{ github.ref_name }}
+            
+            ### Installation
+            
+            Download `catalog.db` and use with:
+            ```bash
+            export STANDARD_NAMES_CATALOG_DB=/path/to/catalog.db
+            ```
+            
+            ### Using with imas-standard-names
+            
+            ```python
+            from imas_standard_names import StandardNameCatalog
+            catalog = StandardNameCatalog()
+            print(catalog.search("temperature"))
+            ```
