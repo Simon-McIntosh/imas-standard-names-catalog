@@ -1,63 +1,67 @@
 # IMAS Standard Names Catalog
 
-YAML source files for the IMAS Standard Names catalog.
+YAML source files and pre-built SQLite database for IMAS Standard Names.
 
 ## Installation
 
-### For Users (Read-Only Access)
-
-Download pre-built catalog from releases:
+### Python
 
 ```bash
-# Download catalog.db from latest release
-wget https://github.com/iterorg/imas-standard-names-catalog/releases/latest/download/catalog.db
-
-# Use with imas-standard-names
-export STANDARD_NAMES_CATALOG_DB=/path/to/catalog.db
+pip install imas-standard-names-catalog
 ```
 
-### For Developers (Read-Write Access)
+```python
+from imas_standard_names_catalog import get_catalog_db
+db_path = get_catalog_db()  # Path to bundled catalog.db
+```
 
-Clone this repository and link to it:
+### Other Languages
+
+Download from [releases](https://github.com/iterorganization/imas-standard-names-catalog/releases):
+
+| Artifact | Description |
+|----------|-------------|
+| `catalog.db` | SQLite database |
+| `standard_names.zip` | YAML sources + catalog.db |
+
+### Development
 
 ```bash
-# Clone catalog
-git clone https://github.com/iterorg/imas-standard-names-catalog.git
-
-# Link to catalog directory for development
-export STANDARD_NAMES_CATALOG_ROOT=/path/to/imas-standard-names-catalog/standard_names
+git clone https://github.com/iterorganization/imas-standard-names-catalog.git
+cd imas-standard-names-catalog
+export STANDARD_NAMES_CATALOG_ROOT=$(pwd)/standard_names
 ```
 
-This environment variable must be set before using MCP tools from `imas-standard-names` to edit catalog entries.
-
-## Repository Structure
-
-- `standard_names/` - YAML catalog files organized by physics/diagnostic domain
-- `.github/workflows/` - CI/CD automation for validation and releases
-- Documentation files
-
-## Editing Standard Names
-
-Never edit YAML files directly. Use MCP tools from [`imas-standard-names`](https://github.com/iterorg/imas-standard-names):
-
+**Build catalog locally:**
 ```bash
-# Set catalog location
-export STANDARD_NAMES_CATALOG_ROOT=/path/to/imas-standard-names-catalog/standard_names
-
-# Use MCP tools (see imas-standard-names AGENTS.md)
-# mcp_sn_create_standard_names()
-# mcp_sn_edit_standard_names()
-# mcp_sn_write_standard_names()
-
-# Commit changes
-git add standard_names/
-git commit -m "Add/modify standard names via MCP tools"
-git push
+uv run standard-names build standard_names/
+# Creates standard_names/.catalog/catalog.db
 ```
 
-## CI/CD
+**Preview documentation site:**
+```bash
+uv run standard-names catalog-site serve standard_names/
+# Serves at http://localhost:8000
+```
 
-GitHub Actions validate YAML files on PRs and build `catalog.db` on releases using tools from `imas-standard-names`.
+**CI/CD Workflows:**
+
+| Workflow | Trigger | Action |
+|----------|---------|--------|
+| `validate.yml` | PR, push to main | Validates YAML syntax |
+| `catalog.yml` | Push to main/tags | Deploys versioned docs site |
+| `release.yml` | Tag `v*` | Builds `catalog.db`, `standard_names.zip`, Python wheel |
+
+## Structure
+
+```
+standard_names/     # YAML files by domain
+src/                # Python package (catalog.db in wheel)
+```
+
+## Editing
+
+Use MCP tools from [imas-standard-names](https://github.com/iterorganization/imas-standard-names). Never edit YAML directly.
 
 ## License
 

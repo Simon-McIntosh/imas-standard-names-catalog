@@ -20,26 +20,37 @@ jobs:
         uses: astral-sh/setup-uv@v5
       
       - name: Build catalog.db
-        run: uv run standard-names build standard_names/ --db catalog.db
+        run: |
+          uv run standard-names build standard_names/ --db standard_names/.catalog/catalog.db
+          cp standard_names/.catalog/catalog.db src/imas_standard_names_catalog/catalog.db
+      
+      - name: Create standard_names.zip
+        run: zip -r standard_names.zip standard_names/
+      
+      - name: Build Python wheel
+        run: uv build
       
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: catalog.db
+          files: |
+            standard_names/.catalog/catalog.db
+            standard_names.zip
+            dist/*.whl
           body: |
             ## IMAS Standard Names Catalog ${{ github.ref_name }}
             
             ### Installation
             
-            Download `catalog.db` and use with:
+            **Python:**
             ```bash
-            export STANDARD_NAMES_CATALOG_DB=/path/to/catalog.db
+            pip install imas-standard-names-catalog
             ```
-            
-            ### Using with imas-standard-names
             
             ```python
-            from imas_standard_names import StandardNameCatalog
-            catalog = StandardNameCatalog()
-            print(catalog.search("temperature"))
+            from imas_standard_names_catalog import get_catalog_db
+            db_path = get_catalog_db()
             ```
+            
+            **Other languages:**
+            Download `catalog.db` or `standard_names.zip` from assets below.
