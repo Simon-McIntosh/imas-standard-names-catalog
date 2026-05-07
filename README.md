@@ -6,10 +6,7 @@
 
 YAML source files and pre-built SQLite database for IMAS Standard Names.
 
-> **Schema v2 clean break.** This catalog is regenerated from the
-> [imas-codex](https://github.com/Simon-McIntosh/imas-codex) knowledge graph.
-> Prior entries from schema v1 are deprecated. Do not manually merge old YAML
-> files — use `sn export` to regenerate from the graph.
+Generated from the [imas-codex](https://github.com/Simon-McIntosh/imas-codex) knowledge graph via `imas-codex sn export`.
 
 ## Installation
 
