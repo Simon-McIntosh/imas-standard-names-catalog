@@ -1,0 +1,424 @@
+# Domain: edge_plasma_physics
+# Catalog sha: 919705936daebc3fbad9bdc4d16a60c32984c369
+# Entries: 8
+# Ordering: structural traversal
+#   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
+#    alphabetic tie-break)
+- name: parallel_component_of_ion_state_momentum_flux
+  kind: scalar
+  status: draft
+  description: Parallel component of the momentum flux tensor for a specific ion charge
+    state, obtained by projecting the full momentum flux onto the local magnetic field
+    direction. This quantity captures the field-aligned transport of ion momentum
+    per unit area for that charge state in the edge plasma.
+  documentation: 'The parallel component of the momentum flux tensor for a specific
+    ion charge state is defined as the projection of the momentum flux density tensor
+    $\mathbf{\Pi}_s$ of ion charge state $s$ onto the unit vector $\hat{b} = \mathbf{B}/|\mathbf{B}|$
+    along the local magnetic field:
+
+
+    $$\Pi_{\parallel,s} = \hat{b} \cdot \mathbf{\Pi}_s \cdot \hat{b} = \rho_s v_{\parallel,s}^2
+    + p_{\parallel,s}$$
+
+
+    where $\rho_s$ (kg m$^{-3}$) is the mass density of charge state $s$, $v_{\parallel,s}$
+    (m s$^{-1}$) is the parallel fluid velocity of that charge state, and $p_{\parallel,s}$
+    (Pa = kg m$^{-1}$ s$^{-2}$) is the parallel component of the (potentially anisotropic)
+    pressure tensor for that charge state. In a magnetized edge plasma, the pressure
+    tensor is generally anisotropic, so $p_{\parallel,s}$ differs from the perpendicular
+    pressure $p_{\perp,s}$; using the isotropic scalar pressure $p_s$ is only valid
+    in the limit of weak anisotropy.
+
+
+    Sign convention: Positive when the net momentum flux is directed in the direction
+    of the local magnetic field unit vector $\hat{b}$ (i.e., in the direction of increasing
+    field-line arc length along $\hat{b}$).
+
+
+    This quantity is stored as a GGD (Generalized Grid Description) scalar field at
+    the locations defined by the GGD grid subset, with one value per grid element.
+    The corresponding data dictionary path is `edge_transport/model/ggd/ion/state/momentum/flux_parallel/values`
+    in the `edge_transport` IDS.
+
+
+    Typical magnitude ranges in edge plasmas vary widely with plasma conditions: from
+    approximately $10^{-2}$ kg m$^{-1}$ s$^{-2}$ in cold, low-density divertor detachment
+    conditions up to $\sim 10^1$ kg m$^{-1}$ s$^{-2}$ in hot attached scrape-off-layer
+    plasmas. The ion charge state index distinguishes contributions from different
+    ionization states of a given ion species, enabling detailed multi-fluid transport
+    modeling.
+
+
+    The parallel momentum flux is a key quantity in edge transport models, governing
+    the parallel flow of ions along field lines toward divertor targets and playing
+    a central role in momentum balance equations that determine the plasma flow profile
+    in the scrape-off layer.'
+  unit: kg.m^-1.s^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:parallel_component_of_ion_momentum_flux
+  - name:parallel_component_of_neutral_state_momentum_flux
+  - name:parallel_component_of_momentum_flux
+  validity_domain: ''
+  constraints: []
+  arguments:
+  - name: ion_state_momentum_flux
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - id: dd:edge_transport/model/ggd/ion/state/momentum/flux_parallel/values
+    dd_path: edge_transport/model/ggd/ion/state/momentum/flux_parallel/values
+    status: composed
+- name: parallel_component_of_neutral_momentum_flux
+  kind: scalar
+  status: draft
+  description: Field-aligned component of the momentum flux carried by neutral particles
+    in the edge plasma, summed over all neutral species. Includes both convective
+    (ram pressure) and kinetic pressure contributions along the magnetic field direction.
+    Sourced from the edge_transport IDS at edge_transport/model/ggd/neutral/momentum/flux_parallel/values.
+  documentation: 'The parallel neutral momentum flux $\Pi_{\parallel,\mathrm{n}}$
+    is the projection of the neutral-species momentum flux tensor onto the local magnetic
+    field direction $\hat{b} = \mathbf{B}/|\mathbf{B}|$. It is defined as the sum
+    over all neutral species $s$:
+
+
+    $$\Pi_{\parallel,\mathrm{n}} = \sum_s \left( m_s n_s v_{\parallel,s}^2 + p_s \right)$$
+
+
+    where $m_s$ is the species mass (kg), $n_s$ is the number density (m$^{-3}$),
+    $v_{\parallel,s} = \mathbf{v}_s \cdot \hat{b}$ is the field-aligned flow velocity
+    (m s$^{-1}$), and $p_s$ is the scalar (isotropic) pressure of species $s$ (Pa
+    = kg m$^{-1}$ s$^{-2}$). Because neutrals carry no net charge, each species $s$
+    here refers to a distinct neutral atom or molecule type, not a charge state; the
+    phrase "neutral charge states" does not apply. The pressure term $p_s$ is taken
+    as the scalar isotropic pressure, which is appropriate for neutral particles in
+    the collisional edge plasma where velocity distributions are approximately Maxwellian.
+
+
+    The quantity is defined on a General Grid Description (GGD) subset of the computational
+    mesh inside the edge_transport IDS (path: `edge_transport/model/ggd/neutral/momentum/flux_parallel/values`).
+    One scalar value is provided per mesh element in the relevant grid subset.
+
+
+    Sign convention: Positive when the net momentum flux is directed along the direction
+    of the magnetic field $\mathbf{B}$ (i.e., in the direction of increasing arc length
+    along field lines from low to high toroidal angle $\phi$ in the right-handed cylindrical
+    $(R, \phi, Z)$ frame).
+
+
+    Typical magnitudes in the edge plasma range from $\sim 10^{-2}$ to $\sim 10^{2}$
+    kg m$^{-1}$ s$^{-2}$ depending on neutral density, species (hydrogen isotopes,
+    helium, impurities), and plasma conditions (attached vs.~detached divertor regimes).
+    Near the divertor target in high-recycling conditions, neutral ram pressure can
+    approach or exceed ion parallel momentum flux, making this quantity important
+    for momentum balance in detachment modeling.
+
+
+    This quantity appears in the neutral fluid momentum equation and is used in edge
+    transport codes (e.g., SOLPS-ITER, EDGE2D-EIRENE) to close the parallel momentum
+    balance for the neutral fluid. It is distinct from the total (ion + neutral) parallel
+    momentum flux and from the parallel ion momentum flux.'
+  unit: kg.m^-1.s^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:parallel_component_of_neutral_state_momentum_flux
+  - name:parallel_component_of_ion_momentum_flux
+  - name:parallel_component_of_momentum_flux
+  - name:neutral_momentum_flux
+  validity_domain: ''
+  constraints: []
+  arguments:
+  - name: neutral_momentum_flux
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - id: dd:edge_transport/model/ggd/neutral/momentum/flux_parallel/values
+    dd_path: edge_transport/model/ggd/neutral/momentum/flux_parallel/values
+    status: composed
+- name: parallel_component_of_neutral_state_momentum_flux
+  kind: scalar
+  status: draft
+  description: Projection of the momentum flux tensor for a kinetically resolved neutral
+    charge state onto the local magnetic field direction, quantifying field-aligned
+    neutral momentum transport in the edge plasma.
+  documentation: "The parallel component of the neutral-state momentum flux $\\Pi_{\\\
+    parallel,ns}$ represents the rate of momentum transport per unit area carried\
+    \ by a specific neutral charge state (e.g., a particular ionization stage of a\
+    \ hydrogen or impurity neutral) along the direction of the local magnetic field\
+    \ $\\hat{b}$. It is defined as $\\Pi_{\\parallel,ns} = \\hat{b} \\cdot \\overleftrightarrow{\\\
+    Pi}_{ns} \\cdot \\hat{b}$, where $\\overleftrightarrow{\\Pi}_{ns} = m_{ns} n_{ns}\
+    \ \\mathbf{v}_{ns} \\mathbf{v}_{ns} + p_{ns} \\overleftrightarrow{I}$ is the momentum\
+    \ flux tensor of the resolved neutral state, $m_{ns}$ is the particle mass, $n_{ns}$\
+    \ is the number density, $\\mathbf{v}_{ns}$ is the fluid velocity, and $p_{ns}$\
+    \ is the partial pressure. Resolving individual neutral charge states rather than\
+    \ the aggregate neutral population\u2014as in [parallel_component_of_neutral_momentum_flux](name:parallel_component_of_neutral_momentum_flux)\u2014\
+    enables state-specific collisional source terms and charge-exchange rates to be\
+    \ evaluated accurately in multi-fluid edge codes. This quantity is the neutral-state\
+    \ analog of [parallel_component_of_ion_state_momentum_flux](name:parallel_component_of_ion_state_momentum_flux),\
+    \ and both are typically computed by fluid or kinetic-fluid edge transport codes\
+    \ (e.g., Monte Carlo neutral solvers coupled to fluid plasma models) operating\
+    \ on the unstructured GGD mesh. The parent tensor quantity is [neutral_state_momentum_flux](name:neutral_state_momentum_flux),\
+    \ while the species-aggregated parallel limit is [parallel_component_of_momentum_flux](name:parallel_component_of_momentum_flux).\
+    \ Typical magnitudes in the divertor region range from $10^{1}$ to $10^{4}$ kg\
+    \ m$^{-1}$ s$^{-2}$, depending on neutral density and temperature."
+  unit: kg.m^-1.s^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:parallel_component_of_neutral_momentum_flux
+  - name:parallel_component_of_ion_state_momentum_flux
+  - name:neutral_state_momentum_flux
+  - name:parallel_component_of_momentum_flux
+  validity_domain: ''
+  constraints: []
+  arguments:
+  - name: neutral_state_momentum_flux
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - id: dd:edge_transport/model/ggd/neutral/state/momentum/flux_parallel/values
+    dd_path: edge_transport/model/ggd/neutral/state/momentum/flux_parallel/values
+    status: composed
+- name: parallel_component_of_total_momentum_flux
+  kind: scalar
+  status: draft
+  description: Parallel (field-aligned) component of the total plasma momentum flux,
+    summing contributions from all carrier species including ions and neutrals, representing
+    the net field-aligned rate of momentum transport per unit area across surfaces
+    in the edge plasma.
+  documentation: The parallel component of the total momentum flux is the projection
+    of the combined plasma momentum flux tensor onto the local magnetic field direction
+    $\hat{b} = \mathbf{B}/|\mathbf{B}|$. For a multi-species plasma it is defined
+    as $\Pi_\parallel = \hat{b} \cdot \left(\sum_s \mathbf{\Pi}_s\right) \cdot \hat{b}$,
+    where $\mathbf{\Pi}_s = m_s n_s \mathbf{v}_s \mathbf{v}_s + p_s \mathbf{I}$ is
+    the momentum flux tensor for species $s$ (with $m_s$ the particle mass, $n_s$
+    the number density, $\mathbf{v}_s$ the fluid velocity, and $p_s$ the scalar pressure),
+    summed over all ion charge states and neutral populations. This aggregate quantity
+    differs from [parallel_component_of_ion_state_momentum_flux](name:parallel_component_of_ion_state_momentum_flux)
+    and [parallel_component_of_neutral_momentum_flux](name:parallel_component_of_neutral_momentum_flux),
+    which resolve individual carriers; it also differs from [parallel_component_of_momentum_flux](name:parallel_component_of_momentum_flux),
+    which may exclude certain neutral contributions depending on the model closure.
+    In edge transport simulations the parallel momentum flux governs the flow of momentum
+    along open field lines toward material surfaces and sets the parallel flow velocity
+    boundary condition at the divertor target. Typical magnitudes in the scrape-off
+    layer range from $10^2$ to $10^4\,\text{kg}\,\text{m}^{-1}\,\text{s}^{-2}$ depending
+    on upstream density, temperature, and plasma-facing-component geometry. The quantity
+    is evaluated on the GGD unstructured edge grid, with one value per grid element
+    in the relevant grid subset. Related vector-form quantities are given by [momentum_flux](name:momentum_flux),
+    and the vertical projection is captured by [vertical_component_of_momentum_flux](name:vertical_component_of_momentum_flux).
+  unit: kg.m^-1.s^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:parallel_component_of_ion_state_momentum_flux
+  - name:parallel_component_of_neutral_momentum_flux
+  - name:parallel_component_of_momentum_flux
+  - name:momentum_flux
+  - name:vertical_component_of_momentum_flux
+  validity_domain: ''
+  constraints: []
+  sources:
+  - id: dd:edge_transport/model/ggd/momentum/flux_parallel/values
+    dd_path: edge_transport/model/ggd/momentum/flux_parallel/values
+    status: composed
+- name: poloidal_component_of_anomalous_current_density
+  kind: scalar
+  status: draft
+  description: Poloidal projection of the anomalous (non-classical) current density
+    in the edge plasma. Defined as the dot product of the anomalous current density
+    vector with the local poloidal unit vector. Contributions arise from turbulence-driven
+    transport processes not captured by classical or neoclassical theory.
+  documentation: 'The poloidal component of the anomalous current density is defined
+    as
+
+
+    $$j_{\mathrm{ano},\theta} = \mathbf{j}_{\mathrm{ano}} \cdot \hat{e}_{\theta}$$
+
+
+    where $\mathbf{j}_{\mathrm{ano}}$ is the anomalous (non-classical) current density
+    vector and $\hat{e}_{\theta}$ is the local poloidal unit vector directed in the
+    direction of increasing poloidal angle $\theta$ in the flux surface geometry $(\psi,
+    \theta, \phi)$.
+
+
+    The anomalous current density represents current-carrying contributions that cannot
+    be accounted for by classical resistivity or neoclassical transport theory; it
+    typically arises from turbulent fluctuations, micro-instabilities, and anomalous
+    transport processes in the edge and scrape-off-layer plasma.
+
+
+    Typical magnitudes in the edge plasma range from order $10^{-2}$ to $10^{3}$ A
+    m$^{-2}$ depending on plasma conditions, turbulence levels, and machine size.
+    The poloidal component is particularly relevant for characterizing bootstrap-like
+    and turbulence-driven current structures in the edge region.
+
+
+    In IMAS, this quantity is stored on the Generalized Grid Description (GGD) grid
+    under `edge_profiles/ggd/j_anomalous/poloidal`, with one scalar value per grid
+    element of the relevant subset.
+
+
+    Sign convention: Positive when the anomalous current flows in the direction of
+    increasing poloidal angle $\theta$ along the flux surface.'
+  unit: A.m^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:anomalous_current_density
+  - name:parallel_component_of_anomalous_current_density
+  - name:toroidal_component_of_anomalous_current_density
+  - name:radial_component_of_anomalous_current_density
+  - name:pfirsch_schlueter_current_density
+  validity_domain: ''
+  constraints: []
+  arguments:
+  - name: anomalous_current_density
+    operator: component
+    operator_kind: projection
+    axis: poloidal
+    shape: component
+  sources:
+  - id: dd:edge_profiles/ggd/j_anomalous/poloidal
+    dd_path: edge_profiles/ggd/j_anomalous/poloidal
+    status: composed
+- name: radial_component_of_anomalous_current_density
+  kind: scalar
+  status: draft
+  description: Radial projection of the anomalous (non-classical) current density,
+    quantifying cross-field current driven by turbulent or transport processes that
+    are not captured by classical collisional theory in the edge and scrape-off-layer
+    plasma.
+  documentation: "Anomalous current density arises from plasma transport mechanisms\
+    \ beyond classical collisional theory \u2014 principally turbulence-driven fluctuations,\
+    \ anomalous diffusion, and non-classical drift terms in the edge plasma. The radial\
+    \ component $j_{r,\\mathrm{anom}}$ projects the full [anomalous_current_density](name:anomalous_current_density)\
+    \ vector onto the flux-surface-normal (radial) direction, capturing cross-field\
+    \ charge transport that does not average to zero over a flux surface. In the edge\
+    \ and scrape-off layer, this component is relevant to radial electric field generation,\
+    \ $\\mathbf{E} \\times \\mathbf{B}$ flow drive, and the radial current balance\
+    \ $\\nabla \\cdot \\mathbf{j} = 0$. It is typically evaluated from fluid or gyrokinetic\
+    \ edge codes and is distinct from the neoclassical [radial_component_of_pfirsch_schlueter_current_density](name:radial_component_of_pfirsch_schlueter_current_density),\
+    \ which arises from toroidal geometry effects alone. In turbulent edge plasmas,\
+    \ typical magnitudes range from $10^{-2}$ to $10^{2}$ A m$^{-2}$ depending on\
+    \ the turbulence level and plasma regime. The complementary components of the\
+    \ same vector are [poloidal_component_of_anomalous_current_density](name:poloidal_component_of_anomalous_current_density),\
+    \ [toroidal_component_of_anomalous_current_density](name:toroidal_component_of_anomalous_current_density),\
+    \ and [parallel_component_of_anomalous_current_density](name:parallel_component_of_anomalous_current_density).\n\
+    \nSign convention: Positive when the anomalous current density component points\
+    \ in the direction of increasing major radius $R$ (outward radial direction in\
+    \ the right-handed cylindrical $(R, \\phi, Z)$ frame)."
+  unit: A.m^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:anomalous_current_density
+  - name:radial_component_of_pfirsch_schlueter_current_density
+  - name:poloidal_component_of_anomalous_current_density
+  - name:toroidal_component_of_anomalous_current_density
+  - name:parallel_component_of_anomalous_current_density
+  validity_domain: ''
+  constraints: []
+  arguments:
+  - name: anomalous_current_density
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
+  sources:
+  - id: dd:edge_profiles/ggd/j_anomalous/radial
+    dd_path: edge_profiles/ggd/j_anomalous/radial
+    status: composed
+- name: toroidal_component_of_anomalous_current_density
+  kind: scalar
+  status: draft
+  description: Projection of the anomalous (non-classical) current density onto the
+    toroidal direction $\hat{\phi}$, isolating the $\phi$-directed component of turbulence-driven
+    current not captured by classical or neoclassical transport theory.
+  documentation: "The toroidal component $J_{\\mathrm{anom},\\phi} = \\mathbf{J}_{\\\
+    mathrm{anom}} \\cdot \\hat{\\phi}$ quantifies the net charge flux in the toroidal\
+    \ direction arising from transport mechanisms \u2014 principally plasma turbulence,\
+    \ anomalous cross-field diffusion, and related non-classical processes \u2014\
+    \ that lie outside collisional resistivity, bootstrap, or Pfirsch-Schl\xFCter\
+    \ theory. Together with [poloidal_component_of_anomalous_current_density](name:poloidal_component_of_anomalous_current_density),\
+    \ [radial_component_of_anomalous_current_density](name:radial_component_of_anomalous_current_density),\
+    \ and [parallel_component_of_anomalous_current_density](name:parallel_component_of_anomalous_current_density),\
+    \ it completes the vector decomposition of [anomalous_current_density](name:anomalous_current_density)\
+    \ in the right-handed cylindrical $(R, \\phi, Z)$ frame. In tokamak edge and scrape-off-layer\
+    \ plasmas, $J_{\\mathrm{anom},\\phi}$ is typically much smaller than [toroidal_component_of_pfirsch_schlueter_current_density](name:toroidal_component_of_pfirsch_schlueter_current_density)\
+    \ under quiescent conditions, but can become significant during turbulent phases\
+    \ or in the presence of large-scale drift-wave or interchange instabilities. It\
+    \ is obtained from fluid or kinetic edge-plasma simulations (e.g., two-fluid or\
+    \ gyrofluid codes) by projecting the computed anomalous current vector onto $\\\
+    hat{\\phi}$; direct experimental measurement requires subtraction of all classical\
+    \ and neoclassical contributions from the total toroidal current density.\n\n\
+    Sign convention: Positive when $J_{\\mathrm{anom},\\phi}$ points in the direction\
+    \ of increasing toroidal angle $\\phi$."
+  unit: A.m^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:poloidal_component_of_anomalous_current_density
+  - name:radial_component_of_anomalous_current_density
+  - name:parallel_component_of_anomalous_current_density
+  - name:anomalous_current_density
+  - name:toroidal_component_of_pfirsch_schlueter_current_density
+  validity_domain: ''
+  constraints: []
+  arguments:
+  - name: anomalous_current_density
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:edge_profiles/ggd/j_anomalous/toroidal
+    dd_path: edge_profiles/ggd/j_anomalous/toroidal
+    status: composed
+- name: vertical_component_of_current_density_due_to_ion_neutral_friction
+  kind: scalar
+  status: draft
+  description: Projection of the ion-neutral friction current density onto the vertical
+    $\hat{Z}$ direction in the right-handed cylindrical $(R, \phi, Z)$ frame, quantifying
+    the $Z$-component of charge current driven by collisional momentum exchange between
+    ions and neutrals in the edge plasma.
+  documentation: "In partially ionized edge and divertor plasmas, collisional friction\
+    \ between ions and neutral particles (via charge-exchange and elastic collisions)\
+    \ generates a current density vector $\\mathbf{j}_{\\rm in}$. The vertical component\
+    \ extracts the $Z$-directed projection $j_{\\rm in,Z} = \\mathbf{j}_{\\rm in}\
+    \ \\cdot \\hat{Z}$, where $\\hat{Z}$ is the unit vector along the machine symmetry\
+    \ axis in the right-handed cylindrical $(R, \\phi, Z)$ frame with $R$ the major\
+    \ radius and $Z$ the vertical height. This component captures vertical charge\
+    \ transport driven by frictional momentum exchange and is physically relevant\
+    \ near X-points and divertor targets where strong vertical gradients and neutral\
+    \ recycling occur. It complements the [toroidal component](name:toroidal_component_of_current_density_due_to_ion_neutral_friction)\
+    \ and [parallel component](name:parallel_component_of_current_density_due_to_ion_neutral_friction)\
+    \ of the same current, together with which it fully resolves the vector [current_density_due_to_ion_neutral_friction](name:current_density_due_to_ion_neutral_friction).\
+    \ Related divergence-driven current contributions in the edge include the [Pfirsch-Schl\xFC\
+    ter current density](name:pfirsch_schlueter_current_density) and the [poloidal\
+    \ component of the current density due to parallel viscosity](name:poloidal_component_of_current_density_due_to_parallel_viscosity).\
+    \ Computed from multi-fluid or fluid-neutral edge transport codes on unstructured\
+    \ grids; magnitudes are typically in the range $10^{3}$\u2013$10^{6}$ A m$^{-2}$\
+    \ in divertor and recycling regions.\n\nSign convention: Positive when $j_{\\\
+    rm in,Z}$ points in the direction of increasing $Z$ (upward along the machine\
+    \ symmetry axis)."
+  unit: A.m^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:toroidal_component_of_current_density_due_to_ion_neutral_friction
+  - name:parallel_component_of_current_density_due_to_ion_neutral_friction
+  - name:current_density_due_to_ion_neutral_friction
+  - name:pfirsch_schlueter_current_density
+  - name:poloidal_component_of_current_density_due_to_parallel_viscosity
+  validity_domain: ''
+  constraints: []
+  arguments:
+  - name: current_density_due_to_ion_neutral_friction
+    operator: component
+    operator_kind: projection
+    axis: vertical
+    shape: component
+  sources:
+  - id: dd:edge_profiles/ggd/j_ion_neutral_friction/z
+    dd_path: edge_profiles/ggd/j_ion_neutral_friction/z
+    status: composed

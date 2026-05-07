@@ -1,55 +1,51 @@
 # Domain: fueling
-# Catalog sha: d78ec203f0f584b2a12a7020a44befccdee79a05
-# Entries: 2
+# Catalog sha: 919705936daebc3fbad9bdc4d16a60c32984c369
+# Entries: 1
 # Ordering: structural traversal
-#   (HAS_ARGUMENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
+#   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: gas_species_fraction
+- name: toroidal_component_of_shattered_pellet_velocity
   kind: scalar
   status: draft
-  description: Molecular fraction of a given species within a gas mixture used for
-    injection or neutral-beam source operation.
-  documentation: "The gas species fraction $f_s$ gives the relative number of molecules\
-    \ of species $s$ in the total gas mixture, satisfying the closure $\\sum_s f_s\
-    \ = 1$ where $f_s \\in [0,1]$. This dimensionless quantity determines the effective\
-    \ atomic mass and ionization cross-section of the injected neutrals and directly\
-    \ influences the plasma fueling efficiency and edge neutral pressure. In deuterium\u2013\
-    tritium campaigns the fraction specifies the D/T ratio; impurity seeding scenarios\
-    \ use $f_s$ to prescribe neon, nitrogen, or argon admixtures at the percent level.\
-    \ Values are set by mass-flow-controller calibration or residual gas analyzer\
-    \ measurements upstream of the valve. See also [maximum_flow_rate_of_gas_injection_valve](name:maximum_flow_rate_of_gas_injection_valve)\
-    \ for the volumetric throughput and [minimum_flow_rate_of_gas_injection_valve](name:minimum_flow_rate_of_gas_injection_valve)\
-    \ for the lower flow limit."
-  unit: '1'
-  cocos_transformation_type: one_like
-  tags:
-  - calibrated
-  - particle-balance
-  - scenario-planning
-  links: []
-  validity_domain: ''
-  constraints: []
-- name: toroidal_component_of_shattered_pellet_fragment_velocity
-  kind: vector
-  status: draft
-  description: Projection of a shattered-pellet-injection fragment's velocity vector
-    onto the toroidal direction $\hat{\phi}$.
-  documentation: The toroidal velocity component $v_{\phi,\text{frag}}$ characterizes
-    the fragment motion along the toroidal axis after a cryogenic pellet is shattered
-    at the injection guide tube exit. In shattered pellet injection (SPI) systems
-    used for disruption mitigation, fragments leave the shattering cone with a distribution
-    of velocities; $v_{\phi,\text{frag}}$ governs the toroidal spread of material
-    deposition and thus the uniformity of the resulting thermal quench radiation.
-    Fragment speeds range from $100$ to $800\;\mathrm{m\,s^{-1}}$ in current SPI designs
-    (DIII-D, JET), with the toroidal component determined by the cone half-angle and
-    injector port orientation. Measurement is performed via fast-camera stereoscopic
-    tracking or microwave-cavity time-of-flight diagnostics. See also the radial and
-    vertical counterparts for the full velocity vector reconstruction.
+  description: Projection of the shattered pellet injector (SPI) pellet center-of-mass
+    velocity onto the toroidal direction $\hat{\phi}$ in the right-handed cylindrical
+    $(R, \phi, Z)$ frame.
+  documentation: 'The toroidal velocity component $v_\phi$ quantifies how fast the
+    SPI pellet''s center-of-mass moves along the toroidal direction $\hat{\phi}$ as
+    it travels through the plasma vessel before and during the shattering event. It
+    is the $\hat{\phi}$-projection of the full velocity vector described by [shattered_pellet_velocity](name:shattered_pellet_velocity),
+    i.e. $v_\phi = \mathbf{v} \cdot \hat{\phi}$, where $\hat{\phi}$ points in the
+    direction of increasing toroidal angle $\phi$. In most SPI configurations the
+    pellet is injected with predominantly radial or vertical motion and the toroidal
+    component is small (typically $|v_\phi| \ll |v_R|$), but finite toroidal injection
+    angles are used on some devices to optimize material deposition for disruption
+    mitigation. This component is inferred from pellet-tracking diagnostics (e.g.
+    fast cameras, pellet-imaging systems) or from the known injector geometry and
+    pellet speed measured before shattering; consult [shattered_pellet_speed_before_shattering](name:shattered_pellet_speed_before_shattering)
+    for the pre-shattering speed magnitude. The complementary spatial components are
+    the major-radius component [radial_component_of_shattered_pellet_velocity](name:radial_component_of_shattered_pellet_velocity)
+    and the vertical component [vertical_component_of_shattered_pellet_fragment_cloud_velocity](name:vertical_component_of_shattered_pellet_fragment_cloud_velocity)
+    for the post-shattering fragment cloud.
+
+
+    Sign convention: Positive when $v_\phi$ points in the direction of increasing
+    toroidal angle $\phi$ (counter-clockwise when viewed from above $+\hat{Z}$).'
   unit: m.s^-1
-  tags:
-  - disruption-prediction
-  - spatial-profile
-  - transient
-  links: []
+  physics_domain: fueling
+  links:
+  - name:shattered_pellet_velocity
+  - name:shattered_pellet_speed_before_shattering
+  - name:radial_component_of_shattered_pellet_velocity
+  - name:vertical_component_of_shattered_pellet_fragment_cloud_velocity
   validity_domain: ''
   constraints: []
+  arguments:
+  - name: shattered_pellet_velocity
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:spi/injector/pellet/velocity_tor
+    dd_path: spi/injector/pellet/velocity_tor
+    status: composed
