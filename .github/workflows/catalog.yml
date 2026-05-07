@@ -59,12 +59,11 @@ jobs:
           git fetch origin gh-pages --depth=1 || echo "No gh-pages branch yet"
           VERSION="${{ steps.version.outputs.version }}"
           TAGGED="${{ steps.version.outputs.tagged }}"
-          if [[ "$TAGGED" == "true" ]]; then
-            uv run standard-names site-deploy standard_names/ \
-              --version "$VERSION" --push --set-default
-          else
-            uv run standard-names site-deploy standard_names/ \
-              --version "$VERSION" --push
+          DEPLOY_ARGS="--version $VERSION --push"
+          # Set as default version for root URL redirect
+          if [[ "$TAGGED" == "true" || "$VERSION" == "main" ]]; then
+            DEPLOY_ARGS="$DEPLOY_ARGS --set-default"
           fi
+          uv run standard-names site-deploy standard_names/ $DEPLOY_ARGS
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
