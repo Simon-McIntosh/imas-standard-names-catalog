@@ -1,5 +1,9 @@
 # IMAS Standard Names Catalog
 
+[![Catalog Site](https://github.com/Simon-McIntosh/imas-standard-names-catalog/actions/workflows/catalog.yml/badge.svg)](https://github.com/Simon-McIntosh/imas-standard-names-catalog/actions/workflows/catalog.yml)
+[![Validate](https://github.com/Simon-McIntosh/imas-standard-names-catalog/actions/workflows/validate.yml/badge.svg)](https://github.com/Simon-McIntosh/imas-standard-names-catalog/actions/workflows/validate.yml)
+[![Docs](https://img.shields.io/badge/docs-catalog%20site-blue)](https://simon-mcintosh.github.io/imas-standard-names-catalog/)
+
 YAML source files and pre-built SQLite database for IMAS Standard Names.
 
 > **Schema v2 clean break.** This catalog is regenerated from the
