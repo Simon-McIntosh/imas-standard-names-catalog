@@ -67,3 +67,17 @@ jobs:
           uv run standard-names site-deploy standard_names/ $DEPLOY_ARGS
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add root redirect
+        if: github.event_name != 'pull_request'
+        run: |
+          git fetch origin gh-pages --depth=1
+          git checkout gh-pages
+          # GitHub Pages ignores symlinks — add an HTML redirect
+          if [ ! -f index.html ]; then
+            echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=main/"></head><body><a href="main/">Redirecting...</a></body></html>' > index.html
+            git add index.html
+            git commit -m "Add root redirect to main version"
+            git push origin gh-pages
+          fi
+          git checkout main
