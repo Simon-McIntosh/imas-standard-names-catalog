@@ -1,422 +1,1182 @@
 # Domain: edge_plasma_physics
-# Catalog sha: 0b0cc91313a949ddcf6de90552a90954c93e4d5e
-# Entries: 8
+# Catalog sha: d3e506af05f33eacdd2941c510748ac9add211c1
+# Entries: 27
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: parallel_component_of_ion_state_momentum_flux
+- name: electron_number_density
   kind: scalar
   status: draft
-  description: Parallel component of the momentum flux tensor for a specific ion charge
-    state, obtained by projecting the full momentum flux onto the local magnetic field
-    direction. This quantity captures the field-aligned transport of ion momentum
-    per unit area for that charge state in the edge plasma.
-  documentation: 'The parallel component of the momentum flux tensor for a specific
-    ion charge state is defined as the projection of the momentum flux density tensor
-    $\mathbf{\Pi}_s$ of ion charge state $s$ onto the unit vector $\hat{b} = \mathbf{B}/|\mathbf{B}|$
-    along the local magnetic field:
-
-
-    $$\Pi_{\parallel,s} = \hat{b} \cdot \mathbf{\Pi}_s \cdot \hat{b} = \rho_s v_{\parallel,s}^2
-    + p_{\parallel,s}$$
-
-
-    where $\rho_s$ (kg m$^{-3}$) is the mass density of charge state $s$, $v_{\parallel,s}$
-    (m s$^{-1}$) is the parallel fluid velocity of that charge state, and $p_{\parallel,s}$
-    (Pa = kg m$^{-1}$ s$^{-2}$) is the parallel component of the (potentially anisotropic)
-    pressure tensor for that charge state. In a magnetized edge plasma, the pressure
-    tensor is generally anisotropic, so $p_{\parallel,s}$ differs from the perpendicular
-    pressure $p_{\perp,s}$; using the isotropic scalar pressure $p_s$ is only valid
-    in the limit of weak anisotropy.
-
-
-    Sign convention: Positive when the net momentum flux is directed in the direction
-    of the local magnetic field unit vector $\hat{b}$ (i.e., in the direction of increasing
-    field-line arc length along $\hat{b}$).
-
-
-    This quantity is stored as a GGD (Generalized Grid Description) scalar field at
-    the locations defined by the GGD grid subset, with one value per grid element.
-    The corresponding data dictionary path is `edge_transport/model/ggd/ion/state/momentum/flux_parallel/values`
-    in the `edge_transport` IDS.
-
-
-    Typical magnitude ranges in edge plasmas vary widely with plasma conditions: from
-    approximately $10^{-2}$ kg m$^{-1}$ s$^{-2}$ in cold, low-density divertor detachment
-    conditions up to $\sim 10^1$ kg m$^{-1}$ s$^{-2}$ in hot attached scrape-off-layer
-    plasmas. The ion charge state index distinguishes contributions from different
-    ionization states of a given ion species, enabling detailed multi-fluid transport
-    modeling.
-
-
-    The parallel momentum flux is a key quantity in edge transport models, governing
-    the parallel flow of ions along field lines toward divertor targets and playing
-    a central role in momentum balance equations that determine the plasma flow profile
-    in the scrape-off layer.'
-  unit: kg.m^-1.s^-2
+  description: Total (thermal plus non-thermal) electron number density, encompassing
+    all electron populations per unit volume.
+  documentation: "The electron number density $n_e$ is the total number of electrons\
+    \ per unit volume, summing contributions from all populations including thermal,\
+    \ suprathermal, and fast electrons. It enters the plasma pressure relation $p_e\
+    \ = n_e k_B T_e$ (where $k_B$ is Boltzmann's constant and $T_e$ is the electron\
+    \ temperature) and the quasi-neutrality condition $n_e \\approx \\sum_i Z_i n_i$,\
+    \ where $Z_i$ and $n_i$ are the charge number and number density of ion species\
+    \ $i$. Typical values span $10^{17}$\u2013$10^{20}$ m$^{-3}$ in the edge and scrape-off\
+    \ layer, dropping toward $10^{16}$ m$^{-3}$ at the far edge. Measurement methods\
+    \ include Langmuir probes, Thomson scattering, interferometry, and reflectometry.\
+    \ For the purely thermal electron contribution, see [thermal electron number density](name:thermal_electron_number_density);\
+    \ for the complementary fast electron population, see [fast electron number density](name:fast_electron_number_density).\
+    \ The total ion density summed over all species satisfies quasi-neutrality and\
+    \ is documented under [total ion number density](name:total_ion_number_density).\n\
+    \nSign convention: Positive when the electron number density is a non-negative\
+    \ count of electrons per unit volume."
+  unit: m^-3
   physics_domain: edge_plasma_physics
   links:
-  - name:parallel_component_of_ion_momentum_flux
-  - name:parallel_component_of_neutral_state_momentum_flux
-  - name:parallel_component_of_momentum_flux
+  - name:thermal_electron_number_density
+  - name:fast_electron_number_density
+  - name:total_ion_number_density
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/ggd/electrons/density/values
+    dd_path: edge_profiles/ggd/electrons/density/values
+    status: composed
+  - id: dd:edge_profiles/profiles_1d/electrons/density
+    dd_path: edge_profiles/profiles_1d/electrons/density
+    status: composed
+  - id: dd:langmuir_probes/probe/n_e
+    dd_path: langmuir_probes/probe/n_e
+    status: composed
+- name: electron_pressure
+  kind: scalar
+  status: draft
+  description: Scalar kinetic pressure of the electron population, defined as the
+    product of electron number density and electron temperature under the Maxwellian
+    assumption. Represents the isotropic thermal stress contribution of electrons
+    to the total plasma pressure.
+  documentation: "The electron pressure $p_e$ is defined by the ideal-gas relation\n\
+    \n$$p_e = n_e k_B T_e$$\n\nwhere $n_e$ is the electron number density (m$^{-3}$),\
+    \ $k_B$ is the Boltzmann constant, and $T_e$ is the electron thermodynamic temperature\
+    \ in kelvin (K). When electron temperature is expressed in electron-volts (eV),\
+    \ the relation becomes $p_e = n_e e T_e^{\\mathrm{(eV)}}$, where $e = 1.602 \\\
+    times 10^{-19}$ J eV$^{-1}$; both forms yield the same pressure in pascals.\n\n\
+    This quantity represents the isotropic part of the electron pressure tensor under\
+    \ the Maxwellian (or local thermodynamic equilibrium) assumption. It does not\
+    \ include off-diagonal viscous stress or heat-flux corrections that appear in\
+    \ extended fluid models.\n\nThe total plasma pressure is the sum of the electron\
+    \ pressure and all ion partial pressures: $p = p_e + \\sum_i p_i$. In typical\
+    \ tokamak edge plasmas the electron and ion temperatures are comparable, so $p_e$\
+    \ contributes roughly half of the total thermal pressure. In the scrape-off layer\
+    \ and divertor region, $T_e$ ranges from a few eV near the target plates to tens\
+    \ of eV at the separatrix, with $n_e$ of order $10^{18}$\u2013$10^{20}$ m$^{-3}$,\
+    \ giving $p_e$ values in the range of roughly $10^{-2}$\u2013$10^{2}$ Pa.\n\n\
+    This quantity is a non-negative scalar; it is identically zero only in the absence\
+    \ of electrons or at absolute zero temperature."
+  unit: Pa
+  physics_domain: edge_plasma_physics
+  links:
+  - name:thermal_electron_number_density
+  - name:ion_pressure
+  - name:neutral_pressure
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/ggd/electrons/pressure/values
+    dd_path: edge_profiles/ggd/electrons/pressure/values
+    status: composed
+- name: fast_electron_number_density
+  kind: scalar
+  status: draft
+  description: Number density of fast (non-thermal, suprathermal) electrons, representing
+    the population with energies significantly exceeding the local thermal energy
+    $k_B T_e$.
+  documentation: "The fast electron number density $n_{\\rm fast,e}$ quantifies the\
+    \ number of suprathermal electrons per unit volume \u2014 those whose kinetic\
+    \ energies substantially exceed the bulk Maxwellian thermal energy. Fast electrons\
+    \ arise from wave heating (electron cyclotron resonance heating), runaway electron\
+    \ generation, and beam injection. They do not participate in collisional equilibration\
+    \ on the transport timescale and must be tracked separately from the thermal population.\
+    \ The fast electron density is bounded above by the [thermal electron number density](name:thermal_electron_number_density),\
+    \ since fast electrons constitute a minority population; their fraction $n_{\\\
+    rm fast,e}/n_e^{\\rm total}$ is typically $10^{-4}$\u2013$10^{-2}$ in standard\
+    \ H-mode plasmas but can rise to order unity during off-normal events. In the\
+    \ edge and scrape-off layer, fast electron populations modify the sheath boundary\
+    \ conditions and contribute to enhanced heat fluxes. Experimental inference relies\
+    \ on hard X-ray diagnostics, non-thermal electron cyclotron emission, and kinetic\
+    \ reconstruction codes. The complement of this quantity \u2014 the thermal electron\
+    \ component \u2014 is given by [thermal_electron_number_density](name:thermal_electron_number_density),\
+    \ and the total ion counterpart is [ion_number_density](name:ion_number_density).\n\
+    \nSign convention: Positive when the fast electron population is present with\
+    \ $n_{\\rm fast,e} > 0$, as number density is a non-negative definite scalar quantity."
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:thermal_electron_number_density
+  - name:ion_number_density
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/ggd/electrons/density_fast/values
+    dd_path: edge_profiles/ggd/electrons/density_fast/values
+    status: composed
+  - id: dd:edge_profiles/profiles_1d/electrons/density_fast
+    dd_path: edge_profiles/profiles_1d/electrons/density_fast
+    status: composed
+- name: fast_ion_number_density
+  kind: scalar
+  status: draft
+  description: Number density of fast (non-thermal) ions of a given species, summed
+    over all charge states, in the edge plasma region. The fast population comprises
+    ions whose energy substantially exceeds the local thermal energy, typically arising
+    from neutral-beam injection, ion-cyclotron resonance heating, or fusion reactions.
+  documentation: 'The fast ion number density $n_\mathrm{fast,i}$ is defined as the
+    number of fast (non-thermal) ions per unit volume for a given ion species, integrated
+    over all charge states:
+
+    $$n_\mathrm{fast,i} = \sum_z n_\mathrm{fast,i,z}$$
+
+    where $n_\mathrm{fast,i,z}$ is the fast ion density for charge state $z$. The
+    total ion number density decomposes as
+
+    $$n_i = n_\mathrm{th,i} + n_\mathrm{fast,i}$$
+
+    where $n_\mathrm{th,i}$ is the thermal ion number density (`ion_number_density`
+    refers to the thermal population unless otherwise specified; consult sibling names
+    for the decomposition).
+
+
+    The criterion distinguishing fast from thermal ions is model-dependent but typically
+    requires that the ion kinetic energy exceed a threshold of order several times
+    the local thermal energy $k_B T_i$. In practice this population is generated by
+    neutral-beam injection (NBI), ion-cyclotron resonance heating (ICRH), or thermonuclear
+    alpha particles, yielding energies from tens of keV to several MeV.
+
+
+    Typical values in the edge plasma region of a tokamak range from $10^{15}$ to
+    $10^{18}\,\mathrm{m}^{-3}$, depending on heating power and confinement conditions,
+    and are substantially lower than the bulk ion density $n_i$.
+
+
+    Note on quasineutrality: $n_\mathrm{fast,i}$ is a particle number density summed
+    over charge states and does not by itself represent a charge density. To form
+    the ion charge-density contribution for the quasineutrality condition, one must
+    weight each charge-state contribution $n_\mathrm{fast,i,z}$ by the corresponding
+    charge number $z$; see `fast_ion_state_number_density` for per-charge-state data.
+
+
+    This quantity is defined on the generalized grid description (GGD) of the edge
+    plasma region, which may cover the scrape-off layer, divertor, and near-wall regions
+    in the cylindrical $(R, \phi, Z)$ frame where $R$ is the major radius, $\phi$
+    is the toroidal angle, and $Z$ is the vertical height.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:thermal_ion_number_density
+  - name:fast_electron_number_density
+  - name:fast_ion_state_number_density
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/ggd/ion/density_fast/values
+    dd_path: edge_profiles/ggd/ion/density_fast/values
+    status: composed
+  - id: dd:edge_profiles/ggd/ion/state/density_fast/values
+    dd_path: edge_profiles/ggd/ion/state/density_fast/values
+    status: composed
+  - id: dd:edge_profiles/profiles_1d/ion/density_fast
+    dd_path: edge_profiles/profiles_1d/ion/density_fast
+    status: composed
+- name: fast_ion_state_number_density
+  kind: scalar
+  status: draft
+  description: Number density of fast (non-thermal) ions of a given species in a specific
+    charge state, resolving the suprathermal population at the charge-state level
+    rather than summing over all ionization stages.
+  documentation: "The fast ion charge-state number density $n_{\\mathrm{fast},z}$\
+    \ counts suprathermal ions \u2014 those whose energy substantially exceeds the\
+    \ local thermal energy $k_B T_i$, where $T_i$ is the thermal ion temperature \u2014\
+    \ on a per-charge-state basis. Fast ions in the edge plasma arise principally\
+    \ from neutral-beam injection, ion-cyclotron resonance heating, and charge-exchange\
+    \ reactions, and their charge-state distribution reflects the local ionization\
+    \ balance and recombination rates. This quantity refines [fast_ion_number_density](name:fast_ion_number_density),\
+    \ which sums over all charge states of a species; summing $n_{\\mathrm{fast},z}$\
+    \ over all charge states $z$ recovers that species-level density. The complementary\
+    \ thermal population at the same charge-state resolution is given by [thermal_ion_state_number_density](name:thermal_ion_state_number_density),\
+    \ and the total (thermal plus fast) charge-state density is [ion_state_number_density](name:ion_state_number_density).\
+    \ In the edge and scrape-off layer, fast ion densities are orders of magnitude\
+    \ smaller than thermal densities, with typical values ranging from $10^{14}$ to\
+    \ $10^{17}$ m$^{-3}$ depending on heating power and proximity to the separatrix.\
+    \ Charge-state-resolved fast ion densities are computed by collisional-radiative\
+    \ models or Monte Carlo neutral and fast-particle transport codes.\n\nSign convention:\
+    \ Positive when the local fast ion population is finite and above zero, consistent\
+    \ with a particle count per unit volume."
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:fast_ion_number_density
+  - name:thermal_ion_state_number_density
+  - name:ion_state_number_density
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/profiles_1d/ion/state/density_fast
+    dd_path: edge_profiles/profiles_1d/ion/state/density_fast
+    status: composed
+- name: fast_neutral_number_density
+  kind: scalar
+  status: draft
+  description: Number density of fast (non-thermal) neutral particles, summed over
+    all internal quantum states, representing the suprathermal neutral population
+    whose energies significantly exceed the local thermal energy. Neutrals by definition
+    carry zero net charge; the summation is over internal excitation and spin states,
+    not charge states.
+  documentation: "The fast neutral number density $n_{\\rm fast,n}$ counts neutral\
+    \ particles whose kinetic energies lie well above the local thermal energy $E\
+    \ \\gg k_B T_e$, $k_B T_i$, and therefore cannot be described by the bulk Maxwellian\
+    \ distribution. The total neutral number density decomposes as\n\n$$n_{\\rm n}^{\\\
+    rm total} = n_{\\rm thermal,n} + n_{\\rm fast,n},$$\n\nwhere $n_{\\rm thermal,n}$\
+    \ is the density of neutrals in thermal equilibrium with the local plasma and\
+    \ $n_{\\rm fast,n}$ is the contribution from the suprathermal tail. The fast component\
+    \ is generated primarily by charge-exchange reactions between fast ions and thermal\
+    \ neutrals, by beam injection, and by energetic neutral recycling from plasma-facing\
+    \ components.\n\nThe kinetic source of $n_{\\rm fast,n}$ may be expressed as the\
+    \ integral\n\n$$n_{\\rm fast,n} = \\int_{E > E_{\\rm th}} f_n(\\mathbf{v})\\,\
+    \ d^3v,$$\n\nwhere $f_n(\\mathbf{v})$ is the neutral distribution function and\
+    \ $E_{\\rm th}$ is an energy threshold (typically a few times $k_B T_i$, often\
+    \ in the range $3\\text{\u2013}10\\,k_B T_i$, though the precise criterion is\
+    \ species- and context-dependent) separating the thermal and suprathermal populations.\n\
+    \nThe charge-exchange production rate per unit volume is\n\n$$S_{\\rm cx} = n_{\\\
+    rm fast,i}\\, n_{\\rm thermal,n}\\, \\langle \\sigma v \\rangle_{\\rm cx},$$\n\
+    \nwith units $\\rm m^{-3}\\,s^{-1}$, where $n_{\\rm fast,i}$ is the fast ion density,\
+    \ $n_{\\rm thermal,n}$ is the thermal neutral density, and $\\langle \\sigma v\
+    \ \\rangle_{\\rm cx}$ is the charge-exchange rate coefficient.\n\nTypical values\
+    \ in the plasma edge range from $10^{14}$ to $10^{18}\\,\\rm m^{-3}$, depending\
+    \ on the device, heating scenario, and proximity to neutral beam injection or\
+    \ recycling surfaces. $n_{\\rm fast,n}$ is a non-negative definite scalar quantity;\
+    \ the summation over internal quantum (excitation and spin) states of the neutral\
+    \ species is implied, consistent with the convention used for the total neutral\
+    \ density.\n\nThis quantity contributes to the total neutral density `neutral_number_density`\
+    \ and complements the fast ion density tracked by `fast_ion_number_density`."
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:thermal_neutral_number_density
+  - name:neutral_number_density
+  - name:fast_ion_number_density
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/ggd/neutral/state/density_fast/values
+    dd_path: edge_profiles/ggd/neutral/state/density_fast/values
+    status: composed
+  - id: dd:edge_profiles/profiles_1d/neutral/density_fast
+    dd_path: edge_profiles/profiles_1d/neutral/density_fast
+    status: composed
+  - id: dd:edge_profiles/profiles_1d/neutral/state/density_fast
+    dd_path: edge_profiles/profiles_1d/neutral/state/density_fast
+    status: composed
+- name: ion_number_density
+  kind: scalar
+  status: draft
+  description: Total number density of ions of a given species, summing all charge
+    states, including both thermal and non-thermal contributions. Represents the number
+    of ions per unit volume regardless of ionization state. This quantity aggregates
+    over all charge states of a single ion species; for individual charge-state densities
+    see ion_state_number_density.
+  documentation: 'The ion number density $n_i$ [m$^{-3}$] is defined as the number
+    of ions of a given species per unit volume, summed over all charge states $Z$
+    of that species:
+
+
+    $$n_i = \sum_Z n_{i,Z}$$
+
+
+    where $n_{i,Z}$ is the partial density of ions in charge state $Z$. Both thermal
+    and non-thermal (e.g., beam-injected or suprathermal) ion populations contribute.
+    No assumption of a Maxwellian velocity distribution is imposed.
+
+
+    **Species vs. charge-state aggregation:** This quantity aggregates charge states
+    of a single species. If only one charge state is relevant (e.g., fully stripped
+    impurity), the sum reduces to that single term. For multi-species plasmas, a separate
+    $n_i$ is defined per species. The total ion number density across all species
+    is the sum over all individual species densities.
+
+
+    **Typical values:** In tokamak edge and scrape-off layer plasmas, $n_i$ ranges
+    from approximately $10^{16}$ m$^{-3}$ in the far scrape-off layer to $10^{20}$
+    m$^{-3}$ near the separatrix or in the pedestal region.
+
+
+    **Physical context:** The ion number density enters the particle continuity equation
+
+
+    $$\frac{\partial n_i}{\partial t} + \nabla \cdot (n_i \mathbf{u}_i) = S_i$$
+
+
+    where $\mathbf{u}_i$ is the mean ion fluid velocity and $S_i$ [m$^{-3}$ s$^{-1}$]
+    is the net particle source (ionization minus recombination). In the edge plasma,
+    $n_i$ is also related to the plasma pressure via $p_i = n_i T_i$, where $T_i$
+    is the ion temperature in joules.
+
+
+    **Measurement context:** Ion number densities in the edge are inferred from spectroscopic
+    emission (line-integrated or Abel-inverted), Langmuir probe saturation currents,
+    or reflectometry, and from fluid or kinetic edge transport codes.
+
+
+    This quantity is a non-negative scalar; it is identically zero only in the absence
+    of ions.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:total_ion_number_density
+  - name:neutral_number_density
+  - name:ion_pressure
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/ggd/ion/density/values
+    dd_path: edge_profiles/ggd/ion/density/values
+    status: composed
+  - id: dd:edge_profiles/profiles_1d/ion/density
+    dd_path: edge_profiles/profiles_1d/ion/density
+    status: composed
+- name: ion_pressure
+  kind: scalar
+  status: draft
+  description: Thermal pressure of an ion species, defined as the product of ion number
+    density and temperature under the assumption of a locally Maxwellian velocity
+    distribution. May be resolved by charge state when the ion population occupies
+    a distinct ionization stage with a well-defined temperature.
+  documentation: 'The ion pressure $p_i$ is the isotropic scalar thermal pressure
+    exerted by an ion species (or charge-state-resolved sub-population) in the edge
+    plasma, defined by the equation of state
+
+
+    $$p_i = n_i k_B T_i,$$
+
+
+    where $n_i$ is the ion number density (m$^{-3}$), $k_B$ is the Boltzmann constant,
+    and $T_i$ is the ion temperature expressed in kelvin (or equivalently in electron-volts
+    when $k_B T_i$ is written in eV). This relation assumes the ions are in a locally
+    Maxwellian state and that the pressure tensor reduces to an isotropic scalar;
+    in strongly non-Maxwellian or anisotropic regimes the full pressure tensor may
+    be required.
+
+
+    When the quantity is resolved by charge state, $T_i$ refers to the temperature
+    attributed to that specific ionization stage. Because different charge states
+    need not relax to a common temperature on short time scales in the edge and divertor,
+    such a charge-state temperature should be understood as an effective Maxwellian
+    temperature for that sub-population, not necessarily a rigorously equilibrated
+    thermodynamic quantity.
+
+
+    The total thermal ion pressure of a multi-species plasma is obtained by summing
+    $p_i$ over all species and charge states. Ion pressure is a primary driver of
+    parallel momentum balance along magnetic field lines, governs cross-field pressure-gradient
+    transport, and sets the sheath entrance boundary condition in divertor modeling.
+    In the edge and scrape-off layer it can depart substantially from the electron
+    pressure due to charge-exchange losses and strong ion-neutral coupling.
+
+
+    Typical values range from approximately $10^{-2}$ Pa in the far scrape-off layer
+    to $\sim 10^{3}$ Pa near the separatrix of a medium-to-large tokamak. Ion pressure
+    is inferred experimentally from Langmuir probe data combined with spectroscopic
+    ion-temperature estimates, or extracted directly from fluid and gyrofluid simulation
+    outputs.'
+  unit: Pa
+  physics_domain: edge_plasma_physics
+  links:
+  - name:ion_number_density
+  - name:electron_pressure
+  - name:neutral_pressure
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/ggd/ion/pressure/values
+    dd_path: edge_profiles/ggd/ion/pressure/values
+    status: composed
+  - id: dd:edge_profiles/ggd/ion/state/pressure/values
+    dd_path: edge_profiles/ggd/ion/state/pressure/values
+    status: composed
+- name: neutral_number_density
+  kind: scalar
+  status: draft
+  description: Total number density of neutral particles, summing over all quantum
+    and excitation states (thermal plus non-thermal populations) when multiple states
+    are considered. Neutrals by definition carry zero net charge; the summation is
+    over internal quantum states, not charge states. This quantity represents the
+    total neutral particle inventory per unit volume.
+  documentation: 'The total neutral number density $n_0$ is defined as the sum of
+    partial densities over all quantum and excitation states $k$:
+
+
+    $$n_0 = \sum_k n_{0,k}$$
+
+
+    where $n_{0,k}$ is the number density of neutrals in quantum state $k$ (ground
+    state, excited states, etc.). The sum also encompasses both thermal and non-thermal
+    (fast or charge-exchange) neutral populations. By definition, neutrals carry zero
+    net charge; the index $k$ refers to internal quantum or excitation states, not
+    to ionization charge states.
+
+
+    $n_0$ is a non-negative definite quantity (units: m$^{-3}$).
+
+
+    **Physical context.** Neutrals play a central role in edge plasma physics. They
+    govern the particle and energy source terms for the plasma through ionization,
+    charge-exchange, and recombination processes. The local ionization source $S_\mathrm{ion}$
+    is proportional to $n_0 n_e \langle \sigma v \rangle_\mathrm{ion}$, where $n_e$
+    is the electron density and $\langle \sigma v \rangle_\mathrm{ion}$ is the rate
+    coefficient. High neutral densities near the divertor target or limiter are essential
+    for plasma detachment and power exhaust control.
+
+
+    **Typical values.** In the far scrape-off layer and divertor private flux region,
+    $n_0$ may range from $10^{17}$ to $10^{20}$ m$^{-3}$. In the core plasma, neutral
+    penetration is limited and $n_0$ drops below $10^{14}$ m$^{-3}$. Near detached
+    divertor targets, $n_0$ can approach or exceed $10^{20}$ m$^{-3}$.
+
+
+    **Decomposition.** This total density is the sum of the thermal neutral component
+    (tracked by `thermal_neutral_number_density`) and the fast or non-thermal component
+    (tracked by `fast_neutral_number_density`). State-resolved contributions are tracked
+    by `neutral_state_number_density`.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:ion_number_density
+  - name:neutral_pressure
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/ggd/neutral/density/values
+    dd_path: edge_profiles/ggd/neutral/density/values
+    status: composed
+  - id: dd:edge_profiles/ggd/neutral/state/density/values
+    dd_path: edge_profiles/ggd/neutral/state/density/values
+    status: composed
+  - id: dd:edge_profiles/profiles_1d/neutral/density
+    dd_path: edge_profiles/profiles_1d/neutral/density
+    status: composed
+- name: parallel_component_of_neutral_momentum_diffusivity
+  kind: scalar
+  status: draft
+  description: Parallel component of the effective momentum diffusivity tensor for
+    the aggregate neutral particle population, projected onto the direction parallel
+    to the local magnetic field. Although neutrals are not magnetically confined,
+    the parallel projection provides a geometrically consistent decomposition of the
+    diffusivity tensor alongside its poloidal and toroidal counterparts.
+  documentation: "The parallel neutral momentum diffusivity, $D_{\\parallel}^{\\mathrm{n}}$,\
+    \ is defined as the $(\\hat{b}, \\hat{b})$ projection of the rank-2 effective\
+    \ diffusivity tensor $\\mathsf{D}^{\\mathrm{n}}$ that appears in the Fickian momentum-transport\
+    \ closure\n\n$$\\boldsymbol{\\Pi}^{\\mathrm{n}} = -\\rho^{\\mathrm{n}}\\,\\mathsf{D}^{\\\
+    mathrm{n}} \\cdot \\nabla \\mathbf{u}^{\\mathrm{n}},$$\n\nwhere $\\rho^{\\mathrm{n}}$\
+    \ is the neutral mass density, $\\mathbf{u}^{\\mathrm{n}}$ is the neutral bulk-flow\
+    \ velocity, and $\\hat{b} = \\mathbf{B}/|\\mathbf{B}|$ is the unit vector along\
+    \ the local magnetic field. The projected scalar is\n\n$$D_{\\parallel}^{\\mathrm{n}}\
+    \ = \\hat{b} \\cdot \\mathsf{D}^{\\mathrm{n}} \\cdot \\hat{b}.$$\n\nThis projection\
+    \ is purely geometric: neutrals are not directly governed by the Lorentz force,\
+    \ yet expressing the diffusivity tensor in the field-aligned basis $(\\hat{b},\\\
+    ,\\hat{e}_{\\mathrm{pol}},\\,\\hat{e}_{\\mathrm{tor}})$ provides a decomposition\
+    \ that is physically consistent and directly comparable with the corresponding\
+    \ ion-momentum diffusivities in the same basis.\n\nBecause neutrals are not magnetized,\
+    \ $D_{\\parallel}^{\\mathrm{n}}$ is not subject to the strong magnetic suppression\
+    \ that makes the perpendicular ion diffusivity orders of magnitude smaller than\
+    \ the parallel one. Instead, $D_{\\parallel}^{\\mathrm{n}}$ is governed by neutral\
+    \ mean-free-path physics, principally charge-exchange collisions between neutrals\
+    \ and ions and elastic neutral\u2013neutral scattering. Typical values encountered\
+    \ in edge-plasma transport models range from $\\sim 10$ to $\\sim 10^{4}\\,\\\
+    mathrm{m^{2}\\,s^{-1}}$, with the upper end corresponding to low-density or weakly\
+    \ collisional edge conditions.\n\nThis quantity applies to the aggregate neutral\
+    \ population summed over all internal (electronic and vibrational) states. The\
+    \ full field-aligned decomposition of neutral momentum transport is completed\
+    \ by the poloidal component $D_{\\mathrm{pol}}^{\\mathrm{n}}$ and the toroidal\
+    \ component $D_{\\mathrm{tor}}^{\\mathrm{n}}$, available as separate standard\
+    \ names. For the state-resolved parallel ion counterpart see `parallel_component_of_ion_state_momentum_diffusivity`."
+  unit: m^2.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:parallel_component_of_ion_state_momentum_diffusivity
+  - name:neutral_momentum_diffusivity
+  - name:neutral_particle_diffusivity
   constraints: []
   arguments:
-  - name: ion_state_momentum_flux
+  - name: neutral_momentum_diffusivity
     operator: component
     operator_kind: projection
     axis: parallel
     shape: component
   sources:
-  - id: dd:edge_transport/model/ggd/ion/state/momentum/flux_parallel/values
-    dd_path: edge_transport/model/ggd/ion/state/momentum/flux_parallel/values
+  - id: dd:edge_transport/model/ggd/neutral/state/momentum/d/parallel
+    dd_path: edge_transport/model/ggd/neutral/state/momentum/d/parallel
     status: composed
-- name: parallel_component_of_neutral_momentum_flux
+- name: parallel_component_of_neutral_momentum_flux_limiter
   kind: scalar
   status: draft
-  description: Field-aligned component of the momentum flux carried by neutral particles
-    in the edge plasma, summed over all neutral species. Includes both convective
-    (ram pressure) and kinetic pressure contributions along the magnetic field direction.
-    Sourced from the edge_transport IDS at edge_transport/model/ggd/neutral/momentum/flux_parallel/values.
-  documentation: 'The parallel neutral momentum flux $\Pi_{\parallel,\mathrm{n}}$
-    is the projection of the neutral-species momentum flux tensor onto the local magnetic
-    field direction $\hat{b} = \mathbf{B}/|\mathbf{B}|$. It is defined as the sum
-    over all neutral species $s$:
+  description: Dimensionless flux limiter coefficient for the field-aligned component
+    of neutral particle momentum transport in edge plasma simulations. This scalar
+    blends between low-order and high-order reconstructed convective neutral momentum
+    fluxes along the magnetic field direction, taking values in the range [0, 1].
+  documentation: 'The parallel component of the neutral momentum flux limiter, $\alpha_{\parallel}$,
+    is the field-aligned projection of the limiter vector associated with neutral
+    particle momentum transport. In edge plasma transport codes, a flux limiter controls
+    the numerical reconstruction of the convective momentum flux: the effective parallel
+    neutral momentum flux is written as
+
+    $$\mathcal{F}_{\parallel} = \mathcal{F}_{\parallel}^{\rm lo} + \alpha_{\parallel}\bigl(\mathcal{F}_{\parallel}^{\rm
+    hi} - \mathcal{F}_{\parallel}^{\rm lo}\bigr),$$
+
+    where $\mathcal{F}_{\parallel}^{\rm lo}$ is the low-order (diffusive, first-order
+    upwind) reconstruction and $\mathcal{F}_{\parallel}^{\rm hi}$ is the high-order
+    reconstruction of the parallel neutral momentum flux. The limiter value $\alpha_{\parallel}
+    \in [0,1]$ blends between these two reconstructions: $\alpha_{\parallel} = 0$
+    selects the low-order scheme and $\alpha_{\parallel} = 1$ selects the high-order
+    scheme. This formulation is consistent with the defining convention of [neutral_momentum_flux_limiter](name:neutral_momentum_flux_limiter)
+    and its sibling components.
 
 
-    $$\Pi_{\parallel,\mathrm{n}} = \sum_s \left( m_s n_s v_{\parallel,s}^2 + p_s \right)$$
-
-
-    where $m_s$ is the species mass (kg), $n_s$ is the number density (m$^{-3}$),
-    $v_{\parallel,s} = \mathbf{v}_s \cdot \hat{b}$ is the field-aligned flow velocity
-    (m s$^{-1}$), and $p_s$ is the scalar (isotropic) pressure of species $s$ (Pa
-    = kg m$^{-1}$ s$^{-2}$). Because neutrals carry no net charge, each species $s$
-    here refers to a distinct neutral atom or molecule type, not a charge state; the
-    phrase "neutral charge states" does not apply. The pressure term $p_s$ is taken
-    as the scalar isotropic pressure, which is appropriate for neutral particles in
-    the collisional edge plasma where velocity distributions are approximately Maxwellian.
-
-
-    The quantity is defined on a General Grid Description (GGD) subset of the computational
-    mesh inside the edge_transport IDS (path: `edge_transport/model/ggd/neutral/momentum/flux_parallel/values`).
-    One scalar value is provided per mesh element in the relevant grid subset.
-
-
-    Sign convention: Positive when the net momentum flux is directed along the direction
-    of the magnetic field $\mathbf{B}$ (i.e., in the direction of increasing arc length
-    along field lines from low to high toroidal angle $\phi$ in the right-handed cylindrical
-    $(R, \phi, Z)$ frame).
-
-
-    Typical magnitudes in the edge plasma range from $\sim 10^{-2}$ to $\sim 10^{2}$
-    kg m$^{-1}$ s$^{-2}$ depending on neutral density, species (hydrogen isotopes,
-    helium, impurities), and plasma conditions (attached vs.~detached divertor regimes).
-    Near the divertor target in high-recycling conditions, neutral ram pressure can
-    approach or exceed ion parallel momentum flux, making this quantity important
-    for momentum balance in detachment modeling.
-
-
-    This quantity appears in the neutral fluid momentum equation and is used in edge
-    transport codes (e.g., SOLPS-ITER, EDGE2D-EIRENE) to close the parallel momentum
-    balance for the neutral fluid. It is distinct from the total (ion + neutral) parallel
-    momentum flux and from the parallel ion momentum flux.'
-  unit: kg.m^-1.s^-2
+    The field-aligned direction is physically significant in magnetized edge plasmas
+    because neutral momentum transport along the magnetic field is kinematically decoupled
+    from the cross-field directions. The parallel limiter is therefore independently
+    specified from the [poloidal_component_of_neutral_momentum_flux_limiter](name:poloidal_component_of_neutral_momentum_flux_limiter),
+    [toroidal_component_of_neutral_momentum_flux_limiter](name:toroidal_component_of_neutral_momentum_flux_limiter),
+    and [radial_component_of_neutral_momentum_flux_limiter](name:radial_component_of_neutral_momentum_flux_limiter)
+    components, each controlling the accuracy and stability of the numerical flux
+    in its respective direction. Typical values span the full range $[0, 1]$ for all
+    physically valid configurations.'
+  unit: '1'
   physics_domain: edge_plasma_physics
   links:
-  - name:parallel_component_of_neutral_state_momentum_flux
-  - name:parallel_component_of_ion_momentum_flux
-  - name:parallel_component_of_momentum_flux
-  - name:neutral_momentum_flux
+  - name:neutral_momentum_flux_limiter
+  - name:poloidal_component_of_neutral_momentum_flux_limiter
+  - name:toroidal_component_of_neutral_momentum_flux_limiter
+  - name:radial_component_of_neutral_momentum_flux_limiter
   constraints: []
   arguments:
-  - name: neutral_momentum_flux
+  - name: neutral_momentum_flux_limiter
     operator: component
     operator_kind: projection
     axis: parallel
     shape: component
   sources:
-  - id: dd:edge_transport/model/ggd/neutral/momentum/flux_parallel/values
-    dd_path: edge_transport/model/ggd/neutral/momentum/flux_parallel/values
+  - id: dd:edge_transport/model/ggd/neutral/momentum/flux_limiter/parallel
+    dd_path: edge_transport/model/ggd/neutral/momentum/flux_limiter/parallel
     status: composed
-- name: parallel_component_of_neutral_state_momentum_flux
+- name: radial_component_of_e_cross_b_drift_velocity
   kind: scalar
   status: draft
-  description: Projection of the momentum flux tensor for a kinetically resolved neutral
-    charge state onto the local magnetic field direction, quantifying field-aligned
-    neutral momentum transport in the edge plasma.
-  documentation: "The parallel component of the neutral-state momentum flux $\\Pi_{\\\
-    parallel,ns}$ represents the rate of momentum transport per unit area carried\
-    \ by a specific neutral charge state (e.g., a particular ionization stage of a\
-    \ hydrogen or impurity neutral) along the direction of the local magnetic field\
-    \ $\\hat{b}$. It is defined as $\\Pi_{\\parallel,ns} = \\hat{b} \\cdot \\overleftrightarrow{\\\
-    Pi}_{ns} \\cdot \\hat{b}$, where $\\overleftrightarrow{\\Pi}_{ns} = m_{ns} n_{ns}\
-    \ \\mathbf{v}_{ns} \\mathbf{v}_{ns} + p_{ns} \\overleftrightarrow{I}$ is the momentum\
-    \ flux tensor of the resolved neutral state, $m_{ns}$ is the particle mass, $n_{ns}$\
-    \ is the number density, $\\mathbf{v}_{ns}$ is the fluid velocity, and $p_{ns}$\
-    \ is the partial pressure. Resolving individual neutral charge states rather than\
-    \ the aggregate neutral population\u2014as in [parallel_component_of_neutral_momentum_flux](name:parallel_component_of_neutral_momentum_flux)\u2014\
-    enables state-specific collisional source terms and charge-exchange rates to be\
-    \ evaluated accurately in multi-fluid edge codes. This quantity is the neutral-state\
-    \ analog of [parallel_component_of_ion_state_momentum_flux](name:parallel_component_of_ion_state_momentum_flux),\
-    \ and both are typically computed by fluid or kinetic-fluid edge transport codes\
-    \ (e.g., Monte Carlo neutral solvers coupled to fluid plasma models) operating\
-    \ on the unstructured GGD mesh. The parent tensor quantity is [neutral_state_momentum_flux](name:neutral_state_momentum_flux),\
-    \ while the species-aggregated parallel limit is [parallel_component_of_momentum_flux](name:parallel_component_of_momentum_flux).\
-    \ Typical magnitudes in the divertor region range from $10^{1}$ to $10^{4}$ kg\
-    \ m$^{-1}$ s$^{-2}$, depending on neutral density and temperature."
-  unit: kg.m^-1.s^-2
+  description: "Major-radius ($R$) component of the E\xD7B drift velocity, arising\
+    \ from the cross product of the electric field and magnetic field divided by the\
+    \ squared magnetic field magnitude."
+  documentation: "The E\xD7B drift velocity is a fundamental plasma drift given by\
+    \ $\\mathbf{v}_{E\\times B} = (\\mathbf{E} \\times \\mathbf{B}) / B^2$, where\
+    \ $\\mathbf{E}$ is the electric field and $\\mathbf{B}$ is the magnetic field.\
+    \ This quantity is the projection of that drift onto the major-radius direction\
+    \ $\\hat{R}$ in the right-handed cylindrical $(R, \\phi, Z)$ frame, yielding $v_{E\\\
+    times B,R} = (\\mathbf{v}_{E\\times B}) \\cdot \\hat{R}$. Unlike species-dependent\
+    \ drifts such as the [ion diamagnetic drift](name:radial_component_of_ion_diamagnetic_drift_velocity),\
+    \ the E\xD7B drift is identical for all charged species and for neutral particles\
+    \ advected by it, making it a key driver of cross-field transport in the edge\
+    \ plasma. In the edge and scrape-off layer, the radial E\xD7B velocity can reach\
+    \ tens to hundreds of m/s, contributing significantly to radial particle and heat\
+    \ transport. It is commonly inferred from plasma potential profiles measured by\
+    \ Langmuir probes or beam emission spectroscopy combined with magnetic equilibrium\
+    \ data. The parent vector quantity is [e_cross_b_drift_velocity](name:e_cross_b_drift_velocity),\
+    \ and the radial neutral bulk flow [radial_component_of_neutral_velocity](name:radial_component_of_neutral_velocity)\
+    \ may include this drift as a component.\n\nSign convention: Positive when the\
+    \ E\xD7B drift is directed toward increasing major radius $R$ (outward radially\
+    \ in the cylindrical $(R, \\phi, Z)$ frame)."
+  unit: m.s^-1
   physics_domain: edge_plasma_physics
   links:
-  - name:parallel_component_of_neutral_momentum_flux
-  - name:parallel_component_of_ion_state_momentum_flux
-  - name:neutral_state_momentum_flux
-  - name:parallel_component_of_momentum_flux
+  - name:radial_component_of_ion_diamagnetic_drift_velocity
+  - name:e_cross_b_drift_velocity
+  - name:radial_component_of_neutral_velocity
   constraints: []
   arguments:
-  - name: neutral_state_momentum_flux
-    operator: component
-    operator_kind: projection
-    axis: parallel
-    shape: component
-  sources:
-  - id: dd:edge_transport/model/ggd/neutral/state/momentum/flux_parallel/values
-    dd_path: edge_transport/model/ggd/neutral/state/momentum/flux_parallel/values
-    status: composed
-- name: parallel_component_of_total_momentum_flux
-  kind: scalar
-  status: draft
-  description: Parallel (field-aligned) component of the total plasma momentum flux,
-    summing contributions from all carrier species including ions and neutrals, representing
-    the net field-aligned rate of momentum transport per unit area across surfaces
-    in the edge plasma.
-  documentation: The parallel component of the total momentum flux is the projection
-    of the combined plasma momentum flux tensor onto the local magnetic field direction
-    $\hat{b} = \mathbf{B}/|\mathbf{B}|$. For a multi-species plasma it is defined
-    as $\Pi_\parallel = \hat{b} \cdot \left(\sum_s \mathbf{\Pi}_s\right) \cdot \hat{b}$,
-    where $\mathbf{\Pi}_s = m_s n_s \mathbf{v}_s \mathbf{v}_s + p_s \mathbf{I}$ is
-    the momentum flux tensor for species $s$ (with $m_s$ the particle mass, $n_s$
-    the number density, $\mathbf{v}_s$ the fluid velocity, and $p_s$ the scalar pressure),
-    summed over all ion charge states and neutral populations. This aggregate quantity
-    differs from [parallel_component_of_ion_state_momentum_flux](name:parallel_component_of_ion_state_momentum_flux)
-    and [parallel_component_of_neutral_momentum_flux](name:parallel_component_of_neutral_momentum_flux),
-    which resolve individual carriers; it also differs from [parallel_component_of_momentum_flux](name:parallel_component_of_momentum_flux),
-    which may exclude certain neutral contributions depending on the model closure.
-    In edge transport simulations the parallel momentum flux governs the flow of momentum
-    along open field lines toward material surfaces and sets the parallel flow velocity
-    boundary condition at the divertor target. Typical magnitudes in the scrape-off
-    layer range from $10^2$ to $10^4\,\text{kg}\,\text{m}^{-1}\,\text{s}^{-2}$ depending
-    on upstream density, temperature, and plasma-facing-component geometry. The quantity
-    is evaluated on the GGD unstructured edge grid, with one value per grid element
-    in the relevant grid subset. Related vector-form quantities are given by [momentum_flux](name:momentum_flux),
-    and the vertical projection is captured by [vertical_component_of_momentum_flux](name:vertical_component_of_momentum_flux).
-  unit: kg.m^-1.s^-2
-  physics_domain: edge_plasma_physics
-  links:
-  - name:parallel_component_of_ion_state_momentum_flux
-  - name:parallel_component_of_neutral_momentum_flux
-  - name:parallel_component_of_momentum_flux
-  - name:momentum_flux
-  - name:vertical_component_of_momentum_flux
-  constraints: []
-  arguments:
-  - name: total_momentum_flux
-    operator: component
-    operator_kind: projection
-    axis: parallel
-    shape: component
-  sources:
-  - id: dd:edge_transport/model/ggd/momentum/flux_parallel/values
-    dd_path: edge_transport/model/ggd/momentum/flux_parallel/values
-    status: composed
-- name: poloidal_component_of_anomalous_current_density
-  kind: scalar
-  status: draft
-  description: Poloidal projection of the anomalous (non-classical) current density
-    in the edge plasma. Defined as the dot product of the anomalous current density
-    vector with the local poloidal unit vector. Contributions arise from turbulence-driven
-    transport processes not captured by classical or neoclassical theory.
-  documentation: 'The poloidal component of the anomalous current density is defined
-    as
-
-
-    $$j_{\mathrm{ano},\theta} = \mathbf{j}_{\mathrm{ano}} \cdot \hat{e}_{\theta}$$
-
-
-    where $\mathbf{j}_{\mathrm{ano}}$ is the anomalous (non-classical) current density
-    vector and $\hat{e}_{\theta}$ is the local poloidal unit vector directed in the
-    direction of increasing poloidal angle $\theta$ in the flux surface geometry $(\psi,
-    \theta, \phi)$.
-
-
-    The anomalous current density represents current-carrying contributions that cannot
-    be accounted for by classical resistivity or neoclassical transport theory; it
-    typically arises from turbulent fluctuations, micro-instabilities, and anomalous
-    transport processes in the edge and scrape-off-layer plasma.
-
-
-    Typical magnitudes in the edge plasma range from order $10^{-2}$ to $10^{3}$ A
-    m$^{-2}$ depending on plasma conditions, turbulence levels, and machine size.
-    The poloidal component is particularly relevant for characterizing bootstrap-like
-    and turbulence-driven current structures in the edge region.
-
-
-    In IMAS, this quantity is stored on the Generalized Grid Description (GGD) grid
-    under `edge_profiles/ggd/j_anomalous/poloidal`, with one scalar value per grid
-    element of the relevant subset.
-
-
-    Sign convention: Positive when the anomalous current flows in the direction of
-    increasing poloidal angle $\theta$ along the flux surface.'
-  unit: A.m^-2
-  physics_domain: edge_plasma_physics
-  links:
-  - name:anomalous_current_density
-  - name:parallel_component_of_anomalous_current_density
-  - name:toroidal_component_of_anomalous_current_density
-  - name:radial_component_of_anomalous_current_density
-  - name:pfirsch_schlueter_current_density
-  constraints: []
-  arguments:
-  - name: anomalous_current_density
-    operator: component
-    operator_kind: projection
-    axis: poloidal
-    shape: component
-  sources:
-  - id: dd:edge_profiles/ggd/j_anomalous/poloidal
-    dd_path: edge_profiles/ggd/j_anomalous/poloidal
-    status: composed
-- name: radial_component_of_anomalous_current_density
-  kind: scalar
-  status: draft
-  description: Radial projection of the anomalous (non-classical) current density,
-    quantifying cross-field current driven by turbulent or transport processes that
-    are not captured by classical collisional theory in the edge and scrape-off-layer
-    plasma.
-  documentation: "Anomalous current density arises from plasma transport mechanisms\
-    \ beyond classical collisional theory \u2014 principally turbulence-driven fluctuations,\
-    \ anomalous diffusion, and non-classical drift terms in the edge plasma. The radial\
-    \ component $j_{r,\\mathrm{anom}}$ projects the full [anomalous_current_density](name:anomalous_current_density)\
-    \ vector onto the flux-surface-normal (radial) direction, capturing cross-field\
-    \ charge transport that does not average to zero over a flux surface. In the edge\
-    \ and scrape-off layer, this component is relevant to radial electric field generation,\
-    \ $\\mathbf{E} \\times \\mathbf{B}$ flow drive, and the radial current balance\
-    \ $\\nabla \\cdot \\mathbf{j} = 0$. It is typically evaluated from fluid or gyrokinetic\
-    \ edge codes and is distinct from the neoclassical [radial_component_of_pfirsch_schlueter_current_density](name:radial_component_of_pfirsch_schlueter_current_density),\
-    \ which arises from toroidal geometry effects alone. In turbulent edge plasmas,\
-    \ typical magnitudes range from $10^{-2}$ to $10^{2}$ A m$^{-2}$ depending on\
-    \ the turbulence level and plasma regime. The complementary components of the\
-    \ same vector are [poloidal_component_of_anomalous_current_density](name:poloidal_component_of_anomalous_current_density),\
-    \ [toroidal_component_of_anomalous_current_density](name:toroidal_component_of_anomalous_current_density),\
-    \ and [parallel_component_of_anomalous_current_density](name:parallel_component_of_anomalous_current_density).\n\
-    \nSign convention: Positive when the anomalous current density component points\
-    \ in the direction of increasing major radius $R$ (outward radial direction in\
-    \ the right-handed cylindrical $(R, \\phi, Z)$ frame)."
-  unit: A.m^-2
-  physics_domain: edge_plasma_physics
-  links:
-  - name:anomalous_current_density
-  - name:radial_component_of_pfirsch_schlueter_current_density
-  - name:poloidal_component_of_anomalous_current_density
-  - name:toroidal_component_of_anomalous_current_density
-  - name:parallel_component_of_anomalous_current_density
-  constraints: []
-  arguments:
-  - name: anomalous_current_density
+  - name: e_cross_b_drift_velocity
     operator: component
     operator_kind: projection
     axis: radial
     shape: component
   sources:
-  - id: dd:edge_profiles/ggd/j_anomalous/radial
-    dd_path: edge_profiles/ggd/j_anomalous/radial
+  - id: dd:edge_profiles/ggd/neutral/state/velocity_exb/r
+    dd_path: edge_profiles/ggd/neutral/state/velocity_exb/r
     status: composed
-- name: toroidal_component_of_anomalous_current_density
+- name: radial_component_of_ion_diamagnetic_drift_velocity
   kind: scalar
   status: draft
-  description: Projection of the anomalous (non-classical) current density onto the
-    toroidal direction $\hat{\phi}$, isolating the $\phi$-directed component of turbulence-driven
-    current not captured by classical or neoclassical transport theory.
-  documentation: "The toroidal component $J_{\\mathrm{anom},\\phi} = \\mathbf{J}_{\\\
-    mathrm{anom}} \\cdot \\hat{\\phi}$ quantifies the net charge flux in the toroidal\
-    \ direction arising from transport mechanisms \u2014 principally plasma turbulence,\
-    \ anomalous cross-field diffusion, and related non-classical processes \u2014\
-    \ that lie outside collisional resistivity, bootstrap, or Pfirsch-Schl\xFCter\
-    \ theory. Together with [poloidal_component_of_anomalous_current_density](name:poloidal_component_of_anomalous_current_density),\
-    \ [radial_component_of_anomalous_current_density](name:radial_component_of_anomalous_current_density),\
-    \ and [parallel_component_of_anomalous_current_density](name:parallel_component_of_anomalous_current_density),\
-    \ it completes the vector decomposition of [anomalous_current_density](name:anomalous_current_density)\
-    \ in the right-handed cylindrical $(R, \\phi, Z)$ frame. In tokamak edge and scrape-off-layer\
-    \ plasmas, $J_{\\mathrm{anom},\\phi}$ is typically much smaller than [toroidal_component_of_pfirsch_schlueter_current_density](name:toroidal_component_of_pfirsch_schlueter_current_density)\
-    \ under quiescent conditions, but can become significant during turbulent phases\
-    \ or in the presence of large-scale drift-wave or interchange instabilities. It\
-    \ is obtained from fluid or kinetic edge-plasma simulations (e.g., two-fluid or\
-    \ gyrofluid codes) by projecting the computed anomalous current vector onto $\\\
-    hat{\\phi}$; direct experimental measurement requires subtraction of all classical\
-    \ and neoclassical contributions from the total toroidal current density.\n\n\
-    Sign convention: Positive when $J_{\\mathrm{anom},\\phi}$ points in the direction\
-    \ of increasing toroidal angle $\\phi$."
-  unit: A.m^-2
+  description: Major-radius component of the ion diamagnetic drift velocity, arising
+    from the ion pressure gradient crossed with the magnetic field that drives cross-field
+    ion flow in magnetized edge plasmas. This drift is a fluid effect emerging from
+    the finite ion Larmor radius in an inhomogeneous pressure field, and is distinct
+    from curvature and grad-B drifts.
+  documentation: "The ion diamagnetic drift velocity is defined as\n\n$$\\mathbf{v}_{d,i}\
+    \ = -\\frac{\\nabla p_i \\times \\mathbf{B}}{q_i n_i B^2}$$\n\nwhere $p_i = n_i\
+    \ T_i$ is the ion pressure, $\\mathbf{B}$ is the magnetic field vector, $q_i$\
+    \ is the ion charge, $n_i$ is the ion number density, and $B = |\\mathbf{B}|$.\
+    \ This quantity is the projection of $\\mathbf{v}_{d,i}$ onto the major-radius\
+    \ direction $\\hat{R}$ in the right-handed cylindrical $(R, \\phi, Z)$ frame:\n\
+    \n$$v_{d,i,R} = \\mathbf{v}_{d,i} \\cdot \\hat{R}$$\n\nwhere $R$ is the major\
+    \ radius measured from the machine symmetry axis. The diamagnetic drift is a fluid\
+    \ drift arising purely from the ion pressure gradient; it is distinct from the\
+    \ curvature drift and the grad-$B$ drift, which stem from the magnetic field geometry.\
+    \ In the guiding-center picture the diamagnetic drift does not represent net particle\
+    \ transport by individual guiding centers, but it does contribute to the macroscopic\
+    \ fluid momentum and to cross-field transport of energy and particles in edge-plasma\
+    \ fluid models.\n\nThe $R$-component is particularly relevant in the scrape-off\
+    \ layer and near separatrix regions where radial pressure gradients are steep.\
+    \ Typical magnitudes in the edge region of a medium-sized tokamak lie in the range\
+    \ $10^2$\u2013$10^4$ m s$^{-1}$, with larger values occurring in high-confinement\
+    \ (H-mode) pedestals where $|\\nabla p_i|$ is large.\n\nSign convention: Positive\
+    \ when the drift velocity is directed in the direction of increasing major radius\
+    \ $R$ (outward from the magnetic axis toward the vessel wall).\n\nThis quantity\
+    \ is the $R$-component of the full ion diamagnetic drift vector. The analogous\
+    \ electron quantity uses $\\nabla p_e$ and electron charge. In edge-plasma fluid\
+    \ codes this drift enters the ion momentum equation as a pressure-gradient-driven\
+    \ flow term."
+  unit: m.s^-1
   physics_domain: edge_plasma_physics
   links:
-  - name:poloidal_component_of_anomalous_current_density
-  - name:radial_component_of_anomalous_current_density
-  - name:parallel_component_of_anomalous_current_density
-  - name:anomalous_current_density
-  - name:toroidal_component_of_pfirsch_schlueter_current_density
+  - name:ion_diamagnetic_drift_velocity
+  - name:radial_component_of_e_cross_b_drift_velocity
+  - name:ion_momentum_diffusivity_due_to_diamagnetic_drift
   constraints: []
   arguments:
-  - name: anomalous_current_density
+  - name: ion_diamagnetic_drift_velocity
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
+  sources:
+  - id: dd:edge_profiles/ggd/ion/state/velocity_diamagnetic/r
+    dd_path: edge_profiles/ggd/ion/state/velocity_diamagnetic/r
+    status: composed
+- name: radial_component_of_ion_velocity
+  kind: scalar
+  status: draft
+  description: Major-radius component of the bulk ion fluid velocity, projected onto
+    the radial direction of the right-handed cylindrical $(R, \phi, Z)$ frame in the
+    edge plasma.
+  documentation: "The radial component of the ion velocity, $v_{i,R} = \\mathbf{v}_i\
+    \ \\cdot \\hat{R}$, describes the cross-field ion fluid flow along the major-radius\
+    \ direction $\\hat{R}$ in the edge and scrape-off layer. This quantity governs\
+    \ radial ion transport, contributing to particle and momentum fluxes across flux\
+    \ surfaces; together with the [poloidal component](name:poloidal_component_of_ion_velocity),\
+    \ it characterizes the full poloidal-cross-section ion flow pattern. The radial\
+    \ ion velocity includes contributions from neoclassical and anomalous transport,\
+    \ as well as drift flows such as the [E\xD7B drift](name:radial_component_of_e_cross_b_drift_velocity)\
+    \ and the [ion diamagnetic drift](name:radial_component_of_ion_diamagnetic_drift_velocity).\
+    \ Typical magnitudes in the edge plasma span from tens to hundreds of m/s for\
+    \ the thermal bulk ion population, with larger values possible near limiters or\
+    \ divertor targets. It is computed in edge fluid codes on general geometry grids\
+    \ and can be inferred from spectroscopic measurements of impurity ion Doppler\
+    \ shifts combined with ambipolarity constraints. The [radial component of neutral\
+    \ velocity](name:radial_component_of_neutral_velocity) provides the analogous\
+    \ quantity for the neutral population.\n\nSign convention: Positive when $v_{i,R}$\
+    \ points in the direction of increasing major radius $R$."
+  unit: m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:poloidal_component_of_ion_velocity
+  - name:radial_component_of_e_cross_b_drift_velocity
+  - name:radial_component_of_ion_diamagnetic_drift_velocity
+  - name:radial_component_of_neutral_velocity
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/ggd/ion/velocity_over_b_field/r
+    dd_path: edge_profiles/ggd/ion/velocity_over_b_field/r
+    status: composed
+- name: radial_component_of_neutral_velocity
+  kind: scalar
+  status: draft
+  description: Major-radius ($R$) component of the bulk flow velocity of neutral particles
+    in the edge plasma, projected onto the radial direction of the right-handed cylindrical
+    $(R, \phi, Z)$ frame.
+  documentation: 'The radial component of neutral velocity, $v_{n,R} = \mathbf{v}_n
+    \cdot \hat{R}$, describes the bulk flow of neutral particles along the major-radius
+    direction $\hat{R}$ in the edge and divertor plasma. Neutrals play a central role
+    in plasma-wall interaction, recycling, and fueling; their radial velocity governs
+    the transport of neutral particles across magnetic flux surfaces and determines
+    the source of momentum, energy, and particles that neutral atoms deliver to the
+    ionized plasma through charge-exchange and ionization reactions. Typical values
+    range from a few tens to a few thousands of m/s in the scrape-off layer and divertor,
+    depending on the local neutral pressure gradient, wall geometry, and neutral-ion
+    coupling strength. This quantity is the radial projection of the parent vector
+    [neutral_velocity](name:neutral_velocity); the analogous quantities for ions are
+    [radial_component_of_ion_velocity_per_magnetic_field_strength](name:radial_component_of_ion_velocity_per_magnetic_field_strength)
+    and [radial_component_of_ion_diamagnetic_drift_velocity](name:radial_component_of_ion_diamagnetic_drift_velocity),
+    which are explicitly qualified by velocity type. The momentum transport of neutrals
+    in the radial direction is further characterized by the [radial_component_of_neutral_momentum_flux_limiter](name:radial_component_of_neutral_momentum_flux_limiter).
+
+
+    Sign convention: Positive when the neutral bulk flow is directed in the direction
+    of increasing major radius $R$ (outward, away from the machine symmetry axis).'
+  unit: m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:neutral_velocity
+  - name:radial_component_of_ion_velocity_per_magnetic_field_strength
+  - name:radial_component_of_ion_diamagnetic_drift_velocity
+  - name:radial_component_of_neutral_momentum_flux_limiter
+  constraints: []
+  arguments:
+  - name: neutral_velocity
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
+  sources:
+  - id: dd:edge_profiles/ggd/neutral/state/velocity/r
+    dd_path: edge_profiles/ggd/neutral/state/velocity/r
+    status: composed
+- name: thermal_electron_number_density
+  kind: scalar
+  status: draft
+  description: Number density of the thermal (Maxwellian) electron population, excluding
+    suprathermal or fast electron contributions.
+  documentation: 'The thermal electron number density $n_{e,\mathrm{th}}$ quantifies
+    the number of electrons per unit volume whose energy distribution is well-described
+    by a Maxwellian at the local electron temperature $T_e$. It is the dominant electron
+    population in the edge plasma under most conditions, and is related to the total
+    electron density by $n_e = n_{e,\mathrm{th}} + n_{e,\mathrm{fast}}$, where [electron_number_density](name:electron_number_density)
+    encompasses both thermal and non-thermal contributions and [fast_electron_number_density](name:fast_electron_number_density)
+    carries the suprathermal remainder. Typical values in the edge scrape-off layer
+    range from $10^{17}$ to $10^{20}$ m$^{-3}$, falling by several orders of magnitude
+    from the separatrix to the far SOL. The thermal electron population is inferred
+    from Langmuir probe characteristics, Thomson scattering, or reflectometry, which
+    yield $n_{e,\mathrm{th}}$ directly when non-thermal contributions are small. In
+    the edge plasma, charge neutrality couples $n_{e,\mathrm{th}}$ to the summed [thermal_ion_number_density](name:thermal_ion_number_density)
+    plus ionization source profiles.
+
+
+    Sign convention: Positive when the electron number density is greater than zero,
+    as befits a particle count per unit volume.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:electron_number_density
+  - name:fast_electron_number_density
+  - name:thermal_ion_number_density
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/profiles_1d/electrons/density_thermal
+    dd_path: edge_profiles/profiles_1d/electrons/density_thermal
+    status: composed
+- name: thermal_ion_number_density
+  kind: scalar
+  status: draft
+  description: Number density of thermal (Maxwellian) ions of a given species, summed
+    over all charge states, in the edge plasma region.
+  documentation: 'The thermal ion number density $n_{i,\mathrm{th}}$ quantifies the
+    number of ions per unit volume whose velocity distribution is well-approximated
+    by a Maxwellian at the local ion temperature $T_i$. When multiple charge states
+    are present, this quantity represents the sum $n_{i,\mathrm{th}} = \sum_z n_{i,z,\mathrm{th}}$,
+    where $n_{i,z,\mathrm{th}}$ is the thermal ion density in charge state $z$; the
+    charge-state-resolved counterpart is [thermal_ion_state_number_density](name:thermal_ion_state_number_density).
+    The thermal population excludes suprathermal fast ions generated by neutral-beam
+    injection or wave heating, which are tracked separately in [fast_ion_number_density](name:fast_ion_number_density).
+    In the edge and scrape-off layer, $n_{i,\mathrm{th}}$ governs pressure balance,
+    recycling fluxes, and collisional energy exchange; typical values range from $10^{17}$
+    to $10^{20}$ m$^{-3}$ depending on proximity to the separatrix. Measurements are
+    obtained via charge-exchange recombination spectroscopy or from fluid transport
+    codes constrained by Langmuir probe and Thomson scattering data. For the total
+    thermal ion density summed over all species, see [total_thermal_ion_number_density](name:total_thermal_ion_number_density);
+    for the total ion population including non-thermal contributions, see [ion_number_density](name:ion_number_density).
+
+
+    Sign convention: Positive when the thermal ion number density is greater than
+    zero, i.e., for all physically realizable plasmas.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:thermal_ion_state_number_density
+  - name:fast_ion_number_density
+  - name:total_thermal_ion_number_density
+  - name:ion_number_density
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/profiles_1d/ion/density_thermal
+    dd_path: edge_profiles/profiles_1d/ion/density_thermal
+    status: composed
+- name: thermal_ion_state_number_density
+  kind: scalar
+  status: draft
+  description: Number density of thermal (Maxwellian) ions of a given species in a
+    specific charge state, distinguishing the thermal population from non-thermal
+    contributions at the ionization-stage level.
+  documentation: 'The thermal ion state number density $n_{i,z}^{\rm th}$ gives the
+    number of thermally distributed ions per unit volume for a particular ion species
+    at a specific charge state $z$. The thermal population is characterized by a Maxwellian
+    velocity distribution with local temperature $T_i$, distinct from the suprathermal
+    ions tracked by [fast_ion_state_number_density](name:fast_ion_state_number_density).
+    Summing $n_{i,z}^{\rm th}$ over all charge states $z$ recovers [thermal_ion_number_density](name:thermal_ion_number_density),
+    while adding the fast-ion contribution yields the total [ion_state_number_density](name:ion_state_number_density).
+    Charge-state resolution is essential for computing radiative cooling rates and
+    charge-exchange reaction rates, which depend sensitively on the ionization stage.
+    In edge and scrape-off layer plasmas, this quantity is inferred from spectroscopic
+    line-ratio analysis combined with collisional-radiative models, or from fluid/kinetic
+    transport codes; typical values range from $10^{16}$ to $10^{20}$ m$^{-3}$ depending
+    on species and proximity to the separatrix.
+
+
+    Sign convention: Positive when the thermal ion population at the given charge
+    state is non-zero, consistent with a particle number density that is by definition
+    non-negative.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:fast_ion_state_number_density
+  - name:thermal_ion_number_density
+  - name:ion_state_number_density
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/profiles_1d/ion/state/density_thermal
+    dd_path: edge_profiles/profiles_1d/ion/state/density_thermal
+    status: composed
+- name: thermal_neutral_number_density
+  kind: scalar
+  status: draft
+  description: Number density of thermal (Maxwellian) neutral particles, summed over
+    all internal quantum states unless a specific quantum state is indicated by context.
+  documentation: 'The thermal neutral number density $n_{n,\mathrm{th}}$ quantifies
+    the number of neutrals per unit volume whose velocity distribution is well approximated
+    by a Maxwellian at the local plasma temperature, distinguishing them from the
+    suprathermal population tracked by [fast_neutral_number_density](name:fast_neutral_number_density).
+    Thermal neutrals arise primarily from recycling at plasma-facing components and
+    from charge-exchange reactions between cold neutrals and thermal ions, and they
+    play a central role in edge energy and particle transport through ionization,
+    charge exchange, and elastic collisions. The quantity is a scalar field defined
+    on the poloidal cross-section and may represent either the sum over all internal
+    quantum states or the density of a specific state, depending on the resolution
+    available; the complementary total over all populations is captured by [neutral_number_density](name:neutral_number_density).
+    Typical values range from $10^{16}$ m$^{-3}$ in the outer scrape-off layer to
+    below $10^{14}$ m$^{-3}$ in the confined plasma core. It is inferred from spectroscopic
+    measurements of hydrogen Balmer-series emission combined with collisional-radiative
+    modeling, or from neutral transport codes benchmarked against pressure gage data.
+    For the corresponding thermal ion and electron counterparts, see [thermal_ion_number_density](name:thermal_ion_number_density)
+    and [thermal_electron_number_density](name:thermal_electron_number_density).
+
+
+    Sign convention: Positive when the neutral particle count per unit volume is non-zero,
+    as a number density is intrinsically non-negative.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:fast_neutral_number_density
+  - name:neutral_number_density
+  - name:thermal_ion_number_density
+  - name:thermal_electron_number_density
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/profiles_1d/neutral/state/density_thermal
+    dd_path: edge_profiles/profiles_1d/neutral/state/density_thermal
+    status: composed
+- name: toroidal_component_of_center_of_mass_velocity
+  kind: scalar
+  status: draft
+  description: Toroidal component of the bulk plasma center-of-mass velocity, giving
+    the net mass-flux-weighted flow speed in the toroidal direction averaged over
+    all particle species in the edge plasma.
+  documentation: 'The toroidal center-of-mass velocity component $v_\phi^{\rm cm}$
+    is the projection of the mass-weighted mean fluid velocity onto the toroidal direction
+    $\hat{\phi}$ in the right-handed cylindrical $(R, \phi, Z)$ frame. It is defined
+    as $v_\phi^{\rm cm} = \sum_s m_s n_s v_{\phi,s} / \sum_s m_s n_s$, where $m_s$
+    is the mass, $n_s$ is the number density, and $v_{\phi,s}$ is the toroidal velocity
+    of species $s$. In edge plasmas this quantity is dominated by the ion contribution
+    because $m_i \gg m_e$, and it represents the net toroidal momentum carried by
+    the plasma fluid. Typical values range from a few hundred m/s in ohmic or L-mode
+    discharges up to $\sim 10^5$ m/s in H-mode plasmas with strong neutral-beam injection.
+    The quantity is closely related to the full [center_of_mass_velocity](name:center_of_mass_velocity)
+    vector; its radial counterpart is represented by [radial_component_of_neutral_velocity](name:radial_component_of_neutral_velocity)
+    for the neutral species contribution, and the [toroidal_component_of_e_cross_b_drift_velocity](name:toroidal_component_of_e_cross_b_drift_velocity)
+    captures the dominant perpendicular drift that contributes to toroidal rotation.
+    Toroidal rotation is commonly measured by charge-exchange recombination spectroscopy
+    of impurity ions.
+
+
+    Sign convention: Positive when the velocity is directed in the direction of increasing
+    toroidal angle $\phi$ (counter-clockwise when viewed from above along $+\hat{Z}$).'
+  unit: m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:center_of_mass_velocity
+  - name:radial_component_of_neutral_velocity
+  - name:toroidal_component_of_e_cross_b_drift_velocity
+  constraints: []
+  arguments:
+  - name: center_of_mass_velocity
     operator: component
     operator_kind: projection
     axis: toroidal
     shape: component
   sources:
-  - id: dd:edge_profiles/ggd/j_anomalous/toroidal
-    dd_path: edge_profiles/ggd/j_anomalous/toroidal
+  - id: dd:edge_profiles/ggd/velocity_mass_centre/phi
+    dd_path: edge_profiles/ggd/velocity_mass_centre/phi
     status: composed
-- name: vertical_component_of_current_density_due_to_ion_neutral_friction
+- name: toroidal_component_of_e_cross_b_drift_velocity
   kind: scalar
   status: draft
-  description: Projection of the ion-neutral friction current density onto the vertical
-    $\hat{Z}$ direction in the right-handed cylindrical $(R, \phi, Z)$ frame, quantifying
-    the $Z$-component of charge current driven by collisional momentum exchange between
-    ions and neutrals in the edge plasma.
-  documentation: "In partially ionized edge and divertor plasmas, collisional friction\
-    \ between ions and neutral particles (via charge-exchange and elastic collisions)\
-    \ generates a current density vector $\\mathbf{j}_{\\rm in}$. The vertical component\
-    \ extracts the $Z$-directed projection $j_{\\rm in,Z} = \\mathbf{j}_{\\rm in}\
-    \ \\cdot \\hat{Z}$, where $\\hat{Z}$ is the unit vector along the machine symmetry\
-    \ axis in the right-handed cylindrical $(R, \\phi, Z)$ frame with $R$ the major\
-    \ radius and $Z$ the vertical height. This component captures vertical charge\
-    \ transport driven by frictional momentum exchange and is physically relevant\
-    \ near X-points and divertor targets where strong vertical gradients and neutral\
-    \ recycling occur. It complements the [toroidal component](name:toroidal_component_of_current_density_due_to_ion_neutral_friction)\
-    \ and [parallel component](name:parallel_component_of_current_density_due_to_ion_neutral_friction)\
-    \ of the same current, together with which it fully resolves the vector [current_density_due_to_ion_neutral_friction](name:current_density_due_to_ion_neutral_friction).\
-    \ Related divergence-driven current contributions in the edge include the [Pfirsch-Schl\xFC\
-    ter current density](name:pfirsch_schlueter_current_density) and the [poloidal\
-    \ component of the current density due to parallel viscosity](name:poloidal_component_of_current_density_due_to_parallel_viscosity).\
-    \ Computed from multi-fluid or fluid-neutral edge transport codes on unstructured\
-    \ grids; magnitudes are typically in the range $10^{3}$\u2013$10^{6}$ A m$^{-2}$\
-    \ in divertor and recycling regions.\n\nSign convention: Positive when $j_{\\\
-    rm in,Z}$ points in the direction of increasing $Z$ (upward along the machine\
-    \ symmetry axis)."
-  unit: A.m^-2
+  description: "Toroidal component of the E\xD7B drift velocity, equal to the phi-component\
+    \ of (E\xD7B)/|B|^2, where E is the electric field and B is the magnetic field.\
+    \ This drift acts on all charged particles in crossed electric and magnetic fields\
+    \ and drives azimuthal bulk plasma rotation in the toroidal direction."
+  documentation: "The toroidal E\xD7B drift velocity is defined as\n\n$$v_{E\\times\
+    \ B,\\phi} = \\frac{(\\mathbf{E}\\times\\mathbf{B})\\cdot\\hat{\\phi}}{|\\mathbf{B}|^2}$$\n\
+    \nwhere $\\hat{\\phi}$ is the unit vector in the direction of increasing toroidal\
+    \ angle $\\phi$ in the right-handed cylindrical $(R, \\phi, Z)$ frame. Expanding\
+    \ in cylindrical components,\n\n$$v_{E\\times B,\\phi} = \\frac{E_R B_Z - E_Z\
+    \ B_R}{B_R^2 + B_\\phi^2 + B_Z^2}$$\n\nwhere $E_R$, $E_Z$ are the radial and vertical\
+    \ electric field components (in V m$^{-1}$) and $B_R$, $B_\\phi$, $B_Z$ are the\
+    \ magnetic field components (in T). The resulting quantity has units of m s$^{-1}$,\
+    \ consistent with $[E]/[B] = (\\text{V m}^{-1})/\\text{T} = \\text{m s}^{-1}$.\n\
+    \nIn tokamak edge plasmas the dominant driver of this component is the radial\
+    \ electric field $E_R$ acting across the vertical magnetic field component $B_Z$\
+    \ and the poloidal field $B_\\theta$. Typical toroidal E\xD7B speeds are of order\
+    \ $10^3$\u2013$10^4$ m s$^{-1}$ in L-mode edges; in H-mode pedestal regions the\
+    \ deepened radial electric field well can drive this component to $\\sim 10^4$\u2013\
+    $10^5$ m s$^{-1}$. This drift is identical for all charged species and therefore\
+    \ contributes equally to ion and electron fluid velocities; it does not directly\
+    \ act on neutral particles, though neutrals may be entrained via ion-neutral collisions.\n\
+    \nThe toroidal E\xD7B velocity enters the toroidal momentum balance alongside\
+    \ the plasma flow [toroidal_component_of_center_of_mass_velocity](name:toroidal_component_of_center_of_mass_velocity)\
+    \ and is a key diagnostic target for intrinsic rotation studies. The radial electric\
+    \ field $E_R$ required to evaluate this quantity is commonly inferred from charge-exchange\
+    \ recombination spectroscopy combined with magnetic equilibrium reconstruction.\
+    \ The full three-component drift vector is described under [e_cross_b_drift_velocity](name:e_cross_b_drift_velocity),\
+    \ and the complementary spatial components are [radial_component_of_e_cross_b_drift_velocity](name:radial_component_of_e_cross_b_drift_velocity)\
+    \ and [poloidal_component_of_e_cross_b_drift_velocity](name:poloidal_component_of_e_cross_b_drift_velocity).\n\
+    \nSign convention: Positive when the drift is directed in the direction of increasing\
+    \ toroidal angle $\\phi$ in the right-handed cylindrical $(R, \\phi, Z)$ frame,\
+    \ i.e., in the $+\\hat{\\phi}$ direction with $\\hat{R}\\times\\hat{\\phi}=\\\
+    hat{Z}$."
+  unit: m.s^-1
   physics_domain: edge_plasma_physics
   links:
-  - name:toroidal_component_of_current_density_due_to_ion_neutral_friction
-  - name:parallel_component_of_current_density_due_to_ion_neutral_friction
-  - name:current_density_due_to_ion_neutral_friction
-  - name:pfirsch_schlueter_current_density
-  - name:poloidal_component_of_current_density_due_to_parallel_viscosity
+  - name:radial_component_of_e_cross_b_drift_velocity
+  - name:toroidal_component_of_center_of_mass_velocity
+  - name:e_cross_b_drift_velocity
   constraints: []
   arguments:
-  - name: current_density_due_to_ion_neutral_friction
+  - name: e_cross_b_drift_velocity
     operator: component
     operator_kind: projection
-    axis: vertical
+    axis: toroidal
     shape: component
   sources:
-  - id: dd:edge_profiles/ggd/j_ion_neutral_friction/z
-    dd_path: edge_profiles/ggd/j_ion_neutral_friction/z
+  - id: dd:edge_profiles/ggd/ion/state/velocity_exb/phi
+    dd_path: edge_profiles/ggd/ion/state/velocity_exb/phi
+    status: composed
+- name: toroidal_component_of_momentum_source
+  kind: scalar
+  status: draft
+  description: Toroidal projection of the net momentum source density acting on the
+    plasma, encompassing contributions from all species and processes including neutral
+    beam injection, charge exchange, and viscous forces.
+  documentation: "The toroidal component of the momentum source density, $S_{p,\\\
+    phi}$, quantifies the net rate of momentum deposition per unit volume in the $\\\
+    hat{\\phi}$ direction, where $\\hat{\\phi}$ is the toroidal unit vector in the\
+    \ right-handed cylindrical $(R, \\phi, Z)$ frame. It is the $\\phi$-projection\
+    \ of the full [momentum_source](name:momentum_source) vector $\\mathbf{S}_p$ (kg\
+    \ m$^{-1}$ s$^{-2}$), satisfying $S_{p,\\phi} = \\mathbf{S}_p \\cdot \\hat{\\\
+    phi}$. Contributions arise from neutral beam injection torque, charge-exchange\
+    \ drag between ions and neutrals, gyroviscous and anomalous viscosity terms, and\
+    \ electromagnetic $\\mathbf{j} \\times \\mathbf{B}$ body forces projected onto\
+    \ the toroidal direction. This quantity covers the total plasma \u2014 ions, neutrals,\
+    \ and combined species \u2014 and is distinct from species-resolved counterparts\
+    \ such as [implicit_part_of_toroidal_component_of_ion_momentum_source](name:implicit_part_of_toroidal_component_of_ion_momentum_source),\
+    \ which isolates the ion channel. The complementary spatial projection is the\
+    \ [radial_component_of_momentum_source](name:radial_component_of_momentum_source).\
+    \ Typical magnitudes in the edge plasma range from $10^{-2}$ to $10^2$ kg m$^{-1}$\
+    \ s$^{-2}$ depending on beam power and plasma density; the toroidal component\
+    \ generally dominates in NBI-driven rotation regimes.\n\nSign convention: Positive\
+    \ when $S_{p,\\phi}$ acts in the direction of increasing toroidal angle $\\phi$."
+  unit: kg.m^-1.s^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:momentum_source
+  - name:implicit_part_of_toroidal_component_of_ion_momentum_source
+  - name:radial_component_of_momentum_source
+  constraints: []
+  arguments:
+  - name: momentum_source
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:edge_sources/source/ggd/momentum/phi
+    dd_path: edge_sources/source/ggd/momentum/phi
+    status: composed
+  - id: dd:edge_sources/source/ggd/neutral/state/momentum/phi
+    dd_path: edge_sources/source/ggd/neutral/state/momentum/phi
+    status: composed
+- name: total_ion_number_density
+  kind: scalar
+  status: draft
+  description: Number density of all ion species summed over all charge states and
+    all populations (thermal plus non-thermal), representing the complete ion inventory
+    per unit volume.
+  documentation: 'The total ion number density $n_{i,\mathrm{tot}}$ is the sum of
+    all ion contributions across every species, charge state, and energy population
+    (thermal and non-thermal) present in the plasma. It satisfies $n_{i,\mathrm{tot}}
+    = \sum_s \sum_z n_{s,z}$, where $s$ indexes species and $z$ indexes charge states.
+    This quantity differs from [total thermal ion number density](name:total_thermal_ion_number_density),
+    which excludes fast (suprathermal) ions, and from [ion number density](name:ion_number_density),
+    which is also a sum over all charge states but may be used in contexts where the
+    thermal-plus-fast distinction is less explicit. In the edge and scrape-off layer,
+    $n_{i,\mathrm{tot}}$ typically ranges from $10^{17}$ to $10^{20}$ m$^{-3}$, with
+    the highest values in the divertor region. It is obtained from fluid or kinetic
+    edge transport codes and can be inferred via Langmuir probe arrays or Thomson
+    scattering when species-resolved measurements are available. The complementary
+    neutral inventory is described by [neutral number density](name:neutral_number_density),
+    and fast ion contributions are isolated in [fast ion number density](name:fast_ion_number_density).
+
+
+    Sign convention: Positive when the ion particle count per unit volume is nonzero,
+    as a number density is inherently non-negative.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:total_thermal_ion_number_density
+  - name:ion_number_density
+  - name:neutral_number_density
+  - name:fast_ion_number_density
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/ggd/n_i_total/values
+    dd_path: edge_profiles/ggd/n_i_total/values
+    status: composed
+- name: total_ion_state_number_density
+  kind: scalar
+  status: draft
+  description: Total (thermal plus non-thermal) ion number density for a specific
+    charge state, encompassing all ion populations per unit volume at that ionization
+    stage.
+  documentation: "The total ion state number density $n_{z,\\text{tot}}$ gives the\
+    \ number of ions per unit volume occupying a particular charge state $z$, summing\
+    \ over both thermal (Maxwellian) and non-thermal (fast or suprathermal) ion populations.\
+    \ This charge-state-resolved quantity satisfies $n_{\\text{ion}} = \\sum_z n_{z,\\\
+    text{tot}}$, where $n_{\\text{ion}}$ is the species-integrated [ion number density](name:ion_number_density)\
+    \ and the sum runs over all ionization stages. Resolving the density by charge\
+    \ state is essential in the edge and scrape-off layer, where partial ionization\
+    \ and recombination create a distribution of charge states whose individual densities\
+    \ control radiative cooling rates, charge-exchange reactions, and impurity transport.\
+    \ Typical values span $10^{16}$\u2013$10^{20}$ m$^{-3}$ depending on species,\
+    \ charge state, and plasma region. The complementary quantity for the non-thermal\
+    \ population alone is [fast ion state number density](name:fast_ion_state_number_density),\
+    \ while the charge-state-summed thermal ion density is [thermal ion number density](name:thermal_ion_number_density).\
+    \ For neutrals resolved by internal excitation state, the analogous quantity is\
+    \ [total neutral state number density](name:total_neutral_state_number_density)."
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:ion_number_density
+  - name:fast_ion_state_number_density
+  - name:thermal_ion_number_density
+  - name:total_neutral_state_number_density
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/profiles_1d/ion/state/density
+    dd_path: edge_profiles/profiles_1d/ion/state/density
+    status: composed
+- name: total_neutral_state_number_density
+  kind: scalar
+  status: draft
+  description: Total (thermal plus non-thermal) neutral particle number density resolved
+    per internal quantum excitation state, summed over all neutral populations.
+  documentation: "The total neutral state number density $n_{\\rm neutral,state}$\
+    \ gives the number of neutral particles per unit volume that occupy a specific\
+    \ internal quantum state (electronic, vibrational, or rotational excitation level),\
+    \ aggregating contributions from both thermal (Maxwellian) and non-thermal (suprathermal)\
+    \ neutral populations. This state-resolved quantity is essential for collisional-radiative\
+    \ modeling in the edge and scrape-off layer, where excited-state populations govern\
+    \ photon emission rates, ionization cross-sections, and charge-exchange reaction\
+    \ rates. The governing relation is $n_{\\rm total} = \\sum_s n_{\\rm neutral,state}(s)$,\
+    \ where the sum over all internal states $s$ recovers the [total neutral number\
+    \ density](name:neutral_number_density). In typical divertor or scrape-off layer\
+    \ conditions, ground-state densities can reach $10^{18}$\u2013$10^{20}\\,\\mathrm{m}^{-3}$,\
+    \ while excited-state populations are orders of magnitude smaller and set by local\
+    \ collisional-radiative equilibrium. This quantity is computed by neutral transport\
+    \ or collisional-radiative codes and inferred experimentally from spectroscopic\
+    \ line intensities. The per-state analog restricted to a single neutral population\
+    \ is [neutral_state_number_density](name:neutral_state_number_density), while\
+    \ the analogous ion quantity resolved by charge state is [total_ion_state_number_density](name:total_ion_state_number_density);\
+    \ the thermal neutral contribution summed over all states is captured by [thermal_neutral_number_density](name:thermal_neutral_number_density)."
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:neutral_number_density
+  - name:neutral_state_number_density
+  - name:total_ion_state_number_density
+  - name:thermal_neutral_number_density
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/profiles_1d/neutral/state/density
+    dd_path: edge_profiles/profiles_1d/neutral/state/density
+    status: composed
+- name: total_thermal_ion_number_density
+  kind: scalar
+  status: draft
+  description: Number density of thermal ions summed over all ion species and charge
+    states, representing the complete thermal ion population per unit volume in the
+    edge plasma.
+  documentation: 'The total thermal ion number density $n_{i,\mathrm{th,total}}$ is
+    the sum of the thermal (Maxwellian) ion number densities over all ion species
+    $s$ and all charge states $z$: $$n_{i,\mathrm{th,total}} = \sum_s \sum_z n_{i,s,z}^{\mathrm{th}},$$
+    where each $n_{i,s,z}^{\mathrm{th}}$ is the thermal partial density for species
+    $s$ in charge state $z$. This quantity aggregates the full thermal ion inventory
+    without contribution from fast or suprathermal ions; the non-thermal fast-ion
+    component is tracked separately by [fast_ion_number_density](name:fast_ion_number_density).
+    In quasi-neutral edge plasmas, $n_{i,\mathrm{th,total}}$ approaches the [electron_number_density](name:electron_number_density)
+    when fast-ion fractions are small, providing a useful check of charge neutrality.
+    The per-species thermal density is given by [thermal_ion_number_density](name:thermal_ion_number_density),
+    while per-charge-state resolution is available from [ion_state_number_density](name:ion_state_number_density).
+    The complete ion inventory including fast ions corresponds to [total_ion_number_density](name:total_ion_number_density).
+    Typical values in the edge scrape-off layer range from $10^{17}$ to $10^{20}$
+    m$^{-3}$, dropping sharply across the last closed flux surface toward the wall.
+
+
+    Sign convention: Positive when the thermal ion population is finite and nonzero,
+    as a number density is an intrinsically non-negative quantity.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:fast_ion_number_density
+  - name:electron_number_density
+  - name:thermal_ion_number_density
+  - name:ion_state_number_density
+  - name:total_ion_number_density
+  constraints: []
+  sources:
+  - id: dd:edge_profiles/profiles_1d/n_i_thermal_total
+    dd_path: edge_profiles/profiles_1d/n_i_thermal_total
+    status: composed
+- name: vertical_component_of_ion_velocity_due_to_convection
+  kind: scalar
+  status: draft
+  description: 'Vertical (Z) component of the bulk ion fluid velocity due to convection,
+    defined as the projection of the ion convective flow velocity vector onto the
+    vertical axis: v_{i,Z} = v_i dot Z-hat in the right-handed cylindrical (R, phi,
+    Z) frame, where Z is the vertical height coordinate.'
+  documentation: "The vertical component of the ion convective velocity, $v_{i,Z}$,\
+    \ is defined by the projection\n$$v_{i,Z} = \\mathbf{v}_i \\cdot \\hat{Z}$$\n\
+    where $\\mathbf{v}_i$ is the bulk ion fluid velocity vector and $\\hat{Z}$ is\
+    \ the unit vector along the vertical height axis $Z$ of the right-handed cylindrical\
+    \ $(R, \\phi, Z)$ frame ($R$ is major radius, $\\phi$ is toroidal angle, $Z$ is\
+    \ vertical height). This quantity represents the component of the full ion velocity\
+    \ vector along $\\hat{Z}$ and is one member of the Cartesian-like decomposition\
+    \ of $\\mathbf{v}_i$ along the cylindrical coordinate directions. It is distinct\
+    \ from the poloidal or parallel projections commonly used in flux-coordinate analyzes.\n\
+    \nThe qualifier 'due to convection' reflects that this velocity enters the convective\
+    \ (advective) terms of the ion momentum and energy equations \u2014 the bulk fluid\
+    \ motion carrying mass, momentum, and energy. It is not a transport-budget partition\
+    \ separating convective from diffusive fluxes; it is the ion bulk fluid velocity\
+    \ itself projected onto $\\hat{Z}$.\n\nTypical magnitudes in the edge plasma and\
+    \ scrape-off layer range from tens to several hundred m s$^{-1}$, with larger\
+    \ values near X-points and divertor targets where poloidal and vertical flows\
+    \ are enhanced by recycling and sheath boundary conditions. The $\\hat{Z}$ projection\
+    \ is particularly relevant in divertor geometry, where it captures flows directed\
+    \ toward or away from divertor strike points.\n\nSign convention: Positive when\
+    \ the ion convective flow is directed in the $+\\hat{Z}$ direction (upward, toward\
+    \ increasing $Z$)."
+  unit: m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:radial_component_of_ion_velocity
+  - name:parallel_component_of_particle_convection_velocity
+  constraints: []
+  sources:
+  - id: dd:edge_transport/model/ggd/momentum/v/z
+    dd_path: edge_transport/model/ggd/momentum/v/z
     status: composed

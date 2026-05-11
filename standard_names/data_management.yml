@@ -1,0 +1,89 @@
+# Domain: data_management
+# Catalog sha: d3e506af05f33eacdd2941c510748ac9add211c1
+# Entries: 2
+# Ordering: structural traversal
+#   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
+#    alphabetic tie-break)
+- name: simulation_start_time
+  kind: scalar
+  status: draft
+  description: Lower temporal boundary of a numerical simulation interval, marking
+    the physical time at which the simulation begins evolving the plasma state.
+  documentation: 'The simulation start time $t_0$ defines the absolute time coordinate
+    at which the numerical integration of the plasma equations commences. Together
+    with [simulation_end_time](name:simulation_end_time), it bounds the simulation
+    interval $[t_0, t_f]$; the elapsed duration is $\Delta t = t_f - t_0$. Within
+    a running workflow, [simulation_current_time](name:simulation_current_time) advances
+    from $t_0$ toward $t_f$ in increments set by [simulation_time_step](name:simulation_time_step)
+    $\delta t$. In fusion plasma simulations, $t_0$ is commonly expressed relative
+    to the beginning of the discharge pulse, with typical values spanning from $-0.5$
+    s (pre-discharge initialization) to several tens of seconds for long-pulse devices.
+    When restarting from a checkpoint, $t_0$ is reset to the restart time rather than
+    the original simulation origin.
+
+
+    Sign convention: Positive when $t_0$ is after the reference epoch (typically the
+    start of the discharge pulse), and negative when the simulation begins before
+    that reference point.'
+  unit: s
+  physics_domain: data_management
+  links:
+  - name:simulation_end_time
+  - name:simulation_current_time
+  - name:simulation_time_step
+  constraints: []
+  sources:
+  - id: dd:dataset_description/simulation/time_begin
+    dd_path: dataset_description/simulation/time_begin
+    status: composed
+  - id: dd:numerics/time_start
+    dd_path: numerics/time_start
+    status: composed
+  - id: dd:summary/simulation/time_begin
+    dd_path: summary/simulation/time_begin
+    status: composed
+- name: simulation_time_step
+  kind: scalar
+  status: draft
+  description: Discrete time interval assigned to a simulation component for a single
+    computation step, defining the temporal resolution of the numerical integration.
+  documentation: 'The simulation time step $\Delta t$ governs the temporal resolution
+    at which a numerical simulation advances its state variables. A smaller $\Delta
+    t$ improves accuracy and stability of time-integration schemes (e.g., Runge-Kutta,
+    Crank-Nicolson) at the cost of increased computational expense; stability criteria
+    such as the Courant-Friedrichs-Lewy condition $\Delta t \leq \Delta x / v$ constrain
+    the maximum permissible step size for explicit methods, where $\Delta x$ is the
+    spatial grid spacing and $v$ is a characteristic signal velocity. In adaptive
+    schemes, $\Delta t$ may vary between cycles; in fixed-step simulations it remains
+    constant throughout the run. Typical values range from microseconds ($\sim 10^{-6}$
+    s) for fast MHD or wave-propagation solvers to seconds or longer for transport
+    codes evolving slow equilibrium profiles. This quantity complements the simulation
+    time-point quantities [simulation_start_time](name:simulation_start_time), [simulation_end_time](name:simulation_end_time),
+    and [simulation_current_time](name:simulation_current_time), which together fully
+    specify the temporal extent and position of a simulation run.
+
+
+    Sign convention: Positive when the simulation advances forward in time.'
+  unit: s
+  physics_domain: data_management
+  links:
+  - name:simulation_start_time
+  - name:simulation_end_time
+  - name:simulation_current_time
+  constraints: []
+  sources:
+  - id: dd:dataset_description/simulation/time_step
+    dd_path: dataset_description/simulation/time_step
+    status: composed
+  - id: dd:numerics/time_step
+    dd_path: numerics/time_step
+    status: attached
+  - id: dd:workflow/time_loop/workflow_cycle/component/time_interval
+    dd_path: workflow/time_loop/workflow_cycle/component/time_interval
+    status: composed
+  - id: dd:workflow/time_loop/workflow_cycle/component/time_interval_elapsed
+    dd_path: workflow/time_loop/workflow_cycle/component/time_interval_elapsed
+    status: attached
+  - id: dd:workflow/time_loop/workflow_cycle/component/time_interval_request
+    dd_path: workflow/time_loop/workflow_cycle/component/time_interval_request
+    status: composed

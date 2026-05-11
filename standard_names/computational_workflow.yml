@@ -1,0 +1,304 @@
+# Domain: computational_workflow
+# Catalog sha: d3e506af05f33eacdd2941c510748ac9add211c1
+# Entries: 7
+# Ordering: structural traversal
+#   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
+#    alphabetic tie-break)
+- name: electron_energy_equation_convergence_iteration_count
+  kind: scalar
+  status: draft
+  description: Count of iterations performed in the convergence loop for the electron
+    energy equation within a single transport solver cycle. A value of zero indicates
+    either no iterations were attempted or that the initial guess satisfied the convergence
+    criterion before any iterative update was applied. Non-negative integer.
+  documentation: "The electron energy equation convergence iteration count $n_\\mathrm{iter}^{e,E}$\
+    \ records the number of iterative solver steps executed for the electron energy\
+    \ equation during a single transport solver time step or coupling cycle.\n\nIn\
+    \ implicit transport solvers the electron energy equation is advanced by solving\
+    \ a residual equation of the form $\\mathcal{R}^{e,E}(T_e^{(k)}) = 0$, where $T_e^{(k)}$\
+    \ is the electron temperature at iteration $k$ and $\\mathcal{R}^{e,E}$ is the\
+    \ residual functional associated with the discretized electron energy balance.\
+    \ The solver increments $n_\\mathrm{iter}^{e,E}$ by one for each Newton, Picard,\
+    \ or equivalent update step applied to this equation. Iteration ceases when $\\\
+    |\\mathcal{R}^{e,E}\\|$ falls below the prescribed convergence tolerance $\\varepsilon^{e,E}$,\
+    \ or when the maximum iteration limit $n_\\mathrm{iter,max}$ is reached, whichever\
+    \ occurs first.\n\nA value of zero is returned when no iterative update is applied\
+    \ \u2014 this may occur when the electron energy equation is not active in a given\
+    \ cycle, or according to solver-specific conventions regarding the counting of\
+    \ a pure-check step. A value equal to $n_\\mathrm{iter,max}$ indicates that the\
+    \ prescribed tolerance was not achieved within the allowed number of steps (non-convergence).\
+    \ Typical well-converged transport simulations yield $n_\\mathrm{iter}^{e,E}$\
+    \ in the range 1\u201320 per time step; values near $n_\\mathrm{iter,max}$ may\
+    \ signal numerical stiffness, excessively tight tolerances, or challenging plasma\
+    \ conditions such as steep electron temperature gradients or rapid transients.\n\
+    \nThis quantity is the electron-energy-equation-specific instance of the generic\
+    \ solver convergence iteration count, which covers all solver equations collectively.\
+    \ Related quantities include the electron energy equation convergence residual\
+    \ and the electron energy equation convergence tolerance, which together define\
+    \ the convergence criterion against which this count is measured."
+  unit: '1'
+  physics_domain: computational_workflow
+  links:
+  - name:solver_convergence_iteration_count
+  constraints: []
+  sources:
+  - id: dd:transport_solver_numerics/convergence/equations/electrons/energy/iterations_n
+    dd_path: transport_solver_numerics/convergence/equations/electrons/energy/iterations_n
+    status: composed
+- name: simulation_current_time
+  kind: scalar
+  status: draft
+  description: The instantaneous simulation clock time at the moment of data output,
+    expressed as an absolute time on the simulation time axis. This quantity identifies
+    the current position within a simulation run and is not necessarily monotonically
+    increasing across concatenated or restarted outputs.
+  documentation: "The simulation current time $t_\\mathrm{curr}$ is the value of the\
+    \ simulation clock recorded at the moment a data snapshot is written. It is measured\
+    \ in seconds and represents an absolute time on the simulation time axis \u2014\
+    \ not elapsed time relative to any run origin \u2014 so that $t_\\mathrm{curr}$\
+    \ can be directly compared with the run start time $t_\\mathrm{start}$ and run\
+    \ end time $t_\\mathrm{end}$ without additional offset corrections.\n\nIn a continuous\
+    \ single-segment run one generally has $t_\\mathrm{start} \\leq t_\\mathrm{curr}\
+    \ \\leq t_\\mathrm{end}$, but in checkpoint/restart workflows the simulation may\
+    \ be rewound or branched so that successive output records do not form a strictly\
+    \ monotonically increasing sequence. The current time should therefore be interpreted\
+    \ as the simulation clock value at the instant of output rather than as a cumulative\
+    \ counter.\n\nTypical values range from fractions of a millisecond to several\
+    \ seconds of simulated physical time for tokamak transport or MHD simulations,\
+    \ but the permissible range is fully determined by the physics being modeled and\
+    \ the duration of the run. The time step $\\Delta t$ used to advance the simulation\
+    \ from one output to the next is recorded separately as the simulation time step\
+    \ quantity.\n\nRelated quantities in the same workflow family include the run\
+    \ start time, run end time, restart time, and time step, which together fully\
+    \ characterize the temporal structure of a simulation run."
+  unit: s
+  physics_domain: computational_workflow
+  links:
+  - name:simulation_start_time
+  - name:simulation_end_time
+  - name:simulation_restart_time
+  - name:simulation_time_step
+  constraints: []
+  sources:
+  - id: dd:dataset_description/simulation/time_current
+    dd_path: dataset_description/simulation/time_current
+    status: composed
+- name: simulation_end_time
+  kind: scalar
+  status: draft
+  description: Terminal time boundary of a numerical simulation interval, marking
+    the point beyond which no further time advancement is performed in a workflow
+    execution.
+  documentation: 'The simulation end time $t_{\mathrm{end}}$ specifies the upper boundary
+    of the temporal domain over which a plasma simulation is advanced. Together with
+    [simulation_start_time](name:simulation_start_time), it defines the total simulated
+    duration $\Delta t = t_{\mathrm{end}} - t_{\mathrm{start}}$, which governs the
+    extent of physical phenomena that can be captured. In multi-step workflows, $t_{\mathrm{end}}$
+    may correspond to the end of a single workflow execution segment rather than the
+    full pulse duration; the distinction from [simulation_restart_time](name:simulation_restart_time)
+    is that the end time terminates advancement whereas a restart time resumes it.
+    The [simulation_time_step](name:simulation_time_step) $\Delta t_{\mathrm{step}}$
+    determines how many computational steps are taken to span the interval $[t_{\mathrm{start}},
+    t_{\mathrm{end}}]$. Typical values range from milliseconds for fast MHD simulations
+    to tens of seconds for transport-timescale calculations, depending on the physics
+    resolved.
+
+
+    Sign convention: Positive when the simulation end time is later than the reference
+    origin of the simulation time axis (i.e., $t_{\mathrm{end}} > 0$ for runs starting
+    after the time origin).'
+  unit: s
+  physics_domain: computational_workflow
+  links:
+  - name:simulation_start_time
+  - name:simulation_restart_time
+  - name:simulation_time_step
+  constraints: []
+  sources:
+  - id: dd:numerics/time_end
+    dd_path: numerics/time_end
+    status: composed
+  - id: dd:summary/simulation/time_end
+    dd_path: summary/simulation/time_end
+    status: composed
+  - id: dd:workflow/time_loop/time_end
+    dd_path: workflow/time_loop/time_end
+    status: attached
+- name: simulation_restart_time
+  kind: scalar
+  status: draft
+  description: Simulation time coordinate at which the most recent restart checkpoint
+    was applied, establishing the start of the current continuation segment. This
+    value marks the lower bound of the resumed simulation interval, which extends
+    from this point to the current and end times.
+  documentation: 'The restart time $t_\mathrm{restart}$ records the absolute simulation
+    time at which the most recent checkpoint was loaded and computation resumed. It
+    defines the origin of the current continuation segment, so that the active simulation
+    interval spans $[t_\mathrm{restart},\, t_\mathrm{current}]$, and the full planned
+    segment spans $[t_\mathrm{restart},\, t_\mathrm{end}]$.
+
+
+    The value is expressed in seconds on the simulation''s internal time axis, whose
+    origin is typically set at the plasma initiation event (e.g., gas injection or
+    breakdown). Consequently $t_\mathrm{restart}$ may be zero (first segment, no prior
+    restart), a small positive value (early restart after a short initial run), or
+    a large positive value (late restart after many seconds of simulated evolution).
+    Negative values are possible if the simulation''s time origin precedes the nominal
+    $t = 0$ reference.
+
+
+    For a simulation with no restarts, this quantity is either absent or equal to
+    the simulation start time. When multiple sequential restarts occur, only the most
+    recent restart time is retained here; earlier restart times are not accumulated.
+
+
+    Typical values for tokamak discharge simulations range from a few milliseconds
+    to several seconds of simulated time, depending on the phase being continued (e.g.,
+    ramp-up, flat-top, or ramp-down).'
+  unit: s
+  physics_domain: computational_workflow
+  links:
+  - name:simulation_start_time
+  - name:simulation_end_time
+  - name:simulation_current_time
+  - name:simulation_time_step
+  constraints: []
+  sources:
+  - id: dd:dataset_description/simulation/time_restart
+    dd_path: dataset_description/simulation/time_restart
+    status: composed
+- name: solver_convergence_residual_relative_deviation
+  kind: scalar
+  status: draft
+  description: Relative change in the solver residual norm between successive iterations,
+    defined as the ratio of the difference of consecutive residual norms to the previous
+    iteration's residual norm, used to monitor convergence progress toward a steady
+    solution.
+  documentation: 'The solver convergence residual relative deviation quantifies how
+    much the residual norm changes from one iteration to the next, relative to the
+    residual norm of the previous iterate. Formally, for iteration index $k$:
+
+
+    $$\delta r^{(k)} = \frac{\|r^{(k)}\| - \|r^{(k-1)}\|}{\|r^{(k-1)}\|}$$
+
+
+    where $\|r^{(k)}\|$ is the residual norm at iteration $k$ and $\|r^{(k-1)}\|$
+    is the residual norm at the preceding iteration. The residual $r^{(k)}$ is defined
+    as the right-hand-side imbalance of the discretized transport or equilibrium equations
+    at the current iterate; the norm is typically the $L^2$ (Euclidean) norm or the
+    $L^\infty$ (maximum) norm, as specified by the solver configuration.
+
+
+    **Convergence criterion:** The iteration is considered converged when $|\delta
+    r^{(k)}|$ falls below a prescribed tolerance, typically in the range $10^{-6}$
+    to $10^{-3}$ for transport solvers. A value near zero indicates stagnation or
+    convergence; a value close to $-1$ indicates rapid reduction of the residual.
+
+
+    **Edge cases:** When $\|r^{(k-1)}\|$ is zero or below a numerical floor (e.g.,
+    due to machine precision or an exactly satisfied initial guess), the ratio is
+    ill-defined and should be treated as not-a-number or clamped; this situation typically
+    signals full convergence or a degenerate problem. When $\delta r^{(k)} > 0$, the
+    residual is growing, which may indicate divergence or oscillatory behavior requiring
+    step-size reduction or preconditioner adjustment.
+
+
+    **Relationship to absolute residual:** This quantity complements the absolute
+    residual norm and the iteration count; a small relative deviation combined with
+    a small absolute residual norm provides the most robust convergence diagnostic.
+    The typical range for a converging solver is $(-1, 0]$ per iteration, approaching
+    zero as convergence is achieved.'
+  unit: '1'
+  physics_domain: computational_workflow
+  links:
+  - name:transport_solver_convergence_relative_deviation
+  - name:solver_convergence_iteration_count
+  constraints: []
+  sources:
+  - id: dd:transport_solver_numerics/convergence/equations/ion/energy/delta_relative/value
+    dd_path: transport_solver_numerics/convergence/equations/ion/energy/delta_relative/value
+    status: composed
+  - id: dd:transport_solver_numerics/solver_1d/equation/convergence/delta_relative/value
+    dd_path: transport_solver_numerics/solver_1d/equation/convergence/delta_relative/value
+    status: composed
+- name: toroidal_flux_radius
+  kind: scalar
+  status: draft
+  description: Effective minor radius coordinate defined as $\rho_{\mathrm{tor}} =
+    \sqrt{\Phi_{\mathrm{tor}} / (\pi B_0)}$, where $\Phi_{\mathrm{tor}}$ is the toroidal
+    magnetic flux and $B_0$ is the vacuum toroidal field at the reference major radius.
+  documentation: "The toroidal flux radius $\\rho_{\\mathrm{tor}}$ is a radial flux-surface\
+    \ label that approximates the effective minor radius of a flux surface by mapping\
+    \ the enclosed toroidal magnetic flux $\\Phi_{\\mathrm{tor}}$ (in Wb) onto a length\
+    \ scale via $\\rho_{\\mathrm{tor}} = \\sqrt{\\Phi_{\\mathrm{tor}} / (\\pi B_0)}$,\
+    \ where $B_0$ is the vacuum toroidal field evaluated at the [reference major radius](name:reference_major_radius)\
+    \ $R_0$. On axis $\\rho_{\\mathrm{tor}} = 0$; at the last closed flux surface\
+    \ it equals the effective plasma minor radius, typically 0.3\u20131.0 m for medium-to-large\
+    \ tokamaks. Because it is constructed from the enclosed toroidal flux, $\\rho_{\\\
+    mathrm{tor}}$ is a monotonically increasing, geometry-weighted coordinate that\
+    \ accounts for flux-surface shaping, unlike a purely geometric minor radius. It\
+    \ serves as the independent radial variable on the 1D transport solver grid, on\
+    \ which profiles of temperature, density, and transport coefficients are evaluated;\
+    \ the [flux surface area](name:flux_surface_area) is one of the geometric metric\
+    \ quantities defined on the same grid. The [neoclassical tearing mode toroidal\
+    \ flux radius](name:neoclassical_tearing_mode_toroidal_flux_radius) is an example\
+    \ of this coordinate evaluated at a specific physics location. This quantity is\
+    \ a component of the general [flux_radius](name:flux_radius) family.\n\nSign convention:\
+    \ Positive when the enclosed toroidal magnetic flux $\\Phi_{\\mathrm{tor}}$ is\
+    \ positive, i.e. when the toroidal magnetic field $B_0$ is directed in the direction\
+    \ of increasing toroidal angle $\\phi$."
+  unit: m
+  physics_domain: computational_workflow
+  links:
+  - name:reference_major_radius
+  - name:flux_surface_area
+  - name:neoclassical_tearing_mode_toroidal_flux_radius
+  - name:flux_radius
+  constraints: []
+  arguments:
+  - name: flux_radius
+    operator: coordinate
+    operator_kind: coordinate
+    axis: toroidal
+    shape: coordinate
+  sources:
+  - id: dd:transport_solver_numerics/solver_1d/grid/rho_tor
+    dd_path: transport_solver_numerics/solver_1d/grid/rho_tor
+    status: composed
+- name: volume_inside_flux_surface
+  kind: scalar
+  status: draft
+  description: Volume of plasma enclosed within a magnetic flux surface, integrated
+    over the full toroidal extent of the nested flux-surface geometry.
+  documentation: 'The enclosed volume $V(\psi)$ is the total volume of the plasma
+    region bounded by a given magnetic flux surface labeled by poloidal flux $\psi$
+    (or equivalently by normalized toroidal flux radius $\rho_\mathrm{tor}$). It is
+    obtained by integrating the Jacobian of the flux coordinate system $\sqrt{g}$
+    over the plasma interior: $$V(\psi) = \oint d\theta \int_0^{2\pi} d\phi \int_0^\psi
+    \sqrt{g}\, d\psi'',$$ where $\theta$ is the poloidal angle and $\phi$ is the toroidal
+    angle. In a large-aspect-ratio circular tokamak the approximation $V \approx 2\pi^2
+    R_0 r^2$ holds, with $R_0$ the major radius and $r$ the minor radius of the flux
+    surface; realistic geometries require numerical integration from an equilibrium
+    reconstruction. Typical values range from near zero at the magnetic axis to several
+    hundred cubic meters at the plasma boundary in large tokamak devices. This quantity
+    is a fundamental geometric input to 1D radial transport solvers, entering the
+    flux-surface-averaged continuity and energy equations through the volume derivative
+    $dV/d\rho_\mathrm{tor}$. It complements [total area of a flux surface](name:total_area_of_flux_surface)
+    and [poloidal cross-sectional area](name:poloidal_cross_sectional_area_of_flux_surface),
+    and appears alongside [total ion particle source inside a flux surface](name:total_ion_particle_source_inside_flux_surface)
+    in particle-balance integrals.
+
+
+    Sign convention: Positive when the enclosed volume is finite and the flux surface
+    surrounds the magnetic axis.'
+  unit: m^3
+  physics_domain: computational_workflow
+  links:
+  - name:total_area_of_flux_surface
+  - name:poloidal_cross_sectional_area_of_flux_surface
+  - name:total_ion_particle_source_inside_flux_surface
+  constraints: []
+  sources:
+  - id: dd:transport_solver_numerics/solver_1d/grid/volume
+    dd_path: transport_solver_numerics/solver_1d/grid/volume
+    status: composed

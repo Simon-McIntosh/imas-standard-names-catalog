@@ -1,0 +1,1038 @@
+# Domain: structural_components
+# Catalog sha: d3e506af05f33eacdd2941c510748ac9add211c1
+# Entries: 26
+# Ordering: structural traversal
+#   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
+#    alphabetic tie-break)
+- name: blanket_neutron_energy_multiplication
+  kind: scalar
+  status: draft
+  description: Ratio of total nuclear energy deposited in the breeding blanket to
+    the incident fusion neutron kinetic energy, quantifying the blanket's capacity
+    to amplify energy through exothermic nuclear reactions.
+  documentation: "The blanket neutron energy multiplication $M$ is defined as\n\n\
+    $$M = \\frac{E_{\\rm total}}{E_n}$$\n\nwhere $E_{\\rm total}$ is the total nuclear\
+    \ energy (including neutron scattering, capture, and fission reactions) deposited\
+    \ per source neutron in the blanket, and $E_n \\approx 14.1\\;\\text{MeV}$ is\
+    \ the kinetic energy carried by the fusion neutron from the D-T reaction. The\
+    \ principal exothermic reaction contributing to $M > 1$ is the $^6\\text{Li}(n,\\\
+    alpha)\\text{T}$ breeding reaction (releasing 4.8 MeV), alongside beryllium and\
+    \ lead neutron multipliers ($^9\\text{Be}(n,2n)$ and $^{208}\\text{Pb}(n,2n)$)\
+    \ that generate additional neutrons to drive further reactions. Typical design\
+    \ targets for fusion power plants lie in the range $M \\approx 1.1$\u2013$1.3$;\
+    \ achieving values above 1.1 is necessary for net energy gain in the blanket subsystem.\
+    \ $M$ is computed via Monte Carlo neutronics codes such as OpenMC or MCNP, using\
+    \ detailed nuclear cross-section libraries and a three-dimensional blanket geometry\
+    \ model. It is a key blanket performance figure of merit alongside the [tritium\
+    \ breeding ratio](name:tritium_breeding_ratio), which counts tritium atoms produced\
+    \ per absorbed neutron; the two metrics must be jointly optimized since many multiplier\
+    \ materials affect both quantities. Blanket layer dimensions, such as [layer_midplane_thickness](name:layer_midplane_thickness),\
+    \ directly influence $M$ by setting the neutron path length through each material\
+    \ zone."
+  unit: '1'
+  physics_domain: structural_components
+  links:
+  - name:tritium_breeding_ratio
+  - name:layer_midplane_thickness
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/time_slice/energy_multiplication_factor
+    dd_path: breeding_blanket/time_slice/energy_multiplication_factor
+    status: composed
+- name: bottom_cap_thickness
+  kind: scalar
+  status: draft
+  description: Poloidal thickness of the bottom cap of a breeding blanket module,
+    defined as the non-negative distance between the inner and outer bounding surfaces
+    of the cap along the poloidal (axial) direction.
+  documentation: 'The bottom cap thickness is the perpendicular distance between the
+    two bounding surfaces of the bottom cap of a breeding blanket module, measured
+    along the poloidal direction. This is a non-negative scalar quantity by definition:
+    $t_{\mathrm{bottom}} \geq 0$.
+
+
+    Geometrically, the bottom cap closes the lower axial end of the module assembly.
+    Its thickness $t_{\mathrm{bottom}}$ is the distance from the innermost surface
+    (facing the breeding zone) to the outermost structural surface along the poloidal
+    axis.
+
+
+    Typical values for breeding blanket module bottom caps range from approximately
+    $0.02\,\mathrm{m}$ to $0.15\,\mathrm{m}$, depending on the blanket concept, structural
+    material, and required neutron shielding margin. Thicker caps reduce the local
+    neutron flux leakage through the module end and improve thermal performance by
+    providing additional structural mass, but also reduce the available breeding volume.
+
+
+    This quantity is used in module-level geometry descriptions and feeds directly
+    into neutron transport and thermal-hydraulic analyzes of the blanket system.'
+  unit: m
+  physics_domain: structural_components
+  links:
+  - name:midplane_thickness_of_breeding_blanket_layer
+  - name:side_wall_thickness_of_breeding_blanket_module
+  - name:top_cap_thickness
+  - name:tritium_breeding_ratio
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/module/bottom_cap_thickness
+    dd_path: breeding_blanket/module/bottom_cap_thickness
+    status: composed
+- name: breeding_blanket_module_count
+  kind: scalar
+  status: draft
+  description: Total count of breeding blanket modules installed around the plasma,
+    segmenting the blanket toroidally and poloidally to form the complete blanket
+    assembly.
+  documentation: 'The breeding blanket module count $N_{\mathrm{total}}$ is a non-negative
+    integer giving the total number of discrete blanket modules that together form
+    the breeding blanket surrounding the plasma. Each module is a self-contained structural
+    and tritium-breeding unit; the full set of modules spans the available toroidal
+    and poloidal coverage of the first wall.
+
+
+    For symmetric reactor designs, $N_{\mathrm{total}}$ is approximately related to
+    the number of toroidal sectors $N_{\phi}$ and the number of poloidal modules per
+    sector $N_{\theta}$ by
+
+
+    $$N_{\mathrm{total}} \approx N_{\phi} \cdot N_{\theta},$$
+
+
+    where $N_{\phi}$ is the number of toroidal sectors (each spanning $2\pi / N_{\phi}$
+    radians in the toroidal angle $\phi$ of the cylindrical $(R, \phi, Z)$ frame)
+    and $N_{\theta}$ is the poloidal module count per sector. This product relation
+    is only approximate in practice: port cutouts, maintenance bays, asymmetric sector
+    layouts, or partial-coverage segments may reduce the installed module count below
+    the fully symmetric value.
+
+
+    This quantity counts physically installed (or modeled as installed) discrete modules;
+    partially covering or dummy modules should be documented in associated metadata.
+    Typical values range from $O(10)$ for simplified models to several hundred for
+    full-scale reactor designs such as DEMO or fusion power plant concepts.
+
+
+    See also: `breeding_blanket_module_poloidal_count` for the poloidal segmentation
+    per sector, and `breeding_blanket_module_toroidal_count` for the number of toroidal
+    sectors.'
+  unit: '1'
+  physics_domain: structural_components
+  links:
+  - name:breeding_blanket_module_poloidal_count
+  - name:tritium_breeding_ratio
+  - name:midplane_thickness_of_breeding_blanket_layer
+  - name:top_cap_thickness
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/modules_n
+    dd_path: breeding_blanket/modules_n
+    status: composed
+- name: breeding_blanket_module_poloidal_count
+  kind: scalar
+  status: draft
+  description: Integer count of breeding blanket modules arranged within a single
+    full 360-degree poloidal cross-section of the reactor. This dimensionless positive
+    integer defines the poloidal segmentation of the blanket assembly and is set during
+    engineering design.
+  documentation: "The poloidal module count $N_\\mathrm{pol}$ is the number of discrete\
+    \ breeding blanket modules distributed along the poloidal direction within one\
+    \ complete 360\xB0 poloidal cross-section of the reactor. It is a design integer\
+    \ that characterizes the poloidal segmentation of the blanket assembly independently\
+    \ of the toroidal layout.\n\nThe total number of blanket modules surrounding the\
+    \ plasma is related by $N_\\mathrm{total} = N_\\mathrm{pol} \\times N_\\mathrm{tor}$,\
+    \ where $N_\\mathrm{tor}$ is the number of toroidal sectors; this defining relation\
+    \ is documented in [breeding_blanket_module_count](name:breeding_blanket_module_count).\
+    \ However, $N_\\mathrm{pol}$ is defined per poloidal cross-section and does not\
+    \ presuppose toroidal symmetry \u2014 in asymmetric or sector-varying configurations\
+    \ the poloidal count may differ between sectors, in which case this quantity captures\
+    \ the count for a representative or specified cross-section.\n\nTypical values\
+    \ range from 5 to 20 modules per poloidal cross-section. Compact pilot-plant designs\
+    \ tend toward fewer, larger modules to simplify remote maintenance, while DEMO-class\
+    \ reactors may require finer poloidal subdivision to satisfy structural, thermal,\
+    \ and neutronics constraints. The poloidal count directly influences shielding\
+    \ adequacy (governed by module dimensions such as those in [top_cap_thickness](name:top_cap_thickness)\
+    \ and [bottom_cap_thickness](name:bottom_cap_thickness)), tritium breeding ratio\
+    \ estimates, and maintenance port access planning.\n\nThis quantity is always\
+    \ a non-negative integer; a value of zero is physically meaningless and indicates\
+    \ an uninitialized or invalid entry."
+  unit: '1'
+  physics_domain: structural_components
+  links:
+  - name:breeding_blanket_module_count
+  - name:top_cap_thickness
+  - name:bottom_cap_thickness
+  - name:tritium_breeding_ratio
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/modules_pol_n
+    dd_path: breeding_blanket/modules_pol_n
+    status: composed
+- name: coolant_temperature_at_inlet
+  kind: scalar
+  status: draft
+  description: Temperature of the coolant fluid at the inlet of a breeding blanket
+    module cooling circuit, setting the thermal boundary condition for the blanket
+    heat-removal analysis.
+  documentation: "The inlet coolant temperature $T_{\\rm in}$ is the bulk fluid temperature\
+    \ at the entry point of the cooling circuit supplying a breeding blanket module.\
+    \ Together with the complementary [outlet temperature](name:coolant_temperature_at_outlet),\
+    \ it determines the coolant temperature rise $\\Delta T = T_{\\rm out} - T_{\\\
+    rm in}$ and, combined with the mass flow rate $\\dot{m}$ and specific heat capacity\
+    \ $c_p$, gives the total heat extracted: $Q = \\dot{m}\\,c_p\\,\\Delta T$, where\
+    \ $Q$ is in watts, $\\dot{m}$ in kg s$^{-1}$, and $c_p$ in J kg$^{-1}$ K$^{-1}$.\
+    \ For water-cooled blanket designs, typical inlet values range from 285\u2013\
+    330 K; helium-cooled concepts operate at 573\u2013773 K at the inlet. The quantity\
+    \ is measured by in-line resistance temperature detectors (RTDs) or thermocouples\
+    \ installed on the inlet manifold, and is also prescribed as a boundary condition\
+    \ in thermal-hydraulic simulations of blanket cooling performance. It forms a\
+    \ key constraint on tritium breeding zone structural integrity and material compatibility\
+    \ assessments."
+  unit: K
+  physics_domain: structural_components
+  links:
+  - name:coolant_temperature_at_outlet
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/module/cooling/time_slice/temperature_inlet
+    dd_path: breeding_blanket/module/cooling/time_slice/temperature_inlet
+    status: composed
+- name: coolant_temperature_at_outlet
+  kind: scalar
+  status: draft
+  description: Temperature of the coolant fluid at the outlet of a breeding blanket
+    module cooling circuit, reflecting the thermal energy extracted from the blanket
+    during operation.
+  documentation: "The outlet coolant temperature $T_{\\rm out}$ marks the end-state\
+    \ of the heat-removal process within a breeding blanket cooling circuit, where\
+    \ the coolant has absorbed thermal energy deposited by neutron heating, gamma\
+    \ radiation, and surface heat flux from the plasma. The temperature rise $\\Delta\
+    \ T = T_{\\rm out} - T_{\\rm in}$ across the circuit, combined with the mass flow\
+    \ rate $\\dot{m}$ and specific heat capacity $c_p$ of the coolant, determines\
+    \ the total extracted thermal power via $P = \\dot{m} c_p \\Delta T$, where $T_{\\\
+    rm in}$ is the [coolant temperature at inlet](name:coolant_temperature_at_inlet).\
+    \ Typical outlet temperatures range from 320 K to 770 K depending on the coolant\
+    \ medium \u2014 pressurized water, helium, or liquid lithium-lead alloy \u2014\
+    \ and the operating regime; these values set material compatibility limits and\
+    \ thermodynamic cycle efficiency. $T_{\\rm out}$ is measured by calibrated thermocouples\
+    \ or resistance temperature detectors placed at the cooling-circuit exit manifold,\
+    \ and is a primary monitor quantity for blanket thermal performance. The inlet\u2013\
+    outlet temperature difference is also used to validate computational thermal-hydraulic\
+    \ models of blanket modules."
+  unit: K
+  physics_domain: structural_components
+  links:
+  - name:coolant_temperature_at_inlet
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/module/cooling/time_slice/temperature_outlet
+    dd_path: breeding_blanket/module/cooling/time_slice/temperature_outlet
+    status: composed
+- name: electrical_resistivity_of_structural_element
+  kind: scalar
+  status: draft
+  description: Electrical resistivity of a discrete structural element, characterizing
+    the intrinsic opposition of the constituent material to electric current flow.
+    For an isotropic material it relates the local electric field to current density
+    via the constitutive relation E = rho * J. This is a bulk or homogenized material
+    property assigned to the element, not a circuit or geometric resistance.
+  documentation: 'The electrical resistivity $\rho$ of a structural element quantifies
+    how strongly the element''s material opposes the flow of electric current. For
+    an isotropic, homogeneous material the constitutive relation is
+
+
+    $$\mathbf{E} = \rho\,\mathbf{J},$$
+
+
+    where $\mathbf{E}$ (V m$^{-1}$) is the electric field and $\mathbf{J}$ (A m$^{-2}$)
+    is the current density. In the general anisotropic case $\rho$ becomes a rank-2
+    tensor $\overleftrightarrow{\rho}$; the present standard name carries the scalar
+    (isotropic) value appropriate for structural elements whose material response
+    does not distinguish direction.
+
+
+    The value may represent either the intrinsic bulk resistivity of a uniform material
+    or an effective homogenized resistivity derived from the detailed microstructure
+    of a composite or laminated element. Which interpretation applies must be documented
+    at the dataset level.
+
+
+    **Typical values:**
+
+    - Copper (cryogenic, ~4 K): $\sim 2\times10^{-10}$ $\Omega\,\mathrm{m}$
+
+    - Stainless steel (room temperature): $\sim 7\times10^{-7}$ $\Omega\,\mathrm{m}$
+
+    - Inconel / superalloys: $\sim 1\times10^{-6}$ $\Omega\,\mathrm{m}$
+
+    - Insulating materials: $\gg 1$ $\Omega\,\mathrm{m}$
+
+
+    Resistivity enters directly into eddy-current and electromagnetic induction analyzes
+    (e.g., halo-current distribution, disruption force calculations) and is a key
+    parameter in circuit-model representations of passive conducting structures such
+    as the cryostat vessel, thermal shields, and vacuum vessel segments.
+
+
+    The inverse of resistivity is the electrical conductivity $\sigma = 1/\rho$ (S
+    m$^{-1}$). Both are intrinsic material properties, independent of the geometry
+    of the element; the corresponding geometry-dependent quantity is the resistance.'
+  unit: m.ohm
+  physics_domain: structural_components
+  links:
+  - name:resistance_of_structural_element
+  constraints: []
+  sources:
+  - id: dd:cryostat/description_2d/cryostat/unit/annular/resistivity
+    dd_path: cryostat/description_2d/cryostat/unit/annular/resistivity
+    status: composed
+  - id: dd:cryostat/description_2d/cryostat/unit/element/resistivity
+    dd_path: cryostat/description_2d/cryostat/unit/element/resistivity
+    status: attached
+  - id: dd:cryostat/description_2d/thermal_shield/unit/annular/resistivity
+    dd_path: cryostat/description_2d/thermal_shield/unit/annular/resistivity
+    status: composed
+  - id: dd:cryostat/description_2d/thermal_shield/unit/element/resistivity
+    dd_path: cryostat/description_2d/thermal_shield/unit/element/resistivity
+    status: composed
+- name: extracted_thermal_power_of_breeding_blanket_module
+  kind: scalar
+  status: draft
+  description: Total thermal power removed from a breeding blanket module by the coolant
+    system, encompassing nuclear heating from neutron and gamma interactions plus
+    any radiative contributions.
+  documentation: "The extracted thermal power $P_{\\rm th}$ of a breeding blanket\
+    \ module is the net rate at which thermal energy is carried away by the coolant\
+    \ circuit, integrating all volumetric heat sources within the module. These sources\
+    \ include neutron-induced nuclear heating \u2014 captured in [neutron_thermal_power_of_breeding_blanket_module](name:neutron_thermal_power_of_breeding_blanket_module)\
+    \ \u2014 and surface radiative loading quantified by [incident_radiated_power_of_breeding_blanket_module](name:incident_radiated_power_of_breeding_blanket_module).\
+    \ In steady state the extracted power equals the sum of all deposited powers minus\
+    \ any parasitic losses (e.g. activation decay heat stored in the structure), so\
+    \ $P_{\\rm th} = P_{\\rm nuclear} + P_{\\rm rad} - P_{\\rm loss}$, where all terms\
+    \ are in W. For a full-scale tokamak reactor module, typical values range from\
+    \ tens to hundreds of MW depending on neutron wall loading and module geometry;\
+    \ in present test-blanket-module experiments values are on the order of 1\u2013\
+    10 MW. The quantity is evaluated from coolant enthalpy rise: $P_{\\rm th} = \\\
+    dot{m} c_p (T_{\\rm out} - T_{\\rm in})$, where $\\dot{m}$ is the coolant mass\
+    \ flow rate, $c_p$ is the specific heat capacity, $T_{\\rm out}$ and $T_{\\rm\
+    \ in}$ are the [coolant_temperature_at_outlet](name:coolant_temperature_at_outlet)\
+    \ and [coolant_temperature_at_inlet](name:coolant_temperature_at_inlet) respectively.\
+    \ It feeds directly into balance-of-plant energy accounting and determines the\
+    \ thermal efficiency of the blanket heat-exchange loop, complementing the overall\
+    \ [thermal_power_load_of_breeding_blanket](name:thermal_power_load_of_breeding_blanket)."
+  unit: W
+  physics_domain: structural_components
+  links:
+  - name:neutron_thermal_power_of_breeding_blanket_module
+  - name:incident_radiated_power_of_breeding_blanket_module
+  - name:coolant_temperature_at_outlet
+  - name:coolant_temperature_at_inlet
+  - name:thermal_power_load_of_breeding_blanket
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/module/time_slice/power_thermal_extracted
+    dd_path: breeding_blanket/module/time_slice/power_thermal_extracted
+    status: composed
+- name: major_radius_of_annular_centerline
+  kind: scalar
+  status: draft
+  description: Cylindrical radial coordinate R of the centerline path of an annular
+    structural unit, giving the non-negative perpendicular distance from the machine
+    symmetry axis to each point along the path, measured in meters.
+  documentation: 'The major radius $R$ of the annular centerline is the cylindrical
+    radial coordinate of each point along the nominal mid-surface path of an annular
+    structural unit, evaluated in the right-handed cylindrical $(R, \phi, Z)$ frame
+    where $R$ is the radial coordinate (major radius), $\phi$ is the toroidal angle,
+    and $Z$ is the vertical height.
+
+
+    The centerline path is defined as the ordered sequence of $(R_i, Z_i)$ coordinate
+    pairs that parameterize the poloidal cross-section of the nominal mid-surface
+    between the inner and outer boundaries of the annular component. Each pair $(R_i,
+    Z_i)$ specifies one discrete node of this contour, with $R_i \geq 0$ by the geometric
+    definition of the cylindrical radial coordinate.
+
+
+    Together with the companion vertical coordinate [vertical_coordinate_of_annular_centerline](name:vertical_coordinate_of_annular_centerline),
+    the $R$ values fully define the 2-D poloidal outline of the centerline. The centerline
+    lies between the contours described by [major_radius_of_annular_inner_outline_point](name:major_radius_of_annular_inner_outline_point)
+    and [major_radius_of_annular_outer_outline_point](name:major_radius_of_annular_outer_outline_point).
+
+
+    For tokamak cryostat and thermal shield annular structures, typical $R$ values
+    range from approximately 2 m to 12 m depending on machine size and radial extent
+    of the component.'
+  unit: m
+  physics_domain: structural_components
+  links:
+  - name:vertical_coordinate_of_annular_centerline
+  - name:major_radius_of_annular_inner_outline_point
+  - name:major_radius_of_annular_outer_outline_point
+  constraints: []
+  sources:
+  - id: dd:cryostat/description_2d/cryostat/unit/annular/centreline/r
+    dd_path: cryostat/description_2d/cryostat/unit/annular/centreline/r
+    status: composed
+  - id: dd:cryostat/description_2d/thermal_shield/unit/annular/centreline/r
+    dd_path: cryostat/description_2d/thermal_shield/unit/annular/centreline/r
+    status: composed
+- name: major_radius_of_annular_outer_outline_point
+  kind: scalar
+  status: draft
+  description: Major-radius coordinate $R$ of a point on the outer outline contour
+    of an annular structural unit, defined in the right-handed cylindrical $(R, \phi,
+    Z)$ frame where $R$ is measured from the machine symmetry axis.
+  documentation: 'The major radius $R$ of a point on the outer outline contour of
+    an annular structural unit (such as a cryostat thermal shield) locates the radially
+    outermost boundary cross-section of that unit within the poloidal plane. Together
+    with the companion vertical coordinate [vertical coordinate of annular outer outline
+    point](name:vertical_coordinate_of_annular_outer_outline_point), it fully specifies
+    the 2D shape of the outer boundary in the $(R, \phi, Z)$ cylindrical frame. The
+    outer outline contrasts with the inner boundary described by [major radius of
+    annular inner outline point](name:major_radius_of_annular_inner_outline_point),
+    and the two together define the annular cross-sectional thickness; the radial
+    mid-surface position is captured by [major radius of annular centerline](name:major_radius_of_annular_centerline).
+    Typical values for thermal shield outer outlines in medium-to-large tokamaks range
+    from approximately 2 m to 10 m depending on machine size. The coordinate is obtained
+    from engineering design drawings or 2D CAD models of the structural component.
+
+
+    Sign convention: Positive when $R$ is measured outward from the machine symmetry
+    axis, i.e. $R > 0$ for all physical points in the cylindrical $(R, \phi, Z)$ frame.'
+  unit: m
+  physics_domain: structural_components
+  links:
+  - name:vertical_coordinate_of_annular_outer_outline_point
+  - name:major_radius_of_annular_inner_outline_point
+  - name:major_radius_of_annular_centerline
+  constraints: []
+  sources:
+  - id: dd:cryostat/description_2d/cryostat/unit/annular/outline_outer/r
+    dd_path: cryostat/description_2d/cryostat/unit/annular/outline_outer/r
+    status: composed
+  - id: dd:cryostat/description_2d/thermal_shield/unit/annular/outline_outer/r
+    dd_path: cryostat/description_2d/thermal_shield/unit/annular/outline_outer/r
+    status: composed
+- name: major_radius_of_plasma_facing_component_outline_point
+  kind: scalar
+  status: draft
+  description: Major-radius coordinate R of a point on the discrete outline contour
+    of a plasma-facing component, in the right-handed cylindrical $(R, \phi, Z)$ frame.
+  documentation: "The major radius $R$ measures the horizontal distance from the machine\
+    \ symmetry axis to a given point on the outline contour of a plasma-facing component,\
+    \ defined in the right-handed cylindrical $(R, \\phi, Z)$ frame where $R$ is measured\
+    \ from the symmetry axis in meters. Plasma-facing component outlines are typically\
+    \ represented as ordered sequences of $(R, Z)$ pairs that trace the poloidal cross-section\
+    \ of the component surface; this quantity gives the $R$ coordinate of each such\
+    \ point. Typical values range from roughly 0.5 m (inner wall) to 10 m (outer wall)\
+    \ depending on the device size, with ITER-scale machines spanning approximately\
+    \ 4\u20138 m for main-chamber components. This coordinate is used in neutronics,\
+    \ thermal-hydraulics, and structural analysis codes to define the component geometry\
+    \ in the poloidal plane. Related geometry coordinates in the same family include\
+    \ [major_radius_of_annular_outer_outline_point](name:major_radius_of_annular_outer_outline_point),\
+    \ [major_radius_of_annular_inner_outline_point](name:major_radius_of_annular_inner_outline_point),\
+    \ and [major_radius_of_plasma_boundary_outline_point](name:major_radius_of_plasma_boundary_outline_point);\
+    \ the paired vertical coordinate $Z$ of the same contour family should be consulted\
+    \ alongside this quantity.\n\nSign convention: Positive when the outline point\
+    \ lies at a finite distance from the machine symmetry axis in the outward radial\
+    \ direction, i.e. $R > 0$."
+  unit: m
+  physics_domain: structural_components
+  links:
+  - name:major_radius_of_annular_outer_outline_point
+  - name:major_radius_of_annular_inner_outline_point
+  - name:major_radius_of_plasma_boundary_outline_point
+  constraints: []
+  sources:
+  - id: dd:cryostat/description_2d/thermal_shield/unit/element/outline/r
+    dd_path: cryostat/description_2d/thermal_shield/unit/element/outline/r
+    status: composed
+- name: maximum_neutron_escape_flux_of_breeding_blanket_module
+  kind: scalar
+  status: draft
+  description: Peak neutron energy flux density (W m^-2) escaping through the plasma-distal
+    (back) face of a breeding blanket module, defined as the maximum value of the
+    local outward normal component of the neutron energy current density over that
+    surface.
+  documentation: "The maximum neutron escape flux $\\Phi_\\mathrm{esc,max}$ is the\
+    \ supremum of the outward-normal neutron energy flux density $\\mathbf{J}_n \\\
+    cdot \\hat{n}$ evaluated over the plasma-distal (back) face $\\partial V_\\mathrm{back}$\
+    \ of a breeding blanket module:\n\n$$\\Phi_\\mathrm{esc,max} = \\max_{\\mathbf{r}\\\
+    ,\\in\\,\\partial V_\\mathrm{back}} \\bigl(\\mathbf{J}_n(\\mathbf{r}) \\cdot \\\
+    hat{n}(\\mathbf{r})\\bigr)$$\n\nwhere $\\hat{n}$ is the outward unit normal to\
+    \ the back face (pointing away from the plasma) and $\\mathbf{J}_n$ is the local\
+    \ neutron energy current density in W m$^{-2}$. The module-integrated power escaping\
+    \ through the back face is obtained by surface integration:\n\n$$P_\\mathrm{esc}\
+    \ = \\int_{\\partial V_\\mathrm{back}} \\mathbf{J}_n(\\mathbf{r}) \\cdot \\hat{n}(\\\
+    mathbf{r})\\, \\mathrm{d}A$$\n\nso that $\\Phi_\\mathrm{esc,max} \\geq P_\\mathrm{esc}\
+    \ / A_\\mathrm{back}$, with $A_\\mathrm{back}$ the area of the back face.\n\n\
+    This quantity characterizes the neutron leakage past the breeding zone and multiplier\
+    \ region. For a well-designed blanket the back-face flux is substantially attenuated\
+    \ relative to the first-wall neutron flux $\\Phi_\\mathrm{FW}$; typical attenuation\
+    \ ratios $\\Phi_\\mathrm{esc,max}/\\Phi_\\mathrm{FW}$ are of order $10^{-3}$\u2013\
+    $10^{-1}$ depending on blanket thickness and material composition. Given a first-wall\
+    \ neutron wall loading of order $10^6$\u2013$10^7$ W m$^{-2}$ for a reactor-class\
+    \ device, the back-face escape flux is typically in the range $10^3$\u2013$10^5$\
+    \ W m$^{-2}$. The spatial maximum (rather than the mean) is the relevant figure\
+    \ of merit for shielding design because local hot-spots drive activation and heating\
+    \ in the vacuum vessel and superconducting magnets behind the blanket.\n\nSign\
+    \ convention: Positive when the neutron energy flux is directed outward through\
+    \ the back face, i.e. away from the plasma."
+  unit: W.m^-2
+  physics_domain: structural_components
+  links:
+  - name:maximum_neutron_flux_at_first_wall_of_breeding_blanket_module
+  - name:incident_neutron_power_of_breeding_blanket_module
+  - name:neutron_heating_power_of_breeding_blanket_module
+  - name:blanket_neutron_energy_multiplication
+  - name:side_wall_thickness_of_breeding_blanket_module
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/module/time_slice/escape_flux_max
+    dd_path: breeding_blanket/module/time_slice/escape_flux_max
+    status: composed
+- name: midplane_thickness_of_breeding_blanket_layer
+  kind: scalar
+  status: draft
+  description: Radial distance between the inner and outer bounding surfaces of a
+    breeding blanket layer, measured at the equatorial midplane. This is a non-negative
+    scalar geometric parameter defining the local radial extent of the layer where
+    the blanket cross-section is evaluated at the horizontal mid-height of the machine.
+  documentation: "The midplane thickness of a breeding blanket layer is defined as\
+    \ the non-negative radial distance $t \\geq 0$ between the two bounding surfaces\
+    \ of the layer, evaluated at the equatorial midplane (the horizontal plane passing\
+    \ through the machine axis at mid-height, $Z = 0$ in the right-handed cylindrical\
+    \ $(R, \\phi, Z)$ frame).\n\nFormally, if $R_\\mathrm{inner}$ and $R_\\mathrm{outer}$\
+    \ denote the major-radius positions of the inner and outer bounding surfaces of\
+    \ the layer at the midplane, then\n\n$$t = R_\\mathrm{outer} - R_\\mathrm{inner}\
+    \ \\geq 0.$$\n\nBecause the blanket geometry may taper or curve away from the\
+    \ midplane, the midplane thickness is the standard reference dimension used in\
+    \ blanket design. It characterizes the local radial extent at the equatorial plane\
+    \ where the neutron flux and tritium breeding rates are typically highest in a\
+    \ tokamak.\n\nTypical values range from a few centimeters for thin functional\
+    \ layers (e.g., first-wall armor or coolant channels, $\\sim 0.01$\u2013$0.05$\
+    \ m) to tens of centimeters for the main tritium-breeding zone ($\\sim 0.3$\u2013\
+    $0.8$ m), depending on the blanket concept. The sum of all layer midplane thicknesses\
+    \ gives the total radial build of the blanket module at the midplane.\n\nThis\
+    \ quantity is a purely geometric, non-negative scalar; it carries no sign ambiguity."
+  unit: m
+  physics_domain: structural_components
+  links:
+  - name:tritium_breeding_ratio
+  - name:side_wall_thickness_of_breeding_blanket_module
+  - name:top_cap_thickness
+  - name:bottom_cap_thickness
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/module/layer/midplane_thickness
+    dd_path: breeding_blanket/module/layer/midplane_thickness
+    status: composed
+- name: midplane_thickness_of_cryostat_vessel_block
+  kind: scalar
+  status: draft
+  description: Wall thickness of a cryostat vessel block element measured perpendicular
+    to the local vessel surface at the machine midplane (Z = 0). This is a non-negative
+    geometric quantity expressing the local material extent between the inner and
+    outer faces of the vessel wall at the equatorial plane.
+  documentation: "The midplane thickness $t$ of a cryostat vessel block element is\
+    \ defined as the perpendicular distance between the inner and outer surfaces of\
+    \ the vessel wall, evaluated at the equatorial plane $Z = 0$ of the machine cylindrical\
+    \ $(R, \\phi, Z)$ frame, where $R$ is the major radius from the machine symmetry\
+    \ axis and $Z$ is the vertical height.\n\nFormally, if $\\mathbf{n}$ is the outward\
+    \ unit normal to the vessel mid-surface at the midplane intersection point, and\
+    \ $r_\\mathrm{in}$ and $r_\\mathrm{out}$ are the positions of the inner and outer\
+    \ surfaces along $\\mathbf{n}$, then\n$$t = r_\\mathrm{out} - r_\\mathrm{in} \\\
+    geq 0.$$\nThis wall-normal convention distinguishes $t$ from a purely radial or\
+    \ vertical coordinate separation, which would differ for curved or tilted vessel\
+    \ walls. The non-negativity constraint $t \\geq 0$ holds by definition; a value\
+    \ of zero indicates a degenerate or absent element at the midplane.\n\nFor a large\
+    \ tokamak cryostat, vessel wall thicknesses at the midplane typically lie in the\
+    \ range $0.02$\u2013$0.20$ m, with thicker sections near structural supports or\
+    \ penetrations. The midplane is often the location of peak thermal flux and of\
+    \ primary structural loads in hoop tension, making the local wall thickness a\
+    \ critical parameter for section-modulus and heat-conduction computations. However,\
+    \ the quantity itself is purely geometric \u2014 it represents only the material\
+    \ extent of the vessel wall and carries no embedded load or thermal assumption.\n\
+    \nWhen the vessel cross-section is not circular in the poloidal plane, the midplane\
+    \ intersection may intersect multiple shell segments; in such cases $t$ refers\
+    \ to the thickness of the individual block element at its midplane crossing point,\
+    \ not to any aggregate or average over the full cross-section.\n\nTypical units:\
+    \ meters (m). Non-negative by definition."
+  unit: m
+  physics_domain: structural_components
+  links:
+  - name:midplane_thickness_of_thermal_shield_element
+  - name:annular_layer_thickness
+  - name:midplane_thickness_of_breeding_blanket_layer
+  constraints: []
+  sources:
+  - id: dd:cryostat/description_2d/cryostat/unit/element/midplane_thickness
+    dd_path: cryostat/description_2d/cryostat/unit/element/midplane_thickness
+    status: composed
+  - id: dd:cryostat/description_2d/thermal_shield/unit/element/midplane_thickness
+    dd_path: cryostat/description_2d/thermal_shield/unit/element/midplane_thickness
+    status: composed
+- name: neutron_heating_power_of_breeding_blanket_module
+  kind: scalar
+  status: draft
+  description: Power deposited within a single breeding blanket module by neutron
+    interactions, encompassing prompt kinetic energy transfer to nuclei and electrons,
+    gamma heating from radiative capture and inelastic scattering, and exothermic
+    nuclear reactions such as the tritium-breeding 6Li(n,t)alpha reaction. Distinct
+    from incident neutron power (a surface flux integral) and from total deposited
+    thermal power, which includes all heat sources.
+  documentation: "The neutron heating power $P_\\mathrm{n,heat}$ of a breeding blanket\
+    \ module is the total rate of energy deposition within the module volume arising\
+    \ from all neutron-induced processes. This includes: (1) prompt kinetic energy\
+    \ imparted to recoil nuclei and knock-on electrons via elastic and inelastic neutron\
+    \ scattering; (2) gamma heating from secondary photons produced in radiative capture\
+    \ $(n,\\gamma)$ and inelastic scattering $(n,n'\\gamma)$ reactions, where the\
+    \ gammas deposit their energy locally via Compton scattering and pair production;\
+    \ and (3) the exothermic $^6$Li$(n,t)\\alpha$ reaction, which releases approximately\
+    \ 4.78 MeV per event and constitutes the primary tritium-breeding reaction.\n\n\
+    The total energy deposition per neutron exceeds the incident neutron kinetic energy\
+    \ by the energy multiplication factor $M$, typically in the range $M \\approx\
+    \ 1.1$\u2013$1.3$ for a lithium-bearing blanket. This quantity differs from a\
+    \ simple kerma (kinetic energy released to matter) calculation: in a thick blanket,\
+    \ secondary photons produced at one location deposit energy at a different location,\
+    \ and charged-particle equilibrium does not generally hold. A full volumetric\
+    \ energy deposition calculation integrates over all reaction channels:\n\n$$P_\\\
+    mathrm{n,heat} = \\int_V \\int_0^\\infty \\phi(\\mathbf{r}, E)\\, \\Sigma_\\mathrm{dep}(\\\
+    mathbf{r}, E)\\, E_\\mathrm{dep}(E)\\, dE\\, dV$$\n\nwhere $\\phi(\\mathbf{r},\
+    \ E)$ is the neutron flux density [n cm$^{-2}$ s$^{-1}$ MeV$^{-1}$] at position\
+    \ $\\mathbf{r}$ and neutron energy $E$ [MeV], $\\Sigma_\\mathrm{dep}(\\mathbf{r},\
+    \ E)$ [cm$^{-1}$] is the macroscopic cross-section weighted for energy deposition,\
+    \ and $E_\\mathrm{dep}(E)$ [MeV] is the energy deposited per reaction at incident\
+    \ energy $E$. The integral accounts for the spatial redistribution of secondary\
+    \ photon energy, distinguishing it from a point-wise kerma approximation.\n\n\
+    For a single first-wall-facing breeding blanket module in a fusion device, typical\
+    \ values of $P_\\mathrm{n,heat}$ lie in the range of tens of kilowatts to several\
+    \ megawatts depending on module size, toroidal/poloidal location, and first-wall\
+    \ neutron wall loading (typically 0.5\u20132 MW m$^{-2}$ for ITER-class devices).\n\
+    \nSign convention: Positive when energy is deposited into the module volume (energy\
+    \ source for the module)."
+  unit: W
+  physics_domain: structural_components
+  links:
+  - name:incident_neutron_power_of_breeding_blanket_module
+  - name:extracted_thermal_power_of_breeding_blanket_module
+  - name:neutron_thermal_power_of_breeding_blanket_module
+  - name:nuclear_heating_power_of_breeding_blanket_layer
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/module/time_slice/power_thermal_neutrons
+    dd_path: breeding_blanket/module/time_slice/power_thermal_neutrons
+    status: composed
+- name: nuclear_heating_power_of_breeding_blanket
+  kind: scalar
+  status: draft
+  description: Total nuclear heating power deposited across the entire breeding blanket
+    assembly by neutron and gamma radiation interactions.
+  documentation: "The nuclear heating power of the breeding blanket, $P_{\\mathrm{nuc}}$,\
+    \ is the volume-integrated power deposition rate from neutron scattering, neutron\
+    \ capture, and gamma absorption throughout the complete blanket assembly. It is\
+    \ governed by $P_{\\mathrm{nuc}} = \\int_V \\dot{q}'''(\\mathbf{r})\\, dV$, where\
+    \ $\\dot{q}'''$ is the local nuclear volumetric heating rate integrated over the\
+    \ full blanket volume $V$. In deuterium-tritium fusion reactors, roughly 80% of\
+    \ the 14.1 MeV fusion neutron energy is ultimately deposited in the blanket as\
+    \ nuclear heat; typical total values for a reactor-scale device are 1\u20133 GW.\
+    \ This quantity serves as the top-level power budget for the breeding blanket,\
+    \ complementing sub-component quantities such as [nuclear heating power of the\
+    \ shield](name:nuclear_heating_power_of_breeding_blanket_shield) and [nuclear\
+    \ heating power of a specific layer](name:nuclear_heating_power_of_breeding_blanket_layer).\
+    \ It feeds directly into the balance-of-plant thermal analysis and is a key input\
+    \ for assessing [tritium breeding ratio](name:tritium_breeding_ratio) alongside\
+    \ [blanket neutron energy multiplication](name:blanket_neutron_energy_multiplication).\
+    \ Values are computed by neutron transport codes (e.g., Monte Carlo particle transport)\
+    \ applied to the full blanket geometry."
+  unit: W
+  physics_domain: structural_components
+  links:
+  - name:nuclear_heating_power_of_breeding_blanket_shield
+  - name:nuclear_heating_power_of_breeding_blanket_layer
+  - name:tritium_breeding_ratio
+  - name:blanket_neutron_energy_multiplication
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/time_slice/power_nuclear_blanket
+    dd_path: breeding_blanket/time_slice/power_nuclear_blanket
+    status: composed
+- name: nuclear_heating_power_of_breeding_blanket_layer
+  kind: scalar
+  status: draft
+  description: Total nuclear heating power from neutron and gamma interactions deposited
+    in a specific layer within a breeding blanket module, summing all volumetric energy
+    deposition processes across that layer's material volume.
+  documentation: 'Nuclear heating in a breeding blanket layer arises from neutron
+    elastic and inelastic scattering, radiative capture, and secondary gamma deposition
+    within the layer''s structural and functional materials (e.g., first wall, multiplier,
+    breeder, or coolant layers). The total nuclear heating power $P_{\rm nuc}$ is
+    obtained by integrating the local nuclear heating rate density $q''''''_{\rm nuc}$
+    over the layer volume $V_\ell$: $$P_{\rm nuc} = \int_{V_\ell} q''''''_{\rm nuc}\,
+    dV,$$ where $q''''''_{\rm nuc}$ includes contributions from neutron kerma and
+    gamma kerma in each material. This quantity is a layer-resolved specialization
+    of [nuclear_heating_power_of_breeding_blanket](name:nuclear_heating_power_of_breeding_blanket),
+    which integrates over the entire blanket assembly; summing over all layers and
+    shield structures of a module should recover the module-level total. Typical layer-level
+    nuclear heating powers depend strongly on layer position and composition: first-wall
+    and multiplier layers immediately behind the plasma-facing surface experience
+    the highest neutron flux, while deeper breeder and shield layers see attenuated
+    values. Computed from neutronics transport codes (e.g., Monte Carlo or deterministic
+    Sn solvers) using detailed material and geometry models; validation uses [blanket_neutron_energy_multiplication](name:blanket_neutron_energy_multiplication)
+    as a consistency check on the integrated heating budget. The layer-level resolution
+    also supports thermal-hydraulic coupling, where the deposited power drives coolant
+    heat removal analyzed via [extracted_thermal_power_of_breeding_blanket_module](name:extracted_thermal_power_of_breeding_blanket_module).'
+  unit: W
+  physics_domain: structural_components
+  links:
+  - name:nuclear_heating_power_of_breeding_blanket
+  - name:blanket_neutron_energy_multiplication
+  - name:extracted_thermal_power_of_breeding_blanket_module
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/module/layer/time_slice/power_nuclear
+    dd_path: breeding_blanket/module/layer/time_slice/power_nuclear
+    status: composed
+- name: nuclear_heating_power_of_breeding_blanket_shield
+  kind: scalar
+  status: draft
+  description: Nuclear heating power deposited in the neutron shield structures of
+    the breeding blanket by neutron and gamma radiation interactions.
+  documentation: 'The breeding blanket shield is a structural sub-assembly surrounding
+    the tritium-breeding zone, designed to attenuate the neutron and gamma flux that
+    would otherwise reach the vessel and superconducting coils. The total nuclear
+    heating power $P_{\rm shield}$ is the volumetric integral of the nuclear energy
+    deposition rate density $q''''''$ over the shield material volume: $$P_{\rm shield}
+    = \int_{V_{\rm shield}} q''''''\, dV$$ where $q''''''$ (W m$^{-3}$) includes contributions
+    from neutron scattering, neutron capture, and secondary gamma interactions. In
+    D-T fusion reactor designs, the shield typically absorbs a fraction of the 14.1
+    MeV neutron energy not already deposited in the breeding zone; typical values
+    range from tens to hundreds of kilowatts per module depending on shield thickness,
+    composition (e.g. steel, tungsten, water), and neutron flux level. This quantity
+    complements [nuclear_heating_power_of_breeding_blanket](name:nuclear_heating_power_of_breeding_blanket),
+    which covers the full blanket assembly, and [nuclear_heating_power_of_breeding_blanket_layer](name:nuclear_heating_power_of_breeding_blanket_layer),
+    which resolves individual radial layers. It is computed from neutron transport
+    codes (e.g. Monte Carlo or discrete-ordinates methods) applied to the blanket
+    geometry and contributes to the total [thermal_power_load_of_breeding_blanket](name:thermal_power_load_of_breeding_blanket)
+    used in plant thermal-hydraulic analysis.'
+  unit: W
+  physics_domain: structural_components
+  links:
+  - name:nuclear_heating_power_of_breeding_blanket
+  - name:nuclear_heating_power_of_breeding_blanket_layer
+  - name:thermal_power_load_of_breeding_blanket
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/time_slice/power_nuclear_shields
+    dd_path: breeding_blanket/time_slice/power_nuclear_shields
+    status: composed
+- name: radial_distance_from_first_wall_at_midplane
+  kind: scalar
+  status: draft
+  description: Radial distance from the plasma-facing first wall surface to a reference
+    point within a breeding blanket module, evaluated at the outboard equatorial midplane,
+    with zero defined at the wall surface.
+  documentation: "The radial distance from the first wall at the midplane quantifies\
+    \ how deeply a given reference location within a breeding blanket module sits\
+    \ behind the plasma-facing surface, measured along the major-radius direction\
+    \ $R$ in the right-handed cylindrical $(R, \\phi, Z)$ frame at the equatorial\
+    \ midplane ($Z = 0$). This geometric parameter governs the local neutron fluence\
+    \ and nuclear heating profiles: regions closer to the first wall ($\\Delta R$\
+    \ small) experience higher fast-neutron flux, while deeper zones contribute more\
+    \ to tritium breeding via thermal-neutron capture in lithium-bearing materials.\
+    \ Typical values range from 0 m at the wall to approximately 0.6\u20131.0 m at\
+    \ the back of the blanket module, depending on reactor design. It is used alongside\
+    \ the [midplane_thickness_of_breeding_blanket_layer](name:midplane_thickness_of_breeding_blanket_layer)\
+    \ to locate individual breeding layers within the module stack, and complements\
+    \ poloidal geometry descriptors such as [bottom_cap_thickness](name:bottom_cap_thickness)\
+    \ and [top_cap_thickness](name:top_cap_thickness) in full 3-D neutronics models.\
+    \ The quantity is determined from computer-aided design geometry or neutronics\
+    \ mesh generation rather than direct plasma measurement.\n\nSign convention: Positive\
+    \ when the reference point lies behind the first wall surface in the direction\
+    \ of increasing major radius $R$, away from the plasma."
+  unit: m
+  physics_domain: structural_components
+  links:
+  - name:midplane_thickness_of_breeding_blanket_layer
+  - name:bottom_cap_thickness
+  - name:top_cap_thickness
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/module/time_slice/midplane_wall_distance
+    dd_path: breeding_blanket/module/time_slice/midplane_wall_distance
+    status: composed
+- name: resistance_of_structural_element
+  kind: scalar
+  status: draft
+  description: Lumped electrical resistance of a discrete block element forming part
+    of the cryostat or thermal shield structure, governing induced current magnitude
+    in eddy-current analyzes.
+  documentation: "The resistance $R$ of a structural block element quantifies the\
+    \ element's opposition to electric current flow under an impressed electromotive\
+    \ force, following Ohm's law $V = R I$, where $V$ is the voltage across the element\
+    \ and $I$ the current through it. In the context of tokamak cryostat and thermal\
+    \ shield assemblies, this lumped parameter is used in eddy-current circuit models\
+    \ that predict induced currents and resulting electromagnetic forces during plasma\
+    \ disruptions or fast field transients. The value depends on the element's geometry\
+    \ and material: $R = \\rho \\, l / A$, where $\\rho$ is the material [electrical\
+    \ resistivity](name:electrical_resistivity_of_structural_element), $l$ is the\
+    \ current path length, and $A$ is the cross-sectional area. Typical cryostat structural\
+    \ materials (stainless steel, aluminum alloys) yield element resistances in the\
+    \ range $10^{-6}$\u2013$10^{-3}$ ohm, depending on element dimensions. This quantity\
+    \ is distinct from the intrinsic material property captured by [electrical_resistivity_of_structural_element](name:electrical_resistivity_of_structural_element),\
+    \ which carries units of m\xB7ohm and is independent of geometry."
+  unit: ohm
+  physics_domain: structural_components
+  links:
+  - name:electrical_resistivity_of_structural_element
+  constraints: []
+  sources:
+  - id: dd:cryostat/description_2d/cryostat/unit/element/resistance
+    dd_path: cryostat/description_2d/cryostat/unit/element/resistance
+    status: composed
+  - id: dd:cryostat/description_2d/thermal_shield/unit/element/resistance
+    dd_path: cryostat/description_2d/thermal_shield/unit/element/resistance
+    status: composed
+- name: side_wall_thickness_of_breeding_blanket_module
+  kind: scalar
+  status: draft
+  description: Perpendicular distance between the two toroidal bounding surfaces of
+    a breeding blanket module side wall. This non-negative geometric scalar characterizes
+    the wall material thickness in the toroidal direction.
+  documentation: 'The side wall thickness $t_\mathrm{sw}$ is defined as the perpendicular
+    distance between the inner and outer toroidal faces of a single side wall of a
+    breeding blanket module, measured normal to the wall surface.
+
+
+    $$t_\mathrm{sw} = \lvert x_\mathrm{outer} - x_\mathrm{inner} \rvert \geq 0$$
+
+
+    where $x_\mathrm{outer}$ and $x_\mathrm{inner}$ denote positions of the two toroidal
+    bounding surfaces along the local wall-normal direction. By definition, $t_\mathrm{sw}
+    \geq 0$.
+
+
+    Typical values range from $0.01$ to $0.05\,\text{m}$ depending on the blanket
+    concept and structural material selection.
+
+
+    This dimension complements the [top cap thickness](name:top_cap_thickness_of_breeding_blanket_module)
+    and [bottom cap thickness](name:bottom_cap_thickness_of_breeding_blanket_module)
+    (poloidal enclosure walls) and the [layer midplane thickness](name:layer_midplane_thickness_of_breeding_blanket_module)
+    (radial internal layer dimensions) to form the complete geometric envelope of
+    the module box. Together with the [first wall thickness](name:first_wall_thickness_of_breeding_blanket_module),
+    these parameters define the structural boundary conditions for neutronic and thermal-hydraulic
+    analyzes.
+
+
+    Recorded in meters.'
+  unit: m
+  physics_domain: structural_components
+  links:
+  - name:top_cap_thickness
+  - name:bottom_cap_thickness
+  - name:layer_midplane_thickness
+  - name:tritium_breeding_ratio
+  - name:blanket_neutron_energy_multiplication
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/module/side_wall_thickness
+    dd_path: breeding_blanket/module/side_wall_thickness
+    status: composed
+- name: top_cap_thickness
+  kind: scalar
+  status: draft
+  description: Poloidal thickness of the top cap of a breeding blanket module, defined
+    as the non-negative distance between the inner and outer bounding surfaces of
+    the cap along the poloidal direction.
+  documentation: "The top cap poloidal thickness $d_{\\mathrm{top}}$ is the perpendicular\
+    \ distance between the two bounding surfaces of the end-plate that closes the\
+    \ upper poloidal face of a breeding blanket module. Geometrically, it is the solid-body\
+    \ dimension\n\n$$d_{\\mathrm{top}} = \\lvert z_{\\mathrm{outer}} - z_{\\mathrm{inner}}\
+    \ \\rvert$$\n\nwhere $z_{\\mathrm{outer}}$ and $z_{\\mathrm{inner}}$ are the axial\
+    \ ($Z$) coordinates, in meters, of the outer and inner bounding planes of the\
+    \ cap in the right-handed cylindrical $(R, \\phi, Z)$ frame, with $Z$ measured\
+    \ vertically along the machine symmetry axis. The absolute value ensures a non-negative\
+    \ result regardless of surface labeling. For modules near the top of the vacuum\
+    \ vessel, the poloidal direction is approximately aligned with $+\\hat{Z}$; for\
+    \ off-midplane modules at other poloidal positions, the relevant direction is\
+    \ the local surface normal of the cap, which in simplified planar geometry reduces\
+    \ to the perpendicular distance between parallel bounding planes.\n\nTypical values\
+    \ in conceptual breeding blanket designs range from 0.01 m to 0.05 m (a few millimeters\
+    \ to several centimeters), reflecting the trade-off between structural integrity\
+    \ under neutron and thermal loads, neutron shielding, coolant manifold space,\
+    \ and tritium breeding volume. Together with the complementary [bottom_cap_thickness](name:bottom_cap_thickness)\
+    \ and [side_wall_thickness](name:side_wall_thickness), this quantity fully characterizes\
+    \ the outer structural shell of the module. It enters neutronics transport calculations\
+    \ \u2014 a thicker cap reduces neutron leakage from the upper face but displaces\
+    \ fertile breeding material \u2014 and thermal-hydraulic models evaluating conductive\
+    \ heat flow through the cap. The value is non-negative by definition and is obtained\
+    \ from engineering design specifications or CAD models of the blanket module."
+  unit: m
+  physics_domain: structural_components
+  links:
+  - name:bottom_cap_thickness
+  - name:side_wall_thickness
+  - name:layer_midplane_thickness
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/module/top_cap_thickness
+    dd_path: breeding_blanket/module/top_cap_thickness
+    status: composed
+- name: tritium_breeding_ratio
+  kind: scalar
+  status: draft
+  description: Number of tritium atoms produced per fusion neutron absorbed in the
+    breeding blanket, the primary figure of merit for fuel self-sufficiency in a deuterium-tritium
+    fusion reactor.
+  documentation: "The tritium breeding ratio (TBR) quantifies the neutron economy\
+    \ of the breeding blanket by measuring how many tritium atoms are generated per\
+    \ fusion neutron entering the blanket assembly. It is defined as $\\mathrm{TBR}\
+    \ = N_T / N_n$, where $N_T$ is the number of tritium atoms produced via neutron\
+    \ reactions (principally $^6\\mathrm{Li}(n,\\alpha)T$ and $^7\\mathrm{Li}(n,n'\\\
+    alpha)T$) and $N_n$ is the number of incident fusion neutrons. Fuel self-sufficiency\
+    \ requires TBR $> 1$ to account for tritium decay losses, permeation, and processing\
+    \ inefficiencies; engineering target values are generally TBR $\\geq 1.05$\u2013\
+    $1.15$. The TBR is evaluated over the full blanket assembly and depends sensitively\
+    \ on lithium-6 enrichment fraction, blanket geometry (characterized by parameters\
+    \ such as [layer_midplane_thickness](name:layer_midplane_thickness) and [side_wall_thickness](name:side_wall_thickness)),\
+    \ neutron multiplier content, and neutron energy spectrum. It is computed via\
+    \ neutron transport codes (e.g., Monte Carlo methods) and is closely coupled to\
+    \ the [blanket_neutron_energy_multiplication](name:blanket_neutron_energy_multiplication),\
+    \ which captures the concurrent nuclear energy gain. Experimental validation is\
+    \ pursued through activation measurements and tritium recovery accounting during\
+    \ integral blanket tests.\n\nSign convention: Positive when the number of tritium\
+    \ atoms produced exceeds zero, i.e. for any blanket with net tritium generation."
+  unit: '1'
+  physics_domain: structural_components
+  links:
+  - name:layer_midplane_thickness
+  - name:side_wall_thickness
+  - name:blanket_neutron_energy_multiplication
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/module/time_slice/tritium_breeding_ratio
+    dd_path: breeding_blanket/module/time_slice/tritium_breeding_ratio
+    status: composed
+  - id: dd:breeding_blanket/time_slice/tritium_breeding_ratio
+    dd_path: breeding_blanket/time_slice/tritium_breeding_ratio
+    status: composed
+- name: vertical_coordinate_of_annular_inner_outline_point
+  kind: scalar
+  status: draft
+  description: Vertical (Z) coordinate of a point on the inner outline contour of
+    an annular structural unit, defining the axial height of the inner boundary cross-section
+    in the right-handed cylindrical $(R, \phi, Z)$ frame.
+  documentation: "This quantity specifies the $Z$ coordinate of a discrete point on\
+    \ the inner outline contour of an annular structural component, such as an annular\
+    \ cryostat vessel or thermal shield unit. The inner outline defines the radially\
+    \ inward-facing boundary of the annular cross-section, and a sequence of such\
+    \ $Z$ values \u2014 paired with the corresponding major-radius values from [major_radius_of_annular_inner_outline_point](name:major_radius_of_annular_inner_outline_point)\
+    \ \u2014 traces the complete inner contour in the poloidal $(R, Z)$ plane. Together\
+    \ with [vertical_coordinate_of_annular_outer_outline_point](name:vertical_coordinate_of_annular_outer_outline_point),\
+    \ which gives the equivalent $Z$ coordinate on the outer boundary, this quantity\
+    \ fully characterizes the axial extent of the annular wall cross-section. The\
+    \ [vertical_coordinate_of_annular_centerline](name:vertical_coordinate_of_annular_centerline)\
+    \ provides the corresponding $Z$ coordinate at the mid-surface of the same annular\
+    \ unit. Typical values span the axial height range of the structural component,\
+    \ from a few tenths of a meter to several meters in large tokamak devices. These\
+    \ coordinates are derived from engineering design drawings and verified against\
+    \ as-built survey measurements.\n\nSign convention: Positive when $Z$ is above\
+    \ the machine midplane, in the direction of increasing vertical height."
+  unit: m
+  physics_domain: structural_components
+  links:
+  - name:major_radius_of_annular_inner_outline_point
+  - name:vertical_coordinate_of_annular_outer_outline_point
+  - name:vertical_coordinate_of_annular_centerline
+  constraints: []
+  arguments:
+  - name: coordinate_of_annular_inner_outline_point
+    operator: coordinate
+    operator_kind: coordinate
+    axis: vertical
+    shape: coordinate
+  sources:
+  - id: dd:cryostat/description_2d/cryostat/unit/annular/outline_inner/z
+    dd_path: cryostat/description_2d/cryostat/unit/annular/outline_inner/z
+    status: composed
+  - id: dd:cryostat/description_2d/thermal_shield/unit/annular/outline_inner/z
+    dd_path: cryostat/description_2d/thermal_shield/unit/annular/outline_inner/z
+    status: composed
+- name: volume_fraction_of_structural_unit_material
+  kind: scalar
+  status: draft
+  description: Volume fraction of each constituent material within a structural unit,
+    used to compute homogenized material properties for neutronics and thermal analysis.
+  documentation: "The volume fraction $f_i$ of the $i$-th material in a structural\
+    \ unit is defined as $f_i = V_i / V_{\\rm unit}$, where $V_i$ is the volume occupied\
+    \ by material $i$ and $V_{\\rm unit}$ is the total unit volume, with the constraint\
+    \ $\\sum_i f_i = 1$. This quantity is essential for homogenizing material properties\
+    \ \u2014 such as thermal conductivity, density, and neutron cross-sections \u2014\
+    \ across heterogeneous structural zones in breeding blankets, shields, and cryostat\
+    \ assemblies. Typical structural units in fusion reactor components contain two\
+    \ to five distinct materials (e.g., steel, water coolant, tungsten, beryllium\
+    \ multiplier, lithium ceramic breeder), with individual volume fractions spanning\
+    \ the full range $(0, 1)$ depending on design. Volume fractions are generally\
+    \ specified as engineering design inputs derived from computer-aided design models\
+    \ or neutronic homogenization codes rather than measured directly. The closely\
+    \ related quantity [material_volume_fraction](name:material_volume_fraction) captures\
+    \ the same physical concept and should be consulted for context on the catalog\
+    \ convention."
+  unit: '1'
+  physics_domain: structural_components
+  links:
+  - name:material_volume_fraction
+  constraints: []
+  sources:
+  - id: dd:cryostat/description_2d/cryostat/unit/material_volume_fraction
+    dd_path: cryostat/description_2d/cryostat/unit/material_volume_fraction
+    status: composed
+- name: volume_of_lead_lithium_in_breeding_blanket
+  kind: scalar
+  status: draft
+  description: Total volume of liquid lead-lithium alloy contained within a breeding
+    blanket, defined as the net interior volume of all PbLi-wetted cavities and flow
+    channels bounded by the blanket structural envelope at a given operational state.
+  documentation: "The volume $V_\\mathrm{PbLi}$ is defined by the scalar integral\n\
+    $$V_\\mathrm{PbLi} = \\int_{\\Omega_\\mathrm{PbLi}} dV,$$\nwhere $\\Omega_\\mathrm{PbLi}$\
+    \ is the union of all subdomains within the breeding blanket structural envelope\
+    \ that are occupied by the PbLi alloy in its nominal liquid state. The integration\
+    \ is performed in the right-handed cylindrical $(R, \\phi, Z)$ frame, where $R$\
+    \ is major radius from the machine symmetry axis and $Z$ is vertical height.\n\
+    \n**Integration boundary.** The domain $\\Omega_\\mathrm{PbLi}$ is bounded by\
+    \ the wetted inner surfaces of the blanket first wall, side walls, back plate,\
+    \ and manifold structures up to the primary coolant or vacuum interfaces. It excludes\
+    \ structural material volumes, coolant passages carrying a non-PbLi fluid, and\
+    \ any external piping, ancillary loops, or storage vessels outside the blanket\
+    \ module boundary.\n\n**Material context.** The PbLi alloy is a eutectic-composition\
+    \ liquid metal (approximately Pb$_{83}$Li$_{17}$ in atomic fraction at the eutectic\
+    \ point, though specific designs may deviate). Its density at typical operating\
+    \ temperatures of 300\u2013550\xB0C is approximately 9,500\u20139,900 kg m$^{-3}$,\
+    \ and its melting point is near 235\xB0C.\n\n**Coupled quantities.** Knowledge\
+    \ of $V_\\mathrm{PbLi}$ is prerequisite for:\n\n1. *Fuel-cycle tritium inventory:*\
+    \ The dissolved tritium content is\n$$N_T = c_T^\\mathrm{vol} \\, V_\\mathrm{PbLi},$$\n\
+    where $c_T^\\mathrm{vol}$ (mol m$^{-3}$) is the volumetric tritium concentration\
+    \ in the liquid PbLi.\n\n2. *Neutronics:* $V_\\mathrm{PbLi}$ determines the macroscopic\
+    \ quantities of $^6$Li and Pb available for the breeding reaction $^6\\mathrm{Li}(n,\\\
+    alpha)T$ and neutron multiplication, entering neutron transport calculations that\
+    \ yield the tritium breeding ratio.\n\n3. *Thermal-hydraulics:* Integration of\
+    \ the volumetric nuclear heating rate $\\dot{q}$ (W m$^{-3}$) over $\\Omega_\\\
+    mathrm{PbLi}$ gives the total nuclear heating power deposited in the PbLi loop.\n\
+    \n**Typical values.** For a single outboard blanket module in DEMO-class tokamak\
+    \ designs, $V_\\mathrm{PbLi}$ ranges from approximately 0.1 m$^3$ to several cubic\
+    \ meters depending on blanket concept and module geometry. A complete reactor\
+    \ blanket (all modules summed) may contain on the order of 300\u2013400 m$^3$\
+    \ of PbLi.\n\nThe quantity is a non-negative scalar representing the aggregate\
+    \ PbLi-filled volume summed over all subregions of the blanket."
+  unit: m^3
+  physics_domain: structural_components
+  links:
+  - name:tritium_breeding_ratio
+  - name:nuclear_heating_power_of_breeding_blanket
+  - name:volume_of_pb_li_in_breeding_blanket
+  constraints: []
+  sources:
+  - id: dd:breeding_blanket/pb_li_volume
+    dd_path: breeding_blanket/pb_li_volume
+    status: composed

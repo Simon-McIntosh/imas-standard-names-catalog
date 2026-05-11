@@ -1,46 +1,665 @@
 # Domain: magnetic_field_diagnostics
-# Catalog sha: 0b0cc91313a949ddcf6de90552a90954c93e4d5e
-# Entries: 1
+# Catalog sha: d3e506af05f33eacdd2941c510748ac9add211c1
+# Entries: 14
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: area_of_flux_loop
+- name: beat_length_of_optical_fiber
   kind: scalar
   status: draft
-  description: Effective sensing area of a flux loop diagnostic, defined as the ratio
-    of the measured magnetic flux to the mean magnetic field over the loop aperture.
-    This geometric property governs the flux linkage sensitivity of the loop and is
-    used to convert induced voltage signals into magnetic flux measurements.
-  documentation: 'The effective area $A$ of a flux loop is defined by $\Phi = A \langle
-    B_n \rangle$, where $\Phi$ is the total magnetic flux threading the loop and $\langle
-    B_n \rangle$ is the average normal component of the magnetic field $\mathbf{B}$
-    over the loop aperture. For an ideal planar single-turn loop, $A$ equals the geometric
-    enclosed area; for multi-turn or non-planar geometries, $A$ represents the effective
-    flux-collection area accounting for the coil winding geometry. This quantity is
-    undefined (and should be left empty) when the flux loop is configured as a differential
-    loop (type index 6), since differential loops measure field gradients rather than
-    total flux.
+  description: Polarization beat length of a birefringent optical fiber, the axial
+    distance over which the polarization state completes one full cycle due to modal
+    birefringence.
+  documentation: "The polarization beat length $L_B$ of an optical fiber is defined\
+    \ by $L_B = \\lambda / B$, where $\\lambda$ is the free-space optical wavelength\
+    \ and $B = |n_x - n_y|$ is the modal birefringence \u2014 the difference between\
+    \ the effective refractive indices of the two orthogonal polarization eigenmodes.\
+    \ A shorter beat length corresponds to stronger birefringence and faster polarization\
+    \ rotation. In fiber-optic current sensor (FOCS) diagnostics, $L_B$ governs the\
+    \ sensitivity of the polarimetric signal to the Faraday effect; it must be distinguished\
+    \ from the [spun period](name:spun_period_of_optical_fiber) and [twist period](name:twist_period_of_optical_fiber),\
+    \ which describe geometric helical structure rather than polarization cycling.\
+    \ Typical beat lengths for high-birefringence (PANDA or bow-tie) fibers used in\
+    \ FOCS applications range from a few millimeters to tens of centimeters, whereas\
+    \ standard single-mode fibers may have beat lengths of several meters. The beat\
+    \ length is measured via distributed polarimetry, white-light interferometry,\
+    \ or polarization-mode dispersion techniques applied along the [fiber length](name:length_of_optical_fiber).\n\
+    \nSign convention: Positive when $L_B$ is the physical axial distance in the direction\
+    \ of light propagation along the fiber."
+  unit: m
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:spun_period_of_optical_fiber
+  - name:twist_period_of_optical_fiber
+  - name:length_of_optical_fiber
+  constraints: []
+  sources:
+  - id: dd:focs/beat_length
+    dd_path: focs/beat_length
+    status: composed
+- name: cross_sectional_area_of_magnetic_field_probe
+  kind: scalar
+  status: draft
+  description: Geometric cross-sectional area of each sensing turn of a magnetic field
+    probe coil, determining the effective flux aperture per turn for inductive voltage
+    measurements.
+  documentation: 'The cross-sectional area $A$ of each coil turn sets the magnetic
+    flux $\Phi = B_\perp A$ linked per turn, where $B_\perp$ is the component of magnetic
+    field normal to the coil plane. This area is a primary calibration parameter:
+    the induced voltage per turn is $V = -d\Phi/dt = -A \, dB_\perp/dt$, so an accurate
+    value of $A$ is required to convert raw voltage signals into field or flux-density
+    measurements. For poloidal field probes (pickup coils) on present-day tokamaks,
+    typical turn areas range from $10^{-4}$ to $10^{-2}$ m$^2$ depending on probe
+    size and installation constraints; toroidal field probes tend toward the lower
+    end of this range. The area is measured mechanically (caliper or coordinate metrology)
+    or inferred from in-situ calibration against a known field source, and must account
+    for the actual winding geometry rather than the housing cross-section. Together
+    with [winding turns](name:winding_turns_of_pickup_coil), this quantity fully characterizes
+    the flux sensitivity of a pickup coil; for Rogowski coils, the analogous geometric
+    parameter is the [linear winding density](name:winding_turns_per_unit_length_of_rogowski_coil)
+    times the turn area.
 
 
-    The effective area is determined during in-situ calibration or from engineering
-    drawings, and typical values range from a few $\text{cm}^2$ to several hundred
-    $\text{cm}^2$ depending on the loop size and machine geometry. Compared to the
-    [cross-sectional area of a poloidal magnetic field probe](name:cross_sectional_area_of_poloidal_magnetic_field_probe)
-    or the [cross-sectional area of a Rogowski coil](name:cross_sectional_area_of_rogowski_coil),
-    which characterize per-turn winding geometry, the flux loop effective area characterizes
-    the total flux-collecting aperture of the full loop diagnostic.
-
-
-    Sign convention: Positive when the flux through the loop is in the direction consistent
-    with the right-hand rule applied to the loop''s defined normal vector in the right-handed
-    cylindrical $(R, \phi, Z)$ frame.'
+    Sign convention: Positive when the outward normal of the coil plane is oriented
+    such that a positive normal magnetic-field component produces a positive flux
+    linkage.'
   unit: m^2
   physics_domain: magnetic_field_diagnostics
   links:
-  - name:cross_sectional_area_of_poloidal_magnetic_field_probe
-  - name:cross_sectional_area_of_rogowski_coil
+  - name:winding_turns_of_pickup_coil
+  - name:winding_turns_per_unit_length_of_rogowski_coil
   constraints: []
   sources:
-  - id: dd:magnetics/flux_loop/area
-    dd_path: magnetics/flux_loop/area
+  - id: dd:magnetics/b_field_tor_probe/area
+    dd_path: magnetics/b_field_tor_probe/area
+    status: composed
+  - id: dd:magnetics/bpol_probe/area
+    dd_path: magnetics/bpol_probe/area
+    status: composed
+- name: mutual_inductance_of_flux_loop_plasma_coupling
+  kind: scalar
+  status: draft
+  description: Mutual inductance matrix coupling distributed plasma current filaments
+    to poloidal flux loop diagnostics, giving the total poloidal flux linked by each
+    loop per unit current in each plasma filament. Entries depend on the geometry
+    of both the plasma discretization and the loop winding, and vary with equilibrium
+    configuration.
+  documentation: 'The mutual inductance matrix $M^{\mathrm{loop,plasma}}$ has elements
+
+    $$M_{il} = \frac{\Psi_i}{I_l},$$
+
+    where $\Psi_i$ is the total poloidal flux (in Webers) linked by flux loop $i$
+    due to a unit current $I_l = 1\,\mathrm{A}$ carried by plasma filament $l$, with
+    all other filament currents set to zero. The quantity $\Psi_i$ is the flux threading
+    the full loop circuit, accounting for the number of turns $N_i$ and the winding
+    orientation of the diagnostic, so $\Psi_i = N_i \int_{S_i} \mathbf{B}\cdot d\mathbf{S}$,
+    where $S_i$ is the oriented surface bounded by loop $i$.
+
+
+    Matrix indexing convention: the first index $i$ runs over flux loops and the second
+    index $l$ runs over plasma filaments. Each plasma filament is modeled as an infinitely
+    thin current-carrying wire whose axis is parallel to $\hat{\phi}$ in the right-handed
+    cylindrical $(R, \phi, Z)$ frame; the filament position is specified by its $(R,
+    Z)$ coordinates in the poloidal plane, and it carries current in the $+\hat{\phi}$
+    direction when $I_l > 0$. Each flux loop is oriented such that positive poloidal
+    flux threading its surface in the $+\hat{\phi}$-winding sense contributes positively
+    to $\Psi_i$.
+
+
+    Sign convention: Positive when a filament current flowing in the direction of
+    increasing toroidal angle $\phi$ links positive poloidal flux into the flux loop
+    according to the right-hand rule applied to the loop''s winding orientation.
+
+
+    For a single axisymmetric filament at $(R_l, Z_l)$ and a single-turn loop, $M_{il}$
+    can be expressed via the Neumann formula adapted for an axisymmetric filament
+    and an arbitrary loop contour $\mathcal{C}_i$:
+
+    $$M_{il} = \frac{\mu_0}{4\pi} \oint_{\mathcal{C}_i} \oint_{\mathcal{C}_l} \frac{d\mathbf{s}_i
+    \cdot d\mathbf{s}_l}{|\mathbf{r}_i - \mathbf{r}_l|},$$
+
+    where $\mathcal{C}_l$ is the circular filament path at radius $R_l$ and height
+    $Z_l$. In practice, because plasma filaments represent a discretization of distributed
+    current, the elements are computed numerically from Green''s functions of the
+    poloidal flux for a unit toroidal current ring, evaluated at each loop''s geometry.
+
+
+    Typical values for a medium-sized tokamak lie in the range $10^{-8}$ to $10^{-5}\,\mathrm{H}$,
+    depending on the proximity of the filament to the loop and the number of turns.
+    The matrix is configuration-dependent: it changes with the equilibrium current
+    distribution, so it must be recomputed whenever the plasma geometry is updated.
+    It is the plasma analog of the active-coil-to-flux-loop mutual inductance matrix
+    and is used in equilibrium reconstruction codes to relate measured loop voltages
+    or flux signals to the reconstructed plasma current distribution.'
+  unit: H
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:mutual_inductance_of_flux_loop_passive_coupling
+  - name:mutual_inductance_of_plasma_passive_coupling
+  - name:mutual_inductance_of_plasma_active_coupling
+  - name:mutual_inductance_of_plasma_filament_to_plasma_filament_coupling
+  - name:mutual_inductance_of_plasma_coupling
+  constraints: []
+  sources:
+  - id: dd:em_coupling/mutual_loops_plasma
+    dd_path: em_coupling/mutual_loops_plasma
+    status: composed
+- name: non_linear_response_corrected_magnetic_field_of_poloidal_magnetic_field_probe
+  kind: scalar
+  status: draft
+  description: Magnetic field measured at a poloidal magnetic field probe after correction
+    for the probe's non-linear response, accounting for saturation effects that render
+    the linear calibration inaccurate at high field amplitudes.
+  documentation: "Poloidal magnetic field probes \u2014 typically Hall-effect sensors\
+    \ or wound coils \u2014 exhibit a non-linear input\u2013output relationship at\
+    \ elevated field amplitudes where the linear assumption $B = k \\cdot V$ (with\
+    \ $k$ the sensitivity and $V$ the probe signal) breaks down due to core saturation\
+    \ or sensor non-linearity. The non-linear response correction replaces the linear-calibration\
+    \ estimate with a field value $B_{\\rm NL}$ derived from a calibrated non-linear\
+    \ transfer function, so that $B_{\\rm NL} = f^{-1}(V)$ where $f$ is the empirically\
+    \ determined response curve of the sensor. This corrected quantity supersedes\
+    \ the [linear-response calibration field](name:linear_response_calibration_magnetic_field_of_poloidal_magnetic_field_probe)\
+    \ when the probe operates near or beyond its linear dynamic range, and the two\
+    \ values agree closely at low field amplitudes where the linear regime holds.\
+    \ The directly analogous correction applied to toroidal probes is captured by\
+    \ [non-linear-response-corrected toroidal field](name:non_linear_response_corrected_magnetic_field_of_toroidal_magnetic_field_probe).\
+    \ Typical poloidal field amplitudes measured in this way range from a few millitesla\
+    \ in the far scrape-off layer to several tesla near high-field coils; accurate\
+    \ non-linear correction is particularly important for probes located close to\
+    \ poloidal field coils during transient events such as disruptions or fast current\
+    \ ramps."
+  unit: T
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:linear_response_calibration_magnetic_field_of_poloidal_magnetic_field_probe
+  - name:non_linear_response_corrected_magnetic_field_of_toroidal_magnetic_field_probe
+  constraints: []
+  sources:
+  - id: dd:magnetics/b_field_pol_probe/non_linear_response/b_field_non_linear
+    dd_path: magnetics/b_field_pol_probe/non_linear_response/b_field_non_linear
+    status: composed
+- name: non_linear_response_corrected_magnetic_field_of_toroidal_magnetic_field_probe
+  kind: scalar
+  status: draft
+  description: Magnetic field measured by a toroidal magnetic field probe after correction
+    for the probe's non-linear response. This calibrated estimate accounts for sensor
+    saturation and non-linear sensitivity at high field amplitudes, providing the
+    best available measurement of the toroidal magnetic field component over the full
+    operating range.
+  documentation: 'The non-linear-response-corrected magnetic field $B_{\phi,\mathrm{NL}}$
+    is the calibrated estimate of the toroidal magnetic field component $B_\phi$ produced
+    by a toroidal magnetic field probe, in which the full non-linear transfer function
+    $B = f(V)$ has been applied to the raw probe signal $V$. This supersedes the linear-calibration
+    estimate when the field amplitude is large enough for non-linear effects (sensor
+    saturation, permeability variation) to be significant, but the corrected value
+    is defined and valid over the entire operating range of the probe.
+
+
+    The measured component is the toroidal component $B_\phi$ in the right-handed
+    cylindrical $(R, \phi, Z)$ frame, where $\phi$ is the toroidal angle increasing
+    counter-clockwise when viewed from above $+\hat{Z}$. The probe is oriented so
+    that its sensitive axis is aligned along $\hat{\phi}$ at the probe location $(R_0,
+    \phi_0, Z_0)$.
+
+
+    Sign convention: Positive when the measured toroidal magnetic field points in
+    the direction of increasing toroidal angle $\phi$ (counter-clockwise viewed from
+    above $+\hat{Z}$).
+
+
+    Typical values for a tokamak toroidal field probe range from $\sim 1\,\mathrm{T}$
+    to $\sim 10\,\mathrm{T}$ depending on machine size and operating scenario. The
+    non-linear correction becomes important when the instantaneous field exceeds the
+    linear dynamic range of the sensor, typically a few percent or more of the nominal
+    field. The non-linear calibration function $f$ is determined during dedicated
+    bench calibration campaigns and may be stored as a polynomial or look-up table.
+
+
+    This quantity is the toroidal analog of the non-linear-response-corrected field
+    for poloidal probes, and complements the linear-response estimate obtained from
+    the same probe using a first-order sensitivity coefficient.'
+  unit: T
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:linear_response_calibration_magnetic_field_of_poloidal_magnetic_field_probe
+  - name:non_linear_response_corrected_magnetic_field_of_poloidal_magnetic_field_probe
+  - name:toroidal_angle_of_magnetic_field_probe_sensor_normal
+  constraints: []
+  sources:
+  - id: dd:magnetics/b_field_phi_probe/non_linear_response/b_field_non_linear
+    dd_path: magnetics/b_field_phi_probe/non_linear_response/b_field_non_linear
+    status: composed
+  - id: dd:magnetics/b_field_tor_probe/non_linear_response/b_field_non_linear
+    dd_path: magnetics/b_field_tor_probe/non_linear_response/b_field_non_linear
+    status: composed
+- name: poloidal_angle_of_magnetic_field_probe_sensor_normal
+  kind: scalar
+  status: draft
+  description: Poloidal orientation angle of the sensor normal vector for a magnetic
+    field probe coil, defined as the clockwise elevation from the outward major-radius
+    direction in the poloidal plane. Zero when the sensor normal points radially outward
+    along $+\hat{R}$, increasing clockwise toward $-\hat{Z}$.
+  documentation: '## Poloidal angle of magnetic field probe sensor normal
+
+
+    For a single-axis magnetic field probe (pickup coil), the **sensor normal** $\hat{n}$
+    is the unit vector parallel to the geometric axis of the coil. The component of
+    the ambient magnetic field measured by the probe is $B_n = \mathbf{B} \cdot \hat{n}$.
+    Under the assumptions of a spatially uniform field over the coil area $A$ and
+    $N$ turns, the induced signal relates to $B_n$ through $\Phi = N A B_n$; in general,
+    $B_n$ is the area-weighted average of the normal field over the coil cross-section.
+
+
+    The poloidal angle $\alpha_\mathrm{pol}$ characterizes the orientation of $\hat{n}$
+    within the poloidal $(R, Z)$ plane (at a fixed toroidal angle $\phi$ in the right-handed
+    cylindrical $(R, \phi, Z)$ frame, where $R$ is the major radius from the machine
+    symmetry axis and $Z$ is the vertical height).
+
+
+    **Defining relation.** Let $\hat{n}$ be decomposed in the $(R, Z)$ plane as
+
+    $$\hat{n} = \cos\alpha_\mathrm{pol}\,\hat{R} - \sin\alpha_\mathrm{pol}\,\hat{Z}.$$
+
+    Equivalently, $\alpha_\mathrm{pol}$ is the clockwise angle from $+\hat{R}$ to
+    $\hat{n}$ when viewed from the $+\hat{\phi}$ direction:
+
+    - $\alpha_\mathrm{pol} = 0$: $\hat{n}$ points in the $+\hat{R}$ (outward radial)
+    direction.
+
+    - $\alpha_\mathrm{pol} = \pi/2$: $\hat{n}$ points in the $-\hat{Z}$ (downward)
+    direction.
+
+    - $\alpha_\mathrm{pol} = \pi$: $\hat{n}$ points in the $-\hat{R}$ (inward radial)
+    direction.
+
+    - $\alpha_\mathrm{pol} = 3\pi/2$: $\hat{n}$ points in the $+\hat{Z}$ (upward)
+    direction.
+
+
+    **Range.** The angle is stored in the interval $[0, 2\pi)$ radians by convention.
+    This is a conventional (not required) restriction; values outside this range should
+    be reduced modulo $2\pi$.
+
+
+    **Complement.** The toroidal orientation of $\hat{n}$ is described by the companion
+    quantity `toroidal_angle_of_magnetic_field_probe_sensor_normal`. Together, $\alpha_\mathrm{pol}$
+    and the toroidal angle fully specify the three-dimensional orientation of the
+    sensor axis.
+
+
+    **Typical values.** Divertor and mid-plane poloidal-field probes typically have
+    $\alpha_\mathrm{pol}$ near $0$, $\pi/2$, $\pi$, or $3\pi/2$, reflecting alignment
+    with $\hat{R}$ or $\hat{Z}$. Saddle-coil normals may take arbitrary intermediate
+    values.
+
+
+    **Measurement context.** This angle, together with the toroidal angle, the probe
+    position in $(R, \phi, Z)$, and the active area $A$ and turn count $N$, completely
+    specifies the geometry of the sensor for equilibrium reconstruction and comparison
+    with computed field maps.'
+  unit: rad
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:toroidal_angle_of_magnetic_field_probe_sensor_normal
+  - name:cross_sectional_area_of_magnetic_field_probe
+  constraints: []
+  sources:
+  - id: dd:magnetics/b_field_phi_probe/poloidal_angle
+    dd_path: magnetics/b_field_phi_probe/poloidal_angle
+    status: composed
+  - id: dd:magnetics/b_field_pol_probe/poloidal_angle
+    dd_path: magnetics/b_field_pol_probe/poloidal_angle
+    status: composed
+  - id: dd:magnetics/b_field_tor_probe/poloidal_angle
+    dd_path: magnetics/b_field_tor_probe/poloidal_angle
+    status: composed
+  - id: dd:magnetics/bpol_probe/poloidal_angle
+    dd_path: magnetics/bpol_probe/poloidal_angle
+    status: composed
+- name: poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_grid_coupling
+  kind: scalar
+  status: draft
+  description: Poloidal magnetic field per unit current coupling from equilibrium
+    grid current elements to poloidal field probe sensors, forming one column block
+    of the full electromagnetic coupling matrix used in equilibrium reconstruction.
+  documentation: "Each entry $M^{\\rm grid}_{ij}$ of this coupling matrix gives the\
+    \ poloidal magnetic field $\\delta B_{\\rm pol}$ measured at probe $i$ per unit\
+    \ current $I_j$ carried by equilibrium grid current element $j$, so that $\\delta\
+    \ B_{\\rm pol,i} = \\sum_j M^{\\rm grid}_{ij} I_j$. The equilibrium grid discretizes\
+    \ the poloidal cross-section into current-carrying filaments whose distribution\
+    \ encodes the plasma and vessel current configuration; this coupling matrix maps\
+    \ those source currents to the sensor response. It complements the analogous [plasma\
+    \ coupling](name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_plasma_coupling),\
+    \ [passive coupling](name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_passive_coupling),\
+    \ and [active coupling](name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_active_coupling)\
+    \ matrices, which together span all current sources entering the equilibrium reconstruction\
+    \ forward model. The grid-to-probe coupling is computed analytically from the\
+    \ Biot\u2013Savart law given the positions and orientations of the probe sensors\
+    \ and the geometry of the grid filaments; it is fixed for a given grid topology\
+    \ and does not change between plasma discharges. The analogous flux-loop quantity\
+    \ is [mutual_inductance_of_flux_loop_grid_coupling](name:mutual_inductance_of_flux_loop_grid_coupling),\
+    \ which maps the same grid currents to poloidal flux rather than poloidal field."
+  unit: A^-1.T
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_plasma_coupling
+  - name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_passive_coupling
+  - name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_active_coupling
+  - name:mutual_inductance_of_flux_loop_grid_coupling
+  constraints: []
+  sources:
+  - id: dd:em_coupling/field_probes_grid
+    dd_path: em_coupling/field_probes_grid
+    status: composed
+- name: poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_plasma_coupling
+  kind: scalar
+  status: draft
+  description: Poloidal magnetic field per unit current coupling matrix from discretized
+    plasma current filaments to poloidal field probe sensors, analogous to the active,
+    passive, and grid coupling matrices but sourced from the distributed plasma current
+    distribution.
+  documentation: "Each entry $M^{\\rm pol}_{ij}$ of this coupling matrix gives the\
+    \ poloidal magnetic field $B_{\\rm pol}$ measured at probe $i$ per unit current\
+    \ $I_j$ carried by plasma current filament $j$, such that $B_{\\rm pol,i} = \\\
+    sum_j M^{\\rm pol}_{ij} I_j$, where $B_{\\rm pol}$ is the poloidal magnetic field\
+    \ component and $I_j$ is the current in the $j$-th plasma filament. The matrix\
+    \ is computed from the geometry of the plasma current discretization (typically\
+    \ a set of filaments or current-carrying elements on a computational grid) and\
+    \ the positions and orientations of the poloidal field probe sensors in the right-handed\
+    \ cylindrical $(R, \\phi, Z)$ frame. Its values depend on the equilibrium configuration\
+    \ and the chosen plasma discretization, and are used in equilibrium reconstruction\
+    \ to form the forward model relating a trial current distribution to predicted\
+    \ probe signals. Typical matrix entries are of order $10^{-7}$\u2013$10^{-5}$\
+    \ T/A depending on probe\u2013plasma geometry and distance. This matrix is the\
+    \ plasma-source analog of the [active coil coupling](name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_active_coupling),\
+    \ [passive structure coupling](name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_passive_coupling),\
+    \ and [equilibrium grid coupling](name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_grid_coupling)\
+    \ matrices, and complements the [mutual inductance of plasma to flux loop](name:mutual_inductance_of_flux_loop_plasma_coupling)\
+    \ for flux-loop diagnostics."
+  unit: A^-1.T
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_active_coupling
+  - name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_passive_coupling
+  - name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_grid_coupling
+  - name:mutual_inductance_of_flux_loop_plasma_coupling
+  constraints: []
+  sources:
+  - id: dd:em_coupling/b_field_pol_probes_plasma
+    dd_path: em_coupling/b_field_pol_probes_plasma
+    status: composed
+- name: toroidal_angle_of_magnetic_field_probe_sensor_normal
+  kind: scalar
+  status: draft
+  description: Toroidal angle of the projection of a magnetic field probe's sensor
+    normal vector onto the horizontal plane, measured from the direction of increasing
+    major radius $R$.
+  documentation: 'The toroidal angle $\phi_n$ characterizes the azimuthal orientation
+    of the sensitive axis of a magnetic field probe coil, specifically the projection
+    of its sensor normal unit vector $\hat{n}$ onto the horizontal plane. This angle
+    is defined relative to $\nabla R$ (the direction of increasing major radius) and
+    is taken modulo $\pi$ with values in $(-\pi/2, \pi/2]$; $\phi_n = 0$ when the
+    projected sensor normal is parallel to $\nabla R$, and $\phi_n = \pi/2$ when it
+    is aligned with $\nabla \phi$ (the toroidal direction). Accurate knowledge of
+    $\phi_n$ is essential for decomposing the measured field signal into its physical
+    components: a probe whose sensitive axis has a nonzero toroidal projection will
+    partially respond to the toroidal field $B_\phi$ in addition to the intended poloidal
+    or radial component. This orientation angle is a fixed geometric calibration quantity
+    determined from the physical installation of the probe on the device, complementing
+    the [poloidal angle of the sensor normal](name:poloidal_angle_of_magnetic_field_probe_sensor_normal),
+    which describes the out-of-plane elevation of the sensitive axis. Together the
+    two angles fully specify the three-dimensional orientation of the probe''s sensitive
+    axis in the right-handed cylindrical $(R, \phi, Z)$ frame.
+
+
+    Sign convention: Positive when the projected sensor normal points in the direction
+    of increasing toroidal angle $\phi$ (counter-clockwise when viewed from above
+    along $+\hat{Z}$).'
+  unit: rad
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:poloidal_angle_of_magnetic_field_probe_sensor_normal
+  constraints: []
+  sources:
+  - id: dd:magnetics/b_field_phi_probe/toroidal_angle
+    dd_path: magnetics/b_field_phi_probe/toroidal_angle
+    status: composed
+  - id: dd:magnetics/b_field_pol_probe/toroidal_angle
+    dd_path: magnetics/b_field_pol_probe/toroidal_angle
+    status: composed
+  - id: dd:magnetics/b_field_tor_probe/toroidal_angle
+    dd_path: magnetics/b_field_tor_probe/toroidal_angle
+    status: composed
+  - id: dd:magnetics/bpol_probe/toroidal_angle
+    dd_path: magnetics/bpol_probe/toroidal_angle
+    status: composed
+- name: twist_period_of_optical_fiber
+  kind: scalar
+  status: draft
+  description: Axial period of the intrinsic helical twist imparted to an optical
+    fiber, controlling the evolution of the fiber's birefringence axes along its length.
+  documentation: "The twist period $L_t$ is the axial distance along the optical fiber\
+    \ over which the intrinsic (or mechanically applied) twist completes one full\
+    \ $2\\pi$ rotation of the fiber's birefringence axes. It is distinct from the\
+    \ [spun period](name:spun_period_of_optical_fiber), which characterizes the manufacturing-induced\
+    \ spin of the fast axis: the spun period arises from drawing the fiber while rotating\
+    \ the preform, whereas the twist period describes a separate torsional deformation\
+    \ applied to the fiber after drawing. Together these two length scales govern\
+    \ the polarization-holding behavior of the fiber \u2014 specifically the rate\
+    \ at which linear birefringence is converted to circular birefringence \u2014\
+    \ and must both be known to model polarization evolution accurately in Faraday-effect\
+    \ current sensors. The [beat length](name:beat_length_of_optical_fiber) sets the\
+    \ third characteristic scale: when $L_t \\ll L_B$ (beat length), the twist dominates\
+    \ polarization rotation, whereas $L_t \\gg L_B$ leaves linear birefringence intact.\
+    \ Typical twist periods in spun high-birefringence fibers range from a few millimeters\
+    \ to tens of millimeters, depending on fiber design and intended sensing application.\
+    \ The [total fiber length](name:length_of_optical_fiber) wound on the vacuum vessel\
+    \ determines how many twist periods contribute to the integrated Faraday rotation\
+    \ measurement.\n\nSign convention: Positive when the twist advances the birefringence\
+    \ axes in the right-handed sense relative to the fiber propagation direction."
+  unit: m
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:spun_period_of_optical_fiber
+  - name:beat_length_of_optical_fiber
+  - name:length_of_optical_fiber
+  constraints: []
+  sources:
+  - id: dd:focs/fibre_properties/spun
+    dd_path: focs/fibre_properties/spun
+    status: composed
+  - id: dd:focs/twist
+    dd_path: focs/twist
+    status: composed
+- name: vertical_coordinate_of_first_point_of_line_of_sight
+  kind: scalar
+  status: draft
+  description: Vertical (Z) coordinate of the first defining point of a diagnostic
+    line-of-sight chord in the right-handed cylindrical $(R, \phi, Z)$ frame.
+  documentation: 'The vertical coordinate $Z_1$ specifies the height of the first
+    endpoint used to define the direction and extent of a diagnostic line-of-sight
+    path, measured along the machine symmetry axis $Z$ in the right-handed cylindrical
+    $(R, \phi, Z)$ frame where $R$ is the major radius, $\phi$ is the toroidal angle,
+    and $Z$ is the vertical height. Together with the corresponding major-radius coordinate
+    of the first point and the coordinates of the [second defining point](name:vertical_coordinate_of_second_point_of_line_of_sight),
+    this quantity fully determines the chord geometry used for diagnostic viewing
+    in instruments such as bolometers, electron cyclotron emission radiometers, interferometers,
+    bremsstrahlung monitors, and X-ray spectrometers. Typical values range from approximately
+    $-2$ m to $+2$ m for medium-size tokamaks, spanning the full vertical extent of
+    the plasma cross-section. The coordinate is set during diagnostic design and may
+    be refined through in-vessel survey measurements. For field-line tracing contexts,
+    the analogous starting-point coordinate is [vertical_coordinate_of_field_line_start_point](name:vertical_coordinate_of_field_line_start_point).
+
+
+    Sign convention: Positive when the first point of the line-of-sight lies above
+    the machine midplane, i.e., in the $+Z$ direction.'
+  unit: m
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:vertical_coordinate_of_second_point_of_line_of_sight
+  - name:vertical_coordinate_of_field_line_start_point
+  constraints: []
+  sources:
+  - id: dd:bolometer/channel/line_of_sight/first_point/z
+    dd_path: bolometer/channel/line_of_sight/first_point/z
+    status: composed
+  - id: dd:ece/channel/line_of_sight/first_point/z
+    dd_path: ece/channel/line_of_sight/first_point/z
+    status: composed
+  - id: dd:ece/line_of_sight/first_point/z
+    dd_path: ece/line_of_sight/first_point/z
+    status: composed
+  - id: dd:interferometer/channel/line_of_sight/first_point/z
+    dd_path: interferometer/channel/line_of_sight/first_point/z
+    status: composed
+  - id: dd:magnetics/shunt/position/first_point/z
+    dd_path: magnetics/shunt/position/first_point/z
+    status: composed
+  - id: dd:pulse_schedule/density_control/n_e_line_of_sight/first_point/z
+    dd_path: pulse_schedule/density_control/n_e_line_of_sight/first_point/z
+    status: composed
+  - id: dd:pulse_schedule/density_control/zeff_line_of_sight/first_point/z
+    dd_path: pulse_schedule/density_control/zeff_line_of_sight/first_point/z
+    status: attached
+  - id: dd:reflectometer_fluctuation/channel/antennas_orientation/line_of_sight_detection/first_point/z
+    dd_path: reflectometer_fluctuation/channel/antennas_orientation/line_of_sight_detection/first_point/z
+    status: composed
+  - id: dd:reflectometer_profile/channel/line_of_sight_detection/first_point/z
+    dd_path: reflectometer_profile/channel/line_of_sight_detection/first_point/z
+    status: composed
+  - id: dd:reflectometer_profile/channel/line_of_sight_emission/first_point/z
+    dd_path: reflectometer_profile/channel/line_of_sight_emission/first_point/z
+    status: attached
+- name: vertical_coordinate_of_second_point_of_line_of_sight
+  kind: scalar
+  status: draft
+  description: Vertical Z-coordinate of the second defining endpoint of a diagnostic
+    line-of-sight chord, measured in the right-handed cylindrical $(R, \phi, Z)$ frame
+    where $Z$ increases vertically upward.
+  documentation: "The vertical coordinate $Z_2$ specifies the height of the second\
+    \ endpoint that, together with the first endpoint, geometrically defines a diagnostic\
+    \ line-of-sight chord through the plasma. The chord direction vector $\\hat{\\\
+    ell} = (\\mathbf{r}_2 - \\mathbf{r}_1)/|\\mathbf{r}_2 - \\mathbf{r}_1|$ is fully\
+    \ determined once both endpoints are known in the cylindrical $(R, \\phi, Z)$\
+    \ frame, where $R$ is the major radius from the machine symmetry axis, $\\phi$\
+    \ is the toroidal angle, and $Z$ is the vertical height. This coordinate is used\
+    \ across a broad range of plasma diagnostics \u2014 including interferometers,\
+    \ reflectometers, bolometers, and visible-light cameras \u2014 to specify the\
+    \ chord geometry required for line-integrated signal inversion. The complementary\
+    \ first-endpoint height is given by [vertical_coordinate_of_first_point_of_line_of_sight](name:vertical_coordinate_of_first_point_of_line_of_sight),\
+    \ and the toroidal orientation of the same second endpoint is encoded in [toroidal_angle_of_second_point_of_line_of_sight](name:toroidal_angle_of_second_point_of_line_of_sight).\
+    \ Typical values span roughly $-2$ m to $+2$ m for medium-size tokamaks, covering\
+    \ the full vertical extent of the plasma cross-section.\n\nSign convention: Positive\
+    \ when $Z_2$ is above the machine midplane, i.e., in the direction of increasing\
+    \ $Z$ in the right-handed cylindrical $(R, \\phi, Z)$ frame."
+  unit: m
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:vertical_coordinate_of_first_point_of_line_of_sight
+  - name:toroidal_angle_of_second_point_of_line_of_sight
+  constraints: []
+  sources:
+  - id: dd:bolometer/channel/line_of_sight/second_point/z
+    dd_path: bolometer/channel/line_of_sight/second_point/z
+    status: composed
+  - id: dd:ece/channel/line_of_sight/second_point/z
+    dd_path: ece/channel/line_of_sight/second_point/z
+    status: composed
+  - id: dd:ece/line_of_sight/second_point/z
+    dd_path: ece/line_of_sight/second_point/z
+    status: composed
+  - id: dd:gas_injection/pipe/second_point/z
+    dd_path: gas_injection/pipe/second_point/z
+    status: composed
+  - id: dd:interferometer/channel/line_of_sight/second_point/z
+    dd_path: interferometer/channel/line_of_sight/second_point/z
+    status: composed
+  - id: dd:magnetics/shunt/position/second_point/z
+    dd_path: magnetics/shunt/position/second_point/z
+    status: composed
+  - id: dd:pulse_schedule/density_control/n_e_line_of_sight/second_point/z
+    dd_path: pulse_schedule/density_control/n_e_line_of_sight/second_point/z
+    status: attached
+  - id: dd:pulse_schedule/density_control/zeff_line_of_sight/second_point/z
+    dd_path: pulse_schedule/density_control/zeff_line_of_sight/second_point/z
+    status: composed
+  - id: dd:reflectometer_fluctuation/channel/antennas_orientation/line_of_sight_detection/second_point/z
+    dd_path: reflectometer_fluctuation/channel/antennas_orientation/line_of_sight_detection/second_point/z
+    status: composed
+  - id: dd:reflectometer_fluctuation/channel/antennas_orientation/line_of_sight_emission/second_point/z
+    dd_path: reflectometer_fluctuation/channel/antennas_orientation/line_of_sight_emission/second_point/z
+    status: attached
+  - id: dd:reflectometer_profile/channel/line_of_sight_detection/second_point/z
+    dd_path: reflectometer_profile/channel/line_of_sight_detection/second_point/z
+    status: composed
+  - id: dd:reflectometer_profile/channel/line_of_sight_emission/second_point/z
+    dd_path: reflectometer_profile/channel/line_of_sight_emission/second_point/z
+    status: attached
+  - id: dd:refractometer/channel/line_of_sight/second_point/z
+    dd_path: refractometer/channel/line_of_sight/second_point/z
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/profiles_line_integrated/lines_of_sight_second_point/z
+    dd_path: spectrometer_x_ray_crystal/channel/profiles_line_integrated/lines_of_sight_second_point/z
+    status: composed
+- name: winding_turns_of_pickup_coil
+  kind: scalar
+  status: draft
+  description: Total number of winding turns in a magnetic pickup coil, with sign
+    encoding the winding direction relative to the coil's reference orientation.
+  documentation: "The winding turn count $N$ of a pickup coil enters directly into\
+    \ the inductive voltage response: $V = N A \\, dB/dt$, where $A$ is the effective\
+    \ cross-sectional area per turn (see [cross-sectional area of the probe](name:cross_sectional_area_of_magnetic_field_probe))\
+    \ and $dB/dt$ is the time rate of change of the magnetic field component normal\
+    \ to the sensing plane. A larger $|N|$ amplifies the signal proportionally, making\
+    \ this parameter essential for converting raw voltage signals into calibrated\
+    \ field or flux measurements.\n\nPickup coils used in tokamak magnetics diagnostics\
+    \ range from single-turn Mirnov coils to multi-turn wound coils with $|N|$ of\
+    \ order 10\u20131000, depending on the field amplitude and frequency regime being\
+    \ diagnosed. The value is determined during coil fabrication and verified by impedance\
+    \ or mutual-inductance calibration measurements. For distributed winding configurations\
+    \ such as Rogowski coils, the analogous quantity is the [linear winding density](name:winding_turns_per_unit_length_of_rogowski_coil),\
+    \ which gives turns per unit length rather than a total count.\n\nSign convention:\
+    \ Positive when the winding is oriented such that a magnetic field increasing\
+    \ in the direction of the coil normal produces a positive induced voltage according\
+    \ to the right-hand rule."
+  unit: '1'
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:cross_sectional_area_of_magnetic_field_probe
+  - name:winding_turns_per_unit_length_of_rogowski_coil
+  constraints: []
+  sources:
+  - id: dd:magnetics/bpol_probe/turns
+    dd_path: magnetics/bpol_probe/turns
+    status: composed
+- name: winding_turns_per_unit_length_of_rogowski_coil
+  kind: scalar
+  status: draft
+  description: Linear winding density of a Rogowski coil, giving the number of winding
+    turns per unit length along the coil axis for a single layer.
+  documentation: "The winding turns per unit length, $n = dN/dl$ where $N$ is the\
+    \ cumulative turn count and $l$ is the arc length along the coil, is the fundamental\
+    \ geometric calibration parameter of a Rogowski coil current sensor. A Rogowski\
+    \ coil measures the time-derivative of enclosed current via Faraday's law: the\
+    \ induced EMF is $\\mathcal{E} = -\\mu_0 A n \\, dI/dt$, where $A$ is the cross-sectional\
+    \ area of the winding and $I$ is the enclosed current; integrating $\\mathcal{E}$\
+    \ and dividing by $\\mu_0 A n$ recovers $I(t)$. For coils wound with multiple\
+    \ layers, this quantity counts turns in a single layer only \u2014 total effective\
+    \ turns per unit length must account for the layer count separately. Typical values\
+    \ range from a few hundred to several thousand turns per meter depending on coil\
+    \ geometry and the required sensitivity and bandwidth. Accurate knowledge of $n$\
+    \ is essential for absolute current calibration; spatial non-uniformity in $n$\
+    \ along the coil introduces systematic errors in the integrated signal. The Rogowski\
+    \ coil measurement chain is closely related to the inductive coupling framework\
+    \ described by [mutual inductance of active coupling](name:mutual_inductance_of_active_coupling)\
+    \ and [mutual inductance of flux loop active coupling](name:mutual_inductance_of_flux_loop_active_coupling)."
+  unit: m^-1
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:mutual_inductance_of_active_coupling
+  - name:mutual_inductance_of_flux_loop_active_coupling
+  constraints: []
+  sources:
+  - id: dd:magnetics/rogowski_coil/turns_per_metre
+    dd_path: magnetics/rogowski_coil/turns_per_metre
     status: composed

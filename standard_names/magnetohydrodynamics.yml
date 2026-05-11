@@ -1,0 +1,652 @@
+# Domain: magnetohydrodynamics
+# Catalog sha: d3e506af05f33eacdd2941c510748ac9add211c1
+# Entries: 15
+# Ordering: structural traversal
+#   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
+#    alphabetic tie-break)
+- name: mutual_inductance_of_active_active_coupling
+  kind: scalar
+  status: draft
+  description: Mutual inductance matrix element coupling one active poloidal field
+    coil to another active poloidal field coil, quantifying the poloidal flux linked
+    in the target coil per unit current driven in the source coil.
+  documentation: The active-to-active mutual inductance $M_{ij}$ gives the poloidal
+    flux $\Psi_i = M_{ij} I_j$ linked in active coil $i$ (where $\Psi_i$ is in Wb)
+    when current $I_j$ flows in active coil $j$ (in A), with no current in any other
+    circuit. Diagonal elements represent self-inductance of each active coil, while
+    off-diagonal elements capture electromagnetic coupling between distinct coils;
+    in a tokamak poloidal field system, typical values range from tens of microhenries
+    to several millihenries depending on coil geometry and separation. This matrix
+    is a fundamental input to circuit models that simulate the dynamic response of
+    the poloidal field system during plasma current ramp-up, flat-top control, and
+    disruption mitigation, where eddy currents and mutual coupling determine the achievable
+    current ramp rates. It is computed analytically from coil geometry using Neumann's
+    formula $M_{ij} = (\mu_0/4\pi)\oint\oint (d\mathbf{l}_i \cdot d\mathbf{l}_j)/|\mathbf{r}_i
+    - \mathbf{r}_j|$, or extracted from finite-element electromagnetic solvers. The
+    full electromagnetic coupling picture for the poloidal field system also involves
+    [mutual_inductance_of_passive_active_coupling](name:mutual_inductance_of_passive_active_coupling)
+    for coupling to passive structures, [mutual_inductance_of_plasma_active_coupling](name:mutual_inductance_of_plasma_active_coupling)
+    for coupling to plasma current filaments, and [mutual_inductance_of_flux_loop_active_coupling](name:mutual_inductance_of_flux_loop_active_coupling)
+    for coupling to diagnostic flux loops.
+  unit: H
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:mutual_inductance_of_passive_active_coupling
+  - name:mutual_inductance_of_plasma_active_coupling
+  - name:mutual_inductance_of_flux_loop_active_coupling
+  constraints: []
+  sources:
+  - id: dd:em_coupling/mutual_active_active
+    dd_path: em_coupling/mutual_active_active
+    status: composed
+- name: mutual_inductance_of_flux_loop_active_coupling
+  kind: scalar
+  status: draft
+  description: Mutual inductance matrix element coupling active poloidal field coils
+    to poloidal flux measurement loops, giving the flux linked in each loop per unit
+    current driven in each active coil.
+  documentation: "The mutual inductance $M_{ij}$ between active poloidal field coils\
+    \ and flux-loop diagnostics is defined by $\\Psi_{\\mathrm{loop},i} = \\sum_j\
+    \ M_{ij} I_{\\mathrm{coil},j}$, where $\\Psi_{\\mathrm{loop},i}$ is the poloidal\
+    \ flux linked by the $i$-th flux loop and $I_{\\mathrm{coil},j}$ is the current\
+    \ in the $j$-th active coil. This coupling matrix is a fundamental input to equilibrium\
+    \ reconstruction codes, which use the measured loop voltages together with known\
+    \ coil currents to infer the plasma boundary and current distribution. The matrix\
+    \ is computed analytically for ideal coil geometries or via finite-element electromagnetic\
+    \ models, and is typically treated as a fixed, geometry-dependent calibration\
+    \ quantity for a given device configuration. Typical values depend on coil\u2013\
+    loop separation and geometry; for medium-size tokamaks matrix elements span roughly\
+    \ $10^{-7}$\u2013$10^{-5}$ H. This quantity complements [mutual inductance of\
+    \ flux loop to passive structures](name:mutual_inductance_of_flux_loop_passive_coupling),\
+    \ which covers passive conductor coupling, and is the flux-loop analog of [mutual\
+    \ inductance of active coils to passive structures](name:mutual_inductance_of_passive_active_coupling).\
+    \ The full electromagnetic coupling model also involves [mutual inductance of\
+    \ plasma current filaments to active coils](name:mutual_inductance_of_plasma_active_coupling)\
+    \ for the plasma contribution to loop signals."
+  unit: H
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:mutual_inductance_of_flux_loop_passive_coupling
+  - name:mutual_inductance_of_passive_active_coupling
+  - name:mutual_inductance_of_plasma_active_coupling
+  constraints: []
+  sources:
+  - id: dd:em_coupling/mutual_loops_active
+    dd_path: em_coupling/mutual_loops_active
+    status: composed
+- name: mutual_inductance_of_plasma_active_coupling
+  kind: scalar
+  status: draft
+  description: Mutual inductance matrix coupling distributed plasma current filaments
+    to active poloidal field coils, giving the poloidal flux linked in each active
+    coil per unit current in each plasma filament.
+  documentation: 'The plasma-active mutual inductance matrix $M_{pa}$ has elements
+    $M_{pa,ij} = \Psi_{a,i} / I_{p,j}$, where $\Psi_{a,i}$ is the poloidal flux linked
+    by active coil $i$ due to a unit current $I_{p,j}$ flowing in plasma filament
+    $j$. This coupling is a key ingredient in plasma equilibrium and control calculations:
+    it determines how changes in the distributed plasma current distribution induce
+    flux in the poloidal field (PF) coil circuits, which in turn drives coil voltage
+    and current responses through the circuit equations. By reciprocity, $M_{pa}$
+    equals the transpose of the active-to-plasma coupling matrix, so it is closely
+    related to [mutual_inductance_of_passive_active_coupling](name:mutual_inductance_of_passive_active_coupling),
+    which couples passive structures to active coils. Typical matrix elements range
+    from tens of nH to several $\mu$H depending on the plasma-coil geometry and the
+    current filament discretization. The matrix is computed from Neumann''s formula
+    $M_{pa,ij} = (\mu_0 / 4\pi) \oint\oint (d\mathbf{l}_i \cdot d\mathbf{l}_j) / |\mathbf{r}_i
+    - \mathbf{r}_j|$ or equivalent Green''s function methods using the axisymmetric
+    $(R, \phi, Z)$ geometry of the device. It complements [mutual_inductance_of_plasma_passive_coupling](name:mutual_inductance_of_plasma_passive_coupling)
+    (plasma filaments to passive structures) and [mutual_inductance_of_plasma_coupling](name:mutual_inductance_of_plasma_coupling)
+    (plasma filaments to one another).'
+  unit: H
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:mutual_inductance_of_passive_active_coupling
+  - name:mutual_inductance_of_plasma_passive_coupling
+  - name:mutual_inductance_of_plasma_coupling
+  constraints: []
+  sources:
+  - id: dd:em_coupling/mutual_plasma_active
+    dd_path: em_coupling/mutual_plasma_active
+    status: composed
+- name: mutual_inductance_of_plasma_passive_coupling
+  kind: scalar
+  status: draft
+  description: Mutual inductance matrix coupling distributed plasma current filaments
+    to passive conducting structures, giving the poloidal flux linked in each passive
+    loop per unit current in each plasma filament.
+  documentation: 'The mutual inductance $M_{\rm pl,pas}$ between discretized plasma
+    current filaments and passive conducting structures enters the coupled circuit
+    equations governing the electromagnetic response of the plasma and surrounding
+    conductors. For a plasma filament $i$ carrying current $I_i$ and a passive loop
+    $j$, the flux linkage contribution is $\Psi_j = M_{\rm pl,pas,ij}\, I_i$, where
+    $M_{\rm pl,pas,ij}$ is computed from the Neumann integral over the filament and
+    loop geometries. This matrix is a key building block in stability and control
+    calculations: it governs how plasma current redistributions induce eddy currents
+    in the passive structures and vice versa, determining the effective electromagnetic
+    braking and stabilization of vertical displacement events and resistive wall modes.
+    Typical values scale with device geometry, ranging from microhenries to millihenries
+    for medium-to-large tokamaks. The matrix is used alongside [mutual_inductance_of_plasma_active_coupling](name:mutual_inductance_of_plasma_active_coupling),
+    which couples plasma filaments to active coils, and [mutual_inductance_of_passive_coupling](name:mutual_inductance_of_passive_coupling),
+    which captures passive-to-passive flux linkage; together these three matrices
+    form the complete electromagnetic coupling system for plasma equilibrium and control.
+    The transpose of $M_{\rm pl,pas}$ gives the flux in the plasma filaments per unit
+    current in each passive loop, consistent with the reciprocity theorem of inductance.'
+  unit: H
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:mutual_inductance_of_plasma_active_coupling
+  - name:mutual_inductance_of_passive_coupling
+  constraints: []
+  sources:
+  - id: dd:em_coupling/mutual_plasma_passive
+    dd_path: em_coupling/mutual_plasma_passive
+    status: composed
+- name: neoclassical_tearing_mode_island_width
+  kind: scalar
+  status: draft
+  description: Full radial width of the magnetic island associated with a neoclassical
+    tearing mode, setting the spatial extent of the perturbed flux-surface topology.
+  documentation: 'The neoclassical tearing mode island width $w$ measures the full
+    radial extent of the helical magnetic island that forms when the neoclassical
+    bootstrap current perturbation drives reconnection at a rational flux surface.
+    Its evolution is governed by the generalized Rutherford equation, $\tau_R \frac{dw}{dt}
+    = r_s \Delta''(w) + A_{\rm bs} \frac{r_s^2}{w} - A_{\rm GGJ} \frac{r_s^2}{w} +
+    \ldots$, where $\tau_R$ is the resistive diffusion time, $r_s$ is the minor radius
+    at the resonant surface, $\Delta''$ is the classical tearing stability index,
+    and $A_{\rm bs}$, $A_{\rm GGJ}$ are coefficients for the bootstrap and ion-polarization
+    current drives. Islands wider than the stabilizing seed threshold grow spontaneously
+    and flatten the pressure profile across their full width $w$, degrading energy
+    confinement. Typical saturated island widths in tokamaks range from a few centimeters
+    to tens of centimeters depending on mode numbers $(m, n)$ and plasma parameters.
+    The quantity is complementary to [seed island width](name:neoclassical_tearing_mode_seed_island_width),
+    which characterizes the triggering threshold, and to [toroidal flux radius](name:neoclassical_tearing_mode_toroidal_flux_radius),
+    which locates the island center. The associated rotational braking is quantified
+    by [torque due to NTM](name:torque_due_to_neoclassical_tearing_mode). Island width
+    is inferred from electron cyclotron emission or soft X-ray tomography by identifying
+    the temperature-flattening region.
+
+
+    Sign convention: Positive when the island radial extent is measured outward from
+    the O-point of the island, i.e., the width is a non-negative radial distance.'
+  unit: m
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:neoclassical_tearing_mode_seed_island_width
+  - name:neoclassical_tearing_mode_toroidal_flux_radius
+  - name:torque_due_to_neoclassical_tearing_mode
+  constraints: []
+  sources:
+  - id: dd:ntms/time_slice/mode/detailed_evolution/width
+    dd_path: ntms/time_slice/mode/detailed_evolution/width
+    status: composed
+- name: perturbed_poloidal_magnetic_vector_potential_imaginary_part
+  kind: complex
+  status: draft
+  description: Imaginary part of the complex poloidal-component amplitude of the perturbed
+    magnetic vector potential for a linear MHD toroidal mode. The poloidal component
+    is defined in a flux-coordinate system and is gage-dependent.
+  documentation: "## Perturbed Poloidal Magnetic Vector Potential \u2014 Imaginary\
+    \ Part\n\nIn linear MHD analysis, the perturbed magnetic vector potential $\\\
+    delta\\mathbf{A}$ is decomposed into a single toroidal Fourier harmonic with mode\
+    \ number $n$:\n\n$$\\delta\\mathbf{A}(\\psi, \\theta, \\phi, t) = \\mathrm{Re}\\\
+    !\\left[\\hat{\\mathbf{A}}(\\psi, \\theta)\\, e^{i n \\phi}\\right]$$\n\nwhere\
+    \ $\\phi$ is the toroidal angle in the right-handed cylindrical $(R, \\phi, Z)$\
+    \ frame (increasing counter-clockwise viewed from above $+\\hat{Z}$), and $(\\\
+    psi, \\theta, \\phi)$ are flux coordinates with $\\psi$ a radial-like flux label\
+    \ and $\\theta$ the poloidal angle.\n\nThe complex amplitude $\\hat{\\mathbf{A}}$\
+    \ is projected onto the flux-coordinate basis. The **poloidal component** $\\\
+    hat{A}_\\theta$ is defined as the physical (metric-weighted) component:\n\n$$\\\
+    hat{A}_\\theta = \\hat{\\mathbf{A}} \\cdot \\hat{e}_\\theta$$\n\nwhere $\\hat{e}_\\\
+    theta$ is the unit vector tangent to curves of increasing $\\theta$ at constant\
+    \ $\\psi$ and $\\phi$. This is distinct from the cylindrical components $A_R$\
+    \ and $A_Z$; the relation between them involves the Jacobian and metric tensor\
+    \ of the flux-coordinate system.\n\nThis standard name stores $\\mathrm{Im}(\\\
+    hat{A}_\\theta)$, the imaginary part of this complex poloidal amplitude.\n\n###\
+    \ Reconstruction of the physical field\n\nThe time- and toroidally-dependent poloidal\
+    \ component is recovered as:\n\n$$A_\\theta(\\psi, \\theta, \\phi, t) = \\mathrm{Re}(\\\
+    hat{A}_\\theta)\\cos(n\\phi) - \\mathrm{Im}(\\hat{A}_\\theta)\\sin(n\\phi)$$\n\
+    \nfor the $e^{+in\\phi}$ convention. Together with its real-part companion [perturbed_poloidal_magnetic_vector_potential_real_part](name:perturbed_poloidal_magnetic_vector_potential_real_part),\
+    \ the full complex amplitude is completely specified.\n\nThe perturbed magnetic\
+    \ field follows from:\n\n$$\\delta\\mathbf{B} = \\nabla \\times \\delta\\mathbf{A}$$\n\
+    \nwith the curl evaluated using the metric coefficients of the flux-coordinate\
+    \ system.\n\n### Gage dependence\n\nThe vector potential is gage-dependent: under\
+    \ a gage transformation $\\delta\\mathbf{A} \\to \\delta\\mathbf{A} + \\nabla\\\
+    chi$, the poloidal component transforms as $\\hat{A}_\\theta \\to \\hat{A}_\\\
+    theta + (1/|\\nabla\\theta|)\\,\\partial\\hat{\\chi}/\\partial\\theta$. Reported\
+    \ values are meaningful only within a consistent gage convention (commonly the\
+    \ Coulomb gage $\\nabla \\cdot \\delta\\mathbf{A} = 0$).\n\n### Typical magnitudes\n\
+    \nFor linear eigenmodes the absolute amplitude is arbitrary until normalized.\
+    \ When normalized to a reference displacement or field perturbation, typical values\
+    \ of $|\\hat{A}_\\theta|$ range from $10^{-4}$ to $10^{-1}\\;\\mathrm{T{\\cdot}m}$\
+    \ in tokamak core plasmas near marginal stability conditions.\n\n### Domains\n\
+    \nValues are provided for both the confined plasma and the surrounding vacuum\
+    \ region, each under the same gage and flux-coordinate convention."
+  unit: T.m
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:perturbed_poloidal_magnetic_vector_potential_real_part
+  - name:perturbed_radial_magnetic_vector_potential_imaginary_part
+  - name:perturbed_toroidal_magnetic_vector_potential_imaginary_part
+  constraints: []
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate2/imaginary
+    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate2/imaginary
+    status: composed
+  - id: dd:mhd_linear/time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate2/imaginary
+    dd_path: mhd_linear/time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate2/imaginary
+    status: composed
+- name: perturbed_poloidal_magnetic_vector_potential_real_part
+  kind: complex
+  status: draft
+  description: Real part of the poloidal component of the perturbed magnetic vector
+    potential $\delta\mathbf{A}$ for a linear MHD toroidal mode in the confined plasma
+    region.
+  documentation: The perturbed magnetic vector potential $\delta\mathbf{A}$ arises
+    in linear MHD stability analysis when the equilibrium field $\mathbf{B}_0$ is
+    subjected to a small perturbation $\delta\mathbf{B} = \nabla \times \delta\mathbf{A}$.
+    The poloidal component $\delta A_\theta$ (where $\theta$ is the poloidal angle
+    in flux coordinates $(\psi, \theta, \phi)$) governs the poloidal magnetic flux
+    perturbation and is central to describing kink, ballooning, and tearing-mode structures.
+    For a toroidal Fourier mode with toroidal mode number $n$, the complex field is
+    written $\delta A_\theta(R, Z) \exp(in\phi)$; this name gives $\mathrm{Re}(\delta
+    A_\theta)$, the in-phase component. Typical amplitudes in MHD stability calculations
+    range from $10^{-6}$ to $10^{-3}$ m$\cdot$T for marginally stable or weakly unstable
+    modes in tokamak plasmas. The poloidal real part is used together with the [imaginary
+    part](name:perturbed_poloidal_magnetic_vector_potential_imaginary_part) to reconstruct
+    the full complex eigenfunction, and pairs with the [radial real part](name:perturbed_radial_magnetic_vector_potential_real_part)
+    and [toroidal real part](name:perturbed_toroidal_magnetic_vector_potential_real_part)
+    to form the complete vector potential perturbation.
+  unit: T.m
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:perturbed_poloidal_magnetic_vector_potential_imaginary_part
+  - name:perturbed_radial_magnetic_vector_potential_real_part
+  - name:perturbed_toroidal_magnetic_vector_potential_real_part
+  constraints: []
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate2/real
+    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate2/real
+    status: composed
+  - id: dd:mhd_linear/time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate2/real
+    dd_path: mhd_linear/time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate2/real
+    status: composed
+- name: perturbed_radial_magnetic_vector_potential_imaginary_part
+  kind: complex
+  status: draft
+  description: Imaginary part of the radial component of the perturbed magnetic vector
+    potential delta-A for a linear MHD toroidal mode, defined in the Coulomb gage.
+    Together with the real part, it forms the complex phasor amplitude of the radial
+    component, applicable to both the confined plasma region and the vacuum region
+    surrounding the plasma.
+  documentation: "In linear MHD stability analysis, the perturbed magnetic vector\
+    \ potential $\\delta\\mathbf{A}$ is decomposed in the right-handed cylindrical\
+    \ $(R, \\phi, Z)$ frame \u2014 where $R$ is major radius, $\\phi$ is toroidal\
+    \ angle increasing counter-clockwise when viewed from above $+\\hat{Z}$, and $Z$\
+    \ is vertical height \u2014 as\n$$\\delta\\mathbf{A} = \\delta A_R\\,\\hat{R}\
+    \ + \\delta A_\\phi\\,\\hat{\\phi} + \\delta A_Z\\,\\hat{Z}.$$\n\nFor a toroidal\
+    \ mode with harmonic dependence $e^{i(n\\phi - \\omega t)}$, the radial component\
+    \ $\\delta A_R$ is treated as a complex-valued amplitude. This quantity stores\
+    \ the imaginary part $\\mathrm{Im}(\\delta A_R)$. The full complex amplitude is\
+    \ recovered as\n$$\\delta A_R^{\\mathrm{complex}} = \\mathrm{Re}(\\delta A_R)\
+    \ + i\\,\\mathrm{Im}(\\delta A_R),$$\nand the physical perturbation at a given\
+    \ instant is then $\\mathrm{Re}\\!\\left[\\delta A_R^{\\mathrm{complex}}\\,e^{i(n\\\
+    phi - \\omega t)}\\right]$.\n\n**Gage convention.** All components of $\\delta\\\
+    mathbf{A}$ are reported in the Coulomb gage, $\\nabla\\cdot\\delta\\mathbf{A}\
+    \ = 0$. In this gage the perturbed vector potential is related to the perturbed\
+    \ magnetic field by $\\delta\\mathbf{B} = \\nabla\\times\\delta\\mathbf{A}$. Within\
+    \ the plasma the governing equation for $\\delta\\mathbf{A}$ incorporates the\
+    \ linearized Ohm's law and force balance; in the current-free vacuum region surrounding\
+    \ the plasma, the Coulomb-gage condition reduces the equation to $\\nabla^2\\\
+    delta\\mathbf{A} = 0$ (magnetostatic, no free currents), and plasma and vacuum\
+    \ solutions are matched at the plasma-vacuum interface.\n\n**Radial component\
+    \ interpretation.** In cylindrical $(R, \\phi, Z)$ coordinates, $\\delta A_R$\
+    \ is the component of $\\delta\\mathbf{A}$ along $\\hat{R}$. Together with the\
+    \ poloidal ($\\delta A_Z$) and toroidal ($\\delta A_\\phi$) components, it is\
+    \ required to reconstruct $\\delta\\mathbf{B}$ via the curl relation. The imaginary\
+    \ part carries information about the phase of the radial vector-potential perturbation\
+    \ relative to the toroidal harmonic convention; both real and imaginary parts\
+    \ are needed to describe mode rotation and growth.\n\n**Typical magnitudes.**\
+    \ Values depend strongly on the mode amplitude and plasma equilibrium. For moderate-amplitude\
+    \ ideal or resistive MHD modes in tokamak geometry, $|\\delta A_R|$ is typically\
+    \ in the range $10^{-5}$\u2013$10^{-2}$ T\xB7m, with the imaginary part reaching\
+    \ similar magnitudes to the real part depending on mode phase. Values are computed\
+    \ by linear MHD eigenvalue codes.\n\nThe complete component family is $\\delta\
+    \ A_R$ (this entry and its real-part counterpart), $\\delta A_\\phi$ (toroidal),\
+    \ and $\\delta A_Z$ (poloidal); all are required for complete $\\delta\\mathbf{B}$\
+    \ reconstruction."
+  unit: T.m
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:perturbed_radial_magnetic_vector_potential_real_part
+  - name:perturbed_poloidal_magnetic_vector_potential_imaginary_part
+  - name:perturbed_toroidal_magnetic_vector_potential_imaginary_part
+  constraints: []
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate1/imaginary
+    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate1/imaginary
+    status: composed
+  - id: dd:mhd_linear/time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate1/imaginary
+    dd_path: mhd_linear/time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate1/imaginary
+    status: composed
+- name: perturbed_radial_magnetic_vector_potential_real_part
+  kind: complex
+  status: draft
+  description: Real part of the radial ($R$-direction) component of the perturbed
+    magnetic vector potential $\delta\mathbf{A}$ for a linear MHD toroidal mode in
+    the confined plasma or vacuum region. The full complex amplitude is reconstructed
+    as $\delta A_R = \mathrm{Re}(\delta\hat{A}_R)\cos(n\phi - \omega t) - \mathrm{Im}(\delta\hat{A}_R)\sin(n\phi
+    - \omega t)$.
+  documentation: "The perturbed magnetic vector potential $\\delta\\mathbf{A}$ is\
+    \ the complex-amplitude vector field associated with a single toroidal Fourier\
+    \ mode of toroidal mode number $n$ and angular frequency $\\omega$ in a linear\
+    \ MHD stability or forced-response calculation. This quantity is its radial ($R$)\
+    \ component in the right-handed cylindrical $(R, \\phi, Z)$ frame, where $R$ is\
+    \ the major radius measured from the machine symmetry axis and $Z$ is the vertical\
+    \ height.\n\nThe physical (real-valued) time-domain field is reconstructed from\
+    \ the complex amplitude $\\delta\\hat{A}_R$ as\n$$\\delta A_R(R,\\phi,Z,t) = \\\
+    mathrm{Re}\\!\\left[\\delta\\hat{A}_R(R,Z)\\,e^{i(n\\phi - \\omega t)}\\right]\n\
+    \ = \\mathrm{Re}(\\delta\\hat{A}_R)\\cos(n\\phi-\\omega t) - \\mathrm{Im}(\\delta\\\
+    hat{A}_R)\\sin(n\\phi-\\omega t).$$\nThis quantity is the real part $\\mathrm{Re}(\\\
+    delta\\hat{A}_R)$, stored in units of T$\\cdot$m.\n\nThe perturbed magnetic field\
+    \ is related to the vector potential by $\\delta\\mathbf{B} = \\nabla\\times\\\
+    delta\\mathbf{A}$, so the radial component of $\\delta\\mathbf{B}$ involves derivatives\
+    \ of $\\delta A_\\phi$ and $\\delta A_Z$ rather than $\\delta A_R$ directly; the\
+    \ three components together fully determine $\\delta\\mathbf{B}$.\n\n**Gage dependence.**\
+    \ The vector potential $\\delta\\mathbf{A}$ is gage-dependent: adding any gradient\
+    \ $\\nabla\\delta\\chi$ to $\\delta\\mathbf{A}$ leaves $\\delta\\mathbf{B}$ unchanged.\
+    \ The radial component $\\delta A_R$ therefore carries meaning only within the\
+    \ gage convention adopted by the producing MHD code. Common choices include the\
+    \ Coulomb gage ($\\nabla\\cdot\\delta\\mathbf{A}=0$) and the ideal-MHD gage in\
+    \ which the scalar potential is set to zero. Users should verify the gage convention\
+    \ of the generating code before interpreting $\\delta A_R$ in isolation.\n\n**Component\
+    \ convention.** This component is the projection of $\\delta\\mathbf{A}$ onto\
+    \ $\\hat{R}$ in the cylindrical $(R, \\phi, Z)$ frame \u2014 it is not a flux-surface-aligned\
+    \ or contravariant/covariant component. Codes that work in flux coordinates must\
+    \ project their internal representation onto $(\\hat{R}, \\hat{\\phi}, \\hat{Z})$\
+    \ before populating this field.\n\nTypical magnitude: for moderate-amplitude MHD\
+    \ perturbations in a tokamak (e.g., resistive wall modes, tearing modes), $|\\\
+    delta\\hat{A}_R|$ is of order $10^{-4}$\u2013$10^{-2}$ T$\\cdot$m, though values\
+    \ depend strongly on the normalization and mode amplitude employed by the source\
+    \ code.\n\nSign convention: Positive when the real part of the complex amplitude\
+    \ $\\delta\\hat{A}_R$ points in the direction of increasing major radius $R$."
+  unit: T.m
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:perturbed_radial_magnetic_vector_potential_imaginary_part
+  - name:perturbed_poloidal_magnetic_vector_potential_real_part
+  - name:perturbed_toroidal_magnetic_vector_potential_real_part
+  constraints: []
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate1/real
+    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate1/real
+    status: composed
+  - id: dd:mhd_linear/time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate1/real
+    dd_path: mhd_linear/time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate1/real
+    status: composed
+- name: perturbed_toroidal_magnetic_vector_potential_imaginary_part
+  kind: complex
+  status: draft
+  description: Imaginary part of the toroidal component of the perturbed magnetic
+    vector potential delta-A for a single toroidal Fourier mode in a linear MHD calculation.
+    The toroidal component delta-A-phi is the physical cylindrical component in the
+    right-handed cylindrical (R, phi, Z) frame, not a covariant or contravariant coordinate
+    component. This quantity is gage-dependent and meaningful only together with its
+    real part and the chosen gage condition.
+  documentation: "In linear MHD stability and wave-propagation analyzes, the perturbed\
+    \ magnetic vector potential $\\delta\\mathbf{A}$ is decomposed into a single toroidal\
+    \ Fourier mode with toroidal mode number $n$:\n\n$$\\delta\\mathbf{A}(R,\\phi,Z,t)\
+    \ = \\hat{\\delta\\mathbf{A}}(R,Z)\\,e^{i(n\\phi - \\omega t)},$$\n\nwhere the\
+    \ complex amplitude $\\hat{\\delta\\mathbf{A}}$ is further split into real and\
+    \ imaginary parts. This standard name stores the imaginary part of the toroidal\
+    \ component:\n\n$$\\mathrm{Im}\\bigl[\\hat{\\delta A}_\\phi(R,Z)\\bigr],$$\n\n\
+    where $\\hat{\\delta A}_\\phi$ is the **physical cylindrical component** of $\\\
+    delta\\mathbf{A}$ along the $\\hat{\\phi}$ direction of the right-handed cylindrical\
+    \ $(R, \\phi, Z)$ frame. The units are T$\\cdot$m (equivalent to Wb/m).\n\n**Component\
+    \ convention.** $\\hat{\\delta A}_\\phi$ is the physical (orthonormal-frame) toroidal\
+    \ component, related to the covariant component $\\hat{\\delta A}_{\\phi,\\mathrm{cov}}$\
+    \ by $\\hat{\\delta A}_\\phi = \\hat{\\delta A}_{\\phi,\\mathrm{cov}}/R$. Care\
+    \ must be taken to apply the same convention when reconstructing the perturbed\
+    \ magnetic field.\n\n**Field reconstruction.** The full perturbed magnetic field\
+    \ is recovered from the real and imaginary parts via\n\n$$\\delta\\mathbf{B} =\
+    \ \\nabla\\times\\delta\\mathbf{A},$$\n\nso that at a given toroidal phase angle\
+    \ $\\alpha$:\n\n$$\\delta\\mathbf{B}(R,\\phi,Z;\\alpha) = \\mathrm{Re}\\bigl[\\\
+    hat{\\delta\\mathbf{B}}\\bigr]\\cos\\alpha - \\mathrm{Im}\\bigl[\\hat{\\delta\\\
+    mathbf{B}}\\bigr]\\sin\\alpha,$$\n\nwith $\\hat{\\delta\\mathbf{B}} = \\nabla\\\
+    times\\hat{\\delta\\mathbf{A}}$. Explicitly, the toroidal contribution to $\\\
+    hat{\\delta B}_R$ arising from $\\hat{\\delta A}_\\phi$ is $-(\\partial/\\partial\
+    \ Z)\\hat{\\delta A}_\\phi$, and to $\\hat{\\delta B}_Z$ is $(1/R)(\\partial/\\\
+    partial R)(R\\hat{\\delta A}_\\phi)$.\n\n**Gage dependence.** The vector potential\
+    \ is gage-dependent: $\\delta\\mathbf{A}\\to\\delta\\mathbf{A}+\\nabla\\delta\\\
+    Lambda$ leaves $\\delta\\mathbf{B}$ invariant but changes each component of $\\\
+    delta\\mathbf{A}$. The value of $\\mathrm{Im}[\\hat{\\delta A}_\\phi]$ is therefore\
+    \ only meaningful when the gage condition used in the MHD code (e.g., the Coulomb\
+    \ gage $\\nabla\\cdot\\delta\\mathbf{A}=0$, or a fixed temporal gage) is known.\
+    \ Users should consult the originating code documentation for the gage convention\
+    \ applied.\n\n**Typical magnitudes.** For resistive or ideal MHD modes at marginal\
+    \ stability in a medium-sized tokamak, $|\\hat{\\delta A}_\\phi|$ is typically\
+    \ in the range $10^{-5}$\u2013$10^{-2}$ T$\\cdot$m for normalized perturbation\
+    \ amplitudes of order $10^{-3}$\u2013$10^{-1}$.\n\n**Plasma vs vacuum.** This\
+    \ quantity is defined separately in both the plasma and vacuum regions; across\
+    \ the plasma\u2013vacuum interface, the tangential components of $\\delta\\mathbf{A}$\
+    \ and the normal component of $\\delta\\mathbf{B}$ must be continuous.\n\nSign\
+    \ convention: Positive when the imaginary part of the toroidal component of the\
+    \ perturbed vector potential points in the direction of increasing toroidal angle\
+    \ $\\phi$ (the $+\\hat{\\phi}$ direction in the right-handed cylindrical $(R,\
+    \ \\phi, Z)$ frame)."
+  unit: T.m
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:perturbed_toroidal_magnetic_vector_potential_real_part
+  - name:perturbed_radial_magnetic_vector_potential_imaginary_part
+  - name:perturbed_poloidal_magnetic_vector_potential_imaginary_part
+  constraints: []
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate3/imaginary
+    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate3/imaginary
+    status: composed
+  - id: dd:mhd_linear/time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate3/imaginary
+    dd_path: mhd_linear/time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate3/imaginary
+    status: composed
+- name: perturbed_toroidal_magnetic_vector_potential_real_part
+  kind: complex
+  status: draft
+  description: Real part of the toroidal component of the perturbed magnetic vector
+    potential $\delta\mathbf{A}$ for a linear MHD toroidal mode, applicable in the
+    vacuum region surrounding the plasma.
+  documentation: The perturbed magnetic vector potential $\delta\mathbf{A}$ satisfies
+    $\delta\mathbf{B} = \nabla \times \delta\mathbf{A}$, where $\delta\mathbf{B}$
+    is the perturbed magnetic field associated with a linear MHD eigenmode. The toroidal
+    component $\delta A_\phi$ is the projection of $\delta\mathbf{A}$ onto the $\hat{\phi}$
+    direction in the right-handed cylindrical $(R, \phi, Z)$ frame, and this standard
+    name gives its real part when the complex mode amplitude is decomposed as $\delta
+    A_\phi = \mathrm{Re}(\delta A_\phi) + i\,\mathrm{Im}(\delta A_\phi)$. In linear
+    MHD stability analyzes, the fields are expanded as $\sim e^{i(n\phi - \omega t)}$
+    for toroidal mode number $n$ and complex eigenfrequency $\omega$; the real and
+    imaginary parts together encode both the amplitude and phase of the perturbation.
+    Typical magnitudes in stability calculations for tokamak eigenmodes range from
+    $10^{-6}$ to $10^{-2}$ m$\cdot$T depending on normalization convention. The direct
+    complex counterpart is [perturbed_toroidal_magnetic_vector_potential_imaginary_part](name:perturbed_toroidal_magnetic_vector_potential_imaginary_part),
+    while the radial and poloidal real-part components are [perturbed_radial_magnetic_vector_potential_real_part](name:perturbed_radial_magnetic_vector_potential_real_part)
+    and [perturbed_poloidal_magnetic_vector_potential_real_part](name:perturbed_poloidal_magnetic_vector_potential_real_part).
+  unit: T.m
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:perturbed_toroidal_magnetic_vector_potential_imaginary_part
+  - name:perturbed_radial_magnetic_vector_potential_real_part
+  - name:perturbed_poloidal_magnetic_vector_potential_real_part
+  constraints: []
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate3/real
+    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate3/real
+    status: composed
+  - id: dd:mhd_linear/time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate3/real
+    dd_path: mhd_linear/time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate3/real
+    status: composed
+- name: poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_active_coupling
+  kind: scalar
+  status: draft
+  description: Poloidal magnetic field per unit current coupling matrix from active
+    poloidal field coils to poloidal field probe sensors.
+  documentation: "Each entry $M^{B}_{ij}$ of this coupling matrix gives the poloidal\
+    \ magnetic field $B_{\\mathrm{pol},i}$ sensed at probe $i$ per unit current $I_j$\
+    \ flowing in active poloidal field coil $j$, so that $B_{\\mathrm{pol},i} = \\\
+    sum_j M^{B}_{ij} I_j$ in the limit of no plasma or passive-structure response.\
+    \ The matrix is determined entirely by the geometry of the active coil windings\
+    \ and probe locations, and is computed analytically or numerically (e.g., via\
+    \ Biot\u2013Savart integration) for a given machine configuration. It forms one\
+    \ column of the complete field-response model: the total probe signal is the superposition\
+    \ of contributions from active coils (this quantity), passive conducting structures\
+    \ (see [passive coupling](name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_passive_coupling)),\
+    \ plasma current filaments (see [plasma coupling](name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_plasma_coupling)),\
+    \ and equilibrium grid elements (see [grid coupling](name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_grid_coupling)).\
+    \ The active-coil coupling matrix is used in real-time plasma control and post-shot\
+    \ equilibrium reconstruction to subtract the vacuum field contribution, isolating\
+    \ the plasma-driven signal. The analogous flux-linked quantity for poloidal flux\
+    \ loops is the [mutual inductance of flux loop active coupling](name:mutual_inductance_of_flux_loop_active_coupling),\
+    \ which carries the same geometric information but integrated over the loop winding\
+    \ rather than evaluated at a point sensor."
+  unit: A^-1.T
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_passive_coupling
+  - name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_plasma_coupling
+  - name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_grid_coupling
+  - name:mutual_inductance_of_flux_loop_active_coupling
+  constraints: []
+  sources:
+  - id: dd:em_coupling/b_field_pol_probes_active
+    dd_path: em_coupling/b_field_pol_probes_active
+    status: composed
+- name: poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_passive_coupling
+  kind: scalar
+  status: draft
+  description: Poloidal magnetic field per unit current coupling matrix from passive
+    conducting structures to poloidal field probe sensors, giving the field measured
+    at each probe per unit current circulating in each passive loop.
+  documentation: "Each element $M^{\\rm pas}_{ij}$ of this coupling matrix gives the\
+    \ poloidal magnetic field $\\delta B_{\\rm pol}$ measured at probe $i$ per unit\
+    \ current $I_j$ flowing in passive conducting structure $j$, so that $B_{\\rm\
+    \ pol,i} = \\sum_j M^{\\rm pas}_{ij} I_j$. Passive conducting structures include\
+    \ vacuum vessel segments, stabilizing shells, and other conducting loops that\
+    \ are not actively driven but carry induced currents during transient events such\
+    \ as disruptions, vertical displacement events, or resistive wall mode evolution.\
+    \ This matrix is a key ingredient in equilibrium reconstruction and stability\
+    \ analysis: it allows the contribution of induced passive-structure currents to\
+    \ the measured probe signals to be separated from the active coil and plasma contributions\
+    \ encoded in [active coil coupling](name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_active_coupling)\
+    \ and [plasma coupling](name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_plasma_coupling)\
+    \ matrices. The elements are computed from the geometry of both the passive structures\
+    \ and the probe locations using Biot\u2013Savart integration in the right-handed\
+    \ cylindrical $(R, \\phi, Z)$ frame. For an analogous flux-based quantity linking\
+    \ passive structures to flux loop diagnostics, see [mutual inductance of flux\
+    \ loop passive coupling](name:mutual_inductance_of_flux_loop_passive_coupling)."
+  unit: A^-1.T
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_active_coupling
+  - name:poloidal_magnetic_field_coupling_of_poloidal_magnetic_field_probe_plasma_coupling
+  - name:mutual_inductance_of_flux_loop_passive_coupling
+  constraints: []
+  sources:
+  - id: dd:em_coupling/field_probes_passive
+    dd_path: em_coupling/field_probes_passive
+    status: composed
+- name: tendency_of_oscillation_frequency_of_neoclassical_tearing_mode
+  kind: scalar
+  status: draft
+  description: Time rate of change of the lab-frame oscillation frequency of a neoclassical
+    tearing mode (NTM), identified by poloidal and toroidal mode numbers (m, n). Quantifies
+    instantaneous angular acceleration or deceleration of the rotating magnetic island
+    structure.
+  documentation: "The tendency of oscillation frequency of a neoclassical tearing\
+    \ mode is defined as\n$$\\frac{d\\omega}{dt},$$\nwhere $\\omega$ is the lab-frame\
+    \ angular frequency (rad s$^{-1}$) of the mode's oscillation, i.e., the quantity\
+    \ given by [oscillation frequency of NTM](name:oscillation_frequency_of_neoclassical_tearing_mode).\
+    \ Because radians are dimensionless, the resulting unit is s$^{-2}$.\n\nThe mode\
+    \ is labeled by the poloidal and toroidal mode number pair $(m, n)$; common NTM\
+    \ modes in tokamaks include $(3,2)$ and $(2,1)$. The oscillation frequency $\\\
+    omega$ is measured in the laboratory frame and differs from the plasma-frame frequency\
+    \ by the local toroidal plasma rotation velocity at the rational surface $q =\
+    \ m/n$.\n\n**Torque-balance context (model illustration):**\n\nIn a simplified\
+    \ torque-balance model for the mode layer at the rational surface, this quantity\
+    \ relates to the net torque as\n$$\\frac{d\\omega}{dt} = \\frac{1}{J}\\sum_i \\\
+    tau_i,$$\nwhere $J$ (kg m$^2$) is the effective rotational inertia of the perturbed\
+    \ flow region \u2014 dependent on the island half-width $W$, local mass density\
+    \ profile, and radial extent of the flow perturbation \u2014 and $\\tau_i$ (N\
+    \ m) are the individual torque contributions (electromagnetic braking, neutral-beam\
+    \ momentum input, viscous coupling to bulk plasma, etc.). This model provides\
+    \ physical context but is not the definition of the quantity; $d\\omega/dt$ is\
+    \ defined purely as the time derivative of the measured lab-frame oscillation\
+    \ frequency.\n\n**Typical magnitudes:**\n\n- Quasi-steady rotation phase: $|d\\\
+    omega/dt| \\sim 10^2$\u2013$10^3$ s$^{-2}$.\n- During rapid locking events: $|d\\\
+    omega/dt|$ can transiently reach $10^4$\u2013$10^5$ s$^{-2}$.\n\nSign convention:\
+    \ Positive when the oscillation frequency is increasing in time, corresponding\
+    \ to acceleration of the mode in the direction of increasing toroidal angle $\\\
+    phi$ in the right-handed cylindrical $(R, \\phi, Z)$ frame; negative when the\
+    \ mode is decelerating.\n\nThe related [NTM torque](name:neoclassical_tearing_mode_torque)\
+    \ quantifies forces driving changes in this quantity, while the [island width](name:neoclassical_tearing_mode_island_width)\
+    \ characterizes the mode amplitude."
+  unit: s^-2
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:neoclassical_tearing_mode_torque
+  - name:neoclassical_tearing_mode_island_width
+  - name:neoclassical_tearing_mode_seed_island_width
+  - name:tendency_of_neoclassical_tearing_mode_oscillation_frequency
+  constraints: []
+  sources:
+  - id: dd:ntms/time_slice/mode/dfrequency_dt
+    dd_path: ntms/time_slice/mode/dfrequency_dt
+    status: composed
+- name: toroidal_flux_radius_of_neoclassical_tearing_mode_island_center
+  kind: scalar
+  status: draft
+  description: Toroidal flux radius at the radial center (O-point) of a neoclassical
+    tearing mode magnetic island, obtained by mapping the O-point position onto the
+    unperturbed axisymmetric equilibrium flux-surface labeling.
+  documentation: "The toroidal flux radius of the NTM island center is a dimensional\
+    \ radial coordinate $\\rho_{\\mathrm{tor}}$ (in meters) that labels the radial\
+    \ position of the magnetic O-point of a neoclassical tearing mode (NTM) island\
+    \ chain within the equilibrium flux-surface geometry.\n\n## Definition\n\nThe\
+    \ coordinate is defined as\n$$\\rho_{\\mathrm{tor}} = \\sqrt{\\frac{\\Phi_{\\\
+    mathrm{tor}}}{\\pi B_0}},$$\nwhere $\\Phi_{\\mathrm{tor}}$ is the toroidal magnetic\
+    \ flux enclosed by a flux surface in the unperturbed axisymmetric equilibrium,\
+    \ and $B_0$ is the vacuum toroidal magnetic field evaluated at the reference major\
+    \ radius $R_0$. Because the NTM island breaks the nested flux-surface topology\
+    \ in a finite radial band around the rational surface $q = m/n$, the O-point itself\
+    \ does not lie on a regular axisymmetric flux surface. The reported $\\rho_{\\\
+    mathrm{tor}}$ value is therefore the label of the unperturbed flux surface whose\
+    \ radial position in the midplane corresponds to the O-point location\u2014i.e.,\
+    \ it is a mapped coordinate assigned by projecting the island center back onto\
+    \ the surrounding equilibrium.\n\nSign convention: Positive when the enclosed\
+    \ toroidal flux $\\Phi_{\\mathrm{tor}}$ increases from the magnetic axis outward,\
+    \ with $\\rho_{\\mathrm{tor}} = 0$ at the magnetic axis.\n\n## Physical context\n\
+    \nIn the small-island limit the O-point coincides with the unperturbed rational\
+    \ surface; as the island grows the O-point may shift due to equilibrium evolution,\
+    \ pressure profile flattening within the island separatrix, and nonlinear coupling\
+    \ to neighboring rational surfaces. The reported value reflects the instantaneous\
+    \ O-point position rather than a fixed rational-surface label.\n\nTypical values\
+    \ in present-day tokamaks range from approximately $0.1$ m to $0.8$ m depending\
+    \ on device size. In normalized terms the island center commonly lies in the region\
+    \ $\\rho_{\\mathrm{tor}}/\\rho_{\\mathrm{tor,edge}} \\approx 0.3$\u2013$0.8$,\
+    \ with $(m,n) = (3,2)$ modes tending to appear at smaller radii than $(2,1)$ modes.\n\
+    \n## Relationship to related quantities\n\nThis quantity specifies the center\
+    \ of the island; the radial extent around that center is given by [neoclassical_tearing_mode_island_width](name:neoclassical_tearing_mode_island_width).\
+    \ The sibling standard name [neoclassical_tearing_mode_toroidal_flux_radius](name:neoclassical_tearing_mode_toroidal_flux_radius)\
+    \ denotes the same physical concept\u2014the flux-surface label at the island\
+    \ center\u2014expressed in the same coordinate. The torque exerted by the NTM\
+    \ on the plasma, characterized by [torque_due_to_neoclassical_tearing_mode](name:torque_due_to_neoclassical_tearing_mode),\
+    \ depends sensitively on this radial location through the local bootstrap current\
+    \ gradient.\n\nThe reference magnetic field $B_0$ entering the definition is evaluated\
+    \ at the major radius recorded under [major_radius_of_vacuum_toroidal_field_reference_point](name:major_radius_of_vacuum_toroidal_field_reference_point)."
+  unit: m
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:neoclassical_tearing_mode_island_width
+  - name:neoclassical_tearing_mode_toroidal_flux_radius
+  - name:torque_due_to_neoclassical_tearing_mode
+  constraints: []
+  sources:
+  - id: dd:ntms/time_slice/mode/detailed_evolution/rho_tor
+    dd_path: ntms/time_slice/mode/detailed_evolution/rho_tor
+    status: composed

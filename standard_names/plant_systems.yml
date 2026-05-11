@@ -1,9 +1,382 @@
 # Domain: plant_systems
-# Catalog sha: 0b0cc91313a949ddcf6de90552a90954c93e4d5e
-# Entries: 2
+# Catalog sha: d3e506af05f33eacdd2941c510748ac9add211c1
+# Entries: 37
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: deposited_thermal_power_of_breeding_blanket_module
+  kind: scalar
+  status: draft
+  description: Total thermal power deposited into a single tritium breeding blanket
+    module from all nuclear and radiative heating mechanisms, representing the gross
+    heat load before coolant extraction.
+  documentation: "The deposited thermal power of a breeding blanket module is the\
+    \ instantaneous rate at which energy from all sources \u2014 primarily neutron\
+    \ slowing-down, gamma heating, and charged-particle deposition \u2014 is converted\
+    \ to heat within the module volume. It is related to the [neutron thermal power\
+    \ of the module](name:neutron_thermal_power_of_breeding_blanket_module) and [neutron\
+    \ heating power](name:neutron_heating_power_of_breeding_blanket_module) by the\
+    \ addition of non-neutron radiative contributions, satisfying $P_\\mathrm{dep}\
+    \ = P_\\mathrm{neutron} + P_\\mathrm{\\gamma} + P_\\mathrm{other}$, where each\
+    \ term is in W. The deposited power sets an upper bound on the [extracted thermal\
+    \ power of the breeding blanket module](name:extracted_thermal_power_of_breeding_blanket_module),\
+    \ with the difference accounting for in-module thermal storage and structural\
+    \ losses. Typical values range from tens to hundreds of megawatts per module in\
+    \ reactor-scale designs, depending on blanket geometry, neutron wall loading,\
+    \ and breeder material choice. This quantity integrates over the full module boundary\
+    \ and is distinguished from the [thermal power load of the breeding blanket](name:thermal_power_load_of_breeding_blanket),\
+    \ which applies to the blanket assembly as a whole rather than to individual modules."
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:neutron_thermal_power_of_breeding_blanket_module
+  - name:neutron_heating_power_of_breeding_blanket_module
+  - name:extracted_thermal_power_of_breeding_blanket_module
+  - name:thermal_power_load_of_breeding_blanket
+  constraints: []
+  sources:
+  - id: dd:balance_of_plant/power_plant/heat_load_breeder
+    dd_path: balance_of_plant/power_plant/heat_load_breeder
+    status: composed
+- name: electrical_power_consumption_of_plant_subsystem
+  kind: scalar
+  status: draft
+  description: Electrical power consumed by an individual subsystem within the plant
+    electric operation network, measured at the subsystem electrical boundary. Positive
+    values indicate net consumption (load); negative values indicate net generation
+    (source). Each subsystem's contribution aggregates to the parent system and ultimately
+    to the total plant electrical power consumption.
+  documentation: "The electrical power consumption of a single subsystem within the\
+    \ plant balance-of-plant (BoP) electric operation network. A subsystem is a discrete\
+    \ functional unit nested within a plant system (e.g., a cooling pump nested within\
+    \ the cooling water system). This quantity is measured at the subsystem's electrical\
+    \ interface boundary and represents the net power drawn from or supplied to the\
+    \ local electrical bus.\n\nThe consumption convention follows:\n$$P_{\\mathrm{subsystem}}\
+    \ > 0 \\quad \\Rightarrow \\quad \\text{net load (consuming power)}$$\n$$P_{\\\
+    mathrm{subsystem}} < 0 \\quad \\Rightarrow \\quad \\text{net source (generating\
+    \ or recovering power)}$$\n\nThe subsystem powers aggregate hierarchically. For\
+    \ a plant system $k$ containing $N_k$ subsystems:\n$$P_{\\mathrm{system},k} =\
+    \ \\sum_{i=1}^{N_k} P_{\\mathrm{subsystem},k,i}$$\nand the total plant electrical\
+    \ consumption is:\n$$P_{\\mathrm{total}} = \\sum_{k} P_{\\mathrm{system},k} =\
+    \ \\sum_{k}\\sum_{i} P_{\\mathrm{subsystem},k,i}$$\n\nTypical magnitudes vary\
+    \ widely by subsystem type: auxiliary cooling pumps may draw $10^4$\u2013$10^6$\
+    \ W, while large cryogenic compressor subsystems can reach $10^7$ W. Subsystems\
+    \ capable of energy recovery (e.g., regenerative drives, heat-to-power converters)\
+    \ may yield negative values during partial recovery operation.\n\nSign convention:\
+    \ Positive when the subsystem draws net electrical power from the plant bus (net\
+    \ consumption); negative when the subsystem returns net electrical power to the\
+    \ plant bus (net generation or recovery)."
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:total_plant_electrical_power_consumption
+  - name:plant_subsystem_electrical_power
+  - name:electrical_power_consumption_of_plant_system
+  - name:net_electric_power_output
+  constraints: []
+  sources:
+  - id: dd:balance_of_plant/power_electric_plant_operation/system/subsystem/power
+    dd_path: balance_of_plant/power_electric_plant_operation/system/subsystem/power
+    status: composed
+- name: electrical_power_consumption_of_plant_system
+  kind: scalar
+  status: draft
+  description: Electrical power consumed by a plant system in the balance-of-plant
+    electric operation accounting. Defined at the system boundary as net power drawn
+    from the facility electrical network; positive values indicate net consumption.
+    A negative value indicates the system delivers net electrical power back to the
+    facility bus.
+  documentation: 'The electrical power consumption of a plant system, $P_\mathrm{sys}$,
+    is the net electrical power exchanged at the boundary between the plant system
+    and the facility electrical distribution network. It enters the balance-of-plant
+    electric power accounting as a signed load term:
+
+
+    $$P_\mathrm{total} = \sum_i P_{\mathrm{sys},i}$$
+
+
+    where the sum runs over all plant systems contributing to the facility power budget.
+
+
+    Sign convention: Positive when the system draws net electrical power from the
+    facility network (net consumption). Negative when the system delivers net electrical
+    power to the facility network (net generation or recovery).
+
+
+    Typical values range from a few kilowatts for small auxiliary systems to tens
+    of megawatts for large cryogenic, pumping, or heating systems in a fusion facility.
+    The quantity is defined at the system boundary and does not resolve the internal
+    distribution of power among subsystems; see `electrical_power_consumption_of_plant_subsystem`
+    for subsystem-level decomposition.
+
+
+    This quantity is used in overall facility power balance assessments, including
+    the calculation of the recirculating power fraction and net electric output.'
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:total_plant_electrical_power_consumption
+  - name:plant_subsystem_electrical_power
+  - name:net_electric_power_output
+  constraints: []
+  sources:
+  - id: dd:balance_of_plant/power_electric_plant_operation/system/power
+    dd_path: balance_of_plant/power_electric_plant_operation/system/power
+    status: composed
+- name: fragmentation_gas_flow_rate_of_shattered_pellet_injector
+  kind: scalar
+  status: draft
+  description: Particle flow rate of fragmentation gas at the shattered pellet injector
+    exit, defined as the number of gas particles passing the injector exit boundary
+    per unit time. This is a species-summed scalar quantity evaluated at the exit
+    plane, independent of the inference method used to determine it.
+  documentation: "The fragmentation gas flow rate $\\dot{N}_{\\rm frag}$ is defined\
+    \ as\n\n$$\\dot{N}_{\\rm frag} = \\frac{dN}{dt}$$\n\nwhere $N$ is the total number\
+    \ of fragmentation gas particles (summed over all constituent species if a gas\
+    \ mixture is used) passing the injector exit boundary per unit time. The quantity\
+    \ is evaluated at the exit plane of the injector and is independent of the method\
+    \ by which it is inferred or measured.\n\nThe fragmentation gas is injected to\
+    \ promote mechanical breakup of the pellet at the shattering target; however,\
+    \ $\\dot{N}_{\\rm frag}$ characterizes only the gas supply at the exit plane and\
+    \ does not by itself determine the fragmentation outcome, which depends on the\
+    \ full injector\u2013target interaction.\n\nTypical values range from $10^{21}$\
+    \ to $10^{23}$ s$^{-1}$ depending on injector design, pellet size, and required\
+    \ fragment size distribution.\n\nSign convention: Positive when gas flows out\
+    \ of the injector exit in the intended direction of pellet travel.\n\nSee also:\
+    \ `fragmentation_gas_pressure_of_shattered_pellet_injector` for the upstream pressure\
+    \ driving this flow, `propellant_gas_flow_rate_of_shattered_pellet_injector` for\
+    \ the analogous quantity for the propellant gas, and `pellet_flow_rate_of_shattered_pellet_injector`\
+    \ for the pellet delivery rate."
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:propellant_gas_flow_rate
+  - name:fragmentation_gas_particle_flow_rate_of_shattered_pellet_injector
+  - name:shattered_pellet_gas_flow_rate
+  constraints: []
+  sources:
+  - id: dd:spi/injector/fragmentation_gas/flow_rate
+    dd_path: spi/injector/fragmentation_gas/flow_rate
+    status: composed
+- name: major_radius_of_end_point
+  kind: scalar
+  status: draft
+  description: Major-radius coordinate $R$ of the exit (end) position of a gas injection
+    or pellet injector pipe in the right-handed cylindrical $(R, \phi, Z)$ frame.
+  documentation: "The major radius $R$ locates the endpoint of a gas injection pipe\
+    \ or pellet/shattered-pellet injector outlet in the right-handed cylindrical $(R,\
+    \ \\phi, Z)$ frame, where $R$ is the perpendicular distance from the machine symmetry\
+    \ axis. This geometric coordinate is essential for modeling the spatial origin\
+    \ of injected gas or pellet fragments entering the plasma, and is used alongside\
+    \ the companion [vertical coordinate](name:vertical_coordinate_of_end_point) to\
+    \ fully specify the poloidal position of the injection point. Typical values range\
+    \ from ~0.5 m (inboard wall injection) to ~3\u20136 m (outboard or midplane injection)\
+    \ depending on machine size and injector geometry. The coordinate is fixed hardware\
+    \ geometry, obtained from engineering drawings or optical survey of the installed\
+    \ injector assembly, and does not vary during a plasma discharge. It is analogous\
+    \ to the radial position used for other geometric boundary references such as\
+    \ [major radius of active limiter point](name:major_radius_of_active_limiter_point)\
+    \ and [major radius of gap reference point](name:major_radius_of_gap_reference_point).\n\
+    \nSign convention: Positive when $R$ is measured outward from the machine symmetry\
+    \ axis, i.e. for all physically realizable positions $R > 0$."
+  unit: m
+  physics_domain: plant_systems
+  links:
+  - name:vertical_coordinate_of_end_point
+  - name:major_radius_of_active_limiter_point
+  - name:major_radius_of_gap_reference_point
+  constraints: []
+  sources:
+  - id: dd:gas_injection/pipe/exit_position/r
+    dd_path: gas_injection/pipe/exit_position/r
+    status: composed
+- name: maximum_gas_valve_flow_rate
+  kind: scalar
+  status: draft
+  description: Upper operational bound on the throughput of a gas injection valve,
+    specifying the highest flow rate at which the valve can reliably deliver gas for
+    fueling or impurity seeding.
+  documentation: "The maximum gas valve flow rate defines the design or control upper\
+    \ limit on the throughput of a gas injection valve, measured in units of pressure\
+    \ times volume per unit time ($\\dot{Q}_{\\max}$, in Pa\xB7m\xB3\xB7s\u207B\xB9\
+    ). This unit convention reflects the product of the volumetric flow rate $dV/dt$\
+    \ and the gas pressure $P$, making the quantity proportional to the particle flux\
+    \ via the ideal gas relation $\\dot{N} = \\dot{Q} / (k_B T)$, where $k_B$ is the\
+    \ Boltzmann constant and $T$ is the gas temperature. In practice, gas injection\
+    \ valves are used for plasma fueling, impurity seeding, and disruption mitigation;\
+    \ the maximum flow rate is a hardware-level constraint set by valve geometry,\
+    \ actuator speed, and upstream supply pressure. Typical values for fueling valves\
+    \ on large tokamaks range from $10^{-2}$ to $10^{0}$ Pa\xB7m\xB3\xB7s\u207B\xB9\
+    , depending on valve type and application. The counterpart lower bound is given\
+    \ by [minimum gas valve flow rate](name:minimum_gas_valve_flow_rate), and the\
+    \ instantaneous delivered composition can be characterized by [injected gas species\
+    \ molar fraction](name:injected_gas_species_molar_fraction)."
+  unit: Pa.m^3.s^-1
+  physics_domain: plant_systems
+  links:
+  - name:minimum_gas_valve_flow_rate
+  - name:injected_gas_species_molar_fraction
+  constraints: []
+  sources:
+  - id: dd:gas_injection/pipe/valve/flow_rate_max
+    dd_path: gas_injection/pipe/valve/flow_rate_max
+    status: composed
+  - id: dd:gas_injection/valve/flow_rate_max
+    dd_path: gas_injection/valve/flow_rate_max
+    status: composed
+- name: mechanical_power_of_plant_component
+  kind: scalar
+  status: draft
+  description: Mechanical (shaft) power exchanged at a balance-of-plant component
+    port, with positive values indicating power flowing into the system and negative
+    values indicating power flowing out.
+  documentation: "Mechanical shaft power $P_\\mathrm{mech}$ quantifies the rate of\
+    \ work transmitted across the port boundary of a balance-of-plant component \u2014\
+    \ for example, turbine shafts, pumps, compressors, or fans. It is defined by $P_\\\
+    mathrm{mech} = \\tau \\omega$, where $\\tau$ is the applied torque and $\\omega$\
+    \ is the angular velocity of the rotating element. This power contributes to the\
+    \ overall plant energy balance alongside [thermal_power_of_plant_component](name:thermal_power_of_plant_component)\
+    \ and [plant_system_electrical_power](name:plant_system_electrical_power). In\
+    \ balance-of-plant analysis, typical pump or compressor shaft powers range from\
+    \ tens of kilowatts to tens of megawatts depending on coolant flow rate and system\
+    \ pressure; turbine shaft outputs can reach hundreds of megawatts in large power-conversion\
+    \ cycles. The quantity is evaluated at the component port boundary, consistent\
+    \ with standard thermodynamic control-volume accounting, and contributes to plant-level\
+    \ aggregates such as [net_electric_power_output](name:net_electric_power_output)\
+    \ and [total_plant_electrical_power_consumption](name:total_plant_electrical_power_consumption).\n\
+    \nSign convention: Positive when shaft work is delivered into the component (e.g.,\
+    \ power driving a pump or compressor), and negative when shaft work is extracted\
+    \ from the component (e.g., power output from a turbine)."
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:thermal_power_of_plant_component
+  - name:plant_system_electrical_power
+  - name:net_electric_power_output
+  - name:total_plant_electrical_power_consumption
+  constraints: []
+  sources:
+  - id: dd:balance_of_plant/power_plant/system/component/port/power_mechanical
+    dd_path: balance_of_plant/power_plant/system/component/port/power_mechanical
+    status: composed
+- name: net_electric_power_output
+  kind: scalar
+  status: draft
+  description: Net electrical power delivered to the grid by the fusion power plant,
+    equal to gross turbine output minus all internal auxiliary and parasitic electrical
+    consumption.
+  documentation: "The net electric power output $P_\\mathrm{net}$ quantifies the usable\
+    \ electrical energy delivered to the external grid per unit time after accounting\
+    \ for all internal plant loads. It is defined by $P_\\mathrm{net} = P_\\mathrm{gross}\
+    \ - P_\\mathrm{aux}$, where $P_\\mathrm{gross}$ is the gross electrical output\
+    \ of the turbine-generator set and $P_\\mathrm{aux}$ is the [total plant electrical\
+    \ power consumption](name:total_plant_electrical_power_consumption) including\
+    \ pumps, compressors, cryogenic systems, and all balance-of-plant auxiliary loads.\
+    \ The net output sets the commercial electricity yield and, together with the\
+    \ [fusion thermal power input](name:fusion_thermal_power_input) $P_\\mathrm{fusion}$,\
+    \ determines the overall plant efficiency $\\eta = P_\\mathrm{net} / P_\\mathrm{fusion}$.\
+    \ For a demonstration-scale tokamak plant, projected $P_\\mathrm{net}$ values\
+    \ range from 100\u2013500 MW; current experimental devices operate at negative\
+    \ net output (i.e. $P_\\mathrm{net} < 0$) because fusion thermal power does not\
+    \ yet exceed auxiliary consumption. This quantity is the primary figure of merit\
+    \ for assessing the economic viability of a fusion power plant and is closely\
+    \ related to individual system-level loads tracked via [plant system electrical\
+    \ power](name:plant_system_electrical_power)."
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:total_plant_electrical_power_consumption
+  - name:fusion_thermal_power_input
+  - name:plant_system_electrical_power
+  constraints: []
+  sources:
+  - id: dd:balance_of_plant/power_electricity_net
+    dd_path: balance_of_plant/power_electricity_net
+    status: attached
+  - id: dd:balance_of_plant/power_plant/power_electric_generated
+    dd_path: balance_of_plant/power_plant/power_electric_generated
+    status: composed
+- name: normalized_propellant_gas_molecule_count_of_pellet
+  kind: scalar
+  status: draft
+  description: Ratio of the number of propellant gas molecules entering the vacuum
+    vessel during a pellet launch to the total number of molecules comprising the
+    pellet.
+  documentation: "The normalized propellant gas molecule count is defined as\n\n$$\\\
+    tilde{N}_{\\mathrm{prop}} \\;=\\; \\frac{N_{\\mathrm{prop}}}{N_{\\mathrm{pellet}}}$$\n\
+    \nwhere\n\n- $N_{\\mathrm{prop}}$ is the number of propellant gas molecules that\
+    \ cross the vacuum-vessel boundary and enter the plasma chamber during a single\
+    \ pellet launch event,\n- $N_{\\mathrm{pellet}}$ is the total number of molecules\
+    \ constituting the intact pellet prior to injection (the normalization reference).\n\
+    \nBoth quantities are dimensionless molecule counts; their ratio is therefore\
+    \ also dimensionless (unit 1).\n\n**Scope of $N_{\\mathrm{prop}}$:** Only those\
+    \ propellant molecules that pass beyond the injector-to-vessel interface are counted.\
+    \ Propellant that is differentially pumped at the guide-tube throat or within\
+    \ the injector assembly itself is excluded. The relevant boundary is the last\
+    \ vacuum seal separating the injection line from the confined plasma volume.\n\
+    \n**Typical values:** In well-optimized gas-gun and centrifuge injectors, $\\\
+    tilde{N}_{\\mathrm{prop}}$ is of order $10^{-2}$\u2013$10^{-1}$. Values approaching\
+    \ or exceeding unity indicate that propellant molecule injection is comparable\
+    \ to or larger than the pellet molecule inventory; such conditions are undesirable\
+    \ because the additional neutral gas load can degrade fueling efficiency and complicate\
+    \ particle-balance analysis.\n\n**Physical context:** The propellant gas (commonly\
+    \ deuterium, hydrogen, or helium) accelerates the frozen pellet through the guide\
+    \ tube. Knowledge of $\\tilde{N}_{\\mathrm{prop}}$ is essential for accurate particle\
+    \ accounting in fueling studies, because the propellant constitutes an uncontrolled\
+    \ gas source whose magnitude, species composition, and temporal profile differ\
+    \ from the pellet ablation source.\n\nThe quantity is non-negative by construction\
+    \ ($\\tilde{N}_{\\mathrm{prop}} \\geq 0$)."
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:propellant_gas_molecule_count_normalized_to_pellet
+  - name:propellant_gas_molecule_count_per_pellet
+  - name:normalized_molecule_count_of_propellant_gas
+  - name:propellant_gas_particle_flow_rate_of_shattered_pellet_injector
+  constraints: []
+  sources:
+  - id: dd:pellets/time_slice/pellet/propellant_gas/molecules_n
+    dd_path: pellets/time_slice/pellet/propellant_gas/molecules_n
+    status: composed
+- name: pellet_ablation_rate_along_pellet_path
+  kind: scalar
+  status: draft
+  description: Number of electrons released per unit time from an ablating pellet,
+    evaluated at each point along its trajectory through the plasma. This quantity
+    is intrinsically non-negative and characterizes the local deposition of particles
+    as the pellet travels along its path.
+  documentation: "The pellet ablation rate $\\dot{N}_e(s)$ is defined as the number\
+    \ of electrons liberated from the pellet surface per unit time at a given point\
+    \ along the pellet trajectory, where $s$ is a scalar path-length coordinate measured\
+    \ in meters along the pellet trajectory from the injection point. Formally,\n\n\
+    $$\\dot{N}_e(s) = \\frac{dN_e}{dt}\\bigg|_s$$\n\nwhere $N_e$ is the cumulative\
+    \ number of electrons released up to position $s$. Because ablation is a mass-loss\
+    \ process driven by the incident heat flux from the surrounding plasma, $\\dot{N}_e(s)\
+    \ \\geq 0$ everywhere along the path; there is no sign ambiguity.\n\nPhysical\
+    \ intuition: The ablation rate peaks near the region of maximum heat flux along\
+    \ the trajectory \u2014 typically as the pellet penetrates into hotter, denser\
+    \ plasma. Neutral and ionized ablation products subsequently expand radially and\
+    \ are assimilated into the background plasma as an electron particle source. The\
+    \ path-parameterized form $\\dot{N}_e(s)$ retains full spatial resolution along\
+    \ the trajectory and is used to compute integrated particle deposition profiles\
+    \ on flux surfaces.\n\nThe trajectory is described in the cylindrical $(R, \\\
+    phi, Z)$ frame, where $R$ is the major radius from the machine symmetry axis,\
+    \ $\\phi$ is the toroidal angle increasing counter-clockwise when viewed from\
+    \ above $+\\hat{Z}$, and $Z$ is the vertical height. Typical peak values range\
+    \ from $10^{21}$ to $10^{23}$ s$^{-1}$ for deuterium pellets of radius 1\u2013\
+    4 mm in present-day tokamaks, depending on pellet size, injection velocity, and\
+    \ local plasma parameters.\n\nThis quantity is evaluated by ablation models such\
+    \ as the Neutral Gas Shielding (NGS) model or Parks\u2013Turnbull model, and may\
+    \ also be inferred from pellet-cloud emission diagnostics."
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:total_neutron_emission_rate
+  constraints: []
+  sources:
+  - id: dd:pellets/time_slice/pellet/path_profiles/ablation_rate
+    dd_path: pellets/time_slice/pellet/path_profiles/ablation_rate
+    status: composed
 - name: radial_component_of_shattered_pellet_velocity
   kind: scalar
   status: draft
@@ -43,50 +416,321 @@
   - id: dd:spi/injector/pellet/velocity_r
     dd_path: spi/injector/pellet/velocity_r
     status: composed
-- name: vertical_component_of_shattered_pellet_fragment_cloud_velocity
+- name: shattered_pellet_velocity_magnitude_at_shattering_position
   kind: scalar
   status: draft
-  description: Vertical (Z) component of the center-of-mass velocity of the shattered
-    pellet fragment cloud, evaluated at the shattering cone origin in the right-handed
-    cylindrical $(R, \phi, Z)$ frame.
-  documentation: 'The vertical component $v_Z$ is defined as the projection of the
-    fragment-cloud center-of-mass velocity vector $\mathbf{v}$ onto the vertical axis
-    $\hat{Z}$:
-
-
-    $$v_Z = \mathbf{v} \cdot \hat{Z}$$
-
-
-    where $\hat{Z}$ points vertically upward in the right-handed cylindrical $(R,
-    \phi, Z)$ frame with $R$ the major radius and $\phi$ the toroidal angle increasing
-    counter-clockwise viewed from above $+\hat{Z}$. This quantity characterizes the
-    net upward or downward drift of the post-shatter fragment ensemble at the moment
-    the pellet exits the shattering cone. It is distinct from pellet-level quantities
-    such as the pre-shatter pellet speed; it refers exclusively to the post-shatter
-    fragment cloud kinematics.
-
-
-    Typical magnitudes are $|v_Z| \lesssim$ a few hundred m/s, depending on injector
-    geometry and shattering angle. For purely horizontal injectors aimed radially,
-    $v_Z$ is close to zero; non-zero values arise from tilted injectors or asymmetric
-    shattering.
-
-
-    DD source path: `spi/injector/velocity_mass_center_fragments_z` (unit: m s$^{-1}$).
-
-
-    Sign convention: Positive when the fragment cloud center-of-mass moves in the
-    $+\hat{Z}$ direction (upward, away from the bottom of the vessel).'
+  description: Scalar speed of the shattered pellet injector (SPI) pellet center of
+    mass immediately before impact with the shattering target, equal to the Euclidean
+    norm of the pellet velocity vector at that location.
+  documentation: "The shattering speed $v_\\mathrm{shatter} = |\\mathbf{v}_\\mathrm{pellet}|$\
+    \ is the Euclidean norm of the pellet center-of-mass velocity vector evaluated\
+    \ at the shattering position \u2014 the point where the intact pellet strikes\
+    \ the shattering target and fragments into a cloud of smaller pieces. This scalar\
+    \ quantity sets the kinetic energy budget of the fragmentation event and strongly\
+    \ influences the resulting fragment size distribution, fragment speed, and the\
+    \ spatial spread of the debris cloud injected into the plasma. Typical values\
+    \ for shattered pellet injection (SPI) systems lie in the range 100\u2013500 m\
+    \ s$^{-1}$, depending on injector design and propellant gas pressure. It is related\
+    \ to the full velocity vector [shattered_pellet_velocity](name:shattered_pellet_velocity),\
+    \ whose radial and vertical projections are given by [radial_component_of_shattered_pellet_velocity](name:radial_component_of_shattered_pellet_velocity)\
+    \ and [vertical_component_of_shattered_pellet_velocity](name:vertical_component_of_shattered_pellet_velocity)\
+    \ in the right-handed cylindrical $(R, \\phi, Z)$ frame; the magnitude described\
+    \ here satisfies $v_\\mathrm{shatter}^2 = v_R^2 + v_Z^2 + v_\\phi^2$. In practice\
+    \ it is determined from optical or laser time-of-flight diagnostics that track\
+    \ the pellet position along the guide tube prior to impact.\n\nSign convention:\
+    \ Positive when the pellet is moving toward the shattering target, i.e., the speed\
+    \ is a non-negative definite scalar magnitude."
   unit: m.s^-1
   physics_domain: plant_systems
   links:
-  - name:shattered_pellet_fragment_cloud_velocity
+  - name:shattered_pellet_velocity
   - name:radial_component_of_shattered_pellet_velocity
-  - name:toroidal_component_of_shattered_pellet_velocity
-  - name:shattered_pellet_speed_before_shattering
+  - name:vertical_component_of_shattered_pellet_velocity
   constraints: []
   arguments:
-  - name: shattered_pellet_fragment_cloud_velocity
+  - name: shattered_pellet_velocity_at_shattering_position
+    operator: magnitude
+    operator_kind: unary_postfix
+  sources:
+  - id: dd:spi/injector/pellet/velocity_shatter
+    dd_path: spi/injector/pellet/velocity_shatter
+    status: composed
+- name: thermal_power_load_of_first_wall
+  kind: scalar
+  status: draft
+  description: Total thermal power directed toward the first wall from the plasma,
+    encompassing conducted and convected heat flux integrated over the first-wall
+    surface. This instantaneous quantity represents the gross heat load on this plasma-facing
+    component and is used in balance-of-plant energy accounting.
+  documentation: 'The thermal power load of the first wall, $P_\mathrm{wall}$, is
+    the instantaneous total power crossing the accounting boundary defined at the
+    plasma-facing surface of the first wall, carried by conduction and convection.
+    It does not include power deposited by volumetric radiation absorbed at the wall
+    surface, which is tracked separately; this convention avoids double-counting in
+    global power balance equations where radiated power $P_\mathrm{rad}$ is accounted
+    for independently.
+
+
+    In a simplified scrape-off layer (SOL) power balance, the power directed to the
+    first wall and divertor satisfies
+
+
+    $$P_\mathrm{heat} = P_\mathrm{wall} + P_\mathrm{divertor} + P_\mathrm{rad}$$
+
+
+    where $P_\mathrm{heat}$ is the total heating power entering the SOL. The first-wall
+    fraction $P_\mathrm{wall}$ depends on the magnetic geometry, the degree of outer-midplane
+    versus inner-wall interaction, and limiter contact, and typically ranges from
+    a few percent to several tens of percent of $P_\mathrm{heat}$ depending on machine
+    configuration and operational scenario.
+
+
+    This quantity is defined as an instantaneous value evaluated at a given time;
+    time-averaged values should be clearly indicated at the analysis level and are
+    not implied by this definition. The accounting boundary is the plasma-facing surface
+    of the first-wall assembly, integrated over its full toroidal and poloidal extent.
+
+
+    Sign convention: Positive when net thermal power flows from the plasma toward
+    the first-wall surface.
+
+
+    Typical values in present-day tokamaks range from $\sim10\,\mathrm{kW}$ to several
+    $\mathrm{MW}$; in future high-power devices the first-wall heat load may reach
+    tens of $\mathrm{MW}$ under specific operational conditions.'
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:thermal_power_load_of_divertor
+  - name:deposited_thermal_power_of_breeding_blanket_module
+  - name:thermal_power_of_plant_component
+  constraints: []
+  sources:
+  - id: dd:balance_of_plant/power_plant/heat_load_wall
+    dd_path: balance_of_plant/power_plant/heat_load_wall
+    status: composed
+- name: thermal_power_of_plant_component
+  kind: scalar
+  status: draft
+  description: Heat transfer rate at a balance-of-plant component port, with positive
+    values indicating power flowing into the system and negative values indicating
+    power flowing out.
+  documentation: "Thermal power at a plant component port quantifies the instantaneous\
+    \ rate of heat transfer across the component boundary, $\\dot{Q} = dQ/dt$ where\
+    \ $Q$ is the thermal energy exchanged. This is a signed quantity: power delivered\
+    \ to the system (e.g., heat input from a heat exchanger source) is positive, while\
+    \ power extracted from the system (e.g., heat rejection to a secondary loop or\
+    \ cooling sink) is negative. In fusion balance-of-plant modeling, this quantity\
+    \ appears at the ports of individual subsystem components \u2014 pumps, heat exchangers,\
+    \ steam generators, condensers, and similar elements \u2014 and feeds directly\
+    \ into the plant-level energy balance. Typical magnitudes range from kilowatts\
+    \ for auxiliary components to hundreds of megawatts for primary heat exchangers\
+    \ in a fusion power plant. It is complementary to [mechanical_power_of_plant_component](name:mechanical_power_of_plant_component),\
+    \ which accounts for shaft work at the same port; together the two terms capture\
+    \ the full exergy exchange at a component boundary. At the plant system level,\
+    \ summing this quantity over all rejection ports connects to the [waste_thermal_power_of_plant](name:waste_thermal_power_of_plant),\
+    \ while the net conversion efficiency depends on the balance between heat input\
+    \ and the [net_electric_power_output](name:net_electric_power_output).\n\nSign\
+    \ convention: Positive when thermal power flows into the plant component system\
+    \ boundary."
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:mechanical_power_of_plant_component
+  - name:waste_thermal_power_of_plant
+  - name:net_electric_power_output
+  constraints: []
+  sources:
+  - id: dd:balance_of_plant/power_plant/system/component/port/power_thermal
+    dd_path: balance_of_plant/power_plant/system/component/port/power_thermal
+    status: composed
+- name: toroidal_component_of_shattered_pellet_fragment_velocity
+  kind: scalar
+  status: draft
+  description: Toroidal component of the velocity vector of a shattered pellet fragment,
+    defined as the projection onto the toroidal unit vector phi-hat in the right-handed
+    cylindrical (R, phi, Z) frame. This component captures any net azimuthal motion
+    the fragment acquires at or after the shattering event.
+  documentation: "The toroidal component of the fragment velocity is defined by the\
+    \ projection\n\n$$v_\\phi = \\mathbf{v} \\cdot \\hat{\\phi}$$\n\nwhere $\\mathbf{v}$\
+    \ is the velocity vector of an individual shattered pellet fragment evaluated\
+    \ at the fragment position after shattering, and $\\hat{\\phi}$ is the unit vector\
+    \ in the direction of increasing toroidal angle $\\phi$ in the right-handed cylindrical\
+    \ $(R, \\phi, Z)$ frame ($R$ is major radius, $\\phi$ is the toroidal angle increasing\
+    \ counter-clockwise when viewed from above $+\\hat{Z}$, and $Z$ is vertical height).\n\
+    \nThe full velocity vector decomposes as\n\n$$\\mathbf{v} = v_R\\,\\hat{R} + v_\\\
+    phi\\,\\hat{\\phi} + v_Z\\,\\hat{Z}$$\n\nso that $v_\\phi$ is one of three orthogonal\
+    \ components alongside the radial component $v_R$ (see `radial_component_of_shattered_pellet_fragment_velocity`)\
+    \ and the vertical component $v_Z$ (see `vertical_component_of_shattered_pellet_fragment_velocity`).\n\
+    \nFor shattered pellet injection (SPI) systems, the injector barrel is typically\
+    \ oriented to deliver pellets predominantly along a single trajectory (often with\
+    \ a dominant $R$ or $Z$ component). Consequently, $v_\\phi$ is in many cases small\
+    \ compared with $v_R$ or $v_Z$, but may become non-negligible when the shattering\
+    \ tube is angled toroidally or when secondary fragment collisions impart azimuthal\
+    \ momentum. Typical magnitudes range from $\\sim 0$ to a few hundred m/s depending\
+    \ on injector geometry, with the intact pellet speed at the shattering position\
+    \ typically in the range $150$\u2013$600$ m/s.\n\nThis quantity applies to individual\
+    \ fragments, not to the center of mass of the intact pellet. The pellet center-of-mass\
+    \ speed at the shattering position is a distinct quantity and should not be conflated\
+    \ with fragment-level velocities.\n\nSign convention: Positive when the fragment\
+    \ moves in the direction of increasing toroidal angle $\\phi$ (counter-clockwise\
+    \ when viewed from above $+\\hat{Z}$)."
+  unit: m.s^-1
+  physics_domain: plant_systems
+  links:
+  - name:shattered_pellet_fragment_velocity
+  - name:radial_component_of_shattered_pellet_velocity
+  - name:vertical_component_of_shattered_pellet_velocity
+  - name:vertical_component_of_shattered_pellet_fragment_center_of_mass_velocity
+  - name:shattered_pellet_velocity_magnitude_at_shattering_position
+  constraints: []
+  arguments:
+  - name: shattered_pellet_fragment_velocity
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:spi/injector/fragment/velocity_phi
+    dd_path: spi/injector/fragment/velocity_phi
+    status: composed
+- name: total_plant_electrical_power_consumption
+  kind: scalar
+  status: draft
+  description: Total electrical power consumed to operate all systems of the fusion
+    power plant, including auxiliary, support, and parasitic loads across every subsystem.
+    This quantity is strictly nonnegative and represents an instantaneous or time-averaged
+    demand depending on context.
+  documentation: "The total plant electrical power consumption $P_\\mathrm{elec,total}$\
+    \ is the sum of all electrical loads required to keep the fusion power plant in\
+    \ operation. It aggregates contributions from all major subsystems: plasma heating\
+    \ and current drive, magnet systems, cooling and cryogenic circuits, fuel processing,\
+    \ instrumentation and control, balance-of-plant auxiliaries, and any other parasitic\
+    \ or support loads.\n\nAccounting convention: $P_\\mathrm{elec,total} \\geq 0$\
+    \ by definition. Each contributing subsystem is treated as a consumer of electrical\
+    \ power, so subsystem contributions are nonnegative. Net-generating subsystems\
+    \ (if any, such as a turbine directly feeding an auxiliary bus) should be accounted\
+    \ for at the subsystem boundary before their residual load enters this sum; the\
+    \ total does not include algebraic cancelation between generating and consuming\
+    \ subsystems unless explicitly noted in the associated data description. Internal\
+    \ electrical distribution losses within the plant are included in the total to\
+    \ the extent that they are metered or modeled as identifiable loads.\n\nThe relationship\
+    \ to net electric output is: $P_\\mathrm{net} = P_\\mathrm{gross} - P_\\mathrm{elec,total}$,\
+    \ where $P_\\mathrm{gross}$ is the gross electrical power generated by the primary\
+    \ conversion system. This quantity is therefore a key figure of merit for plant\
+    \ recirculating power fraction $f_\\mathrm{recirc} = P_\\mathrm{elec,total} /\
+    \ P_\\mathrm{gross}$.\n\nWhether $P_\\mathrm{elec,total}$ represents an instantaneous\
+    \ snapshot or a time-averaged value depends on the temporal context of the parent\
+    \ dataset; no specific averaging window is prescribed by this standard name itself.\
+    \ Typical values for a demonstration-scale fusion plant are of order $10^7$\u2013\
+    $10^9$ W."
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:net_electric_power_output
+  - name:plant_system_electrical_power
+  - name:plant_subsystem_electrical_power
+  - name:fusion_thermal_power_input
+  - name:waste_thermal_power_of_plant
+  constraints: []
+  sources:
+  - id: dd:balance_of_plant/power_electric_plant_operation/power_total
+    dd_path: balance_of_plant/power_electric_plant_operation/power_total
+    status: composed
+- name: total_thermal_power_input_to_power_conversion_system_due_to_fusion
+  kind: scalar
+  status: draft
+  description: Rate of thermal energy transfer, originating exclusively from fusion
+    reactions, that crosses the inlet boundary of the power conversion system. This
+    excludes auxiliary heating contributions and any heat diverted to internal plant
+    services upstream of the conversion-system inlet.
+  documentation: "## Total Thermal Power Input to Power Conversion System Due to Fusion\n\
+    \nThis instantaneous scalar quantity $P_\\mathrm{fus,th}^\\mathrm{PCS}$ is defined\
+    \ as the thermal power of fusion origin delivered to the working-fluid interface\
+    \ of the power conversion system (PCS). The PCS inlet boundary is the surface\
+    \ at which thermal energy enters the thermodynamic cycle \u2014 typically the\
+    \ primary-to-secondary heat-exchanger or steam-generator inlet.\n\n### Defining\
+    \ identity\n\n$$P_\\mathrm{fus,th}^\\mathrm{PCS} \\;=\\; M_b \\, P_\\mathrm{fus}\
+    \ \\;-\\; P_\\mathrm{up}$$\n\nwhere $P_\\mathrm{fus}$ is the total fusion power\
+    \ (neutron plus alpha), $M_b$ is the blanket energy multiplication factor (typically\
+    \ 1.1\u20131.2), and $P_\\mathrm{up}$ is the aggregate thermal power extracted\
+    \ from the primary coolant loop upstream of the PCS inlet (tritium processing\
+    \ heat, cryogenic loads, etc.).\n\n### Scope and attribution conventions\n\n-\
+    \ **Fusion origin only.** Includes neutron heating of blanket and structural materials,\
+    \ plasma radiation absorbed by in-vessel components, and charged-particle power\
+    \ conducted to the first wall \u2014 all tracing back to D\u2013T or D\u2013D\
+    \ fusion reactions. Auxiliary heating power (ohmic, neutral beam, RF) that is\
+    \ deposited in the plasma and subsequently appears as blanket heat is attributed\
+    \ to the respective auxiliary source and is excluded.\n- **Upstream losses subtracted.**\
+    \ Any thermal power consumed by internal plant services (tritium breeding/extraction,\
+    \ shield cooling diverted away from PCS, magnet thermal intercepts) before the\
+    \ inlet boundary is not counted.\n- **Instantaneous value.** This is a time-resolved\
+    \ quantity representing the power crossing the boundary at a given instant, not\
+    \ a cycle-averaged or annual-mean accounting figure.\n\n### Relationship to other\
+    \ plant quantities\n\nThe gross electrical output of the PCS is\n\n$$P_\\mathrm{gross}\
+    \ = \\eta_\\mathrm{th} \\left( P_\\mathrm{fus,th}^\\mathrm{PCS} + P_\\mathrm{aux,th}^\\\
+    mathrm{PCS} \\right)$$\n\nwhere $\\eta_\\mathrm{th}$ is the thermal-to-electric\
+    \ conversion efficiency of the PCS and $P_\\mathrm{aux,th}^\\mathrm{PCS}$ (watts)\
+    \ is the non-fusion thermal input to the same boundary. When fusion dominates\
+    \ ($P_\\mathrm{aux,th}^\\mathrm{PCS} \\ll P_\\mathrm{fus,th}^\\mathrm{PCS}$),\
+    \ the [net electric power output](name:net_electric_power_output) is principally\
+    \ governed by this quantity and the recirculating electrical demand.\n\nThe [waste\
+    \ thermal power](name:waste_thermal_power_of_plant) rejected at the PCS cold side\
+    \ satisfies an energy balance over the entire conversion system that also involves\
+    \ $P_\\mathrm{aux,th}^\\mathrm{PCS}$ and $P_\\mathrm{gross}$.\n\n### Typical values\n\
+    \nFor commercial-scale tokamak power plants targeting ~1 GW$_\\mathrm{e}$ with\
+    \ $\\eta_\\mathrm{th} \\approx 0.33$\u2013$0.40$, expected values are 2\u2013\
+    3 GW. Near-term burning-plasma experiments with limited fusion gain deliver substantially\
+    \ less, typically 0.1\u20130.5 GW to test heat sinks.\n\n### Distinction from\
+    \ related quantities\n\nThis quantity differs from [fusion thermal power input](name:fusion_thermal_power_input)\
+    \ by strictly scoping the accounting boundary to the PCS inlet rather than to\
+    \ the broader set of plasma-facing or breeding-blanket surfaces. It also differs\
+    \ from [total plant electrical power consumption](name:total_plant_electrical_power_consumption),\
+    \ which is an electrical (not thermal) accounting quantity on the demand side."
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:waste_thermal_power_of_plant
+  - name:fusion_thermal_power_input
+  - name:net_electric_power_output
+  - name:total_plant_electrical_power_consumption
+  constraints: []
+  sources:
+  - id: dd:balance_of_plant/power_plant/total_heat_supplied
+    dd_path: balance_of_plant/power_plant/total_heat_supplied
+    status: composed
+- name: vertical_component_of_shattered_pellet_fragment_center_of_mass_velocity
+  kind: scalar
+  status: draft
+  description: Vertical ($Z$) component of the center-of-mass velocity of the shattered
+    pellet fragment cloud, evaluated at the shattering cone origin in the right-handed
+    cylindrical $(R, \phi, Z)$ frame.
+  documentation: "The vertical component $v_Z$ of the fragment center-of-mass velocity\
+    \ characterizes the net upward or downward motion of the shattered pellet fragment\
+    \ cloud immediately after the pellet impacts the shattering target. It is the\
+    \ $Z$-projection of the [shattered_pellet_fragment_center_of_mass_velocity](name:shattered_pellet_fragment_center_of_mass_velocity)\
+    \ vector, evaluated at the shattering cone origin. This quantity differs physically\
+    \ from the [vertical_component_of_shattered_pellet_velocity](name:vertical_component_of_shattered_pellet_velocity),\
+    \ which refers to the intact pellet center-of-mass velocity before shattering;\
+    \ after impact, the fragment cloud acquires a modified velocity distribution whose\
+    \ center of mass may deviate from the original pellet trajectory due to asymmetric\
+    \ fragmentation. The toroidal counterpart is the [toroidal_component_of_shattered_pellet_fragment_velocity](name:toroidal_component_of_shattered_pellet_fragment_velocity).\
+    \ Typical injection velocities for shattered pellet injection (SPI) systems are\
+    \ 100\u2013500 m/s; the vertical component depends on the injector geometry and\
+    \ angle relative to the machine midplane. The quantity is inferred from fast camera\
+    \ imaging or optical diagnostics tracking the fragment cloud position as a function\
+    \ of time.\n\nSign convention: Positive when the fragment center-of-mass velocity\
+    \ is directed in the $+Z$ direction (upward, away from the vessel midplane in\
+    \ the direction of increasing $Z$)."
+  unit: m.s^-1
+  physics_domain: plant_systems
+  links:
+  - name:shattered_pellet_fragment_center_of_mass_velocity
+  - name:vertical_component_of_shattered_pellet_velocity
+  - name:toroidal_component_of_shattered_pellet_fragment_velocity
+  constraints: []
+  arguments:
+  - name: shattered_pellet_fragment_center_of_mass_velocity
     operator: component
     operator_kind: projection
     axis: vertical
@@ -94,4 +738,761 @@
   sources:
   - id: dd:spi/injector/velocity_mass_centre_fragments_z
     dd_path: spi/injector/velocity_mass_centre_fragments_z
+    status: composed
+- name: vertical_component_of_shattered_pellet_velocity
+  kind: scalar
+  status: draft
+  description: Vertical (Z) component of the velocity of the SPI pellet center of
+    mass in the right-handed cylindrical $(R, \phi, Z)$ frame, capturing upward or
+    downward motion during injection.
+  documentation: 'The vertical velocity component $v_Z$ describes the motion of the
+    shattered pellet injector (SPI) pellet center of mass along the $Z$-axis of the
+    right-handed cylindrical $(R, \phi, Z)$ frame, where $Z$ is the vertical coordinate
+    measured from the machine midplane. Together with the radial component, it fully
+    characterizes the in-plane translational dynamics of the pellet as it travels
+    from the injector exit toward the plasma. SPI pellets are typically injected at
+    oblique angles relative to the midplane, so $v_Z$ is generally nonzero and encodes
+    the vertical component of the injection trajectory; typical magnitudes range from
+    a few m/s to $\sim$100 m/s depending on injector geometry and gas gun pressure.
+    This component is obtained from pellet tracking diagnostics (e.g., optical or
+    infrared fast cameras) or from pellet flight simulations constrained by injector
+    geometry. It is the $Z$-projection of the full velocity vector described by [shattered_pellet_velocity](name:shattered_pellet_velocity),
+    and complements [radial_component_of_shattered_pellet_velocity](name:radial_component_of_shattered_pellet_velocity)
+    to form the complete poloidal-plane velocity. For the analogous quantity resolved
+    at the shattering location, see [shattered_pellet_velocity_magnitude_at_shattering_position](name:shattered_pellet_velocity_magnitude_at_shattering_position).
+
+
+    Sign convention: Positive when the pellet center of mass moves in the direction
+    of increasing $Z$ (upward, away from the machine midplane toward the upper port).'
+  unit: m.s^-1
+  physics_domain: plant_systems
+  links:
+  - name:shattered_pellet_velocity
+  - name:radial_component_of_shattered_pellet_velocity
+  - name:shattered_pellet_velocity_magnitude_at_shattering_position
+  constraints: []
+  arguments:
+  - name: shattered_pellet_velocity
+    operator: component
+    operator_kind: projection
+    axis: vertical
+    shape: component
+  sources:
+  - id: dd:spi/injector/pellet/velocity_z
+    dd_path: spi/injector/pellet/velocity_z
+    status: composed
+- name: vertical_coordinate_of_end_point
+  kind: scalar
+  status: draft
+  description: Vertical (Z) coordinate of the exit (end) position of a gas injection
+    pipe in the right-handed cylindrical $(R, \phi, Z)$ frame.
+  documentation: 'The vertical coordinate $Z$ locates the exit point of a gas injection
+    pipe along the machine symmetry axis, where $Z = 0$ is the midplane and positive
+    $Z$ points upward. This coordinate, together with the companion [major radius
+    of the end point](name:major_radius_of_end_point), fully defines the poloidal
+    position of the pipe exit in the cylindrical $(R, \phi, Z)$ frame where $R$ is
+    the major radius and $\phi$ is the toroidal angle. Typical values range from $-2$
+    m to $+2$ m depending on the machine geometry and the injection port location
+    (upper, midplane, or lower). The position is established from engineering drawings
+    or metrology surveys of the gas injection hardware and is used in fueling simulations
+    to set the source boundary condition.
+
+
+    Sign convention: Positive when the exit point is above the midplane (in the $+Z$
+    direction).'
+  unit: m
+  physics_domain: plant_systems
+  links:
+  - name:major_radius_of_end_point
+  constraints: []
+  sources:
+  - id: dd:gas_injection/pipe/exit_position/z
+    dd_path: gas_injection/pipe/exit_position/z
+    status: composed
+- name: vertical_coordinate_of_optical_pellet_diagnostic_position
+  kind: scalar
+  status: draft
+  description: Vertical (Z) coordinate of the optical pellet diagnostic sensor position
+    in the right-handed cylindrical $(R, \phi, Z)$ frame, where $Z$ is the height
+    above the machine midplane.
+  documentation: 'The vertical coordinate $Z$ specifies the height of the optical
+    pellet diagnostic sensor location in the right-handed cylindrical $(R, \phi, Z)$
+    frame, where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical
+    height measured from the machine midplane. This position descriptor locates the
+    optical sensor or its reference point used to observe pellet injection trajectories,
+    complementing the full three-component position given by [coordinate_of_optical_pellet_diagnostic_position](name:coordinate_of_optical_pellet_diagnostic_position).
+    Typical $Z$ values for in-vessel diagnostic components range from roughly $-2$
+    m to $+2$ m depending on device geometry; the optical diagnostic is often placed
+    near the pellet injection port or the plasma midplane to maximize line-of-sight
+    coverage. The value is obtained from engineering metrology or CAD survey of the
+    installed diagnostic assembly. For comparison, the vertical position of the pellet
+    itself during flight is tracked by [vertical_coordinate_of_shattered_pellet_position](name:vertical_coordinate_of_shattered_pellet_position).
+
+
+    Sign convention: Positive when the sensor position is above the machine midplane
+    in the $+Z$ direction of the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: m
+  physics_domain: plant_systems
+  links:
+  - name:coordinate_of_optical_pellet_diagnostic_position
+  - name:vertical_coordinate_of_shattered_pellet_position
+  constraints: []
+  arguments:
+  - name: coordinate_of_optical_pellet_diagnostic_position
+    operator: coordinate
+    operator_kind: coordinate
+    axis: vertical
+    shape: coordinate
+  sources:
+  - id: dd:spi/injector/optical_pellet_diagnostic/position/z
+    dd_path: spi/injector/optical_pellet_diagnostic/position/z
+    status: composed
+- name: vertical_coordinate_of_shatter_cone_origin
+  kind: scalar
+  status: draft
+  description: Vertical height coordinate $Z$ of the origin point of the shatter cone
+    in the right-handed cylindrical $(R, \phi, Z)$ frame, locating where the SPI pellet
+    impacts the shattering target.
+  documentation: 'The vertical coordinate of the shatter cone origin specifies the
+    $Z$-position (height above the machine midplane) of the apex point from which
+    the shatter cone geometry is defined for a Shattered Pellet Injector (SPI). Together
+    with the corresponding radial and toroidal (or Cartesian $x$, $y$) origin coordinates,
+    it fully localizes the point at which the intact pellet strikes the shattering
+    target and fragments into a debris cloud. This location determines the initial
+    spatial distribution of ablating pellet fragments and directly affects where material
+    is deposited in the plasma. The $Z$ coordinate is typically specified from mechanical
+    survey or injector alignment data and remains fixed for a given injector geometry.
+    In tokamak installations, values range from near the midplane ($Z \approx 0$)
+    to several tenths of a meter above or below it, depending on injector port location.
+    The shatter cone orientation is fully described by the [shatter_cone_direction_unit_vector](name:shatter_cone_direction_unit_vector),
+    [shatter_cone_major_unit_vector](name:shatter_cone_major_unit_vector), and [shatter_cone_minor_unit_vector](name:shatter_cone_minor_unit_vector),
+    while the full origin position is the parent quantity [coordinate_of_shatter_cone_origin](name:coordinate_of_shatter_cone_origin).
+
+
+    Sign convention: Positive when $Z$ is above the machine midplane (in the $+Z$
+    direction of the right-handed cylindrical $(R, \phi, Z)$ frame).'
+  unit: m
+  physics_domain: plant_systems
+  links:
+  - name:shatter_cone_direction_unit_vector
+  - name:shatter_cone_major_unit_vector
+  - name:shatter_cone_minor_unit_vector
+  - name:coordinate_of_shatter_cone_origin
+  constraints: []
+  arguments:
+  - name: coordinate_of_shatter_cone_origin
+    operator: coordinate
+    operator_kind: coordinate
+    axis: vertical
+    shape: coordinate
+  sources:
+  - id: dd:spi/injector/shatter_cone/origin/z
+    dd_path: spi/injector/shatter_cone/origin/z
+    status: composed
+- name: vertical_coordinate_of_shattered_pellet_fragment_position
+  kind: scalar
+  status: draft
+  description: Vertical ($Z$) coordinate of the center-of-mass position of a shattered
+    pellet fragment in the right-handed cylindrical $(R, \phi, Z)$ frame, where $Z$
+    is the height above the machine midplane.
+  documentation: 'The vertical coordinate $Z$ of a shattered pellet fragment locates
+    the fragment''s center of mass along the machine symmetry axis direction in the
+    right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is major radius and $Z$
+    is vertical height. In shattered pellet injection (SPI), a cryogenic pellet is
+    disrupted by a shattering target, producing a cloud of fragments whose 3-D trajectories
+    must be tracked to model particle and energy deposition during disruption mitigation.
+    This $Z$ component, together with the major-radius and toroidal coordinates of
+    [shattered_pellet_fragment_position](name:shattered_pellet_fragment_position),
+    fully specifies each fragment''s location. It is distinct from the analogous whole-pellet
+    quantity [vertical_coordinate_of_shattered_pellet_position](name:vertical_coordinate_of_shattered_pellet_position),
+    which tracks the center of mass of the intact pellet prior to shattering. Typical
+    values span the vertical extent of the plasma vessel, roughly $-2$ m to $+2$ m
+    for large tokamaks. The fragment position is determined by ballistic trajectory
+    integration from the shattering point, accounting for the [toroidal_component_of_shattered_pellet_fragment_velocity](name:toroidal_component_of_shattered_pellet_fragment_velocity)
+    and [vertical_component_of_shattered_pellet_fragment_center_of_mass_velocity](name:vertical_component_of_shattered_pellet_fragment_center_of_mass_velocity).
+
+
+    Sign convention: Positive when the fragment center of mass is above the machine
+    midplane, in the direction of increasing $Z$.'
+  unit: m
+  physics_domain: plant_systems
+  links:
+  - name:shattered_pellet_fragment_position
+  - name:vertical_coordinate_of_shattered_pellet_position
+  - name:toroidal_component_of_shattered_pellet_fragment_velocity
+  - name:vertical_component_of_shattered_pellet_fragment_center_of_mass_velocity
+  constraints: []
+  arguments:
+  - name: shattered_pellet_fragment_position
+    operator: component
+    operator_kind: projection
+    axis: vertical
+    shape: coordinate
+  sources:
+  - id: dd:spi/injector/fragment/position/z
+    dd_path: spi/injector/fragment/position/z
+    status: composed
+- name: vertical_coordinate_of_shattered_pellet_position
+  kind: scalar
+  status: draft
+  description: Vertical ($Z$) coordinate of the shattered pellet injector (SPI) pellet
+    center-of-mass position in the right-handed cylindrical $(R, \phi, Z)$ frame,
+    where $Z$ is the height above the machine midplane.
+  documentation: "The vertical coordinate $Z_{\\rm pellet}$ locates the center of\
+    \ mass of the SPI pellet along the machine symmetry axis direction at any instant\
+    \ during its transit from the injector port to the plasma. Together with the major-radius\
+    \ coordinate (part of [shattered_pellet_position](name:shattered_pellet_position))\
+    \ and the toroidal angle, it fully specifies the three-dimensional pellet trajectory\
+    \ in the right-handed cylindrical $(R, \\phi, Z)$ frame, where $R$ is the major\
+    \ radius and $Z$ is the vertical height measured from the machine midplane. This\
+    \ coordinate is distinct from [vertical_coordinate_of_shattered_pellet_fragment_position](name:vertical_coordinate_of_shattered_pellet_fragment_position),\
+    \ which tracks individual post-shattering fragments rather than the intact pellet\
+    \ as a whole. The temporal derivative of this coordinate yields [vertical_component_of_shattered_pellet_velocity](name:vertical_component_of_shattered_pellet_velocity).\
+    \ Typical $Z$ excursions span from the injector port height (up to $\\pm 1$\u2013\
+    $2$ m from the midplane on large tokamaks) to the plasma deposition region near\
+    \ $Z = 0$. The position is tracked optically or inferred from the injector geometry\
+    \ and pellet speed.\n\nSign convention: Positive when the pellet center of mass\
+    \ is located above the machine midplane in the $+Z$ direction."
+  unit: m
+  physics_domain: plant_systems
+  links:
+  - name:shattered_pellet_position
+  - name:vertical_coordinate_of_shattered_pellet_fragment_position
+  - name:vertical_component_of_shattered_pellet_velocity
+  constraints: []
+  arguments:
+  - name: shattered_pellet_position
+    operator: component
+    operator_kind: projection
+    axis: vertical
+    shape: coordinate
+  sources:
+  - id: dd:spi/injector/pellet/position/z
+    dd_path: spi/injector/pellet/position/z
+    status: composed
+- name: waste_thermal_power_of_plant
+  kind: scalar
+  status: draft
+  description: Total thermal power rejected from the power conversion cycle to external
+    heat sinks, representing the thermodynamic losses and low-grade heat that cannot
+    be converted to useful electricity.
+  documentation: "In a fusion power plant, the thermal power balance is governed by\
+    \ the first law of thermodynamics: $P_{\\rm input} = P_{\\rm electric} + P_{\\\
+    rm rejected}$, where $P_{\\rm input}$ is the [fusion thermal power input](name:fusion_thermal_power_input)\
+    \ delivered to the conversion cycle, $P_{\\rm electric}$ is the [net electrical\
+    \ power output](name:net_electric_power_output), and $P_{\\rm rejected}$ is the\
+    \ total heat rejected to external sinks such as cooling towers or heat exchangers.\
+    \ The thermodynamic efficiency of the plant is therefore $\\eta = 1 - P_{\\rm\
+    \ rejected} / P_{\\rm input}$. For a Rankine steam cycle operating at fusion-relevant\
+    \ temperatures, rejected heat fractions of 50\u201370% of thermal input are expected,\
+    \ corresponding to hundreds of megawatts in reactor-scale designs. This quantity\
+    \ encompasses all low-grade heat discharged from condensers, auxiliary cooling\
+    \ loops, and shield cooling circuits. It is distinct from plasma-facing thermal\
+    \ loads such as the [thermal power load of the divertor](name:thermal_power_load_of_divertor),\
+    \ which describes power deposited on in-vessel components rather than the plant-level\
+    \ heat rejection budget. The quantity is computed from plant thermal-hydraulic\
+    \ models or inferred from cooling-system calorimetry."
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:fusion_thermal_power_input
+  - name:net_electric_power_output
+  - name:thermal_power_load_of_divertor
+  constraints: []
+  sources:
+  - id: dd:balance_of_plant/power_plant/total_heat_rejected
+    dd_path: balance_of_plant/power_plant/total_heat_rejected
+    status: composed
+- name: x_component_of_shatter_cone_direction_unit_vector
+  kind: scalar
+  status: draft
+  description: X-axis Cartesian component of the unit vector defining the central
+    axis direction of the SPI shatter cone, forming the x element of the right-handed
+    Cartesian $(x, y, z)$ trio.
+  documentation: 'The shatter cone direction unit vector $\hat{n}_{\rm cone}$ specifies
+    the central axis along which SPI pellet fragments are directed after impact with
+    the shattering target. Its X-axis component is $n_x = \hat{n}_{\rm cone} \cdot
+    \hat{x}$, where $\hat{x}$ is the first basis vector of the right-handed Cartesian
+    $(\hat{x}, \hat{y}, \hat{z})$ frame. Together with [y_component_of_shatter_cone_direction_unit_vector](name:y_component_of_shatter_cone_direction_unit_vector)
+    and [z_component_of_shatter_cone_direction_unit_vector](name:z_component_of_shatter_cone_direction_unit_vector),
+    these three scalar components fully reconstruct [shatter_cone_direction_unit_vector](name:shatter_cone_direction_unit_vector),
+    which satisfies $|\hat{n}_{\rm cone}|^2 = n_x^2 + n_y^2 + n_z^2 = 1$. Values are
+    bounded to $[-1, 1]$; a value of $\pm 1$ indicates the cone axis is aligned exactly
+    with or opposite to the X-axis. The geometry is specified at injector commissioning
+    or design and is used alongside [x_component_of_shatter_cone_major_unit_vector](name:x_component_of_shatter_cone_major_unit_vector)
+    to fully characterize the cone orientation.
+
+
+    Sign convention: Positive when $\hat{n}_{\rm cone}$ has a component in the $+\hat{x}$
+    direction of the right-handed Cartesian $(\hat{x}, \hat{y}, \hat{z})$ frame.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:y_component_of_shatter_cone_direction_unit_vector
+  - name:z_component_of_shatter_cone_direction_unit_vector
+  - name:shatter_cone_direction_unit_vector
+  - name:x_component_of_shatter_cone_major_unit_vector
+  constraints: []
+  arguments:
+  - name: shatter_cone_direction_unit_vector
+    operator: component
+    operator_kind: projection
+    axis: x
+    shape: component
+  sources:
+  - id: dd:spi/injector/shatter_cone/direction/x
+    dd_path: spi/injector/shatter_cone/direction/x
+    status: composed
+- name: x_component_of_shatter_cone_major_unit_vector
+  kind: scalar
+  status: draft
+  description: X-axis Cartesian component of the unit vector $\hat{e}_{\mathrm{major}}$
+    defining the primary symmetry axis of the SPI shatter cone geometry.
+  documentation: 'The shatter cone major unit vector $\hat{e}_{\mathrm{major}}$ defines
+    the central symmetry axis of the conical fragment dispersion pattern produced
+    when a shattered pellet injector (SPI) pellet strikes the shattering target. This
+    quantity is the projection of $\hat{e}_{\mathrm{major}}$ onto the $\hat{x}$ axis
+    of the right-handed Cartesian $(x, y, z)$ frame, so that $\hat{e}_{\mathrm{major}}
+    = (e_x, e_y, e_z)$ with $e_x^2 + e_y^2 + e_z^2 = 1$. Together with the [Y component](name:y_component_of_shatter_cone_major_unit_vector)
+    and [Z component](name:z_component_of_shatter_cone_major_unit_vector), it completely
+    specifies the major-axis orientation; the orthogonal minor axis is described by
+    [shatter_cone_minor_unit_vector](name:x_component_of_shatter_cone_minor_unit_vector)
+    and its siblings. The major unit vector orientation governs the direction of peak
+    fragment flux and is an essential input for computing pellet fragment deposition
+    profiles during disruption mitigation studies.
+
+
+    Sign convention: Positive when the $\hat{x}$ projection of the shatter cone major
+    unit vector points in the $+x$ direction of the right-handed Cartesian $(x, y,
+    z)$ frame.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:y_component_of_shatter_cone_major_unit_vector
+  - name:z_component_of_shatter_cone_major_unit_vector
+  - name:x_component_of_shatter_cone_minor_unit_vector
+  constraints: []
+  arguments:
+  - name: shatter_cone_major_unit_vector
+    operator: component
+    operator_kind: projection
+    axis: x
+    shape: component
+  sources:
+  - id: dd:spi/injector/shatter_cone/unit_vector_major/x
+    dd_path: spi/injector/shatter_cone/unit_vector_major/x
+    status: composed
+- name: x_component_of_shatter_cone_minor_unit_vector
+  kind: scalar
+  status: draft
+  description: X-axis Cartesian component of the minor unit vector $\hat{e}_{\mathrm{minor}}$
+    that defines the minor semi-axis of the elliptical cross-section of the SPI shatter
+    cone.
+  documentation: 'The shatter cone minor unit vector $\hat{e}_{\mathrm{minor}}$ characterizes
+    the minor semi-axis direction of the elliptical cross-section formed when the
+    Shattered Pellet Injection (SPI) shatter cone intersects a plane perpendicular
+    to the injector axis. This scalar quantity is the projection of $\hat{e}_{\mathrm{minor}}$
+    onto the $\hat{x}$ axis of the right-handed Cartesian $(x, y, z)$ frame, i.e.,
+    $e_{\mathrm{minor},x} = \hat{e}_{\mathrm{minor}} \cdot \hat{x}$. Together with
+    [y_component_of_shatter_cone_minor_unit_vector](name:y_component_of_shatter_cone_minor_unit_vector)
+    and [z_component_of_shatter_cone_minor_unit_vector](name:z_component_of_shatter_cone_minor_unit_vector),
+    it fully specifies the orientation of $\hat{e}_{\mathrm{minor}}$ in Cartesian
+    space. The vector $\hat{e}_{\mathrm{minor}}$ is orthogonal to both the cone axis
+    direction (see [x_component_of_shatter_cone_direction_unit_vector](name:x_component_of_shatter_cone_direction_unit_vector))
+    and the major semi-axis direction (see [x_component_of_shatter_cone_major_unit_vector](name:x_component_of_shatter_cone_major_unit_vector)),
+    satisfying $|\hat{e}_{\mathrm{minor}}| = 1$ and $\hat{e}_{\mathrm{minor}} \cdot
+    \hat{e}_{\mathrm{major}} = 0$. The complete parent vector is documented under
+    [shatter_cone_minor_unit_vector](name:shatter_cone_minor_unit_vector). Because
+    $\hat{e}_{\mathrm{minor}}$ is a unit vector, each Cartesian component lies in
+    $[-1, 1]$.
+
+
+    Sign convention: Positive when $\hat{e}_{\mathrm{minor}}$ has a component in the
+    $+\hat{x}$ direction of the right-handed Cartesian $(x, y, z)$ frame.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:y_component_of_shatter_cone_minor_unit_vector
+  - name:z_component_of_shatter_cone_minor_unit_vector
+  - name:x_component_of_shatter_cone_direction_unit_vector
+  - name:x_component_of_shatter_cone_major_unit_vector
+  - name:shatter_cone_minor_unit_vector
+  constraints: []
+  arguments:
+  - name: shatter_cone_minor_unit_vector
+    operator: component
+    operator_kind: projection
+    axis: x
+    shape: component
+  sources:
+  - id: dd:spi/injector/shatter_cone/unit_vector_minor/x
+    dd_path: spi/injector/shatter_cone/unit_vector_minor/x
+    status: composed
+- name: x_component_of_shattered_pellet_injection_direction_unit_vector
+  kind: scalar
+  status: draft
+  description: X-axis Cartesian component of the unit vector defining the SPI pellet
+    injection direction in the right-handed Cartesian $(x, y, z)$ frame.
+  documentation: 'The $x$-component $n_x$ of the injection direction unit vector $\hat{n}_{\rm
+    SPI} = (n_x, n_y, n_z)$ specifies the horizontal projection of pellet travel along
+    the $\hat{x}$ axis of the right-handed Cartesian $(\hat{x}, \hat{y}, \hat{z})$
+    frame, where $\hat{z}$ is the vertical direction and the constraint $n_x^2 + n_y^2
+    + n_z^2 = 1$ always holds. Together with [y_component_of_shattered_pellet_injection_direction_unit_vector](name:y_component_of_shattered_pellet_injection_direction_unit_vector)
+    and [z_component_of_shattered_pellet_injection_direction_unit_vector](name:z_component_of_shattered_pellet_injection_direction_unit_vector),
+    it fully resolves the pellet trajectory axis defined by the parent vector [shattered_pellet_injection_direction_unit_vector](name:shattered_pellet_injection_direction_unit_vector).
+    In shattered pellet injection (SPI) systems, the injection direction governs the
+    toroidal and poloidal deposition geometry of the fragment cloud and is set mechanically
+    by the injector alignment; typical values of $n_x$ range from $-1$ to $1$ depending
+    on injector port orientation. The analogous geometric quantity for the shatter
+    cone axis is [x_component_of_shatter_cone_direction_unit_vector](name:x_component_of_shatter_cone_direction_unit_vector).
+
+
+    Sign convention: Positive when the injection direction has a component along the
+    $+\hat{x}$ axis of the right-handed Cartesian $(\hat{x}, \hat{y}, \hat{z})$ frame.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:y_component_of_shattered_pellet_injection_direction_unit_vector
+  - name:z_component_of_shattered_pellet_injection_direction_unit_vector
+  - name:shattered_pellet_injection_direction_unit_vector
+  - name:x_component_of_shatter_cone_direction_unit_vector
+  constraints: []
+  arguments:
+  - name: shattered_pellet_injection_direction_unit_vector
+    operator: component
+    operator_kind: projection
+    axis: x
+    shape: component
+  sources:
+  - id: dd:spi/injector/injection_direction/x
+    dd_path: spi/injector/injection_direction/x
+    status: composed
+- name: y_component_of_shatter_cone_direction_unit_vector
+  kind: scalar
+  status: draft
+  description: Y-axis Cartesian component of the unit vector defining the central
+    axis direction of the SPI shatter cone, completing the right-handed Cartesian
+    $(x, y, z)$ trio alongside its X and Z counterparts.
+  documentation: 'The Y-component $\hat{n}_{\rm cone,y}$ is the projection of the
+    shatter cone direction unit vector $\hat{n}_{\rm cone}$ onto the $\hat{y}$ axis
+    of the right-handed Cartesian $(x, y, z)$ frame, satisfying $\hat{n}_{\rm cone,x}^2
+    + \hat{n}_{\rm cone,y}^2 + \hat{n}_{\rm cone,z}^2 = 1$ together with the [X-component](name:x_component_of_shatter_cone_direction_unit_vector)
+    and [Z-component](name:z_component_of_shatter_cone_direction_unit_vector). This
+    unit vector component specifies the horizontal cross-machine orientation of the
+    SPI shatter cone axis, which determines the angular distribution of pellet fragments
+    delivered to the plasma for disruption mitigation. The full parent vector [shatter_cone_direction_unit_vector](name:shatter_cone_direction_unit_vector)
+    is determined from the injector geometry and shattering target configuration;
+    its Cartesian components are typically computed from engineering alignment measurements
+    or geometric surveys. Values lie in the range $[-1, 1]$, with typical magnitudes
+    well below unity for injectors aimed primarily along the radial or vertical directions.
+    The orientation is geometrically related to the shatter cone cross-section described
+    by the [y_component_of_shatter_cone_major_unit_vector](name:y_component_of_shatter_cone_major_unit_vector)
+    and [y_component_of_shatter_cone_minor_unit_vector](name:y_component_of_shatter_cone_minor_unit_vector)
+    axes.
+
+
+    Sign convention: Positive when the shatter cone axis has a component in the $+\hat{y}$
+    direction of the right-handed Cartesian $(x, y, z)$ frame.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:x_component_of_shatter_cone_direction_unit_vector
+  - name:z_component_of_shatter_cone_direction_unit_vector
+  - name:shatter_cone_direction_unit_vector
+  - name:y_component_of_shatter_cone_major_unit_vector
+  - name:y_component_of_shatter_cone_minor_unit_vector
+  constraints: []
+  arguments:
+  - name: shatter_cone_direction_unit_vector
+    operator: component
+    operator_kind: projection
+    axis: y
+    shape: component
+  sources:
+  - id: dd:spi/injector/shatter_cone/direction/y
+    dd_path: spi/injector/shatter_cone/direction/y
+    status: composed
+- name: y_component_of_shatter_cone_major_unit_vector
+  kind: scalar
+  status: draft
+  description: Y-axis Cartesian component of the major unit vector defining the primary
+    axis of the shatter cone geometry for a shattered pellet injector (SPI).
+  documentation: 'The shatter cone major unit vector $\hat{e}_{\mathrm{major}}$ defines
+    the central symmetry axis of the conical fragment dispersion pattern generated
+    when an SPI pellet impacts the shattering target. Its $y$-component, denoted $\hat{e}_{\mathrm{major},y}$,
+    is the projection of this unit vector onto the $\hat{y}$ axis of the right-handed
+    Cartesian $(x, y, z)$ frame, satisfying $|\hat{e}_{\mathrm{major},x}|^2 + |\hat{e}_{\mathrm{major},y}|^2
+    + |\hat{e}_{\mathrm{major},z}|^2 = 1$. Together with [x_component_of_shatter_cone_major_unit_vector](name:x_component_of_shatter_cone_major_unit_vector)
+    and [z_component_of_shatter_cone_major_unit_vector](name:z_component_of_shatter_cone_major_unit_vector),
+    this component fully specifies the orientation of the cone axis in three-dimensional
+    space. The major unit vector is distinct from the [shatter_cone_minor_unit_vector](name:shatter_cone_minor_unit_vector),
+    which defines the minor semi-axis of the elliptical cone cross-section perpendicular
+    to the primary axis. Values lie in $[-1, 1]$ and are determined from the mechanical
+    geometry of the injector assembly.
+
+
+    Sign convention: Positive when the projection of the shatter cone major axis onto
+    the $+\hat{y}$ direction is in the direction of increasing $y$ in the right-handed
+    Cartesian $(x, y, z)$ frame.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:x_component_of_shatter_cone_major_unit_vector
+  - name:z_component_of_shatter_cone_major_unit_vector
+  - name:shatter_cone_minor_unit_vector
+  constraints: []
+  arguments:
+  - name: shatter_cone_major_unit_vector
+    operator: component
+    operator_kind: projection
+    axis: y
+    shape: component
+  sources:
+  - id: dd:spi/injector/shatter_cone/direction/y
+    dd_path: spi/injector/shatter_cone/direction/y
+    status: composed
+  - id: dd:spi/injector/shatter_cone/unit_vector_major/y
+    dd_path: spi/injector/shatter_cone/unit_vector_major/y
+    status: composed
+- name: y_component_of_shatter_cone_minor_unit_vector
+  kind: scalar
+  status: draft
+  description: Y-axis Cartesian component of the minor unit vector defining the orientation
+    of the SPI shatter cone's elliptical cross-section in the right-handed Cartesian
+    $(x, y, z)$ frame.
+  documentation: 'The [shatter_cone_minor_unit_vector](name:shatter_cone_minor_unit_vector)
+    is one of two orthogonal unit vectors that span the plane perpendicular to the
+    shatter cone axis, together parameterizing the elliptical distribution of pellet
+    fragments produced by a Shattered Pellet Injector (SPI). This quantity is the
+    $y$-axis projection of that minor unit vector, satisfying $|\hat{e}_{\mathrm{minor}}|^2
+    = (e_{\mathrm{minor},x})^2 + (e_{\mathrm{minor},y})^2 + (e_{\mathrm{minor},z})^2
+    = 1$, where $e_{\mathrm{minor},x}$ and $e_{\mathrm{minor},z}$ are the corresponding
+    [x_component_of_shatter_cone_minor_unit_vector](name:x_component_of_shatter_cone_minor_unit_vector)
+    and [z_component_of_shatter_cone_minor_unit_vector](name:z_component_of_shatter_cone_minor_unit_vector).
+    The minor unit vector is orthogonal to both the cone axis ([shatter_cone_direction_unit_vector](name:shatter_cone_direction_unit_vector))
+    and the major unit vector ([shatter_cone_major_unit_vector](name:shatter_cone_major_unit_vector)),
+    forming a right-handed Cartesian frame that fully describes the 3-D geometry of
+    the fragment distribution cone. As a unit vector component, this quantity is bounded
+    to $[-1, 1]$ and is determined from the mechanical alignment of the SPI injector.
+
+
+    Sign convention: Positive when the minor unit vector has a component in the $+y$
+    direction of the right-handed Cartesian $(x, y, z)$ frame.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:shatter_cone_minor_unit_vector
+  - name:x_component_of_shatter_cone_minor_unit_vector
+  - name:z_component_of_shatter_cone_minor_unit_vector
+  - name:shatter_cone_direction_unit_vector
+  - name:shatter_cone_major_unit_vector
+  constraints: []
+  arguments:
+  - name: shatter_cone_minor_unit_vector
+    operator: component
+    operator_kind: projection
+    axis: y
+    shape: component
+  sources:
+  - id: dd:spi/injector/shatter_cone/unit_vector_minor/y
+    dd_path: spi/injector/shatter_cone/unit_vector_minor/y
+    status: composed
+- name: y_component_of_shattered_pellet_injection_direction_unit_vector
+  kind: scalar
+  status: draft
+  description: Y-axis Cartesian component of the unit vector defining the SPI pellet
+    injection direction in the right-handed Cartesian $(x, y, z)$ frame.
+  documentation: 'The $y$-component $n_y$ of the unit vector $\hat{n}_{\rm SPI} =
+    (n_x, n_y, n_z)$ describes the projection of the shattered pellet injector (SPI)
+    pellet trajectory onto the $\hat{y}$ axis of the right-handed Cartesian $(\hat{x},
+    \hat{y}, \hat{z})$ frame, where $\hat{z}$ is vertical. Together with [x_component_of_shattered_pellet_injection_direction_unit_vector](name:x_component_of_shattered_pellet_injection_direction_unit_vector)
+    and [z_component_of_shattered_pellet_injection_direction_unit_vector](name:z_component_of_shattered_pellet_injection_direction_unit_vector),
+    this component fully specifies the pellet injection direction; the three components
+    satisfy $n_x^2 + n_y^2 + n_z^2 = 1$. The injection direction governs where the
+    fragment cloud enters the plasma and is a key input for SPI disruption mitigation
+    modeling; it is specified by hardware geometry and confirmed by pellet-tracking
+    diagnostics. The related shatter cone orientation is described by [y_component_of_shatter_cone_direction_unit_vector](name:y_component_of_shatter_cone_direction_unit_vector).
+
+
+    Sign convention: Positive when the injection direction has a component in the
+    $+\hat{y}$ direction of the right-handed Cartesian $(\hat{x}, \hat{y}, \hat{z})$
+    frame.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:x_component_of_shattered_pellet_injection_direction_unit_vector
+  - name:z_component_of_shattered_pellet_injection_direction_unit_vector
+  - name:y_component_of_shatter_cone_direction_unit_vector
+  constraints: []
+  arguments:
+  - name: shattered_pellet_injection_direction_unit_vector
+    operator: component
+    operator_kind: projection
+    axis: y
+    shape: component
+  sources:
+  - id: dd:spi/injector/injection_direction/y
+    dd_path: spi/injector/injection_direction/y
+    status: composed
+- name: z_component_of_shatter_cone_direction_unit_vector
+  kind: scalar
+  status: draft
+  description: Vertical (Z-axis) Cartesian component of the unit vector defining the
+    central axis direction of the SPI shatter cone, completing the right-handed Cartesian
+    $(x, y, z)$ trio with its X and Y counterparts.
+  documentation: 'The Z-component $\hat{n}_{\rm cone,z}$ of the [shatter_cone_direction_unit_vector](name:shatter_cone_direction_unit_vector)
+    captures the vertical projection of the shatter cone axis in the right-handed
+    Cartesian $(\hat{x}, \hat{y}, \hat{z})$ frame, where $\hat{z}$ coincides with
+    the vertical $Z$ direction of the tokamak. Together with [x_component_of_shatter_cone_direction_unit_vector](name:x_component_of_shatter_cone_direction_unit_vector)
+    and [y_component_of_shatter_cone_direction_unit_vector](name:y_component_of_shatter_cone_direction_unit_vector),
+    it fully specifies the cone axis direction and must satisfy $\hat{n}_{\rm cone,x}^2
+    + \hat{n}_{\rm cone,y}^2 + \hat{n}_{\rm cone,z}^2 = 1$. This component is particularly
+    sensitive to the elevation angle of the SPI injector and determines what fraction
+    of the pellet fragment cloud travels along the vertical direction; typical values
+    range from $-1$ (purely downward injection) to $+1$ (purely upward injection),
+    with near-zero values for predominantly horizontal injectors. The unit vector
+    is specified as a fixed geometric parameter of the injector design and is used
+    in conjunction with [shatter_cone_major_unit_vector](name:shatter_cone_major_unit_vector)
+    and [shatter_cone_minor_unit_vector](name:shatter_cone_minor_unit_vector) to fully
+    characterize the cone geometry.
+
+
+    Sign convention: Positive when the shatter cone axis has a component pointing
+    in the $+\hat{z}$ (upward) direction.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:shatter_cone_direction_unit_vector
+  - name:x_component_of_shatter_cone_direction_unit_vector
+  - name:y_component_of_shatter_cone_direction_unit_vector
+  - name:shatter_cone_major_unit_vector
+  - name:shatter_cone_minor_unit_vector
+  constraints: []
+  arguments:
+  - name: shatter_cone_direction_unit_vector
+    operator: component
+    operator_kind: projection
+    axis: z
+    shape: component
+  sources:
+  - id: dd:spi/injector/shatter_cone/direction/z
+    dd_path: spi/injector/shatter_cone/direction/z
+    status: composed
+- name: z_component_of_shatter_cone_major_unit_vector
+  kind: scalar
+  status: draft
+  description: Z-axis Cartesian component of the major unit vector defining the primary
+    axis of the shatter cone geometry for a shattered pellet injector (SPI).
+  documentation: 'The shatter cone major unit vector $\hat{e}_{\mathrm{major}}$ defines
+    the central symmetry axis of the conical fragment dispersion pattern produced
+    when an SPI pellet impacts the shattering target. Its Z-component, $\hat{e}_{\mathrm{major},z}$,
+    is the projection onto the vertical $\hat{z}$ axis of the right-handed Cartesian
+    $(x, y, z)$ frame, where $\hat{z}$ is aligned with the vertical direction of the
+    device. Because $\hat{e}_{\mathrm{major}}$ is a unit vector, the three Cartesian
+    components satisfy $\hat{e}_{\mathrm{major},x}^2 + \hat{e}_{\mathrm{major},y}^2
+    + \hat{e}_{\mathrm{major},z}^2 = 1$, with each component dimensionless and bounded
+    in $[-1, 1]$. This component completes the Cartesian trio alongside [x_component_of_shatter_cone_major_unit_vector](name:x_component_of_shatter_cone_major_unit_vector)
+    and [y_component_of_shatter_cone_major_unit_vector](name:y_component_of_shatter_cone_major_unit_vector),
+    fully specifying the cone axis orientation. The analogous Z-component for the
+    minor semi-axis is given by [z_component_of_shatter_cone_minor_unit_vector](name:z_component_of_shatter_cone_minor_unit_vector).
+
+
+    Sign convention: Positive when $\hat{e}_{\mathrm{major}}$ has a component in the
+    $+\hat{z}$ (upward vertical) direction.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:x_component_of_shatter_cone_major_unit_vector
+  - name:y_component_of_shatter_cone_major_unit_vector
+  - name:z_component_of_shatter_cone_minor_unit_vector
+  constraints: []
+  arguments:
+  - name: shatter_cone_major_unit_vector
+    operator: component
+    operator_kind: projection
+    axis: z
+    shape: component
+  sources:
+  - id: dd:spi/injector/shatter_cone/unit_vector_major/z
+    dd_path: spi/injector/shatter_cone/unit_vector_major/z
+    status: composed
+- name: z_component_of_shatter_cone_minor_unit_vector
+  kind: scalar
+  status: draft
+  description: Vertical (Z-axis) component of the minor unit vector that defines the
+    shatter cone orientation of a Shattered Pellet Injector in the right-handed Cartesian
+    $(x, y, z)$ frame.
+  documentation: 'The minor unit vector of the SPI shatter cone, $\hat{e}_{\rm minor}$,
+    lies perpendicular to the cone axis and spans the minor semi-axis of the elliptical
+    fragment distribution cross-section. Its $z$-component, $\hat{e}_{\rm minor} \cdot
+    \hat{z}$, quantifies how much of this minor axis projects onto the vertical direction
+    in the right-handed Cartesian $(x, y, z)$ frame, where $\hat{z}$ is the vertical
+    unit vector. Together with [x_component_of_shatter_cone_minor_unit_vector](name:x_component_of_shatter_cone_minor_unit_vector)
+    and [y_component_of_shatter_cone_minor_unit_vector](name:y_component_of_shatter_cone_minor_unit_vector),
+    this component fully resolves the [shatter_cone_minor_unit_vector](name:shatter_cone_minor_unit_vector)
+    into Cartesian coordinates. The trio of components must satisfy $\hat{e}_{\rm
+    minor,x}^2 + \hat{e}_{\rm minor,y}^2 + \hat{e}_{\rm minor,z}^2 = 1$. The minor
+    vector is orthogonal to both the cone axis direction and the [z_component_of_shatter_cone_major_unit_vector](name:z_component_of_shatter_cone_major_unit_vector)
+    family; the two transverse unit vectors together parameterize the elliptical cone
+    cross-section. Values are dimensionless and bounded within $[-1, 1]$.
+
+
+    Sign convention: Positive when the minor unit vector has a component in the $+z$
+    (upward vertical) direction.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:x_component_of_shatter_cone_minor_unit_vector
+  - name:y_component_of_shatter_cone_minor_unit_vector
+  - name:shatter_cone_minor_unit_vector
+  - name:z_component_of_shatter_cone_major_unit_vector
+  constraints: []
+  arguments:
+  - name: shatter_cone_minor_unit_vector
+    operator: component
+    operator_kind: projection
+    axis: z
+    shape: component
+  sources:
+  - id: dd:spi/injector/shatter_cone/unit_vector_minor/z
+    dd_path: spi/injector/shatter_cone/unit_vector_minor/z
+    status: composed
+- name: z_component_of_shattered_pellet_injection_direction_unit_vector
+  kind: scalar
+  status: draft
+  description: Vertical (Z-axis) component of the unit vector defining the injection
+    direction of the shattered pellet injector (SPI) pellet in the right-handed Cartesian
+    $(x, y, z)$ frame.
+  documentation: 'The Z-component $n_z$ of the SPI injection direction unit vector
+    $\hat{n}_{\rm SPI} = (n_x, n_y, n_z)$ quantifies how much of the pellet''s launch
+    direction is aligned with the vertical axis $\hat{z}$. Together with [x_component_of_shattered_pellet_injection_direction_unit_vector](name:x_component_of_shattered_pellet_injection_direction_unit_vector)
+    and [y_component_of_shattered_pellet_injection_direction_unit_vector](name:y_component_of_shattered_pellet_injection_direction_unit_vector),
+    it fully determines the parent vector [shattered_pellet_injection_direction_unit_vector](name:shattered_pellet_injection_direction_unit_vector)
+    via $n_x^2 + n_y^2 + n_z^2 = 1$, where $n_z \in [-1, 1]$. The Z-component is particularly
+    important for characterizing the vertical targeting angle of the injector relative
+    to the plasma column, and is distinguished from the analogous [z_component_of_shatter_cone_direction_unit_vector](name:z_component_of_shatter_cone_direction_unit_vector),
+    which describes the shatter cone axis rather than the injection direction. Values
+    near $\pm 1$ indicate nearly vertical injection, while values near 0 indicate
+    a predominantly horizontal injection geometry.
+
+
+    Sign convention: Positive when the injection direction has a component in the
+    $+\hat{z}$ (upward vertical) direction.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:x_component_of_shattered_pellet_injection_direction_unit_vector
+  - name:y_component_of_shattered_pellet_injection_direction_unit_vector
+  - name:shattered_pellet_injection_direction_unit_vector
+  - name:z_component_of_shatter_cone_direction_unit_vector
+  constraints: []
+  arguments:
+  - name: shattered_pellet_injection_direction_unit_vector
+    operator: component
+    operator_kind: projection
+    axis: z
+    shape: component
+  sources:
+  - id: dd:spi/injector/injection_direction/z
+    dd_path: spi/injector/injection_direction/z
     status: composed

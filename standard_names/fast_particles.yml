@@ -1,0 +1,822 @@
+# Domain: fast_particles
+# Catalog sha: d3e506af05f33eacdd2941c510748ac9add211c1
+# Entries: 14
+# Ordering: structural traversal
+#   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
+#    alphabetic tie-break)
+- name: fast_particle_power_density_due_to_thermalization
+  kind: scalar
+  status: draft
+  description: Volumetric power density representing the net rate of energy lost by
+    the fast particle population to the thermal background plasma through the collisional
+    slowing-down (thermalization) process. Positive values indicate a net energy transfer
+    from fast particles to the thermal population, consistent with the ordinary direction
+    of thermalization. This quantity is the energy-moment of the fast-particle collision
+    operator projected onto the slowing-down channel.
+  documentation: 'The fast particle power density due to thermalization, $S_{E,\mathrm{fast}}$
+    (units: $\mathrm{W\,m^{-3}}$), is the local volumetric rate at which the fast
+    particle population loses energy to the thermal background through collisional
+    slowing-down.
+
+
+    During thermalization, supra-thermal particles (e.g., fusion-born alpha particles,
+    beam ions) transfer their kinetic energy to the bulk plasma electrons and ions
+    via Coulomb collisions. The quantity $S_{E,\mathrm{fast}}$ captures the energy-moment
+    of the fast-particle collision operator evaluated over the slowing-down distribution,
+
+
+    $$S_{E,\mathrm{fast}} = \int \frac{p^2}{2m} \, C_\mathrm{sd}[f_\mathrm{fast}]
+    \, d^3p,$$
+
+
+    where $C_\mathrm{sd}$ is the slowing-down collision operator and $f_\mathrm{fast}$
+    is the fast-particle distribution function.
+
+
+    Sign convention: Positive when the fast particle population is losing energy to
+    the thermal background, i.e., when the net collisional energy flow is directed
+    from the fast population into the thermal plasma.
+
+
+    This quantity is the fast-particle-side counterpart of `power_density_due_to_thermalization`,
+    which represents the thermal-side energy gain from the same process. The sum of
+    the two over a flux surface should vanish (energy conservation). Typical magnitudes
+    range from $10^3$ to $10^7\,\mathrm{W\,m^{-3}}$ in burning plasma conditions,
+    with the highest values near the plasma core where fast-particle densities and
+    collision frequencies are greatest.'
+  unit: W.m^-3
+  physics_domain: fast_particles
+  links:
+  - name:power_density_due_to_thermalization
+  - name:fast_particle_source_due_to_thermalization
+  - name:fast_particle_thermalization_rate
+  constraints: []
+  sources:
+  - id: dd:distributions/distribution/profiles_1d/thermalisation/energy
+    dd_path: distributions/distribution/profiles_1d/thermalisation/energy
+    status: composed
+- name: fast_particle_source_due_to_thermalization
+  kind: scalar
+  status: draft
+  description: Volume-integrated rate at which fast (suprathermal) particles complete
+    thermalization and enter the thermal bulk population as a particle source, expressed
+    as a particle count per unit time. This quantity is intrinsically non-negative
+    under particle-conserving assumptions, representing a one-way transfer from the
+    fast-particle distribution to the thermal distribution.
+  documentation: 'The thermalization source $S_\mathrm{th}$ represents the volume-integrated
+    rate at which suprathermal particles slow down to thermal velocities and are absorbed
+    into the bulk plasma distribution. Formally, it is the velocity-space integral
+    of the thermalization source term $\dot{f}_\mathrm{th}(\mathbf{v})$ over the thermal
+    boundary in velocity space and then over the plasma volume:
+
+
+    $$S_\mathrm{th} = \int_V \int_{v \leq v_\mathrm{th}} C[f_\mathrm{fast}] \, d^3v
+    \, dV$$
+
+
+    where $C[f_\mathrm{fast}]$ is the collision operator acting on the fast-particle
+    distribution $f_\mathrm{fast}$.
+
+
+    Sign convention: Positive when fast particles are transferring into the thermal
+    population (i.e., acting as a particle source for the thermal bulk).
+
+
+    This quantity is the thermal-population counterpart to `fast_particle_thermalization_rate`,
+    which tracks the same process as a sink in the fast-particle particle balance.
+    The two quantities are equal in magnitude and opposite in sign only when the process
+    is strictly particle-conserving (no ionization recombination or wall recycling
+    competing on the same timescale). In reduced transport models where particle conservation
+    is not enforced exactly, the two may differ and should not be assumed equivalent.
+
+
+    Typical values in neutral beam injection (NBI) or ion cyclotron resonance heating
+    (ICRH) scenarios range from $10^{18}$ to $10^{21}$ s$^{-1}$ depending on the injected
+    power, plasma density, and fast-particle slowing-down time $\tau_s$. The slowing-down
+    time scales approximately as $\tau_s \propto T_e^{3/2} / (n_e \ln\Lambda)$, so
+    hotter, lower-density plasmas retain fast particles longer before they thermalize.
+
+
+    This source term appears on the right-hand side of the thermal particle continuity
+    equation as a volumetric gain term and feeds directly into transport solver particle
+    source arrays. It is distinct from ionization sources (e.g., from neutral beam
+    ionization prior to slowing down) and should not include particles that are lost
+    to charge exchange or wall interaction before completing thermalization.'
+  unit: s^-1
+  physics_domain: fast_particles
+  links:
+  - name:fast_particle_thermalization_rate
+  - name:fast_particle_power_density_due_to_thermalization
+  constraints: []
+  sources:
+  - id: dd:distributions/distribution/global_quantities/thermalisation/particles
+    dd_path: distributions/distribution/global_quantities/thermalisation/particles
+    status: composed
+- name: toroidal_component_of_co_passing_particle_current_density
+  kind: scalar
+  status: draft
+  description: Toroidal component of current density carried by co-passing particles,
+    including contributions from thermal electron and ion back-currents (drag-currents)
+    alongside the primary co-passing population.
+  documentation: "The co-passing particle population consists of particles whose magnetic-mirror\
+    \ force is insufficient to trap them on the flux surface, and whose guiding-center\
+    \ drift is directed co-currently (in the same sense as the plasma current). The\
+    \ toroidal current density $j_\\phi^{\\rm co}$ represents the net charge flux\
+    \ in the toroidal $\\hat{\\phi}$ direction from this population, encompassing\
+    \ both the primary co-passing current and the collisional back-currents induced\
+    \ in the thermal electron and ion backgrounds \u2014 the so-called drag-current.\
+    \ This total is the relevant quantity for computing net current drive by, for\
+    \ example, neutral beam injection or radio-frequency heating, where the driven\
+    \ fast-ion current is partially canceled by the thermal back-current. Contrast\
+    \ with [toroidal_component_of_co_passing_fast_ion_current_density](name:toroidal_component_of_co_passing_fast_ion_current_density),\
+    \ which excludes thermal back-currents and isolates only the fast (non-thermal)\
+    \ co-passing ion contribution. The counter-directional analog is [toroidal_component_of_counter_passing_particle_current_density](name:toroidal_component_of_counter_passing_particle_current_density),\
+    \ and the magnetically trapped population contributes separately via [toroidal_component_of_trapped_particle_current_density](name:toroidal_component_of_trapped_particle_current_density).\
+    \ Together these orbit-class current densities sum toward the total given by [toroidal_component_of_current_density](name:toroidal_component_of_current_density).\
+    \ Typical co-passing current densities in neutral-beam-driven tokamak scenarios\
+    \ range from $10^4$ to $10^6$ A m$^{-2}$ in the core.\n\nSign convention: Positive\
+    \ when the current density is directed in the direction of increasing toroidal\
+    \ angle $\\phi$ (co-current direction)."
+  unit: A.m^-2
+  physics_domain: fast_particles
+  links:
+  - name:toroidal_component_of_co_passing_fast_ion_current_density
+  - name:toroidal_component_of_counter_passing_particle_current_density
+  - name:toroidal_component_of_trapped_particle_current_density
+  - name:toroidal_component_of_current_density
+  constraints: []
+  arguments:
+  - name: co_passing_particle_current_density
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:distributions/distribution/profiles_1d/co_passing/current_phi
+    dd_path: distributions/distribution/profiles_1d/co_passing/current_phi
+    status: composed
+  - id: dd:distributions/distribution/profiles_1d/co_passing/current_tor
+    dd_path: distributions/distribution/profiles_1d/co_passing/current_tor
+    status: composed
+  - id: dd:distributions/distribution/profiles_2d/co_passing/current_tor
+    dd_path: distributions/distribution/profiles_2d/co_passing/current_tor
+    status: composed
+- name: toroidal_component_of_co_passing_particle_torque_density
+  kind: scalar
+  status: draft
+  description: Net toroidal torque density acting on the co-passing particle population,
+    summing all momentum-source mechanisms per unit volume.
+  documentation: "The toroidal torque density on co-passing particles quantifies the\
+    \ local rate of toroidal angular momentum deposition per unit volume into the\
+    \ subset of the particle distribution executing co-passing (co-current) orbits.\
+    \ It is the toroidal projection of the full [co_passing_particle_torque_density](name:co_passing_particle_torque_density)\
+    \ vector, $\\tau_{\\phi,\\mathrm{co}} = \\mathbf{\\tau}_{\\mathrm{co}} \\cdot\
+    \ \\hat{\\phi}$, where $\\hat{\\phi}$ is the unit vector in the direction of increasing\
+    \ toroidal angle $\\phi$. This bare (mechanism-summed) form aggregates all contributing\
+    \ processes \u2014 including radial-current Lorentz forces (see [toroidal_component_of_co_passing_particle_torque_density_due_to_radial_current](name:toroidal_component_of_co_passing_particle_torque_density_due_to_radial_current)),\
+    \ collisional momentum exchange, and wave\u2013particle interactions \u2014 whereas\
+    \ mechanism-specific variants isolate individual channels. The analogous quantities\
+    \ for other orbit classes are [toroidal_component_of_counter_passing_particle_torque_density](name:toroidal_component_of_counter_passing_particle_torque_density)\
+    \ and [toroidal_component_of_trapped_particle_torque_density](name:toroidal_component_of_trapped_particle_torque_density).\
+    \ Typical magnitudes in neutral-beam-heated tokamaks range from $10^3$ to $10^5$\
+    \ N m$^{-2}$ in the plasma core, depending on beam power and plasma density. This\
+    \ quantity is computed from kinetic distribution-function codes that track the\
+    \ co-passing particle population and integrate momentum-source terms over velocity\
+    \ space.\n\nSign convention: Positive when the net torque acts in the direction\
+    \ of increasing toroidal angle $\\phi$, accelerating co-passing particles in the\
+    \ co-current direction."
+  unit: N.m^-2
+  physics_domain: fast_particles
+  links:
+  - name:co_passing_particle_torque_density
+  - name:toroidal_component_of_co_passing_particle_torque_density_due_to_radial_current
+  - name:toroidal_component_of_counter_passing_particle_torque_density
+  - name:toroidal_component_of_trapped_particle_torque_density
+  constraints: []
+  arguments:
+  - name: co_passing_particle_torque_density
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:distributions/distribution/profiles_1d/co_passing/source/momentum_tor
+    dd_path: distributions/distribution/profiles_1d/co_passing/source/momentum_tor
+    status: composed
+- name: toroidal_component_of_counter_passing_particle_torque_density
+  kind: scalar
+  status: draft
+  description: Toroidal component of the net torque density exerted on the counter-passing
+    particle population by all momentum-source mechanisms, per unit volume. Counter-passing
+    particles circulate in the direction opposite to the plasma current toroidal direction.
+    This quantity sums contributions from collisions, wave-particle interactions,
+    and external beam or RF sources acting on this orbit class.
+  documentation: 'The toroidal torque density on the counter-passing particle population
+    is defined as the net rate of change of toroidal angular momentum density $\ell_{\phi,\mathrm{cp}}$
+    due to all source and sink mechanisms:
+
+
+    $$\tau_{\phi,\mathrm{cp}} = \sum_s \left.\frac{\partial \ell_{\phi,\mathrm{cp}}}{\partial
+    t}\right|_{\mathrm{source},s}$$
+
+
+    where the sum runs over all physical mechanisms $s$ (collisional friction, wave-particle
+    resonance, neutral-beam momentum injection, etc.) and $\ell_{\phi,\mathrm{cp}}
+    = m n_{\mathrm{cp}} R v_\phi$ is the toroidal angular momentum density of the
+    counter-passing sub-population, with $R$ the major radius in the cylindrical $(R,
+    \phi, Z)$ frame.
+
+
+    Counter-passing particles are those whose toroidal drift velocity $v_\phi$ is
+    directed opposite to the direction of increasing toroidal angle $\phi$, i.e.,
+    opposite to the positive $\hat{\phi}$ direction.
+
+
+    Units are $\mathrm{N\,m^{-2}}$ (torque per unit volume, equivalent to angular
+    momentum density per unit time).
+
+
+    Sign convention: Positive when the net source transfers angular momentum in the
+    direction of increasing toroidal angle $\phi$.
+
+
+    Typical magnitudes in NBI-heated tokamak discharges range from $10^{-3}$ to $10^{1}\,\mathrm{N\,m^{-2}}$,
+    depending on heating power, plasma density, and beam injection geometry. This
+    quantity is the counter-passing analog of `toroidal_component_of_co_passing_particle_torque_density`
+    and, together with the trapped-particle torque density, partitions the total toroidal
+    torque density across kinetic orbit classes.'
+  unit: N.m^-2
+  physics_domain: fast_particles
+  links:
+  - name:toroidal_component_of_counter_passing_particle_torque_density_due_to_radial_current
+  - name:toroidal_component_of_co_passing_particle_torque_density
+  - name:toroidal_component_of_trapped_particle_torque_density
+  constraints: []
+  arguments:
+  - name: counter_passing_particle_torque_density
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:distributions/distribution/profiles_1d/counter_passing/source/momentum_tor
+    dd_path: distributions/distribution/profiles_1d/counter_passing/source/momentum_tor
+    status: composed
+- name: toroidal_component_of_fast_particle_torque_due_to_coulomb_collisions_with_electrons
+  kind: scalar
+  status: draft
+  description: Toroidal projection of the volume-integrated torque received by the
+    fast particle population via Coulomb collisions with background thermal electrons.
+  documentation: The toroidal component of the collisional torque quantifies the net
+    rate of toroidal angular momentum transferred to the fast particle distribution
+    through binary Coulomb collisions with the background thermal electron population,
+    integrated over the plasma volume. Because electrons carry far less momentum per
+    collision than ions, this electron-channel torque is typically smaller than the
+    ion-channel counterpart [toroidal_component_of_fast_particle_torque_due_to_coulomb_collisions_with_ion](name:toroidal_component_of_fast_particle_torque_due_to_coulomb_collisions_with_ion),
+    but becomes significant for high-energy fast particles in the MeV range where
+    the slowing-down time on electrons is comparable to that on ions. The governing
+    relation is $\tau_{\phi,e} = \int \mathbf{r} \times \delta\dot{\mathbf{p}}_{e}
+    \, dV$, where $\delta\dot{\mathbf{p}}_{e}$ (kg m s$^{-2}$) is the collisional
+    momentum-source density on fast particles due to electrons and $V$ is the plasma
+    volume. This quantity is the volume integral of the corresponding density form
+    [toroidal_component_of_fast_particle_torque_density_due_to_coulomb_collisions_with_electrons](name:toroidal_component_of_fast_particle_torque_density_due_to_coulomb_collisions_with_electrons).
+    It is computed from kinetic or Fokker-Planck distribution-function solvers and
+    feeds directly into global toroidal momentum balance alongside the [toroidal_component_of_thermal_electron_torque_due_to_coulomb_collisions](name:toroidal_component_of_thermal_electron_torque_due_to_coulomb_collisions),
+    which captures the equal-and-opposite transfer to the electron population. Typical
+    values in neutral-beam-heated tokamaks range from $10^{1}$ to $10^{3}$ N m depending
+    on injected power and plasma density.
+  unit: N.m
+  physics_domain: fast_particles
+  links:
+  - name:toroidal_component_of_fast_particle_torque_due_to_coulomb_collisions_with_ion
+  - name:toroidal_component_of_fast_particle_torque_density_due_to_coulomb_collisions_with_electrons
+  - name:toroidal_component_of_thermal_electron_torque_due_to_coulomb_collisions
+  constraints: []
+  arguments:
+  - name: fast_particle_torque_due_to_coulomb_collisions_with_electrons
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:distributions/distribution/global_quantities/collisions/electrons/torque_fast_tor
+    dd_path: distributions/distribution/global_quantities/collisions/electrons/torque_fast_tor
+    status: composed
+- name: toroidal_component_of_fast_particle_torque_due_to_coulomb_collisions_with_ion
+  kind: scalar
+  status: draft
+  description: Toroidal component of the total (volume-integrated) torque transferred
+    to the fast particle population through Coulomb collisions with background ion
+    species. This scalar quantity is the projection of the collisional torque onto
+    the toroidal direction, integrated over the plasma volume. Positive values indicate
+    a net toroidal acceleration of the fast particles in the direction of increasing
+    toroidal angle.
+  documentation: "## Toroidal Component of Fast-Particle Torque due to Coulomb Collisions\
+    \ with Ions\n\nThis quantity is the toroidal scalar component of the volume-integrated\
+    \ torque that background ion species exert on the fast (non-thermal) particle\
+    \ population through binary Coulomb collisions. It is obtained by integrating\
+    \ the local toroidal collisional torque density over the full plasma volume:\n\
+    \n$$T_{\\phi,\\mathrm{fast\\leftarrow ions}} = \\int_{V} R \\, \\left(\\delta\\\
+    dot{p}_{\\phi}\\right)_{\\mathrm{fast\\leftarrow ions}} \\, dV$$\n\nwhere $R$\
+    \ is the major radius (cylindrical $(R, \\phi, Z)$ frame with $R$ measured from\
+    \ the machine symmetry axis), $\\delta\\dot{p}_{\\phi}$ is the toroidal component\
+    \ of the collisional momentum-transfer rate density from all background ion species\
+    \ to the fast particle population, and $dV$ is the volume element. The integrand\
+    \ $R\\,\\delta\\dot{p}_{\\phi}$ is the toroidal torque density (i.e., the $\\\
+    hat{\\phi}$-projection of $R \\times \\delta\\dot{\\mathbf{p}}$), ensuring that\
+    \ only the scalar toroidal projection enters the integral.\n\n**Physical interpretation:**\
+    \ Coulomb drag and pitch-angle scattering off background ions transfer angular\
+    \ momentum between the fast and thermal populations. Fast ions born with super-Alfvenic\
+    \ energies (e.g., from neutral beam injection or ion cyclotron resonance heating)\
+    \ slow down predominantly on background electrons at high energy and on background\
+    \ ions at lower energy. The ion-channel torque therefore captures the angular-momentum\
+    \ exchange as the fast ions thermalize. Its magnitude can be comparable to or\
+    \ exceed the electron-channel contribution at low fast-ion energies.\n\n**Typical\
+    \ values:** For conventional tokamak plasmas with neutral beam injection, the\
+    \ magnitude is typically in the range $10^{0}$ to $10^{2}$ N$\\cdot$m, depending\
+    \ on beam power (1\u201340 MW range), injection geometry (co- vs. counter-current),\
+    \ and plasma density. In spherical tokamaks or low-field devices, values may extend\
+    \ above $10^{2}$ N$\\cdot$m.\n\n**Relation to the density counterpart:** Dividing\
+    \ by the plasma volume gives the toroidal torque density (W/m$^3$ equivalent in\
+    \ angular-momentum flux), which is the quantity most directly used in transport\
+    \ codes. Summing the electron-channel and ion-channel contributions yields the\
+    \ total collisional torque on the fast particle population.\n\nSign convention:\
+    \ Positive when the net collisional torque accelerates the fast particle population\
+    \ in the direction of increasing toroidal angle $\\phi$ (counter-clockwise when\
+    \ viewed from above along $+\\hat{Z}$)."
+  unit: N.m
+  physics_domain: fast_particles
+  links:
+  - name:toroidal_component_of_fast_particle_torque_due_to_coulomb_collisions_with_electrons
+  - name:toroidal_component_of_thermal_ion_torque_due_to_coulomb_collisions
+  - name:toroidal_component_of_fast_particle_torque_density_due_to_coulomb_collisions_with_electrons
+  constraints: []
+  arguments:
+  - name: fast_particle_torque_due_to_coulomb_collisions_with_ion
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:distributions/distribution/global_quantities/collisions/ion/state/torque_fast_tor
+    dd_path: distributions/distribution/global_quantities/collisions/ion/state/torque_fast_tor
+    status: composed
+  - id: dd:distributions/distribution/global_quantities/collisions/ion/torque_fast_tor
+    dd_path: distributions/distribution/global_quantities/collisions/ion/torque_fast_tor
+    status: composed
+- name: toroidal_component_of_neutral_beam_particle_torque_due_to_shinethrough
+  kind: scalar
+  status: draft
+  description: Toroidal component of the volume-integrated torque lost because neutral
+    beam particles traverse the plasma without being ionized (shine-through). Beam
+    ions that are not ionized deposit no momentum in the plasma; the torque deficit
+    is integrated over the plasma volume and expressed in the toroidal direction of
+    the cylindrical $(R, \phi, Z)$ frame.
+  documentation: 'When neutral beam injection (NBI) particles fail to ionize before
+    exiting the plasma, they carry away toroidal angular momentum that would otherwise
+    have been deposited in the plasma.
+
+
+    The lost toroidal torque is computed from the local angular-momentum-loss density
+    $\mathcal{T}_{\phi,\rm shine}(\mathbf{r})$ [N\,m$^{-3}$], defined as the toroidal
+    projection of the angular momentum per unit volume per unit time that unabsorbed
+    beam particles remove from the plasma volume:
+
+    $$\mathcal{T}_{\phi,\rm shine}(\mathbf{r}) = R\, s_{\phi,\rm shine}(\mathbf{r}),$$
+
+    where $R$ is the local major radius and $s_{\phi,\rm shine}(\mathbf{r})$ [N\,m$^{-4}$]
+    is the lost toroidal momentum-source density due to shine-through (positive values
+    correspond to momentum removed from the plasma). The volume-integrated quantity
+    is then
+
+    $$\tau_\phi^{\rm shine} = \int_V \mathcal{T}_{\phi,\rm shine}(\mathbf{r})\, dV
+    = \int_V R\, s_{\phi,\rm shine}(\mathbf{r})\, dV,$$
+
+    where the integral extends over the entire plasma volume $V$. This quantity has
+    units of N\,m (equivalently J or m\,N).
+
+
+    Physically, shine-through occurs when the plasma is insufficiently dense or the
+    beam energy is too high for complete absorption along the beam path. The deposited
+    NBI torque is reduced by exactly this shine-through loss. At typical operating
+    densities in medium-to-large tokamaks, the shine-through fraction is small ($\lesssim
+    5\%$), but at low densities during plasma startup or in compact high-energy-beam
+    devices it can exceed $10\text{--}20\%$ of the total injected angular momentum.
+    In the toroidal momentum budget, the total plasma torque equals the injected NBI
+    torque minus shine-through losses, orbit losses, and charge-exchange losses.
+
+
+    The closely related quantity [toroidal_component_of_neutral_beam_shinethrough_torque](name:toroidal_component_of_neutral_beam_shinethrough_torque)
+    represents the same physical loss using a canonical compound base, while [toroidal_component_of_torque_due_to_neutral_beam_shinethrough](name:toroidal_component_of_torque_due_to_neutral_beam_shinethrough)
+    captures the same concept via the process-attribution naming pattern. For broader
+    context on the toroidal momentum budget, see [toroidal_component_of_plasma_torque](name:toroidal_component_of_plasma_torque)
+    and [toroidal_component_of_plasma_torque_inside_flux_surface](name:toroidal_component_of_plasma_torque_inside_flux_surface).
+
+
+    Sign convention: Positive when the shine-through torque loss acts in the direction
+    of increasing toroidal angle $\phi$ in the right-handed cylindrical $(R, \phi,
+    Z)$ frame, where $R$ is the major radius and $Z$ is the vertical height.'
+  unit: N.m
+  physics_domain: fast_particles
+  links:
+  - name:toroidal_component_of_neutral_beam_shinethrough_torque
+  - name:toroidal_component_of_torque_due_to_neutral_beam_shinethrough
+  - name:toroidal_torque_inside_flux_surface
+  constraints: []
+  sources:
+  - id: dd:distribution_sources/source/global_quantities/shinethrough/torque_tor
+    dd_path: distribution_sources/source/global_quantities/shinethrough/torque_tor
+    status: composed
+- name: toroidal_component_of_thermal_electron_torque_due_to_coulomb_collisions
+  kind: scalar
+  status: draft
+  description: Volume-integrated toroidal torque transferred to the bulk thermal electron
+    population via Coulomb collisions with the fast particle distribution, representing
+    the net rate of toroidal angular momentum exchange integrated over the plasma
+    volume.
+  documentation: "This quantity gives the total toroidal component of the collisional\
+    \ torque exerted on thermal electrons by Coulomb scattering with suprathermal\
+    \ (fast) particles, integrated over the plasma volume. The governing relation\
+    \ is $\\tau_{\\phi,\\mathrm{th,e}} = \\int R\\, F_{\\phi,\\mathrm{th,e}}^{\\mathrm{coll}}\\\
+    , dV$, where $R$ is the major radius in the right-handed cylindrical $(R, \\phi,\
+    \ Z)$ frame, $F_{\\phi,\\mathrm{th,e}}^{\\mathrm{coll}}$ is the toroidal Coulomb-collision\
+    \ force density on thermal electrons, and the integral is taken over the full\
+    \ plasma volume $V$. Momentum conservation requires that the torque transferred\
+    \ to thermal electrons equals and opposes the corresponding loss from the fast\
+    \ particle population, linking this quantity to [toroidal_component_of_fast_particle_torque_due_to_coulomb_collisions_with_electrons](name:toroidal_component_of_fast_particle_torque_due_to_coulomb_collisions_with_electrons).\
+    \ Because electrons are light, this channel is typically smaller in magnitude\
+    \ than the ion analog [toroidal_component_of_thermal_ion_torque_due_to_coulomb_collisions](name:toroidal_component_of_thermal_ion_torque_due_to_coulomb_collisions),\
+    \ but can become significant when the fast particle distribution is strongly anisotropic.\
+    \ The local torque density counterpart is [toroidal_component_of_thermal_electron_torque_density_due_to_coulomb_collisions](name:toroidal_component_of_thermal_electron_torque_density_due_to_coulomb_collisions);\
+    \ integrating that density over volume recovers this quantity. Values are computed\
+    \ from Fokker\u2013Planck or Monte Carlo fast particle codes that track the collisional\
+    \ momentum deposition on the thermal background.\n\nSign convention: Positive\
+    \ when the net toroidal angular momentum transferred to thermal electrons is in\
+    \ the direction of increasing toroidal angle $\\phi$."
+  unit: N.m
+  physics_domain: fast_particles
+  links:
+  - name:toroidal_component_of_fast_particle_torque_due_to_coulomb_collisions_with_electrons
+  - name:toroidal_component_of_thermal_ion_torque_due_to_coulomb_collisions
+  - name:toroidal_component_of_thermal_electron_torque_density_due_to_coulomb_collisions
+  constraints: []
+  arguments:
+  - name: thermal_electron_torque_due_to_coulomb_collisions
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:distributions/distribution/global_quantities/collisions/electrons/torque_thermal_tor
+    dd_path: distributions/distribution/global_quantities/collisions/electrons/torque_thermal_tor
+    status: composed
+- name: toroidal_component_of_thermal_ion_torque_density_due_to_coulomb_collisions
+  kind: scalar
+  status: draft
+  description: Toroidal component of the Coulomb-collision torque density exerted
+    on the bulk thermal ion population, representing the local rate of toroidal angular
+    momentum transfer per unit volume from fast particles to thermal ions via binary
+    collisions.
+  documentation: 'The toroidal collisional torque density on thermal ions quantifies
+    the rate at which Coulomb collisions redistribute toroidal angular momentum from
+    the fast particle distribution to the bulk ion population. In the toroidal direction
+    $\hat{\phi}$ of the right-handed cylindrical $(R, \phi, Z)$ frame, this is expressed
+    as $\tau_\phi^{\rm th,i} = \int C[f_{\rm fast}, f_{\rm th,i}]\, m_i v_\phi \,
+    d^3v$, where $C$ is the Coulomb collision operator, $f_{\rm fast}$ and $f_{\rm
+    th,i}$ are the fast particle and thermal ion distribution functions respectively,
+    and $m_i v_\phi$ is the toroidal momentum of an ion. This quantity is the volume
+    density form of [toroidal_component_of_thermal_ion_torque_due_to_coulomb_collisions](name:toroidal_component_of_thermal_ion_torque_due_to_coulomb_collisions);
+    integrating over a plasma volume recovers the total toroidal torque on the thermal
+    ion population. It complements [toroidal_component_of_thermal_electron_torque_density_due_to_coulomb_collisions](name:toroidal_component_of_thermal_electron_torque_density_due_to_coulomb_collisions)
+    for the electron channel and [toroidal_component_of_fast_ion_torque_density_due_to_coulomb_collisions](name:toroidal_component_of_fast_ion_torque_density_due_to_coulomb_collisions)
+    for the fast ion population. Typical magnitudes in neutral-beam-heated tokamaks
+    range from $10^{-3}$ to $10^{-1}$ N m$^{-2}$ depending on beam power, plasma density,
+    and ion charge state. This term drives neoclassical and anomalous toroidal rotation
+    and feeds directly into the toroidal momentum balance equation for the thermal
+    ion fluid.
+
+
+    Sign convention: Positive when the torque density acts to accelerate thermal ions
+    in the direction of increasing toroidal angle $\phi$.'
+  unit: N.m^-2
+  physics_domain: fast_particles
+  links:
+  - name:toroidal_component_of_thermal_ion_torque_due_to_coulomb_collisions
+  - name:toroidal_component_of_thermal_electron_torque_density_due_to_coulomb_collisions
+  - name:toroidal_component_of_fast_ion_torque_density_due_to_coulomb_collisions
+  constraints: []
+  arguments:
+  - name: thermal_ion_torque_density_due_to_coulomb_collisions
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:distributions/distribution/profiles_1d/co_passing/collisions/ion/state/torque_thermal_phi
+    dd_path: distributions/distribution/profiles_1d/co_passing/collisions/ion/state/torque_thermal_phi
+    status: composed
+  - id: dd:distributions/distribution/profiles_1d/co_passing/collisions/ion/state/torque_thermal_tor
+    dd_path: distributions/distribution/profiles_1d/co_passing/collisions/ion/state/torque_thermal_tor
+    status: attached
+  - id: dd:distributions/distribution/profiles_1d/co_passing/collisions/ion/torque_thermal_phi
+    dd_path: distributions/distribution/profiles_1d/co_passing/collisions/ion/torque_thermal_phi
+    status: attached
+  - id: dd:distributions/distribution/profiles_1d/co_passing/collisions/ion/torque_thermal_tor
+    dd_path: distributions/distribution/profiles_1d/co_passing/collisions/ion/torque_thermal_tor
+    status: composed
+  - id: dd:distributions/distribution/profiles_1d/collisions/ion/state/torque_thermal_phi
+    dd_path: distributions/distribution/profiles_1d/collisions/ion/state/torque_thermal_phi
+    status: attached
+  - id: dd:distributions/distribution/profiles_1d/collisions/ion/state/torque_thermal_tor
+    dd_path: distributions/distribution/profiles_1d/collisions/ion/state/torque_thermal_tor
+    status: attached
+  - id: dd:distributions/distribution/profiles_1d/collisions/ion/torque_thermal_phi
+    dd_path: distributions/distribution/profiles_1d/collisions/ion/torque_thermal_phi
+    status: attached
+  - id: dd:distributions/distribution/profiles_1d/collisions/ion/torque_thermal_tor
+    dd_path: distributions/distribution/profiles_1d/collisions/ion/torque_thermal_tor
+    status: composed
+  - id: dd:distributions/distribution/profiles_1d/counter_passing/collisions/ion/state/torque_thermal_phi
+    dd_path: distributions/distribution/profiles_1d/counter_passing/collisions/ion/state/torque_thermal_phi
+    status: attached
+  - id: dd:distributions/distribution/profiles_1d/counter_passing/collisions/ion/state/torque_thermal_tor
+    dd_path: distributions/distribution/profiles_1d/counter_passing/collisions/ion/state/torque_thermal_tor
+    status: composed
+  - id: dd:distributions/distribution/profiles_1d/counter_passing/collisions/ion/torque_thermal_phi
+    dd_path: distributions/distribution/profiles_1d/counter_passing/collisions/ion/torque_thermal_phi
+    status: attached
+  - id: dd:distributions/distribution/profiles_1d/counter_passing/collisions/ion/torque_thermal_tor
+    dd_path: distributions/distribution/profiles_1d/counter_passing/collisions/ion/torque_thermal_tor
+    status: composed
+  - id: dd:distributions/distribution/profiles_1d/trapped/collisions/ion/state/torque_thermal_phi
+    dd_path: distributions/distribution/profiles_1d/trapped/collisions/ion/state/torque_thermal_phi
+    status: attached
+  - id: dd:distributions/distribution/profiles_1d/trapped/collisions/ion/state/torque_thermal_tor
+    dd_path: distributions/distribution/profiles_1d/trapped/collisions/ion/state/torque_thermal_tor
+    status: composed
+  - id: dd:distributions/distribution/profiles_1d/trapped/collisions/ion/torque_thermal_phi
+    dd_path: distributions/distribution/profiles_1d/trapped/collisions/ion/torque_thermal_phi
+    status: composed
+  - id: dd:distributions/distribution/profiles_1d/trapped/collisions/ion/torque_thermal_tor
+    dd_path: distributions/distribution/profiles_1d/trapped/collisions/ion/torque_thermal_tor
+    status: attached
+  - id: dd:distributions/distribution/profiles_2d/co_passing/collisions/ion/state/torque_thermal_phi
+    dd_path: distributions/distribution/profiles_2d/co_passing/collisions/ion/state/torque_thermal_phi
+    status: composed
+  - id: dd:distributions/distribution/profiles_2d/co_passing/collisions/ion/state/torque_thermal_tor
+    dd_path: distributions/distribution/profiles_2d/co_passing/collisions/ion/state/torque_thermal_tor
+    status: attached
+  - id: dd:distributions/distribution/profiles_2d/co_passing/collisions/ion/torque_thermal_phi
+    dd_path: distributions/distribution/profiles_2d/co_passing/collisions/ion/torque_thermal_phi
+    status: composed
+  - id: dd:distributions/distribution/profiles_2d/co_passing/collisions/ion/torque_thermal_tor
+    dd_path: distributions/distribution/profiles_2d/co_passing/collisions/ion/torque_thermal_tor
+    status: composed
+  - id: dd:distributions/distribution/profiles_2d/collisions/ion/state/torque_thermal_phi
+    dd_path: distributions/distribution/profiles_2d/collisions/ion/state/torque_thermal_phi
+    status: composed
+  - id: dd:distributions/distribution/profiles_2d/collisions/ion/state/torque_thermal_tor
+    dd_path: distributions/distribution/profiles_2d/collisions/ion/state/torque_thermal_tor
+    status: composed
+  - id: dd:distributions/distribution/profiles_2d/collisions/ion/torque_thermal_phi
+    dd_path: distributions/distribution/profiles_2d/collisions/ion/torque_thermal_phi
+    status: composed
+  - id: dd:distributions/distribution/profiles_2d/collisions/ion/torque_thermal_tor
+    dd_path: distributions/distribution/profiles_2d/collisions/ion/torque_thermal_tor
+    status: attached
+  - id: dd:distributions/distribution/profiles_2d/counter_passing/collisions/ion/state/torque_thermal_phi
+    dd_path: distributions/distribution/profiles_2d/counter_passing/collisions/ion/state/torque_thermal_phi
+    status: attached
+  - id: dd:distributions/distribution/profiles_2d/counter_passing/collisions/ion/state/torque_thermal_tor
+    dd_path: distributions/distribution/profiles_2d/counter_passing/collisions/ion/state/torque_thermal_tor
+    status: composed
+  - id: dd:distributions/distribution/profiles_2d/counter_passing/collisions/ion/torque_thermal_phi
+    dd_path: distributions/distribution/profiles_2d/counter_passing/collisions/ion/torque_thermal_phi
+    status: attached
+  - id: dd:distributions/distribution/profiles_2d/counter_passing/collisions/ion/torque_thermal_tor
+    dd_path: distributions/distribution/profiles_2d/counter_passing/collisions/ion/torque_thermal_tor
+    status: composed
+  - id: dd:distributions/distribution/profiles_2d/trapped/collisions/ion/state/torque_thermal_phi
+    dd_path: distributions/distribution/profiles_2d/trapped/collisions/ion/state/torque_thermal_phi
+    status: attached
+  - id: dd:distributions/distribution/profiles_2d/trapped/collisions/ion/state/torque_thermal_tor
+    dd_path: distributions/distribution/profiles_2d/trapped/collisions/ion/state/torque_thermal_tor
+    status: attached
+  - id: dd:distributions/distribution/profiles_2d/trapped/collisions/ion/torque_thermal_phi
+    dd_path: distributions/distribution/profiles_2d/trapped/collisions/ion/torque_thermal_phi
+    status: composed
+  - id: dd:distributions/distribution/profiles_2d/trapped/collisions/ion/torque_thermal_tor
+    dd_path: distributions/distribution/profiles_2d/trapped/collisions/ion/torque_thermal_tor
+    status: composed
+- name: toroidal_component_of_thermal_ion_torque_due_to_coulomb_collisions
+  kind: scalar
+  status: draft
+  description: Volume-integrated toroidal torque transferred to the bulk thermal ion
+    population via Coulomb collisions with fast (non-Maxwellian) particles. Defined
+    as the toroidal projection of the collisional friction moment integrated over
+    the plasma volume, quantifying the net toroidal angular momentum exchange rate
+    between fast and thermal ion species.
+  documentation: "The toroidal component of the thermal ion torque due to Coulomb\
+    \ collisions is the volume integral of the $\\hat{\\phi}$-projection of the collisional\
+    \ friction force density acting on the bulk (thermal) ion population. In the cylindrical\
+    \ $(R, \\phi, Z)$ frame with $\\hat{R} \\times \\hat{\\phi} = \\hat{Z}$, the toroidal\
+    \ scalar torque is\n\n$$T_\\phi^{\\mathrm{th,ion}} = \\int R \\, F_\\phi^{\\mathrm{coll,th\\\
+    ,ion}}(\\mathbf{r}) \\, d^3r$$\n\nwhere $F_\\phi^{\\mathrm{coll,th\\,ion}} = m_i\
+    \ \\int v_\\phi \\, C_{\\mathrm{coll}}[f_\\mathrm{fast}, f_\\mathrm{th,ion}] \\\
+    , d^3v$ is the toroidal component of the collisional friction moment of the Coulomb\
+    \ collision operator $C_{\\mathrm{coll}}$ integrated over velocity space, $m_i$\
+    \ is the thermal ion mass, $v_\\phi = R \\dot{\\phi}$ is the toroidal velocity,\
+    \ and $R$ is the major radius in the cylindrical $(R, \\phi, Z)$ frame.\n\nThis\
+    \ quantity appears in the toroidal angular momentum balance of the thermal ion\
+    \ population and characterizes the collisional drag or acceleration exerted by\
+    \ fast (suprathermal) ions \u2014 e.g. from neutral beam injection or ion cyclotron\
+    \ resonance heating \u2014 on the background plasma. For co-injected beams in\
+    \ typical tokamak scenarios, this torque tends to be positive (co-current direction),\
+    \ with magnitudes of order $10^{-2}$ to $10^{0}$ N$\\cdot$m depending on injected\
+    \ power, plasma density, and ion charge state.\n\nSign convention: Positive when\
+    \ the collisional friction moment accelerates the thermal ion population in the\
+    \ direction of increasing toroidal angle $\\phi$ (co-current direction, counter-clockwise\
+    \ viewed from above $+\\hat{Z}$).\n\nThis quantity is the thermal-ion analog of\
+    \ the fast-particle toroidal collisional torques and is complementary to the corresponding\
+    \ thermal electron torque. Together with the fast-particle toroidal torque, it\
+    \ must sum to zero by Newton's third law applied to the total collisional angular\
+    \ momentum exchange."
+  unit: N.m
+  physics_domain: fast_particles
+  links:
+  - name:toroidal_component_of_thermal_ion_torque_density_due_to_coulomb_collisions
+  - name:toroidal_component_of_thermal_electron_torque_due_to_coulomb_collisions
+  - name:toroidal_component_of_fast_particle_torque_due_to_coulomb_collisions_with_ion
+  constraints: []
+  arguments:
+  - name: thermal_ion_torque_due_to_coulomb_collisions
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:distributions/distribution/global_quantities/collisions/ion/state/torque_thermal_tor
+    dd_path: distributions/distribution/global_quantities/collisions/ion/state/torque_thermal_tor
+    status: composed
+  - id: dd:distributions/distribution/global_quantities/collisions/ion/torque_thermal_tor
+    dd_path: distributions/distribution/global_quantities/collisions/ion/torque_thermal_tor
+    status: composed
+- name: toroidal_component_of_torque_density_due_to_radial_current
+  kind: scalar
+  status: draft
+  description: Toroidal component of the flux-surface-averaged torque density exerted
+    on the total particle distribution by the radial current Lorentz force $\mathbf{J}_r
+    \times \mathbf{B}$, summed over all particle populations.
+  documentation: 'The toroidal torque density due to radial currents arises from the
+    Lorentz force $\mathbf{J}_r \times \mathbf{B}$, where $J_r$ is the radial component
+    of current density and $\mathbf{B}$ is the magnetic field. The toroidal projection
+    of this force per unit volume, $\tau_\phi = (\mathbf{J}_r \times \mathbf{B}) \cdot
+    \hat{\phi}$, drives toroidal plasma rotation and contributes to the momentum balance
+    in the $\hat{\phi}$ direction of the right-handed cylindrical $(R, \phi, Z)$ frame.
+    This quantity represents the total over all particle populations; population-resolved
+    contributions are described separately for [co-passing particles](name:toroidal_component_of_co_passing_particle_torque_density_due_to_radial_current),
+    [counter-passing particles](name:toroidal_component_of_counter_passing_particle_torque_density_due_to_radial_current),
+    and [trapped particles](name:toroidal_component_of_trapped_particle_torque_density_due_to_radial_current).
+    Typical magnitudes in neutral-beam-heated tokamak plasmas range from $10^{-2}$
+    to $10^{1}$ N m$^{-2}$ depending on injected power and plasma density. It is computed
+    from kinetic distribution-function codes and enters the toroidal momentum transport
+    equation as a source term alongside other torque contributions such as neoclassical
+    toroidal viscosity.
+
+
+    Sign convention: Positive when the torque density acts in the direction of increasing
+    toroidal angle $\phi$.'
+  unit: N.m^-2
+  physics_domain: fast_particles
+  links:
+  - name:toroidal_component_of_co_passing_particle_torque_density_due_to_radial_current
+  - name:toroidal_component_of_counter_passing_particle_torque_density_due_to_radial_current
+  - name:toroidal_component_of_trapped_particle_torque_density_due_to_radial_current
+  constraints: []
+  arguments:
+  - name: torque_density_due_to_radial_current
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:distributions/distribution/profiles_1d/source/momentum_phi
+    dd_path: distributions/distribution/profiles_1d/source/momentum_phi
+    status: attached
+  - id: dd:distributions/distribution/profiles_1d/source/momentum_tor
+    dd_path: distributions/distribution/profiles_1d/source/momentum_tor
+    status: attached
+  - id: dd:distributions/distribution/profiles_1d/torque_phi_j_radial
+    dd_path: distributions/distribution/profiles_1d/torque_phi_j_radial
+    status: composed
+  - id: dd:distributions/distribution/profiles_1d/torque_tor_j_radial
+    dd_path: distributions/distribution/profiles_1d/torque_tor_j_radial
+    status: composed
+  - id: dd:distributions/distribution/profiles_2d/torque_phi_j_radial
+    dd_path: distributions/distribution/profiles_2d/torque_phi_j_radial
+    status: composed
+  - id: dd:distributions/distribution/profiles_2d/torque_tor_j_radial
+    dd_path: distributions/distribution/profiles_2d/torque_tor_j_radial
+    status: composed
+- name: toroidal_component_of_trapped_particle_torque_density
+  kind: scalar
+  status: draft
+  description: Toroidal component of the net torque density exerted on the trapped
+    particle population, equal to the local source rate of toroidal angular momentum
+    per unit volume due to all forces acting on banana-orbit-confined particles.
+  documentation: 'The toroidal component of the trapped particle torque density, $\tau_{\mathrm{trap},\phi}$,
+    is the net rate of toroidal angular momentum deposition per unit volume into particles
+    confined to banana orbits in a magnetized plasma. It enters the toroidal angular
+    momentum balance as
+
+
+    $$\frac{\partial \ell_\phi}{\partial t} + \nabla \cdot \boldsymbol{\Pi}_\phi =
+    \tau_{\mathrm{trap},\phi} + \ldots$$
+
+
+    where $\ell_\phi = m_s n_s R v_{\phi,s}$ is the toroidal angular momentum density
+    of species $s$, $R$ is the major radius (distance from the machine symmetry axis
+    in the right-handed cylindrical $(R, \phi, Z)$ frame), $v_{\phi,s}$ is the mean
+    toroidal velocity, and $\boldsymbol{\Pi}_\phi$ is the toroidal stress tensor.
+    The quantity $\tau_{\mathrm{trap},\phi}$ has SI units of N m$^{-2}$ (equivalently
+    kg m$^{-2}$ s$^{-2}$).
+
+
+    This quantity is the flux-surface-local (not flux-surface-averaged) toroidal torque
+    density. Contributions arise from collisional friction between trapped and passing
+    populations, RF-wave momentum transfer, neoclassical effects such as the bootstrap
+    current reaction force, and energetic-particle sources or sinks.
+
+
+    Sign convention: Positive when the net torque acts to accelerate trapped particles
+    in the direction of increasing toroidal angle $\phi$ (i.e., counter-clockwise
+    when viewed from above along $+\hat{Z}$).
+
+
+    Typical magnitudes in a tokamak discharge range from $10^{-3}$ to $10^{1}$ N m$^{-2}$
+    depending on plasma density, temperature, and heating power. The trapped fraction
+    $f_\mathrm{trap} \approx \sqrt{2\epsilon}/(1+\sqrt{2\epsilon})$, where $\epsilon
+    = r/R_0$ is the local inverse aspect ratio, determines what fraction of the total
+    particle torque density is attributed to this population.'
+  unit: N.m^-2
+  physics_domain: fast_particles
+  links:
+  - name:toroidal_component_of_co_passing_particle_torque_density
+  - name:toroidal_component_of_counter_passing_particle_torque_density
+  - name:toroidal_component_of_torque_density_due_to_radial_current
+  - name:toroidal_component_of_thermal_particle_torque_density_due_to_thermalization
+  constraints: []
+  arguments:
+  - name: trapped_particle_torque_density
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:distributions/distribution/profiles_1d/trapped/source/momentum_tor
+    dd_path: distributions/distribution/profiles_1d/trapped/source/momentum_tor
+    status: composed
+- name: toroidal_mode_number
+  kind: scalar
+  status: draft
+  description: Integer toroidal Fourier mode number $n$ indexing the harmonic decomposition
+    of perturbation fields along particle orbits, where quantities vary as $\exp(i
+    n \phi)$ with $\phi$ the toroidal angle.
+  documentation: "The toroidal mode number $n$ is the integer exponent in the Fourier\
+    \ decomposition $\\exp(i n \\phi)$, where $\\phi$ is the toroidal angle increasing\
+    \ counter-clockwise when viewed from above $+\\hat{Z}$ in the right-handed cylindrical\
+    \ $(R, \\phi, Z)$ frame. It labels the periodicity of a perturbation field \u2014\
+    \ MHD modes, wave fields, or orbit-averaged quantities \u2014 in the toroidal\
+    \ direction, with $n = 0$ corresponding to the axisymmetric component and $|n|\
+    \ \\geq 1$ to non-axisymmetric perturbations. In fast-particle physics, $n$ indexes\
+    \ the harmonic content of fields sampled along guiding-center or full-orbit trajectories;\
+    \ resonance conditions such as $n \\Omega_{\\phi} - m \\Omega_{\\theta} = \\omega$\
+    \ (where $\\Omega_{\\phi}$ and $\\Omega_{\\theta}$ are the particle toroidal and\
+    \ poloidal transit frequencies and $\\omega$ is the wave frequency) determine\
+    \ wave\u2013particle energy exchange. Typical values range from $n = 0$ (axisymmetric\
+    \ equilibrium) through $n \\sim 1$\u2013$10$ for global Alfven eigenmodes and\
+    \ neoclassical tearing modes, to $n \\sim 10$\u2013$50$ for kinetic ballooning\
+    \ or micro-instability regimes. The toroidal mode number is the component of the\
+    \ general [mode_number](name:mode_number) resolved in the toroidal direction;\
+    \ quantities resolved per this index appear in names such as [wave_driven_current_inside_flux_surface_per_toroidal_mode](name:wave_driven_current_inside_flux_surface_per_toroidal_mode)\
+    \ and [per_toroidal_mode_of_wave_driven_current_inside_flux_surface](name:per_toroidal_mode_of_wave_driven_current_inside_flux_surface).\n\
+    \nSign convention: Positive when $n$ counts mode periodicity in the direction\
+    \ of increasing toroidal angle $\\phi$ (counter-clockwise when viewed from above\
+    \ $+\\hat{Z}$)."
+  unit: '1'
+  physics_domain: fast_particles
+  links:
+  - name:mode_number
+  - name:wave_driven_current_inside_flux_surface_per_toroidal_mode
+  - name:per_toroidal_mode_of_wave_driven_current_inside_flux_surface
+  constraints: []
+  arguments:
+  - name: mode_number
+    operator: coordinate
+    operator_kind: coordinate
+    axis: toroidal
+    shape: coordinate
+  sources:
+  - id: dd:distributions/distribution/markers/orbit_integrals/n_tor
+    dd_path: distributions/distribution/markers/orbit_integrals/n_tor
+    status: composed

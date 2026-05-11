@@ -1,104 +1,1365 @@
 # Domain: radiation_measurement_diagnostics
-# Catalog sha: 0b0cc91313a949ddcf6de90552a90954c93e4d5e
-# Entries: 3
+# Catalog sha: d3e506af05f33eacdd2941c510748ac9add211c1
+# Entries: 33
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: major_radius_of_rectangle_center
+- name: detector_channel_wavelength_lower_bound
   kind: scalar
   status: draft
-  description: Major radius $R$ coordinate of the geometric center of a rectangular
-    cross-section element, locating the centroid of the rectangle in the cylindrical
-    $(R, \phi, Z)$ frame.
-  documentation: "The major radius of the rectangle center identifies the $R$ coordinate\
-    \ \u2014 measured from the machine symmetry axis in the right-handed cylindrical\
-    \ $(R, \\phi, Z)$ frame \u2014 at which the centroid of a rectangular cross-section\
-    \ lies. Rectangular cross-sections are used to approximate the geometry of poloidal-field\
-    \ coil elements, passive conducting loops, iron-core segments, antenna straps,\
-    \ and diagnostic spatial-resolution cells; the centroid coordinates $(R, Z)$ together\
-    \ fully specify the element's in-plane position. The companion vertical coordinate\
-    \ is given by [vertical_coordinate_of_rectangle_center](name:vertical_coordinate_of_rectangle_center),\
-    \ and the analogous quantity for a general diagnostic component is [major_radius_of_diagnostic_component_center](name:major_radius_of_diagnostic_component_center).\
-    \ Typical values range from fractions of a meter for near-axis elements to several\
-    \ meters for outboard coil elements, depending on device size; for ITER-scale\
-    \ machines the range is approximately 1.5\u20138 m.\n\nSign convention: Positive\
-    \ when the rectangle center lies at a finite distance from the machine symmetry\
-    \ axis in the outward radial direction, consistent with $R > 0$ everywhere in\
-    \ the cylindrical $(R, \\phi, Z)$ frame."
+  description: Lower bound of the detector channel spectral sensitivity range, defining
+    the short-wavelength cutoff below which detector response (or combined optical-detector
+    transmittance) falls to a negligible or specified threshold level. Together with
+    the upper bound, it delimits the channel passband $[\lambda_{\min}, \lambda_{\max}]$.
+  documentation: "The lower wavelength bound $\\lambda_{\\min}$ is the short-wavelength\
+    \ edge of the spectral window for a named detector channel. It is defined as the\
+    \ wavelength at which the channel spectral response function $R(\\lambda)$ \u2014\
+    \ accounting for detector quantum efficiency, optical coatings, and any in-line\
+    \ filter \u2014 falls to a specified threshold (commonly 1% or 10% of peak, or\
+    \ the half-power point at $R(\\lambda_{\\min}) = R_{\\max}/2$). The convention\
+    \ requires $\\lambda_{\\min} < \\lambda_{\\max}$, where $\\lambda_{\\max}$ is\
+    \ the corresponding upper bound.\n\nThe detected signal $S$ integrated over the\
+    \ passband is\n$$S = \\int_{\\lambda_{\\min}}^{\\lambda_{\\max}} R(\\lambda)\\\
+    , I(\\lambda)\\, d\\lambda,$$\nwhere $I(\\lambda)$ is the spectral radiance incident\
+    \ on the detector. Accurate knowledge of $\\lambda_{\\min}$ is therefore essential\
+    \ for interpreting line-integrated photon fluxes, evaluating continuum or line\
+    \ emission contributions, and cross-calibrating channels with overlapping spectral\
+    \ ranges.\n\nTypical values span a wide range depending on diagnostic type: roughly\
+    \ 300\u2013400 nm for near-UV visible-light cameras, 600\u2013800 nm for visible\
+    \ CCD-based spectroscopy, and below 1 nm for soft X-ray crystal spectrometers.\
+    \ The cutoff is set by the combined response of the detector material, optical\
+    \ coatings, bandpass filters, and any other wavelength-selective element in the\
+    \ optical path.\n\nThis quantity is the channel-specific form of the detector\
+    \ lower wavelength bound; see also `detector_wavelength_lower_bound` for the channel-agnostic\
+    \ variant and `detector_channel_sensitive_wavelength_lower_bound` for the form\
+    \ explicitly labeled as defining the sensitive spectral window."
   unit: m
   physics_domain: radiation_measurement_diagnostics
   links:
-  - name:vertical_coordinate_of_rectangle_center
-  - name:major_radius_of_diagnostic_component_center
+  - name:detector_channel_sensitive_wavelength_lower_bound
+  - name:detector_wavelength_lower_bound
+  - name:optical_filter_central_wavelength
   constraints: []
   sources:
-  - id: dd:mse/channel/active_spatial_resolution/width/r
-    dd_path: mse/channel/active_spatial_resolution/width/r
+  - id: dd:camera_visible/channel/detector/wavelength_lower
+    dd_path: camera_visible/channel/detector/wavelength_lower
     status: composed
-- name: toroidal_angle_of_first_point_of_line_of_sight
+- name: diameter_of_optical_channel_image_plane
   kind: scalar
   status: draft
-  description: "Toroidal angle \u03C6 of the first endpoint defining the line of sight\
-    \ of a diagnostic channel, specifying the azimuthal entry point of the chord in\
-    \ the right-handed cylindrical $(R, \\phi, Z)$ frame."
-  documentation: 'The toroidal angle $\phi$ locates the first defining point of a
-    diagnostic line of sight azimuthally around the machine symmetry axis in the right-handed
-    cylindrical $(R, \phi, Z)$ frame, where $\phi$ increases counter-clockwise when
-    viewed from above ($+\hat{Z}$). Together with the major radius [major_radius_of_first_point_of_line_of_sight](name:major_radius_of_first_point_of_line_of_sight)
-    and the vertical coordinate [vertical_coordinate_of_first_point_of_line_of_sight](name:vertical_coordinate_of_first_point_of_line_of_sight),
-    this angle fully specifies the Cartesian position of the chord entry point. The
-    line of sight is then directed from this first point toward [toroidal_angle_of_second_point_of_line_of_sight](name:toroidal_angle_of_second_point_of_line_of_sight),
-    defining the chord geometry used in bolometry, Thomson scattering, hard and soft
-    X-ray cameras, visible and UV spectrometers, and motional Stark effect diagnostics.
-    Typical values span $0$ to $2\pi$ rad depending on the toroidal sector in which
-    the diagnostic is installed; many single-sector diagnostics cluster near $\phi
-    = 0$.
+  description: Diameter of the optical image formed at the focal plane of a charge-exchange
+    recombination spectroscopy collection channel. Equal to the fiber-core diameter
+    multiplied by the optical magnification of the collection system, reducing to
+    the fiber-core diameter when magnification is unity.
+  documentation: 'In a charge-exchange recombination spectroscopy (CXRS) diagnostic,
+    each optical channel focuses plasma emission onto an optical fiber. The image-plane
+    diameter $d_\mathrm{im}$ is the projected size of the fiber entrance aperture
+    at the focal plane of the collection optics. The general relation is
 
 
-    Sign convention: Positive when $\phi$ is in the direction of increasing toroidal
-    angle, counter-clockwise when viewed from above $+\hat{Z}$.'
+    $$d_\mathrm{im} = M \, d_\mathrm{fiber}$$
+
+
+    where $M$ is the optical magnification of the collection system and $d_\mathrm{fiber}$
+    is the physical fiber-core diameter. For a unit-magnification ($M = 1$) system,
+    $d_\mathrm{im}$ equals $d_\mathrm{fiber}$ directly. For $M \neq 1$, the image-plane
+    diameter differs from the fiber-core diameter, and both quantities are needed
+    to fully characterize the optical channel.
+
+
+    This quantity contributes to the spatial resolution of the observation chord and
+    influences the optical throughput. Typical values for CXRS systems range from
+    approximately 0.2 mm to 2 mm, depending on fiber type, collection optics design,
+    and desired spatial sampling resolution.
+
+
+    When the fiber image cross-section departs from a perfect circle, the complementary
+    shape parameter [ellipticity_of_optical_fiber_image_cross_section](name:ellipticity_of_optical_fiber_image_cross_section)
+    provides the additional geometric characterization needed to fully describe the
+    aperture. The closely related name [image_plane_diameter](name:image_plane_diameter)
+    covers the same physical concept without the explicit optical-channel qualification.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:ellipticity_of_optical_fiber_image_cross_section
+  - name:image_plane_diameter
+  constraints: []
+  sources:
+  - id: dd:charge_exchange/channel/image_diameter
+    dd_path: charge_exchange/channel/image_diameter
+    status: composed
+- name: ellipticity_of_optical_fiber_image_cross_section
+  kind: scalar
+  status: draft
+  description: Axis ratio (minor axis b divided by major axis a) of the elliptic cross-sectional
+    shape of an optical fiber image on the focal plane, quantifying deviation from
+    circularity. A value of 1 indicates a perfectly circular image; values less than
+    1 indicate increasing ellipticity. Note that some conventions define ellipticity
+    as 1 - b/a or as the eccentricity sqrt(1 - b^2/a^2); this quantity uses the axis-ratio
+    definition b/a.
+  documentation: "## Ellipticity of Optical Fiber Image Cross-Section\n\nThis quantity\
+    \ is the dimensionless axis ratio\n\n$$e = \\frac{b}{a}, \\quad 0 < e \\leq 1,$$\n\
+    \nwhere $a$ is the semi-major axis and $b$ is the semi-minor axis of the best-fit\
+    \ ellipse to the fiber image cross-section on the detector focal plane. The best-fit\
+    \ ellipse is typically obtained by second-moment (intensity-weighted) analysis\
+    \ of the recorded spot image:\n\n$$\\mu_{20} = \\langle (x - \\bar{x})^2 \\rangle,\
+    \ \\quad \\mu_{02} = \\langle (y - \\bar{y})^2 \\rangle, \\quad \\mu_{11} = \\\
+    langle (x - \\bar{x})(y - \\bar{y}) \\rangle,$$\n\nfrom which the semi-axes are\n\
+    \n$$a, b = \\sqrt{\\frac{\\mu_{20} + \\mu_{02}}{2} \\pm \\sqrt{\\left(\\frac{\\\
+    mu_{20} - \\mu_{02}}{2}\\right)^2 + \\mu_{11}^2}}.$$\n\n### Definition and conventions\n\
+    \nThe axis-ratio definition $e = b/a$ used here satisfies $e = 1$ for a perfect\
+    \ circle and $e \\to 0$ for a highly elongated ellipse. **This definition differs\
+    \ from two other common conventions** that should not be confused with it:\n\n\
+    - *Geometric eccentricity*: $\\varepsilon = \\sqrt{1 - b^2/a^2}$, which equals\
+    \ 0 for a circle and approaches 1 for a highly elongated ellipse.\n- *Flattening\
+    \ (oblateness)*: $f = 1 - b/a$, which equals 0 for a circle.\n\nThis quantity\
+    \ uses exclusively the axis-ratio convention $e = b/a$. Eccentricity $\\varepsilon$\
+    \ and flattening $f$ can be recovered as $\\varepsilon = \\sqrt{1 - e^2}$ and\
+    \ $f = 1 - e$.\n\n### Physical context\n\nFor a well-designed and well-aligned\
+    \ spectrometer, the fiber image on the focal plane is ideally circular ($e = 1$).\
+    \ Deviations arise from:\n\n- Optical aberrations (astigmatism, coma) in the coupling\
+    \ optics or spectrometer fore-optics.\n- Mechanical misalignment of the fiber\
+    \ with respect to the optical axis.\n- Non-uniform illumination of the fiber face.\n\
+    - Intrinsic fiber geometry (e.g., non-circular fiber cores).\n\n**Typical values**:\
+    \ For well-aligned systems, $e$ is typically in the range $0.90$\u2013$1.00$.\
+    \ Values below $\\sim 0.85$ indicate significant aberration or misalignment and\
+    \ may degrade spectral resolution and throughput uniformity across the fiber bundle.\n\
+    \n### Impact on spectroscopic measurements\n\nEllipticity of the fiber image affects\
+    \ the effective spectral resolution: an elongated image oriented along the dispersion\
+    \ direction of the spectrometer broadens the instrumental profile, increasing\
+    \ the effective instrument function width. Monitoring $e$ is therefore a diagnostic\
+    \ for optical alignment quality and for estimating contributions to spectral line-shape\
+    \ uncertainty.\n\nSee also the related quantity `diameter_of_optical_channel_image_plane`\
+    \ for the image-plane spot size, which is governed by the geometric relation $d_{\\\
+    mathrm{image}} = d_{\\mathrm{fiber}} \\times M$ where $M$ is the optical magnification."
+  unit: '1'
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:optical_fiber_image_ellipticity
+  - name:image_plane_diameter
+  constraints: []
+  sources:
+  - id: dd:spectrometer_visible/channel/fibre_image/circular/ellipticity
+    dd_path: spectrometer_visible/channel/fibre_image/circular/ellipticity
+    status: composed
+- name: first_coordinate_of_crystal_outline
+  kind: scalar
+  status: draft
+  description: First local coordinate (X1) of vertices defining the polygonal boundary
+    of the dispersing crystal element in its local (X1, X2) instrument reference frame.
+  documentation: 'The crystal outline is described as a closed polygon in the local
+    instrument coordinate system $(X1, X2)$, where $X1$ and $X2$ are orthogonal axes
+    fixed to the crystal element and defined by the diagnostic geometry. This quantity
+    gives the $X1$-coordinate positions of the polygon vertices that bound the active
+    dispersing surface of the crystal, enabling accurate solid-angle and ray-tracing
+    calculations for X-ray crystal spectrometer channels. The companion coordinate
+    [second_coordinate_of_crystal_outline](name:second_coordinate_of_crystal_outline)
+    provides the $X2$ positions of the same vertices; together the two arrays fully
+    specify the crystal boundary polygon. Analogous outline coordinates exist for
+    other optical elements in the spectrometer: [first_coordinate_of_reflector_outline](name:first_coordinate_of_reflector_outline)
+    and [first_coordinate_of_aperture_outline](name:first_coordinate_of_aperture_outline)
+    follow the same geometric convention. Typical vertex coordinate magnitudes are
+    on the order of millimeters to a few centimeters, reflecting the physical size
+    of crystal elements used in X-ray crystal spectrometers.
+
+
+    Sign convention: Positive when the vertex position lies in the positive $X1$ direction
+    of the local instrument reference frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:second_coordinate_of_crystal_outline
+  - name:first_coordinate_of_reflector_outline
+  - name:first_coordinate_of_aperture_outline
+  constraints: []
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/crystal/outline/x1
+    dd_path: spectrometer_x_ray_crystal/channel/crystal/outline/x1
+    status: composed
+- name: first_coordinate_of_filter_window_outline
+  kind: scalar
+  status: draft
+  description: First local coordinate (X1) of vertices defining the polygonal boundary
+    of a diagnostic filter window in its local (X1, X2) instrument reference frame.
+  documentation: 'The filter window outline is specified as a closed polygon in a
+    two-dimensional local coordinate system $(X1, X2)$ attached to the diagnostic
+    instrument. This quantity gives the $X1$ position of each vertex of that polygon,
+    enabling precise geometric description of rectangular, trapezoidal, or other non-circular
+    window apertures used in X-ray and photon diagnostics. Together with [second_coordinate_of_filter_window_outline](name:second_coordinate_of_filter_window_outline),
+    the full polygon is reconstructed by iterating over the vertex list. The local
+    frame is instrument-specific and is oriented by the unit vectors associated with
+    the channel geometry; the $X1$ axis is typically the first transverse axis of
+    the optical assembly. Typical vertex coordinates range from a fraction of a millimeter
+    to several centimeters depending on the size of the filter window. For circular
+    windows, the scalar quantity [radius_of_filter_window](name:radius_of_filter_window)
+    provides an alternative parameterization. The analogous coordinate for aperture
+    and detector outlines follows the same pattern as [first_coordinate_of_aperture_outline](name:first_coordinate_of_aperture_outline)
+    and [first_coordinate_of_detector_outline](name:first_coordinate_of_detector_outline).
+
+
+    Sign convention: Positive when the vertex position lies in the positive $X1$ direction
+    of the local instrument coordinate frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:second_coordinate_of_filter_window_outline
+  - name:radius_of_filter_window
+  - name:first_coordinate_of_aperture_outline
+  - name:first_coordinate_of_detector_outline
+  constraints: []
+  sources:
+  - id: dd:soft_x_rays/channel/filter_window/outline/x1
+    dd_path: soft_x_rays/channel/filter_window/outline/x1
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/outline/x1
+    dd_path: spectrometer_x_ray_crystal/channel/filter_window/outline/x1
+    status: composed
+- name: first_coordinate_of_reflector_outline
+  kind: scalar
+  status: draft
+  description: First local coordinate (X1) of vertices defining the polygonal boundary
+    of a spectrometer reflector element in its local (X1, X2) instrument reference
+    frame.
+  documentation: 'The first local coordinate X1 specifies the position of each vertex
+    along the primary axis of the reflector''s local instrument frame, collectively
+    defining the polygonal outline of the reflector element used in X-ray crystal
+    spectrometer channels. Together with the orthogonal [second coordinate](name:second_coordinate_of_reflector_outline),
+    the X1 vertex sequence forms a closed polygon that precisely represents the active
+    reflecting surface boundary, which governs the solid angle accepted by the reflector
+    and the spatial extent of Bragg diffraction onto the detector. The local $(X1,
+    X2)$ frame is defined by the instrument geometry and is independent of the global
+    cylindrical $(R, \phi, Z)$ machine frame; the transformation between frames is
+    handled externally. Typical reflector dimensions for X-ray crystal spectrometers
+    are on the order of millimeters to a few centimeters, so X1 vertex coordinates
+    span a comparable range. The outline is closely related to the analogous [first
+    coordinate of the crystal outline](name:first_coordinate_of_crystal_outline) and
+    [first coordinate of aperture outline](name:first_coordinate_of_aperture_outline),
+    which define boundaries for other optical elements in the same spectrometer channel.
+
+
+    Sign convention: Positive when the vertex position is in the positive X1 direction
+    of the local instrument reference frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:second_coordinate_of_reflector_outline
+  - name:first_coordinate_of_crystal_outline
+  - name:first_coordinate_of_aperture_outline
+  constraints: []
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/reflector/outline/x1
+    dd_path: spectrometer_x_ray_crystal/channel/reflector/outline/x1
+    status: composed
+- name: first_coordinate_radius_of_curvature_of_filter_window
+  kind: scalar
+  status: draft
+  description: Radius of curvature of a diagnostic filter window surface along the
+    first local coordinate direction X1, defined as the radius of the osculating circle
+    of the surface cross-section taken in the X1 direction at the window center. Applicable
+    to cylindrical or toroidal window geometries; a flat surface corresponds to an
+    infinite radius.
+  documentation: 'The first-coordinate radius of curvature $R_{c,X1}$ is the radius
+    of the osculating circle of the filter window surface profile taken in the first
+    local coordinate direction $X1$ of the instrument''s local surface frame $(X1,
+    X2)$. It is related to the first principal curvature $\kappa_1$ by $R_{c,X1} =
+    1/\kappa_1$. In this convention $R_{c,X1}$ is treated as a positive unsigned scalar;
+    the direction of bending (concave versus convex with respect to the incoming beam)
+    is determined separately by the curvature geometry type rather than by the sign
+    of this quantity.
+
+
+    For a flat window the surface has zero curvature and $R_{c,X1} \to \infty$; for
+    cylindrical windows the curvature is non-zero in one principal direction only,
+    while for a toroidal window both $R_{c,X1}$ and its companion $R_{c,X2}$ are finite
+    and generally unequal. When both principal radii are equal (spherical geometry)
+    this field and $R_{c,X2}$ take the same finite value and either alone fully specifies
+    the surface.
+
+
+    This quantity is required only for curved surface geometries; it need not be populated
+    for flat windows. Together with $R_{c,X2}$ (the second-coordinate radius of curvature)
+    it fully characterizes the local quadratic surface shape at the window center,
+    which is needed for accurate solid-angle and photon-transmission calculations
+    in X-ray diagnostic systems.
+
+
+    Typical values range from roughly 10 mm for tightly curved crystal spectrometer
+    filter windows to several meters for gently curved soft X-ray foil windows. The
+    first coordinate width of the filter window along the same $X1$ direction sets
+    the physical aperture over which this curvature is exercised.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:second_coordinate_radius_of_curvature_of_filter_window
+  - name:first_coordinate_width_of_filter_window
+  - name:radius_of_filter_window
+  - name:first_coordinate_radius_of_curvature_of_reflector
+  constraints: []
+  sources:
+  - id: dd:soft_x_rays/channel/filter_window/x1_curvature
+    dd_path: soft_x_rays/channel/filter_window/x1_curvature
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/x1_curvature
+    dd_path: spectrometer_x_ray_crystal/channel/filter_window/x1_curvature
+    status: composed
+- name: first_coordinate_radius_of_curvature_of_reflector
+  kind: scalar
+  status: draft
+  description: Radius of curvature of the reflector surface in the first local coordinate
+    (X1) direction, defined as the radius of the osculating circle at the surface
+    cross-section taken perpendicular to the X2 axis. A flat surface corresponds to
+    an infinite radius; finite values describe curved geometries such as cylindrical,
+    toroidal, or ellipsoidal reflectors.
+  documentation: 'The first-coordinate radius of curvature $R_1$ is the radius of
+    the osculating circle that best approximates the reflector surface profile along
+    the X1 direction at a given point. Formally, if $\kappa_1$ is the principal curvature
+    in the X1 direction at the surface point of interest, then $R_1 = 1/|\kappa_1|$,
+    where the osculating circle lies in the plane containing the X1 axis and the surface
+    normal at that point. This quantity is reported as a positive magnitude; the sign
+    of the curvature (concave versus convex) is not encoded in this scalar.
+
+
+    For a reflector with anisotropic curvature, $R_1$ and the companion second-coordinate
+    radius $R_2$ (see [second_coordinate_radius_of_curvature_of_reflector](name:second_coordinate_radius_of_curvature_of_reflector))
+    together specify the local surface shape: a spherical reflector has $R_1 = R_2$;
+    a cylindrical reflector has one finite and one infinite radius; a toroidal or
+    ellipsoidal reflector has two distinct finite values. For an ellipsoidal surface,
+    the local principal radii depend on the position along the surface and cannot
+    be inferred from the semi-axes alone without specifying the evaluation point.
+
+
+    This quantity is meaningful only when the reflector curvature type corresponds
+    to a geometry requiring an explicit radius in the X1 direction (e.g., cylindrical,
+    toroidal, or ellipsoidal types); for flat or spherical reflectors described by
+    a single scalar, see [radius_of_reflector](name:radius_of_reflector). The lateral
+    extent of the reflector in the X1 direction is described by [first_coordinate_width_of_reflector](name:first_coordinate_width_of_reflector).
+    The analogous quantity for diagnostic filter windows is [first_coordinate_radius_of_curvature_of_filter_window](name:first_coordinate_radius_of_curvature_of_filter_window).
+
+
+    Typical values range from tens of millimeters for tightly curved crystal or mirror
+    optics to several meters for large grazing-incidence or long-focal-length reflector
+    designs.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:radius_of_reflector
+  - name:first_coordinate_width_of_reflector
+  - name:first_coordinate_radius_of_curvature_of_filter_window
+  constraints: []
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/reflector/x1_curvature
+    dd_path: spectrometer_x_ray_crystal/channel/reflector/x1_curvature
+    status: composed
+- name: first_coordinate_width_of_aperture
+  kind: scalar
+  status: draft
+  description: Full width of a diagnostic channel collimating aperture along the first
+    local coordinate direction (X1), applicable when the aperture has rectangular
+    geometry. This is a nonnegative geometric side length equal to the physical extent
+    of the clear opening, not an effective or projected width.
+  documentation: 'The quantity $w_{X1}$ is the full physical width of a rectangular
+    collimating aperture measured along the first local coordinate axis (X1). It is
+    defined as the extent of the clear opening in the X1 direction and is strictly
+    nonnegative: $w_{X1} \geq 0$. This width is the actual geometric side length of
+    the aperture opening, not an effective, projected, or transmission-weighted width.
+
+
+    The X1 axis belongs to a local orthonormal frame $(\hat{X1}, \hat{X2}, \hat{X3})$
+    attached to the aperture. For a planar rectangular aperture the open area is $A
+    = w_{X1} \times w_{X2}$, where $w_{X2}$ is the corresponding width in the second
+    local coordinate direction.
+
+
+    This quantity is meaningful only when the aperture geometry type is rectangular
+    (geometry_type = 3). For circular apertures the relevant quantity is the aperture
+    radius.
+
+
+    Typical values range from fractions of a millimeter for high-resolution spectrometer
+    slits to several centimeters for broad-acceptance neutron diagnostic collimators.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:radius_of_aperture
+  - name:second_coordinate_width_of_aperture
+  - name:first_coordinate_width_of_detector_aperture
+  constraints: []
+  sources:
+  - id: dd:neutron_diagnostic/detector/aperture/x1_width
+    dd_path: neutron_diagnostic/detector/aperture/x1_width
+    status: attached
+  - id: dd:neutron_diagnostic/detector/geometry/x1_width
+    dd_path: neutron_diagnostic/detector/geometry/x1_width
+    status: attached
+  - id: dd:neutron_diagnostic/detectors/aperture/x1_width
+    dd_path: neutron_diagnostic/detectors/aperture/x1_width
+    status: attached
+  - id: dd:neutron_diagnostic/detectors/detector/x1_width
+    dd_path: neutron_diagnostic/detectors/detector/x1_width
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/aperture/x1_width
+    dd_path: spectrometer_x_ray_crystal/channel/aperture/x1_width
+    status: composed
+- name: first_coordinate_width_of_crystal
+  kind: scalar
+  status: draft
+  description: Full width of the dispersing crystal in the first local coordinate
+    (X1) direction, applicable for rectangular crystal geometry.
+  documentation: 'The first-coordinate width $w_{X1}$ defines the physical extent
+    of the dispersing crystal along the X1 axis of the local instrument reference
+    frame $(X1, X2)$, which is attached to the crystal element and distinct from the
+    machine cylindrical frame $(R, \phi, Z)$. This dimension is used when the crystal
+    geometry is rectangular; for non-rectangular boundaries, the outline vertices
+    defined by [first_coordinate_of_crystal_outline](name:first_coordinate_of_crystal_outline)
+    and [second_coordinate_of_crystal_outline](name:second_coordinate_of_crystal_outline)
+    should be used instead. Together with [second_coordinate_width_of_crystal](name:second_coordinate_width_of_crystal),
+    which gives the orthogonal X2 extent, these two widths fully characterize the
+    rectangular active area of the crystal. The crystal curvature in the X1 direction
+    is separately described by [first_coordinate_radius_of_curvature_of_crystal](name:first_coordinate_radius_of_curvature_of_crystal).
+    Typical crystal dimensions in X-ray crystal spectrometers range from a few millimeters
+    to several tens of millimeters depending on the spectrometer design and the targeted
+    spectral resolution.
+
+
+    Sign convention: Positive when the width is measured in the direction of increasing
+    X1 coordinate within the local instrument reference frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_coordinate_of_crystal_outline
+  - name:second_coordinate_of_crystal_outline
+  - name:second_coordinate_width_of_crystal
+  - name:first_coordinate_radius_of_curvature_of_crystal
+  constraints: []
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/crystal/x1_width
+    dd_path: spectrometer_x_ray_crystal/channel/crystal/x1_width
+    status: composed
+- name: first_coordinate_width_of_filter_window
+  kind: scalar
+  status: draft
+  description: Full width of a diagnostic filter window in the first local coordinate
+    (X1) direction, applicable for rectangular filter geometry.
+  documentation: 'The first coordinate width $w_{X1}$ defines the full extent of a
+    rectangular diagnostic filter window along the X1 axis of the instrument''s local
+    reference frame $(X1, X2)$. Filter windows attenuate or spectrally select the
+    radiation reaching a detector; their precise dimensions determine the solid angle
+    and spectral bandwidth accepted by the channel. This quantity applies only when
+    the filter geometry is rectangular (as opposed to circular, for which [radius
+    of filter window](name:radius_of_filter_window) is used instead). The complementary
+    width along X2 is given by [second coordinate width of filter window](name:second_coordinate_width_of_filter_window),
+    and the analogous detector dimension is [first coordinate width of detector](name:first_coordinate_width_of_detector).
+    Typical values range from sub-millimeter to several centimeters depending on the
+    diagnostic application (crystal X-ray spectrometers, hard or soft X-ray cameras).
+    The polygonal outline of the filter window in the local frame is described by
+    [first coordinate of filter window outline](name:first_coordinate_of_filter_window_outline).
+
+
+    Sign convention: Positive when the width extends in the direction of increasing
+    X1 coordinate.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:radius_of_filter_window
+  - name:second_coordinate_width_of_filter_window
+  - name:first_coordinate_width_of_detector
+  - name:first_coordinate_of_filter_window_outline
+  constraints: []
+  sources:
+  - id: dd:soft_x_rays/channel/filter_window/x1_width
+    dd_path: soft_x_rays/channel/filter_window/x1_width
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/x1_width
+    dd_path: spectrometer_x_ray_crystal/channel/filter_window/x1_width
+    status: composed
+- name: first_coordinate_width_of_reflector
+  kind: scalar
+  status: draft
+  description: Full width of a rectangular spectrometer reflector element measured
+    as the non-negative span between opposite edges in the local X1 direction. This
+    scalar is defined purely by the reflector geometry and is independent of any choice
+    of element center or reference origin.
+  documentation: 'The quantity $w_{X1}$ is the full edge-to-edge extent of a rectangular
+    reflector element along its local first coordinate axis $X1$. It is a non-negative
+    scalar representing the total span between the two opposing edges of the reflector
+    in the $X1$ direction:
+
+
+    $$w_{X1} = x_{1,\mathrm{max}} - x_{1,\mathrm{min}} \geq 0$$
+
+
+    where $x_{1,\mathrm{max}}$ and $x_{1,\mathrm{min}}$ are the maximum and minimum
+    $X1$ coordinates of the reflector boundary, respectively. Because $w_{X1}$ is
+    a full width, it is strictly non-negative and carries no directional sign: it
+    does not depend on the position of the element center or on which edge is taken
+    as the reference.
+
+
+    This quantity applies only when the reflector geometry type is rectangular (geometry_type
+    index = 3). For curved or toroidal reflector geometries, the relevant size parameters
+    are radii of curvature rather than widths.
+
+
+    Typical values range from a few millimeters to several tens of millimeters depending
+    on the spectrometer design and X-ray crystal optics configuration.
+
+
+    See also the complementary quantity `second_coordinate_width_of_reflector` ($w_{X2}$),
+    which gives the full width in the orthogonal local $X2$ direction, and `first_coordinate_radius_of_curvature_of_reflector`
+    for curved reflector geometry.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:second_coordinate_width_of_reflector
+  - name:radius_of_reflector
+  - name:first_coordinate_radius_of_curvature_of_reflector
+  - name:first_coordinate_of_reflector_outline
+  constraints: []
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/reflector/x1_width
+    dd_path: spectrometer_x_ray_crystal/channel/reflector/x1_width
+    status: composed
+- name: instrument_function_central_wavelength
+  kind: scalar
+  status: draft
+  description: Peak wavelength of the spectral response kernel (instrument function)
+    of an X-ray crystal spectrometer channel, defined as the wavelength at which the
+    kernel attains its maximum value, expressed in absolute wavelength units (meters).
+  documentation: 'The instrument function $f(\lambda)$ of an X-ray crystal spectrometer
+    channel describes how the spectrometer broadens and redistributes spectral radiance
+    as a function of wavelength. The central wavelength $\lambda_0$ is the peak of
+    this response kernel, i.e., the wavelength satisfying
+
+
+    $$\frac{d f}{d \lambda}\bigg|_{\lambda = \lambda_0} = 0, \quad f(\lambda_0) =
+    \max_\lambda f(\lambda).$$
+
+
+    This quantity locates the center of the line-spread profile in absolute wavelength
+    space and sets the reference point for computing spectral shifts and widths. In
+    practice $\lambda_0$ corresponds to the Bragg-reflected wavelength of the crystal
+    at the nominal alignment angle, and for typical X-ray crystal spectrometers it
+    falls in the range $0.1\,\text{nm}$ to $1\,\text{nm}$ ($10^{-10}$ to $10^{-9}$
+    m), covering emission lines from highly ionized mid-Z to high-Z impurity species
+    such as helium-like argon ($\approx 0.395\,\text{nm}$) or hydrogen-like iron ($\approx
+    0.178\,\text{nm}$).
+
+
+    Knowing $\lambda_0$ is essential for interpreting Doppler shifts (which yield
+    ion flow velocities) and Doppler broadening (which yields ion temperatures), as
+    well as for correcting instrumental contributions to observed line widths. The
+    central wavelength is independent of the plasma emission intensity and is determined
+    solely by the crystal and detector geometry at the time of calibration.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:spectral_line_central_wavelength
+  - name:photon_wavelength_of_crystal_spectrometer_pixel
+  - name:optical_filter_central_wavelength
+  constraints: []
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/bin/instrument_function/centre
+    dd_path: spectrometer_x_ray_crystal/channel/bin/instrument_function/centre
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/instrument_function/centre
+    dd_path: spectrometer_x_ray_crystal/channel/instrument_function/centre
+    status: composed
+- name: instrument_function_gaussian_width
+  kind: scalar
+  status: draft
+  description: Standard deviation (sigma) of the Gaussian instrument function of an
+    X-ray crystal spectrometer, quantifying spectral broadening due to the optical
+    response of the instrument.
+  documentation: "The instrument function describes the spectral response kernel of\
+    \ a spectrometer channel \u2014 the output line shape produced by a monochromatic\
+    \ input. When approximated as a Gaussian, its width is fully characterized by\
+    \ the standard deviation $\\sigma$, so that the kernel takes the form $K(\\lambda)\
+    \ = (\\sigma\\sqrt{2\\pi})^{-1}\\exp[-(\\lambda - \\lambda_0)^2 / (2\\sigma^2)]$,\
+    \ where $\\lambda_0$ is the central wavelength (see [instrument_function_central_wavelength](name:instrument_function_central_wavelength))\
+    \ and $\\lambda$ is wavelength. The full width at half maximum relates to $\\\
+    sigma$ as $\\text{FWHM} = 2\\sqrt{2\\ln 2}\\,\\sigma \\approx 2.355\\,\\sigma$.\
+    \ For X-ray crystal spectrometers used in fusion diagnostics, $\\sigma$ is typically\
+    \ in the range $10^{-13}$\u2013$10^{-12}$ m (sub-picometer to picometer scale),\
+    \ depending on crystal type, geometry, and photon energy. It is determined from\
+    \ calibration measurements using known spectral lines or from optical ray-tracing\
+    \ models that account for contributions from the [spectrometer_entrance_slit_width](name:spectrometer_entrance_slit_width),\
+    \ crystal rocking curve, and detector point-spread function. This quantity applies\
+    \ per spectrometer channel or per detector bin when the instrument function varies\
+    \ across the detector plane.\n\nSign convention: Positive when the standard deviation\
+    \ $\\sigma$ is greater than zero, corresponding to a physically realizable finite-width\
+    \ Gaussian kernel."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:instrument_function_central_wavelength
+  - name:spectrometer_entrance_slit_width
+  constraints: []
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/bin/instrument_function/sigma
+    dd_path: spectrometer_x_ray_crystal/channel/bin/instrument_function/sigma
+    status: composed
+- name: major_radius_of_grating_summit
+  kind: scalar
+  status: draft
+  description: "Major-radius coordinate R of the summit (apex) point of a spectrometer\
+    \ diffraction grating or crystal, in the right-handed cylindrical (R, \u03C6,\
+    \ Z) frame."
+  documentation: "The major radius $R$ of a grating or crystal summit locates the\
+    \ apex of the dispersing element in the machine cylindrical frame $(R, \\phi,\
+    \ Z)$, where $R$ is the perpendicular distance from the machine symmetry axis.\
+    \ Together with [vertical_coordinate_of_grating_summit](name:vertical_coordinate_of_grating_summit)\
+    \ and [toroidal_angle_of_grating_summit](name:toroidal_angle_of_grating_summit),\
+    \ this quantity completes the cylindrical coordinate triple $(R, \\phi, Z)$ needed\
+    \ to fully specify the summit position \u2014 a prerequisite for ray-tracing and\
+    \ Rowland-circle geometry calculations in UV and X-ray crystal spectrometer systems.\
+    \ Typical values range from roughly 1.5 m to 10 m depending on the tokamak or\
+    \ stellarator size and port location. The coordinate is derived from engineering\
+    \ survey data or optical alignment measurements during installation and is held\
+    \ fixed unless the grating is repositioned.\n\nSign convention: Positive when\
+    \ $R$ is measured radially outward from the machine symmetry axis, as is always\
+    \ the case for a physically realizable major radius."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:vertical_coordinate_of_grating_summit
+  - name:toroidal_angle_of_grating_summit
+  constraints: []
+  sources:
+  - id: dd:spectrometer_uv/channel/grating/summit/r
+    dd_path: spectrometer_uv/channel/grating/summit/r
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/crystal/summit/r
+    dd_path: spectrometer_x_ray_crystal/crystal/summit/r
+    status: composed
+- name: photon_wavelength_of_detector_pixel
+  kind: scalar
+  status: draft
+  description: Photon wavelength assigned to a generic detector pixel, providing the
+    spectral axis calibration for any pixel-based radiation diagnostic.
+  documentation: "The photon wavelength at a detector pixel gives the central wavelength\
+    \ $\\lambda$ of incoming photons mapped to that pixel by the instrument's dispersion\
+    \ relation, establishing the spectral calibration axis. For Bragg-reflecting crystal\
+    \ spectrometers the mapping follows $2d\\sin\\theta = n\\lambda$, where $d$ is\
+    \ the crystal plane spacing, $\\theta$ is the Bragg angle at the pixel position,\
+    \ and $n$ is the diffraction order; for grating-based instruments an analogous\
+    \ grating equation applies. Because the dispersion is generally nonlinear, each\
+    \ pixel carries a distinct wavelength value rather than a uniform spectral step.\
+    \ Typical X-ray emission spectroscopy targets wavelengths in the range $10^{-11}$\u2013\
+    $10^{-9}$ m (0.01\u20131 nm), corresponding to photon energies of order 1\u2013\
+    100 keV. The wavelength map is derived from geometric ray-tracing models constrained\
+    \ by known line positions (e.g., He-like or H-like charge-exchange emission) during\
+    \ wavelength calibration. The more specific [photon wavelength of crystal spectrometer\
+    \ pixel](name:photon_wavelength_of_crystal_spectrometer_pixel) applies when the\
+    \ detector is the imaging plane of a crystal spectrometer and the full 2D wavelength\
+    \ map accounts for the elliptical curvature of iso-wavelength surfaces. The [instrument\
+    \ function central wavelength](name:instrument_function_central_wavelength) gives\
+    \ the peak of the spectrometer's spectral response kernel at a given channel and\
+    \ complements the per-pixel calibration described here."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:photon_wavelength_of_crystal_spectrometer_pixel
+  - name:instrument_function_central_wavelength
+  constraints: []
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/bin/wavelength
+    dd_path: spectrometer_x_ray_crystal/channel/bin/wavelength
+    status: composed
+- name: radius_of_detector
+  kind: scalar
+  status: draft
+  description: Radius of the circular active area of a diagnostic detector element,
+    applicable when the detector geometry is circular rather than rectangular.
+  documentation: 'The detector radius $r_d$ characterizes the circular sensitive area
+    of an individual diagnostic channel, directly determining the solid angle subtended
+    at the detector and hence the geometric throughput (etendue) of the measurement
+    system. For a circular detector of radius $r_d$ separated by distance $L$ from
+    a collimating aperture, the geometric etendue scales as $\mathcal{G} \propto \pi
+    r_d^2 \cdot \Omega$, where $\Omega$ is the solid angle accepted by the aperture.
+    Typical detector radii range from 0.5 mm to 10 mm for hard and soft X-ray spectrometer
+    or bolometer channels in tokamak diagnostics. This quantity is only meaningful
+    when the detector cross-section is circular; for rectangular detectors, [first_coordinate_width_of_detector](name:first_coordinate_width_of_detector)
+    and [second_coordinate_width_of_detector](name:second_coordinate_width_of_detector)
+    provide the equivalent geometry. The circular detector geometry is analogous to
+    the [radius_of_aperture](name:radius_of_aperture) and [radius_of_filter_window](name:radius_of_filter_window)
+    constructs describing other optical elements in the same diagnostic channel.
+
+
+    Sign convention: Positive when the radius is measured outward from the detector
+    center.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_coordinate_width_of_detector
+  - name:second_coordinate_width_of_detector
+  - name:radius_of_aperture
+  - name:radius_of_filter_window
+  constraints: []
+  sources:
+  - id: dd:mse/channel/detector/radius
+    dd_path: mse/channel/detector/radius
+    status: attached
+  - id: dd:soft_x_rays/channel/detector/radius
+    dd_path: soft_x_rays/channel/detector/radius
+    status: composed
+- name: radius_of_filter_window
+  kind: scalar
+  status: draft
+  description: Radius of a circular diagnostic filter window, defined as the distance
+    from the geometric center of the window to the edge of its clear optical opening.
+    This quantity applies only when the window has circular geometry; rectangular
+    windows are characterized by orthogonal width quantities instead.
+  documentation: "A diagnostic filter window placed in front of a detector or aperture\
+    \ attenuates or spectrally selects incident radiation. When the window has circular\
+    \ geometry, its size is fully characterized by a single radius $r_{\\rm fw}$,\
+    \ defined as the distance from the geometric center of the circular opening to\
+    \ the edge of its clear optical aperture \u2014 that is, the unobscured region\
+    \ through which radiation passes, excluding any mount, frame, or retaining ring\
+    \ that may partially occlude the opening.\n\nFor a circular window of radius $r_{\\\
+    rm fw}$ at distance $d$ from a point source (with $r_{\\rm fw} \\ll d$), the projected\
+    \ solid angle subtended by the clear opening is $\\Omega \\approx \\pi r_{\\rm\
+    \ fw}^2 / d^2$, and the accepted photon flux scales accordingly. Corrections for\
+    \ finite source extent, off-axis geometry, or partial vignetting by mounts may\
+    \ be required in precision radiometric calibrations.\n\nTypical radii range from\
+    \ sub-millimeter values in collimated crystal spectrometer channels to several\
+    \ centimeters in wide-field soft-X-ray or bolometric cameras; values are determined\
+    \ from engineering drawings or optical metrology.\n\nThis quantity is defined\
+    \ only when the filter window has circular geometry. Windows with rectangular\
+    \ geometry are instead described by [first_coordinate_width_of_filter_window](name:first_coordinate_width_of_filter_window)\
+    \ and [second_coordinate_width_of_filter_window](name:second_coordinate_width_of_filter_window).\
+    \ The clear aperture radius of the same channel is given by [radius_of_aperture](name:radius_of_aperture),\
+    \ and the active detector element radius by [radius_of_detector](name:radius_of_detector)."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_coordinate_width_of_filter_window
+  - name:second_coordinate_width_of_filter_window
+  - name:radius_of_aperture
+  - name:radius_of_detector
+  constraints: []
+  sources:
+  - id: dd:soft_x_rays/channel/filter_window/radius
+    dd_path: soft_x_rays/channel/filter_window/radius
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/radius
+    dd_path: spectrometer_x_ray_crystal/channel/filter_window/radius
+    status: composed
+- name: radius_of_reflector
+  kind: scalar
+  status: draft
+  description: Radius of a circular reflector element in a crystal X-ray spectrometer,
+    measured from the geometric center of the reflector to its circular boundary edge.
+    This quantity is defined only when the reflector cross-section is circular rather
+    than rectangular.
+  documentation: 'The radius $r$ of a reflector element describes the size of its
+    circular cross-section, measured from the geometric center of the reflector to
+    the boundary of the physical element. This is a strictly non-negative scalar quantity;
+    it carries no directional sign and no outward-positive convention applies.
+
+
+    Formally, for a reflector with circular cross-section of area $A$,
+
+    $$r = \sqrt{A / \pi},$$
+
+    and the reflector footprint is the disk $\{(u,v) : u^2 + v^2 \le r^2\}$ in the
+    plane of the element, where $(u, v)$ are coordinates in the reflector plane centered
+    on its geometric center.
+
+
+    This quantity is applicable only when the reflector geometry type is circular
+    (as opposed to rectangular, which is parameterized by half-widths). It describes
+    the full physical extent of the reflector element and may or may not coincide
+    with the optically active reflecting area; the optically active region is bounded
+    by this radius unless a smaller coating or crystal area is specified separately.
+
+
+    Typical values for laboratory or tokamak X-ray crystal spectrometer reflectors
+    range from roughly 5 mm to 50 mm (0.005 m to 0.05 m), depending on collection
+    solid angle requirements and crystal size.
+
+
+    This quantity is geometrically distinct from the radius of curvature of a curved
+    reflector (e.g., a bent crystal), which characterizes the optical focusing property
+    of the surface rather than the lateral extent of the element.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_coordinate_radius_of_curvature_of_reflector
+  - name:first_coordinate_width_of_reflector
+  - name:second_coordinate_of_reflector_outline
+  constraints: []
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/reflector/radius
+    dd_path: spectrometer_x_ray_crystal/channel/reflector/radius
+    status: composed
+- name: second_coordinate_of_crystal_outline
+  kind: scalar
+  status: draft
+  description: Second local coordinate (X2) of vertices defining the polygonal boundary
+    of the dispersing crystal element in its local (X1, X2) instrument reference frame.
+  documentation: 'The second local coordinate $X_2$ specifies vertex positions along
+    the X2 axis of the crystal outline polygon, fully describing the crystal''s geometric
+    boundary in the two-dimensional instrument frame $(X_1, X_2)$ local to the dispersing
+    element. Together with the companion [first coordinate](name:first_coordinate_of_crystal_outline),
+    the ordered set of $(X_1, X_2)$ vertex pairs defines the polygonal aperture or
+    active surface of the crystal used in X-ray crystal spectrometers for Bragg diffraction.
+    The local frame $(X_1, X_2)$ is an instrument-specific orthogonal coordinate system
+    attached to the crystal element; its orientation relative to the machine cylindrical
+    $(R, \phi, Z)$ frame is defined by the instrument geometry metadata. Vertex coordinates
+    are determined from engineering drawings or optical metrology surveys, with typical
+    crystal dimensions ranging from a few millimeters to tens of millimeters. The
+    analogous quantity for a spectrometer reflector is [second_coordinate_of_reflector_outline](name:second_coordinate_of_reflector_outline),
+    and the corresponding aperture quantity is [second_coordinate_of_aperture_outline](name:second_coordinate_of_aperture_outline).
+
+
+    Sign convention: Positive when the vertex position is in the positive $X_2$ direction
+    of the local instrument reference frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_coordinate_of_crystal_outline
+  - name:second_coordinate_of_reflector_outline
+  - name:second_coordinate_of_aperture_outline
+  constraints: []
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/crystal/outline/x2
+    dd_path: spectrometer_x_ray_crystal/channel/crystal/outline/x2
+    status: composed
+- name: second_coordinate_of_detector_outline
+  kind: scalar
+  status: draft
+  description: Second local coordinate (X2) of vertices defining the polygonal boundary
+    of a diagnostic detector element in its local (X1, X2) instrument reference frame.
+  documentation: 'The second local coordinate X2 specifies vertex positions along
+    the X2 axis of the local instrument frame used to describe the polygonal outline
+    of a detector element. Together with the [first local coordinate X1](name:first_coordinate_of_detector_outline),
+    the ordered set of $(X1, X2)$ vertex pairs fully defines the detector''s active-area
+    boundary polygon, which is required for computing the etendue, solid angle, and
+    geometric weight factors entering line-of-sight integration. The local $(X1, X2)$
+    frame is an instrument-specific Cartesian frame attached to the detector; its
+    orientation relative to the machine cylindrical $(R, \phi, Z)$ frame is established
+    by the detector''s unit vectors. Vertex coordinates are defined in sequence around
+    the boundary, and the polygon is closed by the convention that the last vertex
+    connects back to the first. Typical detector active-area extents range from tenths
+    of a millimeter to several centimeters depending on the diagnostic, so X2 values
+    span a comparable range centered near zero in the local frame. The same outline
+    convention applies to apertures via [second_coordinate_of_aperture_outline](name:second_coordinate_of_aperture_outline)
+    and to filter windows via [second_coordinate_of_filter_window_outline](name:second_coordinate_of_filter_window_outline).
+
+
+    Sign convention: Positive when the vertex position lies in the positive X2 direction
+    of the local instrument coordinate frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_coordinate_of_detector_outline
+  - name:second_coordinate_of_aperture_outline
+  - name:second_coordinate_of_filter_window_outline
+  constraints: []
+  sources:
+  - id: dd:bolometer/channel/detector/outline/x2
+    dd_path: bolometer/channel/detector/outline/x2
+    status: composed
+  - id: dd:mse/channel/detector/outline/x2
+    dd_path: mse/channel/detector/outline/x2
+    status: composed
+  - id: dd:neutron_diagnostic/detectors/detector/outline/x2
+    dd_path: neutron_diagnostic/detectors/detector/outline/x2
+    status: attached
+- name: second_coordinate_of_filter_window_outline
+  kind: scalar
+  status: draft
+  description: Second local coordinate (X2) of vertices defining the polygonal boundary
+    of a diagnostic filter window in its local (X1, X2) instrument reference frame.
+  documentation: 'The filter window outline is a closed polygon approximating the
+    physical aperture of a diagnostic filter element; each vertex is specified by
+    a pair of local coordinates $(X_1, X_2)$ measured in the plane of the window.
+    This quantity gives the $X_2$ component of each vertex, fully characterizing the
+    window geometry when combined with [first_coordinate_of_filter_window_outline](name:first_coordinate_of_filter_window_outline).
+    Filter windows are used across X-ray and soft-X-ray diagnostic channels to define
+    the energy passband and spatial acceptance; the polygonal outline is required
+    for accurate solid-angle and transmission calculations. The local $(X_1, X_2)$
+    frame is an instrument-fixed two-dimensional reference frame whose origin and
+    orientation are defined by the diagnostic assembly; it is distinct from the machine
+    cylindrical $(R, \phi, Z)$ frame. Typical coordinate values range from a few millimeters
+    to a few centimeters depending on the filter aperture size. The companion coordinate
+    [second_coordinate_of_detector_outline](name:second_coordinate_of_detector_outline)
+    follows the same convention for detector elements, and [second_coordinate_of_aperture_outline](name:second_coordinate_of_aperture_outline)
+    covers collimating apertures.
+
+
+    Sign convention: Positive when the $X_2$ coordinate is in the positive sense of
+    the local instrument $X_2$ axis.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_coordinate_of_filter_window_outline
+  - name:second_coordinate_of_detector_outline
+  - name:second_coordinate_of_aperture_outline
+  constraints: []
+  sources:
+  - id: dd:soft_x_rays/channel/filter_window/outline/x2
+    dd_path: soft_x_rays/channel/filter_window/outline/x2
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/outline/x2
+    dd_path: spectrometer_x_ray_crystal/channel/filter_window/outline/x2
+    status: composed
+- name: second_coordinate_of_reflector_outline
+  kind: scalar
+  status: draft
+  description: Second local coordinate (X2) of vertices defining the polygonal boundary
+    of a spectrometer reflector element in its local (X1, X2) instrument reference
+    frame.
+  documentation: 'The reflector outline is represented as a closed polygon whose vertices
+    are specified in a local instrument frame $(X_1, X_2)$ attached to the reflector
+    element. This quantity gives the $X_2$ coordinate of each vertex, completing the
+    two-dimensional description of the reflector boundary alongside the companion
+    [first coordinate](name:first_coordinate_of_reflector_outline). The $X_2$ axis
+    is the second orthogonal direction in the local plane of the reflector surface;
+    together with $X_1$, it defines the shape used for geometric ray-tracing and solid-angle
+    calculations in X-ray crystal spectrometers. The local frame is instrument-specific
+    and its orientation relative to the laboratory cylindrical $(R, \phi, Z)$ frame
+    is given by the associated unit vectors for the reflector assembly. Analogous
+    coordinate pairs are defined for other optical components: [second coordinate
+    of crystal outline](name:second_coordinate_of_crystal_outline) and [second coordinate
+    of aperture outline](name:second_coordinate_of_aperture_outline) follow the same
+    convention.
+
+
+    Sign convention: Positive when the vertex position lies in the positive $X_2$
+    direction of the local instrument reference frame as defined by the second unit
+    vector of the reflector assembly.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_coordinate_of_reflector_outline
+  - name:second_coordinate_of_crystal_outline
+  - name:second_coordinate_of_aperture_outline
+  constraints: []
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/reflector/outline/x2
+    dd_path: spectrometer_x_ray_crystal/channel/reflector/outline/x2
+    status: composed
+- name: second_coordinate_radius_of_curvature_of_filter_window
+  kind: scalar
+  status: draft
+  description: Radius of curvature of the filter window surface measured along the
+    second local coordinate direction (X2), defined as the radius of the osculating
+    circle to the surface cross-section curve in the X2 direction. Applies only when
+    the window curvature type index is 3 or 5, indicating a non-planar surface geometry
+    that is curved in X2.
+  documentation: 'The second-coordinate radius of curvature $R_2$ characterizes how
+    sharply the filter window surface bends along the local X2 direction. Formally,
+    if the surface is parameterized by the local coordinates $(X1, X2)$, then $R_2$
+    is the radius of the osculating circle to the curve obtained by holding $X1$ constant
+    and varying $X2$: $R_2 = \left(1 + \left(\frac{\partial z}{\partial X2}\right)^2\right)^{3/2}
+    \bigg/ \left|\frac{\partial^2 z}{\partial X2^2}\right|$, where $z$ is the surface
+    height along the local surface normal. A larger value of $R_2$ indicates a flatter
+    surface in the X2 direction; as $R_2 \to \infty$ the window approaches a plane
+    in that direction. Physically, $R_2$ is the distance from the surface to the center
+    of curvature along the local outward surface normal, measured in the X2 cross-section
+    plane.
+
+
+    This quantity is filled only when the curvature type index equals 3 (curved in
+    X2 only) or 5 (curved in both X1 and X2, i.e., a doubly curved surface such as
+    a spherical cap or a toroidal segment). When the index is 1 (flat) or 2 (curved
+    in X1 only), $R_2$ is not applicable and should not be populated.
+
+
+    Typical values for diagnostic filter windows range from tens of millimeters for
+    strongly curved focusing windows to several meters for nearly planar windows.
+    The quantity is always positive; the sense of bending (concave vs. convex relative
+    to the incoming radiation) is encoded separately through the curvature type index
+    rather than through the sign of $R_2$.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_coordinate_radius_of_curvature_of_filter_window
+  - name:second_coordinate_width_of_filter_window
+  - name:radius_of_filter_window
+  constraints: []
+  sources:
+  - id: dd:soft_x_rays/channel/filter_window/x2_curvature
+    dd_path: soft_x_rays/channel/filter_window/x2_curvature
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/x2_curvature
+    dd_path: spectrometer_x_ray_crystal/channel/filter_window/x2_curvature
+    status: composed
+- name: second_coordinate_width_of_crystal
+  kind: scalar
+  status: draft
+  description: Full width of the dispersing crystal in the second local coordinate
+    (X2) direction, measured as a non-negative extent between opposing crystal edges
+    for rectangular crystal geometry. This quantity characterizes the physical size
+    of the crystal along its X2 axis and applies only when the crystal geometry type
+    is rectangular.
+  documentation: 'The second local coordinate width $w_{X2}$ is the total physical
+    extent of the dispersing crystal along the local X2 axis, measured as the non-negative
+    distance between the two opposing crystal edges in that direction. For a rectangular
+    crystal, the crystal face spans from $-w_{X2}/2$ to $+w_{X2}/2$ about the crystal
+    center in the X2 direction, so $w_{X2} \geq 0$ by definition; it is not a signed
+    coordinate displacement.
+
+
+    This quantity refers to the full physical extent of the crystal body, not restricted
+    to the active reflecting area unless otherwise specified by the geometry definition.
+    Typical values for laboratory or tokamak X-ray crystal spectrometers range from
+    a few millimeters to several tens of millimeters, depending on the crystal material
+    and optical design.
+
+
+    The local coordinate system $(X1, X2, X3)$ is an intrinsic crystal-frame system
+    in which X1 and X2 are along the two crystal face directions and X3 is normal
+    to the crystal surface. This width applies only when the crystal geometry type
+    is rectangular (geometry_type index = 3). For non-rectangular geometries, the
+    crystal outline is described by explicit boundary coordinates rather than axis-aligned
+    widths.
+
+
+    Related quantities include the first local coordinate width $w_{X1}$ and the explicit
+    outline of the crystal in both local coordinate directions.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_coordinate_width_of_crystal
+  - name:second_coordinate_of_crystal_outline
+  - name:first_coordinate_of_crystal_outline
+  - name:second_coordinate_radius_of_curvature_of_crystal
+  constraints: []
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/crystal/x2_width
+    dd_path: spectrometer_x_ray_crystal/channel/crystal/x2_width
+    status: composed
+- name: second_coordinate_width_of_detector
+  kind: scalar
+  status: draft
+  description: Full width of a rectangular diagnostic detector element measured edge-to-edge
+    along the second local coordinate (X2) direction. This is a nonnegative side length
+    representing the physical extent of the active area of the detector. Applicable
+    only when the detector geometry type is rectangular.
+  documentation: "The second coordinate width $w_{X2}$ is the edge-to-edge physical\
+    \ dimension of a rectangular detector element along the X2 axis of its local instrument\
+    \ reference frame $(X1, X2)$, where X1 and X2 are two mutually orthogonal directions\
+    \ spanning the detector plane. Together with the first coordinate width $w_{X1}$,\
+    \ this quantity fully specifies the rectangular active area $A = w_{X1} \\cdot\
+    \ w_{X2}$, which enters directly into solid-angle and \xE9tendue calculations\
+    \ for the diagnostic channel.\n\nThe width is a nonnegative scalar magnitude ($w_{X2}\
+    \ \\geq 0$) representing the physical, not projected or effective, extent of the\
+    \ detector. Typical detector widths for fusion diagnostics range from fractions\
+    \ of a millimeter (e.g., bolometer foil strips) to several millimeters (e.g.,\
+    \ MSE photomultiplier entrance windows). Values are determined from mechanical\
+    \ drawings or direct metrology of the detector assembly.\n\nThis quantity applies\
+    \ only when the detector element has a rectangular geometry; circular detector\
+    \ elements are described by [radius_of_detector](name:radius_of_detector) instead.\
+    \ Compare with [second_coordinate_width_of_aperture](name:second_coordinate_width_of_aperture),\
+    \ which gives the corresponding width of the aperture element rather than the\
+    \ detector itself, and [first_coordinate_width_of_detector](name:first_coordinate_width_of_detector),\
+    \ which gives the complementary width along X1."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_coordinate_width_of_detector
+  - name:second_coordinate_width_of_detector_aperture
+  - name:second_coordinate_of_detector_outline
+  - name:radius_of_detector
+  constraints: []
+  sources:
+  - id: dd:bolometer/channel/detector/x2_width
+    dd_path: bolometer/channel/detector/x2_width
+    status: composed
+  - id: dd:mse/channel/detector/x2_width
+    dd_path: mse/channel/detector/x2_width
+    status: composed
+  - id: dd:soft_x_rays/channel/detector/x2_width
+    dd_path: soft_x_rays/channel/detector/x2_width
+    status: composed
+- name: second_coordinate_width_of_filter_window
+  kind: scalar
+  status: draft
+  description: Full width of a rectangular diagnostic filter window measured along
+    the X2 direction of the local instrument reference frame. This non-negative extent,
+    together with the X1-direction width, defines the active transmissive area of
+    the filter window for rectangular geometry (geometry_type index 3).
+  documentation: "The second-coordinate width $w_2$ is the edge-to-edge extent of\
+    \ the clear optical opening of a rectangular filter window along the X2 axis of\
+    \ the local instrument reference frame. For a rectangular filter geometry (geometry\\\
+    _type index 3), the active transmissive area is\n\n$$A_\\mathrm{filter} = w_1\
+    \ \\times w_2$$\n\nwhere $w_1$ is the complementary X1-direction extent given\
+    \ by `first_coordinate_width_of_filter_window`. Here $w_2 \\geq 0$ by definition;\
+    \ it is a non-negative scalar extent, not an oriented displacement.\n\nThis area\
+    \ $A_\\mathrm{filter}$ enters the geometric throughput (\xE9tendue) of the diagnostic\
+    \ channel alongside the solid angle subtended at the filter by the detector aperture.\
+    \ For X-ray crystal spectrometer and soft X-ray channels, the filter window area\
+    \ directly governs the photon flux admitted to the detector; narrower windows\
+    \ reduce background contamination but at the cost of signal throughput.\n\nTypical\
+    \ values range from fractions of a millimeter up to several centimeters depending\
+    \ on the diagnostic design and spectral range. This quantity is used only when\
+    \ the filter geometry is specified as rectangular (geometry\\_type index 3); for\
+    \ circular or annular filter geometries the window extent is instead described\
+    \ by a radius."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_coordinate_width_of_filter_window
+  - name:radius_of_filter_window
+  - name:second_coordinate_of_filter_window_outline
+  - name:first_coordinate_of_filter_window_outline
+  constraints: []
+  sources:
+  - id: dd:soft_x_rays/channel/filter_window/x2_width
+    dd_path: soft_x_rays/channel/filter_window/x2_width
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/x2_width
+    dd_path: spectrometer_x_ray_crystal/channel/filter_window/x2_width
+    status: composed
+- name: second_coordinate_width_of_reflector
+  kind: scalar
+  status: draft
+  description: Full edge-to-edge extent of a rectangular reflector element measured
+    along the second local coordinate direction X2, lying within the reflector surface
+    plane. This non-negative length, together with the first coordinate width, fully
+    characterizes the active area of a rectangular reflector. Applies only when the
+    reflector geometry type is rectangular.
+  documentation: 'The second coordinate width $w_2$ of a reflector is the full edge-to-edge
+    span of the reflecting surface measured along the X2 axis of the local instrument
+    reference frame $(X1, X2)$, where X1 and X2 are orthogonal axes lying in the reflector
+    plane. It is defined as the total distance between opposite edges projected onto
+    the X2 axis:
+
+
+    $$w_2 = x_{2,\mathrm{max}} - x_{2,\mathrm{min}}$$
+
+
+    where $x_{2,\mathrm{max}}$ and $x_{2,\mathrm{min}}$ are the outermost boundary
+    positions along X2, independent of any choice of element center or reference origin.
+    This quantity is strictly non-negative.
+
+
+    Together with [first_coordinate_width_of_reflector](name:first_coordinate_width_of_reflector),
+    $w_2$ fully characterizes the rectangular active area $w_1 \times w_2$ of the
+    reflector element. For a circular reflector, the relevant dimension is instead
+    the [radius_of_reflector](name:radius_of_reflector), and for polygonal boundaries
+    the X2 vertex positions are described by [second_coordinate_of_reflector_outline](name:second_coordinate_of_reflector_outline).
+    The corresponding surface curvature of the reflector in the X2 direction is captured
+    by [second_coordinate_radius_of_curvature_of_reflector](name:second_coordinate_radius_of_curvature_of_reflector).
+
+
+    This parameter applies only to rectangular reflector geometry. Typical X2 widths
+    for laboratory and fusion X-ray crystal spectrometer reflectors range from a few
+    millimeters to several centimeters, depending on the optical design and the desired
+    solid angle of radiation collection.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_coordinate_width_of_reflector
+  - name:second_coordinate_of_reflector_outline
+  - name:radius_of_reflector
+  constraints: []
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/reflector/x2_width
+    dd_path: spectrometer_x_ray_crystal/channel/reflector/x2_width
+    status: composed
+- name: spectral_line_central_wavelength
+  kind: scalar
+  status: draft
+  description: Vacuum wavelength at the line center of a spectral emission feature
+    observed by a visible or UV spectrometer channel, used to identify the emitting
+    ion species and charge state.
+  documentation: 'The central wavelength $\lambda_0$ of a spectral emission line is
+    the vacuum wavelength at which the line-integrated emissivity of a transition
+    between two quantum states reaches its peak, as defined by atomic physics (e.g.,
+    the Rydberg formula or quantum-mechanical transition energies). For Doppler-shifted
+    measurements, the observed $\lambda_0$ may deviate from the rest-frame tabulated
+    value $\lambda_{\rm rest}$ according to $\lambda_0 = \lambda_{\rm rest}(1 + v_\parallel/c)$,
+    where $v_\parallel$ is the line-of-sight plasma flow velocity and $c$ is the speed
+    of light; this shift is exploited in charge-exchange recombination spectroscopy
+    and passive emission spectroscopy to infer impurity ion velocities. Typical values
+    range from roughly 200 nm (UV transitions of highly ionized impurities such as
+    C IV or B V) to 800 nm (near-infrared lines of neutral deuterium or lower charge-state
+    impurities). The central wavelength is calibrated against known atomic reference
+    standards (e.g., neon or argon pen lamps) and may differ from the nominal [optical
+    filter central wavelength](name:optical_filter_central_wavelength) of the bandpass
+    filter used to select the line.
+
+
+    Sign convention: Positive when the wavelength value is greater than zero, as expected
+    for any physical electromagnetic transition.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:optical_filter_central_wavelength
+  constraints: []
+  sources:
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/calibrated_lines
+    dd_path: spectrometer_visible/channel/filter_spectrometer/calibrated_lines
+    status: attached
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/processed_line/wavelength_central
+    dd_path: spectrometer_visible/channel/filter_spectrometer/processed_line/wavelength_central
+    status: composed
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/processed_lines
+    dd_path: spectrometer_visible/channel/filter_spectrometer/processed_lines
+    status: attached
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/raw_lines
+    dd_path: spectrometer_visible/channel/filter_spectrometer/raw_lines
+    status: composed
+- name: toroidal_angle_of_detector_pixel
+  kind: scalar
+  status: draft
+  description: "Toroidal angle \u03C6 of a detector pixel position in the right-handed\
+    \ cylindrical (R, \u03C6, Z) frame, where \u03C6 increases counter-clockwise when\
+    \ viewed from above."
+  documentation: "The toroidal angle $\\phi$ locates a detector pixel around the machine\
+    \ symmetry axis in the right-handed cylindrical $(R, \\phi, Z)$ frame, where $R$\
+    \ is the major radius, $\\phi$ is the toroidal angle increasing counter-clockwise\
+    \ when viewed from above $+\\hat{Z}$, and $Z$ is the vertical height. For pixel-array\
+    \ diagnostics such as X-ray cameras and crystal spectrometers, each pixel subtends\
+    \ a distinct line of sight whose toroidal origin is characterized by this angle;\
+    \ combined with the corresponding major-radius and vertical coordinates, it fully\
+    \ specifies the three-dimensional pixel position in machine geometry. Values span\
+    \ $[0, 2\\pi)$ rad for full-torus coverage, though individual diagnostic cameras\
+    \ typically subtend a narrow toroidal arc of order $10^{-2}$\u2013$10^{-1}$ rad.\
+    \ This quantity belongs to the same geometric family as [toroidal_angle_of_measurement_position](name:toroidal_angle_of_measurement_position)\
+    \ and [toroidal_angle_of_outline_point](name:toroidal_angle_of_outline_point),\
+    \ differing only in that the locus is an individual detector pixel rather than\
+    \ a coarser measurement or outline point.\n\nSign convention: Positive when $\\\
+    phi$ increases in the counter-clockwise direction when viewed from above $+\\\
+    hat{Z}$."
   unit: rad
   physics_domain: radiation_measurement_diagnostics
   links:
-  - name:major_radius_of_first_point_of_line_of_sight
-  - name:vertical_coordinate_of_first_point_of_line_of_sight
+  - name:toroidal_angle_of_measurement_position
+  - name:toroidal_angle_of_outline_point
+  constraints: []
+  sources:
+  - id: dd:camera_x_rays/camera/pixel_position/phi
+    dd_path: camera_x_rays/camera/pixel_position/phi
+    status: composed
+- name: toroidal_angle_of_spectrometer_grating_apex
+  kind: scalar
+  status: draft
+  description: Toroidal angle of the apex point of a spectrometer diffraction grating
+    in the right-handed cylindrical $(R, \phi, Z)$ frame.
+  documentation: 'The toroidal angle $\phi$ locates the apex (summit) of a spectrometer
+    diffraction grating around the machine axis, measured in the right-handed cylindrical
+    $(R, \phi, Z)$ frame where $R$ is the major radius, $\phi$ increases counter-clockwise
+    when viewed from above $+\hat{Z}$, and $Z$ is the vertical height. This geometric
+    coordinate is used to reconstruct the three-dimensional position of the grating
+    within the spectrometer optical assembly, which is essential for calibrating line-of-sight
+    geometry and spectral response. It is closely related to [toroidal_angle_of_grating_summit](name:toroidal_angle_of_grating_summit),
+    which captures the same concept under a more concise naming convention; the two
+    names are semantically equivalent. Typical values span $0$ to $2\pi$ rad depending
+    on the toroidal port location of the spectrometer, and are determined from as-built
+    metrology or CAD surveys of the diagnostic installation. The corresponding major-radius
+    and vertical coordinates complement this angle to fully specify the grating apex
+    position, analogous to the endpoint coordinates used for [toroidal_angle_of_first_point_of_line_of_sight](name:toroidal_angle_of_first_point_of_line_of_sight)
+    and [toroidal_angle_of_second_point_of_line_of_sight](name:toroidal_angle_of_second_point_of_line_of_sight).
+
+
+    Sign convention: Positive when $\phi$ increases counter-clockwise when viewed
+    from above in the $+\hat{Z}$ direction.'
+  unit: rad
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:toroidal_angle_of_grating_summit
+  - name:toroidal_angle_of_first_point_of_line_of_sight
   - name:toroidal_angle_of_second_point_of_line_of_sight
   constraints: []
   sources:
-  - id: dd:camera_x_rays/camera/line_of_sight/first_point/phi
-    dd_path: camera_x_rays/camera/line_of_sight/first_point/phi
+  - id: dd:spectrometer_uv/channel/grating/summit/phi
+    dd_path: spectrometer_uv/channel/grating/summit/phi
     status: composed
-- name: toroidal_angle_of_second_point_of_line_of_sight
+- name: vertical_coordinate_of_grating_summit
   kind: scalar
   status: draft
-  description: "Toroidal angle \u03C6 of the second endpoint defining the line of\
-    \ sight of a diagnostic channel, specifying the azimuthal exit point of the chord\
-    \ in the right-handed cylindrical $(R, \\phi, Z)$ frame."
-  documentation: "The toroidal angle $\\phi$ of the second endpoint locates the azimuthal\
-    \ position at which a diagnostic line-of-sight chord terminates (or exits) the\
-    \ measurement volume, expressed in the right-handed cylindrical $(R, \\phi, Z)$\
-    \ frame where $\\phi$ increases counter-clockwise when viewed from above $+\\\
-    hat{Z}$. Together with the major-radius coordinate [major_radius_of_second_point_of_line_of_sight](name:major_radius_of_second_point_of_line_of_sight)\
-    \ and the vertical coordinate [vertical_coordinate_of_second_point_of_line_of_sight](name:vertical_coordinate_of_second_point_of_line_of_sight),\
-    \ this angle fully specifies the three-dimensional position of the second endpoint\
-    \ in the cylindrical $(R, \\phi, Z)$ frame. The chord geometry defined by the\
-    \ first and second endpoints is used across many passive and active plasma diagnostics\
-    \ \u2014 including bolometry, soft and hard X-ray cameras, ECE, bremsstrahlung,\
-    \ and motional Stark effect systems \u2014 to compute line-integrated emission\
-    \ or absorption along the sight line. Typical values span $0$ to $2\\pi$ rad depending\
-    \ on the toroidal location of the diagnostic port; non-axisymmetric diagnostic\
-    \ arrangements may use second-point $\\phi$ values that differ substantially from\
-    \ those of the first endpoint. The companion first-endpoint coordinate is [toroidal_angle_of_first_point_of_line_of_sight](name:toroidal_angle_of_first_point_of_line_of_sight).\n\
-    \nSign convention: Positive when $\\phi$ is measured in the direction of increasing\
-    \ toroidal angle, i.e., counter-clockwise when viewed from above $+\\hat{Z}$."
-  unit: rad
+  description: Vertical (Z) coordinate of the summit (apex) point of a spectrometer
+    diffraction grating or crystal in the right-handed cylindrical $(R, \phi, Z)$
+    frame.
+  documentation: 'The vertical coordinate $Z_{\rm summit}$ locates the apex of a spectrometer
+    diffraction grating or crystal along the machine symmetry axis direction $\hat{Z}$
+    in the right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is the major radius
+    and $\phi$ is the toroidal angle. Together with [major_radius_of_grating_summit](name:major_radius_of_grating_summit)
+    and [toroidal_angle_of_grating_summit](name:toroidal_angle_of_grating_summit),
+    it fully specifies the three-dimensional position of the grating summit, which
+    is the reference point for computing Bragg-reflection geometry and optical path
+    lengths in crystal and grating spectrometers. Typical values range from $-2$ m
+    to $+2$ m in current tokamak devices, depending on the diagnostic port location;
+    X-ray crystal spectrometers are often mounted near the midplane ($Z \approx 0$)
+    while UV grating instruments may be positioned at varying heights. The coordinate
+    is established by engineering survey or photogrammetric metrology of the spectrometer
+    assembly and is treated as a static configuration parameter that enters the instrument
+    line-of-sight and dispersion calculations. The full three-component position vector
+    is described by the parent quantity [coordinate_of_grating_summit](name:coordinate_of_grating_summit).
+
+
+    Sign convention: Positive when the grating summit lies above the tokamak midplane
+    in the $+\hat{Z}$ direction.'
+  unit: m
   physics_domain: radiation_measurement_diagnostics
   links:
-  - name:major_radius_of_second_point_of_line_of_sight
-  - name:vertical_coordinate_of_second_point_of_line_of_sight
-  - name:toroidal_angle_of_first_point_of_line_of_sight
+  - name:major_radius_of_grating_summit
+  - name:toroidal_angle_of_grating_summit
+  - name:coordinate_of_grating_summit
+  constraints: []
+  arguments:
+  - name: coordinate_of_grating_summit
+    operator: coordinate
+    operator_kind: coordinate
+    axis: vertical
+    shape: coordinate
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/crystal/summit/z
+    dd_path: spectrometer_x_ray_crystal/crystal/summit/z
+    status: composed
+- name: width_of_spectrometer_entrance_slit
+  kind: scalar
+  status: draft
+  description: Physical width of the entrance slit of a spectrometer, measured edge-to-edge
+    perpendicular to the slit length in the plane of the optical aperture. This non-negative
+    quantity controls the trade-off between spectral resolution and photon throughput.
+  documentation: 'The entrance slit of a spectrometer is a rectangular aperture placed
+    at the object focal plane of the dispersing optical system. Its width $w_s$ is
+    measured edge-to-edge in the direction perpendicular to the slit length (i.e.,
+    in the dispersion plane), in meters. The quantity is non-negative: $w_s \geq 0$.
+
+
+    The slit width governs the geometric contribution to the instrument function.
+    For a dispersing element with angular dispersion $d\theta/d\lambda$ and a focusing
+    element of focal length $f$, the geometric full-width contribution to the instrument
+    function in wavelength units is
+
+
+    $$\Delta\lambda_\mathrm{geom} = \frac{w_s}{f \cdot (d\theta/d\lambda)},$$
+
+
+    where $f$ is the focal length of the camera (or focusing) optic in meters and
+    $d\theta/d\lambda$ is the angular dispersion of the grating or crystal in radians
+    per meter. For a grating spectrometer operating near diffraction order $m$ with
+    grating constant $d$, $d\theta/d\lambda \approx m/(d\cos\theta_d)$ where $\theta_d$
+    is the diffraction angle. Thus $\Delta\lambda_\mathrm{geom}$ carries units of
+    meters (wavelength), as expected.
+
+
+    In practice, the total instrument-function width is a convolution of the geometric
+    slit image, aberrations, and detector pixel response. Narrowing $w_s$ improves
+    spectral resolution at the cost of reduced photon flux, a trade-off particularly
+    critical in tokamak VUV and X-ray spectroscopy (e.g., charge-exchange recombination
+    spectroscopy, crystal spectrometers) where signal-to-noise constraints are severe.
+    Typical slit widths range from tens of micrometers to several hundred micrometers
+    depending on the application.
+
+
+    This quantity is synonymous with `spectrometer_entrance_slit_width` and is distinct
+    from the width of a dispersing crystal element (`width_of_crystal`) or the fitted
+    Gaussian width of the instrument function (`instrument_function_gaussian_width`).'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:instrument_function_gaussian_width
+  - name:spectrometer_entrance_slit_width
+  - name:width_of_crystal
   constraints: []
   sources:
-  - id: dd:camera_x_rays/camera/line_of_sight/second_point/phi
-    dd_path: camera_x_rays/camera/line_of_sight/second_point/phi
+  - id: dd:charge_exchange/channel/spectrum/slit_width
+    dd_path: charge_exchange/channel/spectrum/slit_width
     status: composed
