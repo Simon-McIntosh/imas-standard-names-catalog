@@ -40,8 +40,13 @@ jobs:
           ref_name="${{ github.ref_name }}"
           clean_name="${ref_name#v}"
 
-          if [[ $clean_name =~ ^[0-9]+\.[0-9]+\.[0-9]+(rc[0-9]+)?$ ]]; then
+          if [[ $clean_name =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            # Stable release (e.g., v0.1.0) — use major.minor
             version="v$(echo $clean_name | cut -d. -f1-2)"
+            tagged=true
+          elif [[ $clean_name =~ ^[0-9]+\.[0-9]+\.[0-9]+rc[0-9]+$ ]]; then
+            # RC release (e.g., v0.1.0rc7) — use full version
+            version="v${clean_name}"
             tagged=true
           elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
             version="pr-${{ github.event.pull_request.number }}"
