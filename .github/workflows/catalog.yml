@@ -40,7 +40,7 @@ jobs:
           ref_name="${{ github.ref_name }}"
           clean_name="${ref_name#v}"
 
-          if [[ $clean_name =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if [[ $clean_name =~ ^[0-9]+\.[0-9]+\.[0-9]+(rc[0-9]+)?$ ]]; then
             version="v$(echo $clean_name | cut -d. -f1-2)"
             tagged=true
           elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
@@ -71,12 +71,11 @@ jobs:
       - name: Add root redirect
         if: github.event_name != 'pull_request'
         run: |
+          VERSION="${{ steps.version.outputs.version }}"
           git fetch origin gh-pages --depth=1
           git checkout -f gh-pages
-          # GitHub Pages ignores symlinks — add an HTML redirect
-          if [ ! -f index.html ]; then
-            echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=main/"></head><body><a href="main/">Redirecting...</a></body></html>' > index.html
-            git add index.html
-            git commit -m "Add root redirect to main version"
-            git push origin gh-pages
-          fi
+          # Always update root redirect to point to the latest deployed version
+          echo "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" content=\"0; url=${VERSION}/\"></head><body><a href=\"${VERSION}/\">Redirecting...</a></body></html>" > index.html
+          git add index.html
+          git diff --cached --quiet || git commit -m "Update root redirect to ${VERSION}"
+          git push origin gh-pages
