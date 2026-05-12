@@ -1,6 +1,6 @@
 # Domain: transport
-# Catalog sha: 6f5078e91a07d33d4dc55761b319e87e2a0545ab
-# Entries: 7
+# Catalog sha: c4c86d506c10cad4562823d23aacc13ae09f431b
+# Entries: 4
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -13,128 +13,104 @@
   unit: m^-3
   physics_domain: transport
   links: []
-  constraints: []
   sources:
   - id: dd:core_profiles/profiles_1d/electrons/density
     dd_path: core_profiles/profiles_1d/electrons/density
     status: composed
-- name: parallel_electron_velocity
+- name: electron_temperature
   kind: scalar
   status: draft
-  description: Parallel (field-aligned) component of the electron fluid velocity as
-    a function of the radial coordinate.
-  documentation: ''
-  unit: m.s^-1
+  description: Electron temperature of the plasma electron population, characterizing
+    the mean thermal energy per degree of freedom of the electron velocity distribution.
+    For a Maxwellian distribution, it is related to the mean kinetic energy by T_e
+    = (2/3) times the mean electron kinetic energy per particle, expressed here in
+    eV. When multiple electron populations are present, this quantity refers to the
+    bulk (primary) electron component.
+  documentation: "The electron temperature $T_e$ quantifies the thermal energy scale\
+    \ of the electron population. For a 3D isotropic Maxwellian distribution, the\
+    \ mean kinetic energy per electron is $\\langle E_e \\rangle = \\tfrac{3}{2}\\\
+    , T_e$, where $T_e$ is expressed in eV (so that $k_B T_e$ has units of energy\
+    \ when $T_e$ is in kelvin, but in IMAS the unit is eV and no factor of $k_B$ is\
+    \ needed). The conversion between units is $T_e\\,[\\mathrm{eV}] = T_e\\,[\\mathrm{K}]\
+    \ / 11{,}604.5$.\n\nThe electron temperature governs the electron pressure through\
+    \ $p_e = n_e\\, T_e$, where $n_e$ is the electron number density and $p_e$ carries\
+    \ units of eV$\\cdot$m$^{-3}$ when $T_e$ is in eV and $n_e$ is in m$^{-3}$. To\
+    \ convert to pascals, $p_e\\,[\\mathrm{Pa}] = n_e\\,[\\mathrm{m}^{-3}]\\, T_e\\\
+    ,[\\mathrm{eV}]\\times 1.602\\times10^{-19}$.\n\nWhen the electron energy distribution\
+    \ cannot be described by a single Maxwellian \u2014 for instance, when suprathermal\
+    \ or secondary populations are present \u2014 a multi-temperature fit resolves\
+    \ distinct electron components. In this case, $T_e$ reported here corresponds\
+    \ to the bulk (primary) electron population; component-specific temperatures for\
+    \ each population in a multi-temperature fit are tracked separately via the corresponding\
+    \ fit-index resolved standard names.\n\nTypical values range from approximately\
+    \ 1\u201320 eV in the scrape-off layer and divertor regions to 10\u2013100 eV\
+    \ in the near-core boundary, and can exceed several keV in the plasma core. The\
+    \ electron temperature is a key parameter governing energy transport, ionization\
+    \ rates, and radiation losses throughout the plasma.\n\nSign convention: Positive\
+    \ when the electron population carries net thermal energy above absolute zero;\
+    \ $T_e$ is a strictly nonnegative quantity."
+  unit: eV
   physics_domain: transport
-  links: []
-  constraints: []
-  arguments:
-  - name: electron_velocity
-    operator: component
-    operator_kind: projection
-    axis: parallel
-    shape: component
+  links:
+  - name:electron_pressure
+  - name:ion_temperature
+  - name:electron_temperature_at_divertor_target
   sources:
-  - id: dd:core_profiles/profiles_1d/electrons/velocity/parallel
-    dd_path: core_profiles/profiles_1d/electrons/velocity/parallel
+  - id: dd:core_profiles/profiles_1d/electrons/temperature
+    dd_path: core_profiles/profiles_1d/electrons/temperature
     status: composed
-- name: parallel_fast_electron_pressure
+- name: ion_density
   kind: scalar
   status: draft
-  description: Parallel component of the fast (non-thermal) electron pressure as a
-    function of the radial coordinate.
+  description: Number density of ion species in the plasma core, summed over charge
+    states when applicable.
   documentation: ''
-  unit: Pa
+  unit: m^-3
   physics_domain: transport
   links: []
-  constraints: []
-  arguments:
-  - name: fast_electron_pressure
-    operator: component
-    operator_kind: projection
-    axis: parallel
-    shape: component
   sources:
-  - id: dd:core_profiles/profiles_1d/electrons/pressure_fast_parallel
-    dd_path: core_profiles/profiles_1d/electrons/pressure_fast_parallel
+  - id: dd:core_profiles/profiles_1d/ion/density
+    dd_path: core_profiles/profiles_1d/ion/density
     status: composed
-- name: perpendicular_fast_electron_pressure
+- name: ion_temperature
   kind: scalar
   status: draft
-  description: Perpendicular component of the fast (non-thermal) electron pressure
-    as a function of the radial coordinate.
-  documentation: ''
-  unit: Pa
+  description: Ion temperature of the bulk ion population, defined as the parameter
+    of the Maxwell-Boltzmann velocity distribution characterizing the mean thermal
+    energy per particle. Expressed in electron volts, where 1 eV corresponds to approximately
+    11 600 K. Applicable to a single ion species or an effective bulk ion mixture
+    in a plasma.
+  documentation: "The ion temperature $T_i$ is the parameter of the Maxwell-Boltzmann\
+    \ velocity distribution function that characterizes the mean thermal kinetic energy\
+    \ of the ion population. For a three-dimensional Maxwellian distribution, the\
+    \ mean kinetic energy per particle is\n\n$$\\langle E_i \\rangle = \\tfrac{3}{2}\
+    \ k_B T_i$$\n\nwhere $k_B$ is Boltzmann's constant. When $T_i$ is expressed in\
+    \ electron volts, the conversion to SI temperature is $T_i \\,[\\mathrm{eV}] =\
+    \ k_B T_i \\,[\\mathrm{K}] / e$, where $e$ is the elementary charge.\n\nIn a fully\
+    \ ionized plasma, $T_i$ and the electron temperature $T_e$ are in general distinct.\
+    \ Ion\u2013electron energy equilibration is governed by a collisional exchange\
+    \ rate whose characteristic time scales as $\\tau_{ei} \\propto m_i T_e^{3/2}\
+    \ / (n_e \\ln\\Lambda)$, where $m_i$ is the ion mass, $n_e$ is the electron density,\
+    \ and $\\ln\\Lambda$ is the Coulomb logarithm. In low-density or weakly collisional\
+    \ plasmas (e.g., the scrape-off layer), $T_i$ can substantially exceed $T_e$;\
+    \ in the dense, collisional core, $T_i \\approx T_e$ is often satisfied.\n\nThe\
+    \ ion thermal pressure is related to $T_i$ by $p_i = n_i T_i$, where $n_i$ is\
+    \ the ion number density, making $T_i$ a fundamental input to transport and MHD\
+    \ models.\n\n**Typical values:** In the scrape-off layer and divertor, $T_i$ typically\
+    \ ranges from a few eV to ~50 eV. In the plasma core of a tokamak, $T_i$ may reach\
+    \ several keV during high-performance operation.\n\n**Measurement context:** Ion\
+    \ temperature is not directly accessible via Thomson scattering (which measures\
+    \ electron temperature and density). Primary experimental diagnostics include\
+    \ charge-exchange recombination spectroscopy (CXRS), which resolves the Doppler-broadened\
+    \ emission line of a fully stripped impurity to yield $T_i$ of the bulk ion population,\
+    \ and neutron emission spectroscopy in deuterium plasmas. At the plasma boundary,\
+    \ Langmuir probes with multi-temperature fitting to the ion saturation current\
+    \ can provide estimates of $T_i$ in the near-wall region."
+  unit: eV
   physics_domain: transport
-  links: []
-  constraints: []
-  arguments:
-  - name: fast_electron_pressure
-    operator: component
-    operator_kind: projection
-    axis: perpendicular
-    shape: component
+  links:
+  - name:electron_temperature
   sources:
-  - id: dd:core_profiles/profiles_1d/electrons/pressure_fast_perpendicular
-    dd_path: core_profiles/profiles_1d/electrons/pressure_fast_perpendicular
-    status: composed
-- name: poloidal_electron_velocity
-  kind: scalar
-  status: draft
-  description: Poloidal component of the electron fluid velocity as a function of
-    the radial flux-surface coordinate.
-  documentation: ''
-  unit: m.s^-1
-  physics_domain: transport
-  links: []
-  constraints: []
-  arguments:
-  - name: electron_velocity
-    operator: component
-    operator_kind: projection
-    axis: poloidal
-    shape: component
-  sources:
-  - id: dd:core_profiles/profiles_1d/electrons/velocity/poloidal
-    dd_path: core_profiles/profiles_1d/electrons/velocity/poloidal
-    status: composed
-- name: radial_electron_velocity
-  kind: scalar
-  status: draft
-  description: Radial component of the electron fluid velocity as a function of the
-    radial flux-surface coordinate.
-  documentation: ''
-  unit: m.s^-1
-  physics_domain: transport
-  links: []
-  constraints: []
-  arguments:
-  - name: electron_velocity
-    operator: component
-    operator_kind: projection
-    axis: radial
-    shape: component
-  sources:
-  - id: dd:core_profiles/profiles_1d/electrons/velocity/radial
-    dd_path: core_profiles/profiles_1d/electrons/velocity/radial
-    status: composed
-- name: toroidal_electron_velocity
-  kind: scalar
-  status: draft
-  description: Toroidal component of the electron fluid velocity as a function of
-    the radial flux-surface coordinate.
-  documentation: ''
-  unit: m.s^-1
-  physics_domain: transport
-  links: []
-  constraints: []
-  arguments:
-  - name: electron_velocity
-    operator: component
-    operator_kind: projection
-    axis: toroidal
-    shape: component
-  sources:
-  - id: dd:core_profiles/profiles_1d/electrons/velocity/toroidal
-    dd_path: core_profiles/profiles_1d/electrons/velocity/toroidal
+  - id: dd:core_profiles/profiles_1d/ion/temperature
+    dd_path: core_profiles/profiles_1d/ion/temperature
     status: composed

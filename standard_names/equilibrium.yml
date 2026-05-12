@@ -1,22 +1,40 @@
 # Domain: equilibrium
-# Catalog sha: 6f5078e91a07d33d4dc55761b319e87e2a0545ab
+# Catalog sha: c4c86d506c10cad4562823d23aacc13ae09f431b
 # Entries: 8
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: magnetic_shear
+- name: major_radius_of_geometric_axis
   kind: scalar
   status: draft
-  description: Magnetic shear (rho/q * dq/drho) as a function of the normalized radial
-    flux-surface coordinate.
-  documentation: ''
-  unit: '1'
+  description: Major-radius coordinate $R$ of the geometric axis (area centroid) of
+    the plasma cross-section, measured as the perpendicular distance from the machine
+    symmetry axis in the right-handed cylindrical $(R, \phi, Z)$ frame.
+  documentation: 'The geometric axis is the area centroid of the plasma poloidal cross-section,
+    defined by $R_{\rm geo} = (R_{\rm max} + R_{\rm min})/2$, where $R_{\rm max}$
+    and $R_{\rm min}$ are the outermost and innermost major-radius extents of the
+    plasma boundary. This coordinate locates the geometric center of the plasma shape
+    and is a key parameter in plasma positioning and shape control, distinct from
+    the magnetic axis (where $\nabla\psi = 0$). Typical values range from approximately
+    0.6 m in small tokamaks to 6.2 m for ITER. It is inferred from equilibrium reconstruction
+    using external magnetics, supplemented by internal measurements such as motional
+    Stark effect or soft X-ray emission. The companion vertical coordinate is given
+    by [vertical coordinate of centroid](name:vertical_coordinate_of_centroid), and
+    the related [major radius of the plasma boundary outline point](name:major_radius_of_plasma_boundary_outline_point)
+    provides the full boundary shape from which the centroid is computed.
+
+
+    Sign convention: Positive when the geometric axis lies at a finite perpendicular
+    distance from the machine symmetry axis, consistent with $R \geq 0$ in the right-handed
+    cylindrical $(R, \phi, Z)$ frame.'
+  unit: m
   physics_domain: equilibrium
-  links: []
-  constraints: []
+  links:
+  - name:vertical_coordinate_of_centroid
+  - name:major_radius_of_plasma_boundary_outline_point
   sources:
-  - id: dd:equilibrium/time_slice/profiles_1d/magnetic_shear
-    dd_path: equilibrium/time_slice/profiles_1d/magnetic_shear
+  - id: dd:equilibrium/time_slice/boundary/geometric_axis/r
+    dd_path: equilibrium/time_slice/boundary/geometric_axis/r
     status: composed
 - name: major_radius_of_magnetic_axis
   kind: scalar
@@ -26,7 +44,6 @@
   unit: m
   physics_domain: equilibrium
   links: []
-  constraints: []
   sources:
   - id: dd:equilibrium/time_slice/global_quantities/magnetic_axis/r
     dd_path: equilibrium/time_slice/global_quantities/magnetic_axis/r
@@ -40,30 +57,41 @@
   unit: m
   physics_domain: equilibrium
   links: []
-  constraints: []
   sources:
   - id: dd:equilibrium/time_slice/boundary/outline/r
     dd_path: equilibrium/time_slice/boundary/outline/r
     status: composed
-- name: poloidal_magnetic_flux
+- name: poloidal_beta
   kind: scalar
   status: draft
-  description: Poloidal magnetic flux as a function of the normalized radial flux-surface
-    coordinate.
+  description: Poloidal beta, the ratio of plasma pressure to poloidal magnetic field
+    pressure, a global MHD stability parameter.
   documentation: ''
-  unit: Wb
+  unit: '1'
   physics_domain: equilibrium
   links: []
-  constraints: []
   arguments:
-  - name: magnetic_flux
+  - name: beta
     operator: component
     operator_kind: projection
     axis: poloidal
     shape: component
   sources:
-  - id: dd:equilibrium/time_slice/profiles_1d/psi
-    dd_path: equilibrium/time_slice/profiles_1d/psi
+  - id: dd:equilibrium/time_slice/global_quantities/beta_pol
+    dd_path: equilibrium/time_slice/global_quantities/beta_pol
+    status: composed
+- name: poloidal_magnetic_flux_of_magnetic_axis
+  kind: scalar
+  status: draft
+  description: Poloidal magnetic flux at the magnetic axis, used as a reference value
+    in flux coordinate normalization.
+  documentation: ''
+  unit: Wb
+  physics_domain: equilibrium
+  links: []
+  sources:
+  - id: dd:equilibrium/time_slice/global_quantities/psi_magnetic_axis
+    dd_path: equilibrium/time_slice/global_quantities/psi_magnetic_axis
     status: composed
 - name: safety_factor
   kind: scalar
@@ -74,24 +102,22 @@
   unit: '1'
   physics_domain: equilibrium
   links: []
-  constraints: []
   sources:
   - id: dd:equilibrium/time_slice/profiles_1d/q
     dd_path: equilibrium/time_slice/profiles_1d/q
     status: composed
-- name: toroidal_plasma_current_density
+- name: vertical_coordinate_of_geometric_axis
   kind: scalar
   status: draft
-  description: Flux-surface-averaged toroidal component of plasma current density
-    as a function of the radial coordinate.
+  description: Vertical (Z) coordinate of the plasma geometric axis (boundary centroid)
+    in the cylindrical (R, phi, Z) frame.
   documentation: ''
-  unit: A.m^-2
+  unit: m
   physics_domain: equilibrium
   links: []
-  constraints: []
   sources:
-  - id: dd:equilibrium/time_slice/profiles_1d/j_tor
-    dd_path: equilibrium/time_slice/profiles_1d/j_tor
+  - id: dd:equilibrium/time_slice/boundary/geometric_axis/z
+    dd_path: equilibrium/time_slice/boundary/geometric_axis/z
     status: composed
 - name: vertical_coordinate_of_magnetic_axis
   kind: scalar
@@ -102,22 +128,7 @@
   unit: m
   physics_domain: equilibrium
   links: []
-  constraints: []
   sources:
   - id: dd:equilibrium/time_slice/global_quantities/magnetic_axis/z
     dd_path: equilibrium/time_slice/global_quantities/magnetic_axis/z
-    status: composed
-- name: vertical_coordinate_of_plasma_boundary
-  kind: scalar
-  status: draft
-  description: Vertical (Z) coordinate of points along the plasma boundary outline
-    in the poloidal plane.
-  documentation: ''
-  unit: m
-  physics_domain: equilibrium
-  links: []
-  constraints: []
-  sources:
-  - id: dd:equilibrium/time_slice/boundary/outline/z
-    dd_path: equilibrium/time_slice/boundary/outline/z
     status: composed
