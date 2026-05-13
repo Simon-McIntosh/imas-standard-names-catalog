@@ -15,8 +15,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: "catalog-${{ github.ref }}"
-  cancel-in-progress: true
+  group: "catalog-deploy"
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -72,15 +72,3 @@ jobs:
           uv run standard-names site-deploy standard_names/ $DEPLOY_ARGS
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Add root redirect
-        if: github.event_name != 'pull_request'
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          git fetch origin gh-pages --depth=1
-          git checkout -f gh-pages
-          # Always update root redirect to point to the latest deployed version
-          echo "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" content=\"0; url=${VERSION}/\"></head><body><a href=\"${VERSION}/\">Redirecting...</a></body></html>" > index.html
-          git add index.html
-          git diff --cached --quiet || git commit -m "Update root redirect to ${VERSION}"
-          git push origin gh-pages
