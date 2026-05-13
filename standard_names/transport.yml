@@ -1,14 +1,14 @@
 # Domain: transport
 # Catalog sha: c2d29232b204fb9329894db3f6b16dcff1512938
-# Entries: 25
+# Entries: 41
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
 - name: current_density_due_to_bootstrap
   kind: scalar
   status: draft
-  description: Flux-surface-averaged bootstrap current density driven by neoclassical
-    pressure gradients
+  description: Flux-surface-averaged parallel bootstrap current density as a function
+    of radial position
   documentation: ''
   unit: A.m^-2
   physics_domain: transport
@@ -30,6 +30,9 @@
   - id: dd:edge_profiles/profiles_1d/zeff
     dd_path: edge_profiles/profiles_1d/zeff
     status: composed
+  - id: dd:summary/volume_average/zeff/value
+    dd_path: summary/volume_average/zeff/value
+    status: attached
 - name: electron_diffusivity
   kind: scalar
   status: draft
@@ -72,8 +75,7 @@
 - name: electron_energy_flux
   kind: scalar
   status: draft
-  description: Electron energy flux across a flux surface from the core transport
-    model
+  description: Electron energy flux on the GGD edge transport grid
   documentation: ''
   unit: W.m^-2
   physics_domain: transport
@@ -82,11 +84,38 @@
   - id: dd:core_transport/model/profiles_1d/electrons/energy/flux
     dd_path: core_transport/model/profiles_1d/electrons/energy/flux
     status: composed
+  - id: dd:edge_transport/model/ggd/electrons/energy/flux
+    dd_path: edge_transport/model/ggd/electrons/energy/flux
+    status: composed
+- name: electron_number_density
+  kind: scalar
+  status: draft
+  description: Electron number density measured by Thomson scattering from the spectral
+    intensity of incoherently scattered laser light
+  documentation: ''
+  unit: m^-3
+  physics_domain: transport
+  links: []
+  sources:
+  - id: dd:core_profiles/profiles_1d/electrons/density
+    dd_path: core_profiles/profiles_1d/electrons/density
+    status: composed
+  - id: dd:edge_profiles/ggd/electrons/density
+    dd_path: edge_profiles/ggd/electrons/density
+    status: composed
+  - id: dd:edge_profiles/profiles_1d/electrons/density
+    dd_path: edge_profiles/profiles_1d/electrons/density
+    status: composed
+  - id: dd:reflectometer_profile/channel/n_e/data
+    dd_path: reflectometer_profile/channel/n_e/data
+    status: composed
+  - id: dd:thomson_scattering/channel/n_e/data
+    dd_path: thomson_scattering/channel/n_e/data
+    status: composed
 - name: electron_particle_flux
   kind: scalar
   status: draft
-  description: Electron particle flux across a flux surface from the core transport
-    model
+  description: Electron particle flux on the GGD edge transport grid
   documentation: ''
   unit: m^-2.s^-1
   physics_domain: transport
@@ -98,11 +127,14 @@
   - id: dd:core_transport/model/profiles_1d/electrons/particles/flux
     dd_path: core_transport/model/profiles_1d/electrons/particles/flux
     status: composed
+  - id: dd:edge_transport/model/ggd/electrons/particles/flux
+    dd_path: edge_transport/model/ggd/electrons/particles/flux
+    status: composed
 - name: electron_power_density
   kind: scalar
   status: draft
-  description: Volumetric electron energy source density from all contributing physical
-    processes in the core plasma
+  description: Volumetric energy source density deposited into the electron population
+    from a given source
   documentation: ''
   unit: W.m^-3
   physics_domain: transport
@@ -114,8 +146,8 @@
 - name: electron_pressure
   kind: scalar
   status: draft
-  description: Total electron pressure (thermal plus non-thermal contributions) in
-    the edge plasma region
+  description: Total electron pressure (thermal plus non-thermal) as a function of
+    radial position
   documentation: ''
   unit: Pa
   physics_domain: transport
@@ -127,11 +159,24 @@
   - id: dd:edge_profiles/profiles_1d/electrons/pressure
     dd_path: edge_profiles/profiles_1d/electrons/pressure
     status: composed
+- name: electron_source_rate
+  kind: scalar
+  status: draft
+  description: Volumetric electron particle source rate from a specified heating or
+    current drive process
+  documentation: ''
+  unit: m^-3.s^-1
+  physics_domain: transport
+  links: []
+  sources:
+  - id: dd:core_sources/source/profiles_1d/electrons/particles
+    dd_path: core_sources/source/profiles_1d/electrons/particles
+    status: composed
 - name: electron_temperature
   kind: scalar
   status: draft
-  description: Electron temperature measured by Thomson scattering at a single channel
-    location
+  description: Electron temperature measured by an embedded Langmuir probe at the
+    plasma-facing component surface
   documentation: ''
   unit: eV
   physics_domain: transport
@@ -143,30 +188,80 @@
   - id: dd:ece/channel/t_e/data
     dd_path: ece/channel/t_e/data
     status: composed
+  - id: dd:edge_profiles/ggd/electrons/temperature
+    dd_path: edge_profiles/ggd/electrons/temperature
+    status: composed
   - id: dd:edge_profiles/profiles_1d/electrons/temperature
     dd_path: edge_profiles/profiles_1d/electrons/temperature
+    status: composed
+  - id: dd:langmuir_probes/embedded/t_e/data
+    dd_path: langmuir_probes/embedded/t_e/data
     status: composed
   - id: dd:thomson_scattering/channel/t_e/data
     dd_path: thomson_scattering/channel/t_e/data
     status: composed
-- name: ion_number_density
+- name: fast_electron_density
   kind: scalar
   status: draft
-  description: Total ion number density (summed over charge states) in the edge plasma
-    region
+  description: Number density of fast (non-thermal) electrons as a function of radial
+    position
   documentation: ''
   unit: m^-3
   physics_domain: transport
   links: []
   sources:
+  - id: dd:core_profiles/profiles_1d/electrons/density_fast
+    dd_path: core_profiles/profiles_1d/electrons/density_fast
+    status: composed
+- name: fast_ion_density
+  kind: scalar
+  status: draft
+  description: Number density of fast (non-thermal) ions in a specific charge state
+    as a function of radial position
+  documentation: ''
+  unit: m^-3
+  physics_domain: transport
+  links: []
+  sources:
+  - id: dd:core_profiles/profiles_1d/ion/state/density_fast
+    dd_path: core_profiles/profiles_1d/ion/state/density_fast
+    status: composed
+- name: ion_energy_flux
+  kind: scalar
+  status: draft
+  description: Ion energy flux on the GGD edge transport grid
+  documentation: ''
+  unit: W.m^-2
+  physics_domain: transport
+  links: []
+  sources:
+  - id: dd:core_transport/model/profiles_1d/ion/energy/flux
+    dd_path: core_transport/model/profiles_1d/ion/energy/flux
+    status: composed
+  - id: dd:edge_transport/model/ggd/ion/energy/flux
+    dd_path: edge_transport/model/ggd/ion/energy/flux
+    status: composed
+- name: ion_number_density
+  kind: scalar
+  status: draft
+  description: Total number density of an ion species (sum over charge states) as
+    a function of radial position
+  documentation: ''
+  unit: m^-3
+  physics_domain: transport
+  links: []
+  sources:
+  - id: dd:core_profiles/profiles_1d/ion/density
+    dd_path: core_profiles/profiles_1d/ion/density
+    status: composed
   - id: dd:edge_profiles/profiles_1d/ion/density
     dd_path: edge_profiles/profiles_1d/ion/density
     status: composed
 - name: ion_power_density
   kind: scalar
   status: draft
-  description: Volumetric ion energy source density from all contributing physical
-    processes in the core plasma
+  description: Volumetric energy source density deposited into an ion species from
+    a given source process
   documentation: ''
   unit: W.m^-3
   physics_domain: transport
@@ -178,8 +273,7 @@
 - name: ion_temperature
   kind: scalar
   status: draft
-  description: Ion temperature in the edge plasma region as a function of the radial
-    flux surface label
+  description: Ion temperature in the edge plasma on the generalized grid
   documentation: ''
   unit: eV
   physics_domain: transport
@@ -188,8 +282,23 @@
   - id: dd:core_profiles/profiles_1d/ion/temperature
     dd_path: core_profiles/profiles_1d/ion/temperature
     status: composed
+  - id: dd:edge_profiles/ggd/ion/temperature
+    dd_path: edge_profiles/ggd/ion/temperature
+    status: composed
   - id: dd:edge_profiles/profiles_1d/ion/temperature
     dd_path: edge_profiles/profiles_1d/ion/temperature
+    status: composed
+- name: line_averaged_electron_density
+  kind: scalar
+  status: draft
+  description: Line-averaged electron density averaged along a chord through the plasma
+  documentation: ''
+  unit: m^-3
+  physics_domain: transport
+  links: []
+  sources:
+  - id: dd:summary/line_average/n_e/value
+    dd_path: summary/line_average/n_e/value
     status: composed
 - name: normalized_electron_collisionality
   kind: scalar
@@ -208,7 +317,7 @@
   kind: scalar
   status: draft
   description: Parallel electrical conductivity of the plasma along magnetic field
-    lines
+    lines as a function of radial position
   documentation: ''
   unit: m^-1.ohm^-1
   physics_domain: transport
@@ -222,6 +331,9 @@
   sources:
   - id: dd:core_profiles/profiles_1d/conductivity_parallel
     dd_path: core_profiles/profiles_1d/conductivity_parallel
+    status: composed
+  - id: dd:core_transport/model/profiles_1d/conductivity_parallel
+    dd_path: core_transport/model/profiles_1d/conductivity_parallel
     status: composed
   - id: dd:edge_profiles/profiles_1d/conductivity_parallel
     dd_path: edge_profiles/profiles_1d/conductivity_parallel
@@ -245,6 +357,72 @@
   - id: dd:core_profiles/profiles_1d/electrons/velocity/parallel
     dd_path: core_profiles/profiles_1d/electrons/velocity/parallel
     status: composed
+- name: parallel_fast_energy
+  kind: scalar
+  status: draft
+  description: Parallel energy content of fast suprathermal particles, volume integral
+    of fast parallel pressure times 3/2
+  documentation: ''
+  unit: J
+  physics_domain: transport
+  links: []
+  arguments:
+  - name: fast_energy
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - id: dd:summary/global_quantities/energy_fast_parallel/value
+    dd_path: summary/global_quantities/energy_fast_parallel/value
+    status: composed
+- name: parallel_fast_ion_pressure
+  kind: scalar
+  status: draft
+  description: Pressure of fast (non-thermal) ions resolved along the magnetic field
+    direction, representing the parallel component of the gyrotropic fast-ion pressure
+    tensor summed over charge states.
+  documentation: "For a non-thermal ion population with a non-isotropic velocity distribution,\
+    \ the pressure tensor decomposes into a component parallel to the magnetic field\
+    \ $\\mathbf{B}$ and a component perpendicular to it. The parallel fast-ion pressure\
+    \ is defined as $p_{\\parallel,\\mathrm{fast}} = m_i \\int (v_\\parallel - u_\\\
+    parallel)^2 f_\\mathrm{fast}(\\mathbf{v})\\, d^3v$, where $m_i$ is the ion mass,\
+    \ $v_\\parallel$ is the velocity component along $\\mathbf{B}$, $u_\\parallel$\
+    \ is the mean parallel fluid velocity, and $f_\\mathrm{fast}$ is the fast-ion\
+    \ distribution function; the integral is summed over all charge states when multiple\
+    \ states are present. Fast ions generated by neutral beam injection (NBI) or ion\
+    \ cyclotron resonance heating (ICRH) are strongly anisotropic \u2014 their parallel\
+    \ pressure can differ substantially from [perpendicular_fast_ion_pressure](name:perpendicular_fast_ion_pressure)\
+    \ \u2014 making both components necessary to characterize the full pressure tensor.\
+    \ Together they relate to the scalar fast-ion pressure via $p_\\mathrm{fast} =\
+    \ (p_{\\parallel,\\mathrm{fast}} + 2\\, p_{\\perp,\\mathrm{fast}})/3$, where [fast_ion_pressure](name:fast_ion_pressure)\
+    \ is the isotropic average. Typical values in NBI-heated tokamaks range from a\
+    \ few hundred Pa to several kPa in the plasma core, depending on beam power and\
+    \ ion species. The quantity is computed from fast-ion distribution functions obtained\
+    \ via Fokker\u2013Planck codes or Monte Carlo orbit-following codes, and can be\
+    \ compared against fast-ion diagnostics such as neutral particle analyzers or\
+    \ fast-ion loss detectors. Its contribution to total pressure should be compared\
+    \ against [ion_pressure](name:ion_pressure) and [total_pressure](name:total_pressure)\
+    \ to assess the non-thermal fraction.\n\nSign convention: Positive when the fast-ion\
+    \ distribution carries net kinetic energy in the direction parallel to the local\
+    \ magnetic field $\\mathbf{B}$, consistent with a positive-definite pressure."
+  unit: Pa
+  physics_domain: transport
+  links:
+  - name:perpendicular_fast_ion_pressure
+  - name:fast_ion_pressure
+  - name:ion_pressure
+  - name:total_pressure
+  arguments:
+  - name: fast_ion_pressure
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - id: dd:core_profiles/profiles_1d/ion/pressure_fast_parallel
+    dd_path: core_profiles/profiles_1d/ion/pressure_fast_parallel
+    status: composed
 - name: particle_number_density
   kind: scalar
   status: draft
@@ -260,6 +438,25 @@
     status: composed
   - id: dd:distributions/distribution/profiles_2d/density
     dd_path: distributions/distribution/profiles_2d/density
+    status: composed
+- name: perpendicular_fast_ion_pressure
+  kind: scalar
+  status: draft
+  description: Perpendicular pressure component of fast (non-thermal) ions as a function
+    of radial position
+  documentation: ''
+  unit: Pa
+  physics_domain: transport
+  links: []
+  arguments:
+  - name: fast_ion_pressure
+    operator: component
+    operator_kind: projection
+    axis: perpendicular
+    shape: component
+  sources:
+  - id: dd:core_profiles/profiles_1d/ion/pressure_fast_perpendicular
+    dd_path: core_profiles/profiles_1d/ion/pressure_fast_perpendicular
     status: composed
 - name: poloidal_electric_field
   kind: scalar
@@ -283,8 +480,8 @@
 - name: poloidal_ion_velocity
   kind: scalar
   status: draft
-  description: Poloidal component of the ion fluid velocity, characterizing poloidal
-    rotation of the ion species
+  description: Poloidal component of the ion velocity averaged over charge states
+    as a function of the radial flux coordinate
   documentation: ''
   unit: m.s^-1
   physics_domain: transport
@@ -302,8 +499,8 @@
 - name: radial_electric_field
   kind: scalar
   status: draft
-  description: Radial component of the electric field, flux-surface averaged on magnetic
-    flux surfaces in the core plasma
+  description: Radial component of the electric field on magnetic flux surfaces in
+    the core plasma
   documentation: ''
   unit: V.m^-1
   physics_domain: transport
@@ -317,6 +514,18 @@
   sources:
   - id: dd:core_profiles/profiles_1d/e_field/radial
     dd_path: core_profiles/profiles_1d/e_field/radial
+    status: composed
+- name: thermal_electron_density
+  kind: scalar
+  status: draft
+  description: Number density of thermal electrons as a function of radial position
+  documentation: ''
+  unit: m^-3
+  physics_domain: transport
+  links: []
+  sources:
+  - id: dd:core_profiles/profiles_1d/electrons/density_thermal
+    dd_path: core_profiles/profiles_1d/electrons/density_thermal
     status: composed
 - name: toroidal_electric_field
   kind: scalar
@@ -337,11 +546,49 @@
   - id: dd:core_profiles/profiles_1d/e_field/toroidal
     dd_path: core_profiles/profiles_1d/e_field/toroidal
     status: composed
+- name: toroidal_electron_velocity
+  kind: scalar
+  status: draft
+  description: Toroidal component of the electron fluid velocity as a function of
+    radial position
+  documentation: ''
+  unit: m.s^-1
+  physics_domain: transport
+  links: []
+  arguments:
+  - name: electron_velocity
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:core_profiles/profiles_1d/electrons/velocity/toroidal
+    dd_path: core_profiles/profiles_1d/electrons/velocity/toroidal
+    status: composed
+- name: toroidal_ion_rotation_frequency
+  kind: scalar
+  status: draft
+  description: Toroidal rotation frequency of an ion species as a function of radial
+    position
+  documentation: ''
+  unit: rad.s^-1
+  physics_domain: transport
+  links: []
+  arguments:
+  - name: ion_rotation_frequency
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:core_profiles/profiles_1d/ion/rotation_frequency_tor
+    dd_path: core_profiles/profiles_1d/ion/rotation_frequency_tor
+    status: composed
 - name: toroidal_ion_velocity
   kind: scalar
   status: draft
-  description: Toroidal component of the ion fluid velocity, characterizing toroidal
-    rotation of the ion species
+  description: Toroidal component of the ion velocity averaged over charge states
+    as a function of the radial flux coordinate
   documentation: ''
   unit: m.s^-1
   physics_domain: transport
@@ -356,6 +603,37 @@
   - id: dd:core_profiles/profiles_1d/ion/velocity/toroidal
     dd_path: core_profiles/profiles_1d/ion/velocity/toroidal
     status: composed
+- name: total_ion_density
+  kind: scalar
+  status: draft
+  description: Total number density of an ion species summed over all charge states.
+  documentation: ''
+  unit: m^-3
+  physics_domain: transport
+  links: []
+  sources:
+  - id: dd:core_profiles/profiles_1d/ion/density
+    dd_path: core_profiles/profiles_1d/ion/density
+    status: composed
+  - id: dd:core_profiles/profiles_1d/n_i_total_over_n_e
+    dd_path: core_profiles/profiles_1d/n_i_total_over_n_e
+    status: composed
+- name: total_ion_energy_flux
+  kind: scalar
+  status: draft
+  description: Total ion energy flux across a flux surface summed over all ion species,
+    from the transport model
+  documentation: ''
+  unit: W.m^-2
+  physics_domain: transport
+  links: []
+  sources:
+  - id: dd:core_transport/model/profiles_1d/ion/energy/flux
+    dd_path: core_transport/model/profiles_1d/ion/energy/flux
+    status: composed
+  - id: dd:core_transport/model/profiles_1d/total_ion_energy/flux
+    dd_path: core_transport/model/profiles_1d/total_ion_energy/flux
+    status: composed
 - name: total_ion_number_density
   kind: scalar
   status: draft
@@ -369,11 +647,27 @@
   - id: dd:core_profiles/profiles_1d/n_i_thermal_total
     dd_path: core_profiles/profiles_1d/n_i_thermal_total
     status: composed
+- name: total_ion_power_density
+  kind: scalar
+  status: draft
+  description: Total volumetric energy source density for all ion species from a named
+    physics source
+  documentation: ''
+  unit: W.m^-3
+  physics_domain: transport
+  links: []
+  sources:
+  - id: dd:core_sources/source/profiles_1d/ion/energy
+    dd_path: core_sources/source/profiles_1d/ion/energy
+    status: composed
+  - id: dd:core_sources/source/profiles_1d/total_ion_energy
+    dd_path: core_sources/source/profiles_1d/total_ion_energy
+    status: composed
 - name: total_ion_pressure
   kind: scalar
   status: draft
-  description: Total thermal ion pressure summed over all ion species in the edge
-    plasma region
+  description: Total ion thermal pressure summed over all ion species and charge states
+    as a function of radial position
   documentation: ''
   unit: Pa
   physics_domain: transport
@@ -385,15 +679,29 @@
   - id: dd:edge_profiles/profiles_1d/pressure_ion_total
     dd_path: edge_profiles/profiles_1d/pressure_ion_total
     status: composed
-- name: total_ion_temperature
+- name: volume_averaged_electron_density
   kind: scalar
   status: draft
-  description: Ion temperature averaged over all ion species weighted by density
+  description: Volume-averaged electron number density over the confined plasma volume
+    inside the last closed flux surface
+  documentation: ''
+  unit: m^-3
+  physics_domain: transport
+  links: []
+  sources:
+  - id: dd:summary/volume_average/n_e/value
+    dd_path: summary/volume_average/n_e/value
+    status: composed
+- name: volume_averaged_electron_temperature
+  kind: scalar
+  status: draft
+  description: Volume-averaged electron temperature over the confined plasma volume
+    inside the last closed flux surface
   documentation: ''
   unit: eV
   physics_domain: transport
   links: []
   sources:
-  - id: dd:core_profiles/profiles_1d/t_i_average
-    dd_path: core_profiles/profiles_1d/t_i_average
+  - id: dd:summary/volume_average/t_e/value
+    dd_path: summary/volume_average/t_e/value
     status: composed

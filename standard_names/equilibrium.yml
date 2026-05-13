@@ -1,6 +1,6 @@
 # Domain: equilibrium
 # Catalog sha: c2d29232b204fb9329894db3f6b16dcff1512938
-# Entries: 29
+# Entries: 37
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -35,6 +35,9 @@
   - id: dd:equilibrium/time_slice/boundary/elongation
     dd_path: equilibrium/time_slice/boundary/elongation
     status: composed
+  - id: dd:summary/boundary/elongation/value
+    dd_path: summary/boundary/elongation/value
+    status: composed
 - name: gradient_of_pressure
   kind: scalar
   status: draft
@@ -55,7 +58,8 @@
 - name: lower_triangularity
   kind: scalar
   status: draft
-  description: Lower triangularity of the plasma cross-section at the plasma boundary
+  description: Lower triangularity of the plasma boundary, characterizing asymmetric
+    shaping of the lower portion of the last closed flux surface
   documentation: ''
   unit: '1'
   physics_domain: equilibrium
@@ -67,11 +71,13 @@
   - id: dd:equilibrium/time_slice/profiles_1d/triangularity_lower
     dd_path: equilibrium/time_slice/profiles_1d/triangularity_lower
     status: composed
+  - id: dd:summary/boundary/triangularity_lower/value
+    dd_path: summary/boundary/triangularity_lower/value
+    status: composed
 - name: magnetic_shear
   kind: scalar
   status: draft
-  description: Magnetic shear (rho/q * dq/drho) as a function of the normalized toroidal
-    flux radius in sawtooth profiles
+  description: Magnetic shear profile as a function of the radial flux surface coordinate
   documentation: ''
   unit: '1'
   physics_domain: equilibrium
@@ -86,11 +92,27 @@
   - id: dd:sawteeth/profiles_1d/magnetic_shear
     dd_path: sawteeth/profiles_1d/magnetic_shear
     status: composed
+- name: major_radius_at_magnetic_axis
+  kind: scalar
+  status: draft
+  description: Reference major radius R0 at which the vacuum toroidal magnetic field
+    is specified, used to normalize beta and global parameters
+  documentation: ''
+  unit: m
+  physics_domain: equilibrium
+  links: []
+  locus:
+    token: magnetic_axis
+    relation: at
+  sources:
+  - id: dd:summary/global_quantities/r0/value
+    dd_path: summary/global_quantities/r0/value
+    status: composed
 - name: major_radius_of_geometric_axis
   kind: scalar
   status: draft
-  description: Major radius (cylindrical R coordinate) of the plasma geometric axis
-    at the boundary time slice
+  description: Major radius (cylindrical R) of the plasma geometric axis, defined
+    as (Rmax+Rmin)/2 of the plasma boundary
   documentation: ''
   unit: m
   physics_domain: equilibrium
@@ -102,10 +124,14 @@
   - id: dd:equilibrium/time_slice/boundary/geometric_axis/r
     dd_path: equilibrium/time_slice/boundary/geometric_axis/r
     status: composed
+  - id: dd:summary/boundary/geometric_axis_r/value
+    dd_path: summary/boundary/geometric_axis_r/value
+    status: composed
 - name: major_radius_of_magnetic_axis
   kind: scalar
   status: draft
-  description: Major radius (cylindrical R coordinate) of the magnetic axis
+  description: Major radius (cylindrical R coordinate) of the magnetic axis position
+    in the poloidal plane
   documentation: ''
   unit: m
   physics_domain: equilibrium
@@ -133,6 +159,38 @@
   - id: dd:equilibrium/time_slice/boundary/outline/r
     dd_path: equilibrium/time_slice/boundary/outline/r
     status: composed
+- name: major_radius_of_strike_point
+  kind: scalar
+  status: draft
+  description: Major radius (cylindrical R coordinate) of the divertor strike point
+    on the target plate
+  documentation: ''
+  unit: m
+  physics_domain: equilibrium
+  links: []
+  locus:
+    token: strike_point
+    relation: of
+  sources:
+  - id: dd:equilibrium/time_slice/boundary/strike_point/r
+    dd_path: equilibrium/time_slice/boundary/strike_point/r
+    status: composed
+- name: major_radius_of_x_point
+  kind: scalar
+  status: draft
+  description: Major radius (cylindrical R coordinate) of the X-point location in
+    the poloidal plane
+  documentation: ''
+  unit: m
+  physics_domain: equilibrium
+  links: []
+  locus:
+    token: x_point
+    relation: of
+  sources:
+  - id: dd:equilibrium/time_slice/boundary/x_point/r
+    dd_path: equilibrium/time_slice/boundary/x_point/r
+    status: composed
 - name: maximum_magnetic_field
   kind: scalar
   status: draft
@@ -159,11 +217,24 @@
   - id: dd:equilibrium/time_slice/profiles_1d/b_field_min
     dd_path: equilibrium/time_slice/profiles_1d/b_field_min
     status: composed
+- name: minimum_safety_factor
+  kind: scalar
+  status: draft
+  description: Minimum value of the safety factor q over all flux surfaces in the
+    plasma
+  documentation: ''
+  unit: '1'
+  physics_domain: equilibrium
+  links: []
+  sources:
+  - id: dd:equilibrium/time_slice/global_quantities/q_min/value
+    dd_path: equilibrium/time_slice/global_quantities/q_min/value
+    status: composed
 - name: normalized_toroidal_flux_coordinate
   kind: scalar
   status: draft
-  description: Normalized toroidal flux coordinate labeling each flux surface, ranging
-    from 0 at axis to 1 at boundary
+  description: Normalized toroidal flux coordinate (rho_tor_norm) used as the radial
+    coordinate for flux surface labeling
   documentation: ''
   unit: '1'
   physics_domain: equilibrium
@@ -188,8 +259,8 @@
 - name: poloidal_beta
   kind: scalar
   status: draft
-  description: Poloidal beta, ratio of volume-averaged plasma pressure to the poloidal
-    magnetic field pressure
+  description: Poloidal beta estimated from MHD equilibrium reconstruction, ratio
+    of plasma pressure to poloidal magnetic field pressure
   documentation: ''
   unit: '1'
   physics_domain: equilibrium
@@ -201,11 +272,17 @@
     axis: poloidal
     shape: component
   sources:
+  - id: dd:core_profiles/global_quantities/beta_pol
+    dd_path: core_profiles/global_quantities/beta_pol
+    status: attached
   - id: dd:equilibrium/time_slice/global_quantities/beta_pol
     dd_path: equilibrium/time_slice/global_quantities/beta_pol
-    status: composed
+    status: attached
   - id: dd:summary/global_quantities/beta_pol/value
     dd_path: summary/global_quantities/beta_pol/value
+    status: attached
+  - id: dd:summary/global_quantities/beta_pol_mhd/value
+    dd_path: summary/global_quantities/beta_pol_mhd/value
     status: composed
 - name: poloidal_magnetic_flux
   kind: scalar
@@ -228,6 +305,22 @@
   - id: dd:equilibrium/time_slice/profiles_2d/psi
     dd_path: equilibrium/time_slice/profiles_2d/psi
     status: composed
+- name: poloidal_magnetic_flux_at_magnetic_axis
+  kind: scalar
+  status: draft
+  description: Poloidal magnetic flux at the magnetic axis, the value of psi at the
+    flux-surface center
+  documentation: ''
+  unit: Wb
+  physics_domain: equilibrium
+  links: []
+  locus:
+    token: magnetic_axis
+    relation: at
+  sources:
+  - id: dd:equilibrium/time_slice/global_quantities/psi_axis
+    dd_path: equilibrium/time_slice/global_quantities/psi_axis
+    status: composed
 - name: poloidal_magnetic_flux_of_magnetic_axis
   kind: scalar
   status: draft
@@ -244,11 +337,45 @@
   - id: dd:equilibrium/time_slice/global_quantities/psi_magnetic_axis
     dd_path: equilibrium/time_slice/global_quantities/psi_magnetic_axis
     status: composed
+- name: poloidal_magnetic_flux_of_plasma_boundary
+  kind: scalar
+  status: draft
+  description: Poloidal magnetic flux at the plasma boundary (last closed flux surface),
+    defining the boundary condition for equilibrium
+  documentation: ''
+  unit: Wb
+  physics_domain: equilibrium
+  links: []
+  locus:
+    token: plasma_boundary
+    relation: of
+  sources:
+  - id: dd:equilibrium/time_slice/global_quantities/psi_boundary
+    dd_path: equilibrium/time_slice/global_quantities/psi_boundary
+    status: composed
+- name: radial_magnetic_field
+  kind: scalar
+  status: draft
+  description: Radial (cylindrical R) component of the magnetic field on the 2D equilibrium
+    poloidal-plane grid
+  documentation: ''
+  unit: T
+  physics_domain: equilibrium
+  links: []
+  arguments:
+  - name: magnetic_field
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
+  sources:
+  - id: dd:equilibrium/time_slice/profiles_2d/b_field_r
+    dd_path: equilibrium/time_slice/profiles_2d/b_field_r
+    status: composed
 - name: safety_factor
   kind: scalar
   status: draft
-  description: Safety factor q profile on the radial flux surface grid, capturing
-    the field line pitch for MHD stability analysis
+  description: Safety factor q profile as a function of the radial flux surface coordinate
   documentation: ''
   unit: '1'
   physics_domain: equilibrium
@@ -281,8 +408,8 @@
 - name: safety_factor_at_normalized_poloidal_flux
   kind: scalar
   status: draft
-  description: Safety factor evaluated at the 95% poloidal flux surface, a key MHD
-    stability parameter
+  description: Safety factor q at the 95% normalized poloidal flux surface, a key
+    MHD stability parameter
   documentation: ''
   unit: '1'
   physics_domain: equilibrium
@@ -297,8 +424,8 @@
 - name: toroidal_beta
   kind: scalar
   status: draft
-  description: "Toroidal beta, volume-averaged plasma pressure normalized to toroidal\
-    \ magnetic field pressure B0\xB2/(2\u03BC0)"
+  description: "Toroidal beta, volume-averaged total perpendicular plasma pressure\
+    \ normalized to B0\xB2/(2\u03BC0)"
   documentation: ''
   unit: '1'
   physics_domain: equilibrium
@@ -322,8 +449,8 @@
 - name: toroidal_flux_radius
   kind: scalar
   status: draft
-  description: Toroidal flux radius coordinate (rho_tor) labeling each flux surface
-    in the equilibrium radial grid
+  description: Toroidal flux radius (rho_tor) as the dimensional radial coordinate
+    labeling flux surfaces
   documentation: ''
   unit: m
   physics_domain: equilibrium
@@ -332,46 +459,11 @@
   - id: dd:equilibrium/time_slice/profiles_1d/rho_tor
     dd_path: equilibrium/time_slice/profiles_1d/rho_tor
     status: composed
-- name: toroidal_magnetic_field_at_magnetic_axis
-  kind: scalar
-  status: draft
-  description: Toroidal component of the magnetic field evaluated at the magnetic
-    axis position
-  documentation: ''
-  unit: T
-  physics_domain: equilibrium
-  links: []
-  locus:
-    token: magnetic_axis
-    relation: at
-  sources:
-  - id: dd:equilibrium/time_slice/global_quantities/magnetic_axis/b_field_phi
-    dd_path: equilibrium/time_slice/global_quantities/magnetic_axis/b_field_phi
-    status: composed
-- name: toroidal_magnetic_flux
-  kind: scalar
-  status: draft
-  description: Toroidal magnetic flux enclosed by a flux surface, as a function of
-    the 1D radial coordinate
-  documentation: ''
-  unit: Wb
-  physics_domain: equilibrium
-  links: []
-  arguments:
-  - name: magnetic_flux
-    operator: component
-    operator_kind: projection
-    axis: toroidal
-    shape: component
-  sources:
-  - id: dd:equilibrium/time_slice/profiles_1d/phi
-    dd_path: equilibrium/time_slice/profiles_1d/phi
-    status: composed
 - name: total_plasma_current
   kind: scalar
   status: draft
-  description: Net toroidal plasma current Ip flowing through the plasma column, a
-    primary global confinement parameter
+  description: Total toroidal plasma current (Ip) flowing through the plasma column,
+    a primary equilibrium and confinement parameter.
   documentation: ''
   unit: A
   physics_domain: equilibrium
@@ -382,6 +474,9 @@
     status: composed
   - id: dd:magnetics/ip/data
     dd_path: magnetics/ip/data
+    status: composed
+  - id: dd:magnetics/method/ip/data
+    dd_path: magnetics/method/ip/data
     status: composed
   - id: dd:pulse_schedule/flux_control/ip
     dd_path: pulse_schedule/flux_control/ip
@@ -420,7 +515,8 @@
 - name: upper_triangularity
   kind: scalar
   status: draft
-  description: Upper triangularity of the plasma cross-section at the plasma boundary
+  description: Upper triangularity of the plasma boundary, describing shape asymmetry
+    of the upper portion of the plasma cross-section
   documentation: ''
   unit: '1'
   physics_domain: equilibrium
@@ -432,11 +528,14 @@
   - id: dd:equilibrium/time_slice/profiles_1d/triangularity_upper
     dd_path: equilibrium/time_slice/profiles_1d/triangularity_upper
     status: composed
+  - id: dd:summary/boundary/triangularity_upper/value
+    dd_path: summary/boundary/triangularity_upper/value
+    status: composed
 - name: vertical_coordinate_of_geometric_axis
   kind: scalar
   status: draft
-  description: Vertical coordinate (cylindrical Z) of the plasma geometric axis (boundary
-    centroid)
+  description: Vertical coordinate (cylindrical Z) of the plasma geometric axis, defined
+    as (Zmax+Zmin)/2 of the plasma boundary
   documentation: ''
   unit: m
   physics_domain: equilibrium
@@ -447,6 +546,9 @@
   sources:
   - id: dd:equilibrium/time_slice/boundary/geometric_axis/z
     dd_path: equilibrium/time_slice/boundary/geometric_axis/z
+    status: composed
+  - id: dd:summary/boundary/geometric_axis_z/value
+    dd_path: summary/boundary/geometric_axis_z/value
     status: composed
 - name: vertical_coordinate_of_magnetic_axis
   kind: scalar
@@ -479,4 +581,55 @@
   sources:
   - id: dd:equilibrium/time_slice/boundary/outline/z
     dd_path: equilibrium/time_slice/boundary/outline/z
+    status: composed
+- name: vertical_coordinate_of_strike_point
+  kind: scalar
+  status: draft
+  description: Vertical coordinate (cylindrical Z) of the divertor strike point on
+    the target plate
+  documentation: ''
+  unit: m
+  physics_domain: equilibrium
+  links: []
+  locus:
+    token: strike_point
+    relation: of
+  sources:
+  - id: dd:equilibrium/time_slice/boundary/strike_point/z
+    dd_path: equilibrium/time_slice/boundary/strike_point/z
+    status: composed
+- name: vertical_coordinate_of_x_point
+  kind: scalar
+  status: draft
+  description: Vertical coordinate (cylindrical Z) of the X-point location in the
+    poloidal plane
+  documentation: ''
+  unit: m
+  physics_domain: equilibrium
+  links: []
+  locus:
+    token: x_point
+    relation: of
+  sources:
+  - id: dd:equilibrium/time_slice/boundary/x_point/z
+    dd_path: equilibrium/time_slice/boundary/x_point/z
+    status: composed
+- name: vertical_magnetic_field
+  kind: scalar
+  status: draft
+  description: Vertical (cylindrical Z) component of the magnetic field on the 2D
+    equilibrium poloidal-plane grid
+  documentation: ''
+  unit: T
+  physics_domain: equilibrium
+  links: []
+  arguments:
+  - name: magnetic_field
+    operator: component
+    operator_kind: projection
+    axis: vertical
+    shape: component
+  sources:
+  - id: dd:equilibrium/time_slice/profiles_2d/b_field_z
+    dd_path: equilibrium/time_slice/profiles_2d/b_field_z
     status: composed
