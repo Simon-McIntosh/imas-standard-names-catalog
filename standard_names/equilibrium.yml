@@ -1,292 +1,168 @@
 # Domain: equilibrium
-# Catalog sha: 15a90ceacba629e1c43cd39c3711754597726cd8
-# Entries: 18
+# Catalog sha: c577a9711dd4984e1dd9b3bd92f3bbc4f45c14fe
+# Entries: 4
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: area_of_plasma_boundary
+- name: elongation_of_plasma_boundary
   kind: scalar
   status: draft
-  description: Cross-sectional area enclosed by the plasma boundary
-  documentation: ''
-  unit: m^2
+  description: "Elongation (\u03BA) of the plasma boundary cross-section, defined\
+    \ as the ratio of the vertical half-height to the minor radius of the last closed\
+    \ flux surface."
+  documentation: "The elongation $\\kappa$ at the plasma boundary quantifies the vertical\
+    \ stretching of the last closed flux surface (LCFS), defined as $\\kappa = b/a$\
+    \ where $b$ is the vertical half-height (semi-axis) and $a$ is the horizontal\
+    \ minor radius of the plasma cross-section. This dimensionless shaping parameter\
+    \ is fundamental to tokamak design: higher $\\kappa$ (typically 1.5\u20132.0 in\
+    \ modern H-mode devices, reaching up to 2.2 in advanced configurations) improves\
+    \ energy confinement and MHD stability by increasing plasma volume at fixed minor\
+    \ radius. The boundary elongation is distinguished from profile-averaged elongation\
+    \ since it characterizes the outermost flux surface, which directly influences\
+    \ the divertor geometry and scrape-off-layer topology. It is extracted from equilibrium\
+    \ reconstruction codes using external magnetic measurements and, where available,\
+    \ motional Stark effect or polarimetry data; the reconstructed plasma boundary\
+    \ contour in the cylindrical $(R, \\phi, Z)$ frame yields $b$ and $a$ directly.\
+    \ Asymmetric configurations (single-null divertor) may exhibit upper and lower\
+    \ elongation components that together characterize the full boundary shape, complementing\
+    \ the global [elongation](name:elongation) and shaping parameters such as [minimum_triangularity_of_plasma_boundary](name:minimum_triangularity_of_plasma_boundary).\n\
+    \nSign convention: Positive when the vertical half-height $b$ exceeds zero, which\
+    \ holds for any physically realizable plasma cross-section."
+  unit: '1'
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:elongation
+  - name:minimum_triangularity_of_plasma_boundary
   locus:
     token: plasma_boundary
     relation: of
   sources:
-  - id: dd:equilibrium/time_slice/global_quantities/area
-    dd_path: equilibrium/time_slice/global_quantities/area
+  - id: dd:equilibrium/time_slice/boundary/elongation
+    dd_path: equilibrium/time_slice/boundary/elongation
     status: composed
-- name: gradient_of_total_plasma_pressure
+  - id: dd:equilibrium/time_slice/boundary/elongation_lower
+    dd_path: equilibrium/time_slice/boundary/elongation_lower
+    status: composed
+  - id: dd:equilibrium/time_slice/boundary/elongation_upper
+    dd_path: equilibrium/time_slice/boundary/elongation_upper
+    status: composed
+  - id: dd:equilibrium/time_slice/profiles_1d/elongation
+    dd_path: equilibrium/time_slice/profiles_1d/elongation
+    status: composed
+  - id: dd:summary/boundary/elongation/value
+    dd_path: summary/boundary/elongation/value
+    status: composed
+- name: minimum_safety_factor
   kind: scalar
   status: draft
-  description: "Radial derivative of total plasma pressure with respect to poloidal\
-    \ magnetic flux (dP/d\u03C8)"
-  documentation: ''
-  unit: Pa.Wb^-1
-  physics_domain: equilibrium
-  links: []
-  arguments:
-  - name: total_plasma_pressure
-    operator: gradient
-    operator_kind: unary_prefix
-  sources:
-  - id: dd:equilibrium/time_slice/profiles_1d/dpressure_dpsi
-    dd_path: equilibrium/time_slice/profiles_1d/dpressure_dpsi
-    status: composed
-- name: magnetic_shear
-  kind: scalar
-  status: draft
-  description: Magnetic shear of each flux surface, defined as the logarithmic radial
-    derivative of the safety factor
-  documentation: ''
+  description: Global minimum of the safety factor $q$ taken over all nested flux
+    surfaces within the plasma volume.
+  documentation: "The safety factor minimum $q_{\\min}$ is the smallest value of $q(\\\
+    psi) = d\\Phi_{\\mathrm{tor}}/d\\Phi_{\\mathrm{pol}}$ \u2014 where $\\Phi_{\\\
+    mathrm{tor}}$ is the toroidal magnetic flux and $\\Phi_{\\mathrm{pol}}$ is the\
+    \ poloidal magnetic flux \u2014 attained anywhere across the nested flux-surface\
+    \ family. Its location relative to rational values (e.g. $q_{\\min} = 1, 3/2,\
+    \ 2$) determines susceptibility to global MHD instabilities: when $q_{\\min}$\
+    \ drops below unity the plasma is prone to sawtooth oscillations, while $q_{\\\
+    min}$ near low-order rationals can trigger neoclassical tearing modes. In advanced\
+    \ tokamak scenarios with reversed or weak magnetic shear, $q_{\\min}$ lies off-axis\
+    \ and its position is tracked by [normalized_minor_radius_at_minimum_safety_factor](name:normalized_minor_radius_at_minimum_safety_factor).\
+    \ Typical values range from $q_{\\min} \\approx 0.7$ during sawtooth-active phases\
+    \ to $q_{\\min} > 1.5$ in hybrid and steady-state scenarios. It is derived from\
+    \ equilibrium reconstruction codes using magnetic measurements supplemented by\
+    \ motional Stark effect or polarimetry data. For context, the full radial $q$\
+    \ profile is captured by [safety_factor](name:safety_factor), and the on-axis\
+    \ value is given by [safety_factor_at_magnetic_axis](name:safety_factor_at_magnetic_axis).\n\
+    \nSign convention: Positive when the toroidal field and plasma current flow in\
+    \ the same direction relative to the increasing toroidal angle $\\phi$."
   unit: '1'
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:normalized_minor_radius_at_minimum_safety_factor
+  - name:safety_factor
+  - name:safety_factor_at_magnetic_axis
   sources:
-  - id: dd:equilibrium/time_slice/profiles_1d/magnetic_shear
-    dd_path: equilibrium/time_slice/profiles_1d/magnetic_shear
+  - id: dd:equilibrium/time_slice/global_quantities/q_min/value
+    dd_path: equilibrium/time_slice/global_quantities/q_min/value
     status: composed
-- name: major_radius_of_magnetic_axis
+- name: normalized_minor_radius_at_minimum_safety_factor
   kind: scalar
   status: draft
-  description: Major radius coordinate of the magnetic axis in the poloidal plane
-  documentation: ''
-  unit: m
-  physics_domain: equilibrium
-  links: []
-  locus:
-    token: magnetic_axis
-    relation: of
-  sources:
-  - id: dd:equilibrium/time_slice/global_quantities/magnetic_axis/r
-    dd_path: equilibrium/time_slice/global_quantities/magnetic_axis/r
-    status: composed
-- name: normalized_poloidal_flux_coordinate_at_minimum_safety_factor
-  kind: scalar
-  status: draft
-  description: Normalized poloidal flux coordinate value at the location of minimum
-    safety factor
-  documentation: ''
+  description: Normalized toroidal flux radius $\rho_{\mathrm{tor,norm}}$ evaluated
+    at the radial location where the safety factor reaches its minimum value.
+  documentation: "The normalized toroidal flux radius $\\rho_{\\mathrm{tor,norm}}\
+    \ = \\sqrt{\\Phi_{\\mathrm{tor}} / \\Phi_{\\mathrm{tor,edge}}}$, where $\\Phi_{\\\
+    mathrm{tor}}$ is the toroidal magnetic flux enclosed by a flux surface and $\\\
+    Phi_{\\mathrm{tor,edge}}$ is its value at the plasma boundary, ranges from 0 at\
+    \ the magnetic axis to 1 at the last closed flux surface. This quantity identifies\
+    \ where on the radial coordinate the [minimum safety factor](name:minimum_safety_factor)\
+    \ $q_{\\mathrm{min}}$ occurs, a location of central importance for MHD stability:\
+    \ reversed-shear configurations with $q_{\\mathrm{min}} > 1$ placed well off-axis\
+    \ are associated with internal transport barriers, while $q_{\\mathrm{min}} <\
+    \ 1$ on axis governs sawtooth activity. In standard H-mode or advanced tokamak\
+    \ scenarios, the $q_{\\mathrm{min}}$ location typically spans $\\rho_{\\mathrm{tor,norm}}\
+    \ \\approx 0.3$\u2013$0.7$, depending on the current profile shape. The quantity\
+    \ is inferred from equilibrium reconstruction constrained by motional Stark effect\
+    \ polarimetry or internal inductance measurements; it complements the full [safety\
+    \ factor](name:safety_factor) profile and the on-axis value [safety factor at\
+    \ the magnetic axis](name:safety_factor_at_magnetic_axis).\n\nSign convention:\
+    \ Positive when the normalized toroidal flux coordinate increases outward from\
+    \ the magnetic axis toward the plasma boundary."
   unit: '1'
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:minimum_safety_factor
+  - name:safety_factor
+  - name:safety_factor_at_magnetic_axis
   locus:
     token: minimum_safety_factor
     relation: at
   sources:
-  - id: dd:equilibrium/time_slice/global_quantities/q_min/psi_norm
-    dd_path: equilibrium/time_slice/global_quantities/q_min/psi_norm
-    status: composed
-- name: poloidal_length_of_plasma_boundary
-  kind: scalar
-  status: draft
-  description: Poloidal arc length of the plasma boundary contour
-  documentation: ''
-  unit: m
-  physics_domain: equilibrium
-  links: []
-  locus:
-    token: plasma_boundary
-    relation: of
-  sources:
-  - id: dd:equilibrium/time_slice/global_quantities/length_pol
-    dd_path: equilibrium/time_slice/global_quantities/length_pol
-    status: composed
-- name: poloidal_magnetic_flux
-  kind: scalar
-  status: draft
-  description: Poloidal magnetic flux per radian on the 2D (R,Z) equilibrium grid
-  documentation: ''
-  unit: Wb
-  physics_domain: equilibrium
-  links: []
-  arguments:
-  - name: magnetic_flux
-    operator: component
-    operator_kind: projection
-    axis: poloidal
-    shape: component
-  sources:
-  - id: dd:equilibrium/time_slice/profiles_2d/psi
-    dd_path: equilibrium/time_slice/profiles_2d/psi
-    status: composed
-- name: poloidal_magnetic_flux_of_magnetic_axis
-  kind: scalar
-  status: draft
-  description: Poloidal magnetic flux at the magnetic axis, defining the innermost
-    reference value of the flux coordinate
-  documentation: ''
-  unit: Wb
-  physics_domain: equilibrium
-  links: []
-  locus:
-    token: magnetic_axis
-    relation: of
-  sources:
-  - id: dd:equilibrium/time_slice/global_quantities/psi_magnetic_axis
-    dd_path: equilibrium/time_slice/global_quantities/psi_magnetic_axis
-    status: composed
-- name: poloidal_magnetic_flux_of_plasma_boundary
-  kind: scalar
-  status: draft
-  description: Poloidal magnetic flux evaluated at the plasma boundary (last closed
-    flux surface)
-  documentation: ''
-  unit: Wb
-  physics_domain: equilibrium
-  links: []
-  locus:
-    token: plasma_boundary
-    relation: of
-  sources:
-  - id: dd:equilibrium/time_slice/global_quantities/psi_boundary
-    dd_path: equilibrium/time_slice/global_quantities/psi_boundary
-    status: composed
-- name: safety_factor
-  kind: scalar
-  status: draft
-  description: Safety factor q as a function of the flux surface coordinate, giving
-    field line pitch
-  documentation: ''
-  unit: '1'
-  physics_domain: equilibrium
-  links: []
-  sources:
-  - id: dd:equilibrium/time_slice/profiles_1d/q
-    dd_path: equilibrium/time_slice/profiles_1d/q
+  - id: dd:equilibrium/time_slice/global_quantities/q_min/rho_tor_norm
+    dd_path: equilibrium/time_slice/global_quantities/q_min/rho_tor_norm
     status: composed
 - name: safety_factor_at_magnetic_axis
   kind: scalar
   status: draft
-  description: Safety factor q evaluated at the magnetic axis, equal to q(0) at the
-    magnetic field center
-  documentation: ''
+  description: The safety factor q evaluated at the magnetic axis, equal to the ratio
+    of toroidal to poloidal field-line turns at the innermost flux surface. It is
+    the limiting value of the q profile as the minor radius approaches zero, and is
+    a key parameter governing the stability of the plasma core.
+  documentation: "The safety factor at the magnetic axis, $q_0$, is the value of the\
+    \ safety factor profile $q(\\rho)$ taken in the limit $\\rho \\to 0$, where $\\\
+    rho$ is the effective minor-radius-like radial coordinate labeling nested flux\
+    \ surfaces. Because flux surfaces degenerate to a single point (the magnetic axis)\
+    \ at $\\rho = 0$, the value $q_0$ is obtained as a well-defined limit of the ratio\n\
+    \n$$q_0 = \\lim_{\\rho \\to 0} q(\\rho) = \\lim_{\\rho \\to 0} \\frac{d\\Phi}{d\\\
+    Psi}$$\n\nwhere $\\Phi$ is the toroidal magnetic flux and $\\Psi$ is the poloidal\
+    \ magnetic flux enclosed within a flux surface. This definition is equivalent\
+    \ to counting the number of toroidal transits a field line completes per poloidal\
+    \ revolution at the axis, and is consistent with the definition used throughout\
+    \ the $q(\\rho)$ profile family.\n\nIn the neighborhood of the magnetic axis,\
+    \ assuming circular cross-section and a locally uniform current density $j_0 \\\
+    equiv j_\\phi(0)$ on axis, $q_0$ is well approximated by\n\n$$q_0 \\approx \\\
+    frac{2 B_0}{\\mu_0 R_0 j_0}$$\n\nwhere $B_0$ is the on-axis toroidal field in\
+    \ tesla, $R_0$ is the major radius of the magnetic axis in meters, $j_0$ is the\
+    \ toroidal current density at the axis in $\\mathrm{A\\,m^{-2}}$, and $\\mu_0\
+    \ = 4\\pi \\times 10^{-7}\\,\\mathrm{H\\,m^{-1}}$. This expression follows from\
+    \ Ampere's law applied locally near the axis and is exact in the small-$\\rho$\
+    \ limit.\n\nTypically $q_0 \\approx 0.8$\u2013$1.2$ in standard H-mode tokamak\
+    \ discharges; advanced scenarios with reversed shear may exhibit $q_0 > 1.5$,\
+    \ while sawtoothing discharges are associated with $q_0$ near or slightly above\
+    \ unity. Disruptions are related to $q_0$ dropping below rational values such\
+    \ as $1$ or $2$.\n\nSign convention: Positive when the toroidal magnetic field\
+    \ component points in the direction of increasing toroidal angle $\\phi$ and the\
+    \ plasma current flows in the same direction, so that $d\\Phi/d\\Psi > 0$."
   unit: '1'
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:safety_factor
+  - name:safety_factor_at_normalized_poloidal_flux
+  - name:minimum_safety_factor
   locus:
     token: magnetic_axis
     relation: at
   sources:
   - id: dd:equilibrium/time_slice/global_quantities/q_axis
     dd_path: equilibrium/time_slice/global_quantities/q_axis
-    status: composed
-- name: safety_factor_at_normalized_poloidal_flux
-  kind: scalar
-  status: draft
-  description: Safety factor q evaluated at the 95% normalized poloidal flux surface,
-    a key MHD stability parameter
-  documentation: ''
-  unit: '1'
-  physics_domain: equilibrium
-  links: []
-  locus:
-    token: normalized_poloidal_flux
-    relation: at
-  sources:
-  - id: dd:equilibrium/time_slice/global_quantities/q_95
-    dd_path: equilibrium/time_slice/global_quantities/q_95
-    status: composed
-- name: toroidal_flux_radius_of_plasma_boundary
-  kind: scalar
-  status: draft
-  description: Toroidal flux radius coordinate value at the plasma boundary
-  documentation: ''
-  unit: m
-  physics_domain: equilibrium
-  links: []
-  locus:
-    token: plasma_boundary
-    relation: of
-  sources:
-  - id: dd:equilibrium/time_slice/boundary/rho_tor
-    dd_path: equilibrium/time_slice/boundary/rho_tor
-    status: composed
-- name: toroidal_magnetic_field_at_magnetic_axis
-  kind: scalar
-  status: draft
-  description: Vacuum toroidal magnetic field strength at the reference major radius
-    R0, used for field normalization
-  documentation: ''
-  unit: T
-  physics_domain: equilibrium
-  links: []
-  locus:
-    token: magnetic_axis
-    relation: at
-  sources:
-  - id: dd:equilibrium/time_slice/global_quantities/magnetic_axis/b_field_phi
-    dd_path: equilibrium/time_slice/global_quantities/magnetic_axis/b_field_phi
-    status: composed
-  - id: dd:equilibrium/vacuum_toroidal_field/b0
-    dd_path: equilibrium/vacuum_toroidal_field/b0
-    status: composed
-- name: total_plasma_pressure
-  kind: scalar
-  status: draft
-  description: Total plasma pressure as a function of the flux surface coordinate,
-    summed over all species
-  documentation: ''
-  unit: Pa
-  physics_domain: equilibrium
-  links: []
-  sources:
-  - id: dd:equilibrium/time_slice/profiles_1d/pressure
-    dd_path: equilibrium/time_slice/profiles_1d/pressure
-    status: composed
-- name: vertical_coordinate_of_geometric_axis
-  kind: scalar
-  status: draft
-  description: Vertical coordinate of the geometric axis of the plasma cross-section
-    as a function of flux surface
-  documentation: ''
-  unit: m
-  physics_domain: equilibrium
-  links: []
-  locus:
-    token: geometric_axis
-    relation: of
-  sources:
-  - id: dd:equilibrium/time_slice/boundary/geometric_axis/z
-    dd_path: equilibrium/time_slice/boundary/geometric_axis/z
-    status: composed
-  - id: dd:equilibrium/time_slice/profiles_1d/geometric_axis/z
-    dd_path: equilibrium/time_slice/profiles_1d/geometric_axis/z
-    status: composed
-- name: vertical_coordinate_of_magnetic_axis
-  kind: scalar
-  status: draft
-  description: Vertical coordinate of the magnetic axis in the poloidal plane
-  documentation: ''
-  unit: m
-  physics_domain: equilibrium
-  links: []
-  locus:
-    token: magnetic_axis
-    relation: of
-  sources:
-  - id: dd:equilibrium/time_slice/global_quantities/magnetic_axis/z
-    dd_path: equilibrium/time_slice/global_quantities/magnetic_axis/z
-    status: composed
-- name: vertical_magnetic_field
-  kind: scalar
-  status: draft
-  description: Vertical (Z) component of the magnetic field on the 2D equilibrium
-    grid
-  documentation: ''
-  unit: T
-  physics_domain: equilibrium
-  links: []
-  arguments:
-  - name: magnetic_field
-    operator: component
-    operator_kind: projection
-    axis: vertical
-    shape: component
-  sources:
-  - id: dd:equilibrium/time_slice/profiles_2d/b_field_z
-    dd_path: equilibrium/time_slice/profiles_2d/b_field_z
     status: composed
