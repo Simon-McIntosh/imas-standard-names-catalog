@@ -1,19 +1,450 @@
 # Domain: plasma_wall_interactions
-# Catalog sha: 1808c1f7f7803f46ee9ca977dfc4cc886ffe5026
-# Entries: 1
+# Catalog sha: d25b905a25b05fd4c10571f301d40b9e5d146776
+# Entries: 14
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: vertical_coordinate_of_limiter_tile
+- name: electron_particle_flux_of_wall
   kind: scalar
   status: draft
-  description: Vertical coordinate (cylindrical Z) of points on the limiter unit outline
-    contour
-  documentation: ''
-  unit: m
+  description: Total toroidally integrated rate at which electrons leave the wall
+    surface and return to the plasma, primarily through recycling and outgassing processes.
+  documentation: 'The electron particle flux from the wall quantifies the total toroidally
+    integrated rate at which electrons are released from the wall material into the
+    plasma volume via recycling of incident plasma ions and outgassing from wall surfaces.
+    This flux is a key component of the global particle balance for the plasma, as
+    the net source of electrons from the wall must be balanced by losses to the wall
+    and other sinks in steady state. The flux is typically decomposed by neutral energy
+    class (cold, thermal, fast) before re-ionization; in a burning plasma it can range
+    from $10^{20}$ to $10^{23}$ s$^{-1}$ depending on the wall material and recycling
+    regime. In a diverted tokamak, values typically span $10^{21}$ to $10^{24}$ s$^{-1}$,
+    often inferred from spectroscopic measurements of recycling light (e.g., D$\alpha$
+    intensity) and Langmuir probe currents at the divertor targets.
+
+
+    Sign convention: Positive when the net flow is from the wall into the plasma.'
+  unit: s^-1
   physics_domain: plasma_wall_interactions
-  links: []
+  links:
+  - name:neutral_particle_flux_of_wall
+  - name:electron_particle_flux_of_wall_due_to_surface_emission
   sources:
-  - id: dd:wall/description_2d/limiter/unit/outline/z
-    dd_path: wall/description_2d/limiter/unit/outline/z
+  - id: dd:wall/global_quantities/electrons/particle_flux_from_wall
+    dd_path: wall/global_quantities/electrons/particle_flux_from_wall
+    status: composed
+- name: electron_particle_flux_of_wall_due_to_surface_emission
+  kind: scalar
+  status: draft
+  description: Rate at which electrons are emitted from the wall surface into the
+    plasma due to thermal desorption, ion-induced desorption, or outgassing.
+  documentation: 'The electron particle flux due to surface emission is the number
+    of electrons per second that leave the first wall surface as a result of desorption
+    and outgassing processes. These include thermal desorption, where adsorbed atoms
+    or molecules are released due to heating; ion-induced desorption, where incident
+    ions knock adsorbed species from the surface; and outgassing, the release of trapped
+    gas from the wall material. This rate is defined as:
+
+
+    $$ \Gamma_{\mathrm{e,em}} = \Gamma_{\mathrm{i}} \, \gamma_{\mathrm{eff}} $$
+
+
+    where $\Gamma_{\mathrm{i}}$ is the incident ion flux and $\gamma_{\mathrm{eff}}$
+    is the effective particle reflection coefficient for electron emission (the number
+    of electrons emitted per incident ion). Typical values for $\gamma_{\mathrm{eff}}$
+    range from 0.01 to 0.1 for low-Z plasma-facing materials (e.g., beryllium, carbon)
+    and can be up to 0.5 for high-Z materials (e.g., tungsten) under high-energy impact.
+    The resulting flux $\Gamma_{\mathrm{e,em}}$ is typically on the order of $10^{20}$
+    to $10^{22}$ s$^{-1}$ in fusion devices, depending on the incident ion flux density
+    and the wall surface condition.
+
+
+    Note that this quantity refers specifically to electrons produced by surface emission
+    processes, distinguishing it from the electron particle flux from the plasma (which
+    includes recycling and other sources). The effective reflection coefficient $\gamma_{\mathrm{eff}}$
+    depends on the incident particle energy, species, and surface temperature.
+
+
+    Sign convention: Positive when electrons are emitted from the wall into the plasma.
+
+
+    Cross-references: For the neutral counterpart, see `particle_flux_of_wall_due_to_surface_emission`.
+    For the total electron flux from the plasma, see `electron_particle_flux_of_wall`.'
+  unit: s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:electron_particle_flux_of_wall
+  - name:neutral_particle_flux_at_plasma_boundary
+  - name:power_at_wall_due_to_convection
+  - name:neutral_particle_flux_of_wall
+  sources:
+  - id: dd:wall/global_quantities/electrons/particle_flux_from_plasma
+    dd_path: wall/global_quantities/electrons/particle_flux_from_plasma
+    status: composed
+- name: electrostatic_potential_at_wall
+  kind: scalar
+  status: draft
+  description: Electrostatic potential on the plasma-facing wall surface, defining
+    the electric potential boundary condition for the plasma edge.
+  documentation: The electrostatic potential $\phi_\text{wall}$ on the wall surface
+    represents the electric boundary condition for the edge plasma, influencing plasma-wall
+    interactions and sheath formation. It is a key quantity in determining the electric
+    field $\mathbf{E} = -\nabla \phi$ near the wall, which governs particle and heat
+    fluxes to plasma-facing components. This potential is typically obtained from
+    equilibrium reconstructions that include wall geometry or from dedicated potential
+    probes embedded in the first wall. The quantity is closely related to the [electrostatic_potential](name:electrostatic_potential)
+    in the edge plasma and the [vertical_electric_field](name:vertical_electric_field)
+    at the wall. Typical wall potentials in tokamaks range from tens to hundreds of
+    volts, depending on the plasma scenario and wall conditions.
+  unit: V
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:electrostatic_potential
+  - name:vertical_electric_field
+  sources:
+  - id: dd:wall/description_ggd/ggd/phi_potential/values
+    dd_path: wall/description_ggd/ggd/phi_potential/values
+    status: composed
+- name: ion_kinetic_energy_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Kinetic energy flux density carried by ions emitted from the wall surface
+    following plasma-wall interactions.
+  documentation: 'The ion kinetic energy flux at the wall represents the energy flux
+    density carried by ions that leave the wall surface after plasma-wall interactions,
+    such as reflection, sputtering, or desorption. This flux includes the kinetic
+    energy of the emitted ions, integrated over all species, and is a key quantity
+    for assessing wall erosion, material migration, and power balance in the plasma-wall
+    transition region. The quantity is defined on wall surface elements and is typically
+    computed from sheath-transport models or inferred from imaging diagnostics. Typical
+    values in the divertor region range from $10^2$ to $10^6$ W/m$^2$, depending on
+    plasma conditions and wall material. Inline cross-references: the electron counterpart
+    is [electron_kinetic_energy_flux_at_wall](name:electron_kinetic_energy_flux_at_wall),
+    and the recombination-driven component is [ion_energy_flux_at_wall_due_to_recombination](name:ion_energy_flux_at_wall_due_to_recombination).'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:electron_kinetic_energy_flux_at_wall
+  - name:ion_energy_flux_at_wall_due_to_recombination
+  sources:
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/kinetic/ion/emitted/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/ion/emitted/values
+    status: composed
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/kinetic/ion/state/emitted/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/ion/state/emitted/values
+    status: composed
+- name: ion_state_particle_flux
+  kind: scalar
+  status: draft
+  description: Incident particle flux of multiply charged ions in a specific charge
+    state at the plasma-facing wall surface.
+  documentation: The incident ion-state particle flux quantifies the rate at which
+    ions of a given charge state impinge on the plasma-facing wall surface. This flux
+    is defined as $\Gamma_{Z} = n_{Z} v_{\perp}$, where $n_{Z}$ is the density of
+    ions in charge state $Z$ (in m$^{-3}$) and $v_{\perp}$ is the component of the
+    incident velocity perpendicular to the wall surface (in m s$^{-1}$). It is a key
+    quantity for assessing net wall particle loading, sputtering yields, and impurity
+    source rates. Typical incident fluxes in the divertor region of magnetically confined
+    plasmas range from $10^{21}$ to $10^{24}$ m$^{-2}$ s$^{-1}$, depending on the
+    plasma regime and wall proximity. This quantity is often derived from edge fluid
+    or kinetic codes that model the transport of multiple ion charge states to the
+    wall. Its neutral counterpart is [neutral_state_particle_flux](name:neutral_state_particle_flux),
+    and the related power deposition is characterized by [ion_kinetic_energy_flux_at_wall](name:ion_kinetic_energy_flux_at_wall).
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_state_particle_flux
+  - name:ion_kinetic_energy_flux_at_wall
+  sources:
+  - id: dd:wall/description_ggd/ggd/particle_fluxes/ion/state/incident/values
+    dd_path: wall/description_ggd/ggd/particle_fluxes/ion/state/incident/values
+    status: composed
+- name: neutral_particle_flux_at_plasma_boundary
+  kind: scalar
+  status: draft
+  description: Total rate at which neutral particles cross the plasma boundary from
+    the plasma interior toward the wall surface.
+  documentation: 'The neutral particle flux at the plasma boundary is the integrated
+    rate at which neutral atoms (typically hydrogenic species) escape the confined
+    plasma region and impact the wall. This flux drives physical sputtering, chemical
+    erosion, and contributes to the neutral fueling of the scrape-off layer. It is
+    related to the inward neutral flux from recycling, which is described by the sibling
+    quantity [neutral_particle_flux_of_wall](name:neutral_particle_flux_of_wall).
+    Typical values in diverted tokamaks range from $10^{20}$ to $10^{23}$ s$^{-1}$,
+    depending on the plasma density, temperature, and wall material. The flux is inferred
+    from spectroscopic measurements of neutral line emission (e.g., Balmer-alpha)
+    combined with collisional-radiative models.
+
+
+    Sign convention: Positive when particles flow from the plasma into the wall (outward
+    across the last closed flux surface).
+
+
+    See also [electron_particle_flux_of_wall](name:electron_particle_flux_of_wall)
+    for the corresponding electron particle flux from wall recycling.'
+  unit: s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_particle_flux_of_wall
+  - name:electron_particle_flux_of_wall
+  sources:
+  - id: dd:wall/global_quantities/neutral/particle_flux_from_plasma
+    dd_path: wall/global_quantities/neutral/particle_flux_from_plasma
+    status: composed
+- name: neutral_particle_flux_of_wall
+  kind: scalar
+  status: draft
+  description: Total rate at which neutral particles are emitted from the wall into
+    the plasma through recycling and outgassing processes.
+  documentation: 'The neutral particle flux from the wall quantifies the total rate
+    at which neutral atoms or molecules leave the wall surface and enter the plasma
+    edge, encompassing contributions from plasma recycling (ion neutralization and
+    re-emission), thermal desorption, and material outgassing. This flux is a key
+    boundary condition for edge plasma transport codes and is often decomposed by
+    neutral energy categories (cold, thermal, fast) reflecting different wall-production
+    mechanisms. Typical values in tokamak divertors range from $10^{21}$ to $10^{24}$
+    s$^{-1}$, depending on the fueling rate, divertor conditions, and wall material.
+    It is directly related to the [electron particle flux of the wall](name:electron_particle_flux_of_wall)
+    through charge neutrality of the recycling process, and to the neutral influx
+    across the separatrix described by [neutral particle flux at plasma boundary](name:neutral_particle_flux_at_plasma_boundary).
+
+
+    Sign convention: Positive when particles leave the wall surface and enter the
+    plasma.
+
+
+    This quantity is routinely inferred from pressure gages, residual gas analyzers,
+    and spectroscopic measurements of neutral emission lines (e.g., Balmer series)
+    near the wall, often combined with wall-saturation models derived from plasma-facing
+    component diagnostics.'
+  unit: s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:electron_particle_flux_of_wall
+  - name:neutral_particle_flux_at_plasma_boundary
+  sources:
+  - id: dd:wall/global_quantities/neutral/particle_flux_from_wall
+    dd_path: wall/global_quantities/neutral/particle_flux_from_wall
+    status: composed
+- name: neutral_power_at_wall_due_to_recombination
+  kind: scalar
+  status: draft
+  description: Net power deposited on the plasma-facing wall by neutral particles
+    undergoing recombination (e.g., molecular formation) and returning to ground state.
+  documentation: This quantity represents the total thermal power delivered to the
+    first-wall surface by neutral atoms or molecules that carry internal recombination
+    energy released during their transition to a ground state, such as molecular hydrogen
+    formation from atomic hydrogen. The recombination power $P_{\mathrm{rec,neut}}$
+    of neutrals at the wall is distinct from the kinetic energy flux carried by ions
+    or electrons; it primarily originates from volume and surface recombination processes
+    in the scrape-off layer and divertor regions. Typical values in present-day tokamaks
+    range from kilowatts to several megawatts depending on plasma density and recycling
+    conditions, while in ITER the neutral recombination power at the wall is expected
+    to be a significant fraction of the total power exhaust (tens of megawatts). This
+    quantity is usually inferred from spectroscopic measurements of Balmer-alpha or
+    molecular band emission combined with collisional-radiative models, and is a key
+    input for plasma-facing component thermal design and erosion assessments. It complements
+    the related quantities [power_at_wall_due_to_recombination](name:power_at_wall_due_to_recombination)
+    (which accounts for ion recombination at the wall) and [neutral_power_at_wall](name:neutral_power_at_wall)
+    (the total neutral power, not restricted to recombination processes).
+  unit: W
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:power_at_wall_due_to_recombination
+  - name:neutral_power_at_wall
+  sources:
+  - id: dd:wall/global_quantities/power_recombination_neutrals
+    dd_path: wall/global_quantities/power_recombination_neutrals
+    status: composed
+- name: power_at_wall_due_to_conduction
+  kind: scalar
+  status: draft
+  description: Total thermal power conducted by the plasma onto the wall and extracted
+    by active cooling systems.
+  documentation: "The power conducted to the wall represents the component of the\
+    \ heat flux that reaches the plasma-facing components via thermal conduction through\
+    \ the scrape-off layer and the plasma edge, distinct from radiative or convective\
+    \ contributions. In tokamaks and stellarators, the conducted power $P_{\\mathrm{cond}}$\
+    \ is a key term in the wall power balance and determines the required cooling\
+    \ capacity for first-wall and divertor structures. It is typically inferred from\
+    \ the measured power to cooling systems, corrected for radiative and convective\
+    \ components, and is an essential input for engineering heat-load assessments\
+    \ and plasma exhaust design. The conducted power is related to the total power\
+    \ crossing the separatrix $P_{\\mathrm{SOL}}$ through the relation $P_{\\mathrm{SOL}}\
+    \ = P_{\\mathrm{cond}} + P_{\\mathrm{rad}}$, where $P_{\\mathrm{rad}}$ is the\
+    \ radiated power. Typical values in present-day tokamaks range from 10 to 100\u202F\
+    MW, scaling with input heating power and plasma confinement regime. This quantity\
+    \ is distinct from power deposition via specific edge loss mechanisms such as\
+    \ those described in [power_at_wall_due_to_ohmic_dissipation](name:power_at_wall_due_to_ohmic_dissipation)\
+    \ or [power_at_wall_due_to_radiation](name:power_at_wall_due_to_radiation).\n\n\
+    Sign convention: Positive when power flows from the plasma into the wall cooling\
+    \ systems."
+  unit: W
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:power_at_wall_due_to_ohmic_dissipation
+  - name:power_at_wall_due_to_radiation
+  sources:
+  - id: dd:wall/global_quantities/power_conducted
+    dd_path: wall/global_quantities/power_conducted
+    status: composed
+  - id: dd:wall/global_quantities/power_to_cooling
+    dd_path: wall/global_quantities/power_to_cooling
+    status: composed
+- name: power_at_wall_due_to_ohmic_dissipation
+  kind: scalar
+  status: draft
+  description: Joule heating power deposited on the plasma-facing wall by induced
+    electric currents in wall structures due to time-varying magnetic fields.
+  documentation: This quantity represents the resistive (ohmic) power dissipated in
+    the wall, including the vessel and structural components, when eddy currents or
+    halo currents are induced by the time-varying plasma current or magnetic fields.
+    The power is given by $P_{\Omega} = I_{\text{wall}}^2 R_{\text{wall}}$, where
+    $I_{\text{wall}}$ is the induced current in amperes and $R_{\text{wall}}$ is the
+    effective resistance of the wall circuit in ohms. During plasma disruptions and
+    vertical displacement events (VDEs), this ohmic dissipation can deposit tens to
+    hundreds of megawatts for periods of milliseconds, driving significant thermal
+    loads on in-vessel components. It is computed from electromagnetic models of the
+    passive structures (e.g., the vacuum vessel, stabilizing shells) or inferred from
+    pickup-coil measurements of the wall current. The total wall power is the sum
+    of this ohmic term and the power due to radiation [power_at_wall_due_to_radiation](name:power_at_wall_due_to_radiation)
+    and conduction [power_at_wall_due_to_conduction](name:power_at_wall_due_to_conduction).
+  unit: W
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:power_at_wall_due_to_radiation
+  - name:power_at_wall_due_to_conduction
+  sources:
+  - id: dd:wall/global_quantities/power_currents
+    dd_path: wall/global_quantities/power_currents
+    status: composed
+- name: power_at_wall_due_to_radiation
+  kind: scalar
+  status: draft
+  description: Net radiative power deposited on the plasma-facing first wall surface,
+    defined as the difference between incident and reflected radiation.
+  documentation: The radiated power at the wall quantifies the net power load on the
+    first wall surface due to electromagnetic radiation emitted from the plasma. It
+    is defined as $P_{\rm rad}^{\rm net} = P_{\rm rad}^{\rm inc} - P_{\rm rad}^{\rm
+    ref}$, where $P_{\rm rad}^{\rm inc}$ is the power incident on the wall from plasma
+    bremsstrahlung, line radiation, and recombination, and $P_{\rm rad}^{\rm ref}$
+    is the power reflected. This net radiative load is a critical heat-load parameter
+    for first-wall design and material selection, with typical values ranging from
+    10 MW to 100 MW in high-power tokamaks like ITER. The quantity is distinct from
+    the total [power_at_wall](name:power_at_wall), which sums all sources, and from
+    the emitted [radiated_power_at_wall](name:radiated_power_at_wall), which describes
+    black-body emission from the wall itself.
+  unit: W
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:power_at_wall
+  - name:radiated_power_at_wall
+  sources:
+  - id: dd:wall/global_quantities/power_radiated
+    dd_path: wall/global_quantities/power_radiated
+    status: composed
+- name: power_at_wall_due_to_recombination
+  kind: scalar
+  status: draft
+  description: Total power deposited on the plasma-facing wall due to recombination
+    of plasma ions into neutral atoms or molecules, encompassing both volume recombination
+    near the wall and surface recombination processes. This quantity accounts for
+    the ionization potential energy and kinetic energy released during recombination
+    events.
+  documentation: "The recombination power at the wall, $P_{\\mathrm{rec}}$, quantifies\
+    \ the thermal energy deposited on plasma-facing surfaces when plasma ions recombine\
+    \ into neutral atoms or molecules. The total power is given by\n$$P_{\\mathrm{rec}}\
+    \ = \\sum_i \\int_{\\mathrm{wall}} \\Gamma_i \\left( E_{\\mathrm{ion},i} + E_{\\\
+    mathrm{kin},i} \\right) \\, \\mathrm{d}A,$$\nwhere $\\Gamma_i$ is the incident\
+    \ particle flux of ions in charge state $i$, $E_{\\mathrm{ion},i}$ is the ionization\
+    \ potential energy released per recombination event (e.g., 13.6 eV for hydrogen\
+    \ isotopes recombining from the singly ionized state), $E_{\\mathrm{kin},i}$ is\
+    \ the kinetic energy of the recombining particle, and the integration is carried\
+    \ out over the entire wall area.\n\nRecombination occurs via two principal channels:\n\
+    \n- **Volume recombination:** three-body and radiative recombination in the plasma\
+    \ edge, predominantly active in high-density, low-temperature detached divertor\
+    \ conditions ($T_e \\lesssim 1$ eV, $n_e \\gtrsim 10^{20}\\,\\mathrm{m}^{-3}$).\n\
+    - **Surface recombination:** ions neutralized directly at the wall, releasing\
+    \ their ionization energy as heat into the surface.\n\nTypical values depend strongly\
+    \ on the operating regime and machine size. In low-recycling attached divertor\
+    \ conditions, $P_{\\mathrm{rec}}$ is typically 1\u2013100 kW. In partially or\
+    \ fully detached divertor plasmas, where volume recombination is enhanced, $P_{\\\
+    mathrm{rec}}$ can reach 1\u201320 MW in large tokamaks (e.g., ITER-class devices).\
+    \ The fraction of total wall power attributable to recombination varies from a\
+    \ few percent in attached regimes to 20\u201340% in strongly detached conditions.\n\
+    \nSign convention: Positive when the net power flows from the recombining plasma\
+    \ into the wall.\n\nThis quantity specifically accounts for recombination of plasma\
+    \ ions. The corresponding contribution from neutral species undergoing recombination\
+    \ or association reactions at the wall is captured separately by the standard\
+    \ name [neutral_power_at_wall_due_to_recombination](name:neutral_power_at_wall_due_to_recombination).\
+    \ For the total power deposited on the wall from all channels, see [power_at_wall](name:power_at_wall).\
+    \ The radiative component of wall power loading is described by [power_at_wall_due_to_radiation](name:power_at_wall_due_to_radiation)."
+  unit: W
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_power_at_wall_due_to_recombination
+  sources:
+  - id: dd:wall/global_quantities/power_recombination_plasma
+    dd_path: wall/global_quantities/power_recombination_plasma
+    status: composed
+- name: power_density_at_wall
+  kind: scalar
+  status: draft
+  description: Power per unit area incident on the plasma-facing wall surface from
+    all energy flux components, including radiation, particle kinetic energy, and
+    thermal conduction. This total heat load is critical for assessing plasma-facing
+    component thermal limits and power exhaust requirements.
+  documentation: "The total power density $q_{\\mathrm{wall}}$ arriving at the plasma-facing\
+    \ wall surface is defined as the sum of all energy fluxes per unit area:\n\n$$\
+    \ q_{\\mathrm{wall}} = q_{\\mathrm{rad}} + q_{\\mathrm{cond}} + \\sum_s \\Gamma_s\
+    \ E_s $$\n\nwhere $q_{\\mathrm{rad}}$ is the radiated power density, $q_{\\mathrm{cond}}$\
+    \ is the conducted power density, and $\\Gamma_s E_s$ is the kinetic energy flux\
+    \ density of incident plasma species $s$ (including ions and neutrals). This aggregate\
+    \ quantity represents the total thermal loading boundary condition for plasma-facing\
+    \ component design and does not distinguish between radiative, conductive, or\
+    \ particle-driven contributions.\n\nTypical values range from 10\u2013100 MW/m$^2$\
+    \ in high-power diverted tokamak operation to below 1 MW/m$^2$ in the far scrape-off\
+    \ layer. The power density is inferred from infrared thermography measurements\
+    \ of surface temperature evolution, or from integrated analysis of bolometric\
+    \ and particle flux diagnostics combined with equilibrium reconstruction. \n\n\
+    Sign convention: Positive when net power is deposited onto the wall surface (energy\
+    \ flowing from the plasma into the wall)."
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:power_at_wall_due_to_radiation
+  - name:power_at_wall_due_to_conduction
+  - name:ion_kinetic_energy_flux_at_wall
+  sources:
+  - id: dd:wall/description_ggd/ggd/power_density/values
+    dd_path: wall/description_ggd/ggd/power_density/values
+    status: composed
+- name: radiated_energy_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Outgoing radiative energy flux density due to plasma emission at the
+    wall surface.
+  documentation: "This quantity represents the energy flux density carried by electromagnetic\
+    \ radiation emitted from the plasma and incident on the wall surface. It includes\
+    \ contributions from line radiation, continuum radiation (free-free and free-bound),\
+    \ and bremsstrahlung emitted by the plasma, typically integrated over all photon\
+    \ energies. The radiative energy flux at the wall is a key term in the overall\
+    \ wall power balance, determining the heat load due to radiation onto plasma-facing\
+    \ components. In tokamaks and stellarators, this flux is calculated from the volume-integrated\
+    \ radiative power loss, often inferred from bolometry or spectroscopic measurements,\
+    \ and divided by the wall surface area. Typical values range from 0.1 to 10 MW/m\xB2\
+    \ in the divertor region of high-power devices, depending on the plasma density\
+    \ and impurity content. This quantity is distinct from the incident kinetic energy\
+    \ flux carried by particles, such as the [electron kinetic energy flux at wall](name:electron_kinetic_energy_flux_at_wall)\
+    \ or the [ion kinetic energy flux at wall](name:ion_kinetic_energy_flux_at_wall).\
+    \ The radiation emitted from the wall itself is described by the sibling [radiation\
+    \ energy flux at wall](name:energy_flux_at_wall_due_to_radiation_emission)."
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:electron_kinetic_energy_flux_at_wall
+  - name:ion_kinetic_energy_flux_at_wall
+  - name:energy_flux_at_wall_due_to_radiation_emission
+  sources:
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/radiation/emitted/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/radiation/emitted/values
     status: composed

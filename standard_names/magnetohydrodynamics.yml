@@ -1,144 +1,677 @@
 # Domain: magnetohydrodynamics
-# Catalog sha: 1808c1f7f7803f46ee9ca977dfc4cc886ffe5026
-# Entries: 9
+# Catalog sha: d25b905a25b05fd4c10571f301d40b9e5d146776
+# Entries: 20
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: neoclassical_width_at_neoclassical_tearing_mode_onset
+- name: electron_pressure
   kind: scalar
   status: draft
-  description: Full width of the neoclassical tearing mode magnetic island at the
-    time of mode onset
-  documentation: ''
-  unit: m
+  description: Kinetic pressure of the electron population, including both thermal
+    and suprathermal contributions.
+  documentation: 'The electron pressure $p_e = n_e k_B T_e$ represents the total kinetic
+    pressure exerted by the electron population, encompassing both the bulk thermal
+    component and any suprathermal (non-thermal) electrons present. In fusion plasmas,
+    the electron pressure contributes significantly to the total plasma pressure,
+    which balances the magnetic pressure in equilibrium. Typical core values range
+    from 10 to 1000 kPa in tokamak plasmas, depending on the density and temperature
+    profiles. The electron pressure is commonly inferred from the electron density
+    and temperature measured by Thomson scattering or electron cyclotron emission
+    diagnostics, combined with equilibrium reconstruction. For the thermal component
+    alone, see [thermal_electron_density](name:thermal_electron_density) and [electron_temperature](name:electron_temperature).
+    The total pressure typically also includes contributions from [thermal_ion_pressure](name:thermal_ion_pressure)
+    and [parallel_fast_ion_pressure](name:parallel_fast_ion_pressure) when fast ions
+    are present.
+
+
+    Sign convention: Positive when the electron population exerts an outward force
+    normal to a flux surface.'
+  unit: Pa
   physics_domain: magnetohydrodynamics
-  links: []
+  links:
+  - name:thermal_electron_density
+  - name:electron_temperature
+  - name:thermal_ion_pressure
+  - name:parallel_fast_ion_pressure
   sources:
-  - id: dd:ntms/time_slice/mode/onset/width
-    dd_path: ntms/time_slice/mode/onset/width
+  - id: dd:plasma_profiles/ggd/electrons/pressure/values
+    dd_path: plasma_profiles/ggd/electrons/pressure/values
+    status: composed
+  - id: dd:sawteeth/profiles_1d/p_e
+    dd_path: sawteeth/profiles_1d/p_e
+    status: composed
+- name: electron_radiated_energy_over_halo_region_due_to_impurity_radiation
+  kind: scalar
+  status: draft
+  description: Cumulative energy radiated by electrons through interactions with impurity
+    ions within the halo region during a tokamak disruption.
+  documentation: "This quantity quantifies the total energy lost by the electron population\
+    \ to electromagnetic radiation emitted by impurity ions (e.g., carbon, tungsten,\
+    \ or argon) within the halo region \u2014 the open-field-line plasma region outside\
+    \ the last closed flux surface that forms during a disruption. The radiated energy\
+    \ is the time integral of the radiated power over the disruption duration: $E_{\\\
+    mathrm{rad}} = \\int P_{\\mathrm{rad}}(t)\\,dt$, where $P_{\\mathrm{rad}}$ is\
+    \ the [electron radiated power over the halo region due to impurity radiation](name:electron_radiated_power_over_halo_region_due_to_impurity_radiation).\
+    \ This energy contributes to the global disruption energy balance, alongside the\
+    \ ohmic energy dissipated in the halo by current decay, captured by [ohmic energy\
+    \ over halo region](name:ohmic_energy_over_halo_region). The impurity radiation\
+    \ in the halo region is a critical loss channel that can cool the plasma, reduce\
+    \ halo current magnitude, and mitigate wall damage. Typical radiated energy fractions\
+    \ range from 10\u201370% of the total magnetic energy stored in the plasma before\
+    \ the disruption, depending on impurity seeding and plasma conditions."
+  unit: J
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:electron_radiated_power_over_halo_region_due_to_impurity_radiation
+  - name:ohmic_energy_over_halo_region
+  sources:
+  - id: dd:disruption/global_quantities/energy_radiated_electrons_impurities_halo
+    dd_path: disruption/global_quantities/energy_radiated_electrons_impurities_halo
+    status: composed
+- name: electron_temperature_at_post_sawtooth_crash
+  kind: scalar
+  status: draft
+  description: Electron temperature measured shortly after a sawtooth crash, capturing
+    the flattened core profile during the post-crash relaxation phase.
+  documentation: "The electron temperature $T_e$ after a sawtooth crash quantifies\
+    \ the core thermal energy redistribution following the internal kink instability\
+    \ that flattens the $q=1$ surface. During the sawtooth crash, magnetic reconnection\
+    \ expels hot core plasma, reducing the central $T_e$ by 10\u201340% in conventional\
+    \ tokamaks; the post-crash profile then recovers via Ohmic heating and transport\
+    \ on longer timescales. This quantity is measured by electron cyclotron emission\
+    \ (ECE) radiometry or Thomson scattering with high time resolution ($\\sim$10\u2013\
+    100 $\\mu$s) to resolve the crash dynamics. Typical core values range from 0.1\u2013\
+    0.5 keV in Ohmic L-mode plasmas to 2\u201310 keV in auxiliary-heated H-mode discharges.\n\
+    \nSign convention: Positive when the electron thermal energy exceeds the reference\
+    \ zero-point (absolute temperature scale).\n\nCross-references to related quantities\
+    \ include [electron_temperature_at_divertor_target](name:electron_temperature_at_divertor_target)\
+    \ for the boundary value and [electron_pressure](name:electron_pressure) for the\
+    \ associated pressure evolution. The companion [total_plasma_density_at_post_sawtooth_crash](name:total_plasma_density_at_post_sawtooth_crash)\
+    \ provides the post-crash density."
+  unit: eV
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:electron_temperature_at_divertor_target
+  - name:electron_pressure
+  - name:total_plasma_density_at_post_sawtooth_crash
+  sources:
+  - id: dd:sawteeth/profiles_1d/t_e
+    dd_path: sawteeth/profiles_1d/t_e
+    status: composed
+- name: fast_electron_density_at_post_sawtooth_crash
+  kind: scalar
+  status: draft
+  description: Number density of suprathermal (fast) electrons in the plasma core
+    immediately following a sawtooth crash event.
+  documentation: 'The fast electron number density $n_{e,\mathrm{fast}}$ quantifies
+    the suprathermal electron population (energies well above the thermal bulk, typically
+    10--100~keV) that persists or is redistributed after a sawtooth crash. During
+    the crash, the central safety factor rises above unity and magnetic reconnection
+    expels or redistributes fast electrons from the core, transiently modifying the
+    fast-electron profile. Typical core values in tokamak sawtoothing regimes range
+    from $10^{16}$~m$^{-3}$ to $10^{18}$~m$^{-3}$, depending on auxiliary heating
+    (e.g., electron cyclotron current drive) and the fast-electron source strength.
+
+
+    The density is inferred from electron cyclotron emission (ECE) measurements, hard
+    X-ray tomography, or fast-electron bremsstrahlung diagnostics, often combined
+    with equilibrium reconstruction to unfold the thermal background.
+
+
+    Sign convention: Positive when $n_{e,\mathrm{fast}}$ represents the number of
+    fast electrons per unit volume.
+
+
+    The definition of fast electron density in general (i.e., not specifically post-crash)
+    is given by the sibling `fast_electron_density`.'
+  unit: m^-3
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:total_plasma_density_at_post_sawtooth_crash
+  - name:electron_temperature_at_post_sawtooth_crash
+  sources:
+  - id: dd:sawteeth/profiles_1d/n_e_fast
+    dd_path: sawteeth/profiles_1d/n_e_fast
+    status: composed
+- name: magnetic_shear_at_neoclassical_tearing_mode_center
+  kind: scalar
+  status: draft
+  description: Normalized radial gradient of the safety factor, quantifying the divergence
+    of magnetic field lines between adjacent flux surfaces, evaluated at the center
+    of a neoclassical tearing mode island.
+  documentation: 'The magnetic shear $s = (\rho/q)\,dq/d\rho$ (with $\rho$ the normalized
+    toroidal flux radius) measures the rate at which the field-line pitch changes
+    between neighboring flux surfaces. At the center of a neoclassical tearing mode
+    (NTM) island, the shear is modified from its unperturbed profile due to the presence
+    of the magnetic island, influencing the mode stability through the bootstrap current
+    perturbation. The quantity is dimensionless and evaluated at the O-point of the
+    NTM island; typical core values in tokamaks range from $s\approx0.5$\textendash$2.0$
+    in the absence of strong shear reversal. Reconstruction from equilibrium codes
+    (e.g., EFIT, LIUQE) constrained by magnetic diagnostics provides the equilibrium
+    $q$ profile from which $s$ is derived.
+
+
+    Sign convention: Positive when the safety factor increases with minor radius,
+    corresponding to monotonic $q$ profiles.
+
+
+    See [magnetic_shear](name:magnetic_shear) for the profile quantity, [magnetic_shear_of_separatrix](name:magnetic_shear_of_separatrix)
+    for evaluation at the last-closed flux surface, and [toroidal_mode_number_of_neoclassical_tearing_mode](name:toroidal_mode_number_of_neoclassical_tearing_mode)
+    for the mode helicity.'
+  unit: '1'
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:magnetic_shear
+  - name:magnetic_shear_of_separatrix
+  - name:toroidal_mode_number_of_neoclassical_tearing_mode
+  sources:
+  - id: dd:sawteeth/diagnostics/magnetic_shear_q1
+    dd_path: sawteeth/diagnostics/magnetic_shear_q1
     status: composed
 - name: ohmic_energy_over_halo_region
   kind: scalar
   status: draft
-  description: Cumulative ohmic energy deposited in the halo region during a disruption
-  documentation: ''
+  description: Cumulative ohmic energy dissipated by resistive current decay within
+    the halo region during a tokamak disruption.
+  documentation: This quantity represents the time-integrated ohmic heating energy
+    deposited in the halo region during a disruption, arising from the resistive dissipation
+    of the halo current. The halo region is the region of open field lines near the
+    plasma boundary that carries a significant fraction of the toroidal plasma current
+    during the current quench. The ohmic energy deposition is given by $E_{\mathrm{ohm,halo}}
+    = \int_0^{t_{\mathrm{dis}}} I_{\mathrm{halo}}^2(t) \, R_{\mathrm{halo}}(t) \,
+    dt$, where $I_{\mathrm{halo}}$ is the halo current (in A), $R_{\mathrm{halo}}$
+    is the halo region resistance (in $\Omega$), and $t_{\mathrm{dis}}$ is the disruption
+    duration. Typical values in large tokamaks range from several hundred kJ to a
+    few MJ, depending on the disruption severity and the halo current magnitude and
+    duration. This quantity is inferred from magnetic measurements of the halo current
+    combined with models of the halo region resistivity. The cumulative ohmic energy
+    over the halo region complements the broader [ohmic_energy](name:ohmic_energy)
+    dissipated in the entire plasma. Also closely related are the total halo current
+    described by [toroidal_halo_current_of_halo_boundary](name:toroidal_halo_current_of_halo_boundary)
+    and the parallel conductive energy deposition from [energy_over_halo_region_due_to_conduction](name:energy_over_halo_region_due_to_conduction).
   unit: J
   physics_domain: magnetohydrodynamics
-  links: []
+  links:
+  - name:ohmic_energy
+  - name:toroidal_halo_current_of_halo_boundary
+  - name:energy_over_halo_region_due_to_conduction
   sources:
   - id: dd:disruption/global_quantities/energy_ohm_halo
     dd_path: disruption/global_quantities/energy_ohm_halo
     status: composed
-- name: parallel_runaway_electron_current_density
+- name: poloidal_halo_current_of_halo_boundary
   kind: scalar
   status: draft
-  description: Parallel current density carried by runaway electrons as a radial profile
-  documentation: ''
-  unit: A.m^-2
+  description: Poloidal component of the halo current evaluated at the outer boundary
+    of the halo region during a tokamak disruption.
+  documentation: "The poloidal halo current $I_{\\mathrm{halo}}^{\\theta}$ is the\
+    \ poloidal component of the electrical current flowing in the halo region \u2014\
+    \ the plasma volume outside the last closed flux surface \u2014 during a disruption.\
+    \ This current results from the poloidal decay of the plasma current after the\
+    \ thermal quench and contributes directly to the electromagnetic forces acting\
+    \ on the vessel and in-vessel components. The total halo current is composed of\
+    \ a poloidal and a toroidal component; the poloidal component closes the current\
+    \ path through the halo plasma and structures. Typical peak values in large tokamaks\
+    \ range from 100 kA to several MA depending on the disruption severity and the\
+    \ plasma current. The poloidal halo current is measured by segmented magnetic\
+    \ probes installed at the first wall or divertor and is reconstructed as part\
+    \ of disruption equilibrium analysis. For a consistent description of the halo\
+    \ current system, see also [toroidal_halo_current_of_halo_boundary](name:toroidal_halo_current_of_halo_boundary)\
+    \ and [poloidal_magnetic_flux_of_halo_boundary](name:poloidal_magnetic_flux_of_halo_boundary).\n\
+    \nSign convention: Positive when the poloidal halo current flows in the direction\
+    \ of increasing poloidal angle in the right-handed $(R, \\phi, Z)$ cylindrical\
+    \ frame."
+  unit: A
   physics_domain: magnetohydrodynamics
-  links: []
-  arguments:
-  - name: runaway_electron_current_density
-    operator: component
-    operator_kind: projection
-    axis: parallel
-    shape: component
+  links:
+  - name:toroidal_halo_current_of_halo_boundary
+  - name:poloidal_magnetic_flux_of_halo_boundary
   sources:
-  - id: dd:runaway_electrons/profiles_1d/current_density
-    dd_path: runaway_electrons/profiles_1d/current_density
+  - id: dd:disruption/global_quantities/current_halo_pol
+    dd_path: disruption/global_quantities/current_halo_pol
     status: composed
-- name: radial_mode_number
+  - id: dd:disruption/halo_currents/area/current_halo_pol
+    dd_path: disruption/halo_currents/area/current_halo_pol
+    status: composed
+- name: poloidal_magnetic_flux_at_plasma_boundary
   kind: scalar
   status: draft
-  description: Radial mode number of the linear MHD stability eigenmode
-  documentation: ''
+  description: Poloidal magnetic flux per radian of toroidal angle evaluated at the
+    last closed flux surface, providing the outer boundary value for normalized flux
+    surface labels.
+  documentation: "The value $\\psi_b$ of the poloidal magnetic flux $\\(\\psi)$ at\
+    \ the last closed flux surface (LCFS) defines the outer reference for normalized\
+    \ flux coordinates such as $\\psi_N = (\\psi - \\psi_0) / (\\psi_b - \\psi_0)$,\
+    \ where $\\psi_0$ is the poloidal flux at the magnetic axis ([poloidal_magnetic_flux_at_magnetic_axis](name:poloidal_magnetic_flux_at_magnetic_axis)).\
+    \ In tokamak equilibrium reconstruction, $\\psi_b$ is determined from the plasma\
+    \ boundary identified by magnetic measurements or equilibrium codes (EFIT, LIUQE).\
+    \ Typical values range from 0.5\u201310 Wb for present-day tokamaks, scaling with\
+    \ plasma current and major radius. The companion quantity [poloidal_magnetic_flux_of_separatrix](name:poloidal_magnetic_flux_of_separatrix)\
+    \ serves the same role in diverted configurations where the LCFS is the separatrix.\n\
+    \nSign convention: Positive when the plasma current flows in the direction of\
+    \ increasing toroidal angle $\\(\\phi)$ (counter-clockwise viewed from above $+\\\
+    hat{Z}$)."
+  unit: Wb
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:poloidal_magnetic_flux_at_magnetic_axis
+  - name:poloidal_magnetic_flux_of_separatrix
+  sources:
+  - id: dd:sawteeth/profiles_1d/grid/psi_boundary
+    dd_path: sawteeth/profiles_1d/grid/psi_boundary
+    status: composed
+- name: poloidal_magnetic_flux_of_halo_boundary
+  kind: scalar
+  status: draft
+  description: Poloidal magnetic flux evaluated at the outer boundary of the halo
+    current region during a tokamak disruption.
+  documentation: 'The poloidal magnetic flux $\psi_{\text{halo}}$ at the halo boundary
+    defines the magnetic surface that separates the confined plasma from the halo
+    region, a partially ionized, current-carrying plasma that forms during a disruption
+    when the last closed flux surface is lost. This quantity is a key input for halo
+    current modeling and disruption mitigation studies, as the poloidal flux at the
+    boundary determines the radial extent and toroidal current drive in the halo.
+    Typical values range from 0.1 to 10 Wb in medium-size tokamaks, depending on the
+    disruption severity and plasma current. It is commonly computed from equilibrium
+    reconstruction codes that track the evolving magnetic topology during the disruption.
+    See also [toroidal_magnetic_flux_of_halo_boundary](name:toroidal_magnetic_flux_of_halo_boundary)
+    for the corresponding toroidal flux and [poloidal_magnetic_flux_of_separatrix](name:poloidal_magnetic_flux_of_separatrix)
+    for the pre-disruption confined boundary.
+
+
+    Sign convention: Positive when the poloidal flux function $\psi$ increases radially
+    outward from the magnetic axis.
+
+
+    For a tokamak with positive plasma current $I_p > 0$, the poloidal flux decreases
+    monotonically from the magnetic axis to the boundary, so the halo boundary flux
+    is less than the axis flux.'
+  unit: Wb
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:toroidal_magnetic_flux_of_halo_boundary
+  - name:poloidal_magnetic_flux_of_separatrix
+  sources:
+  - id: dd:disruption/global_quantities/psi_halo_boundary
+    dd_path: disruption/global_quantities/psi_halo_boundary
+    status: composed
+- name: poloidal_mode_number_of_neoclassical_tearing_mode
+  kind: scalar
+  status: draft
+  description: Poloidal mode number $m$ of the magnetic island produced by a neoclassical
+    tearing mode, characterizing its poloidal periodicity.
+  documentation: 'The poloidal mode number $m$ describes the number of poloidal wavelengths
+    of the helical magnetic perturbation around a flux surface for a neoclassical
+    tearing mode (NTM). It is defined by the integer $m$ in the Fourier decomposition
+    of the perturbed poloidal magnetic field, $\delta B^r \propto \cos(m\theta - n\phi
+    + \omega t)$, where $\theta$ and $\phi$ are poloidal and toroidal angles. The
+    mode number determines the poloidal structure of the magnetic island chain and
+    is quantized by the poloidal periodicity of the plasma equilibrium. For typical
+    NTMs in tokamaks, low poloidal mode numbers $m = 2, 3, 4$ are most common, often
+    coupling with toroidal mode numbers $n = 1$ (e.g., the $(3,1)$ and $(2,1)$ modes).
+    The sign of $m$ indicates the direction of the poloidal phase velocity of the
+    perturbation. Measured via magnetic pickup coils (Mirnov probes) or inferred from
+    electron cyclotron emission (ECE) imaging that resolves the island''s poloidal
+    structure. See also [toroidal_mode_number_of_neoclassical_tearing_mode](name:toroidal_mode_number_of_neoclassical_tearing_mode),
+    which together with $m$ fully specifies the mode periodicity.
+
+
+    Sign convention: Positive when the perturbation rotates in the direction of increasing
+    poloidal angle $\theta$ (ion diamagnetic drift direction in the lab frame).'
   unit: '1'
   physics_domain: magnetohydrodynamics
-  links: []
-  arguments:
-  - name: mode_number
-    operator: component
-    operator_kind: projection
-    axis: radial
-    shape: component
+  links:
+  - name:toroidal_mode_number_of_neoclassical_tearing_mode
   sources:
-  - id: dd:mhd_linear/time_slice/toroidal_mode/radial_mode_number
-    dd_path: mhd_linear/time_slice/toroidal_mode/radial_mode_number
-    status: composed
-- name: radiated_power_over_halo_region
+  - id: dd:ntms/time_slice/mode/detailed_evolution/m_pol
+    dd_path: ntms/time_slice/mode/detailed_evolution/m_pol
+    status: attached
+  - id: dd:ntms/time_slice/mode/m_pol
+    dd_path: ntms/time_slice/mode/m_pol
+    status: attached
+  - id: dd:ntms/time_slice/mode/onset/m_pol
+    dd_path: ntms/time_slice/mode/onset/m_pol
+    status: attached
+- name: runaway_electron_current_density
   kind: scalar
   status: draft
-  description: Total electron radiation power from impurities in the halo region during
-    a disruption
-  documentation: ''
-  unit: W
-  physics_domain: magnetohydrodynamics
-  links: []
-  sources:
-  - id: dd:disruption/global_quantities/power_radiated_electrons_impurities_halo
-    dd_path: disruption/global_quantities/power_radiated_electrons_impurities_halo
-    status: composed
-- name: runaway_electron_current_density_at_neoclassical_tearing_mode_center
-  kind: scalar
-  status: draft
-  description: Radial profile of runaway electron current density during a disruption
-  documentation: ''
+  description: Flux-surface-averaged parallel current density carried by the runaway
+    electron population in a magnetized plasma.
+  documentation: "The runaway electron current density $j_{\\rm RE} = \\langle \\\
+    mathbf{j}_{\\rm RE} \\cdot \\mathbf{B} \\rangle / B_0$ quantifies the electrical\
+    \ current carried by suprathermal electrons undergoing runaway acceleration. It\
+    \ controls the magnetic perturbation of the runaway beam and its impact on plasma\
+    \ equilibrium stability. Typical values range from 0.1\u201310 MA\u202Fm$^{-2}$\
+    \ in disruption beams, depending on the avalanche multiplication factor and the\
+    \ available toroidal electric field. This quantity is reconstructed from synchrotron\
+    \ radiation images, hard X-ray measurements, and magnetic diagnostics via equilibrium\
+    \ solvers. It is related to the total beam current by $I_{\\rm RE} = \\int j_{\\\
+    rm RE} \\, dA$, where $dA$ is the flux-surface cross-sectional area. See also\
+    \ [volume_averaged_runaway_electron_current_density](name:volume_averaged_runaway_electron_current_density)\
+    \ and [total_source_rate](name:total_source_rate) for the underlying generation\
+    \ mechanisms.\n\nSign convention: Positive when the runaway current flows in the\
+    \ direction of increasing toroidal angle $\\phi$."
   unit: A.m^-2
   physics_domain: magnetohydrodynamics
-  links: []
+  links:
+  - name:volume_averaged_runaway_electron_current_density
+  - name:total_source_rate
   sources:
   - id: dd:disruption/profiles_1d/j_runaways
     dd_path: disruption/profiles_1d/j_runaways
     status: composed
-- name: time_derivative_of_neoclassical_width
-  kind: scalar
-  status: draft
-  description: Time derivative of the full width of the neoclassical tearing mode
-    magnetic island
-  documentation: ''
-  unit: m.s^-1
-  physics_domain: magnetohydrodynamics
-  links: []
-  arguments:
-  - name: neoclassical_width
-    operator: time_derivative
-    operator_kind: unary_prefix
-  sources:
-  - id: dd:ntms/time_slice/mode/dwidth_dt
-    dd_path: ntms/time_slice/mode/dwidth_dt
+  - id: dd:runaway_electrons/ggd_fluid/current_density/values
+    dd_path: runaway_electrons/ggd_fluid/current_density/values
     status: composed
-- name: time_derivative_of_runaway_electron_number_density
-  kind: scalar
-  status: draft
-  description: Rate of change of runaway electron density due to hot-tail generation
-    mechanism
-  documentation: ''
-  unit: m^-3.s^-1
-  physics_domain: magnetohydrodynamics
-  links: []
-  arguments:
-  - name: runaway_electron_number_density
-    operator: time_derivative
-    operator_kind: unary_prefix
-  sources:
-  - id: dd:runaway_electrons/profiles_1d/ddensity_dt_hot_tail
-    dd_path: runaway_electrons/profiles_1d/ddensity_dt_hot_tail
+  - id: dd:runaway_electrons/profiles_1d/current_density
+    dd_path: runaway_electrons/profiles_1d/current_density
     status: composed
-- name: toroidal_mode_number
+- name: runaway_electron_density
   kind: scalar
   status: draft
-  description: Toroidal mode number n of the MHD linear stability perturbation
-  documentation: ''
+  description: Number density of electrons in the runaway regime, where the parallel
+    electric field exceeds the critical field for collisional friction and relativistic
+    effects reduce the effective collisionality.
+  documentation: 'The runaway electron density $n_{\mathrm{RE}}$ quantifies the population
+    of suprathermal electrons that undergo continuous acceleration by the toroidal
+    electric field during tokamak disruptions, when the electric field $E_\parallel$
+    exceeds the critical field $E_c = n_e e^3 \ln\Lambda/(4\pi \epsilon_0^2 m_e c^2)$.
+    These electrons can reach multi-MeV energies and carry a significant fraction
+    of the plasma current, posing a threat to plasma-facing components. Typical densities
+    range from $10^{15}\,\mathrm{m^{-3}}$ to $10^{19}\,\mathrm{m^{-3}}$ in disruption
+    scenarios, depending on the electron density, temperature evolution, and impurity
+    content. The density is inferred from measurements of synchrotron radiation, bremsstrahlung
+    emission by hard X-ray diagnostics, or through reconstruction of the post-disruption
+    current profile using magnetic and kinetic constraints. In kinetic models, the
+    runaway electron density is computed by integrating the distribution function
+    $f_\mathrm{RE}(p)$ above the critical momentum $p_c = m_e c / \sqrt{E_\parallel/E_c
+    - 1}$ over momentum space. The evolution of $n_{\mathrm{RE}}$ is governed by the
+    competition between the Dreicer generation mechanism and avalanche multiplication,
+    described by the source rate [runaway_electron_source_rate](name:runaway_electron_source_rate).
+    The volume-averaged counterpart [volume_averaged_runaway_electron_density](name:volume_averaged_runaway_electron_density)
+    and the kinetic energy [runaway_electron_kinetic_energy](name:runaway_electron_kinetic_energy)
+    complete the characterization of the runaway population.
+
+
+    Sign convention: Positive when the number of runaway electrons per unit volume
+    increases.
+
+
+    The cross-reference rationale explains that the density of runaway electrons is
+    intrinsically linked to the mechanisms that generate them (the source rate), the
+    energy they carry (kinetic energy), and the global metric that aggregates them
+    (volume-averaged density).'
+  unit: m^-3
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:runaway_electron_source_rate
+  - name:volume_averaged_runaway_electron_density
+  - name:runaway_electron_kinetic_energy
+  sources:
+  - id: dd:runaway_electrons/ggd_fluid/density/values
+    dd_path: runaway_electrons/ggd_fluid/density/values
+    status: composed
+  - id: dd:runaway_electrons/profiles_1d/density
+    dd_path: runaway_electrons/profiles_1d/density
+    status: composed
+- name: time_of_neoclassical_tearing_mode_onset
+  kind: scalar
+  status: draft
+  description: Time offset from a global reference marking the onset of a neoclassical
+    tearing mode magnetic island.
+  documentation: 'The onset time of a neoclassical tearing mode (NTM) is the time
+    at which the magnetic island first reaches a detectable amplitude, usually identified
+    from a threshold crossing in the mode amplitude or from the time derivative of
+    the perturbed field. This time offset is referenced to an arbitrary global time
+    origin, such as the beginning of a discharge simulation. The NTM onset time is
+    a critical input for transport simulations and MHD stability analysis, as it determines
+    when the island-driven degradation of confinement begins. It is related to the
+    mode''s helical periodicity through the [$n$](name:toroidal_mode_number_of_neoclassical_tearing_mode)
+    and [$m$](name:poloidal_mode_number_of_neoclassical_tearing_mode) numbers, which
+    describe the island''s toroidal and poloidal structure.
+
+
+    Sign convention: Positive when the onset occurs after the global time reference.
+
+
+    Typical values in tokamak experiments range from 0.1 to 10 s after the start of
+    the current flat-top. The onset time is usually determined from magnetic pickup
+    coils (Mirnov probes) or from the mode signature in electron cyclotron emission
+    measurements.'
+  unit: s
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:toroidal_mode_number_of_neoclassical_tearing_mode
+  - name:poloidal_mode_number_of_neoclassical_tearing_mode
+  sources:
+  - id: dd:ntms/time_slice/mode/onset/time_offset
+    dd_path: ntms/time_slice/mode/onset/time_offset
+    status: composed
+  - id: dd:summary/disruption/decay_times/current_runaways/exponential/value
+    dd_path: summary/disruption/decay_times/current_runaways/exponential/value
+    status: attached
+  - id: dd:summary/disruption/decay_times/current_runaways/linear_custom/decay_time/value
+    dd_path: summary/disruption/decay_times/current_runaways/linear_custom/decay_time/value
+    status: attached
+- name: toroidal_halo_current_of_halo_boundary
+  kind: scalar
+  status: draft
+  description: Toroidal component of the halo current flowing through the plasma region
+    outside the last closed flux surface during a disruption.
+  documentation: 'The toroidal halo current $I_{\phi,\text{halo}}$ is the component
+    of the disruption-induced current flowing in the halo plasma along the toroidal
+    direction $\phi$, measured at the outer boundary of the halo region. This current
+    arises from the rapid thermal quench and subsequent current quench, which drive
+    large eddy currents in the scrape-off layer and divertor region. Typical values
+    for medium-size tokamaks (e.g., JET, DIII-D) range from tens to hundreds of kiloamperes,
+    and can reach several megaamperes in reactor-scale devices like ITER. The magnitude
+    and distribution of $I_{\phi,\text{halo}}$ are critical for assessing electromagnetic
+    forces on the first wall and vacuum vessel during vertical displacement events.
+    The poloidal counterpart is given by [poloidal_halo_current_of_halo_boundary](name:poloidal_halo_current_of_halo_boundary),
+    while the total current in the halo region is characterized by [toroidal_halo_current_over_scrape_off_layer](name:toroidal_halo_current_over_scrape_off_layer).
+
+
+    Sign convention: Positive when the current flows in the direction of increasing
+    toroidal angle $\phi$ (counter-clockwise when viewed from above $+\hat{Z}$).'
+  unit: A
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:poloidal_halo_current_of_halo_boundary
+  - name:toroidal_halo_current_over_scrape_off_layer
+  sources:
+  - id: dd:disruption/global_quantities/current_halo_phi
+    dd_path: disruption/global_quantities/current_halo_phi
+    status: composed
+- name: toroidal_magnetic_flux_of_halo_boundary
+  kind: scalar
+  status: draft
+  description: Toroidal magnetic flux enclosed by the outer boundary of the halo current
+    region in a tokamak disruption.
+  documentation: "The toroidal magnetic flux $\\Phi_{\\rm tor}$ at the halo boundary\
+    \ defines the magnetic topology of the region between the last-closed flux surface\
+    \ and the vessel wall where open field lines carry induced halo currents. This\
+    \ quantity is directly related to the growth of the halo region during the disruption\
+    \ current quench, where the rate of change of flux $d\\Phi_{\\rm tor}/dt$ drives\
+    \ the poloidal electric field. The flux magnitude is typically on the order of\
+    \ 1\u201310 Wb for medium-size tokamaks, inferred from equilibrium reconstruction\
+    \ constrained by external magnetic measurements and vessel eddy-current monitors.\n\
+    \nSign convention: Positive when the flux points in the co-current direction (i.e.,\
+    \ in the direction of increasing toroidal angle $\\phi$ for a positive plasma\
+    \ current $I_p$)."
+  unit: Wb
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:poloidal_magnetic_flux_of_halo_boundary
+  - name:toroidal_magnetic_flux_of_halo_boundary_due_to_poloidal_current
+  sources:
+  - id: dd:disruption/global_quantities/phi_halo_boundary
+    dd_path: disruption/global_quantities/phi_halo_boundary
+    status: composed
+- name: toroidal_magnetic_flux_of_halo_boundary_due_to_poloidal_current
+  kind: scalar
+  status: draft
+  description: Toroidal magnetic flux enclosed by the halo region boundary, generated
+    by the poloidal current flowing in the halo plasma during a disruption.
+  documentation: 'This quantity represents the toroidal component $\Phi_{\phi,\mathrm{halo}}
+    = \int \mathbf{B}\cdot\hat{\phi}\,\mathrm{d}S$ of the magnetic flux threading
+    the area inside the halo region boundary. The poloidal halo current $I_{\mathrm{halo},\theta}$
+    (flowing predominantly along open field lines in the scrape-off layer and halo
+    region) generates this toroidal flux through the plasma response, contributing
+    to the electromagnetic forces on the vessel during a disruption. The flux is related
+    to the halo current via $\Phi_{\phi,\mathrm{halo}} = L_{\mathrm{halo}} I_{\mathrm{halo},\theta}$,
+    where $L_{\mathrm{halo}}$ is the effective inductance of the halo current path.
+    Typical values in large tokamaks during major disruptions range from 0.1 to 2
+    Wb, scaling with plasma current and halo size. This quantity is closely related
+    to $[\texttt{toroidal\_magnetic\_flux\_of\_halo\_boundary}](name:toroidal_magnetic_flux_of_halo_boundary)$
+    (total toroidal flux at the halo boundary irrespective of the driving current)
+    and $[\texttt{poloidal\_magnetic\_flux\_of\_halo\_boundary}](name:poloidal_magnetic_flux_of_halo_boundary)$
+    (the poloidal flux counterpart). Together they characterize the magnetic topology
+    of the halo region and the associated electromagnetic loading on the first wall.
+
+
+    Sign convention: Positive when the direction of the poloidal halo current produces
+    a toroidal magnetic flux that points in the direction of increasing toroidal angle
+    $\phi$ (counter-clockwise viewed from above).'
+  unit: Wb
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:toroidal_magnetic_flux_of_halo_boundary
+  - name:poloidal_magnetic_flux_of_halo_boundary
+  sources:
+  - id: dd:disruption/global_quantities/phi_halo_boundary_poloidal_current
+    dd_path: disruption/global_quantities/phi_halo_boundary_poloidal_current
+    status: composed
+- name: toroidal_mode_number_of_neoclassical_tearing_mode
+  kind: scalar
+  status: draft
+  description: Principal toroidal Fourier mode number characterizing the helical periodicity
+    of a neoclassical tearing mode magnetic island.
+  documentation: "The toroidal mode number $n$ specifies the number of toroidal transits\
+    \ a neoclassical tearing mode (NTM) magnetic island completes in one full poloidal\
+    \ circuit. Together with the poloidal mode number $m$, it defines the helicity\
+    \ $q = m/n$ of the resonant rational flux surface. Mode numbers are determined\
+    \ from Mirnov coil arrays or ECE imaging, typically in the range $n = 1$\u2013\
+    5 for NTMs in conventional tokamaks. The sign of $n$ distinguishes co-rotating\
+    \ (positive) from counter-rotating (negative) modes relative to the plasma current\
+    \ direction.\n\nSign convention: Positive when the mode propagates in the direction\
+    \ of increasing toroidal angle $\\phi$ (i.e., co-current direction).\n\nSee also\
+    \ [poloidal_mode_number_of_neoclassical_tearing_mode](name:poloidal_mode_number_of_neoclassical_tearing_mode)\
+    \ for the complementary poloidal periodicity parameter."
   unit: '1'
   physics_domain: magnetohydrodynamics
-  links: []
-  arguments:
-  - name: mode_number
-    operator: component
-    operator_kind: projection
-    axis: toroidal
-    shape: component
+  links:
+  - name:poloidal_mode_number_of_neoclassical_tearing_mode
   sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/n_phi
+    dd_path: mhd_linear/time_slice/toroidal_mode/n_phi
+    status: composed
   - id: dd:mhd_linear/time_slice/toroidal_mode/n_tor
     dd_path: mhd_linear/time_slice/toroidal_mode/n_tor
+    status: composed
+  - id: dd:ntms/time_slice/mode/detailed_evolution/n_phi
+    dd_path: ntms/time_slice/mode/detailed_evolution/n_phi
+    status: attached
+  - id: dd:ntms/time_slice/mode/n_phi
+    dd_path: ntms/time_slice/mode/n_phi
+    status: attached
+  - id: dd:ntms/time_slice/mode/onset/n_phi
+    dd_path: ntms/time_slice/mode/onset/n_phi
+    status: attached
+  - id: dd:ntms/time_slice/mode/onset/n_tor
+    dd_path: ntms/time_slice/mode/onset/n_tor
+    status: attached
+- name: total_ion_density
+  kind: scalar
+  status: draft
+  description: Total number density of all ion species present in the plasma, summing
+    over thermal and suprathermal populations.
+  documentation: The total ion density $n_i$ is the sum of the number densities of
+    every ion species, including both thermal and suprathermal (fast ion) populations,
+    at each point in the plasma. It represents the total concentration of positively
+    charged nuclei, which is balanced by electron density for overall charge neutrality.
+    Typical values in fusion-grade devices range from $10^{19} \, \text{m}^{-3}$ in
+    the edge to over $10^{20} \, \text{m}^{-3}$ at the core. This quantity is essential
+    for calculating plasma pressure (with contributions from all species), neutral
+    beam stopping, and fusion reaction rates. Measurements are often derived from
+    interferometry, Thomson scattering, or charge-exchange recombination spectroscopy
+    with known impurity composition.
+  unit: m^-3
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:total_ion_pressure
+  - name:fast_ion_state_density
+  - name:runaway_electron_density
+  sources:
+  - id: dd:mhd/ggd/n_i_total/values
+    dd_path: mhd/ggd/n_i_total/values
+    status: composed
+- name: vertical_current_density
+  kind: scalar
+  status: draft
+  description: Vertical (Z) component of the current density vector in the right-handed
+    cylindrical (R, phi, Z) coordinate system.
+  documentation: "The vertical current density $j_z$ is the $\\hat{Z}$ component of\
+    \ the plasma current density vector in the right-handed cylindrical $(R, \\phi,\
+    \ Z)$ coordinate system. It represents the net electric current per unit area\
+    \ flowing in the vertical direction, typically arising from poloidal currents\
+    \ in the plasma equilibrium or from vertical instabilities. In a tokamak, $j_z$\
+    \ is generally small compared to the toroidal component $j_\\phi$ but is essential\
+    \ for determining the poloidal field and plasma shaping. Typical values range\
+    \ from 0 to several MA\xB7m$^{-2}$ depending on the plasma configuration and current\
+    \ drive. Measurement is obtained from magnetic probe arrays or reconstructed via\
+    \ equilibrium codes such as EFIT.\n\nSign convention: Positive when the current\
+    \ flows in the direction of increasing $Z$ (vertically upward).\n\nThe related\
+    \ radial and toroidal components are documented under `name:radial_current_density`\
+    \ and `name:toroidal_current_density`, respectively."
+  unit: A.m^-2
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:current
+  arguments:
+  - name: current_density
+    operator: component
+    operator_kind: projection
+    axis: vertical
+    shape: component
+  sources:
+  - id: dd:mhd/ggd/j_z/values
+    dd_path: mhd/ggd/j_z/values
+    status: composed
+- name: vertical_plasma_velocity
+  kind: scalar
+  status: draft
+  description: Vertical (Z) component of the mass-center flow velocity of the bulk
+    plasma in the cylindrical coordinate system.
+  documentation: "The vertical plasma velocity $v_Z = \\mathbf{v}_\\text{total} \\\
+    cdot \\hat{Z}$ is the projection of the mass-weighted, multi-species plasma flow\
+    \ velocity onto the vertical axis of the cylindrical $(R, \\phi, Z)$ frame. It\
+    \ captures the bulk plasma motion in the poloidal plane and is particularly significant\
+    \ during vertical displacement events (VDEs) and in nonlinear MHD simulations\
+    \ of disruptions.\n\nThe total plasma velocity from which this component derives\
+    \ is defined as $\\mathbf{v}_\\text{total} = (\\sum_s n_s m_s \\mathbf{v}_s) /\
+    \ (\\sum_s n_s m_s)$, summing over all species $s$ with density $n_s$, mass $m_s$,\
+    \ and flow velocity $\\mathbf{v}_s$.\n\nTypical vertical velocities in steady-state\
+    \ tokamak operation are small (order 10\u2013100 m/s), but during disruptions\
+    \ and VDEs they can reach several hundred m/s, driving the plasma column vertically.\
+    \ This quantity is commonly computed in MHD codes (e.g., JOREK, M3D-C1) and can\
+    \ be inferred from measurements of the poloidal flow, combined with magnetic equilibrium\
+    \ constraints.\n\nSign convention: Positive when the plasma flows in the +Z direction\
+    \ (vertically upward).\n\nCross-reference the toroidal and radial counterparts:\
+    \ [toroidal_plasma_velocity](name:toroidal_plasma_velocity) and [radial_plasma_velocity](name:radial_plasma_velocity),\
+    \ as well as the parent vector [plasma_velocity](name:plasma_velocity)."
+  unit: m.s^-1
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:toroidal_plasma_velocity
+  - name:radial_plasma_velocity
+  - name:plasma_velocity
+  arguments:
+  - name: plasma_velocity
+    operator: component
+    operator_kind: projection
+    axis: vertical
+    shape: component
+  sources:
+  - id: dd:mhd/ggd/velocity_z/values
+    dd_path: mhd/ggd/velocity_z/values
     status: composed

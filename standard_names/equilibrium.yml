@@ -1,334 +1,898 @@
 # Domain: equilibrium
-# Catalog sha: 1808c1f7f7803f46ee9ca977dfc4cc886ffe5026
-# Entries: 37
+# Catalog sha: d25b905a25b05fd4c10571f301d40b9e5d146776
+# Entries: 38
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: area_of_plasma_boundary
+- name: elongation
   kind: scalar
   status: draft
-  description: Cross-sectional area enclosed by the plasma boundary in the poloidal
-    plane
-  documentation: ''
-  unit: m^2
+  description: Flux surface elongation ratio, the vertical half-height divided by
+    the horizontal semi-minor width.
+  documentation: "The elongation $\\kappa = h / w$ quantifies the poloidal compression\
+    \ of a flux surface, where $h$ is the vertical half-height and $w$ is the horizontal\
+    \ minor half-width (midplane semi-axis) of the cross-section. In tokamaks, shaped\
+    \ plasmas with $\\kappa > 1$ are common, ranging from $\\kappa \\approx 1.2$\u2013\
+    $1.6$ in conventional divertor configurations up to $\\kappa \\approx 1.8$\u2013\
+    $2.0$ for high-performance regimes. The elongation, together with triangularity\
+    \ [upper_triangularity](name:upper_triangularity) and the radial coordinate [normalized_minor_radius](name:normalized_minor_radius),\
+    \ fully parameterizes the Miller equilibrium geometry used in local gyrokinetic\
+    \ simulations.\n\nSign convention: Positive when the flux surface is compressed\
+    \ vertically, i.e., $h / w > 0$.\n\nObtained from equilibrium reconstruction codes\
+    \ by mapping the flux surface contour in the poloidal $(R, Z)$ plane. The global\
+    \ value at the last closed flux surface is given by [elongation_of_plasma_boundary](name:elongation_of_plasma_boundary)."
+  unit: '1'
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:upper_triangularity
+  - name:normalized_minor_radius
+  - name:elongation_of_plasma_boundary
   sources:
-  - id: dd:equilibrium/time_slice/global_quantities/area
-    dd_path: equilibrium/time_slice/global_quantities/area
+  - id: dd:equilibrium/time_slice/profiles_1d/elongation
+    dd_path: equilibrium/time_slice/profiles_1d/elongation
+    status: composed
+  - id: dd:gyrokinetics_local/flux_surface/elongation
+    dd_path: gyrokinetics_local/flux_surface/elongation
     status: composed
 - name: elongation_of_plasma_boundary
   kind: scalar
   status: draft
-  description: Elongation of the plasma cross-section at the plasma boundary
-  documentation: ''
+  description: "Plasma boundary elongation parameter \u03BA, the ratio of the full\
+    \ vertical half-height to the horizontal minor radius."
+  documentation: "The boundary elongation $\\kappa$ quantifies the vertical stretching\
+    \ of the last closed flux surface (LCFS), defined as $\\kappa = (Z_{\\rm max}\
+    \ - Z_{\\rm min}) / (2a)$, where $Z_{\\rm max}$ and $Z_{\\rm min}$ are the maximum\
+    \ and minimum vertical coordinates of the boundary, and $a$ is the minor radius.\
+    \ This shaping parameter directly affects the ideal MHD stability limit (Troyon\
+    \ limit) and the H-mode power threshold; typical values range from $\\kappa =\
+    \ 1.0$ (circular plasmas) to $\\kappa \\approx 1.8$\u2013$2.0$ in strongly shaped\
+    \ DIII-D and JET plasmas, with ITER baseline designs targeting $\\kappa \\approx\
+    \ 1.7$. The elongation is obtained from equilibrium reconstruction codes (e.g.,\
+    \ EFIT, LIUQE) that fit the separatrix or boundary contour to magnetic and kinetic\
+    \ measurements. For asymmetric configurations, separate upper and lower elongations\
+    \ can be defined via [upper_elongation_of_plasma_boundary](name:upper_elongation_of_plasma_boundary).\
+    \ See also [major_radius_of_plasma_boundary](name:major_radius_of_plasma_boundary)\
+    \ for the radial counterpart.\n\nSign convention: Positive when the plasma boundary\
+    \ is vertically elongated.\n\nElongation values above unity correspond to D-shaped\
+    \ cross-sections, which improve vertical stability and access to high-\u03B2 regimes."
   unit: '1'
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:upper_elongation_of_plasma_boundary
+  - name:major_radius_of_plasma_boundary
   sources:
   - id: dd:equilibrium/time_slice/boundary/elongation
     dd_path: equilibrium/time_slice/boundary/elongation
+    status: attached
+  - id: dd:equilibrium/time_slice/boundary_separatrix/elongation
+    dd_path: equilibrium/time_slice/boundary_separatrix/elongation
     status: composed
   - id: dd:summary/boundary/elongation/value
     dd_path: summary/boundary/elongation/value
     status: composed
-- name: gradient_of_pressure
+- name: internal_inductance
   kind: scalar
   status: draft
-  description: Derivative of total plasma pressure with respect to poloidal magnetic
-    flux; source term in Grad-Shafranov equation
-  documentation: ''
-  unit: Pa.Wb^-1
+  description: Normalized internal inductance li_3 of the plasma current profile,
+    quantifying poloidal magnetic field energy relative to a uniform current distribution.
+  documentation: "The normalized internal inductance $l_i(3)$ is a dimensionless global\
+    \ equilibrium parameter defined as $l_i(3) = 2\\int_V B_p^2\\,dV\\,/\\,(R_0 \\\
+    mu_0^2 I_p^2)$, where $B_p$ is the poloidal magnetic field, $R_0$ the geometric\
+    \ major radius, $\\mu_0$ the vacuum permeability, and $I_p$ the total plasma current.\
+    \ It measures the peaking of the toroidal current density profile: higher $l_i(3)$\
+    \ corresponds to a more peaked current distribution, while lower values indicate\
+    \ broader profiles toward the plasma edge. Typical values range from 0.3\u2013\
+    0.5 for broad H-mode profiles to 1.0\u20131.5 for strongly peaked L-mode or sawtooth-free\
+    \ discharges. The quantity is derived from MHD equilibrium reconstruction using\
+    \ external magnetic measurements (flux loops, pickup coils) combined with internal\
+    \ constraints from MSE or polarimetry. It is directly related to the poloidal\
+    \ beta $\\beta_p$ through the Shafranov equilibrium equation and to the plasma\
+    \ shape via the elongation $\\kappa$ and triangularity $\\delta$.\n\nSign convention:\
+    \ Positive when the volume-integrated poloidal field energy is positive, which\
+    \ holds for all physical current profiles producing a confining poloidal field.\n\
+    \nSee also [magnetic_shear_of_magnetic_axis](name:magnetic_shear_of_magnetic_axis)\
+    \ for the local gradient of the safety factor that complements the global current-peaking\
+    \ information provided by $l_i(3)$."
+  unit: '1'
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:magnetic_shear_of_magnetic_axis
+  sources:
+  - id: dd:core_profiles/global_quantities/li
+    dd_path: core_profiles/global_quantities/li
+    status: attached
+  - id: dd:core_profiles/global_quantities/li_3
+    dd_path: core_profiles/global_quantities/li_3
+    status: attached
+  - id: dd:plasma_profiles/global_quantities/li_3
+    dd_path: plasma_profiles/global_quantities/li_3
+    status: attached
+  - id: dd:summary/global_quantities/li/value
+    dd_path: summary/global_quantities/li/value
+    status: attached
+  - id: dd:summary/global_quantities/li_3/value
+    dd_path: summary/global_quantities/li_3/value
+    status: attached
+  - id: dd:summary/global_quantities/li_3_mhd/value
+    dd_path: summary/global_quantities/li_3_mhd/value
+    status: composed
+- name: lower_elongation_of_plasma_boundary
+  kind: scalar
+  status: draft
+  description: Lower-half elongation of the plasma boundary, defined as the ratio
+    of the vertical half-height below the geometric axis to the horizontal minor radius.
+  documentation: 'The lower elongation $\kappa_{\text{lower}}$ characterizes the vertical
+    stretching of the poloidal cross-section below the geometric axis relative to
+    the plasma minor radius $a$. It is one of the shaping parameters that describes
+    the asymmetry of the plasma boundary and, together with the upper elongation,
+    determines the total elongation $\kappa$. Typical values of $\kappa_{\text{lower}}$
+    range from 1.0 to 2.5 in diverted tokamak configurations, with values greater
+    than unity indicating an elongated lower half. This parameter is routinely obtained
+    from equilibrium reconstruction codes using magnetic measurements and is used
+    to assess MHD stability and vertical control requirements. See also [upper_elongation_of_plasma_boundary](name:upper_elongation_of_plasma_boundary)
+    for the corresponding upper-half parameter and [elongation_of_plasma_boundary](name:elongation_of_plasma_boundary)
+    for the combined elongation.
+
+
+    Sign convention: Positive when the vertical half-height below the geometric axis
+    has a finite positive value, with the quantity being inherently non-negative for
+    conventional plasma boundaries.
+
+
+    Lower elongation values are typically compared with [lower_triangularity_of_plasma_boundary](name:lower_triangularity_of_plasma_boundary)
+    to fully characterize the lower plasma shape for divertor design and scrape-off
+    layer modeling.'
+  unit: '1'
+  physics_domain: equilibrium
+  links:
+  - name:upper_elongation_of_plasma_boundary
+  - name:elongation_of_plasma_boundary
+  - name:lower_triangularity_of_plasma_boundary
+  sources:
+  - id: dd:equilibrium/time_slice/boundary/elongation_lower
+    dd_path: equilibrium/time_slice/boundary/elongation_lower
+    status: composed
+  - id: dd:equilibrium/time_slice/boundary_separatrix/elongation_lower
+    dd_path: equilibrium/time_slice/boundary_separatrix/elongation_lower
+    status: composed
+- name: magnetic_field_magnitude
+  kind: scalar
+  status: draft
+  description: The scalar magnitude of the total magnetic field vector on each flux
+    surface, representing the local field strength irrespective of direction.
+  documentation: "The magnetic field magnitude $|\\mathbf{B}| = \\sqrt{B_R^2 + B_\\\
+    phi^2 + B_Z^2}$ is evaluated at the centroid of each finite element discretizing\
+    \ the ferritic inserts and iron core segments in the right-handed cylindrical\
+    \ $(R, \\phi, Z)$ frame. This quantity is always positive and physically corresponds\
+    \ to the total field strength sensed by a scalar probe; it is distinct from the\
+    \ signed minimum of $B_\\phi$ on a flux surface ($B_{\\min}$) used in trapped-particle\
+    \ and neoclassical transport calculations, where the variation of $|\\mathbf{B}|$\
+    \ along the flux surface determines the fraction of trapped particles. In typical\
+    \ tokamak equilibria, $|\\mathbf{B}|$ ranges from 1\u20136 T on axis and decreases\
+    \ radially outward; the minimum of $|\\mathbf{B}|$ on each flux surface is a key\
+    \ parameter for classifying particle orbits and for evaluating magnetic-well stabilization\
+    \ of MHD modes. This quantity is obtained from equilibrium reconstruction codes\
+    \ using magnetic measurements as inputs. See also the base quantity `[magnetic_field](name:magnetic_field)`\
+    \ and the related `[poloidal_magnetic_field_at_magnetic_axis](name:poloidal_magnetic_field_at_magnetic_axis)`\
+    \ for the poloidal component alone."
+  unit: T
+  physics_domain: equilibrium
+  links:
+  - name:magnetic_field
+  - name:poloidal_magnetic_field_at_magnetic_axis
   arguments:
-  - name: pressure
-    operator: gradient
-    operator_kind: unary_prefix
+  - name: magnetic_field
+    operator: magnitude
+    operator_kind: unary_postfix
   sources:
-  - id: dd:equilibrium/time_slice/profiles_1d/dpressure_dpsi
-    dd_path: equilibrium/time_slice/profiles_1d/dpressure_dpsi
+  - id: dd:equilibrium/time_slice/profiles_1d/b_average
+    dd_path: equilibrium/time_slice/profiles_1d/b_average
     status: composed
-- name: lower_triangularity
+  - id: dd:equilibrium/time_slice/profiles_1d/b_field_average
+    dd_path: equilibrium/time_slice/profiles_1d/b_field_average
+    status: composed
+  - id: dd:equilibrium/time_slice/profiles_1d/b_field_max
+    dd_path: equilibrium/time_slice/profiles_1d/b_field_max
+    status: composed
+  - id: dd:equilibrium/time_slice/profiles_1d/b_field_min
+    dd_path: equilibrium/time_slice/profiles_1d/b_field_min
+    status: composed
+  - id: dd:equilibrium/time_slice/profiles_1d/b_max
+    dd_path: equilibrium/time_slice/profiles_1d/b_max
+    status: composed
+  - id: dd:equilibrium/time_slice/profiles_1d/b_min
+    dd_path: equilibrium/time_slice/profiles_1d/b_min
+    status: composed
+  - id: dd:summary/local/magnetic_axis/b_field/value
+    dd_path: summary/local/magnetic_axis/b_field/value
+    status: composed
+- name: magnetic_shear_of_magnetic_axis
   kind: scalar
   status: draft
-  description: Lower triangularity of the plasma boundary, characterizing asymmetric
-    shaping of the lower portion of the last closed flux surface
-  documentation: ''
+  description: Normalized radial gradient of the safety factor, quantifying the divergence
+    of magnetic field lines between adjacent flux surfaces, evaluated at the innermost
+    flux surface.
+  documentation: 'The magnetic shear at the magnetic axis, $s_0 = s(\psi=0)$, is defined
+    as $s = (\rho_{\rm tor}/q)\,(dq/d\rho_{\rm tor})$, where $\rho_{\rm tor}$ is the
+    normalized toroidal flux radius and $q$ is the safety factor. This quantity measures
+    the local rate of change of the helical winding of magnetic field lines; at the
+    magnetic axis it determines the stability thresholds for ideal and resistive MHD
+    modes. In conventional H-mode tokamaks, $s_0$ is typically near zero for monotonic
+    $q$ profiles and can become negative for reversed-shear configurations that favor
+    internal transport barrier formation. The magnetic shear profile is reconstructed
+    from equilibrium solvers using external magnetics and internal profile diagnostics
+    such as motional Stark effect or Faraday rotation polarimetry. The sign of $s$
+    reflects whether the safety factor increases or decreases with radius.
+
+
+    Sign convention: Positive when the safety factor increases with normalized toroidal
+    flux radius.
+
+
+    See also [safety_factor_at_magnetic_axis](name:safety_factor_at_magnetic_axis)
+    for the on-axis $q$ value and [magnetic_shear_at_pedestal](name:magnetic_shear_at_pedestal)
+    for the same quantity at the edge transport barrier.'
   unit: '1'
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:safety_factor_at_magnetic_axis
+  - name:magnetic_shear_at_pedestal
   sources:
-  - id: dd:equilibrium/time_slice/boundary/triangularity_lower
-    dd_path: equilibrium/time_slice/boundary/triangularity_lower
+  - id: dd:summary/local/magnetic_axis/magnetic_shear/value
+    dd_path: summary/local/magnetic_axis/magnetic_shear/value
     status: composed
-  - id: dd:equilibrium/time_slice/profiles_1d/triangularity_lower
-    dd_path: equilibrium/time_slice/profiles_1d/triangularity_lower
-    status: composed
-  - id: dd:summary/boundary/triangularity_lower/value
-    dd_path: summary/boundary/triangularity_lower/value
-    status: composed
-- name: magnetic_shear
+- name: magnetic_shear_of_separatrix
   kind: scalar
   status: draft
-  description: Magnetic shear profile as a function of the radial flux surface coordinate
-  documentation: ''
+  description: Normalized radial gradient of the safety factor at the last-closed
+    flux surface, quantifying magnetic field-line divergence in the plasma boundary
+    region.
+  documentation: "Magnetic shear $s = (\\rho_{\\mathrm{tor}}/q)(dq/d\\rho_{\\mathrm{tor}})$\
+    \ at the separatrix measures how rapidly the safety factor $q$ varies with the\
+    \ normalized toroidal flux radius $\\rho_{\\mathrm{tor}}$ at the plasma boundary.\
+    \ It governs the magnetic field-line winding rate between adjacent flux surfaces\
+    \ and strongly influences the stability of edge-localized modes (ELMs) and the\
+    \ edge harmonic oscillation. Typical values at the separatrix range from $s \\\
+    approx 2$\u2013$6$ in H-mode tokamak plasmas, depending on the edge current density\
+    \ and pressure gradient profiles, and are routinely obtained from equilibrium\
+    \ reconstruction codes such as EFIT. The sign of magnetic shear is determined\
+    \ by the monotonicity of the $q$ profile and the direction of the toroidal plasma\
+    \ current.\n\nSign convention: Positive when $q$ increases radially outward, i.e.\
+    \ when the toroidal plasma current flows in the direction of increasing toroidal\
+    \ angle $\\phi$.\n\nSee also [magnetic_shear_of_magnetic_axis](name:magnetic_shear_of_magnetic_axis)\
+    \ for the innermost flux-surface value and [magnetic_shear_at_pedestal](name:magnetic_shear_at_pedestal)\
+    \ for the pedestal-top value."
   unit: '1'
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:magnetic_shear_of_magnetic_axis
+  - name:magnetic_shear_at_pedestal
   sources:
-  - id: dd:core_profiles/profiles_1d/magnetic_shear
-    dd_path: core_profiles/profiles_1d/magnetic_shear
+  - id: dd:summary/local/separatrix/magnetic_shear/value
+    dd_path: summary/local/separatrix/magnetic_shear/value
     status: composed
-  - id: dd:equilibrium/time_slice/profiles_1d/magnetic_shear
-    dd_path: equilibrium/time_slice/profiles_1d/magnetic_shear
-    status: composed
-  - id: dd:sawteeth/profiles_1d/magnetic_shear
-    dd_path: sawteeth/profiles_1d/magnetic_shear
-    status: composed
-- name: major_radius_at_magnetic_axis
+- name: major_radius_of_closest_wall_point
   kind: scalar
   status: draft
-  description: Reference major radius R0 at which the vacuum toroidal magnetic field
-    is specified, used to normalize beta and global parameters
-  documentation: ''
+  description: Major radius coordinate of the point on the first wall geometrically
+    closest to the plasma boundary, used for gap estimation and halo current analysis.
+  documentation: 'The major radius $R_{\mathrm{wall}}$ of the point on the first-wall
+    surface that minimizes the Euclidean distance to the plasma boundary contour in
+    the poloidal plane. This point is identified during equilibrium reconstruction
+    by scanning the vessel wall geometry against the separatrix or last-closed flux
+    surface, and its radial coordinate is a key input for plasma-wall gap estimation,
+    disruption halo current path modeling, and limiter contact calculations. Typical
+    values range from $R \approx 2.0\,\text{m}$ in medium-size tokamaks to $R \approx
+    6.2\,\text{m}$ for ITER, with the exact coordinate depending on the wall tile
+    layout and plasma shape. The quantity is paired with [vertical_coordinate_of_closest_wall_point](name:vertical_coordinate_of_closest_wall_point)
+    to define the full 2-D wall contact location, and is distinct from the gap magnitude
+    given by [major_radius_of_plasma_boundary_gap](name:major_radius_of_plasma_boundary_gap).
+
+
+    Sign convention: Positive when the point lies at a larger major radius than the
+    machine symmetry axis ($R = 0$).'
   unit: m
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:vertical_coordinate_of_closest_wall_point
+  - name:major_radius_of_plasma_boundary_gap
   sources:
-  - id: dd:summary/global_quantities/r0/value
-    dd_path: summary/global_quantities/r0/value
+  - id: dd:disruption/halo_currents/active_wall_point/r
+    dd_path: disruption/halo_currents/active_wall_point/r
+    status: composed
+  - id: dd:equilibrium/time_slice/boundary/closest_wall_point/r
+    dd_path: equilibrium/time_slice/boundary/closest_wall_point/r
+    status: composed
+  - id: dd:equilibrium/time_slice/boundary_separatrix/closest_wall_point/r
+    dd_path: equilibrium/time_slice/boundary_separatrix/closest_wall_point/r
+    status: composed
+- name: major_radius_of_current_center
+  kind: scalar
+  status: draft
+  description: Major radius coordinate of the current centroid, defined by the toroidal
+    current density-weighted average over the poloidal cross-section.
+  documentation: "The major radius of the current center, $R_{\\mathrm{cc}}$, locates\
+    \ the centroid of the toroidal plasma current distribution. It is computed as\
+    \ $R_{\\mathrm{cc}} = (\\iint j_\\phi R\\, dS) / I_p$, where $j_\\phi$ is the\
+    \ toroidal current density, $R$ is the major radius coordinate, and $I_p$ is the\
+    \ total plasma current. This quantity often lies close to the magnetic axis in\
+    \ equilibrium configurations but can differ during strong shaping or non-axisymmetric\
+    \ perturbations. It is determined from magnetic equilibrium reconstruction (e.g.\
+    \ EFIT, LIUQE) using external magnetic measurements and internal profile constraints.\
+    \ Typical values range from 1.6\u20133.0 m in medium-size tokamaks to 6.2 m in\
+    \ ITER. See [major_radius](name:major_radius) for the general grid geometry and\
+    \ [safety_factor_at_magnetic_axis](name:safety_factor_at_magnetic_axis) for the\
+    \ related axis position.\n\nSign convention: Positive when the centroid lies in\
+    \ the direction of increasing $R$ from the machine symmetry axis."
+  unit: m
+  physics_domain: equilibrium
+  links:
+  - name:major_radius
+  - name:safety_factor_at_magnetic_axis
+  sources:
+  - id: dd:equilibrium/time_slice/global_quantities/current_centre/r
+    dd_path: equilibrium/time_slice/global_quantities/current_centre/r
     status: composed
 - name: major_radius_of_geometric_axis
   kind: scalar
   status: draft
-  description: Major radius (cylindrical R) of the plasma geometric axis, defined
-    as (Rmax+Rmin)/2 of the plasma boundary
-  documentation: ''
+  description: Major radius coordinate of the centroid of the poloidal plasma cross-section.
+  documentation: "The geometric axis is the area centroid of the poloidal plasma boundary\
+    \ cross-section, defining the geometric center of the plasma column. This major\
+    \ radius coordinate $R_{\\mathrm{geo}}$ is distinct from the magnetic axis, which\
+    \ is defined by the extremum of the poloidal magnetic flux. $R_{\\mathrm{geo}}$\
+    \ is computed from the boundary shape and is used in shaping parameter definitions\
+    \ such as elongation and triangularity. Typical values range from 1.5\u20133.0\
+    \ m for medium-size tokamaks (e.g., DIII-D, JET) to 6.2 m for ITER. The geometric\
+    \ axis is determined from the plasma boundary as reconstructed by equilibrium\
+    \ codes (e.g., EFIT, LIUQE) and is a fundamental reference for the plasma position.\n\
+    \nSign convention: Positive when the geometric center lies at a major radius greater\
+    \ than the machine symmetry axis (i.e., outboard of the machine center).\n\nSee\
+    \ also [major_radius_of_magnetic_axis](name:major_radius_of_magnetic_axis) for\
+    \ the magnetic equivalent, and [vertical_coordinate_of_geometric_axis](name:vertical_coordinate_of_geometric_axis)\
+    \ for the vertical coordinate of this center."
   unit: m
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:major_radius_of_magnetic_axis
+  - name:vertical_coordinate_of_geometric_axis
   sources:
   - id: dd:equilibrium/time_slice/boundary/geometric_axis/r
     dd_path: equilibrium/time_slice/boundary/geometric_axis/r
     status: composed
+  - id: dd:equilibrium/time_slice/boundary_separatrix/geometric_axis/r
+    dd_path: equilibrium/time_slice/boundary_separatrix/geometric_axis/r
+    status: attached
+  - id: dd:equilibrium/time_slice/profiles_1d/geometric_axis/r
+    dd_path: equilibrium/time_slice/profiles_1d/geometric_axis/r
+    status: attached
   - id: dd:summary/boundary/geometric_axis_r/value
     dd_path: summary/boundary/geometric_axis_r/value
+    status: composed
+- name: major_radius_of_last_closed_flux_surface
+  kind: scalar
+  status: draft
+  description: Major radius coordinate of the last closed flux surface, defining the
+    outermost point of the confined plasma region in the poloidal cross-section.
+  documentation: 'The major radius $R_{\mathrm{lcfs}}$ of the last closed flux surface
+    marks the outermost radial extent of the confined plasma at a given poloidal angle.
+    This boundary separates the core plasma, where field lines are nested, from the
+    scrape-off layer and divertor region. In diverted configurations the last closed
+    flux surface coincides with the separatrix $\psi = \psi_{\mathrm{sep}}$; in limited
+    configurations it is defined by the limiter radius. The value is obtained from
+    equilibrium reconstruction (EFIT, LIUQE) using magnetic measurements and kinetic
+    profile constraints. For typical medium-size tokamaks (JET, DIII-D) $R_{\mathrm{lcfs}}$
+    ranges from 2.5 to 3.5 m; for ITER the design value is approximately 6.2 m on
+    the outboard midplane.
+
+
+    Sign convention: Positive when the point lies at increasing $R$ (outward along
+    the major radius) relative to the machine symmetry axis.
+
+
+    See also the related quantities [major radius of separatrix](name:major_radius_of_separatrix),
+    [major radius of magnetic axis](name:major_radius_of_magnetic_axis), and [vertical
+    coordinate of control surface](name:vertical_coordinate_of_control_surface) which
+    together define the plasma boundary geometry.'
+  unit: m
+  physics_domain: equilibrium
+  links:
+  - name:major_radius_of_separatrix
+  - name:major_radius_of_magnetic_axis
+  - name:vertical_coordinate_of_control_surface
+  sources:
+  - id: dd:equilibrium/time_slice/boundary/lcfs/r
+    dd_path: equilibrium/time_slice/boundary/lcfs/r
     status: composed
 - name: major_radius_of_magnetic_axis
   kind: scalar
   status: draft
-  description: Major radius (cylindrical R coordinate) of the magnetic axis position
-    in the poloidal plane
-  documentation: ''
+  description: Major radius (cylindrical R coordinate) of the magnetic axis, the extremum
+    of poloidal magnetic flux in the confined plasma region.
+  documentation: 'The major radius $R_{\mathrm{axis}}$ of the magnetic axis is the
+    cylindrical $R$ coordinate at which $\nabla \psi = 0$ for the poloidal magnetic
+    flux $\psi$, identifying the innermost nested flux surface in a tokamak or stellarator
+    equilibrium. It is the geometric reference point for radial profiles: the normalized
+    poloidal flux coordinate $\rho_{\mathrm{pol}}$ and the safety factor $q$ are both
+    evaluated relative to this axis. Typical core values range from 0.6 m in compact
+    spherical tokamaks (e.g., MAST) to 6.2 m in ITER. The quantity is routinely extracted
+    from equilibrium reconstruction codes using external magnetic measurements and
+    internal constraints such as polarimetry or the Motional Stark Effect.
+
+
+    Sign convention: Positive when the magnetic axis lies at a larger major radius
+    than the machine symmetry axis ($R = 0$).
+
+
+    The magnetic axis position differs from that of the [geometric axis](name:major_radius_of_geometric_axis),
+    which is the centroid of the poloidal plasma cross-section; the two coincide only
+    for perfectly symmetric, non-shifted equilibria. Related radial coordinates include
+    the [major_radius_of_current_center](name:major_radius_of_current_center) and
+    the [major_radius_of_plasma_boundary](name:major_radius_of_plasma_boundary).'
   unit: m
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:major_radius_of_geometric_axis
+  - name:major_radius_of_current_center
+  - name:major_radius_of_plasma_boundary
   sources:
+  - id: dd:distributions/magnetic_axis/r
+    dd_path: distributions/magnetic_axis/r
+    status: composed
   - id: dd:equilibrium/time_slice/global_quantities/magnetic_axis/r
     dd_path: equilibrium/time_slice/global_quantities/magnetic_axis/r
+    status: composed
+  - id: dd:reflectometer_profile/position/r
+    dd_path: reflectometer_profile/position/r
+    status: composed
+  - id: dd:summary/boundary/magnetic_axis_r/value
+    dd_path: summary/boundary/magnetic_axis_r/value
+    status: composed
+  - id: dd:summary/local/magnetic_axis/position/r
+    dd_path: summary/local/magnetic_axis/position/r
+    status: composed
+  - id: dd:waves/magnetic_axis/r
+    dd_path: waves/magnetic_axis/r
     status: composed
 - name: major_radius_of_plasma_boundary
   kind: scalar
   status: draft
-  description: Major radius (cylindrical R coordinate) of points on the plasma boundary
-    outline contour
-  documentation: ''
+  description: Major radius (cylindrical $R$) coordinate of the outermost plasma boundary
+    contour in the poloidal plane.
+  documentation: 'This standard name gives the major radius $R$ of points on the plasma
+    boundary, defined as the last closed flux surface (LCFS) or the bounding contour
+    of the confined plasma region. The boundary is represented as a set of $(R, Z)$
+    points in the poloidal cross-section, forming the closed curve that separates
+    the confined plasma from the scrape-off layer. Typical values range from $R \approx
+    1.5\,\text{m}$ in medium-sized tokamaks to $R \approx 6.2\,\text{m}$ in ITER.
+    This coordinate is obtained from equilibrium reconstruction codes using external
+    magnetic measurements and, where available, internal profile constraints from
+    motional Stark effect or polarimetry data. It is used together with the vertical
+    coordinate $Z$ to define the full boundary shape. See also [major_radius_of_separatrix](name:major_radius_of_separatrix)
+    for the radius of the LCFS alone, [major_radius_of_geometric_axis](name:major_radius_of_geometric_axis)
+    for the centroid of the poloidal cross-section, and [major_radius_of_magnetic_axis](name:major_radius_of_magnetic_axis)
+    for the innermost flux surface extremum.
+
+
+    Sign convention: Positive when the point lies in the direction of increasing $R$
+    from the machine symmetry axis ($R=0$).'
   unit: m
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:major_radius_of_separatrix
+  - name:major_radius_of_geometric_axis
+  - name:major_radius_of_magnetic_axis
   sources:
   - id: dd:equilibrium/time_slice/boundary/outline/r
     dd_path: equilibrium/time_slice/boundary/outline/r
     status: composed
-- name: major_radius_of_strike_point
+- name: major_radius_of_secondary_x_point
   kind: scalar
   status: draft
-  description: Major radius (cylindrical R coordinate) of the divertor strike point
-    on the target plate
-  documentation: ''
+  description: Major radius coordinate of the secondary poloidal-field null on the
+    separatrix, defining the additional X-point in a snowflake or similar divertor
+    configuration.
+  documentation: "The major radius $R_{\\rm X2}$ of the secondary X-point locates\
+    \ the poloidal-field null on the secondary separatrix in the $(R,\\phi,Z)$ frame.\
+    \ This geometric coordinate is essential for characterizing advanced divertor\
+    \ topologies such as snowflake or X-divertor configurations, where a secondary\
+    \ null alters the magnetic shear in the scrape-off layer. The secondary X-point\
+    \ typically lies at a larger major radius than the primary X-point in a lower-single-null\
+    \ discharge, or symmetrically for double-null configurations. Its position is\
+    \ routinely inferred from equilibrium reconstruction codes (e.g., EFIT, LIUQE)\
+    \ using external magnetic measurements and profile constraints. Typical $R_{\\\
+    rm X2}$ values are 1.5\u20133.0\u202Fm in medium-size tokamaks, placing it near\
+    \ the divertor region. See also [major_radius_of_x_point](name:major_radius_of_x_point)\
+    \ for the primary X-point and [major_radius_of_separatrix](name:major_radius_of_separatrix)\
+    \ for the separatrix outline.\n\nSign convention: Positive when $R_{\\rm X2}$\
+    \ lies radially outward of the machine symmetry axis ($R=0$)."
   unit: m
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:major_radius_of_x_point
+  - name:major_radius_of_separatrix
   sources:
-  - id: dd:equilibrium/time_slice/boundary/strike_point/r
-    dd_path: equilibrium/time_slice/boundary/strike_point/r
+  - id: dd:equilibrium/time_slice/boundary_secondary_separatrix/x_point/r
+    dd_path: equilibrium/time_slice/boundary_secondary_separatrix/x_point/r
+    status: composed
+- name: major_radius_of_separatrix
+  kind: scalar
+  status: draft
+  description: Major radius coordinate of the outermost closed magnetic flux surface
+    (the separatrix) in the poloidal cross-section.
+  documentation: "The major radius $R_{\\text{sep}}$ is the $R$ coordinate in the\
+    \ right-handed cylindrical $(R, \\phi, Z)$ frame measured from the machine symmetry\
+    \ axis to the separatrix outline at a given poloidal angle. The separatrix defines\
+    \ the last closed flux surface; its shape is reconstructed from magnetic diagnostics\
+    \ and equilibrium codes such as EFIT or LIUQE. In diverted tokamaks, $R_{\\text{sep}}$\
+    \ at the outer midplane typically ranges from 2.0\u20138.0 m and sets the location\
+    \ of the plasma boundary, influencing scrape-off layer widths and divertor heat\
+    \ flux patterns. This quantity is a geometric coordinate for a single point on\
+    \ the separatrix, distinguished from [elongation_of_plasma_boundary](name:elongation_of_plasma_boundary)\
+    \ and [major_radius_of_x_point](name:major_radius_of_x_point), which describe\
+    \ the full boundary shape and the X-point location.\n\nSign convention: Positive\
+    \ when the point lies in the direction of increasing $R$ (outward from the machine\
+    \ axis)."
+  unit: m
+  physics_domain: equilibrium
+  links:
+  - name:elongation_of_plasma_boundary
+  - name:major_radius_of_x_point
+  sources:
+  - id: dd:equilibrium/time_slice/boundary_separatrix/outline/r
+    dd_path: equilibrium/time_slice/boundary_separatrix/outline/r
     status: composed
 - name: major_radius_of_x_point
   kind: scalar
   status: draft
-  description: Major radius (cylindrical R coordinate) of the X-point location in
-    the poloidal plane
-  documentation: ''
+  description: Major radius coordinate of the primary poloidal-field null on the separatrix
+    in a diverted tokamak configuration.
+  documentation: "The major radius $R_{X}$ of the primary X-point locates the poloidal-field\
+    \ null on the separatrix where $\\nabla\\psi = 0$ and $B_p = 0$, defining the\
+    \ divertor entrance. In single-null diverted plasmas, this point determines the\
+    \ magnetic geometry of the scrape-off layer and the strike-point positions on\
+    \ the divertor targets. Typical values range from $R_X \\approx 1.5$ m in medium-size\
+    \ tokamaks (ASDEX Upgrade, DIII-D) to $R_X \\approx 0.6$ m and $R_X \\approx \u83F1\
+    .3$ m for the inboard and outboard divertor regions of ITER. The primary X-point\
+    \ major radius is routinely obtained from equilibrium reconstruction codes using\
+    \ magnetic diagnostics and is distinguished from the secondary X-point by the\
+    \ higher poloidal flux gradient magnitude; see [major_radius_of_secondary_x_point](name:major_radius_of_secondary_x_point)\
+    \ for the secondary null and [major_radius_of_separatrix](name:major_radius_of_separatrix)\
+    \ for the separatrix outline.\n\nSign convention: Positive when the X-point lies\
+    \ on the outboard side of the magnetic axis ($R_X > R_{\\mathrm{axis}}$), corresponding\
+    \ to the usual lower-single-null divertor configuration.\n\nCompared to the geometric\
+    \ axis, the X-point major radius is a crucial input for divertor design and plasma\
+    \ control, and its vertical counterpart is given by [vertical_coordinate_of_x_point](name:vertical_coordinate_of_x_point)."
   unit: m
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:major_radius_of_secondary_x_point
+  - name:major_radius_of_separatrix
+  - name:vertical_coordinate_of_x_point
   sources:
   - id: dd:equilibrium/time_slice/boundary/x_point/r
     dd_path: equilibrium/time_slice/boundary/x_point/r
     status: composed
-- name: maximum_magnetic_field
-  kind: scalar
-  status: draft
-  description: Maximum total magnetic field strength on each flux surface as a function
-    of the flux surface label
-  documentation: ''
-  unit: T
-  physics_domain: equilibrium
-  links: []
-  sources:
-  - id: dd:equilibrium/time_slice/profiles_1d/b_field_max
-    dd_path: equilibrium/time_slice/profiles_1d/b_field_max
+  - id: dd:equilibrium/time_slice/boundary_separatrix/x_point/r
+    dd_path: equilibrium/time_slice/boundary_separatrix/x_point/r
     status: composed
-- name: minimum_magnetic_field
-  kind: scalar
-  status: draft
-  description: Minimum total magnetic field strength on each flux surface as a function
-    of the flux surface label
-  documentation: ''
-  unit: T
-  physics_domain: equilibrium
-  links: []
-  sources:
-  - id: dd:equilibrium/time_slice/profiles_1d/b_field_min
-    dd_path: equilibrium/time_slice/profiles_1d/b_field_min
+  - id: dd:summary/boundary/x_point_main/r
+    dd_path: summary/boundary/x_point_main/r
     status: composed
-- name: minimum_safety_factor
+- name: mutual_inductance_of_plasma_filament
   kind: scalar
   status: draft
-  description: Minimum value of the safety factor q over all flux surfaces in the
-    plasma
-  documentation: ''
-  unit: '1'
+  description: Mutual inductance coupling coefficient between discrete plasma current
+    filaments, describing the poloidal magnetic flux induced in one filament per unit
+    current in another.
+  documentation: 'The mutual inductance between two plasma filaments quantifies the
+    magnetic coupling that determines how a change in current in one filament induces
+    a voltage in the other, as described by Faraday''s law. It is defined as $M_{ij}
+    = \Phi_i / I_j$, where $\Phi_i$ is the poloidal magnetic flux linking filament
+    $i$ due to a current $I_j$ in filament $j$. For two coaxial circular filaments
+    of major radii $R_i$ and $R_j$ separated vertically by $\Delta Z$ in the $(R,
+    \phi, Z)$ coordinate system, the mutual inductance is given by $M_{ij} = \mu_0
+    \sqrt{R_i R_j} \left( \frac{2}{k} - k \right) K(k) - \frac{2}{k} E(k)$, where
+    $k = \sqrt{\frac{4 R_i R_j}{(R_i + R_j)^2 + (\Delta Z)^2}}$, and $K(k)$ and $E(k)$
+    are complete elliptic integrals of the first and second kind. Typical values for
+    tokamak-relevant filament separations (centimeter-scale) range from tens of nanohenrys
+    to a few microhenrys, with larger values for closely spaced filaments near the
+    plasma core. This quantity is symmetric ($M_{ij} = M_{ji}$) and fundamental to
+    building the inductance matrix for filament-based plasma response models.
+
+
+    Sign convention: Positive when the induced flux in filament $i$ is in the same
+    poloidal direction as the flux produced by a positive current in filament $j$,
+    consistent with the right-hand rule in the $(R, \phi, Z)$ frame.'
+  unit: H
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:passive_loop_current
+  - name:poloidal_field_coil_current
+  - name:total_plasma_pressure
   sources:
-  - id: dd:equilibrium/time_slice/global_quantities/q_min/value
-    dd_path: equilibrium/time_slice/global_quantities/q_min/value
+  - id: dd:em_coupling/mutual_plasma_plasma
+    dd_path: em_coupling/mutual_plasma_plasma
     status: composed
-- name: normalized_toroidal_flux_coordinate
+- name: passive_loop_current
   kind: scalar
   status: draft
-  description: Normalized toroidal flux coordinate (rho_tor_norm) used as the radial
-    coordinate for flux surface labeling
-  documentation: ''
-  unit: '1'
+  description: Measured electrical current in a passive conducting loop used as a
+    constraint in plasma equilibrium reconstruction.
+  documentation: "The passive loop current is the measured electrical current flowing\
+    \ in a conducting structure that is not actively driven (e.g., a vacuum vessel\
+    \ wall segment, limiter, or stabilizing shell). This current is induced by the\
+    \ plasma and is used as a boundary constraint in equilibrium reconstruction codes\
+    \ to improve accuracy. Typical values range from kiloamperes to several mega-amperes,\
+    \ depending on loop inductance, plasma current, and geometric coupling. The measurement\
+    \ is taken from a Rogowski coil or shunt, and the sign is defined by the direction\
+    \ of current flow through the loop. Note that this quantity is the passive counterpart\
+    \ of the actively driven current in a poloidal field coil; the cross-reference\
+    \ is listed below.\n\nSign convention: Positive when the current flows in the\
+    \ direction of increasing toroidal angle \u03C6 (counter-clockwise when viewed\
+    \ from above +\u1E91) in the right-handed cylindrical (R, \u03C6, Z) frame."
+  unit: A
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:poloidal_field_coil_current
+  - name:area_of_passive_loop
+  - name:inner_radius_of_passive_loop
   sources:
-  - id: dd:equilibrium/time_slice/profiles_1d/rho_tor_norm
-    dd_path: equilibrium/time_slice/profiles_1d/rho_tor_norm
+  - id: dd:equilibrium/time_slice/constraints/pf_passive_current/measured
+    dd_path: equilibrium/time_slice/constraints/pf_passive_current/measured
     status: composed
-- name: plasma_resistance
+- name: plasma_volume
   kind: scalar
   status: draft
-  description: "Effective electrical resistance of the plasma, defined as volume integral\
-    \ of E\xB7J divided by plasma current squared"
-  documentation: ''
-  unit: ohm
+  description: Total volume enclosed by the outermost closed magnetic flux surface
+    (plasma boundary), representing the volumetric extent of the confined plasma region.
+  documentation: 'The plasma volume $V_p$ quantifies the spatial extent of the confined
+    plasma, defined as the volume inside the last closed flux surface (LCFS) or the
+    plasma boundary. In an axisymmetric tokamak equilibrium, the total plasma volume
+    is obtained by integrating the elementary poloidal-plane grid cell volumes over
+    the entire plasma cross-section and multiplying by $2\pi R$ for the toroidal direction,
+    where $R$ is the major radius in meters. Typical plasma volumes range from $\sim10\,\mathrm{m}^3$
+    in medium-size tokamaks (e.g., DIII-D, ASDEX Upgrade) to $\sim800\,\mathrm{m}^3$
+    in ITER. The plasma volume is a fundamental geometric parameter entering flux-surface-averaged
+    transport equations and volume-integrated power and particle balances. It is closely
+    related to the [elongation](name:elongation) and [major_radius](name:major_radius)
+    through the geometry of the plasma boundary.
+
+
+    Sign convention: Positive when the volume is enclosed by the plasma boundary.
+
+
+    This quantity is sign-invariant (always positive by definition).'
+  unit: m^3
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:elongation
+  - name:major_radius
   sources:
-  - id: dd:equilibrium/time_slice/global_quantities/plasma_resistance
-    dd_path: equilibrium/time_slice/global_quantities/plasma_resistance
+  - id: dd:equilibrium/time_slice/profiles_2d/grid/volume_element
+    dd_path: equilibrium/time_slice/profiles_2d/grid/volume_element
     status: composed
-- name: poloidal_beta
+- name: poloidal_field_coil_current
   kind: scalar
   status: draft
-  description: Poloidal beta estimated from MHD equilibrium reconstruction, ratio
-    of plasma pressure to poloidal magnetic field pressure
-  documentation: ''
-  unit: '1'
+  description: Measured electrical current flowing in a poloidal field coil, used
+    as a constraint in plasma equilibrium reconstruction.
+  documentation: 'Poloidal field coils are external conducting loops wound toroidally
+    around the machine, carrying currents that produce a poloidal magnetic field for
+    plasma shaping and position control. The measured current $I_{\mathrm{PF}}$ is
+    the net direct current flowing in a single coil turn, obtained from a calibrated
+    Rogowski coil or Hall sensor. Typical values range from tens of kA to tens of
+    MA depending on the coil size and plasma scenario. The measurement is used as
+    an external constraint in equilibrium reconstruction codes (e.g., EFIT, LIUQE)
+    to enforce consistency between the observed poloidal field and the coil currents.
+
+
+    Sign convention: Positive when the current flows in the direction of increasing
+    toroidal angle $\phi$ (counter-clockwise when viewed from above).'
+  unit: A
   physics_domain: equilibrium
-  links: []
-  arguments:
-  - name: beta
-    operator: component
-    operator_kind: projection
-    axis: poloidal
-    shape: component
+  links:
+  - name:passive_loop_current
+  - name:inner_radius_of_poloidal_field_coil
+  - name:total_plasma_pressure
+  - name:reference_major_radius
   sources:
-  - id: dd:core_profiles/global_quantities/beta_pol
-    dd_path: core_profiles/global_quantities/beta_pol
+  - id: dd:equilibrium/time_slice/constraints/pf_current/measured
+    dd_path: equilibrium/time_slice/constraints/pf_current/measured
     status: attached
-  - id: dd:equilibrium/time_slice/global_quantities/beta_pol
-    dd_path: equilibrium/time_slice/global_quantities/beta_pol
+  - id: dd:equilibrium/time_slice/constraints/pf_current/reconstructed
+    dd_path: equilibrium/time_slice/constraints/pf_current/reconstructed
     status: attached
-  - id: dd:summary/global_quantities/beta_pol/value
-    dd_path: summary/global_quantities/beta_pol/value
-    status: attached
-  - id: dd:summary/global_quantities/beta_pol_mhd/value
-    dd_path: summary/global_quantities/beta_pol_mhd/value
-    status: composed
-- name: poloidal_magnetic_flux
+- name: poloidal_magnetic_flux_at_minimum_safety_factor
   kind: scalar
   status: draft
-  description: Poloidal magnetic flux on the 2D equilibrium grid in the poloidal cross-section
-  documentation: ''
+  description: Poloidal magnetic flux at the radial position where the safety factor
+    reaches its minimum value within the confined plasma.
+  documentation: 'The poloidal magnetic flux $\psi$ is the fundamental flux-surface
+    label in tokamak equilibrium, defined by $d\psi = d\Phi_\text{pol} / (2\pi)$ where
+    $\Phi_\text{pol}$ is the poloidal magnetic flux. This quantity gives the $\psi$
+    coordinate of the flux surface on which the safety factor $q(\psi)=d\Phi_\text{tor}/d\Phi_\text{pol}$
+    attains its global minimum $q_\text{min}$, a critical surface for MHD stability.
+    The minimum safety factor position is a key radial feature for sawtooth stability
+    analysis, and the poloidal flux at this location is used to reference other profile
+    values relative to this surface. It is obtained from equilibrium reconstructions
+    that solve the Grad-Shafranov equation constrained by magnetic and kinetic measurements.
+    Typical core $q_\text{min}$ locations in H-mode tokamaks lie at normalized poloidal
+    flux $\psi_N \approx 0.3-0.5$, with the absolute flux value depending on the machine
+    size and plasma current. Related quantities that locate the same radial feature
+    in different coordinate systems are [safety_factor_at_magnetic_axis](name:safety_factor_at_magnetic_axis)
+    and [safety_factor_of_separatrix](name:safety_factor_of_separatrix).
+
+
+    Sign convention: Positive when the poloidal flux $\psi$ increases from the magnetic
+    axis toward the plasma boundary.
+
+
+    This quantity is closely linked to the safety factor minimum value itself; see
+    [q_profile](name:q_profile) for the safety factor as a function of flux coordinate.'
   unit: Wb
   physics_domain: equilibrium
-  links: []
-  arguments:
-  - name: magnetic_flux
-    operator: component
-    operator_kind: projection
-    axis: poloidal
-    shape: component
+  links:
+  - name:safety_factor_at_magnetic_axis
+  - name:safety_factor_of_separatrix
+  - name:q_profile
   sources:
-  - id: dd:equilibrium/time_slice/profiles_1d/psi
-    dd_path: equilibrium/time_slice/profiles_1d/psi
-    status: composed
-  - id: dd:equilibrium/time_slice/profiles_2d/psi
-    dd_path: equilibrium/time_slice/profiles_2d/psi
-    status: composed
-- name: poloidal_magnetic_flux_at_magnetic_axis
-  kind: scalar
-  status: draft
-  description: Poloidal magnetic flux at the magnetic axis, the value of psi at the
-    flux-surface center
-  documentation: ''
-  unit: Wb
-  physics_domain: equilibrium
-  links: []
-  sources:
-  - id: dd:equilibrium/time_slice/global_quantities/psi_axis
-    dd_path: equilibrium/time_slice/global_quantities/psi_axis
-    status: composed
-- name: poloidal_magnetic_flux_of_magnetic_axis
-  kind: scalar
-  status: draft
-  description: Poloidal magnetic flux at the magnetic axis, used as the inner boundary
-    value for flux normalization
-  documentation: ''
-  unit: Wb
-  physics_domain: equilibrium
-  links: []
-  sources:
-  - id: dd:equilibrium/time_slice/global_quantities/psi_magnetic_axis
-    dd_path: equilibrium/time_slice/global_quantities/psi_magnetic_axis
+  - id: dd:equilibrium/time_slice/global_quantities/q_min/psi
+    dd_path: equilibrium/time_slice/global_quantities/q_min/psi
     status: composed
 - name: poloidal_magnetic_flux_of_plasma_boundary
   kind: scalar
   status: draft
-  description: Poloidal magnetic flux at the plasma boundary (last closed flux surface),
-    defining the boundary condition for equilibrium
-  documentation: ''
+  description: Poloidal magnetic flux per radian of toroidal angle at the last closed
+    flux surface, providing the outer normalization reference for flux-surface coordinates.
+  documentation: "The poloidal magnetic flux $\\psi$ is defined as the magnetic flux\
+    \ passing through the area enclosed by the poloidal projection of a toroidal surface,\
+    \ per radian of toroidal angle. At the plasma boundary, $\n\n$\\psi_{boundary}$\
+    \ marks the last closed flux surface (LCFS), bounding the confined plasma region.\
+    \ Its value, together with $\\psi_{axis}$, defines the normalized poloidal flux\
+    \ coordinate $\\psi_N = (\\psi - \\psi_{axis})/(\\psi_{boundary} - \\psi_{axis})$,\
+    \ which ranges from 0 at the magnetic axis to 1 at the boundary. Typical values\
+    \ in conventional tokamaks are on the order of 0.1\u20131 Wb for the difference\
+    \ $\\psi_{boundary} - \\psi_{axis}$. The boundary flux is routinely obtained from\
+    \ equilibrium reconstruction codes that solve the Grad\u2013Shafranov equation\
+    \ constrained by external magnetic measurements. \n\nSign convention: Positive\
+    \ when $\\psi$ decreases radially outward for a plasma current in the direction\
+    \ of increasing toroidal angle $\\phi$.\n\nSee also [poloidal_magnetic_flux_at_magnetic_axis](name:poloidal_magnetic_flux_at_magnetic_axis)\
+    \ for the inner normalization reference and [normalized_poloidal_flux_coordinate](name:normalized_poloidal_flux_coordinate)\
+    \ for the resulting normalized coordinate."
   unit: Wb
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:poloidal_magnetic_flux_at_magnetic_axis
+  - name:normalized_poloidal_flux_coordinate
   sources:
+  - id: dd:core_profiles/profiles_1d/grid/psi_boundary
+    dd_path: core_profiles/profiles_1d/grid/psi_boundary
+    status: attached
+  - id: dd:core_transport/model/profiles_1d/grid_d/psi_boundary
+    dd_path: core_transport/model/profiles_1d/grid_d/psi_boundary
+    status: attached
+  - id: dd:core_transport/model/profiles_1d/grid_flux/psi_boundary
+    dd_path: core_transport/model/profiles_1d/grid_flux/psi_boundary
+    status: attached
+  - id: dd:core_transport/model/profiles_1d/grid_v/psi_boundary
+    dd_path: core_transport/model/profiles_1d/grid_v/psi_boundary
+    status: attached
+  - id: dd:disruption/profiles_1d/grid/psi_boundary
+    dd_path: disruption/profiles_1d/grid/psi_boundary
+    status: attached
+  - id: dd:distributions/distribution/profiles_1d/grid/psi_boundary
+    dd_path: distributions/distribution/profiles_1d/grid/psi_boundary
+    status: composed
+  - id: dd:ece/psi_normalization/psi_boundary
+    dd_path: ece/psi_normalization/psi_boundary
+    status: composed
+  - id: dd:equilibrium/time_slice/boundary/psi
+    dd_path: equilibrium/time_slice/boundary/psi
+    status: attached
+  - id: dd:equilibrium/time_slice/boundary_secondary_separatrix/psi
+    dd_path: equilibrium/time_slice/boundary_secondary_separatrix/psi
+    status: attached
+  - id: dd:equilibrium/time_slice/boundary_separatrix/psi
+    dd_path: equilibrium/time_slice/boundary_separatrix/psi
+    status: attached
+  - id: dd:equilibrium/time_slice/constraints/flux_loop/measured
+    dd_path: equilibrium/time_slice/constraints/flux_loop/measured
+    status: composed
+  - id: dd:equilibrium/time_slice/constraints/flux_loop/reconstructed
+    dd_path: equilibrium/time_slice/constraints/flux_loop/reconstructed
+    status: attached
+  - id: dd:equilibrium/time_slice/constraints/pressure_rotational/position/psi
+    dd_path: equilibrium/time_slice/constraints/pressure_rotational/position/psi
+    status: composed
   - id: dd:equilibrium/time_slice/global_quantities/psi_boundary
     dd_path: equilibrium/time_slice/global_quantities/psi_boundary
+    status: attached
+  - id: dd:plasma_sources/source/profiles_1d/grid/psi_boundary
+    dd_path: plasma_sources/source/profiles_1d/grid/psi_boundary
+    status: composed
+  - id: dd:plasma_transport/model/profiles_1d/grid_flux/psi_boundary
+    dd_path: plasma_transport/model/profiles_1d/grid_flux/psi_boundary
+    status: attached
+  - id: dd:plasma_transport/model/profiles_1d/grid_v/psi_boundary
+    dd_path: plasma_transport/model/profiles_1d/grid_v/psi_boundary
+    status: composed
+  - id: dd:reflectometer_fluctuation/psi_normalization/psi_boundary
+    dd_path: reflectometer_fluctuation/psi_normalization/psi_boundary
+    status: composed
+  - id: dd:reflectometer_profile/psi_normalization/psi_boundary
+    dd_path: reflectometer_profile/psi_normalization/psi_boundary
+    status: attached
+  - id: dd:transport_solver_numerics/derivatives_1d/grid/psi_boundary
+    dd_path: transport_solver_numerics/derivatives_1d/grid/psi_boundary
+    status: attached
+  - id: dd:transport_solver_numerics/solver_1d/grid/psi_boundary
+    dd_path: transport_solver_numerics/solver_1d/grid/psi_boundary
+    status: composed
+  - id: dd:waves/coherent_wave/profiles_1d/grid/psi_boundary
+    dd_path: waves/coherent_wave/profiles_1d/grid/psi_boundary
+    status: composed
+- name: poloidal_magnetic_flux_of_separatrix
+  kind: scalar
+  status: draft
+  description: Poloidal magnetic flux per radian of toroidal angle evaluated at the
+    outermost closed flux surface.
+  documentation: "The poloidal magnetic flux $\\psi_{\\rm sep}$ defines the value\
+    \ of the poloidal flux function $\u03C8(R,Z)$ on the separatrix, the last closed\
+    \ flux surface that separates the confined plasma from the scrape-off layer. In\
+    \ equilibrium reconstruction, $\u03C8$ satisfies the Grad-Shafranov equation $\u0394\
+    ^*\\psi = -\u03BC_0 R^2 p'(\\psi) - FF'(\\psi)$, where $p$ is the plasma pressure\
+    \ and $F = RB_\\phi$ is the poloidal current function. The separatrix flux $\u03C8\
+    _{\\rm sep}$ together with the axis flux $\u03C8_{\\rm axis}$ defines the normalized\
+    \ poloidal flux coordinate $\\psi_N = (\\psi - \\psi_{\\rm axis})/(\\psi_{\\rm\
+    \ sep} - \\psi_{\\rm axis})$ used as a radial coordinate in transport and stability\
+    \ analyzes. Typical values in a medium-size tokamak range from $-1$ to $-3$ Wb\
+    \ for standard divertor configurations. See also [poloidal_magnetic_flux_at_magnetic_axis](name:poloidal_magnetic_flux_at_magnetic_axis)\
+    \ and [poloidal_magnetic_flux_at_plasma_boundary](name:poloidal_magnetic_flux_at_plasma_boundary).\n\
+    \nSign convention: Positive when $\u03C8$ increases from the magnetic axis to\
+    \ the plasma boundary for a positive plasma current $I_p$ directed in the $+\\\
+    phi$ direction.\n\nIn the standard IMAS $(R, \\phi, Z)$ cylindrical frame this\
+    \ corresponds to $\u03C8$ decreasing from axis to boundary under the same $I_p$\
+    \ convention. The value at the separatrix provides the outer normalization for\
+    \ flux-surface labels and defines the plasma volume accessible to core confinement\
+    \ codes."
+  unit: Wb
+  physics_domain: equilibrium
+  links:
+  - name:poloidal_magnetic_flux_at_magnetic_axis
+  - name:poloidal_magnetic_flux_at_plasma_boundary
+  sources:
+  - id: dd:summary/local/separatrix/position/psi
+    dd_path: summary/local/separatrix/position/psi
+    status: composed
+  - id: dd:summary/local/separatrix_average/position/psi
+    dd_path: summary/local/separatrix_average/position/psi
     status: composed
 - name: radial_magnetic_field
   kind: scalar
   status: draft
-  description: Radial (cylindrical R) component of the magnetic field on the 2D equilibrium
-    poloidal-plane grid
-  documentation: ''
+  description: Radial ($R$) component of the magnetic field vector in the right-handed
+    cylindrical frame.
+  documentation: "The radial component $B_R = \\mathbf{B} \\cdot \\hat{R}$ is the\
+    \ projection of the total magnetic field onto the direction of increasing major\
+    \ radius $R$ in the right-handed cylindrical $(R, \\phi, Z)$ system. In a tokamak,\
+    \ $B_R$ is typically much smaller than the toroidal component $[\\text{toroidal\\\
+    _magnetic\\_field}](name:toroidal\\_magnetic\\_field)$ but is essential for describing\
+    \ poloidal field structure, equilibrium shaping, and non-axisymmetric perturbations.\
+    \ It arises from the poloidal field coils and plasma current, and its radial variation\
+    \ determines the field-line pitch and magnetic shear. Typical values in the core\
+    \ are of order 0.01\u20130.1 T for conventional tokamaks, rising to 0.5\u2013\
+    1 T near the plasma boundary or in high-beta plasmas. $B_R$ is measured by Hall\
+    \ probes or inferred from equilibrium reconstruction codes that solve the Grad\u2013\
+    Shafranov equation. For non-axisymmetric components, see $[\\text{radial\\_non\\\
+    _axisymmetric\\_magnetic\\_field}](name:radial\\_non\\_axisymmetric\\_magnetic\\\
+    _field)$.\n\nSign convention: Positive when $B_R$ points in the direction of increasing\
+    \ major radius $R$ (outward from the machine symmetry axis)."
   unit: T
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:toroidal
+  - name:radial
   arguments:
   - name: magnetic_field
     operator: component
@@ -336,239 +900,538 @@
     axis: radial
     shape: component
   sources:
-  - id: dd:equilibrium/time_slice/profiles_2d/b_field_r
-    dd_path: equilibrium/time_slice/profiles_2d/b_field_r
+  - id: dd:equilibrium/time_slice/ggd/b_field_r/values
+    dd_path: equilibrium/time_slice/ggd/b_field_r/values
     status: composed
-- name: safety_factor
+  - id: dd:mhd/ggd/b_field_r/values
+    dd_path: mhd/ggd/b_field_r/values
+    status: composed
+  - id: dd:tf/field_map/b_field_r/values
+    dd_path: tf/field_map/b_field_r/values
+    status: composed
+  - id: dd:wall/description_ggd/ggd/b_field/r
+    dd_path: wall/description_ggd/ggd/b_field/r
+    status: attached
+- name: radial_magnetic_flux
   kind: scalar
   status: draft
-  description: Safety factor q profile as a function of the radial flux surface coordinate
-  documentation: ''
-  unit: '1'
+  description: Component of the magnetic vector potential projected onto the major-radius
+    direction in the right-handed cylindrical frame.
+  documentation: "The radial component $A_R = A \\cdot \\hat{R}$ of the magnetic vector\
+    \ potential $\\mathbf{A}$ quantifies the poloidal magnetic flux per unit length\
+    \ through surfaces normal to the major-radius direction. It is related to the\
+    \ toroidal magnetic field via $\\mathbf{B} = \\nabla \\times \\mathbf{A}$, giving\
+    \ $B_\\phi = (\\partial A_Z / \\partial R - \\partial A_R / \\partial Z)$ in the\
+    \ cylindrical $(R, \\phi, Z)$ basis. This component is computed from equilibrium\
+    \ reconstruction codes that solve the Grad\u2013Shafranov equation, yielding $A_R$\
+    \ as part of the vector potential solution on generalized grid subsets throughout\
+    \ the plasma volume. Typical values in the plasma edge range from 0.1 to 1 T\xB7\
+    m for medium-size tokamaks such as DIII-D and ASDEX Upgrade. See also [magnetic_flux](name:magnetic_flux)\
+    \ as the parent quantity, and the poloidal component [vertical_magnetic_flux](name:vertical_magnetic_flux)\
+    \ for the complementary projection."
+  unit: T.m
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:magnetic_flux
+  - name:vertical_magnetic_flux
+  arguments:
+  - name: magnetic_flux
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
   sources:
-  - id: dd:core_profiles/profiles_1d/q
-    dd_path: core_profiles/profiles_1d/q
-    status: composed
-  - id: dd:equilibrium/time_slice/profiles_1d/q
-    dd_path: equilibrium/time_slice/profiles_1d/q
-    status: composed
-  - id: dd:sawteeth/profiles_1d/q
-    dd_path: sawteeth/profiles_1d/q
+  - id: dd:plasma_profiles/ggd/a_field/r
+    dd_path: plasma_profiles/ggd/a_field/r
     status: composed
 - name: safety_factor_at_magnetic_axis
   kind: scalar
   status: draft
-  description: Safety factor at the magnetic axis, the central value of the q profile
-  documentation: ''
+  description: Safety factor q evaluated at the magnetic axis, the innermost closed
+    flux surface, quantifying the field-line helicity at the plasma core.
+  documentation: "The safety factor at the magnetic axis, $q_0 = q(\\psi_{\\text{axis}})$,\
+    \ measures the number of toroidal transits a magnetic field line makes per single\
+    \ poloidal circuit on the innermost flux surface. It is defined via the differential\
+    \ relation $q = d\\Phi_{\\text{tor}} / d\\Phi_{\\text{pol}}$, where $\\Phi_{\\\
+    text{tor}}$ and $\\Phi_{\\text{pol}}$ are the toroidal and poloidal magnetic fluxes,\
+    \ respectively. In conventional tokamak H-mode plasmas, $q_0$ is typically near\
+    \ unity (0.8\u20131.2) and is a critical MHD stability indicator; $q_0 < 1$ drives\
+    \ sawtooth oscillations, while $q_0 > 1$ generally indicates a sawtooth-stable\
+    \ core. The quantity is routinely inferred from equilibrium reconstruction codes\
+    \ using external magnetics, motional Stark effect diagnostics, and polarimetry.\
+    \ It is intimately related to the radial magnetic shear `[magnetic_shear_of_magnetic_axis](name:magnetic_shear_of_magnetic_axis)`\
+    \ and provides the boundary condition for the `[safety_factor](name:safety_factor)`\
+    \ profile. \n\nSign convention: Positive when the poloidal flux decreases radially\
+    \ outward for a plasma current in the positive toroidal direction."
   unit: '1'
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:magnetic_shear_of_magnetic_axis
+  - name:safety_factor
   sources:
   - id: dd:equilibrium/time_slice/global_quantities/q_axis
     dd_path: equilibrium/time_slice/global_quantities/q_axis
     status: composed
-- name: safety_factor_at_normalized_poloidal_flux
-  kind: scalar
-  status: draft
-  description: Safety factor q at the 95% normalized poloidal flux surface, a key
-    MHD stability parameter
-  documentation: ''
-  unit: '1'
-  physics_domain: equilibrium
-  links: []
-  sources:
-  - id: dd:equilibrium/time_slice/global_quantities/q_95
-    dd_path: equilibrium/time_slice/global_quantities/q_95
+  - id: dd:summary/local/magnetic_axis/q/value
+    dd_path: summary/local/magnetic_axis/q/value
     status: composed
-- name: toroidal_beta
+- name: toroidal_current_density
   kind: scalar
   status: draft
-  description: "Toroidal beta, volume-averaged total perpendicular plasma pressure\
-    \ normalized to B0\xB2/(2\u03BC0)"
-  documentation: ''
-  unit: '1'
+  description: Flux-surface-averaged toroidal component of the total electric current
+    density in the plasma.
+  documentation: 'The toroidal current density $j_\phi = \langle \mathbf{j} \cdot
+    \hat{\phi} \rangle$ quantifies the net flow of electric charge per unit area in
+    the geometric toroidal direction, averaged over a flux surface. This quantity
+    is a fundamental input to MHD equilibrium reconstruction and determines the poloidal
+    magnetic field via $\nabla \times \mathbf{B} = \mu_0 \mathbf{j}$. It is typically
+    inferred from equilibrium reconstruction codes using external magnetic measurements
+    and internal constraints such as Motional Stark Effect data. In a tokamak, the
+    toroidal current density profile is the sum of inductive (ohmic) and non-inductive
+    contributions, including the bootstrap current and externally driven currents.
+    The flux-surface average is defined as $\langle j_\phi \rangle = \langle J_\phi
+    / R \rangle / \langle 1 / R \rangle$, where $J_\phi$ is the local toroidal current
+    density and $R$ is the major radius. The radial integral of $j_\phi$ across the
+    plasma cross-section yields the total plasma current $I_p$.
+
+
+    Sign convention: Positive when the current flows in the direction of increasing
+    toroidal angle $\phi$ (counter-clockwise viewed from above).'
+  unit: A.m^-2
   physics_domain: equilibrium
   links: []
   arguments:
-  - name: beta
+  - name: current_density
     operator: component
     operator_kind: projection
     axis: toroidal
     shape: component
   sources:
-  - id: dd:equilibrium/time_slice/global_quantities/beta_tor
-    dd_path: equilibrium/time_slice/global_quantities/beta_tor
+  - id: dd:distributions/distribution/profiles_1d/current_phi
+    dd_path: distributions/distribution/profiles_1d/current_phi
     status: composed
-  - id: dd:summary/global_quantities/beta_tor/value
-    dd_path: summary/global_quantities/beta_tor/value
+  - id: dd:distributions/distribution/profiles_1d/current_tor
+    dd_path: distributions/distribution/profiles_1d/current_tor
     status: composed
-  - id: dd:summary/global_quantities/t_i_average/volume_average
-    dd_path: summary/global_quantities/t_i_average/volume_average
-    status: skipped
-- name: toroidal_flux_radius
+  - id: dd:distributions/distribution/profiles_2d/current_phi
+    dd_path: distributions/distribution/profiles_2d/current_phi
+    status: composed
+  - id: dd:distributions/distribution/profiles_2d/current_tor
+    dd_path: distributions/distribution/profiles_2d/current_tor
+    status: composed
+  - id: dd:equilibrium/time_slice/constraints/j_tor/measured
+    dd_path: equilibrium/time_slice/constraints/j_tor/measured
+    status: composed
+  - id: dd:equilibrium/time_slice/ggd/j_tor/values
+    dd_path: equilibrium/time_slice/ggd/j_tor/values
+    status: composed
+  - id: dd:equilibrium/time_slice/profiles_1d/j_phi
+    dd_path: equilibrium/time_slice/profiles_1d/j_phi
+    status: composed
+  - id: dd:equilibrium/time_slice/profiles_1d/j_tor
+    dd_path: equilibrium/time_slice/profiles_1d/j_tor
+    status: composed
+  - id: dd:mhd/ggd/j_phi/values
+    dd_path: mhd/ggd/j_phi/values
+    status: composed
+  - id: dd:mhd/ggd/j_tor/values
+    dd_path: mhd/ggd/j_tor/values
+    status: composed
+  - id: dd:mhd/ggd/j_tor_r/values
+    dd_path: mhd/ggd/j_tor_r/values
+    status: composed
+  - id: dd:mhd/ggd/r_j_phi/values
+    dd_path: mhd/ggd/r_j_phi/values
+    status: composed
+  - id: dd:wall/description_ggd/ggd/j_total/phi
+    dd_path: wall/description_ggd/ggd/j_total/phi
+    status: composed
+  - id: dd:wall/description_ggd/ggd/j_total/toroidal
+    dd_path: wall/description_ggd/ggd/j_total/toroidal
+    status: composed
+- name: toroidal_plasma_current_density
   kind: scalar
   status: draft
-  description: Toroidal flux radius (rho_tor) as the dimensional radial coordinate
-    labeling flux surfaces
-  documentation: ''
-  unit: m
+  description: Toroidal component of the plasma electric current density, projected
+    along the geometric toroidal direction.
+  documentation: "The toroidal plasma current density $j_\\phi = \\mathbf{j} \\cdot\
+    \ \\hat{\\phi}$ is the projection of the total plasma current density vector onto\
+    \ the geometric toroidal direction $\\hat{\\phi}$ in the right-handed cylindrical\
+    \ $(R, \\phi, Z)$ frame. This quantity drives the poloidal magnetic field via\
+    \ Amp\xE8re's law $\\nabla \\times \\mathbf{B}_\\text{pol} = \\mu_0 j_\\phi \\\
+    hat{\\phi}$, making it the fundamental source term for the tokamak poloidal field\
+    \ configuration. The flux-surface averaged quantity $\\langle j_\\phi \\rangle$\
+    \ defines the net plasma current $I_p = \\int j_\\phi \\, dS$ and is used in equilibrium\
+    \ reconstruction to constrain the safety factor profile. Typical values in the\
+    \ plasma core range from 0.1\u20131.0 MA/m\xB2 for medium-size tokamaks like DIII-D,\
+    \ falling off toward the edge.\n\nSign convention: Positive when $j_\\phi$ flows\
+    \ in the direction of increasing toroidal angle $\\phi$ (counter-clockwise when\
+    \ viewed from above).\n\nThe distinguishing toroidal projection is related to\
+    \ the full current density vector through [plasma_current_density](name:plasma_current_density)\
+    \ and to the parallel current density through the $\\mathbf{B} \\cdot \\hat{\\\
+    phi}$ alignment factor. See also [toroidal_current_density](name:toroidal_current_density)\
+    \ for the total (including non-plasma) toroidal current density, and [toroidal_electric_field](name:toroidal_electric_field)\
+    \ for the associated inductive drive in the same direction."
+  unit: A.m^-2
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:plasma_current_density
+  - name:toroidal_current_density
+  - name:toroidal_electric_field
+  arguments:
+  - name: plasma_current_density
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
   sources:
-  - id: dd:equilibrium/time_slice/profiles_1d/rho_tor
-    dd_path: equilibrium/time_slice/profiles_1d/rho_tor
-    status: composed
-- name: total_plasma_current
-  kind: scalar
-  status: draft
-  description: Total toroidal plasma current (Ip) flowing through the plasma column,
-    a primary equilibrium and confinement parameter.
-  documentation: ''
-  unit: A
-  physics_domain: equilibrium
-  links: []
-  sources:
-  - id: dd:equilibrium/time_slice/global_quantities/ip
-    dd_path: equilibrium/time_slice/global_quantities/ip
-    status: composed
-  - id: dd:magnetics/ip/data
-    dd_path: magnetics/ip/data
-    status: composed
-  - id: dd:magnetics/method/ip/data
-    dd_path: magnetics/method/ip/data
-    status: composed
-  - id: dd:pulse_schedule/flux_control/ip
-    dd_path: pulse_schedule/flux_control/ip
-    status: composed
-  - id: dd:summary/global_quantities/ip/value
-    dd_path: summary/global_quantities/ip/value
-    status: composed
-- name: total_plasma_pressure
-  kind: scalar
-  status: draft
-  description: Perpendicular component of total plasma pressure in the edge region
-  documentation: ''
-  unit: Pa
-  physics_domain: equilibrium
-  links: []
-  sources:
-  - id: dd:edge_profiles/profiles_1d/pressure_perpendicular
-    dd_path: edge_profiles/profiles_1d/pressure_perpendicular
-    status: composed
-  - id: dd:equilibrium/time_slice/profiles_1d/pressure
-    dd_path: equilibrium/time_slice/profiles_1d/pressure
+  - id: dd:equilibrium/time_slice/ggd/j_phi/values
+    dd_path: equilibrium/time_slice/ggd/j_phi/values
     status: composed
 - name: total_plasma_volume
   kind: scalar
   status: draft
-  description: Total volume enclosed by the plasma boundary in the equilibrium time
-    slice
-  documentation: ''
+  description: Total volume enclosed by the outermost closed magnetic flux surface
+    (plasma boundary), representing the spatial extent of the confined plasma.
+  documentation: 'The total plasma volume $V$ is the volume of the region bounded
+    by the last closed flux surface (LCFS) or separatrix. It is a fundamental geometric
+    parameter in tokamak and stellarator physics, appearing in volume-averaged quantities
+    such as $
+
+    _e\rangle = \frac{1}{V}\int n_e \, dV$ and in confinement scaling laws (e.g.,
+    ITER IPB98(y)). The volume is computed from the equilibrium reconstruction by
+    integrating the flux-surface geometry over the poloidal cross-section and the
+    toroidal angle. Typical values range from $\sim 1\,\text{m}^3$ in small devices
+    to $\sim 800\,\text{m}^3$ in ITER. The total plasma volume is a key input for
+    global particle and power balances, and is used together with [plasma_volume](name:plasma_volume)
+    and [volume_of_first_wall](name:volume_of_first_wall) for confinement assessments.
+
+
+    Sign convention: Positive for the physically confined plasma region.
+
+
+    Related quantities include [volume_at_pedestal](name:volume_at_pedestal) for the
+    pedestal region and [major_radius_of_plasma_boundary](name:major_radius_of_plasma_boundary)
+    for the boundary geometry.'
   unit: m^3
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:plasma_volume
+  - name:volume_of_first_wall
+  - name:volume_at_pedestal
+  - name:major_radius_of_plasma_boundary
   sources:
-  - id: dd:equilibrium/time_slice/global_quantities/volume
-    dd_path: equilibrium/time_slice/global_quantities/volume
+  - id: dd:summary/global_quantities/volume/value
+    dd_path: summary/global_quantities/volume/value
     status: composed
-- name: upper_triangularity
+- name: triangularity_of_plasma_boundary
   kind: scalar
   status: draft
-  description: Upper triangularity of the plasma boundary, describing shape asymmetry
-    of the upper portion of the plasma cross-section
-  documentation: ''
+  description: Upper triangularity shape parameter of the plasma boundary at the last-closed
+    flux surface, quantifying the vertical asymmetry of the poloidal cross-section.
+  documentation: 'The upper triangularity $\delta_u$ characterizes the D-shape of
+    the upper half of the plasma boundary, defined as $\delta_u = (R_{\mathrm{geo}}
+    - R_u) / a$, where $R_{\mathrm{geo}}$ is the geometric-center major radius, $R_u$
+    is the major-radius coordinate of the boundary at its uppermost vertical point,
+    and $a$ is the minor radius. This shaping parameter strongly influences the H-mode
+    power threshold, pedestal stability, and scrape-off-layer divertor geometry. Typical
+    values range from $\delta_u = 0.2$ (moderate shaping) to $\delta_u = 0.5$ (strongly
+    shaped, e.g., ITER-like configurations), and are routinely obtained from equilibrium
+    reconstruction using external magnetics and polarimetry. See also the related
+    global parameter [plasma boundary elongation](name:elongation_of_plasma_boundary)
+    and the lower-half counterpart [lower triangularity of plasma boundary](name:lower_triangularity_of_plasma_boundary).
+
+
+    Sign convention: Positive when the boundary flares inward at the top of the plasma
+    relative to the geometric axis.
+
+
+    For a flux-surface-resolved profile of the same quantity, see [upper triangularity
+    of separatrix](name:triangularity_of_separatrix).'
   unit: '1'
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:elongation_of_plasma_boundary
+  - name:lower_triangularity_of_plasma_boundary
+  - name:triangularity_of_separatrix
   sources:
-  - id: dd:equilibrium/time_slice/boundary/triangularity_upper
-    dd_path: equilibrium/time_slice/boundary/triangularity_upper
-    status: composed
-  - id: dd:equilibrium/time_slice/profiles_1d/triangularity_upper
-    dd_path: equilibrium/time_slice/profiles_1d/triangularity_upper
+  - id: dd:equilibrium/time_slice/boundary/triangularity
+    dd_path: equilibrium/time_slice/boundary/triangularity
     status: composed
   - id: dd:summary/boundary/triangularity_upper/value
     dd_path: summary/boundary/triangularity_upper/value
     status: composed
-- name: vertical_coordinate_of_geometric_axis
+- name: upper_elongation_of_plasma_boundary
   kind: scalar
   status: draft
-  description: Vertical coordinate (cylindrical Z) of the plasma geometric axis, defined
-    as (Zmax+Zmin)/2 of the plasma boundary
-  documentation: ''
+  description: Elongation of the upper half of the plasma boundary, defined as the
+    ratio of the upper vertical half-height to the horizontal minor radius.
+  documentation: 'The upper elongation $\kappa_{\mathrm{upper}} = Z_{\mathrm{upper}}
+    / a$ quantifies the vertical stretch of the poloidal cross-section above the geometric
+    axis, where $Z_{\mathrm{upper}}$ is the vertical half-height of the boundary above
+    the axis and $a$ is the horizontal minor radius at the midplane. It is the upper-half
+    counterpart of [lower_elongation_of_plasma_boundary](name:lower_elongation_of_plasma_boundary);
+    together with [elongation_of_plasma_boundary](name:elongation_of_plasma_boundary)
+    they describe the full vertical asymmetry of the last-closed flux surface. Typical
+    values in conventional tokamaks range from 1.2 to 2.0, with the upper elongation
+    often exceeding the lower one in diverted plasmas due to the X-point geometry.
+    This shaping parameter is extracted from equilibrium reconstruction (EFIT, LIUQE)
+    using poloidal flux contours or visible/infrared camera images of the plasma boundary.
+
+
+    Sign convention: Positive when the upper vertical half-height extends above the
+    geometric axis.
+
+
+    The product of upper and lower elongation determines the total elongation via
+    $
+
+    \kappa = (\kappa_{\mathrm{upper}} + \kappa_{\mathrm{lower}})/2$ for boundaries
+    symmetric about the midplane. See also [upper_triangularity_of_plasma_boundary](name:upper_triangularity_of_plasma_boundary)
+    for the complementary D-shape parameter describing the upper poloidal asymmetry.'
+  unit: '1'
+  physics_domain: equilibrium
+  links:
+  - name:lower_elongation_of_plasma_boundary
+  - name:elongation_of_plasma_boundary
+  - name:upper_triangularity_of_plasma_boundary
+  sources:
+  - id: dd:equilibrium/time_slice/boundary/elongation_upper
+    dd_path: equilibrium/time_slice/boundary/elongation_upper
+    status: composed
+  - id: dd:equilibrium/time_slice/boundary_separatrix/elongation_upper
+    dd_path: equilibrium/time_slice/boundary_separatrix/elongation_upper
+    status: attached
+- name: vertical_coordinate_of_last_closed_flux_surface
+  kind: scalar
+  status: draft
+  description: Vertical (Z) coordinate of the last closed flux surface in the right-handed
+    cylindrical (R, phi, Z) frame.
+  documentation: 'The vertical coordinate $Z_{\mathrm{lcfs}}$ marks the highest (or
+    lowest) point of the last closed flux surface (LCFS) in the $\hat{Z}$ direction,
+    defining the vertical extent of the confined plasma. This quantity is obtained
+    from equilibrium reconstruction (e.g., EFIT, LIUQE) and locates the plasma boundary
+    relative to the machine midplane. Typical values for medium-size tokamaks (DIII-D,
+    ASDEX Upgrade) range from $-1.0$ to $+1.0$ m, while ITER''s LCFS extends to approximately
+    $\pm 3.0$ m. See also [major_radius_of_last_closed_flux_surface](name:major_radius_of_last_closed_flux_surface)
+    for the radial coordinate and [vertical_coordinate_of_magnetic_axis](name:vertical_coordinate_of_magnetic_axis)
+    for the innermost nested flux surface. The last closed flux surface is synonymous
+    with the separatrix in diverted configurations; compare with [vertical_coordinate_of_separatrix](name:vertical_coordinate_of_separatrix).
+
+
+    Sign convention: Positive when the point lies above the machine midplane ($Z =
+    0$) in the $+\hat{Z}$ direction.'
   unit: m
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:major_radius_of_last_closed_flux_surface
+  - name:vertical_coordinate_of_magnetic_axis
+  - name:vertical_coordinate_of_separatrix
   sources:
-  - id: dd:equilibrium/time_slice/boundary/geometric_axis/z
-    dd_path: equilibrium/time_slice/boundary/geometric_axis/z
+  - id: dd:equilibrium/time_slice/boundary/lcfs/z
+    dd_path: equilibrium/time_slice/boundary/lcfs/z
     status: composed
-  - id: dd:summary/boundary/geometric_axis_z/value
-    dd_path: summary/boundary/geometric_axis_z/value
+- name: vertical_coordinate_of_limiter
+  kind: scalar
+  status: draft
+  description: Vertical (Z) coordinate of the point where the plasma boundary contacts
+    the active limiter surface.
+  documentation: 'The vertical coordinate $Z_{\rm lim}$ of the active limiter contact
+    point defines the height (in the IMAS cylindrical $(R, \phi, Z)$ frame) where
+    the plasma boundary first touches the limiter, establishing the outermost extent
+    of the confined plasma. This point determines the plasma-limiter gap and is used
+    in equilibrium reconstruction to constrain the boundary position; typical values
+    range $-1$ to $+1\,\text{m}$ for medium-size tokamaks. The active limiter contact
+    point complements the separatrix-defined boundary in limited plasmas and is paired
+    with the corresponding $R$ coordinate [major_radius_at_limiter](name:major_radius_at_limiter)
+    and the [vertical_coordinate_of_separatrix](name:vertical_coordinate_of_separatrix)
+    for diverted configurations.
+
+
+    Sign convention: Positive when the limiter contact point lies above the machine
+    midplane $(Z=0)$ in the vertical direction.
+
+
+    Typical values span $-1$ to $+1\,\text{m}$, varying with plasma elongation and
+    vertical position control. The value is obtained from equilibrium codes using
+    magnetic measurements and the known limiter geometry.'
+  unit: m
+  physics_domain: equilibrium
+  links:
+  - name:major_radius_at_limiter
+  - name:vertical_coordinate_of_separatrix
+  sources:
+  - id: dd:equilibrium/time_slice/boundary_separatrix/active_limiter_point/z
+    dd_path: equilibrium/time_slice/boundary_separatrix/active_limiter_point/z
+    status: composed
+  - id: dd:wall/description_2d/limiter/unit/outline/z
+    dd_path: wall/description_2d/limiter/unit/outline/z
     status: composed
 - name: vertical_coordinate_of_magnetic_axis
   kind: scalar
   status: draft
-  description: Vertical coordinate (cylindrical Z) of the magnetic axis position in
-    the poloidal plane
-  documentation: ''
+  description: Vertical coordinate of the magnetic axis, the poloidal-field null which
+    defines the innermost flux surface in a toroidal plasma.
+  documentation: 'The magnetic axis is the poloidal-field null ($\nabla \psi = 0$)
+    that identifies the innermost nested flux surface in a tokamak or stellarator
+    equilibrium. Its vertical position $Z_{\rm axis}$ is measured from the machine
+    midplane in the right-handed cylindrical $(R, \phi, Z)$ frame, where $\hat{Z}$
+    is the upward vertical direction. The axis position is a fundamental output of
+    equilibrium reconstruction codes and constrains the plasma shape and stored energy;
+    the major-radius counterpart is [major_radius_of_magnetic_axis](name:major_radius_of_magnetic_axis).
+    Typical values range from $-0.5\,\mathrm{m}$ to $+0.5\,\mathrm{m}$ for medium-size
+    tokamaks, with the axis usually near the midplane ($Z=0$) in symmetric double-null
+    configurations.
+
+
+    Sign convention: Positive when the magnetic axis lies above the midplane ($Z>0$).
+
+
+    See also [vertical_coordinate_of_plasma_boundary](name:vertical_coordinate_of_plasma_boundary)
+    for the Z-coordinate of the outermost flux surface, and [poloidal_magnetic_flux_at_magnetic_axis](name:poloidal_magnetic_flux_at_magnetic_axis)
+    for the flux reference value at the axis.'
   unit: m
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:major_radius_of_magnetic_axis
+  - name:vertical_coordinate_of_plasma_boundary
+  - name:poloidal_magnetic_flux_at_magnetic_axis
   sources:
+  - id: dd:distribution_sources/magnetic_axis/z
+    dd_path: distribution_sources/magnetic_axis/z
+    status: composed
+  - id: dd:distributions/magnetic_axis/z
+    dd_path: distributions/magnetic_axis/z
+    status: attached
   - id: dd:equilibrium/time_slice/global_quantities/magnetic_axis/z
     dd_path: equilibrium/time_slice/global_quantities/magnetic_axis/z
     status: composed
-- name: vertical_coordinate_of_plasma_boundary
-  kind: scalar
-  status: draft
-  description: Vertical coordinate (cylindrical Z) of points on the plasma boundary
-    outline contour
-  documentation: ''
-  unit: m
-  physics_domain: equilibrium
-  links: []
-  sources:
-  - id: dd:equilibrium/time_slice/boundary/outline/z
-    dd_path: equilibrium/time_slice/boundary/outline/z
+  - id: dd:summary/boundary/magnetic_axis_z/value
+    dd_path: summary/boundary/magnetic_axis_z/value
     status: composed
+  - id: dd:summary/local/magnetic_axis/position/z
+    dd_path: summary/local/magnetic_axis/position/z
+    status: composed
+  - id: dd:waves/magnetic_axis/z
+    dd_path: waves/magnetic_axis/z
+    status: attached
 - name: vertical_coordinate_of_strike_point
   kind: scalar
   status: draft
-  description: Vertical coordinate (cylindrical Z) of the divertor strike point on
-    the target plate
-  documentation: ''
+  description: Vertical height (Z coordinate) in the cylindrical reference frame of
+    the primary separatrix strike point in a diverted tokamak configuration.
+  documentation: 'The vertical coordinate $Z_{\mathrm{sp}}$ locates the intersection
+    of the primary separatrix with the divertor target plate in the poloidal plane,
+    measured in the right-handed cylindrical $(R, \phi, Z)$ system where $Z$ increases
+    upward. This position defines the footprint of the confined plasma on the divertor
+    and is a critical actuator target for magnetic equilibrium control. Typical vertically
+    diverting configurations place the strike point on the lower target at $Z \approx
+    -1$ to $-2$ m for medium-size tokamaks (DIII-D, JET) and near $\pm 4$ m for the
+    upper divertor in ITER. The strike point height is routinely extracted from equilibrium
+    reconstruction (EFIT, LIUQE) and is paired with [major_radius_of_strike_point](name:major_radius_of_strike_point)
+    to give the full poloidal location. See also [vertical_coordinate_of_divertor_target](name:vertical_coordinate_of_divertor_target)
+    for the coordinate of a target-tile reference point, and [vertical_coordinate_of_separatrix](name:vertical_coordinate_of_separatrix)
+    for the full separatrix outline.
+
+
+    Sign convention: Positive when $Z$ is above the machine mid-plane in the cylindrical
+    frame, increasing upward.
+
+
+    Typical values: $Z_{\mathrm{sp}} \approx -0.5$ to $-2.0$ m in conventional lower-divertor
+    tokamaks, where the sign indicates divertor placement on the underside of the
+    vessel.'
   unit: m
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:major_radius_of_strike_point
+  - name:vertical_coordinate_of_divertor_target
+  - name:vertical_coordinate_of_separatrix
   sources:
   - id: dd:equilibrium/time_slice/boundary/strike_point/z
     dd_path: equilibrium/time_slice/boundary/strike_point/z
     status: composed
+  - id: dd:equilibrium/time_slice/boundary_separatrix/strike_point/z
+    dd_path: equilibrium/time_slice/boundary_separatrix/strike_point/z
+    status: composed
+  - id: dd:equilibrium/time_slice/constraints/strike_point/position_measured/z
+    dd_path: equilibrium/time_slice/constraints/strike_point/position_measured/z
+    status: composed
+  - id: dd:equilibrium/time_slice/constraints/strike_point/position_reconstructed/z
+    dd_path: equilibrium/time_slice/constraints/strike_point/position_reconstructed/z
+    status: attached
+  - id: dd:summary/boundary/strike_point_inner_z/value
+    dd_path: summary/boundary/strike_point_inner_z/value
+    status: composed
+  - id: dd:summary/boundary/strike_point_outer_z/value
+    dd_path: summary/boundary/strike_point_outer_z/value
+    status: composed
 - name: vertical_coordinate_of_x_point
   kind: scalar
   status: draft
-  description: Vertical coordinate (cylindrical Z) of the X-point location in the
-    poloidal plane
-  documentation: ''
+  description: Vertical (Z) coordinate of the primary magnetic X-point on the separatrix
+    in a diverted tokamak equilibrium.
+  documentation: 'The primary X-point is the poloidal-field null ($\nabla\psi = 0$)
+    on the separatrix in a diverted equilibrium, where the poloidal magnetic flux
+    $\psi$ has a saddle point. Its vertical coordinate $Z_{\text{X}}$ determines the
+    height of the divertor null relative to the machine midplane ($Z=0$). This location
+    is a critical parameter for divertor geometry and controls the magnetic connection
+    length to the target plates. Typical values range from $Z_{\text{X}} \approx -0.2$
+    to $- tens$ of cm below the midplane in conventional divertors, depending on the
+    configuration (lower single-null, double-null). The coordinate is inferred from
+    equilibrium reconstruction using magnetic probe and flux-loop data together with
+    the [major_radius_of_x_point](name:major_radius_of_x_point) to fully specify the
+    null position. See also [vertical_coordinate_of_strike_point](name:vertical_coordinate_of_strike_point),
+    which tracks the field-line intersections on the target, and [major_radius_of_secondary_x_point](name:major_radius_of_secondary_x_point)
+    for the second null in a double-null or snowflake configuration.
+
+
+    Sign convention: Positive when the X-point lies above the midplane ($Z=0$) in
+    the right-handed cylindrical $(R, \phi, Z)$ frame, with $Z$ increasing upward.'
   unit: m
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:major_radius_of_x_point
+  - name:vertical_coordinate_of_strike_point
+  - name:major_radius_of_secondary_x_point
   sources:
   - id: dd:equilibrium/time_slice/boundary/x_point/z
     dd_path: equilibrium/time_slice/boundary/x_point/z
     status: composed
+  - id: dd:equilibrium/time_slice/boundary_separatrix/x_point/z
+    dd_path: equilibrium/time_slice/boundary_separatrix/x_point/z
+    status: composed
+  - id: dd:equilibrium/time_slice/constraints/x_point/position_measured/z
+    dd_path: equilibrium/time_slice/constraints/x_point/position_measured/z
+    status: composed
+  - id: dd:equilibrium/time_slice/constraints/x_point/position_reconstructed/z
+    dd_path: equilibrium/time_slice/constraints/x_point/position_reconstructed/z
+    status: attached
+  - id: dd:summary/boundary/x_point_main/z
+    dd_path: summary/boundary/x_point_main/z
+    status: composed
 - name: vertical_magnetic_field
   kind: scalar
   status: draft
-  description: Vertical (cylindrical Z) component of the magnetic field on the 2D
-    equilibrium poloidal-plane grid
-  documentation: ''
+  description: Projection of the magnetic field vector onto the vertical (Z) axis
+    in the right-handed cylindrical frame.
+  documentation: The vertical magnetic field $B_Z = \mathbf{B} \cdot \hat{Z}$ is the
+    component of the total magnetic field along the vertical axis, completing the
+    cylindrical decomposition alongside the radial ($B_R$) and toroidal ($B_\phi$)
+    components. In a tokamak equilibrium, $B_Z$ contributes to the poloidal field
+    and is essential for reconstructing the poloidal flux surfaces that confine the
+    plasma. The quantity is typically inferred from external magnetic measurements
+    (poloidal field coils, flux loops) combined with equilibrium reconstruction codes,
+    and it varies across the poloidal cross-section. On the 2D equilibrium grid, $B_Z$
+    is computed at every spatial point, reflecting the shaping effect of external
+    poloidal field coils. See also the radial and toroidal components, [radial_magnetic_field](name:radial_magnetic_field)
+    and [toroidal_magnetic_field](name:toroidal_magnetic_field), and the parent [magnetic_field](name:magnetic_field).
   unit: T
   physics_domain: equilibrium
-  links: []
+  links:
+  - name:radial_magnetic_field
+  - name:toroidal_magnetic_field
+  - name:magnetic_field
   arguments:
   - name: magnetic_field
     operator: component
@@ -576,6 +1439,64 @@
     axis: vertical
     shape: component
   sources:
+  - id: dd:equilibrium/time_slice/ggd/b_field_z/values
+    dd_path: equilibrium/time_slice/ggd/b_field_z/values
+    status: composed
   - id: dd:equilibrium/time_slice/profiles_2d/b_field_z
     dd_path: equilibrium/time_slice/profiles_2d/b_field_z
+    status: composed
+  - id: dd:equilibrium/time_slice/profiles_2d/b_z
+    dd_path: equilibrium/time_slice/profiles_2d/b_z
+    status: composed
+  - id: dd:mhd/ggd/b_field_z/values
+    dd_path: mhd/ggd/b_field_z/values
+    status: composed
+  - id: dd:plasma_profiles/ggd/a_field/z
+    dd_path: plasma_profiles/ggd/a_field/z
+    status: composed
+  - id: dd:plasma_profiles/ggd/b_field/z
+    dd_path: plasma_profiles/ggd/b_field/z
+    status: composed
+  - id: dd:tf/field_map/b_field_z/values
+    dd_path: tf/field_map/b_field_z/values
+    status: composed
+  - id: dd:wall/description_ggd/ggd/b_field/z
+    dd_path: wall/description_ggd/ggd/b_field/z
+    status: attached
+- name: vertical_magnetization_of_iron_core_segment
+  kind: scalar
+  status: draft
+  description: Reconstructed vertical component of the magnetization vector of a discrete
+    iron core segment in the tokamak transformer.
+  documentation: "The vertical (Z) component of the magnetization of a discrete iron\
+    \ core segment, denoted $M_z$, describes the magnetic polarization along the machine\
+    \ symmetry axis within the segment volume. The magnetization vector $\boldsymbol{M}$\
+    \ is related to the magnetic field $\boldsymbol{B}$ and the magnetic field strength\
+    \ $\boldsymbol{H}$ through $\boldsymbol{B} = \\mu_0 (\\boldsymbol{H} + \\boldsymbol{M})$,\
+    \ where $\\mu_0$ is the vacuum permeability. This quantity is typically obtained\
+    \ from equilibrium reconstruction codes that solve the Grad-Shafranov equation\
+    \ including the nonlinear B-H characteristic of the iron core, segmented into\
+    \ discrete annular or rectangular elements. The radial counterpart is described\
+    \ by [radial magnetization of iron core segment](name:radial_magnetization_of_iron_core_segment).\
+    \ The segment geometry is defined by its [inner radius](name:inner_radius_of_iron_core_segment),\
+    \ [outer radius](name:outer_radius_of_iron_core_segment), and [height](name:height_of_iron_core_segment).\
+    \ Note that the magnetization is assumed spatially uniform within each segment.\n\
+    \nSign convention: Positive when $\boldsymbol{M}$ points in the $+Z$ direction\
+    \ (upward)."
+  unit: T
+  physics_domain: equilibrium
+  links:
+  - name:radial_magnetization_of_iron_core_segment
+  - name:inner_radius_of_iron_core_segment
+  - name:outer_radius_of_iron_core_segment
+  - name:height_of_iron_core_segment
+  sources:
+  - id: dd:equilibrium/time_slice/constraints/iron_core_segment/magnetisation_z/measured
+    dd_path: equilibrium/time_slice/constraints/iron_core_segment/magnetisation_z/measured
+    status: composed
+  - id: dd:equilibrium/time_slice/constraints/iron_core_segment/magnetisation_z/reconstructed
+    dd_path: equilibrium/time_slice/constraints/iron_core_segment/magnetisation_z/reconstructed
+    status: composed
+  - id: dd:equilibrium/time_slice/constraints/iron_core_segment/magnetization_z/reconstructed
+    dd_path: equilibrium/time_slice/constraints/iron_core_segment/magnetization_z/reconstructed
     status: composed

@@ -1,185 +1,861 @@
 # Domain: auxiliary_heating
-# Catalog sha: 1808c1f7f7803f46ee9ca977dfc4cc886ffe5026
-# Entries: 14
+# Catalog sha: d25b905a25b05fd4c10571f301d40b9e5d146776
+# Entries: 24
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: absorbed_power_of_electron_cyclotron_heating_antenna
+- name: absorbed_power_due_to_electron_cyclotron_heating
   kind: scalar
   status: draft
-  description: Total electron cyclotron heating and current drive power coupled to
-    the plasma, summed over all EC launchers
-  documentation: ''
+  description: Net electron cyclotron heating power coupled to the plasma, summed
+    over all gyrotron launchers.
+  documentation: "The total power absorbed by the plasma from electron cyclotron resonance\
+    \ heating (ECRH) and electron cyclotron current drive (ECCD), integrated over\
+    \ the entire plasma volume and summed across all launchers. This quantity represents\
+    \ the net heating power delivered to the electron population via cyclotron damping\
+    \ of injected microwave beams at the fundamental or second harmonic of the electron\
+    \ cyclotron frequency. Typical values range from megawatts in present-day tokamaks\
+    \ (e.g., 1\u20136 MW in DIII-D, ASDEX Upgrade) to tens of megawatts projected\
+    \ for reactor-grade devices like ITER (up to 20 MW). The absorbed power is related\
+    \ to the launched power $P_{\\rm launch}$ by the coupling efficiency $\\eta =\
+    \ P_{\\rm abs} / P_{\\rm launch}$, typically 70\u201390% depending on plasma density,\
+    \ temperature, and launcher alignment. See also [absorbed_power_due_to_ion_cyclotron_heating](name:absorbed_power_due_to_ion_cyclotron_heating)\
+    \ and [absorbed_power_due_to_lower_hybrid_current_drive](name:absorbed_power_due_to_lower_hybrid_current_drive)\
+    \ for other RF heating channels."
   unit: W
   physics_domain: auxiliary_heating
-  links: []
+  links:
+  - name:absorbed_power_due_to_ion_cyclotron_heating
+  - name:absorbed_power_due_to_lower_hybrid_current_drive
   sources:
   - id: dd:summary/heating_current_drive/power_ec/value
     dd_path: summary/heating_current_drive/power_ec/value
     status: composed
-- name: absorbed_power_of_ion_cyclotron_heating_antenna
+  - id: dd:summary/heating_current_drive/power_launched_ec/value
+    dd_path: summary/heating_current_drive/power_launched_ec/value
+    status: attached
+- name: absorbed_power_due_to_ion_cyclotron_heating
   kind: scalar
   status: draft
-  description: Total ion cyclotron resonance heating power coupled to the plasma,
-    summed over all IC antennas
-  documentation: ''
+  description: Total ion cyclotron resonance heating (ICRH) power absorbed by the
+    thermal ion population and plasma, integrated over the entire plasma volume and
+    summed over all antennas and toroidal modes.
+  documentation: "The absorbed power due to ion cyclotron heating, $P_{\\mathrm{IC}}$,\
+    \ is the total power transferred from the ICRH antennas to the plasma via wave\
+    \ absorption at the ion cyclotron resonance layers and nearby harmonic resonances.\
+    \ It is the integral over the plasma volume of the local power deposition density,\
+    \ $p_{\\mathrm{IC}}(R,\\phi,Z)$, that is, $P_{\\mathrm{IC}} = \\iiint_V p_{\\\
+    mathrm{IC}} \\,dV$, where $V$ is the plasma volume. The deposition density $p_{\\\
+    mathrm{IC}}$ accounts for absorption by both the thermal ion species (e.g., hydrogen,\
+    \ deuterium, helium-3) and, if present, the thermal electrons via collisional\
+    \ damping of the wave fields. In practice, the total power can also be expressed\
+    \ as the sum over the launched toroidal mode numbers $n_\\phi$ of the volume-integrated\
+    \ power per mode: $P_{\\mathrm{IC}} = \\sum_{n_\\phi} \\iiint_V p_{n_\\phi} \\\
+    ,dV$, where $p_{n_\\phi}$ is the local power density (in $\\mathrm{W\\,m^{-3}}$)\
+    \ contributed by the mode $n_\\phi$. This quantity typically falls in the range\
+    \ of 1\u201320 MW for present-day tokamaks (e.g., JET, ASDEX Upgrade, DIII-D)\
+    \ and up to several tens of MW for future devices like ITER. The power is localized\
+    \ near the cyclotron resonance surface(s) of the absorbing ion species, with spatial\
+    \ width determined by Doppler broadening and finite Larmor radius effects. In\
+    \ the right-handed cylindrical $(R,\\phi,Z)$ frame of the machine, the wave polarization\
+    \ and resonance location depend on the local magnetic field strength $B(R,Z)$\
+    \ and the toroidal angle $\\phi$.\n\nSign convention: Positive when net power\
+    \ flows from the ICRH system into the plasma (heating)."
   unit: W
   physics_domain: auxiliary_heating
-  links: []
+  links:
+  - name:absorbed_power_due_to_electron_cyclotron_heating
+  - name:per_toroidal_mode_thermal_ion_power_density
   sources:
+  - id: dd:summary/heating_current_drive/ic/power/value
+    dd_path: summary/heating_current_drive/ic/power/value
+    status: composed
   - id: dd:summary/heating_current_drive/power_ic/value
     dd_path: summary/heating_current_drive/power_ic/value
     status: composed
-- name: atomic_number
+- name: absorbed_power_due_to_neutral_beam_injection
   kind: scalar
   status: draft
-  description: Nuclear charge number (Z) of the neutral beam injected species identifying
-    the atomic element
-  documentation: ''
+  description: Neutral beam injection power that is absorbed by the plasma, defined
+    as launched power minus losses due to shine-through and fast ion orbit effects.
+  documentation: "The absorbed power due to neutral beam injection quantifies the\
+    \ effective NBI heating power retained within the confined plasma. It represents\
+    \ the total power coupled from all beam sources to the plasma, calculated as $P_{\\\
+    text{abs}} = P_{\\text{launched}} - P_{\\text{shine}} - P_{\\text{orbit}}$, where\
+    \ $P_{\\text{launched}}$ is the power injected into the vacuum vessel, $P_{\\\
+    text{shine}}$ is the power lost to the first wall due to incomplete ionization,\
+    \ and $P_{\\text{orbit}}$ accounts for prompt fast-ion orbit losses. This quantity\
+    \ is a key figure of merit for NBI system efficiency and is typically derived\
+    \ from beam attenuation calculations and fast-ion transport simulations. In ITER-scale\
+    \ plasmas, absorbed power values range from 10\u201350 MW depending on beam energy,\
+    \ plasma density, and geometry. Compare with the total launched power described\
+    \ by [launched_power_due_to_neutral_beam_injection](name:launched_power_due_to_neutral_beam_injection)\
+    \ and the power lost during coupling in [fast_particle_source_rate_due_to_neutral_beam_shinethrough](name:fast_particle_source_rate_due_to_neutral_beam_shinethrough)."
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:launched_power_due_to_neutral_beam_injection
+  - name:fast_particle_source_rate_due_to_neutral_beam_shinethrough
+  sources:
+  - id: dd:summary/heating_current_drive/nbi/power/value
+    dd_path: summary/heating_current_drive/nbi/power/value
+    status: composed
+  - id: dd:summary/heating_current_drive/power_nbi/value
+    dd_path: summary/heating_current_drive/power_nbi/value
+    status: composed
+- name: fast_ion_absorbed_power
+  kind: scalar
+  status: draft
+  description: Cumulative wave power absorbed by fast ions within a given flux surface,
+    integrated from the plasma boundary inward.
+  documentation: "The cumulative absorbed power $P_{\\mathrm{abs,fast}}(\\rho)$ represents\
+    \ the volume-integrated wave power deposited into the fast-ion population from\
+    \ the plasma boundary to the flux surface labeled by normalized poloidal flux\
+    \ $\\rho$. It is obtained by integrating the local fast-ion absorbed power density\
+    \ $p_{\\mathrm{abs,fast}}$ over the enclosed volume: $P_{\\mathrm{abs,fast}}(\\\
+    rho) = \\int_{V(\\rho)}^{V_{\\mathrm{edge}}} p_{\\mathrm{abs,fast}}(V')\\,dV'$,\
+    \ where $V$ is the plasma volume enclosed by the flux surface. This quantity is\
+    \ a key output of ICRH and NBI heating codes, commonly inferred from fast-ion\
+    \ diagnostics such as neutral particle analyzers and gamma-ray spectrometers.\
+    \ Typical absorbed powers for fast ions range from 1\u201310 MW in present-day\
+    \ tokamaks, depending on the heating scheme and plasma parameters, with ICRH often\
+    \ contributing 1\u20133 MW and NBI 3\u201310 MW in large devices. The companion\
+    \ quantity [thermal_ion_absorbed_power](name:thermal_ion_absorbed_power) gives\
+    \ the equivalent for the thermal ion population, while [absorbed_power](name:absorbed_power)\
+    \ refers to the total absorbed power across all species.\n\nSign convention: Positive\
+    \ when power flows from the wave field into the fast-ion population."
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:thermal_ion_absorbed_power
+  - name:absorbed_power
+  sources:
+  - id: dd:waves/coherent_wave/profiles_1d/ion/power_inside_fast
+    dd_path: waves/coherent_wave/profiles_1d/ion/power_inside_fast
+    status: composed
+  - id: dd:waves/coherent_wave/profiles_1d/ion/state/power_inside_fast
+    dd_path: waves/coherent_wave/profiles_1d/ion/state/power_inside_fast
+    status: composed
+- name: gas_fraction_of_neutral_beam_injector
+  kind: scalar
+  status: draft
+  description: Mole fraction of a specified gas species in the neutral beam injector
+    gas mixture, setting the beam composition.
+  documentation: "The gas fraction quantifies the proportion, by molecule count, of\
+    \ a given species (e.g., deuterium, tritium, hydrogen) in the neutral beam injector's\
+    \ fuel gas supply. This fraction determines the isotopic composition of the extracted\
+    \ and accelerated beam, which directly influences beam stopping, shine-through,\
+    \ and the resulting fast-ion population. Typical gas mixtures range from pure\
+    \ deuterium (fraction = 1.0) to 50:50 deuterium\u2013tritium mixtures (fraction\
+    \ = 0.5 for each). The fraction is specified as part of the beamline configuration\
+    \ and is convention-dependent \u2014 see [multiplicity](name:multiplicity) for\
+    \ the molecular composition of the gas species and [neutral_gas_source_rate_of_wall](name:neutral_gas_source_rate_of_wall)\
+    \ for the wall source rate of neutral gas.\n\nSign convention: Positive when the\
+    \ species constitutes the stated fraction of the total molecule count in the injector\
+    \ gas mixture."
   unit: '1'
   physics_domain: auxiliary_heating
-  links: []
+  links:
+  - name:multiplicity
+  - name:neutral_gas_source_rate_of_wall
   sources:
-  - id: dd:nbi/unit/species/z_n
-    dd_path: nbi/unit/species/z_n
+  - id: dd:pulse_schedule/nbi/unit/species/fraction
+    dd_path: pulse_schedule/nbi/unit/species/fraction
     status: composed
-- name: electron_absorbed_power_of_beam_tracing_beam
+- name: major_radius_of_beam_tracing_beam
   kind: scalar
   status: draft
-  description: Wave power absorbed by electrons along a beam tracing ray path
-  documentation: ''
+  description: Cylindrical major radius (R) coordinate of the beam tracing beam position
+    in the IMAS right-handed $(R, \phi, Z)$ frame.
+  documentation: 'The major radius $R_{\rm beam}$ locates the beam tracing beam in
+    the cylindrical $(R, \phi, Z)$ system, defining the radial offset of the wave
+    propagation axis from the machine symmetry axis. The beam position is a reference
+    point for calculating the ray path and power deposition profile in wave-tracing
+    codes such as TORBEAM or GENRAY. This coordinate is paired with the vertical coordinate
+    $Z_{\rm beam}$ found in `major_radius_of_beam_tracing_beam` to fully specify the
+    beam origin; typical values in medium-size tokamaks range from 1.5 m to 3.0 m.
+    The beam-tracing region spans from the launcher to the plasma edge, where the
+    beam width and refractive index are evolved along the ray.
+
+
+    Sign convention: Positive when $R_{\rm beam}$ lies outside the machine symmetry
+    axis, consistent with the standard $+\hat{R}$ direction.
+
+
+    See also [major_radius_of_neutral_beam_injector](name:major_radius_of_neutral_beam_injector)
+    for the injector location and [major_radius_of_magnetic_axis](name:major_radius_of_magnetic_axis)
+    for the plasma center.'
+  unit: m
+  physics_domain: auxiliary_heating
+  links:
+  - name:major_radius_of_neutral_beam_injector
+  - name:major_radius_of_magnetic_axis
+  sources:
+  - id: dd:ece/channel/beam_tracing/beam/position/r
+    dd_path: ece/channel/beam_tracing/beam/position/r
+    status: attached
+  - id: dd:polarimeter/channel/line_of_sight/first_point/r
+    dd_path: polarimeter/channel/line_of_sight/first_point/r
+    status: attached
+  - id: dd:polarimeter/channel/line_of_sight/second_point/r
+    dd_path: polarimeter/channel/line_of_sight/second_point/r
+    status: attached
+  - id: dd:polarimeter/channel/line_of_sight/third_point/r
+    dd_path: polarimeter/channel/line_of_sight/third_point/r
+    status: attached
+  - id: dd:waves/coherent_wave/beam_tracing/beam/position/r
+    dd_path: waves/coherent_wave/beam_tracing/beam/position/r
+    status: composed
+- name: major_radius_of_beamlet_group
+  kind: scalar
+  status: draft
+  description: Cylindrical major radius coordinate of the neutral beam injector beamlet
+    group in the tokamak frame.
+  documentation: 'The major radius $R$ of a neutral beam injector beamlet group locates
+    the position of the group in the IMAS right-handed cylindrical $(R, \phi, Z)$
+    frame. This coordinate is measured from the machine symmetry axis to the reference
+    point of the group, typically the geometric center of the beamlet array. The position
+    is essential for calculating the beamline geometry and the injection angle of
+    neutral particles into the plasma for heating and current drive.
+
+
+    The beamlet group major radius is a geometric quantity determined from the neutral
+    beam injector design and installation parameters. It provides the radial location
+    of the beam source, which, together with the vertical coordinate $Z$ and the toroidal
+    angle $\phi$, defines the line-of-sight for the neutral beam. The location of
+    the beamlet group influences the shine-through fraction, the energy deposition
+    profile, and the torque input to the plasma, making it a key input for beam-tracing
+    codes and transport analyzes.
+
+
+    Typical values for the beamlet group major radius in present-day tokamaks range
+    from $1.5\,\text{m}$ (e.g., MAST-U) to $3.0\,\text{m}$ (e.g., JET), and up to
+    $6.0\,\text{m}$ for ITER. The coordinate is obtained from engineering drawings
+    or fitted during beamline alignment. The companion quantity `[toroidal_angle_of_neutral_beam_injector](name:toroidal_angle_of_neutral_beam_injector)`
+    provides the corresponding toroidal location, and `[major_radius_of_neutral_beam_injector](name:major_radius_of_neutral_beam_injector)`
+    gives the coordinate of the injector assembly.
+
+
+    Sign convention: Positive when the beamlet group is located at a larger major
+    radius (outward from the machine symmetry axis).
+
+
+    The beamlet group major radius is also related to the `[major_radius_of_beam_tracing_beam](name:major_radius_of_beam_tracing_beam)`
+    coordinate, which defines the radial position of the beam axis during ray tracing.'
+  unit: m
+  physics_domain: auxiliary_heating
+  links:
+  - name:toroidal_angle_of_neutral_beam_injector
+  - name:major_radius_of_neutral_beam_injector
+  - name:major_radius_of_beam_tracing_beam
+  sources:
+  - id: dd:nbi/unit/beamlets_group/position/r
+    dd_path: nbi/unit/beamlets_group/position/r
+    status: composed
+  - id: dd:nbi/unit/beamlets_group/tilting/delta_position/r
+    dd_path: nbi/unit/beamlets_group/tilting/delta_position/r
+    status: composed
+- name: major_radius_of_lower_hybrid_antenna
+  kind: scalar
+  status: draft
+  description: Cylindrical major radius coordinate of the lower hybrid antenna reference
+    point in the tokamak frame.
+  documentation: "The major radius $R_{\\rm LH}$ defines the radial position of the\
+    \ lower hybrid antenna's reference point in the IMAS right-handed $(R, \\phi,\
+    \ Z)$ cylindrical frame. This coordinate is used to locate the antenna relative\
+    \ to the plasma boundary and to align the launched wave spectrum with the intended\
+    \ resonance layer. The reference point is typically the geometric center or mounting\
+    \ flange of the antenna structure, with typical values ranging from $R = 2.0\\\
+    text{\u2013}3.0\\,\\text{m}$ for medium-size tokamaks (e.g., JET, DIII-D) and\
+    \ up to $R \\approx 6.2\\,\\text{m}$ for ITER. The quantity is specified during\
+    \ antenna design and used in ray-tracing or full-wave codes to compute the launched\
+    \ wave spectrum; see also [major_radius_of_neutral_beam_injector](name:major_radius_of_neutral_beam_injector)\
+    \ and [radius_of_electron_cyclotron_launcher_mirror](name:radius_of_electron_cyclotron_launcher_mirror)\
+    \ for analogous antenna-position quantities.\n\nSign convention: Positive when\
+    \ $R$ increases outward from the machine symmetry axis.\n\nIn [absorbed_power_due_to_lower_hybrid_current_drive](name:absorbed_power_due_to_lower_hybrid_current_drive)\
+    \ simulations the antenna major radius sets the radial launch position and thus\
+    \ the poloidal location of the wave cutoff and resonance layers."
+  unit: m
+  physics_domain: auxiliary_heating
+  links:
+  - name:major_radius_of_neutral_beam_injector
+  - name:radius_of_electron_cyclotron_launcher_mirror
+  - name:absorbed_power_due_to_lower_hybrid_current_drive
+  sources:
+  - id: dd:lh_antennas/reference_point/r
+    dd_path: lh_antennas/reference_point/r
+    status: composed
+- name: per_toroidal_mode_fast_electron_absorbed_power
+  kind: scalar
+  status: draft
+  description: Wave power absorbed by fast electrons, resolved per toroidal Fourier
+    mode number.
+  documentation: This quantity represents the wave power absorbed by the fast (suprathermal)
+    electron population, decomposed into components per toroidal Fourier mode number
+    $n_\phi$. It is a key metric for determining the efficiency of radio-frequency
+    (RF) heating and current drive schemes, such as electron cyclotron (EC) and lower
+    hybrid (LH) systems, in which the wave power is selectively absorbed by resonating
+    fast electrons. The power per mode $P_{n_\phi}$ satisfies $P = \sum_{n_\phi} P_{n_\phi}$,
+    where $P$ is the total wave power absorbed. For typical RF heating scenarios,
+    the spectrum may be peaked at a single toroidal mode number corresponding to the
+    antenna phasing, with values ranging from kilowatts to megawatts. The modal decomposition
+    is derived from full-wave or ray-tracing codes, and is used to understand the
+    spatial localization and damping of the wave. See also [per_toroidal_mode_thermal_electron_absorbed_power](name:per_toroidal_mode_thermal_electron_absorbed_power)
+    for the thermal population and [per_toroidal_mode_fast_ion_absorbed_power](name:per_toroidal_mode_fast_ion_absorbed_power)
+    for fast ions. The related quantity [fast_electron_absorbed_power_at_inside_flux_surface](name:fast_electron_absorbed_power_at_inside_flux_surface)
+    provides the cumulative power inside a flux surface, while [per_toroidal_mode_fast_electron_power_density](name:per_toroidal_mode_fast_electron_power_density)
+    gives the volume-specific density.
   unit: W
   physics_domain: auxiliary_heating
-  links: []
+  links:
+  - name:per_toroidal_mode_thermal_electron_absorbed_power
+  - name:per_toroidal_mode_fast_ion_absorbed_power
+  - name:fast_electron_absorbed_power_at_inside_flux_surface
+  - name:per_toroidal_mode_fast_electron_power_density
   sources:
-  - id: dd:waves/coherent_wave/beam_tracing/beam/electrons/power
-    dd_path: waves/coherent_wave/beam_tracing/beam/electrons/power
+  - id: dd:waves/coherent_wave/global_quantities/electrons/power_fast_n_phi
+    dd_path: waves/coherent_wave/global_quantities/electrons/power_fast_n_phi
     status: composed
-- name: ion_absorbed_power_of_beam_tracing_beam
+  - id: dd:waves/coherent_wave/global_quantities/electrons/power_fast_n_tor
+    dd_path: waves/coherent_wave/global_quantities/electrons/power_fast_n_tor
+    status: composed
+- name: per_toroidal_mode_fast_electron_power_density
   kind: scalar
   status: draft
-  description: Wave power absorbed by ions along a beam tracing ray path
-  documentation: ''
-  unit: W
+  description: Flux-surface-averaged wave power density absorbed by the fast electron
+    population, resolved per toroidal Fourier mode number.
+  documentation: 'The absorbed power density per toroidal mode, $P_{n_\phi} = d^2
+    P_{\rm abs} / (dV\, dn_\phi)$, quantifies the volumetric wave energy deposition
+    on fast electrons for a given toroidal Fourier component $n_\phi$. This quantity
+    is obtained from full-wave or ray-tracing codes that model electron cyclotron
+    heating and current drive, and is typically integrated over the poloidal cross-section
+    to yield a 1D radial profile. The total absorbed power density on fast electrons
+    is recovered by summing over all toroidal modes: $P_{\rm abs} = \sum_{n_\phi}
+    P_{n_\phi}$. Typical values in the plasma core range from $10^5 \,\text{W}\,\text{m}^{-3}$
+    for high-power ECH to $10^3 \,\text{W}\,\text{m}^{-3}$ for low-power scenarios.
+    See also [per_toroidal_mode_thermal_electron_power_density](name:per_toroidal_mode_thermal_electron_power_density)
+    for the thermal electron counterpart and [per_toroidal_mode_fast_ion_power_density](name:per_toroidal_mode_fast_ion_power_density)
+    for the fast ion channel.'
+  unit: W.m^-3
   physics_domain: auxiliary_heating
-  links: []
+  links:
+  - name:per_toroidal_mode_thermal_electron_power_density
+  - name:per_toroidal_mode_fast_ion_power_density
   sources:
-  - id: dd:waves/coherent_wave/beam_tracing/beam/ion/power
-    dd_path: waves/coherent_wave/beam_tracing/beam/ion/power
+  - id: dd:waves/coherent_wave/profiles_1d/electrons/power_density_fast_n_phi
+    dd_path: waves/coherent_wave/profiles_1d/electrons/power_density_fast_n_phi
     status: composed
-- name: launched_frequency_of_electron_cyclotron_beam
+  - id: dd:waves/coherent_wave/profiles_1d/electrons/power_density_fast_n_tor
+    dd_path: waves/coherent_wave/profiles_1d/electrons/power_density_fast_n_tor
+    status: composed
+  - id: dd:waves/coherent_wave/profiles_2d/electrons/power_density_fast_n_phi
+    dd_path: waves/coherent_wave/profiles_2d/electrons/power_density_fast_n_phi
+    status: composed
+  - id: dd:waves/coherent_wave/profiles_2d/electrons/power_density_fast_n_tor
+    dd_path: waves/coherent_wave/profiles_2d/electrons/power_density_fast_n_tor
+    status: attached
+- name: per_toroidal_mode_fast_ion_power_density
   kind: scalar
   status: draft
-  description: Operating frequency of an electron cyclotron beam determining the resonance
-    layer location via the cyclotron resonance condition
-  documentation: ''
-  unit: Hz
+  description: Flux-surface-averaged wave power density absorbed by the fast ion population,
+    resolved per toroidal Fourier mode.
+  documentation: 'The power density deposited by radio-frequency waves (e.g., ICRF)
+    into the fast ion population is decomposed by toroidal mode number $n_\phi$, giving
+    the spectral distribution of heating. Summing over all $n_\phi$ recovers the total
+    absorbed fast-ion power density on a given flux surface: $p_{\mathrm{abs}}(\rho)
+    = \sum_{n_\phi} p_{n_\phi}(\rho)$. Negative values correspond to wave damping
+    and power transfer to the ions, while positive values indicate wave generation
+    by the particles. Typical core values in ICRF-heated plasmas range from $0.1$
+    to $10\,\mathrm{MW\,m^{-3}}$, with the dominant modes determined by the antenna
+    spectrum and plasma composition. This quantity complements the cumulative absorbed
+    power [$\texttt{per\_toroidal\_mode\_fast\_ion\_absorbed\_power}$](name:per_toroidal_mode_fast_ion_absorbed_power),
+    and its electron counterpart [$\texttt{per\_toroidal\_mode\_fast\_electron\_power\_density}$](name:per_toroidal_mode_fast_electron_power_density).
+
+
+    Sign convention: Positive when the wave deposits power into the fast ion population
+    (i.e., absorption dominates over emission).'
+  unit: W.m^-3
   physics_domain: auxiliary_heating
-  links: []
+  links:
+  - name:per_toroidal_mode_fast_ion_absorbed_power
+  - name:per_toroidal_mode_fast_electron_power_density
   sources:
-  - id: dd:ec_launchers/beam/frequency/data
-    dd_path: ec_launchers/beam/frequency/data
+  - id: dd:waves/coherent_wave/profiles_1d/ion/power_density_fast_n_phi
+    dd_path: waves/coherent_wave/profiles_1d/ion/power_density_fast_n_phi
     status: composed
-- name: launched_frequency_of_ion_cyclotron_heating_antenna
+  - id: dd:waves/coherent_wave/profiles_1d/ion/power_density_fast_n_tor
+    dd_path: waves/coherent_wave/profiles_1d/ion/power_density_fast_n_tor
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_1d/ion/state/power_density_fast_n_phi
+    dd_path: waves/coherent_wave/profiles_1d/ion/state/power_density_fast_n_phi
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_2d/ion/power_density_fast_n_phi
+    dd_path: waves/coherent_wave/profiles_2d/ion/power_density_fast_n_phi
+    status: composed
+  - id: dd:waves/coherent_wave/profiles_2d/ion/power_density_fast_n_tor
+    dd_path: waves/coherent_wave/profiles_2d/ion/power_density_fast_n_tor
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_2d/ion/state/power_density_fast_n_phi
+    dd_path: waves/coherent_wave/profiles_2d/ion/state/power_density_fast_n_phi
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_2d/ion/state/power_density_fast_n_tor
+    dd_path: waves/coherent_wave/profiles_2d/ion/state/power_density_fast_n_tor
+    status: attached
+- name: per_toroidal_mode_thermal_electron_power_density
   kind: scalar
   status: draft
-  description: Operating frequency of an ion cyclotron antenna averaged over modules,
-    determining the resonance layer position in the plasma
-  documentation: ''
-  unit: Hz
+  description: Flux-surface-averaged absorbed wave power density on the thermal electron
+    population, resolved per toroidal Fourier mode number.
+  documentation: 'The power density $P_{\mathrm{th},e}^{(n_\phi)}$ quantifies the
+    volumetric rate at which wave energy is absorbed by the thermal (Maxwellian) electron
+    population via resonant or collisional damping, decomposed into contributions
+    from each toroidal Fourier mode $n_\phi$. The total absorbed power density on
+    thermal electrons is recovered by summing over all toroidal modes: $P_{\mathrm{th},e}
+    = \sum_{n_\phi} P_{\mathrm{th},e}^{(n_\phi)}$. This quantity is routinely computed
+    by full-wave or ray-tracing codes that model radio-frequency heating (e.g., electron
+    cyclotron or lower hybrid waves) and is a key input to transport codes for predicting
+    electron temperature profiles. Typical values in the core of a fusion-grade tokamak
+    under auxiliary heating range from $10^4$ to $10^6$ W/m$^3$ per dominant mode,
+    with the spectrum peaking near the launched mode number. The radial profile of
+    $P_{\mathrm{th},e}^{(n_\phi)}$ is closely related to the wave electric field amplitude
+    and the electron conductivity tensor. See also [per_toroidal_mode_fast_electron_power_density](name:per_toroidal_mode_fast_electron_power_density)
+    for the same quantity on the fast electron population, and [thermal_electron_power_density](name:thermal_electron_power_density)
+    for the total (all modes) absorbed power density.'
+  unit: W.m^-3
   physics_domain: auxiliary_heating
-  links: []
+  links:
+  - name:per_toroidal_mode_fast_electron_power_density
+  - name:thermal_electron_power_density
   sources:
-  - id: dd:ic_antennas/antenna/frequency/data
-    dd_path: ic_antennas/antenna/frequency/data
+  - id: dd:waves/coherent_wave/profiles_1d/electrons/power_density_thermal_n_phi
+    dd_path: waves/coherent_wave/profiles_1d/electrons/power_density_thermal_n_phi
     status: composed
-- name: launched_power_of_electron_cyclotron_beam
+  - id: dd:waves/coherent_wave/profiles_1d/electrons/power_density_thermal_n_tor
+    dd_path: waves/coherent_wave/profiles_1d/electrons/power_density_thermal_n_tor
+    status: composed
+  - id: dd:waves/coherent_wave/profiles_2d/electrons/power_density_thermal_n_phi
+    dd_path: waves/coherent_wave/profiles_2d/electrons/power_density_thermal_n_phi
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_2d/electrons/power_density_thermal_n_tor
+    dd_path: waves/coherent_wave/profiles_2d/electrons/power_density_thermal_n_tor
+    status: composed
+- name: per_toroidal_mode_thermal_ion_power_density
   kind: scalar
   status: draft
-  description: Total launched power of an electron cyclotron beam injected into the
-    vacuum vessel available for plasma heating and current drive
-  documentation: ''
-  unit: W
+  description: Absorbed wave power density on thermal ions, resolved per toroidal
+    Fourier mode number in the poloidal plane.
+  documentation: The volumetric power density $P_{n_\phi}(R,Z)$ absorbed from a coherent
+    wave by the Maxwellian thermal ion population, decomposed into individual toroidal
+    Fourier mode contributions. Each mode amplitude $P_{n_\phi}$ is obtained by projecting
+    the 3-D wave field onto the toroidal eigenfunction $e^{in_\phi\phi}$, where $n_\phi$
+    is the toroidal mode number (dimensionless). The quantity satisfies $P_\text{total}(R,Z)
+    = \sum_{n_\phi} P_{n_\phi}(R,Z)$, recovering the total absorbed power density
+    when summed over all modes. Typical values for ICRH-relevant scenarios range from
+    $10^5\,\text{W}\text{m}^{-3}$ in the core to $10^2\,\text{W}\text{m}^{-3}$ at
+    the edge, depending on launched power and resonance location. The power density
+    is computed by full-wave or ray-tracing codes that track the wave propagation
+    and damping along the ray path. Related quantities include the flux-surface-averaged
+    version [per_toroidal_mode_thermal_ion_power_density_flux_surface_average](name:per_toroidal_mode_power_density)
+    and the resolved per-species deposition for fast ions [per_toroidal_mode_fast_ion_power_density](name:per_toroidal_mode_fast_ion_power_density).
+  unit: W.m^-3
   physics_domain: auxiliary_heating
-  links: []
+  links:
+  - name:per_toroidal_mode_power_density
+  - name:per_toroidal_mode_fast_ion_power_density
   sources:
-  - id: dd:ec_launchers/beam/power_launched/data
-    dd_path: ec_launchers/beam/power_launched/data
+  - id: dd:waves/coherent_wave/profiles_1d/ion/power_density_thermal_n_phi
+    dd_path: waves/coherent_wave/profiles_1d/ion/power_density_thermal_n_phi
     status: composed
-- name: launched_power_of_ion_cyclotron_heating_antenna
+  - id: dd:waves/coherent_wave/profiles_1d/ion/power_density_thermal_n_tor
+    dd_path: waves/coherent_wave/profiles_1d/ion/power_density_thermal_n_tor
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_1d/ion/state/power_density_thermal_n_phi
+    dd_path: waves/coherent_wave/profiles_1d/ion/state/power_density_thermal_n_phi
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_2d/ion/power_density_thermal_n_phi
+    dd_path: waves/coherent_wave/profiles_2d/ion/power_density_thermal_n_phi
+    status: composed
+  - id: dd:waves/coherent_wave/profiles_2d/ion/power_density_thermal_n_tor
+    dd_path: waves/coherent_wave/profiles_2d/ion/power_density_thermal_n_tor
+    status: composed
+- name: radius_of_electron_cyclotron_launcher_mirror
   kind: scalar
   status: draft
-  description: Net RF power launched by an ion cyclotron antenna into the vacuum vessel
-    after subtracting reflected power from forward power
-  documentation: ''
-  unit: W
+  description: Radius of the circular aperture defining the microwave beam footprint
+    on the electron cyclotron launcher mirror.
+  documentation: 'The mirror radius defines the physical size of the circular aperture
+    that shapes the microwave beam in an electron cyclotron (EC) launcher. Together
+    with the mirror curvature, it determines the beam waist and focusing properties
+    of the launched wave. Typical radii for EC launcher mirrors in tokamaks range
+    from 10 to 30 cm, depending on the port size and desired beam divergence. The
+    radius is measured from the mirror center to the aperture edge in the plane perpendicular
+    to the beam axis. This geometric parameter is a key input to beam-tracing codes
+    and is constrained by the port access geometry. See also the related [radius_of_reflectometer_antenna](name:radius_of_reflectometer_antenna)
+    for a similar aperture definition in plasma diagnostics.
+
+
+    Sign convention: Positive as a geometric length.
+
+
+    Note: The radius is measured in the local mirror coordinate system; the global
+    major-radius position of the mirror is stored separately under the launcher geometry.'
+  unit: m
   physics_domain: auxiliary_heating
-  links: []
+  links:
+  - name:radius_of_reflectometer_antenna
   sources:
-  - id: dd:ic_antennas/antenna/power_launched/data
-    dd_path: ic_antennas/antenna/power_launched/data
-    status: composed
-- name: launched_power_of_lower_hybrid_antenna
-  kind: scalar
-  status: draft
-  description: Net RF power launched by a single lower hybrid antenna into the vacuum
-    vessel for current drive and heating
-  documentation: ''
-  unit: W
-  physics_domain: auxiliary_heating
-  links: []
-  sources:
-  - id: dd:lh_antennas/antenna/power_launched/data
-    dd_path: lh_antennas/antenna/power_launched/data
-    status: composed
-- name: mass_number
-  kind: scalar
-  status: draft
-  description: Atomic mass number (A) of the neutral beam injected species
-  documentation: ''
-  unit: u
-  physics_domain: auxiliary_heating
-  links: []
-  sources:
-  - id: dd:nbi/unit/species/a
-    dd_path: nbi/unit/species/a
+  - id: dd:ec_launchers/mirror/geometry/radius
+    dd_path: ec_launchers/mirror/geometry/radius
     status: composed
 - name: thermal_electron_power_density
   kind: scalar
   status: draft
-  description: Flux-surface-averaged wave power density absorbed by the thermal electron
-    population from a coherent wave
-  documentation: ''
+  description: Absorbed wave power density deposited on the thermal electron population
+    in the poloidal plane.
+  documentation: "Volumetric power density $P_{\\mathrm{th,e}}$ absorbed by the thermal\
+    \ electron population from RF waves, defined per unit volume in the poloidal cross-section.\
+    \ For electron cyclotron or lower hybrid heating, the deposition profile $P_{\\\
+    mathrm{RF}}(R,Z) = \\mathbf{J}_{\\mathrm{RF}} \\cdot \\mathbf{E}$ determines the\
+    \ local heating rate. Typical core values range from 0.1\u201310 MW/m$^3$ in auxiliary-heated\
+    \ tokamaks. The flux-surface-resolved version is [per_toroidal_mode_thermal_electron_power_density](name:per_toroidal_mode_thermal_electron_power_density).\
+    \ The total volume-integrated absorbed power is [absorbed_power_due_to_electron_cyclotron_heating](name:absorbed_power_due_to_electron_cyclotron_heating).\
+    \ Join the [fast_electron_power_density](name:fast_electron_power_density) and\
+    \ [thermal_ion_power_density](name:thermal_ion_power_density) to partition the\
+    \ wave power among species."
   unit: W.m^-3
   physics_domain: auxiliary_heating
-  links: []
+  links:
+  - name:per_toroidal_mode_thermal_electron_power_density
+  - name:absorbed_power_due_to_electron_cyclotron_heating
+  - name:fast_electron_power_density
+  - name:thermal_ion_power_density
   sources:
   - id: dd:waves/coherent_wave/profiles_1d/electrons/power_density_thermal
     dd_path: waves/coherent_wave/profiles_1d/electrons/power_density_thermal
     status: composed
-- name: thermal_ion_power
-  kind: scalar
-  status: draft
-  description: Total wave power absorbed by the thermal ion population from a coherent
-    wave
-  documentation: ''
-  unit: W
-  physics_domain: auxiliary_heating
-  links: []
-  sources:
-  - id: dd:waves/coherent_wave/global_quantities/ion/power_thermal
-    dd_path: waves/coherent_wave/global_quantities/ion/power_thermal
+  - id: dd:waves/coherent_wave/profiles_2d/electrons/power_density_thermal
+    dd_path: waves/coherent_wave/profiles_2d/electrons/power_density_thermal
     status: composed
-- name: thermal_ion_power_density
+- name: toroidal_angle_of_electron_cyclotron_launcher_mirror
   kind: scalar
   status: draft
-  description: Flux-surface-averaged wave power density absorbed by the thermal ion
-    population from a coherent wave
-  documentation: ''
-  unit: W.m^-3
+  description: Toroidal angular coordinate of the spherical mirror center of an electron
+    cyclotron heating launcher.
+  documentation: 'The toroidal angle $\phi_{\mathrm{mirror}}$ specifies the angular
+    position of the center of the spherical mirror surface within an electron cyclotron
+    (EC) heating launcher assembly, measured in the right-handed cylindrical $(R,
+    \phi, Z)$ frame. This angle determines the toroidal aiming direction of the microwave
+    beam launched by the mirror, which in turn sets the poloidal location of the resonance
+    layer and the toroidal injection angle for current drive. The mirror center is
+    distinct from the beam launching point; the latter is given by [toroidal_angle_of_launching_position](name:toroidal_angle_of_launching_position).
+    Typical values range from $0$ to $2\pi$ depending on the toroidal position of
+    the launcher port. The mirror radius is given by [radius_of_electron_cyclotron_launcher_mirror](name:radius_of_electron_cyclotron_launcher_mirror).
+
+
+    Sign convention: Positive when the mirror center lies at an angle increasing counter-clockwise
+    when viewed from above the $(R, \phi, Z)$ frame.
+
+
+    The angle is obtained from engineering design drawings of the launcher assembly
+    or from in-situ metrology after installation, and is used as input to beam-tracing
+    codes for power deposition and current-drive calculations.'
+  unit: rad
+  physics_domain: auxiliary_heating
+  links:
+  - name:toroidal_angle_of_launching_position
+  - name:radius_of_electron_cyclotron_launcher_mirror
+  sources:
+  - id: dd:ec_launchers/mirror/geometry/centre/phi
+    dd_path: ec_launchers/mirror/geometry/centre/phi
+    status: composed
+  - id: dd:ec_launchers/mirror/geometry/sphere_centre/phi
+    dd_path: ec_launchers/mirror/geometry/sphere_centre/phi
+    status: composed
+- name: toroidal_angle_of_neutral_beam_injector
+  kind: scalar
+  status: draft
+  description: Toroidal angle coordinate of each beamlet position within a neutral
+    beam injector beamlets group.
+  documentation: 'The toroidal angle $\phi$ of a beamlet position defines its azimuthal
+    coordinate in the IMAS right-handed cylindrical $(R, \phi, Z)$ frame, measured
+    counter-clockwise when viewed from above. This angle specifies the location of
+    individual beamlets within a multi-beamlet NBI source, enabling the reconstruction
+    of the injection geometry for beam deposition and shine-through calculations.
+    Typical NBI systems in present tokamaks, such as JET (500 kW per source) or DIII-D,
+    have beamlet groups distributed over toroidal sectors of order a few degrees at
+    major radii differing by centimeters. The quantity is obtained from engineering
+    CAD models or alignment surveys and is routinely paired with [major_radius_of_neutral_beam_injector](name:major_radius_of_neutral_beam_injector)
+    and [vertical_coordinate_of_neutral_beam_injector](name:vertical_coordinate_of_neutral_beam_injector)
+    to form the full three-dimensional injection point. See also [toroidal_angle_of_lower_hybrid_antenna](name:toroidal_angle_of_lower_hybrid_antenna)
+    for a similarly defined quantity for LH antenna rows.
+
+
+    Sign convention: Positive when the angle increases in the direction of increasing
+    toroidal angle $\phi$ (counter-clockwise when viewed from above).'
+  unit: rad
+  physics_domain: auxiliary_heating
+  links:
+  - name:major_radius_of_neutral_beam_injector
+  - name:vertical_coordinate_of_neutral_beam_injector
+  - name:toroidal_angle_of_lower_hybrid_antenna
+  sources:
+  - id: dd:nbi/unit/aperture/centre/phi
+    dd_path: nbi/unit/aperture/centre/phi
+    status: composed
+  - id: dd:nbi/unit/beamlets_group/beamlets/positions/phi
+    dd_path: nbi/unit/beamlets_group/beamlets/positions/phi
+    status: composed
+  - id: dd:nbi/unit/source/centre/phi
+    dd_path: nbi/unit/source/centre/phi
+    status: composed
+- name: toroidal_co_passing_current_density
+  kind: scalar
+  status: draft
+  description: Toroidal current density carried by fast ions that pass in the co-current
+    direction in the 2D poloidal plane, derived from the fast ion distribution function.
+  documentation: "The toroidal current density from co-passing fast ions, $j_{\\phi,\\\
+    mathrm{co}}(R, Z)$, is the flux-surface-resolved contribution of the co-passing\
+    \ population to the total toroidal fast ion current. It is obtained by integrating\
+    \ the second velocity moment of the distribution function over the co-passing\
+    \ region of phase space. Co-passing particles traverse the poloidal plane in the\
+    \ same direction as the plasma current. This quantity is a component of the total\
+    \ [co_passing_current_density](name:co_passing_current_density) projected onto\
+    \ the geometric toroidal direction $\\hat{\\phi}$. Typical values in the plasma\
+    \ core during neutral beam injection can reach 0.1\u20131 MA/m$^2$, depending\
+    \ on the beam power and plasma parameters. The current density can be inferred\
+    \ from neutron emission or fast ion loss detector measurements, and is compared\
+    \ with NUBEAM or SPOT simulations. \n\nSign convention: Positive when the current\
+    \ flows in the direction of increasing toroidal angle $\\phi$ (counter-clockwise\
+    \ when viewed from above)."
+  unit: A.m^-2
+  physics_domain: auxiliary_heating
+  links:
+  - name:co_passing_current_density
+  arguments:
+  - name: co_passing_current_density
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:distributions/distribution/profiles_1d/co_passing/current_fast_phi
+    dd_path: distributions/distribution/profiles_1d/co_passing/current_fast_phi
+    status: composed
+  - id: dd:distributions/distribution/profiles_1d/co_passing/current_fast_tor
+    dd_path: distributions/distribution/profiles_1d/co_passing/current_fast_tor
+    status: composed
+  - id: dd:distributions/distribution/profiles_1d/co_passing/current_phi
+    dd_path: distributions/distribution/profiles_1d/co_passing/current_phi
+    status: composed
+  - id: dd:distributions/distribution/profiles_1d/co_passing/current_tor
+    dd_path: distributions/distribution/profiles_1d/co_passing/current_tor
+    status: composed
+  - id: dd:distributions/distribution/profiles_2d/co_passing/current_fast_phi
+    dd_path: distributions/distribution/profiles_2d/co_passing/current_fast_phi
+    status: composed
+  - id: dd:distributions/distribution/profiles_2d/co_passing/current_fast_tor
+    dd_path: distributions/distribution/profiles_2d/co_passing/current_fast_tor
+    status: composed
+  - id: dd:distributions/distribution/profiles_2d/co_passing/current_tor
+    dd_path: distributions/distribution/profiles_2d/co_passing/current_tor
+    status: composed
+- name: toroidal_wave_vector_of_beam_tracing_beam
+  kind: scalar
+  status: draft
+  description: Toroidal component of the electron cyclotron beam launch wave vector
+    at the antenna reference point.
+  documentation: 'The toroidal wave vector $k_\phi = \mathbf{k} \cdot \hat{\phi}$
+    quantifies the spatial oscillation rate of the launched EC wave in the geometric
+    toroidal direction $\hat{\phi}$ of the IMAS cylindrical $(R, \phi, Z)$ frame.
+    This quantity is the toroidal projection of the launch wave vector at the antenna,
+    whose magnitude and direction determine the beam propagation path via ray-tracing
+    or beam-tracing codes. Typical values for EC waves in the extraordinary (X) and
+    ordinary (O) modes range from 10 to 100 m$^{-1}$, depending on the launch frequency,
+    toroidal injection angle, and poloidal launch position. The initial toroidal wave
+    vector, together with the [radial wave vector of the beam tracing beam](name:radial_wave_vector_of_beam_tracing_beam)
+    and the [vertical wave vector of the beam tracing beam](name:vertical_wave_vector_of_beam_tracing_beam),
+    fully specifies the launch direction at the antenna reference point. The normalized
+    toroidal wave vector $k_\phi / |\mathbf{k}|$ relates to the toroidal refractive
+    index $n_\phi$, a key parameter for wave accessibility and mode conversion in
+    the plasma.
+
+
+    Sign convention: Positive when $k_\phi$ points in the direction of increasing
+    toroidal angle $\phi$ (counter-clockwise viewed from above).'
+  unit: m^-1
+  physics_domain: auxiliary_heating
+  links:
+  - name:radial_wave_vector_of_beam_tracing_beam
+  - name:vertical_wave_vector_of_beam_tracing_beam
+  sources:
+  - id: dd:ec_launchers/beam/direction/kphi
+    dd_path: ec_launchers/beam/direction/kphi
+    status: attached
+  - id: dd:ece/channel/beam_tracing/beam/wave_vector/k_phi
+    dd_path: ece/channel/beam_tracing/beam/wave_vector/k_phi
+    status: attached
+  - id: dd:ece/channel/beam_tracing/beam/wave_vector/k_tor
+    dd_path: ece/channel/beam_tracing/beam/wave_vector/k_tor
+    status: attached
+  - id: dd:waves/coherent_wave/beam_tracing/beam/wave_vector/k_phi
+    dd_path: waves/coherent_wave/beam_tracing/beam/wave_vector/k_phi
+    status: attached
+  - id: dd:waves/coherent_wave/beam_tracing/beam/wave_vector/k_tor
+    dd_path: waves/coherent_wave/beam_tracing/beam/wave_vector/k_tor
+    status: attached
+- name: vertical_coordinate_of_beamlet_group
+  kind: scalar
+  status: draft
+  description: "Vertical (Z) coordinate of the beamlet group centroid for a neutral\
+    \ beam injector unit in the cylindrical (R, \u03C6, Z) frame."
+  documentation: 'The vertical coordinate $Z_{\mathrm{bg}}$ defines the height of
+    the neutral beam injector beamlet group centroid relative to the machine midplane
+    ($Z=0$) in the right-handed cylindrical $(R, \phi, Z)$ system. This geometric
+    quantity positions the beamlet group along the machine symmetry axis and is used
+    together with [major_radius_of_beamlet_group](name:major_radius_of_beamlet_group)
+    to locate the beamlet group in the poloidal plane. Typical values for medium-size
+    tokamaks range from $-2$ m to $+2$ m, depending on the port and injector geometry;
+    for ITER, the NBI beamlet groups lie near $Z\approx \pm 1.5$ m. The vertical coordinate
+    is obtained from CAD models or engineering drawings of the neutral beam injector
+    assembly.
+
+
+    Sign convention: Positive when the beamlet group centroid lies above the $Z=0$
+    midplane (in the direction of $+\hat{Z}$).'
+  unit: m
+  physics_domain: auxiliary_heating
+  links:
+  - name:major_radius_of_beamlet_group
+  sources:
+  - id: dd:nbi/unit/beamlets_group/beamlets/positions/z
+    dd_path: nbi/unit/beamlets_group/beamlets/positions/z
+    status: composed
+  - id: dd:nbi/unit/beamlets_group/position/z
+    dd_path: nbi/unit/beamlets_group/position/z
+    status: composed
+- name: vertical_coordinate_of_diagnostic_aperture
+  kind: scalar
+  status: draft
+  description: "Vertical height (Z) coordinate of the neutral-beam-injector diagnostic\
+    \ aperture center in the right-handed cylindrical (R, \u03C6, Z) reference frame."
+  documentation: 'The vertical coordinate $Z_{\rm ap}$ defines the height of the neutral
+    beam aperture center relative to the tokamak midplane in the IMAS cylindrical
+    $(R, \phi, Z)$ frame. This aperture sets the beam footprint and collimation geometry
+    for the injected neutral beam. Typical vertical positions range from $-2$ m to
+    $+2$ m depending on the injection port height, and are measured during facility
+    commissioning or alignment. The quantity pairs with $R_{\rm ap}$ (`major_radius_of_neutral_beam_injector`)
+    to locate the aperture in 2-D, and is part of the same beamline characterisation
+    family as `vertical_coordinate_of_beamlet_group` and `vertical_coordinate_of_neutral_beam_injector`.
+
+
+    Sign convention: Positive when the aperture center lies above the $Z=0$ midplane
+    of the machine.
+
+
+    In tokamaks with multiple NBI ports, each aperture has a distinct vertical coordinate;
+    this quantity identifies the specific one referenced by the `diagnostic_aperture`
+    object in the standard-name grammar.'
+  unit: m
   physics_domain: auxiliary_heating
   links: []
   sources:
-  - id: dd:waves/coherent_wave/profiles_1d/ion/power_density_thermal
-    dd_path: waves/coherent_wave/profiles_1d/ion/power_density_thermal
+  - id: dd:nbi/unit/aperture/centre/z
+    dd_path: nbi/unit/aperture/centre/z
+    status: composed
+- name: vertical_coordinate_of_neutral_beam_injector
+  kind: scalar
+  status: draft
+  description: "Vertical Z coordinate of the neutral beam injector source center in\
+    \ the cylindrical (R, \u03C6, Z) reference frame."
+  documentation: 'The vertical coordinate $Z_{\text{source}}$ of the neutral beam
+    injector source center defines the height of the beam extraction point relative
+    to the tokamak midplane. This geometric parameter is essential for determining
+    the beam line of sight and the intersection of the injected beam with the magnetic
+    flux surfaces. The vertical position is measured in the IMAS right-handed cylindrical
+    $(R, \phi, Z)$ frame, where $Z$ is the vertical height above the tokamak midplane
+    in meters.
+
+
+    Sign convention: Positive when the source center lies above the tokamak midplane
+    ($Z = 0$).
+
+
+    Typical values range from $Z \approx -1$ m to $+1.5$ m for medium-sized tokamaks
+    such as DIII-D or JET, and up to several meters for larger devices like ITER.
+    The vertical coordinate is obtained from engineering CAD models or alignment surveys
+    of the neutral beam injector assembly. This quantity pairs with the major radius
+    coordinate to give the full two-dimensional source position in the poloidal plane,
+    as seen in [major_radius_of_neutral_beam_injector](name:major_radius_of_neutral_beam_injector).
+    Closely related geometric descriptors for beam components include [vertical_coordinate_of_beamlet_group](name:vertical_coordinate_of_beamlet_group)
+    and [vertical_coordinate_of_diagnostic_aperture](name:vertical_coordinate_of_diagnostic_aperture).'
+  unit: m
+  physics_domain: auxiliary_heating
+  links:
+  - name:major_radius_of_neutral_beam_injector
+  - name:vertical_coordinate_of_beamlet_group
+  - name:vertical_coordinate_of_diagnostic_aperture
+  sources:
+  - id: dd:nbi/unit/source/centre/z
+    dd_path: nbi/unit/source/centre/z
+    status: composed
+- name: vertical_width_of_beamlet_group
+  kind: scalar
+  status: draft
+  description: Vertical width of a neutral beam injector beamlet group measured at
+    the exit plane of the ion source.
+  documentation: "The vertical width $w_v$ of a beamlet group characterizes the spatial\
+    \ extent of the array of beamlets in the vertical direction at the exit surface\
+    \ of the neutral beam injector ion source. This geometric parameter, together\
+    \ with the major radius $R$ of the beamlet group, defines the injection aperture\
+    \ and influences beam divergence and power deposition profiles in the plasma.\
+    \ Typical values for medium-size tokamaks are in the range 0.1\u20130.5 m, depending\
+    \ on the number of beamlets and source design. The quantity is measured during\
+    \ factory acceptance tests or inferred from beamline alignment surveys.\n\nSign\
+    \ convention: Positive when the vertical coordinate increases upward in the tokamak\
+    \ frame.\n\nSee also [major_radius_of_beamlet_group](name:major_radius_of_beamlet_group)\
+    \ for the radial position and [vertical_minimum_width_of_beamlet_group](name:vertical_minimum_width_of_beamlet_group)\
+    \ for the focused minimum width at the focal plane."
+  unit: m
+  physics_domain: auxiliary_heating
+  links:
+  - name:major_radius_of_beamlet_group
+  - name:vertical_minimum_width_of_beamlet_group
+  sources:
+  - id: dd:nbi/unit/beamlets_group/width_vertical
+    dd_path: nbi/unit/beamlets_group/width_vertical
+    status: composed
+- name: wave_driven_current
+  kind: scalar
+  status: draft
+  description: Total toroidal current driven by wave-particle interactions, computed
+    from a stand-alone wave propagation and damping calculation.
+  documentation: 'The wave-driven current is the toroidal component of the non-inductive
+    plasma current generated by the transfer of wave momentum to the charged particle
+    population through resonant wave-particle interactions, such as Landau damping
+    or cyclotron damping. This quantity is calculated from a stand-alone ray-tracing
+    or full-wave code that solves the wave propagation and computes the driven current
+    density $j_{\mathrm{RF}}(\psi)$ using a kinematic model (e.g., adjoint or Fokker-Planck),
+    then integrates over the plasma cross-section to obtain the total current $I_{\mathrm{RF}}
+    = \int j_{\mathrm{RF}} \, d\mathbf{A}$ in amperes. Physically, the wave-driven
+    current is the product of the absorbed power density, the current-drive efficiency,
+    and the plasma volume; for lower hybrid waves in a medium-size tokamak, typical
+    values range from 50 kA to 300 kA per MW of launched power. The stand-alone calculation
+    does not include self-consistent feedback from the evolving plasma equilibrium
+    or distribution function. Compare with the toroidal-mode-resolved component [per_toroidal_mode_wave_driven_current](name:per_toroidal_mode_wave_driven_current)
+    and the neoclassical bootstrap contribution [current_due_to_bootstrap](name:current_due_to_bootstrap).
+
+
+    Sign convention: Positive when the driven current flows in the direction of increasing
+    toroidal angle $\phi$ (counter-clockwise viewed from above).'
+  unit: A
+  physics_domain: auxiliary_heating
+  links:
+  - name:per_toroidal_mode_wave_driven_current
+  - name:current_due_to_bootstrap
+  sources:
+  - id: dd:waves/coherent_wave/global_quantities/current_phi
+    dd_path: waves/coherent_wave/global_quantities/current_phi
+    status: composed
+  - id: dd:waves/coherent_wave/global_quantities/current_tor
+    dd_path: waves/coherent_wave/global_quantities/current_tor
     status: composed

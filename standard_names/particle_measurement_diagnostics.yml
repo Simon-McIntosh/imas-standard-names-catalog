@@ -1,19 +1,304 @@
 # Domain: particle_measurement_diagnostics
-# Catalog sha: 1808c1f7f7803f46ee9ca977dfc4cc886ffe5026
-# Entries: 1
+# Catalog sha: d25b905a25b05fd4c10571f301d40b9e5d146776
+# Entries: 11
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: thermal_source_rate_due_to_beam_thermal_fusion
+- name: area_of_neutron_detector
   kind: scalar
   status: draft
-  description: Neutron emission rate from thermal deuterium-deuterium fusion reactions
-    in the bulk plasma, excluding beam-driven components
-  documentation: ''
-  unit: Hz
+  description: Projected surface area of the neutron detector active element exposed
+    to incident radiation.
+  documentation: 'The neutron detector surface area $A_\mathrm{det}$ defines the geometric
+    cross-section of the active detector element that intercepts the incident neutron
+    flux. This area is typically the physical footprint of the detector material (e.g.,
+    scintillator, diamond, or fission foil) exposed to the source, and may differ
+    from the converter volume cross-section if collimating apertures are present.
+    $A_\mathrm{det}$ is used together with the measured count rate to infer the incident
+    areal flux $\Gamma_n = C / (\epsilon A_\mathrm{det})$, where $C$ is the count
+    rate and $\epsilon$ is the detection efficiency. Typical detector areas range
+    from $10^{-6}\,\mathrm{m}^2$ for compact scintillators to $10^{-2}\,\mathrm{m}^2$
+    for large fission-chamber arrays.
+
+
+    Sign convention: Positive when the surface normal points in the direction of the
+    incident neutron flux.
+
+
+    For further context see [temperature_of_neutron_detector](name:temperature_of_neutron_detector)
+    and [neutron_flux_of_neutron_detector](name:neutron_flux_of_neutron_detector).'
+  unit: m^2
   physics_domain: particle_measurement_diagnostics
-  links: []
+  links:
+  - name:temperature_of_neutron_detector
+  - name:neutron_flux_of_neutron_detector
   sources:
-  - id: dd:summary/fusion/neutron_rates/dd/thermal/value
-    dd_path: summary/fusion/neutron_rates/dd/thermal/value
+  - id: dd:neutron_diagnostic/detectors/aperture/surface
+    dd_path: neutron_diagnostic/detectors/aperture/surface
+    status: composed
+  - id: dd:neutron_diagnostic/detectors/detector/surface
+    dd_path: neutron_diagnostic/detectors/detector/surface
+    status: composed
+- name: deuterium_tritium_fusion_power_density
+  kind: scalar
+  status: draft
+  description: Local volumetric power density released by deuterium-tritium fusion
+    reactions, inferred from the 14.1 MeV neutron emissivity profile.
+  documentation: "The D-T fusion power density $P_\\mathrm{fus,DT} = n_D n_T \\langle\
+    \ \\sigma v \\rangle_\\mathrm{DT} E_\\alpha$ quantifies the local heating rate\
+    \ from alpha particles born in deuterium-tritium reactions, where $n_D$ and $n_T$\
+    \ are the deuterium and tritium densities, $\\langle \\sigma v \\rangle_\\mathrm{DT}$\
+    \ is the Maxwellian-averaged reactivity, and $E_\\alpha = 3.5$ MeV is the alpha-particle\
+    \ energy. This quantity is the dominant core plasma heating source in D-T burning\
+    \ plasmas; the remaining 14.1 MeV escapes as neutron kinetic energy, measured\
+    \ externally. The profile is routinely reconstructed from the measured [neutron_emissivity](name:neutron_emissivity)\
+    \ using collimated neutron cameras or radial tomography. Peak values in ITER-scale\
+    \ burning plasmas are expected in the range 1\u201310 MW/m$^3$ in the core. Together\
+    \ with the D-D fusion power density, it constrains the fuel ion density ratio\
+    \ and the thermal ion temperature profile in integrated modeling. See also the\
+    \ total [neutron_rate](name:neutron_rate) for the global emission strength."
+  unit: W.m^-3
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:neutron_emissivity
+  - name:neutron_rate
+  sources:
+  - id: dd:neutron_diagnostic/reconstructed_emissivity/fusion_power_dt
+    dd_path: neutron_diagnostic/reconstructed_emissivity/fusion_power_dt
+    status: composed
+- name: fast_ion_mass_number
+  kind: scalar
+  status: draft
+  description: Mass number of the energetic, non-thermal fast ion population present
+    in the plasma.
+  documentation: The mass number $A$ identifies the atomic species of fast ions, which
+    are suprathermal particles typically arising from neutral beam injection (NBI)
+    or ion cyclotron resonance heating (ICRH). It is defined as the total number of
+    protons and neutrons in the nucleus, expressed in unified atomic mass units (u).
+    This quantity distinguishes the fast ion species (e.g., deuterium $A=2$ or hydrogen
+    $A=1$) and is critical for modeling fast ion confinement, slowing-down physics,
+    and beam-driven instabilities. For fusion plasmas, deuterium is the most common
+    fast ion species, while tritium ($A=3$) and helium-3 ($A=3$) appear in specific
+    heating or reaction scenarios. The fast ion mass number is a key input for calculating
+    the critical energy for slowing down, the birth energy and pitch angle from NBI,
+    and the resonance condition for ICRH. It complements [ion_mass_number](name:ion_mass_number)
+    for thermal ions and [neutral_beam_mass_number](name:neutral_beam_mass_number)
+    for diagnostic beams, covering the energetic particle population.
+  unit: u
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:ion_mass_number
+  - name:neutral_beam_mass_number
+  sources:
+  - id: dd:charge_exchange/channel/ion_fast/a
+    dd_path: charge_exchange/channel/ion_fast/a
+    status: composed
+- name: ion_mass_number
+  kind: scalar
+  status: draft
+  description: Mass number of the ion species, quantifying the total number of protons
+    and neutrons in the atomic nucleus.
+  documentation: The ion mass number $A$ is the total count of nucleons (protons and
+    neutrons) in the atomic nucleus of the ion species. It determines the ion mass
+    $m_i \approx A \cdot m_u$, where $m_u$ is the atomic mass constant (1 unified
+    atomic mass unit, approximately $1.6605 \times 10^{-27}$ kg). This quantity is
+    essential for identifying the charge-to-mass ratio $q_i/m_i$ and for computing
+    gyroradius, collisionality, and kinetic energy dynamics in the plasma. For thermal
+    ions, $A$ is typically the mass number of the main hydrogen isotope (e.g., $A=2$
+    for deuterium) or a low-Z impurity. The mass number is obtained from the known
+    isotopic composition of the plasma species and is used alongside [charge number](name:fast_ion_mass_number)
+    to model ion behavior.
+  unit: u
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:fast_ion_mass_number
+  sources:
+  - id: dd:charge_exchange/channel/ion/a
+    dd_path: charge_exchange/channel/ion/a
+    status: composed
+- name: neutral_beam_mass_number
+  kind: scalar
+  status: draft
+  description: Number of nucleons (protons and neutrons) in the atomic nucleus of
+    the diagnostic neutral beam (DNB) species.
+  documentation: The mass number $A$ of the diagnostic neutral beam (DNB) atom specifies
+    the isotope of the injected beam species. It determines the beam particle's rest
+    mass as $m = A \, \mathrm{u}$, where $\mathrm{u} = 1.6605 \times 10^{-27}\,\mathrm{kg}$
+    is the atomic mass unit. The beam species mass number is essential for computing
+    the kinetic energy of beam neutrals during charge-exchange recombination spectroscopy
+    (CXRS) and beam emission spectroscopy (BES), as well as for evaluating beam penetration
+    and stopping cross sections in the plasma. For common DNB species, $A = 1$ for
+    hydrogen beams and $A = 2$ for deuterium beams. The mass number is related to
+    the atomic number $Z$ (number of protons) via $A = Z + N$, where $N$ is the neutron
+    number. See `[fast_ion_mass_number](name:fast_ion_mass_number)` and `[ion_mass_number](name:ion_mass_number)`
+    for mass number definitions of plasma ion species.
+  unit: u
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:fast_ion_mass_number
+  - name:ion_mass_number
+  sources:
+  - id: dd:charge_exchange/channel/bes/a
+    dd_path: charge_exchange/channel/bes/a
+    status: composed
+- name: neutron_flux_of_neutron_detector
+  kind: scalar
+  status: draft
+  description: Areal flux of neutrons incident on a neutron detector, inferred from
+    the measured count rate and the detector's absolute efficiency calibration.
+  documentation: "The neutron flux $\\Gamma_n$ quantifies the number of neutrons crossing\
+    \ a unit area per second at the detector surface. It is deduced from the detector\
+    \ count rate $C$ (in counts per second) via the relation $\\Gamma_n = C / \\epsilon$,\
+    \ where $\\epsilon$ is the absolute detection efficiency (counts per incident\
+    \ neutron) determined through calibration with a known neutron source. Typical\
+    \ values in fusion plasmas range from $10^{12}\\,\\text{m}^{-2}\\text{s}^{-1}$\
+    \ in low-power discharges to $10^{18}\\,\\text{m}^{-2}\\text{s}^{-1}$ during high-yield\
+    \ D-T operation. The flux is dominated by 2.45-MeV (D\u2013D) or 14.1-MeV (D\u2013\
+    T) fusion neutrons, and is measured using fission chambers, activation foils,\
+    \ or scintillation detectors. This quantity is distinct from the total [neutron_fusion_rate](name:neutron_fusion_rate),\
+    \ which integrates emission over the entire plasma, and is linked to the [solid_angle_of_neutron_detector](name:solid_angle_of_neutron_detector)\
+    \ for geometry-dependent calibrations."
+  unit: m^-2.s^-1
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:neutron_fusion_rate
+  - name:solid_angle_of_neutron_detector
+  sources:
+  - id: dd:neutron_diagnostic/detector/mode/neutron_flux
+    dd_path: neutron_diagnostic/detector/mode/neutron_flux
+    status: composed
+- name: temperature_of_neutron_detector
+  kind: scalar
+  status: draft
+  description: Operating temperature of the neutron detector hardware, affecting detector
+    gain and noise characteristics.
+  documentation: "The temperature of the neutron detector hardware directly influences\
+    \ the detector's gain, signal-to-noise ratio, and overall performance. Detector\
+    \ materials, such as scintillators or semiconductors, exhibit temperature-dependent\
+    \ light output, charge collection efficiency, or leakage current, which must be\
+    \ accounted for in calibration and data analysis. Temperature variations can arise\
+    \ from plasma heating, neutron-induced heating, or ambient conditions, and are\
+    \ typically monitored using embedded thermocouples or resistance temperature detectors\
+    \ (RTDs). The [temperature of the neutron detector converter](name:temperature_of_neutron_detector_converter)\
+    \ is a related quantity specific to the converter material layer. Maintaining\
+    \ stable detector temperature is essential for accurate neutron flux measurements,\
+    \ with typical operating ranges of 20\u201340\xB0C for common scintillator detectors."
+  unit: K
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:temperature_of_neutron_detector_converter
+  sources:
+  - id: dd:neutron_diagnostic/detector/temperature
+    dd_path: neutron_diagnostic/detector/temperature
+    status: composed
+- name: temperature_of_neutron_detector_converter
+  kind: scalar
+  status: draft
+  description: Thermal state of the material used to convert incident neutrons into
+    detectable signals within a neutron detector assembly.
+  documentation: "The converter temperature quantifies the thermal energy of the neutron\
+    \ detector converter material, a critical component that interacts with neutrons\
+    \ to produce measurable secondary radiation (e.g., charged particles or photons).\
+    \ The converter's temperature directly influences the material's atomic motion,\
+    \ affecting the interaction cross-section for neutron capture or scattering reactions.\
+    \ For fusion diagnostics, typical converter temperatures range from 300\u2013\
+    500 K for solid-state converters (e.g., lithium-6 or uranium-235 layers) and may\
+    \ reach higher values in high-flux environments. Temperature monitoring is essential\
+    \ for correcting detector response drift due to thermal effects, ensuring reliable\
+    \ neutron flux measurements. The converter temperature is distinct from the overall\
+    \ [temperature_of_neutron_detector](name:temperature_of_neutron_detector), which\
+    \ refers to the full detector assembly's operating temperature and its impact\
+    \ on electronics and signal amplification."
+  unit: K
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:temperature_of_neutron_detector
+  sources:
+  - id: dd:neutron_diagnostic/detectors/radiation/converter_temperature
+    dd_path: neutron_diagnostic/detectors/radiation/converter_temperature
+    status: composed
+- name: total_power_due_to_fusion
+  kind: scalar
+  status: draft
+  description: Total thermal power carried by neutrons from all fusion reactions,
+    integrated over the plasma volume.
+  documentation: "The total neutron fusion power $P_n$ is the volume-integrated power\
+    \ released as neutron kinetic energy from all fusion reactions (primarily D-T,\
+    \ D-D, and T-T) occurring in the plasma. It is related to the total neutron emission\
+    \ rate $R_n$ by $P_n = \\sum_i R_{n,i} \\cdot \\langle E_{n,i} \\rangle$, where\
+    \ $R_{n,i}$ is the reaction rate for channel $i$ and $\\langle E_{n,i} \\rangle$\
+    \ is the mean neutron birth energy for that channel (e.g., 14.1 MeV for D-T, 2.45\
+    \ MeV for D-D). This quantity is the fundamental measure of fusion output in power-producing\
+    \ devices, directly proportional to the D-T reaction rate in deuterium-tritium\
+    \ plasmas. Typically inferred from neutron flux measurements using calibrated\
+    \ fission chambers or activation foils, with values ranging from 1\u2013500 MW\
+    \ in burning plasma experiments. See also [fusion_power](name:fusion_power) for\
+    \ the total fusion power including both neutron and alpha-particle channels, and\
+    \ [neutron_fusion_rate](name:neutron_fusion_rate) for the underlying neutron emission\
+    \ rate."
+  unit: W
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:fusion_power
+  - name:neutron_fusion_rate
+  sources:
+  - id: dd:summary/fusion/neutron_power_total/value
+    dd_path: summary/fusion/neutron_power_total/value
+    status: composed
+- name: volume_of_neutron_detector_converter
+  kind: scalar
+  status: draft
+  description: Volume of the converter material in a neutron detector, determining
+    the interaction path length for incident neutrons.
+  documentation: 'The converter volume defines the geometric extent of the material
+    that transforms incident neutrons into measurable secondary particles (e.g., charged
+    particles or photons). A larger converter volume increases the probability of
+    neutron interaction, enhancing detection efficiency, while the converter material
+    and thickness govern the energy-dependent response. Typical converter volumes
+    range from $10^{-9}$ to $10^{-6}$ m$^3$, depending on detector design and application.
+    This volume directly influences the detector calibration factor linking neutron
+    flux to count rate, and is related to the nuclear density of the converter material
+    ($n$) and the interaction cross-section via the detection efficiency: $\varepsilon
+    \propto n \sigma V$. The converter volume is a geometric design parameter and
+    does not change sign.
+
+
+    Sign convention: Positive for any physically realized converter volume.
+
+
+    See also the nuclear density of the neutron detector converter material [name:nuclear_density_of_neutron_detector_converter]
+    for the material property determining the number of target nuclei per unit volume.'
+  unit: m^3
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:nuclear_density_of_neutron_detector_converter
+  sources:
+  - id: dd:neutron_diagnostic/detectors/radiation/converter_volume
+    dd_path: neutron_diagnostic/detectors/radiation/converter_volume
+    status: composed
+- name: y_unit_vector_of_neutron_detector
+  kind: scalar
+  status: draft
+  description: Y component of the unit vector from the field-of-view center to the
+    detector aperture in the IMAS Cartesian frame.
+  documentation: 'The Y component of the neutron detector''s unit vector defines the
+    line-of-sight geometry for collimated neutron flux measurements in the right-handed
+    Cartesian $(x,y,z)$ frame, where $z$ is vertical. It is used together with the
+    [x_unit_vector_of_neutron_detector](name:x_unit_vector_of_neutron_detector) to
+    reconstruct the full three-dimensional direction vector. Typical values range
+    from -1 to 1, with the vector norm constrained to unity.
+
+
+    Sign convention: Positive when the Y component points in the $+y$ direction of
+    the IMAS Cartesian frame.'
+  unit: m
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:x_unit_vector_of_neutron_detector
+  sources:
+  - id: dd:neutron_diagnostic/detector/field_of_view/direction_to_detector/y
+    dd_path: neutron_diagnostic/detector/field_of_view/direction_to_detector/y
+    status: composed
+  - id: dd:neutron_diagnostic/detectors/field_of_view/direction_to_detector/y
+    dd_path: neutron_diagnostic/detectors/field_of_view/direction_to_detector/y
     status: composed

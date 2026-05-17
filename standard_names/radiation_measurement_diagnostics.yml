@@ -1,32 +1,331 @@
 # Domain: radiation_measurement_diagnostics
-# Catalog sha: 1808c1f7f7803f46ee9ca977dfc4cc886ffe5026
-# Entries: 2
+# Catalog sha: d25b905a25b05fd4c10571f301d40b9e5d146776
+# Entries: 10
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: radiated_power_of_bolometer
+- name: area_of_optical_element
   kind: scalar
   status: draft
-  description: Total radiative power received by a single bolometer detector channel
-    along its line of sight through the plasma
-  documentation: ''
-  unit: W
+  description: Surface area of an optical element's aperture or active surface in
+    a visible or infrared camera diagnostic channel.
+  documentation: 'The surface area $A_{\rm opt}$ of an optical element defines the
+    effective collecting area through which plasma radiation passes or is reflected
+    before reaching the detector. This area, together with the optical system''s solid
+    angle and transmission efficiency, determines the light-gathering power of the
+    diagnostic channel. Typical values for camera apertures range from $10^{-6}\,{\rm
+    m}^2$ (pinhole apertures) to $10^{-2}\,{\rm m}^2$ (primary collection lenses),
+    depending on the field of view and spatial resolution requirements. The area is
+    derived from the geometric dimensions of the element, such as its width and length,
+    as specified by [width of optical element](name:width_of_optical_element) and
+    [optical element length](name:optical_element_length). For bolometric diagnostics,
+    a similar geometric quantity is defined by [area of bolometer](name:area_of_bolometer).
+
+
+    Sign convention: Positive for any physical aperture.
+
+
+    This scalar quantity is sign-invariant; the sign convention is formal only.'
+  unit: m^2
   physics_domain: radiation_measurement_diagnostics
-  links: []
+  links:
+  - name:width_of_optical_element
+  - name:optical_element_length
+  - name:area_of_bolometer
   sources:
-  - id: dd:bolometer/channel/power/data
-    dd_path: bolometer/channel/power/data
+  - id: dd:camera_visible/channel/optical_element/geometry/surface
+    dd_path: camera_visible/channel/optical_element/geometry/surface
     status: composed
-- name: radiated_power_of_soft_xray_detector
+  - id: dd:spectrometer_visible/channel/optical_element/geometry/surface
+    dd_path: spectrometer_visible/channel/optical_element/geometry/surface
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/reflector/surface
+    dd_path: spectrometer_x_ray_crystal/channel/reflector/surface
+    status: attached
+- name: atomic_mass_number
   kind: scalar
   status: draft
-  description: Total soft X-ray radiated power received by a single detector channel,
-    used for plasma radiation monitoring and MHD mode tracking
-  documentation: ''
-  unit: W
+  description: Atomic mass of an isotope element expressed in atomic mass units (u).
+  documentation: The atomic mass quantifies the mass of a single neutral atom of a
+    given isotope, measured in atomic mass units (u) where $1\,\text{u} = 1.660539\times
+    10^{-27}\,\text{kg}$. This quantity identifies the isotope species in mass spectrometry
+    and is used to compute kinematic properties such as the [ion mass](name:ion_mass)
+    for transport calculations. It differs from the dimensionless mass number (sum
+    of protons and neutrons) by including the mass equivalent of nuclear binding energy
+    and the mass of orbital electrons. In fusion diagnostics, high-resolution mass
+    spectrometers resolve isotopic masses to determine the relative concentrations
+    of hydrogen isotopes in the neutral beam or divertor gas; typical values are $1.007825\,\text{u}$
+    for $^1\mathrm{H}$, $2.014102\,\text{u}$ for $^2\mathrm{H}$ (deuterium), and $3.016049\,\text{u}$
+    for $^3\mathrm{H}$ (tritium). The atomic mass together with the [atomic number](name:atomic_number)
+    uniquely identifies the isotope.
+  unit: u
   physics_domain: radiation_measurement_diagnostics
-  links: []
+  links:
+  - name:ion_mass
+  - name:atomic_number
   sources:
-  - id: dd:soft_x_rays/channel/power/data
-    dd_path: soft_x_rays/channel/power/data
+  - id: dd:gas_injection/pipe/species/element/a
+    dd_path: gas_injection/pipe/species/element/a
+    status: composed
+  - id: dd:spectrometer_visible/channel/isotope_ratios/isotope/element/a
+    dd_path: spectrometer_visible/channel/isotope_ratios/isotope/element/a
+    status: composed
+- name: hot_neutral_fraction_of_spectral_line
+  kind: scalar
+  status: draft
+  description: Ratio of hot-to-total neutral density for a given hydrogen isotope,
+    inferred from spectral line shape analysis.
+  documentation: "The hot neutral fraction quantifies the proportion of neutral hydrogen\
+    \ isotopes (H, D, T) in the high-energy (hot) population relative to all neutrals\
+    \ of that isotope, derived from analysis of visible spectral line shapes. Hot\
+    \ neutrals arise primarily from charge-exchange recombination, producing energies\
+    \ of 1\u2013100 keV in the core plasma, while cold neutrals (10\u2013100 eV) originate\
+    \ from recycling at the plasma-facing components. The fraction is defined as $f_{\\\
+    text{hot}} = n_{\\text{hot}} / (n_{\\text{cold}} + n_{\\text{hot}})$ where $n_{\\\
+    text{hot}}$ and $n_{\\text{cold}}$ are the volumetric densities of hot and cold\
+    \ neutrals. Typical values range from 0.1\u20130.9 depending on plasma regime,\
+    \ with higher fractions in high-temperature core regions and lower fractions in\
+    \ the pedestal and divertor. The measurement relies on fitting Voigt or Gaussian\
+    \ profiles to Doppler-broadened Balmer-series lines (e.g., H$\\alpha$, D$\\alpha$)\
+    \ from visible spectroscopy, where the broad component corresponds to hot neutrals\
+    \ and the narrow component to cold neutrals.\n\nSign convention: Positive when\
+    \ $n_{\\text{hot}} > 0$, yielding a fraction between 0 and 1.\n\nSee [cold_neutral_fraction_of_spectral_line](name:cold_neutral_fraction_of_spectral_line)\
+    \ for the complementary quantity; together these fractions constrain the neutral\
+    \ energy distribution used in edge transport and fuelling modeling."
+  unit: '1'
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:cold_neutral_fraction_of_spectral_line
+  sources:
+  - id: dd:spectrometer_visible/channel/isotope_ratios/isotope/hot_neutrals_fraction
+    dd_path: spectrometer_visible/channel/isotope_ratios/isotope/hot_neutrals_fraction
+    status: composed
+- name: major_radius_of_camera
+  kind: scalar
+  status: draft
+  description: Cylindrical major radius (R) coordinate of the camera center position
+    in an X-ray crystal spectrometer channel.
+  documentation: 'The camera center major radius $R_{\mathrm{cam}}$ defines the $R$
+    coordinate of the X-ray crystal spectrometer''s imaging camera in the right-handed
+    cylindrical $(R, \phi, Z)$ frame. This geometric parameter, together with the
+    vertical coordinate and toroidal angle, fully specifies the spatial location of
+    the camera within the vacuum vessel. Typical values for the major radius of the
+    camera center in medium-size tokamaks range from 1.5 to 3.0 m, depending on the
+    port location. The camera center position is used in ray-tracing calculations
+    that model the spectrometer''s line of sight, affecting the spatial localization
+    of the measured X-ray emission. See also [major_radius_of_detector_pixel](name:major_radius_of_detector_pixel)
+    and [major_radius_of_optical_element](name:major_radius_of_optical_element).
+
+
+    Sign convention: Positive when measured outward from the machine symmetry axis
+    ($R=0$).'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:major_radius_of_detector_pixel
+  - name:major_radius_of_optical_element
+  sources:
+  - id: dd:camera_x_rays/camera/centre/r
+    dd_path: camera_x_rays/camera/centre/r
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/camera/centre/r
+    dd_path: spectrometer_x_ray_crystal/channel/camera/centre/r
+    status: vocab_gap
+- name: major_radius_of_optical_element
+  kind: scalar
+  status: draft
+  description: Cylindrical major radius (R) coordinate of the center of an optical
+    element in a diagnostic.
+  documentation: 'The major radius coordinate $R$ specifies the radial location of
+    an optical element''s center in the IMAS right-handed cylindrical $(R, \phi, Z)$
+    frame. This geometric parameter is used to define the line of sight and field
+    of view for diagnostics such as visible and infrared cameras, spectrometers, and
+    bolometers. Typical values range from 1.5 to 3.5 m for in-vessel components in
+    medium-size tokamaks (e.g., DIII-D, ASDEX Upgrade) and up to 8 m for ITER, depending
+    on port location and diagnostic architecture. The companion quantity [toroidal_angle_of_optical_element](name:toroidal_angle_of_optical_element)
+    specifies the toroidal coordinate, and [major_radius_of_camera](name:major_radius_of_camera)
+    provides the radial position of the full camera assembly.
+
+
+    Sign convention: Positive when the center lies at a larger major radius than the
+    machine symmetry axis ($R=0$).'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:toroidal_angle_of_optical_element
+  - name:major_radius_of_camera
+  sources:
+  - id: dd:camera_ir/optical_element/geometry/centre/r
+    dd_path: camera_ir/optical_element/geometry/centre/r
+    status: composed
+  - id: dd:camera_visible/channel/optical_element/geometry/centre/r
+    dd_path: camera_visible/channel/optical_element/geometry/centre/r
+    status: composed
+- name: radius_of_optical_element
+  kind: scalar
+  status: draft
+  description: Radius of the circular geometric boundary defining an optical element's
+    aperture or active surface in a spectrometer channel.
+  documentation: 'The radius $r$ defines the circular cross-section of an optical
+    element such as a lens, mirror, or aperture stop. It determines the effective
+    collecting area $A = \pi r^2$ and the etendue of the spectroscopic system, which
+    governs the light-gathering power. This geometric parameter is used only when
+    the element''s geometry type is circular; typical values range from a few millimeters
+    for fiber-coupled optics to tens of centimeters for large relay mirrors in fusion
+    diagnostics.
+
+
+    Sign convention: Positive when the radial distance from the optical axis to the
+    element boundary is measured outward.
+
+
+    The radius is distinct from the center-position coordinates, such as [major_radius_of_optical_element](name:major_radius_of_optical_element)
+    and [vertical_coordinate_of_optical_element](name:vertical_coordinate_of_optical_element).
+    Nearby diagnostics often share identical apertures, and [radius_of_detector_pixel](name:radius_of_detector_pixel)
+    follows the same convention for a detector''s sensitive area.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:major_radius_of_optical_element
+  - name:vertical_coordinate_of_optical_element
+  - name:radius_of_detector_pixel
+  sources:
+  - id: dd:camera_ir/optical_element/geometry/radius
+    dd_path: camera_ir/optical_element/geometry/radius
+    status: composed
+  - id: dd:spectrometer_visible/channel/optical_element/geometry/radius
+    dd_path: spectrometer_visible/channel/optical_element/geometry/radius
+    status: composed
+- name: refractive_index_of_optical_element
+  kind: scalar
+  status: draft
+  description: Real part of the complex refractive index of the optical element material
+    in a visible spectrometer channel, governing the phase velocity of light relative
+    to vacuum.
+  documentation: "The real part of the complex refractive index, denoted $n(\\lambda)$,\
+    \ describes the ratio of the phase velocity of light in vacuum to that in the\
+    \ optical element material at a given wavelength $\\lambda$. The complex refractive\
+    \ index $\\tilde{n}(\\lambda) = n(\\lambda) + i \\kappa(\\lambda)$ captures both\
+    \ the phase delay ($n$) and absorption ($\\kappa$) of the material. For transmissive\
+    \ optics, $n$ determines the bending of light at interfaces via Snell's law and\
+    \ sets the focal properties of lenses; values for common fused silica range from\
+    \ 1.4\u20131.5 in the visible. Ideally, these tabulated values are derived from\
+    \ the Sellmeier dispersion model. The imaginary part is described by the sibling\
+    \ quantity `[optical_element_refractive_index](name:optical_element_refractive_index)`.\
+    \ This real part is sampled at discrete wavelengths specified by `[wavelength_of_optical_element](name:wavelength_of_optical_element)`.\n\
+    \nSign convention: Positive when the phase velocity in the material is less than\
+    \ the vacuum speed of light, i.e., $n>0$ for ordinary dielectrics.\n\nA measured\
+    \ or simulated $n$ that differs from the tabulated values may indicate surface\
+    \ contamination, coating degradation, or temperature-driven dispersion changes\
+    \ in the optical path. The magnitude of $n-1$ is also used to compute the Fresnel\
+    \ reflection coefficient at normal incidence."
+  unit: '1'
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:optical_element_refractive_index
+  - name:wavelength_of_optical_element
+  sources:
+  - id: dd:spectrometer_visible/channel/optical_element/material_properties/refractive_index
+    dd_path: spectrometer_visible/channel/optical_element/material_properties/refractive_index
+    status: composed
+- name: toroidal_angle_of_optical_element
+  kind: scalar
+  status: draft
+  description: "Toroidal angle, in the cylindrical (R, \u03C6, Z) frame, of the center\
+    \ of an optical element in a visible camera or spectrometer channel."
+  documentation: "The toroidal angle \u03C6 of the optical element center defines\
+    \ the toroidal position of the diagnostic component within the tokamak or stellarator\
+    \ vessel. This angle is measured in the right-handed cylindrical (R, \u03C6, Z)\
+    \ system, increasing counter-clockwise when viewed from above along +Z. Knowledge\
+    \ of \u03C6 is essential for geometric ray-tracing, line-of-sight reconstruction,\
+    \ and the spatial registration of multiple diagnostics via common coordinate frames.\
+    \ The associated major radius and vertical coordinates are given by [major_radius_of_optical_element](name:major_radius_of_optical_element)\
+    \ and [vertical_coordinate_of_optical_element](name:vertical_coordinate_of_optical_element).\
+    \ Together with the optical element aperture radius [radius_of_optical_element](name:radius_of_optical_element),\
+    \ these coordinates fully define the component's location for synthetic diagnostic\
+    \ modeling and for the fusion of diagnostic measurements in integrated data analysis."
+  unit: rad
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:major_radius_of_optical_element
+  - name:vertical_coordinate_of_optical_element
+  - name:radius_of_optical_element
+  sources:
+  - id: dd:camera_ir/optical_element/geometry/centre/phi
+    dd_path: camera_ir/optical_element/geometry/centre/phi
+    status: composed
+  - id: dd:camera_visible/channel/optical_element/geometry/centre/phi
+    dd_path: camera_visible/channel/optical_element/geometry/centre/phi
+    status: composed
+  - id: dd:mse/channel/detector/centre/phi
+    dd_path: mse/channel/detector/centre/phi
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/camera/centre/phi
+    dd_path: spectrometer_x_ray_crystal/channel/camera/centre/phi
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/crystal/centre/phi
+    dd_path: spectrometer_x_ray_crystal/channel/crystal/centre/phi
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/reflector/centre/phi
+    dd_path: spectrometer_x_ray_crystal/channel/reflector/centre/phi
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/reflector/sphere_centre/phi
+    dd_path: spectrometer_x_ray_crystal/channel/reflector/sphere_centre/phi
+    status: attached
+- name: y_coordinate_of_detector_pixel
+  kind: scalar
+  status: draft
+  description: Second of two orthogonal local coordinates (X2) defining the position
+    of a detector pixel outline vertex in the diagnostic reference frame.
+  documentation: "The y-coordinate (X2) forms a right-handed local Cartesian pair\
+    \ with the X1 coordinate, locating outline vertices of a detector pixel aperture\
+    \ in the detector plane. This 2-D local frame is referenced to the diagnostic's\
+    \ optical axis and is independent of the global machine coordinates (R, \u03C6\
+    , Z). The outline vertices define the shape of the pixel's sensitive area, which\
+    \ is used to compute the effective collection area and field-of-view weighting\
+    \ for synthetic diagnostic modeling. Typical pixel dimensions range from 10 \u03BC\
+    m to 100 \u03BCm for CCD and CMOS detectors in spectrometer channels. See also\
+    \ [x_coordinate_of_detector_pixel](name:x_coordinate_of_detector_pixel) for the\
+    \ X1 counterpart and [area_of_optical_element](name:area_of_optical_element) for\
+    \ the area derived from outline coordinates.\n\nSign convention: Positive when\
+    \ the coordinate increases along the local diagnostic Y-axis direction in the\
+    \ detector plane.\n\nLocal coordinate conventions are determined by the diagnostic\
+    \ calibration; see the associated [y_coordinate_of_optical_element](name:y_coordinate_of_optical_element)\
+    \ for consistency with the optical element reference frame."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:x_coordinate_of_detector_pixel
+  - name:area_of_optical_element
+  - name:y_coordinate_of_optical_element
+  sources:
+  - id: dd:spectrometer_visible/channel/detector/outline/x2
+    dd_path: spectrometer_visible/channel/detector/outline/x2
+    status: composed
+- name: y_coordinate_of_optical_element
+  kind: scalar
+  status: draft
+  description: Second of two orthogonal local coordinates (X2) defining the position
+    of an optical element outline vertex in the diagnostic reference frame.
+  documentation: 'The X2 coordinate is a local Cartesian coordinate within the diagnostic
+    reference system, used together with the X1 coordinate to describe the 2D boundary
+    shape of an optical element such as a lens, mirror, or aperture. The outline is
+    typically represented as a polygon of vertices, with X1 and X2 coordinates specifying
+    each vertex position in the diagnostic plane. Typical coordinate ranges span tens
+    of millimeters for spectrometer and camera optics. This quantity is geometrically
+    paired with [x_coordinate_of_optical_element](name:x_coordinate_of_optical_element)
+    to define complete outline geometry. The orientation of the X1-X2 plane relative
+    to the global cylindrical $(R, \phi, Z)$ frame is defined by the diagnostic layout
+    and may vary between channels.
+
+
+    Sign convention: Positive when the vertex lies in the direction of increasing
+    X2 axis in the diagnostic reference frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:x_coordinate_of_optical_element
+  sources:
+  - id: dd:spectrometer_visible/channel/optical_element/geometry/outline/x2
+    dd_path: spectrometer_visible/channel/optical_element/geometry/outline/x2
     status: composed
