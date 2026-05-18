@@ -27,8 +27,21 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Checkout ISN site source
+        uses: actions/checkout@v4
+        with:
+          repository: Simon-McIntosh/imas-standard-names
+          path: _isn
+          sparse-checkout: site
+          sparse-checkout-cone-mode: true
+
       - name: Install uv
         uses: astral-sh/setup-uv@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
       - name: Configure git
         run: |
@@ -64,7 +77,7 @@ jobs:
           git fetch origin gh-pages --depth=1 || echo "No gh-pages branch yet"
           VERSION="${{ steps.version.outputs.version }}"
           TAGGED="${{ steps.version.outputs.tagged }}"
-          DEPLOY_ARGS="--version $VERSION --push"
+          DEPLOY_ARGS="--version $VERSION --push --site-dir _isn/site"
           # Set as default version for root URL redirect
           if [[ "$TAGGED" == "true" || "$VERSION" == "main" ]]; then
             DEPLOY_ARGS="$DEPLOY_ARGS --set-default"
