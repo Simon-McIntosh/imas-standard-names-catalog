@@ -1,539 +1,664 @@
 # Domain: magnetic_field_systems
-# Catalog sha: 4bdb4d05240ec6ffe00be2cbbda5cef26167d4b4
-# Entries: 17
+# Catalog sha: b01ccc67c2601ec0cadd1d06f93258d2c30d24fa
+# Entries: 12
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: area_of_passive_loop
+- name: area_of_poloidal_field_coil
   kind: scalar
   status: draft
-  description: Cross-sectional area of the conductor or structural element forming
-    a passive axisymmetric loop.
-  documentation: 'The cross-sectional area $A$ of a passive loop element determines
-    the loop''s electrical resistance $R = \rho L / A$ (where $\rho$ is the conductor
-    resistivity and $L$ the element length) and thus the characteristic eddy-current
-    decay time $\tau = L / R$. Passive loops are electrically conducting structures,
-    such as vacuum-vessel segments or stabilizing shells, in which plasma transients
-    induce current without an external power supply. Typical cross-sectional areas
-    range from $10^{-4}\,\text{m}^2$ for thin-wall stabilizing shells to $10^{-1}\,\text{m}^2$
-    for thick vacuum-vessel sections. The area enters magnetic-field diffusion calculations
-    and the coupling between passive structures and active coils. See the related
-    quantities [current_of_passive_loop_due_to_induction](name:current_of_passive_loop_due_to_induction)
-    for the induced current and [major_radius_of_passive_loop](name:major_radius_of_passive_loop)
-    for the element''s radial position.
+  description: Physical cross-sectional area enclosed by a poloidal-field coil element
+    conductor or winding pack, used to characterize conductor size for current density
+    and loading estimates.
+  documentation: 'The area of a poloidal-field coil is the physical cross-section
+    enclosed by the conductor or winding-pack boundary, perpendicular to the local
+    current path through the coil element. It determines the engineering current density
+    when combined with [current of poloidal-field coil](name:current_of_poloidal_field_coil),
+    and it is the aggregate geometric measure associated with dimensional quantities
+    such as [width of poloidal-field coil](name:width_of_poloidal_field_coil) and
+    [height of poloidal-field coil](name:height_of_poloidal_field_coil).
 
 
-    Sign convention: Positive when the cross-section is oriented such that the surface
-    normal points in the direction of the current path along the loop''s contour.'
+    For a general coil-element cross-section $S$, the defining geometric measure is
+
+
+    $$
+
+    A_{\mathrm{PF}} = \int_S dS
+
+    $$
+
+
+    where $A_{\mathrm{PF}}$ is the coil cross-sectional area and $dS$ is the differential
+    surface element over the conductor or winding-pack cross-section. For rectangular
+    sections this reduces to the product of the radial and vertical dimensions in
+    the right-handed cylindrical $(R, \phi, Z)$ frame; for annular sections it is
+    related to [inner radius of poloidal-field coil](name:inner_radius_of_poloidal_field_coil)
+    and [outer radius of poloidal-field coil](name:outer_radius_of_poloidal_field_coil).
+
+
+    The area is determined from engineering geometry, manufacturing drawings, metrology
+    of the coil casing or winding pack, or electromagnetic model geometry. It may
+    also be reconstructed from measured outline dimensions, with [length of poloidal-field
+    coil](name:length_of_poloidal_field_coil) used for oblique or non-rectangular
+    cross-section descriptions when applicable.
+
+
+    Representative element cross-sections range from about 1e-3-1 m^2 for auxiliary
+    and medium-size poloidal-field coils, and can exceed 1 m^2 for large superconducting
+    coil modules or central-solenoid-like structures.
+
+
+    Sign convention: Positive when the cross-section is evaluated as the unsigned
+    physical area enclosed by the poloidal-field coil element boundary.'
   unit: m^2
   physics_domain: magnetic_field_systems
   links:
-  - name:current_of_passive_loop_due_to_induction
-  - name:major_radius_of_passive_loop
+  - name:current_of_poloidal_field_coil
+  - name:width_of_poloidal_field_coil
+  - name:height_of_poloidal_field_coil
+  - name:inner_radius_of_poloidal_field_coil
+  - name:outer_radius_of_poloidal_field_coil
+  - name:length_of_poloidal_field_coil
   sources:
-  - id: dd:pf_passive/loop/element/area
-    dd_path: pf_passive/loop/element/area
+  - id: dd:pf_active/coil/element/area
+    dd_path: pf_active/coil/element/area
     status: composed
-- name: area_of_toroidal_field_coil
+- name: current_of_poloidal_field_coil
   kind: scalar
   status: draft
-  description: Cross-sectional area of the conductor within a non-axisymmetric toroidal
-    field coil, used for estimating coil resistance and thermal capacity.
-  documentation: The cross-sectional area of the conductor within a non-axisymmetric
-    toroidal field coil, such as an ELM control coil. This area is measured in a plane
-    perpendicular to the local conductor direction and is used to compute the coil's
-    electrical resistance, current density, and thermal behavior. For rectangular
-    or circular conductors, the area is derived from the conductor's geometric dimensions
-    (width and height or radius). The typical range is on the order of $10^{-4}$ to
-    $10^{-2}\,\mathrm{m}^2$ for poloidal field and ELM control coils, depending on
-    the fusion device size and coil design. The area affects the coil's inductance
-    and heating during operation.
-  unit: m^2
+  description: "Electrical circuit current carried by a poloidal-field coil conductor,\
+    \ setting the coil\u2019s contribution to plasma shaping and vertical-position\
+    \ control."
+  documentation: 'The poloidal-field coil current is the net conduction current circulating
+    around an axisymmetric coil circuit in the toroidal direction. It is the actuator
+    quantity that produces external poloidal magnetic field used for plasma position
+    control, shape control, and inductive flux swing. Through the coil geometry, it
+    determines the [poloidal flux contribution from external coils](name:poloidal_average_magnetic_flux_due_to_external_coil)
+    and contributes to mechanical loads such as [radial](name:radial_force_of_poloidal_field_coil)
+    and [vertical](name:vertical_force_of_poloidal_field_coil) electromagnetic forces.
+
+
+    For an axisymmetric conductor cross-section $S$, the circuit current can be written
+    as the surface integral of toroidal current density:
+
+
+    $$
+
+    I_{\rm PF} = \int_S J_\phi\, dS
+
+    $$
+
+
+    where $I_{\rm PF}$ is the poloidal-field coil current, $J_\phi$ is the toroidal
+    current density in A m$^{-2}$, and $dS$ is an element of conductor cross-sectional
+    area in m$^2$. The relevant toroidal direction is defined in the right-handed
+    cylindrical $(R, \phi, Z)$ frame, with $R$ the major radius, $\phi$ the toroidal
+    angle, and $Z$ the vertical coordinate.
+
+
+    The current is measured with calibrated power-supply readbacks, DC current transformers,
+    Rogowski coils, or precision shunts, and is used in magnetic-equilibrium reconstruction
+    together with coil geometry such as the [major radius](name:major_radius_of_poloidal_field_coil),
+    [inner radius](name:inner_radius_of_poloidal_field_coil), and [outer radius](name:outer_radius_of_poloidal_field_coil)
+    of the poloidal-field coil. Fusion devices commonly operate individual poloidal-field
+    and central-solenoid circuits from about $10^3$ to $10^5$ A, with effective ampere-turns
+    reaching mega-ampere-turn scale when multiple turns are present.
+
+
+    Sign convention: Positive when the coil current flows in the direction of increasing
+    toroidal angle $\phi$ in the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: A
   physics_domain: magnetic_field_systems
   links:
-  - name:resistance_of_toroidal_field_coil
+  - name:poloidal_average_magnetic_flux_due_to_external_coil
+  - name:radial_force_of_poloidal_field_coil
+  - name:vertical_force_of_poloidal_field_coil
+  - name:major_radius_of_poloidal_field_coil
+  - name:inner_radius_of_poloidal_field_coil
+  - name:outer_radius_of_poloidal_field_coil
   sources:
-  - id: dd:coils_non_axisymmetric/coil/conductor/cross_section/area
-    dd_path: coils_non_axisymmetric/coil/conductor/cross_section/area
+  - id: dd:pf_active/coil/current
+    dd_path: pf_active/coil/current
     status: composed
-  - id: dd:tf/coil/conductor/cross_section/area
-    dd_path: tf/coil/conductor/cross_section/area
-    status: composed
-- name: effective_count_of_passive_loop
+- name: height_of_poloidal_field_coil
   kind: scalar
   status: draft
-  description: Signed effective number of conductor turns in a passive loop element,
-    encoding the winding direction via the sign.
-  documentation: 'The signed effective turn count $N_{\text{eff}}$ of a passive loop
-    element quantifies both the number of conductor turns and the winding direction,
-    where a positive sign indicates current flow in the direction of increasing toroidal
-    angle $\phi$ (counter-clockwise when viewed from above). The absolute value is
-    the effective number of turns contributing to the magnetic coupling with active
-    coils; the sign is required for consistent summation of induced currents in circuit
-    models. The effective count may differ from the physical turn count when geometric
-    or skin-effect corrections apply.
+  description: Full vertical extent of a rectangular poloidal-field coil element cross-section,
+    measured between its lower and upper edges.
+  documentation: 'This quantity defines the vertical dimension of a rectangular conductor
+    element used in a poloidal-field coil. Together with the [width of the poloidal-field
+    coil](name:width_of_poloidal_field_coil), it specifies the rectangular cross-section
+    whose product gives the [area of the poloidal-field coil](name:area_of_poloidal_field_coil).
+    The element position is completed by the [major radius](name:major_radius_of_poloidal_field_coil)
+    and [vertical coordinate](name:vertical_coordinate_of_poloidal_field_coil) of
+    the coil element center.
 
 
-    Sign convention: Positive when current flows in the direction of increasing toroidal
-    angle $\phi$.
+    For an axisymmetric rectangular element in the right-handed cylindrical $(R, \phi,
+    Z)$ frame, with $Z$ denoting vertical height, the signed full height may be written
+    as
 
 
-    This quantity is used together with the [area_of_passive_loop](name:area_of_passive_loop)
-    and [resistance_of_passive_loop](name:resistance_of_passive_loop) for eddy-current
-    calculations. A related concept for active coils is described by [effective_count_of_poloidal_field_coil](name:effective_count_of_poloidal_field_coil).'
-  unit: '1'
-  physics_domain: magnetic_field_systems
-  links:
-  - name:area_of_passive_loop
-  - name:resistance_of_passive_loop
-  - name:effective_count_of_poloidal_field_coil
-  sources:
-  - id: dd:pf_passive/loop/element/turns_with_sign
-    dd_path: pf_passive/loop/element/turns_with_sign
-    status: composed
-- name: inner_radius_of_passive_loop
-  kind: scalar
-  status: draft
-  description: Inner radius of the annular cross-section of a passive conducting loop
-    conductor, defining the boundary of the hollow conductor core.
-  documentation: 'The inner radius $r_{\text{inner}}$ describes the radial extent
-    of the hollow interior of a passive loop conductor''s circular or annular cross-section,
-    measured from the conductor''s local axis. For a solid (non-hollow) conductor,
-    this value is zero. Together with the [outer_radius_of_passive_loop](name:outer_radius_of_passive_loop),
-    it defines the conductor''s cross-sectional area and thus its electrical conductance
-    and inductive coupling with the plasma and active coils. The loop''s electrical
-    [resistance_of_passive_loop](name:resistance_of_passive_loop) scales with the
-    cross-sectional area derived from these radii. Typical values for in-vessel passive
-    stabilizing loops range from 0.01 m to 0.1 m, depending on the conductor material
-    (copper, beryllium, or steel) and the required eddy-current decay time.
+    $$
+
+    h = Z_\mathrm{upper} - Z_\mathrm{lower}
+
+    $$
 
 
-    Sign convention: Positive for all physically valid conductors; the inner radius
-    is geometrically positive semi-definite and always less than or equal to the outer
-    radius.'
+    where $h$ is the coil-element height, and $Z_\mathrm{upper}$ and $Z_\mathrm{lower}$
+    are the vertical coordinates of the upper and lower cross-section edges.
+
+
+    The value is obtained from engineering design geometry, mechanical metrology,
+    or survey reconstruction of the coil conductor envelope. Representative poloidal-field
+    coil element heights range from a few centimeters for small correction coils to
+    several tens of centimeters or more for large shaping and vertical-field coils.
+
+
+    Sign convention: Positive when the upper edge of the rectangular coil element
+    has a larger $Z$ coordinate than the lower edge in the right-handed cylindrical
+    $(R, \phi, Z)$ frame.'
   unit: m
   physics_domain: magnetic_field_systems
   links:
-  - name:outer_radius_of_passive_loop
-  - name:resistance_of_passive_loop
+  - name:width_of_poloidal_field_coil
+  - name:area_of_poloidal_field_coil
+  - name:major_radius_of_poloidal_field_coil
+  - name:vertical_coordinate_of_poloidal_field_coil
   sources:
-  - id: dd:pf_passive/loop/element/geometry/annulus/radius_inner
-    dd_path: pf_passive/loop/element/geometry/annulus/radius_inner
+  - id: dd:pf_active/coil/element/geometry/rectangle/height
+    dd_path: pf_active/coil/element/geometry/rectangle/height
     status: composed
-- name: length_of_passive_loop
+- name: inner_radius_of_poloidal_field_coil
   kind: scalar
   status: draft
-  description: Length of the parallelogram side of an oblique trapezoidal cross-section
-    of a passive loop element, inclined at angle beta with respect to the height axis.
-    This side defines the slanted edge of the loop's cross-sectional geometry.
-  documentation: The length of the parallelogram side inclined at angle beta ($\beta$)
-    with respect to the height axis in an oblique trapezoidal cross-section model
-    of a passive loop element. This geometric parameter describes the slanted edge
-    of the loop's cross-section, where $\beta$ is measured from the vertical (height)
-    axis in the IMAS cylindrical $(R, \phi, Z)$ frame. The angle $\beta$ typically
-    ranges from 0 to 90 degrees, with $\beta = 0$ corresponding to a vertical side
-    and $\beta = 90^\circ$ to a horizontal side. This length is a key input for calculating
-    the loop's electrical resistance and inductance, which influence eddy current
-    dynamics during plasma disruptions. Positive orientation follows the direction
-    of increasing $\beta$ (counter-clockwise from the height axis in the cross-sectional
-    plane).
+  description: Distance from the center of an annular poloidal-field coil conductor
+    cross-section to its inner boundary.
+  documentation: 'The inner radius defines the hollow or non-conducting central boundary
+    of an annular poloidal-field coil conductor cross-section. Together with the [outer
+    radius](name:outer_radius_of_poloidal_field_coil), it fixes the conductor annulus
+    used to compute [cross-sectional area](name:area_of_poloidal_field_coil), resistance,
+    cooling-channel clearance, and electromagnetic loading.
+
+
+    For an ideal annular cross-section, the inner radius $r_{\mathrm{in}}$ is the
+    minimum distance from the annulus center $\mathbf{c}$ to the conducting material
+    boundary in the cross-sectional plane:
+
+
+    $$
+
+    r_{\mathrm{in}} = \min_{\mathbf{x}\in\partial\Omega_{\mathrm{cond}}} \left|\mathbf{x}-\mathbf{c}\right|
+
+    $$
+
+
+    where $\mathbf{x}$ is a point on the inner conductor boundary and $\partial\Omega_{\mathrm{cond}}$
+    is the boundary of the conducting region. The annular area follows from $A=\pi(r_{\mathrm{out}}^2-r_{\mathrm{in}}^2)$,
+    linking this quantity to [area of the poloidal-field coil](name:area_of_poloidal_field_coil).
+
+
+    The value is obtained from coil engineering geometry, conductor manufacturing
+    drawings, or dimensional metrology of the winding pack or conductor element. It
+    is used with [width](name:width_of_poloidal_field_coil), [height](name:height_of_poloidal_field_coil),
+    and [length](name:length_of_poloidal_field_coil) when comparing annular and rectangular
+    cross-section parameterizations.
+
+
+    Representative inner radii range from millimeters for small hollow conductors
+    to several tenths of a meter for large superconducting coil winding packs, depending
+    on cooling-channel layout and structural support requirements.
+
+
+    Sign convention: Positive when measured radially outward from the annulus center
+    to the inner conductor boundary.'
   unit: m
   physics_domain: magnetic_field_systems
   links:
-  - name:area_of_passive_loop
-  - name:major_radius_of_passive_loop
+  - name:outer_radius_of_poloidal_field_coil
+  - name:area_of_poloidal_field_coil
+  - name:width_of_poloidal_field_coil
+  - name:height_of_poloidal_field_coil
+  - name:length_of_poloidal_field_coil
   sources:
-  - id: dd:pf_passive/loop/element/geometry/oblique/length_beta
-    dd_path: pf_passive/loop/element/geometry/oblique/length_beta
+  - id: dd:pf_active/coil/element/geometry/annulus/radius_inner
+    dd_path: pf_active/coil/element/geometry/annulus/radius_inner
     status: composed
-- name: magnetic_field_of_iron_core_segment
+- name: length_of_poloidal_field_coil
   kind: scalar
   status: draft
-  description: Scalar magnetic field magnitude used as the independent variable for
-    evaluating the relative permeability of an iron core segment from its material
-    lookup table. This field quantifies the applied magnetic flux density B in the
-    core segment and is paired with corresponding relative permeability values to
-    define the nonlinear B-H curve.
-  documentation: "The magnetic field of an iron core segment provides the discrete\
-    \ set of magnetic flux density values $B$ (in tesla) that form the independent-variable\
-    \ axis of the $(B,\\mu_r)$ lookup table characterizing the nonlinear magnetic\
-    \ response of the core material. For each entry in this array, the corresponding\
-    \ relative permeability $\\mu_r = B/(\\mu_0 H)$ is specified, enabling the core's\
-    \ inductance and saturation behavior to be updated in circuit models as a function\
-    \ of the applied field. Typical values range from $0\\,\\mathrm{T}$ to approximately\
-    \ $2\\,\\mathrm{T}$ for common ferromagnetic materials. The relationship between\
-    \ the magnetic field and the magnetic flux density is $B = \\mu_0 \\mu_r H$, where\
-    \ $\\mu_0 = 4\\pi\\times 10^{-7}\\,\\mathrm{N/A^2}$ is the vacuum permeability.\
-    \ \n\nSign convention: Positive when the field magnitude is measured as a positive\
-    \ scalar, consistent with the direction of positive flux in the core segment."
-  unit: T
+  description: Side length of the oblique cross-section used to define the finite
+    conductor geometry of a poloidal field coil element.
+  documentation: 'This quantity gives the geometric side length of an oblique poloidal-field-coil
+    cross-section, such as the slanted edge of a trapezoidal conductor element. It
+    complements the orthogonal cross-section dimensions [height](name:height_of_poloidal_field_coil)
+    and [width](name:width_of_poloidal_field_coil), and together these dimensions
+    determine the conductor footprint used for magnetic-field and force calculations.
+
+
+    For an axisymmetric cross-section described in the right-handed cylindrical $(R,
+    \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and $Z$
+    is vertical height, the oblique side length between two cross-section vertices
+    can be written as
+
+
+    $$
+
+    L = \sqrt{(R_2 - R_1)^2 + (Z_2 - Z_1)^2}
+
+    $$
+
+
+    where $L$ is the side length and $(R_1,Z_1)$ and $(R_2,Z_2)$ are the endpoint
+    coordinates in the poloidal cross-section plane.
+
+
+    The value is obtained from engineering design geometry, metrology of as-built
+    coil components, or geometric reconstruction of the coil cross-section used in
+    electromagnetic analysis. It contributes to the [area](name:area_of_poloidal_field_coil)
+    of the conductor cross-section and is analogous to the radial dimensions used
+    for annular descriptions such as [inner radius](name:inner_radius_of_poloidal_field_coil)
+    and [outer radius](name:outer_radius_of_poloidal_field_coil).
+
+
+    Representative values range from about 0.05-1 m for small shaping or correction
+    coils to 0.5-3 m for large poloidal-field or central-solenoid elements, depending
+    on conductor pack size and insulation thickness.
+
+
+    Sign convention: Positive when the directed oblique edge is followed in its declared
+    local cross-section direction.'
+  unit: m
   physics_domain: magnetic_field_systems
   links:
-  - name:relative_permeability_of_iron_core_segment
-  - name:maximum_magnetic_field_of_poloidal_field_coil
+  - name:height_of_poloidal_field_coil
+  - name:width_of_poloidal_field_coil
+  - name:area_of_poloidal_field_coil
+  - name:inner_radius_of_poloidal_field_coil
+  - name:outer_radius_of_poloidal_field_coil
   sources:
-  - id: dd:iron_core/segment/b_field
-    dd_path: iron_core/segment/b_field
+  - id: dd:pf_active/coil/element/geometry/oblique/length
+    dd_path: pf_active/coil/element/geometry/oblique/length
     status: composed
-- name: major_radius_of_ferritic_element
+- name: major_radius_of_poloidal_field_coil
   kind: scalar
   status: draft
-  description: The major radius R of the first point of a thick-line polygon element
-    defining the cross-section of an axisymmetric ferritic component, such as a ferromagnetic
-    insert or structural insert. This establishes the radial position from which the
-    full geometry is defined in the right-handed cylindrical (R, phi, Z) frame.
-  documentation: 'The major radius $R$ is the cylindrical coordinate of the starting
-    vertex of a thick-line polygon representing the cross-section of a ferritic element,
-    such as a ferromagnetic insert or structural component. This quantity sets the
-    radial location of the reference vertex, from which the full element geometry
-    is built. $R$ is measured in the right-handed cylindrical $(R, \phi, Z)$ frame,
-    where $R$ is the distance from the machine symmetry axis. For axisymmetric ferritic
-    components in tokamaks, typical values range from 1 to 4 meters, varying with
-    radial placement inside the vacuum vessel. This geometric parameter is analogous
-    to the major radius used for other device components, such as poloidal field coils
-    and iron core segments.
+  description: Major-radius coordinate of the poloidal-field coil centerline in the
+    right-handed cylindrical (R, phi, Z) frame, measured from the toroidal symmetry
+    axis.
+  documentation: 'The major radius of a poloidal field coil is the radial coordinate
+    of the coil geometric center or centerline in the right-handed cylindrical $(R,
+    \phi, Z)$ frame. It fixes the coil position relative to the toroidal symmetry
+    axis and complements the vertical placement given by [vertical coordinate of a
+    poloidal field coil](name:vertical_coordinate_of_poloidal_field_coil). For finite
+    cross-sections, it is the central radial reference from which dimensions such
+    as [width of a poloidal field coil](name:width_of_poloidal_field_coil), [height
+    of a poloidal field coil](name:height_of_poloidal_field_coil), and [outer radius
+    of a poloidal field coil](name:outer_radius_of_poloidal_field_coil) are defined.
 
 
-    Sign convention: Positive when the first point lies at a larger major radius than
-    the machine symmetry axis.'
+    For an axisymmetric coil whose center has Cartesian coordinates $(x_c,y_c,z_c)$
+    in the right-handed Cartesian $(\hat{x},\hat{y},\hat{z})$ basis with $\hat{z}$
+    vertical, the corresponding major radius is
+
+
+    $$
+
+    R_c = \sqrt{x_c^2 + y_c^2}
+
+    $$
+
+
+    where $R_c$ is the coil center major radius and $x_c,y_c$ are the horizontal coordinates
+    of the same point.
+
+
+    This quantity is obtained from coil engineering geometry, metrology of the installed
+    conductors, or reconstruction of the magnetic-field-system layout used for electromagnetic
+    force and field calculations. It is closely related to the [radial outline of
+    a poloidal field coil](name:radial_outline_of_poloidal_field_coil), which describes
+    the radial boundary rather than the center reference.
+
+
+    Representative values range from about 0.5-4 m in compact tokamaks and 2-12 m
+    in large tokamak poloidal-field systems, depending on whether the coil is inboard,
+    outboard, upper, or lower relative to the plasma.
+
+
+    Sign convention: Positive when measured outward from the toroidal symmetry axis
+    along $+\hat{R}$ in the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:vertical_coordinate_of_poloidal_field_coil
+  - name:width_of_poloidal_field_coil
+  - name:height_of_poloidal_field_coil
+  - name:outer_radius_of_poloidal_field_coil
+  - name:radial_outline_of_poloidal_field_coil
+  sources:
+  - id: dd:pf_active/coil/element/geometry/annulus/r
+    dd_path: pf_active/coil/element/geometry/annulus/r
+    status: composed
+  - id: dd:pf_active/coil/element/geometry/oblique/r
+    dd_path: pf_active/coil/element/geometry/oblique/r
+    status: attached
+  - id: dd:pf_active/coil/element/geometry/rectangle/r
+    dd_path: pf_active/coil/element/geometry/rectangle/r
+    status: attached
+  - id: dd:pf_active/coil/geometry/annulus/r
+    dd_path: pf_active/coil/geometry/annulus/r
+    status: attached
+- name: outer_radius_of_poloidal_field_coil
+  kind: scalar
+  status: draft
+  description: Radial distance from the center of an annular poloidal-field coil conductor
+    cross-section to its outer conducting boundary.
+  documentation: 'The outer radius defines the external circular boundary of an annular
+    poloidal-field coil conductor cross-section. Together with the [inner radius of
+    the poloidal field coil](name:inner_radius_of_poloidal_field_coil), it fixes the
+    conductor thickness and determines the current-carrying area relevant to coil
+    resistance, inductance, cooling, and electromagnetic loading.
+
+
+    For a circular annular cross-section with local coordinates $u$ and $v$ in the
+    conductor plane, the outer radius $a_{\rm out}$ can be defined from the conductor
+    boundary $\partial\Omega$ as:
+
+
+    $$
+
+    a_{\rm out} = \max_{(u,v)\in\partial\Omega}\sqrt{(u-u_c)^2+(v-v_c)^2}
+
+    $$
+
+
+    where $(u_c,v_c)$ is the annulus center and $\Omega$ is the conducting region.
+    The cross-sectional [area of the poloidal field coil](name:area_of_poloidal_field_coil)
+    follows from the annular geometry and is distinct from rectangular measures such
+    as the [width of the poloidal field coil](name:width_of_poloidal_field_coil) and
+    [height of the poloidal field coil](name:height_of_poloidal_field_coil).
+
+
+    This dimension is obtained from coil engineering design, manufacturing metrology,
+    or survey reconstruction of the conductor pack. Representative values range from
+    a few centimeters for compact copper correction coils to several tens of centimeters
+    or more for large superconducting poloidal-field coil elements.
+
+
+    Sign convention: Positive when measured outward from the annulus center to the
+    outer conducting boundary.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:inner_radius_of_poloidal_field_coil
+  - name:area_of_poloidal_field_coil
+  - name:width_of_poloidal_field_coil
+  - name:height_of_poloidal_field_coil
+  sources:
+  - id: dd:pf_active/coil/element/geometry/annulus/radius_outer
+    dd_path: pf_active/coil/element/geometry/annulus/radius_outer
+    status: composed
+- name: radial_force_of_poloidal_field_coil
+  kind: scalar
+  status: draft
+  description: Major-radius component in the cylindrical (R, phi, Z) frame of the
+    electromagnetic Lorentz load acting on a poloidal field coil conductor.
+  documentation: 'The radial force of a poloidal field coil is the projection of the
+    net electromagnetic load on the coil conductor onto the major-radius direction
+    of the right-handed cylindrical $(R, \phi, Z)$ frame. It is a structural-design
+    quantity because it determines outward or inward loading on coil cases, supports,
+    insulation, and pre-compression systems. It is complementary to the [vertical
+    force of a poloidal field coil](name:vertical_force_of_poloidal_field_coil), which
+    describes the orthogonal $Z$ projection of the same Lorentz loading.
+
+
+    For a conductor volume $V$, the radial component is obtained from the Lorentz
+    force density integrated over the coil:
+
+
+    $$
+
+    F_R = \int_V (\mathbf{J} \times \mathbf{B}) \cdot \hat{R}\, dV
+
+    $$
+
+
+    where $F_R$ is the radial force in N, $\mathbf{J}$ is current density in A m$^{-2}$,
+    $\mathbf{B}$ is magnetic flux density in T, $\hat{R}$ is the outward major-radius
+    unit vector, and $dV$ is a conductor volume element in m$^3$. The force scales
+    with the [current of the poloidal field coil](name:current_of_poloidal_field_coil)
+    and with the background magnetic field produced by plasma and neighboring coils.
+
+
+    In practice this load is computed from electromagnetic field calculations using
+    the coil geometry, current waveform, and surrounding conductors; mechanical validation
+    can use strain gages, support load measurements, or displacement monitoring during
+    commissioning pulses. Geometry quantities such as the [radial outline of a poloidal
+    field coil](name:radial_outline_of_poloidal_field_coil) and [width of a poloidal
+    field coil](name:width_of_poloidal_field_coil) set the integration domain and
+    affect the distribution of stress.
+
+
+    Representative values range from $10^4$-$10^6$ N for small auxiliary shaping coils
+    to $10^6$-$10^8$ N for large central-solenoid or equilibrium-field coils in reactor-scale
+    devices, depending on current, radius, and magnetic coupling.
+
+
+    Sign convention: Positive when the force points toward increasing major radius
+    $R$ in the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: N
+  physics_domain: magnetic_field_systems
+  links:
+  - name:vertical_force_of_poloidal_field_coil
+  - name:current_of_poloidal_field_coil
+  - name:radial_outline_of_poloidal_field_coil
+  - name:width_of_poloidal_field_coil
+  sources:
+  - id: dd:pf_active/coil/force_radial
+    dd_path: pf_active/coil/force_radial
+    status: composed
+- name: radial_outline_of_poloidal_field_coil
+  kind: scalar
+  status: draft
+  description: Major-radius coordinate of the boundary points that define a poloidal-field-coil
+    conductor in the right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'The radial outline of a poloidal field coil is the major-radius
+    coordinate $R$ of points on the conductor boundary in the poloidal cross-section.
+    It specifies the coil shape relative to the toroidal symmetry axis and complements
+    the coil center coordinate [major radius of poloidal field coil](name:major_radius_of_poloidal_field_coil)
+    and the conductor size [width of poloidal field coil](name:width_of_poloidal_field_coil).
+
+
+    For a point expressed in the right-handed Cartesian $(\hat{x}, \hat{y}, \hat{z})$
+    basis with $\hat{z}=\hat{Z}$, the corresponding major radius in the cylindrical
+    $(R, \phi, Z)$ frame is
+
+
+    $$
+
+    R = \sqrt{x^2 + y^2}
+
+    $$
+
+
+    where $x$ and $y$ are horizontal Cartesian coordinates in meters measured from
+    the toroidal symmetry axis, and $R$ is the distance from that axis.
+
+
+    This coordinate is obtained from coil engineering geometry, surveying, or electromagnetic
+    model geometry used to compute fields and forces. It is interpreted together with
+    the vertical outline coordinate when reconstructing the coil cross-section; related
+    geometric summaries include [outer radius of poloidal field coil](name:outer_radius_of_poloidal_field_coil),
+    [vertical coordinate of poloidal field coil](name:vertical_coordinate_of_poloidal_field_coil),
+    and [area of poloidal field coil](name:area_of_poloidal_field_coil).
+
+
+    Typical values range from about 0.5-15 m in present and reactor-scale tokamaks,
+    depending on whether the coil is an inboard shaping coil, an outboard vertical-field
+    coil, or an external solenoid-adjacent winding.
+
+
+    Sign convention: Positive when $R$ is measured outward from the toroidal symmetry
+    axis in the right-handed cylindrical $(R, \phi, Z)$ frame.'
   unit: m
   physics_domain: magnetic_field_systems
   links:
   - name:major_radius_of_poloidal_field_coil
-  - name:major_radius_of_passive_loop
+  - name:width_of_poloidal_field_coil
+  - name:outer_radius_of_poloidal_field_coil
+  - name:vertical_coordinate_of_poloidal_field_coil
+  - name:area_of_poloidal_field_coil
   sources:
-  - id: dd:ferritic/object/axisymmetric/rectangle/r
-    dd_path: ferritic/object/axisymmetric/rectangle/r
+  - id: dd:pf_active/coil/geometry/outline/r
+    dd_path: pf_active/coil/geometry/outline/r
     status: composed
-  - id: dd:ferritic/object/axisymmetric/thick_line/first_point/r
-    dd_path: ferritic/object/axisymmetric/thick_line/first_point/r
-    status: composed
-  - id: dd:pf_plasma/element/geometry/annulus/r
-    dd_path: pf_plasma/element/geometry/annulus/r
-    status: attached
-  - id: dd:pf_plasma/element/geometry/oblique/r
-    dd_path: pf_plasma/element/geometry/oblique/r
-    status: attached
-  - id: dd:pf_plasma/element/geometry/rectangle/r
-    dd_path: pf_plasma/element/geometry/rectangle/r
-    status: attached
-  - id: dd:pf_plasma/element/geometry/thick_line/first_point/r
-    dd_path: pf_plasma/element/geometry/thick_line/first_point/r
-    status: attached
-  - id: dd:pf_plasma/element/geometry/thick_line/second_point/r
-    dd_path: pf_plasma/element/geometry/thick_line/second_point/r
-    status: attached
-- name: major_radius_of_iron_core_segment
+- name: vertical_coordinate_of_poloidal_field_coil
   kind: scalar
   status: draft
-  description: Major radius coordinate of the annular cross-section center of a transformer
-    iron core segment.
-  documentation: "The major radius $R_{\\mathrm{seg}}$ defines the radial position\
-    \ of the center of a rectangular or trapezoidal iron core segment in the right-handed\
-    \ cylindrical $(R, \\phi, Z)$ frame. This geometric parameter sets the centroid\
-    \ of the segment's cross-section, which is critical for computing the magnetic\
-    \ circuit properties of the iron core transformer, including its reluctance, saturation,\
-    \ and flux linkage. The annular geometry is assumed to be axisymmetric, with the\
-    \ major radius locating the annulus center. Typical values range from centimeters\
-    \ to meters depending on the tokamak design (e.g., ~\u796D 1\u20132 m for medium-size\
-    \ devices).\n\nSign convention: Positive when measured outward from the machine\
-    \ symmetry axis.\n\nSee [height_of_iron_core_segment](name:height_of_iron_core_segment)\
-    \ for the vertical extent and [major_radius_of_poloidal_field_coil](name:major_radius_of_poloidal_field_coil)\
-    \ for a similar geometric quantity applied to PF coils."
-  unit: m
-  physics_domain: magnetic_field_systems
-  links:
-  - name:height_of_iron_core_segment
-  - name:major_radius_of_poloidal_field_coil
-  sources:
-  - id: dd:iron_core/segment/geometry/annulus/r
-    dd_path: iron_core/segment/geometry/annulus/r
-    status: composed
-  - id: dd:iron_core/segment/geometry/oblique/r
-    dd_path: iron_core/segment/geometry/oblique/r
-    status: composed
-- name: major_radius_of_passive_loop
-  kind: scalar
-  status: draft
-  description: Cylindrical major radius coordinate of the second point defining a
-    thick-line cross-section element of a passive loop.
-  documentation: 'The major radius $R$ of the second point specifies the radial coordinate,
-    in the right-handed cylindrical $(R, \phi, Z)$ frame, of one endpoint of a straight-line
-    segment describing the cross-section geometry of a passive loop conductor. This
-    point pairs with the first point (stored in a sibling standard name) to define
-    the radial and vertical extent of the loop element, which is essential for computing
-    mutual inductances and induced eddy currents during plasma disruptions or fast
-    transients. Passive loops are typically made of high-conductivity materials (e.g.,
-    copper) and are used for passive stabilization and vertical control in tokamaks;
-    their major radii range from several meters in large devices like JET to smaller
-    values in compact experiments. The quantity is obtained from engineering design
-    drawings or equilibrium reconstruction of the passive structure.
-
-
-    Sign convention: Positive when the point is located at a larger major radius than
-    the machine symmetry axis ($R=0$).
-
-
-    See also [major_radius_of_poloidal_field_coil](name:major_radius_of_poloidal_field_coil)
-    for the analogous geometric coordinate applied to active poloidal field coils,
-    and [height_of_poloidal_field_coil](name:height_of_poloidal_field_coil) for the
-    vertical dimension of a coil cross-section.'
+  description: Vertical position of the geometric center of a poloidal field coil
+    element in the right-handed cylindrical R-phi-Z machine frame.
+  documentation: "The vertical coordinate locates the geometric center of a poloidal\
+    \ field coil element along the $Z$ axis of the right-handed cylindrical $(R, \\\
+    phi, Z)$ frame, where $R$ is major radius and $Z$ is vertical height. Together\
+    \ with the [major radius of the poloidal field coil](name:major_radius_of_poloidal_field_coil),\
+    \ it fixes the coil element center in the poloidal cross-section used for magnetic-field\
+    \ and force calculations. It is distinct from the [height of a poloidal field\
+    \ coil](name:height_of_poloidal_field_coil), which describes the vertical extent\
+    \ of the conductor cross-section rather than its location.\n\nFor a coil element\
+    \ center position vector $\\mathbf{x}_c$, the coordinate is the projection onto\
+    \ the vertical basis direction:\n\n$$\nZ_c = \\mathbf{x}_c \\cdot \\hat{Z}\n$$\n\
+    \nwhere $Z_c$ is the vertical coordinate of the coil element center and $\\hat{Z}$\
+    \ is the vertical unit vector of the cylindrical $(R, \\phi, Z)$ frame.\n\nThis\
+    \ quantity is determined from engineering geometry, metrology surveys, or magnetic-system\
+    \ design models, and is used when computing coil-generated poloidal flux, Lorentz\
+    \ forces, and free-boundary equilibrium constraints. The [radial outline of the\
+    \ poloidal field coil](name:radial_outline_of_poloidal_field_coil) and [area of\
+    \ the poloidal field coil](name:area_of_poloidal_field_coil) provide complementary\
+    \ shape information for finite conductor models.\n\nTypical values range from\
+    \ about -5 to 5 m in medium-size tokamaks and can exceed \xB110 m in large devices,\
+    \ depending on the coil set layout relative to the machine midplane. Comparison\
+    \ with the [vertical coordinate of the magnetic axis](name:vertical_coordinate_of_magnetic_axis)\
+    \ helps characterize the vertical placement of the external field system relative\
+    \ to the plasma.\n\nSign convention: Positive when the coil element center is\
+    \ displaced in the +Z direction of the right-handed cylindrical $(R, \\phi, Z)$\
+    \ frame."
   unit: m
   physics_domain: magnetic_field_systems
   links:
   - name:major_radius_of_poloidal_field_coil
   - name:height_of_poloidal_field_coil
+  - name:radial_outline_of_poloidal_field_coil
+  - name:area_of_poloidal_field_coil
+  - name:vertical_coordinate_of_magnetic_axis
   sources:
-  - id: dd:pf_active/coil/element/geometry/thick_line/second_point/r
-    dd_path: pf_active/coil/element/geometry/thick_line/second_point/r
+  - id: dd:pf_active/coil/element/geometry/annulus/z
+    dd_path: pf_active/coil/element/geometry/annulus/z
+    status: attached
+  - id: dd:pf_active/coil/element/geometry/rectangle/z
+    dd_path: pf_active/coil/element/geometry/rectangle/z
     status: composed
-- name: major_radius_of_toroidal_field_coil
+- name: vertical_force_of_poloidal_field_coil
   kind: scalar
   status: draft
-  description: Major radius (R) coordinate defining a discrete element endpoint along
-    the toroidal field coil conductor path in the cylindrical frame.
-  documentation: "The major radius $R$ of a toroidal field coil conductor element\
-    \ endpoint specifies the radial distance from the machine symmetry axis ($Z$)\
-    \ to an individual turn segment within the winding pack. These $R$ coordinates,\
-    \ together with the corresponding $Z$ and $\\phi$ values, define the full 3-dimensional\
-    \ geometry of each coil element in the right-handed cylindrical $(R,\\phi,Z)$\
-    \ frame. The positions are used to construct the conductor path for circuit analysis;\
-    \ typical $R$ values for TF coils range from 0.5\u202Fm (inboard leg) to 9\u202F\
-    m (outboard return leg) in large tokamaks. See also [major_radius_of_passive_loop](name:major_radius_of_passive_loop)\
-    \ and [major_radius_of_poloidal_field_coil](name:major_radius_of_poloidal_field_coil)\
-    \ for analogous geometry definitions.\n\nSign convention: Positive when the element\
-    \ endpoint lies radially outward from the machine axis.\n\nMeasurement is direct\
-    \ from coil design geometry; all coordinates are defined in the machine architectural\
-    \ frame."
-  unit: m
+  description: Upward-downward component of the net electromagnetic load on a poloidal-field
+    coil, used to assess structural support requirements.
+  documentation: 'The vertical force on a poloidal-field coil is the component of
+    the net load acting along the $Z$ direction of the right-handed cylindrical $(R,
+    \phi, Z)$ frame, where $R$ is major radius and $Z$ is vertical height. It is paired
+    with the [radial force of a poloidal-field coil](name:radial_force_of_poloidal_field_coil)
+    to describe the principal mechanical loads on the coil support structure.
+
+
+    For an electromagnetic load, the coil force follows the volume integral of the
+    Lorentz force density:
+
+
+    $$
+
+    F_Z = \int_V (\mathbf{J} \times \mathbf{B}) \cdot \hat{Z}\, dV
+
+    $$
+
+
+    where $F_Z$ is the vertical force, $\mathbf{J}$ is current density, $\mathbf{B}$
+    is magnetic field, $\hat{Z}$ is the vertical unit vector, and $V$ is the conducting
+    coil volume. The sign and magnitude depend on the [current of the poloidal-field
+    coil](name:current_of_poloidal_field_coil), the magnetic field produced by other
+    coils and plasma currents, and the coil position given by quantities such as [major
+    radius of the poloidal-field coil](name:major_radius_of_poloidal_field_coil) and
+    [vertical coordinate of the poloidal-field coil](name:vertical_coordinate_of_poloidal_field_coil).
+
+
+    This force is computed from magnetostatic or transient electromagnetic models
+    and can be checked indirectly using support reactions, strain gages, or load-cell
+    measurements on coil supports. Representative values range from $10^4$-$10^7$
+    N for medium-size shaping coils and can exceed $10^8$ N for large central-solenoid
+    or high-current pulsed coils during rapid current changes or disruption scenarios.
+
+
+    Sign convention: Positive when the net force on the coil points in the $+Z$ vertical
+    direction of the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: N
   physics_domain: magnetic_field_systems
   links:
-  - name:major_radius_of_passive_loop
+  - name:radial_force_of_poloidal_field_coil
+  - name:current_of_poloidal_field_coil
   - name:major_radius_of_poloidal_field_coil
+  - name:vertical_coordinate_of_poloidal_field_coil
   sources:
-  - id: dd:tf/coil/conductor/elements/end_points/r
-    dd_path: tf/coil/conductor/elements/end_points/r
+  - id: dd:pf_active/coil/force_vertical
+    dd_path: pf_active/coil/force_vertical
     status: composed
-- name: maximum_magnetic_field_of_poloidal_field_coil
+- name: width_of_poloidal_field_coil
   kind: scalar
   status: draft
-  description: The maximum magnitude of the magnetic field on the conductor surface
-    of a poloidal field coil, used to evaluate field-dependent current limits for
-    the coil. This positive scalar quantifies the peak total magnetic field strength
-    over the coil winding pack.
-  documentation: 'The maximum magnetic field on the poloidal field coil conductor
-    surface is defined as $B_{\mathrm{max}} = \max_{\mathbf{r} \in \mathcal{C}} |\mathbf{B}_{\mathrm{total}}(\mathbf{r})|$,
-    where $\mathcal{C}$ denotes the conductor surface of the coil winding pack and
-    $\mathbf{B}_{\mathrm{total}} = \mathbf{B}_{\mathrm{self}} + \mathbf{B}_{\mathrm{external}}$
-    is the vector sum of the coil''s self-field and external fields from other coils,
-    passive structures, and the plasma. The magnitude $|\mathbf{B}_{\mathrm{total}}|$
-    is always non-negative; $B_{\mathrm{max}}$ carries no directional component.
+  description: Full horizontal extent of a rectangular poloidal-field-coil conductor
+    cross-section measured between its inner and outer radial faces.
+  documentation: 'The width of a poloidal-field coil is the horizontal dimension of
+    a rectangular conductor or winding-pack cross-section in the machine cross-section.
+    It complements the [height of the poloidal field coil](name:height_of_poloidal_field_coil),
+    and together these dimensions determine the rectangular area represented by [area
+    of the poloidal field coil](name:area_of_poloidal_field_coil).
 
 
-    The quantity sets the operating point for superconducting strand performance,
-    as the critical current density $J_c(B,T)$ degrades with increasing field. Typical
-    values range from 2 T for outer shaping coils to 12 T for the central solenoid
-    in ITER-class devices. The field magnitude is obtained from electromagnetic equilibrium
-    reconstruction or finite-element coil models. This value is used as the parameter
-    for evaluating field-dependent critical current limits in superconducting magnet
-    design, serving as the abscissa for field-dependent current tables.
+    For a rectangular cross-section aligned with the right-handed cylindrical $(R,
+    \phi, Z)$ system, where $R$ is major radius and $Z$ is vertical height, the width
+    is defined by the separation of the two radial faces:
 
 
-    Associated uncertainty depends on the reconstruction quality, coil geometry, and
-    plasma scenario; for high-fidelity models, relative uncertainty can be a few percent.
-    The relationship between $B_{\mathrm{max}}$ and plasma equilibrium is mediated
-    by the poloidal flux, linking to [poloidal_magnetic_flux_at_magnetic_axis] for
-    flux-surface geometry and [poloidal_magnetic_flux_at_separatrix] for boundary
-    context.'
-  unit: T
-  physics_domain: magnetic_field_systems
-  links:
-  - name:toroidal_magnetic_flux_at_separatrix
-  - name:toroidal_magnetic_flux
-  sources:
-  - id: dd:pf_active/coil/b_field_max
-    dd_path: pf_active/coil/b_field_max
-    status: composed
-- name: outer_radius_of_ferritic_element
-  kind: scalar
-  status: draft
-  description: Outer radius of an annular cross-section ferritic element in the axisymmetric
-    machine model.
-  documentation: 'The outer radius $R_{\mathrm{out}}$ defines the radial extent of
-    an annular cross-section ferritic element in the right-handed cylindrical $(R,
-    \phi, Z)$ frame. Together with the inner radius, it determines the radial thickness
-    of the annulus, which affects the magnetic circuit properties such as reluctance
-    and saturation characteristics. This geometric parameter is used in electromagnetic
-    modeling of axisymmetric ferritic components, including iron core segments and
-    passive structural elements.
+    $$
+
+    w = R_{\mathrm{outer}} - R_{\mathrm{inner}}
+
+    $$
 
 
-    Sign convention: Positive when the radius extends outward from the machine symmetry
-    axis.
+    where $w$ is the coil width, $R_{\mathrm{outer}}$ is the major-radius coordinate
+    of the radially outer face, and $R_{\mathrm{inner}}$ is the major-radius coordinate
+    of the radially inner face.
 
 
-    Typical values range from centimeters to meters depending on the ferritic component,
-    with larger values for transformer iron cores and smaller values for ferromagnetic
-    inserts. This quantity is geometrically independent of the plasma state. See also
-    [inner_radius_of_passive_loop](name:inner_radius_of_passive_loop), [outer_radius_of_passive_loop](name:outer_radius_of_passive_loop),
-    and [major_radius_of_ferritic_element](name:major_radius_of_ferritic_element)
-    for related radial definitions.'
+    This engineering geometry is obtained from coil design drawings, conductor-stack
+    dimensions, or as-built metrology, and it is used in electromagnetic models that
+    also require the [major radius of the poloidal field coil](name:major_radius_of_poloidal_field_coil)
+    and [vertical coordinate of the poloidal field coil](name:vertical_coordinate_of_poloidal_field_coil).
+    Fusion-device PF coil widths range from about 0.05-0.5 m for compact shaping coils
+    to 0.5-2 m for large central-solenoid or outer PF coil winding packs.
+
+
+    Sign convention: Positive when the outer radial face of the rectangular poloidal-field-coil
+    cross-section lies at larger major radius $R$ than the inner radial face in the
+    right-handed cylindrical $(R, \phi, Z)$ system.'
   unit: m
   physics_domain: magnetic_field_systems
   links:
-  - name:inner_radius_of_passive_loop
-  - name:outer_radius_of_passive_loop
-  - name:major_radius_of_ferritic_element
+  - name:height_of_poloidal_field_coil
+  - name:area_of_poloidal_field_coil
+  - name:major_radius_of_poloidal_field_coil
+  - name:vertical_coordinate_of_poloidal_field_coil
   sources:
-  - id: dd:ferritic/object/axisymmetric/annulus/radius_outer
-    dd_path: ferritic/object/axisymmetric/annulus/radius_outer
-    status: skipped
-- name: outer_radius_of_passive_loop
-  kind: scalar
-  status: draft
-  description: Outer radius of the annular cross-section of a passive conducting loop
-    element in the poloidal field system.
-  documentation: 'The outer radius defines the outermost radial extent of the conducting
-    path in a passive loop, such as a toroidally-continuous stabilizing shell or a
-    saddle-loop structure. Together with the [inner_radius_of_passive_loop](name:inner_radius_of_passive_loop)
-    it sets the radial thickness of the annulus, which directly governs the loop''s
-    cross-sectional area $A = \pi (r_\text{out}^2 - r_\text{in}^2)$ and therefore
-    its electrical resistance $R = \rho \ell / A$ (where $\rho$ is the resistivity
-    and $\ell$ the total conductor length). Typical outer radii range from $0.2\,\text{m}$
-    in compact spherical tokamaks to $2.0\,\text{m}$ in large conventional devices.
-    The quantity is obtained from engineering design specifications and is a static
-    geometric input for eddy-current and circuit models in plasma equilibrium and
-    stability simulations.
-
-
-    Sign convention: Positive when measured outward from the machine axis, increasing
-    in the major-radius $R$ direction.'
-  unit: m
-  physics_domain: magnetic_field_systems
-  links:
-  - name:inner_radius_of_passive_loop
-  sources:
-  - id: dd:pf_passive/loop/element/geometry/annulus/radius_outer
-    dd_path: pf_passive/loop/element/geometry/annulus/radius_outer
-    status: composed
-- name: resistance_of_passive_loop
-  kind: scalar
-  status: draft
-  description: Ohmic electrical resistance of a passive axisymmetric conducting loop,
-    such as the vacuum vessel or stabilizing shell, that carries induced eddy currents.
-  documentation: The resistance $R_{\text{loop}}$ of a passive axisymmetric conductor
-    determines the resistive decay time $\tau = L / R_{\text{loop}}$ of eddy currents
-    induced by transient magnetic fields, where $L$ is the loop inductance. This quantity
-    governs the passive stabilization of plasma vertical displacements and the penetration
-    of poloidal magnetic flux through conducting structures during plasma initiation
-    and disruptions. Typical resistance values range from micro-ohms for thick copper
-    stabilizing shells to milliohms for stainless-steel vacuum vessels in medium-size
-    tokamaks. The resistance depends on the conductor material resistivity and cross-sectional
-    area (see [resistivity_of_passive_loop](name:resistivity_of_passive_loop) and
-    [area_of_passive_loop](name:area_of_passive_loop)) and is a key input to circuit
-    models for electromagnetic analysis. For structural design studies, the ohmic
-    power dissipation $P = I^2 R_{\text{loop}}$ in the loop is evaluated together
-    with $[current\_of\_passive\_loop\_due\_to\_induction](name:current_of_passive_loop_due_to_induction)$.
-  unit: ohm
-  physics_domain: magnetic_field_systems
-  links:
-  - name:resistivity_of_passive_loop
-  - name:area_of_passive_loop
-  - name:current_of_passive_loop_due_to_induction
-  sources:
-  - id: dd:pf_passive/loop/resistance
-    dd_path: pf_passive/loop/resistance
-    status: composed
-- name: resistance_of_toroidal_field_coil
-  kind: scalar
-  status: draft
-  description: Ohmic electrical resistance of a toroidal field coil winding pack,
-    defining the resistive voltage drop and power dissipation for circuit analysis.
-  documentation: The resistance $R_{\mathrm{TF}}$ of a toroidal field coil determines
-    the resistive voltage drop $V = I R_{\mathrm{TF}}$ and ohmic power dissipation
-    $P = I^{2} R_{\mathrm{TF}}$ for a given coil current $I$. In superconducting TF
-    coils, the resistance is effectively zero under steady-state operation but becomes
-    relevant during fast current ramps or quench events when the conductor transitions
-    to the normal state. For normal-conducting coils, typical resistance values range
-    from micro-ohms (large copper coils) to milliohms (compact water-cooled designs).
-    This quantity is essential for coil power supply design, quench detection modeling,
-    and estimates of resistive heating in the coil system. See also [current of passive
-    loop due to induction](name:current_of_passive_loop_due_to_induction) for induced-current
-    effects in conducting structures and [resistivity of plasma facing component](name:resistivity_of_plasma_facing_component)
-    for the material-specific property of other tokamak components.
-  unit: ohm
-  physics_domain: magnetic_field_systems
-  links:
-  - name:current_of_passive_loop_due_to_induction
-  - name:resistivity_of_plasma_facing_component
-  sources:
-  - id: dd:coils_non_axisymmetric/coil/conductor/resistance
-    dd_path: coils_non_axisymmetric/coil/conductor/resistance
-    status: attached
-  - id: dd:coils_non_axisymmetric/coil/resistance
-    dd_path: coils_non_axisymmetric/coil/resistance
-    status: attached
-  - id: dd:pf_active/coil/resistance
-    dd_path: pf_active/coil/resistance
-    status: attached
-  - id: dd:tf/coil/conductor/resistance
-    dd_path: tf/coil/conductor/resistance
-    status: attached
-  - id: dd:tf/coil/resistance
-    dd_path: tf/coil/resistance
-    status: composed
-- name: temperature_of_poloidal_field_coil
-  kind: scalar
-  status: draft
-  description: Temperature of the poloidal field coil conductor, used to evaluate
-    the temperature-dependent current limits for quench protection and superconducting
-    operation.
-  documentation: "The conductor temperature of a poloidal field (PF) coil determines\
-    \ the critical current density of the superconducting strands and the resistive\
-    \ margin against quench. In operation, the temperature must remain below the current-sharing\
-    \ temperature $T_{cs}$ to avoid flux flow and normal zone propagation. Typical\
-    \ operating temperatures range from 4.5 K for Nb$_3$Sn and NbTi coils up to 80\
-    \ K for high-temperature superconductors, with allowable temperature rises of\
-    \ 1\u20133 K during a plasma pulse. This quantity is applied as the lookup coordinate\
-    \ for the maximum coil current limit, together with the peak magnetic field described\
-    \ in [maximum_magnetic_field_of_poloidal_field_coil](name:maximum_magnetic_field_of_poloidal_field_coil)."
-  unit: K
-  physics_domain: magnetic_field_systems
-  links:
-  - name:maximum_magnetic_field_of_poloidal_field_coil
-  sources:
-  - id: dd:pf_active/coil/temperature
-    dd_path: pf_active/coil/temperature
-    status: composed
-- name: vertical_coordinate_of_iron_core_segment
-  kind: scalar
-  status: draft
-  description: Vertical (Z) coordinate of an outline point defining the cross-sectional
-    geometry of a transformer iron core segment.
-  documentation: 'The vertical coordinate $Z$ in the right-handed cylindrical $(R,
-    \phi, Z)$ frame specifies the height of a vertex on the polygonal outline of an
-    iron core segment''s cross-section. This coordinate, together with the corresponding
-    [major radius](name:major_radius_of_iron_core_segment) and [height](name:height_of_iron_core_segment),
-    defines the 2-D shape used to compute magnetic circuit properties such as reluctance
-    and saturation. Outline points are typically stored in ordered pairs $(R, Z)$
-    and trace the closed boundary of the segment cross-section, providing the geometric
-    input for axisymmetric finite-element models of the transformer core.
-
-
-    Sign convention: Positive when the point lies above the equatorial plane ($Z >
-    0$).'
-  unit: m
-  physics_domain: magnetic_field_systems
-  links:
-  - name:major_radius_of_iron_core_segment
-  - name:height_of_iron_core_segment
-  sources:
-  - id: dd:iron_core/segment/geometry/oblique/z
-    dd_path: iron_core/segment/geometry/oblique/z
-    status: composed
-  - id: dd:iron_core/segment/geometry/outline/z
-    dd_path: iron_core/segment/geometry/outline/z
-    status: composed
-  - id: dd:iron_core/segment/geometry/thick_line/first_point/z
-    dd_path: iron_core/segment/geometry/thick_line/first_point/z
+  - id: dd:pf_active/coil/element/geometry/rectangle/width
+    dd_path: pf_active/coil/element/geometry/rectangle/width
     status: composed
