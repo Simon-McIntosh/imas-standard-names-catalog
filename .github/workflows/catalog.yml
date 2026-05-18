@@ -78,8 +78,12 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           TAGGED="${{ steps.version.outputs.tagged }}"
           DEPLOY_ARGS="--version $VERSION --push --site-dir _isn/site"
-          # Set as default version for root URL redirect
-          if [[ "$TAGGED" == "true" || "$VERSION" == "main" ]]; then
+          # Only tagged releases carry the `latest` alias and the root
+          # index.html redirect. Pushes to `main` still publish a
+          # `main/` preview build but must not outrank tagged versions
+          # in the selector — otherwise users land on an unreleased
+          # build by default.
+          if [[ "$TAGGED" == "true" ]]; then
             DEPLOY_ARGS="$DEPLOY_ARGS --set-default"
           fi
           uv run standard-names site-deploy standard_names/ $DEPLOY_ARGS
