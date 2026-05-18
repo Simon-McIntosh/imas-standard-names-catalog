@@ -1,348 +1,154 @@
 # Domain: magnetic_field_diagnostics
-# Catalog sha: d25b905a25b05fd4c10571f301d40b9e5d146776
-# Entries: 10
+# Catalog sha: 4bdb4d05240ec6ffe00be2cbbda5cef26167d4b4
+# Entries: 4
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: area_of_flux_loop
+- name: count_of_poloidal_magnetic_field_probe
   kind: scalar
   status: draft
-  description: Effective cross-sectional area of a flux loop, relating the magnetic
-    flux through the loop to the induced voltage used for equilibrium reconstruction.
-  documentation: "The effective area $A_{\\mathrm{FL}}$ of a flux loop is defined\
-    \ such that the magnetic flux through the loop is $\\Phi = B_{\\perp} A_{\\mathrm{FL}}$,\
-    \ where $B_{\\perp}$ is the average normal component of the poloidal magnetic\
-    \ field over the loop surface. This calibration factor converts the measured loop\
-    \ voltage $V = -d\\Phi/dt$ to the poloidal flux signal used in equilibrium reconstruction\
-    \ and plasma shape control. The area accounts for the winding geometry and finite\
-    \ thickness of the coil, and is typically determined through \textit{in-situ}\
-    \ calibration or from metrology data; values often range from 10\u207B\u2074 to\
-    \ 1 m\xB2 depending on the loop design. See also [area_of_poloidal_magnetic_field_probe](name:area_of_poloidal_magnetic_field_probe)\
-    \ for a similar probe-type diagnostic calibration, and [area_of_rogowski_coil](name:area_of_rogowski_coil)\
-    \ for current-measurement coils.\n\nSign convention: Positive when the loop normal\
-    \ vector is oriented to produce positive poloidal flux for a given magnetic field\
-    \ direction.\n\nTypical values for full toroidal flux loops are on the order of\
-    \ 1 m\xB2, while smaller partial loops used for local measurements have areas\
-    \ of 10\u207B\xB9 to 10\u207B\xB2 m\xB2."
-  unit: m^2
+  description: Signed turn count of a poloidal magnetic field probe coil, encoding
+    both the number of turns and the winding direction via sign.
+  documentation: 'The signed turn count of a poloidal magnetic field probe coil combines
+    the absolute number of wire turns with a sign that encodes the winding sense relative
+    to the probe''s orientation. This sign convention is essential for correctly reconstructing
+    the poloidal magnetic field from the measured induced voltage via $V = -N \, d\Phi/dt$,
+    where $N$ is the turn count (including sign) and $\Phi$ is the poloidal magnetic
+    flux through the coil''s effective area. Typical absolute turn counts range from
+    tens to hundreds for in-vessel poloidal field probes; the sign is set during installation
+    or calibration. The sign convention directly mirrors that of $[\text{count\_of\_toroidal\_magnetic\_field\_probe}](name:count_of_toroidal_magnetic_field_probe)$
+    and serves as a key calibration parameter for equilibrium reconstruction and plasma
+    shape control.
+
+
+    Sign convention: Positive when the winding direction follows the right-hand rule
+    about the probe''s positive normal direction as defined by the right-handed cylindrical
+    $(R, \phi, Z)$ system.'
+  unit: '1'
   physics_domain: magnetic_field_diagnostics
   links:
-  - name:area_of_poloidal_magnetic_field_probe
-  - name:area_of_rogowski_coil
+  - name:count_of_toroidal_magnetic_field_probe
   sources:
-  - id: dd:magnetics/flux_loop/area
-    dd_path: magnetics/flux_loop/area
+  - id: dd:magnetics/b_field_pol_probe/turns
+    dd_path: magnetics/b_field_pol_probe/turns
     status: composed
-- name: area_of_poloidal_magnetic_field_probe
+  - id: dd:magnetics/bpol_probe/turns
+    dd_path: magnetics/bpol_probe/turns
+    status: composed
+- name: count_of_toroidal_magnetic_field_probe
   kind: scalar
   status: draft
-  description: Cross-sectional area of a single turn of a poloidal magnetic field
-    probe coil, determining the flux-to-voltage calibration factor.
-  documentation: 'The area of each turn of a poloidal magnetic field probe coil, denoted
-    $A_{\text{probe}}$ in m$^2$, determines the voltage induced by a changing poloidal
-    magnetic field $B_\text{p}$ via Faraday''s law: $V = -N A_{\text{probe}} \, dB_\text{p}/dt$,
-    where $N$ is the number of turns. This calibration parameter is essential for
-    converting measured probe voltages to poloidal field values in equilibrium reconstruction
-    and MHD analysis. Typical areas range from $10^{-4}$ to $10^{-2}$ m$^2$ for in-vessel
-    magnetic probes in tokamaks, depending on spatial resolution and sensitivity requirements.
-    The area is often determined from geometric measurements or bench calibration
-    before installation.
+  description: Signed turn count of a toroidal magnetic field probe coil, encoding
+    both the number of turns and the winding direction via sign
+  documentation: 'A poloidal array of localized induction coils oriented to measure
+    the local toroidal component of the magnetic field. Each probe records the loop
+    integral $\oint \vec{A} \cdot d\vec{l}$ around its open area, but the measured
+    voltage is proportional to $N \cdot \frac{d\Phi}{dt}$, where $N$ is the signed
+    number of turns. The sign convention arises from the right-hand rule: a positive
+    $N$ means that a positive rate of change of toroidal flux ($\Phi_\phi$) produces
+    a positive electromotive force (voltage) in the probe. Typical turn counts range
+    from 1 to 100 for individual probes, with larger $|N|$ increasing signal strength
+    but also loading the circuit. A change in winding direction flips the sign, encoding
+    the physical orientation of the coil relative to the $(R, \phi, Z)$ cylindrical
+    basis.
 
 
-    Sign convention: Positive when the coil normal vector points in the poloidal direction
-    consistent with the right-handed cylindrical $(R, \phi, Z)$ coordinate system.
-
-
-    This quantity is analogous to [area_of_toroidal_magnetic_field_probe](name:area_of_toroidal_magnetic_field_probe),
-    which serves the same role for toroidal field measurements. Together with [area_of_poloidal_field_coil](name:area_of_poloidal_field_coil)
-    for active coils, these geometric parameters underpin the magnetic diagnostic
-    chain from sensor signal to plasma equilibrium characterization.'
-  unit: m^2
+    Sign convention: Positive when the winding direction yields a positive voltage
+    for increasing $\Phi_\phi$ in the $+\hat{\phi}$ direction.'
+  unit: '1'
   physics_domain: magnetic_field_diagnostics
   links:
-  - name:area_of_toroidal_magnetic_field_probe
-  - name:area_of_poloidal_field_coil
+  - name:count_of_poloidal_magnetic_field_probe
   sources:
-  - id: dd:magnetics/b_field_pol_probe/area
-    dd_path: magnetics/b_field_pol_probe/area
+  - id: dd:magnetics/b_field_phi_probe/turns
+    dd_path: magnetics/b_field_phi_probe/turns
     status: composed
-  - id: dd:magnetics/bpol_probe/area
-    dd_path: magnetics/bpol_probe/area
+  - id: dd:magnetics/b_field_tor_probe/turns
+    dd_path: magnetics/b_field_tor_probe/turns
     status: composed
-- name: area_of_rogowski_coil
+- name: perpendicular_magnetic_field
   kind: scalar
   status: draft
-  description: Effective cross-sectional area of a single turn in a Rogowski coil,
-    used to convert the measured induced voltage to a calibrated estimate of the enclosed
-    toroidal plasma current.
-  documentation: 'The area of a Rogowski coil sets the voltage induced by a time-varying
-    poloidal magnetic flux via $V = -\mu_0 n A \, dI_p/dt$, where $n$ is the toroidal
-    turn density (see `toroidal_density_of_rogowski_coil`) and $A$ is the single-turn
-    effective area. This area accounts for the winding geometry and any multi-layer
-    arrangement by summing the projected area of each layer along the coil centerline.
-    The product $nA$ is the Rogowski coil sensitivity, calibrated in situ by injecting
-    a known $dI/dt$ through a calibration conductor. For tokamak applications, typical
-    $A$ values range from $10^{-5}$ to $10^{-3}$ m$^2$ per turn, depending on the
-    coil former design and the radius of the poloidal aperture. The measured signal
-    is routinely used as a high-bandwidth constraint on the plasma current in equilibrium
-    reconstruction, in conjunction with `poloidal_field_coil_current` signals.
-
-
-    Sign convention: Positive when the effective area vector is oriented such that
-    a positive $dI_p/dt$ (increasing plasma current in the direction of increasing
-    toroidal angle) induces a positive voltage at the coil terminals.
-
-
-    Typical values: $10^{-5}$ to $10^{-3}$ m$^2$ per turn, scaling with the size of
-    the poloidal aperture and the number of winding layers. Compare with the similar
-    calibration parameter `area_of_flux_loop` and the intrinsic winding property `toroidal_density_of_rogowski_coil`.'
-  unit: m^2
-  physics_domain: magnetic_field_diagnostics
-  links: []
-  sources:
-  - id: dd:magnetics/rogowski_coil/area
-    dd_path: magnetics/rogowski_coil/area
-    status: composed
-- name: major_radius_of_control_surface
-  kind: scalar
-  status: draft
-  description: Major radius (R) coordinate of the control surface outline points used
-    for error field correction in the cylindrical frame.
-  documentation: 'The major radius $R_{\mathrm{cs}}$ gives the cylindrical $(R, \phi,
-    Z)$ radial distance from the machine symmetry axis to each point on the control
-    surface outline. This surface is a virtual flux-aligned boundary at which the
-    non-axisymmetric magnetic field is evaluated for error field analysis and correction
-    coil optimization. The control surface outline is typically defined by a set of
-    $(R, Z, \phi)$ points in the poloidal plane; $R_{\mathrm{cs}}$ specifies the radial
-    coordinate of each such point.
-
-
-    The control surface is used in the decomposition of the non-axisymmetric field
-    into resonant and non-resonant components for the determination of correction
-    currents. The vertical coordinate of the same points is given by [vertical_coordinate_of_control_surface](name:vertical_coordinate_of_control_surface),
-    and the unit normal vector components by [radial_unit_vector_of_control_surface](name:radial_unit_vector_of_control_surface).
-
-
-    Sign convention: Positive when the control surface point lies at a larger major
-    radius than the machine axis.
-
-
-    Major radius coordinates for system boundaries such as [major_radius_of_plasma_boundary](name:major_radius_of_plasma_boundary)
-    and [major_radius_of_current_center](name:major_radius_of_current_center) follow
-    the same cylindrical convention.'
-  unit: m
-  physics_domain: magnetic_field_diagnostics
-  links:
-  - name:vertical_coordinate_of_control_surface
-  - name:radial_unit_vector_of_control_surface
-  - name:major_radius_of_plasma_boundary
-  - name:major_radius_of_current_center
-  sources:
-  - id: dd:b_field_non_axisymmetric/time_slice/control_surface/outline/r
-    dd_path: b_field_non_axisymmetric/time_slice/control_surface/outline/r
-    status: composed
-- name: radial_magnetic_field_at_control_surface
-  kind: scalar
-  status: draft
-  description: Radial (R) component of the non-axisymmetric vacuum magnetic field,
-    evaluated at discrete control surface points for error field analysis.
-  documentation: 'The radial magnetic field component at a control surface is defined
-    in the IMAS cylindrical $(R, \phi, Z)$ frame, where $R$ is the major radius measured
-    outward from the machine symmetry axis. This field represents the $B_R$ component
-    of the non-axisymmetric vacuum magnetic field, typically produced by external
-    field coils (e.g., correction coils) and evaluated at predefined control surface
-    points for error field analysis.
-
-
-    The control surface is a set of discrete points in the $(R, \phi, Z)$ space, often
-    located at the plasma boundary or at a specified radius. The radial component
-    is crucial for quantifying the radial perturbation of the vacuum field, which
-    can drive locked modes or degrade confinement in tokamaks. Typical values range
-    from microtesla ($\mu$T) to millitesla (mT) levels, depending on the coil currents
-    and the proximity to the control surface.
-
-
-    For a complete characterization of the non-axisymmetric vacuum field at the control
-    surface, see also `vertical_magnetic_field_at_control_surface` (the $B_Z$ component)
-    and `toroidal_magnetic_field_at_control_surface` (the $B_\phi$ component).
-
-
-    Sign convention: Positive when the magnetic field vector points in the outward
-    radial direction (increasing $R$).'
+  description: Magnetic field component perpendicular to a reference direction, typically
+    the local equilibrium field. Computed as the root-sum-square of contributing field
+    components, assuming orthogonality.
+  documentation: "The perpendicular magnetic field $B_{\\perp}$ is the component of\
+    \ the total magnetic field orthogonal to a specified reference direction, most\
+    \ often the local equilibrium magnetic field. It arises from stray magnetic fields\
+    \ and eddy currents induced in conducting structures, and is computed as $B_{\\\
+    perp} = \\sqrt{B_{\\text{stray}}^2 + B_{\\text{eddy}}^2}$, under the assumption\
+    \ that the stray and eddy contributions are mutually orthogonal. In plasma initiation,\
+    \ $B_{\\perp}$ influences electron magnetization and avalanche ionization; typical\
+    \ acceptable values during breakdown are below 1\u20135 mT in large tokamaks.\
+    \ This quantity complements the toroidal and poloidal magnetic field components.\n\
+    \nSign convention: Positive when the component points in the direction of increasing\
+    \ coordinate in the right-handed $(R, \\phi, Z)$ system."
   unit: T
   physics_domain: magnetic_field_diagnostics
   links:
-  - name:vertical_magnetic_field_at_control_surface
-  - name:toroidal_magnetic_field_at_control_surface
-  sources:
-  - id: dd:b_field_non_axisymmetric/time_slice/control_surface/b_field_r
-    dd_path: b_field_non_axisymmetric/time_slice/control_surface/b_field_r
-    status: composed
-- name: radial_unit_vector_of_control_surface
-  kind: scalar
-  status: draft
-  description: Major-radius component of the unit normal vector to a control surface
-    in the error-field model, defining the local surface orientation for non-axisymmetric
-    field correction.
-  documentation: "The radial component $n_R$ of the unit normal vector $\n\u0302 =\
-    \ (n_R, n_\\phi, n_Z)$$\n\u0302 = (n_R, n_\\phi, n_Z)$ defines the local surface\
-    \ orientation for toroidally non-axisymmetric field corrections. Together with\
-    \ the poloidal and toroidal components, it determines the projection of the error\
-    \ field onto the control surface normal, which enters the least-squares matching\
-    \ constraint for optimal correction coil currents. The unit vector satisfies $|n\u0302\
-    | = 1$$|n\u0302| = 1$, verified by summing squares of the three cylindrical components.\
-    \ Values range from -1 to 1, with typical magnitude $|n_R|$ between 0.7 and 1.0\
-    \ for control surfaces that are predominantly radially oriented (e.g., the outboard\
-    \ midplane). The radial component is measured or inferred from equilibrium reconstruction\
-    \ and is used alongside the [vertical_unit_vector_of_control_surface](name:vertical_unit_vector_of_control_surface)\
-    \ to compute the full normal direction.\n\nSign convention: Positive when the\
-    \ unit normal points outward from the plasma (increasing major radius $R$)."
-  unit: m
-  physics_domain: magnetic_field_diagnostics
-  links:
-  - name:vertical_unit_vector_of_control_surface
-  sources:
-  - id: dd:b_field_non_axisymmetric/time_slice/control_surface/normal_vector/r
-    dd_path: b_field_non_axisymmetric/time_slice/control_surface/normal_vector/r
-    status: composed
-- name: toroidal_magnetic_field_at_control_surface
-  kind: scalar
-  status: draft
-  description: Toroidal component of the non-axisymmetric vacuum magnetic field evaluated
-    at control surface points.
-  documentation: 'This quantity represents the projection of the non-axisymmetric
-    vacuum magnetic field onto the toroidal unit vector $\hat{\phi}$ at discrete points
-    defining a control surface. The toroidal component is defined as $B_{\phi,\mathrm{err}}
-    = \mathbf{B}_{\mathrm{non\text{-}axis}} \cdot \hat{\phi}$, where $\hat{\phi}$
-    is the toroidal basis vector of the right-handed IMAS cylindrical $(R, \phi, Z)$
-    frame with $R$ the major radius and $Z$ the vertical height. This field component
-    characterizes 3D magnetic perturbations arising from coil misalignments, ferromagnetic
-    structures, or intentional resonant magnetic perturbation coils, and is a key
-    input for error field correction strategies and assessment of locked-mode thresholds.
-
-
-    Typical magnitudes of the non-axisymmetric toroidal field range from $10^{-4}$
-    to $10^{-2}\;\mathrm{T}$ in present-day tokamaks, with the upper range corresponding
-    to devices with significant ferromagnetic components or applied resonant perturbation
-    fields. These amplitudes are comparable to the resonant field thresholds that
-    can seed neoclassical tearing modes or degrade H-mode pedestal performance.
-
-
-    Sign convention: Positive when the field component points in the direction of
-    increasing toroidal angle $\phi$ in the right-handed IMAS cylindrical $(R, \phi,
-    Z)$ frame, i.e., counter-clockwise when viewed from above along $+\hat{Z}$.
-
-
-    See also the radial and vertical projections of the non-axisymmetric vacuum field
-    at the control surface, as well as the corresponding field-map quantities.'
-  unit: T
-  physics_domain: magnetic_field_diagnostics
-  links:
-  - name:radial_magnetic_field_at_control_surface
-  - name:vertical_magnetic_field_at_control_surface
-  sources:
-  - id: dd:b_field_non_axisymmetric/time_slice/control_surface/b_field_phi
-    dd_path: b_field_non_axisymmetric/time_slice/control_surface/b_field_phi
-    status: composed
-  - id: dd:b_field_non_axisymmetric/time_slice/field_map/b_field_tor
-    dd_path: b_field_non_axisymmetric/time_slice/field_map/b_field_tor
-    status: composed
-- name: toroidal_non_axisymmetric_magnetic_field
-  kind: scalar
-  status: draft
-  description: Toroidal component of the non-axisymmetric vacuum magnetic field on
-    a field map grid in the machine cylindrical frame.
-  documentation: 'This quantity represents the toroidal ($\phi$) component of the
-    static, current-free perturbation magnetic field produced by external coil sets,
-    as defined on a regular grid of points $(R, \phi, Z)$. The total perturbed field
-    is given by $\mathbf{B}_{\mathrm{NA}} = B_R \hat{R} + B_\phi \hat{\phi} + B_Z
-    \hat{Z}$, and the toroidal component $B_\phi = \mathbf{B}_{\mathrm{NA}} \cdot
-    \hat{\phi}$ captures the contribution from non-axisymmetric modes (toroidal mode
-    numbers $n>0$). This component is critical for correcting error fields that can
-    seed locked modes or degrade plasma confinement, and is typically computed from
-    Biot-Savart integration over the coil geometry. The same field evaluated at control
-    surface points is available as [toroidal_magnetic_field_at_control_surface](name:toroidal_magnetic_field_at_control_surface),
-    and the orthogonal components are [radial_non_axisymmetric_magnetic_field](name:radial_non_axisymmetric_magnetic_field)
-    and [vertical_non_axisymmetric_magnetic_field](name:vertical_non_axisymmetric_magnetic_field).
-
-
-    Sign convention: Positive when $B_\phi$ points in the direction of increasing
-    toroidal angle $\phi$ (counter-clockwise viewed from above).'
-  unit: T
-  physics_domain: magnetic_field_diagnostics
-  links:
-  - name:toroidal_magnetic_field_at_control_surface
-  - name:radial_non_axisymmetric_magnetic_field
-  - name:vertical_non_axisymmetric_magnetic_field
+  - name:toroidal_magnetic_field
+  - name:poloidal_magnetic_field
+  - name:parallel_electric_field
   arguments:
-  - name: non_axisymmetric_magnetic_field
+  - name: magnetic_field
     operator: component
     operator_kind: projection
-    axis: toroidal
+    axis: perpendicular
     shape: component
   sources:
-  - id: dd:b_field_non_axisymmetric/time_slice/field_map/b_field_phi
-    dd_path: b_field_non_axisymmetric/time_slice/field_map/b_field_phi
+  - id: dd:plasma_initiation/global_quantities/b_field_perpendicular
+    dd_path: plasma_initiation/global_quantities/b_field_perpendicular
     status: composed
-- name: vertical_coordinate_of_control_surface
+  - id: dd:plasma_initiation/global_quantities/b_field_perpendicular/data
+    dd_path: plasma_initiation/global_quantities/b_field_perpendicular/data
+    status: composed
+- name: poloidal_magnetic_field_due_to_passive_structure
   kind: scalar
   status: draft
-  description: Vertical (Z) coordinate of the third point defining a line of sight
-    for density control diagnostics, such as interferometry and polarimetry.
-  documentation: 'The vertical coordinate $Z$ of the third point in a line-of-sight
-    definition for a density control diagnostic. This point, together with the first
-    and second points, fully specifies the line-of-sight trajectory in the poloidal
-    plane. The coordinate is measured from the machine equatorial plane in the right-handed
-    cylindrical $(R, \phi, Z)$ frame.
+  description: Poloidal magnetic field response at each probe location due to a unit
+    current in a passive conducting loop, used for electromagnetic coupling analysis.
+  documentation: 'The poloidal magnetic field coupling from passive axisymmetric conductor
+    loops to poloidal field probe measurements quantifies the linear response of the
+    poloidal field probes to currents induced in passive structures. This quantity
+    forms a coupling matrix $M_{ij}$ where each element gives the poloidal field at
+    probe $i$ per unit current in passive loop $j$, defined as $B_{\text{pol},i} =
+    M_{ij} I_{\text{passive},j}$. The coupling matrices encode the electromagnetic
+    mutual inductance between passive structures and poloidal field probes, typically
+    computed from vacuum field solutions or direct inductance calculations, and are
+    essential for real-time plasma position control and equilibrium reconstruction.
+    This quantity differs from [mutual_inductance_of_flux_loop](name:mutual_inductance_of_flux_loop)
+    by directly providing poloidal field values rather than flux linkages, and complements
+    [current_of_passive_loop_due_to_induction](name:current_of_passive_loop_due_to_induction)
+    by specifying the resulting fields.
 
 
-    Sign convention: Positive when the point lies above the machine equatorial plane.
+    Sign convention: Positive when the poloidal magnetic field produced by a positive
+    passive loop current points in the direction of increasing poloidal angle in the
+    $(R, \phi, Z)$ reference frame.
 
 
-    The geometry of the line of sight is essential for accurate Abel inversion or
-    ray tracing used in interferometry and polarimetry diagnostic systems. Related
-    names include [vertical_coordinate_of_strike_point](name:vertical_coordinate_of_strike_point)
-    for the divertor and [vertical_coordinate_of_plasma_boundary_gap](name:vertical_coordinate_of_plasma_boundary_gap)
-    for boundary control.'
-  unit: m
+    The coupling values are geometry-dependent and typically range from $10^{-8}$
+    to $10^{-4}$ T/A for medium-scale tokamaks, depending on probe proximity and loop
+    size, with larger values for probes near passive structures. See [poloidal_magnetic_flux_at_magnetic_axis](name:poloidal_magnetic_flux_at_magnetic_axis)
+    and [poloidal_magnetic_flux_at_separatrix](name:poloidal_magnetic_flux_at_separatrix)
+    for related poloidal magnetic flux quantities.'
+  unit: A^-1.T
   physics_domain: magnetic_field_diagnostics
   links:
-  - name:vertical_coordinate_of_strike_point
-  - name:vertical_coordinate_of_plasma_boundary_gap
+  - name:mutual_inductance_of_flux_loop
+  - name:current_of_passive_loop_due_to_induction
+  - name:poloidal_magnetic_flux_at_magnetic_axis
+  - name:poloidal_magnetic_flux_at_separatrix
+  arguments:
+  - name: magnetic_field_due_to_passive_structure
+    operator: component
+    operator_kind: projection
+    axis: poloidal
+    shape: component
   sources:
-  - id: dd:b_field_non_axisymmetric/time_slice/control_surface/outline/z
-    dd_path: b_field_non_axisymmetric/time_slice/control_surface/outline/z
+  - id: dd:em_coupling/b_field_pol_probes_passive
+    dd_path: em_coupling/b_field_pol_probes_passive
     status: composed
-  - id: dd:pulse_schedule/density_control/n_e_line_of_sight/third_point/z
-    dd_path: pulse_schedule/density_control/n_e_line_of_sight/third_point/z
-    status: composed
-- name: vertical_magnetic_field_at_control_surface
-  kind: scalar
-  status: draft
-  description: Vertical (Z) component of the non-axisymmetric vacuum magnetic field,
-    evaluated at discrete control surface points for error field analysis.
-  documentation: 'This vertical component $B_Z$ represents the projection of the non-axisymmetric
-    error magnetic field onto the vertical coordinate $Z$ in the IMAS cylindrical
-    $(R, \phi, Z)$ frame. It characterizes the vertical field perturbation at specified
-    control surface points, which are typically located just outside the confined
-    plasma to assess resonant field interactions. Preferred locked-mode and error-field
-    correction models require knowledge of all three components $[B_R, B_\phi, B_Z]$;
-    together with [radial_magnetic_field_at_control_surface](name:radial_magnetic_field_at_control_surface)
-    and [toroidal_magnetic_field_at_control_surface](name:toroidal_magnetic_field_at_control_surface),
-    this component defines the full 3-D vacuum field perturbation. Typical values
-    range from $10^{-4}\,\text{T}$ to $10^{-2}\,\text{T}$, consistent with tolerable
-    error field limits in present-day tokamaks. Field values are obtained from vacuum-field
-    models that include contributions from coil misalignments and stray magnetic sources.
-
-
-    Sign convention: Positive when $B_Z$ points in the direction of increasing vertical
-    coordinate $Z$.'
-  unit: T
-  physics_domain: magnetic_field_diagnostics
-  links:
-  - name:radial_magnetic_field_at_control_surface
-  - name:toroidal_magnetic_field_at_control_surface
-  sources:
-  - id: dd:b_field_non_axisymmetric/time_slice/control_surface/b_field_z
-    dd_path: b_field_non_axisymmetric/time_slice/control_surface/b_field_z
-    status: composed
+  - id: dd:em_coupling/field_probes_passive
+    dd_path: em_coupling/field_probes_passive
+    status: attached
