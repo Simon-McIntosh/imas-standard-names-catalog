@@ -30,6 +30,41 @@ them as `origin=catalog_edit` so the pipeline preserves human edits.
 - Add Python dependencies beyond `imas-standard-names`
 - Create application logic
 
+## Dependency Pinning
+
+The single `imas-standard-names` dependency in `pyproject.toml` MUST track
+the **`@main` branch**, not a pinned RC tag. This is a deliberate design
+choice:
+
+```toml
+[dependency-groups]
+dev = [
+    "imas-standard-names[quality,docs] @ git+https://.../imas-standard-names.git@main",
+]
+```
+
+**Why `@main` and not `@vX.Y.ZrcN`:**
+
+- This is a **data repository**. Bumping a Python pin on every upstream
+  RC is friction that does not belong here — the catalog should churn
+  on data updates, not tool-version metadata.
+- `uv.lock` is **gitignored** (see `.gitignore`). CI workflows run
+  `uv run …` which re-resolves the git dependency every invocation, so
+  there is no cache to invalidate and no lock to keep in sync.
+- The catalog-site CI (`catalog.yml`) already checks out
+  `Simon-McIntosh/imas-standard-names` separately under `_isn/site` to
+  bundle the SPA source — the dep pin only governs which `standard-names`
+  CLI is used at build time. Tracking `@main` means CI always uses the
+  same code that ships the SPA.
+- Reproducibility for **tagged releases** is delivered by the tag on
+  THIS repo (e.g. `v0.2.0rc6`) plus the git SHA of `imas-standard-names`
+  resolved at release time — both are visible in the Actions run.
+
+**Do not** revert this to a pinned RC tag, and **do not** add `uv.lock`
+to git. If a specific upstream version is required for a one-off
+investigation, override locally with `uv pip install …@v0.8.0rcN`
+without modifying `pyproject.toml`.
+
 ## CI/CD
 
 | Workflow | Trigger | Action |
