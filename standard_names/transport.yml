@@ -1,9 +1,106 @@
 # Domain: transport
-# Catalog sha: 3dd9a26584269a43b1795d607926e1591a1e17cf
-# Entries: 40
+# Catalog sha: 637b4f00cb9500c74dc4c0b66f7bf1839a6336e6
+# Entries: 48
 # Ordering: structural traversal
 #   (COMPONENT_OF-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: electric_field
+  kind: vector
+  status: draft
+  description: Electromagnetic force per unit charge that drives charged-particle
+    acceleration, cross-field drifts, and parallel current in a plasma.
+  documentation: 'The electric field is the vector field that gives the electrostatic
+    and inductive force per unit charge on electrons and ions. In magnetized plasmas
+    it controls $E \times B$ drift motion, parallel acceleration, Ohmic current drive,
+    and radial force balance, making it closely coupled to [magnetic field], [electron
+    velocity](name:electron_velocity), and [plasma current density].
+
+
+    A common electromagnetic definition is
+
+
+    $$
+
+    \mathbf{E} = -\nabla \Phi - \frac{\partial \mathbf{A}}{\partial t}
+
+    $$
+
+
+    where $\mathbf{E}$ is the electric-field vector in V/m, $\Phi$ is the electric
+    potential in V, $\mathbf{A}$ is the magnetic vector potential in V s m$^{-1}$,
+    and $t$ is time in s. In conducting plasma, the parallel component is related
+    to current through transport coefficients such as [electrical conductivity], while
+    perpendicular components enter drift and force-balance relations.
+
+
+    It is inferred from loop-voltage and magnetic-equilibrium analysis, charge-exchange
+    force-balance measurements, heavy-ion-beam probes, Langmuir probes in the edge,
+    and kinetic or transport modeling. Representative tokamak values range from 0.1-10
+    V/m for inductive toroidal fields, several kV/m to tens of kV/m for core radial
+    fields, and 50-300 kV/m in steep edge transport barriers.
+
+
+    Sign convention: Positive when a component of $\mathbf{E}$ points along the positive
+    direction of its stated basis: outward for $+R$ and increasing toroidal angle
+    $\phi$ for $+\phi$ in the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: V.m^-1
+  physics_domain: transport
+  links:
+  - name:electron_velocity
+  sources:
+  - id: dd:core_profiles/profiles_1d/e_field
+    dd_path: core_profiles/profiles_1d/e_field
+    status: composed
+- name: electrical_conductivity
+  kind: vector
+  status: draft
+  description: Anisotropic transport coefficient that relates electric-field components
+    to conductive current components in a magnetized plasma.
+  documentation: 'Electrical conductivity describes the collisional ability of charged
+    particles to carry current in response to an applied electric field. In a magnetized
+    plasma it is strongly anisotropic, with the field-aligned response represented
+    by [parallel_electrical_conductivity](name:parallel_plasma_electrical_conductivity)
+    and directly connected to the conductive part of [plasma_current_density](name:plasma_current_density).
+
+
+    The defining linear transport relation is
+
+
+    $$
+
+    \mathbf{j}_{\rm cond} = \boldsymbol{\sigma}\cdot\mathbf{E}
+
+    $$
+
+
+    where $\mathbf{j}_{\rm cond}$ is the conductive current density in A m$^{-2}$,
+    $\mathbf{E}$ is the [electric_field](name:electric_field) in V m$^{-1}$, and $\boldsymbol{\sigma}$
+    is the electrical-conductivity tensor in ohm$^{-1}$ m$^{-1}$. In collisional regimes
+    the dominant parallel contribution follows Spitzer-like scaling, increasing approximately
+    as [electron_temperature](name:electron_temperature)$^{3/2}$ and depending on
+    charge state and [normalized_electron_collisionality](name:normalized_electron_collisionality);
+    [electron_density](name:electron_density) enters through collision frequencies
+    and current response.
+
+
+    Conductivity is computed from kinetic or transport models, inferred from current
+    diffusion and loop-voltage evolution, or constrained by combining magnetic equilibrium
+    information with electric-field estimates. Representative core tokamak values
+    are about $10^6$-$10^9$ ohm$^{-1}$ m$^{-1}$, while colder edge and scrape-off-layer
+    plasmas can fall to $10^3$-$10^6$ ohm$^{-1}$ m$^{-1}$.'
+  unit: m^-1.ohm^-1
+  physics_domain: transport
+  links:
+  - name:parallel_plasma_electrical_conductivity
+  - name:plasma_current_density
+  - name:electric_field
+  - name:electron_temperature
+  - name:normalized_electron_collisionality
+  - name:electron_density
+  sources:
+  - id: dd:core_profiles/profiles_1d/conductivity_parallel
+    dd_path: core_profiles/profiles_1d/conductivity_parallel
+    status: composed
 - name: electron_density
   kind: scalar
   status: draft
@@ -169,6 +266,66 @@
   - id: dd:core_profiles/profiles_1d/electrons/temperature
     dd_path: core_profiles/profiles_1d/electrons/temperature
     status: composed
+- name: electron_velocity
+  kind: vector
+  status: draft
+  description: Mean fluid flow velocity of the electron population, defined by the
+    first velocity-space moment of the electron distribution.
+  documentation: 'Electron velocity is the bulk drift of the electron fluid obtained
+    from the first moment of the electron distribution function, not the random thermal
+    motion associated with [electron_temperature](name:electron_temperature). It enters
+    charge, momentum, and current balance together with [ion_velocity], and its components
+    are resolved relative to radial, poloidal, toroidal, and magnetic-field-aligned
+    directions.
+
+
+    The electron fluid velocity $\mathbf{v}_e$ is defined from the electron distribution
+    function $f_e(\mathbf{x},\mathbf{v},t)$ by
+
+
+    $$
+
+    \mathbf{v}_e(\mathbf{x},t) = \frac{1}{n_e(\mathbf{x},t)} \int \mathbf{v}\, f_e(\mathbf{x},\mathbf{v},t)\,
+    d^3v
+
+    $$
+
+
+    where $\mathbf{x}$ is position, $\mathbf{v}$ is particle velocity, and $n_e$ is
+    the [electron_density](name:electron_density). In a quasineutral plasma, differences
+    between electron and ion flow contribute to [plasma_current_density]; perpendicular
+    components are often governed by drift motion driven by the [electric_field](name:electric_field)
+    and [magnetic_field].
+
+
+    Electron velocity is computed in fluid, kinetic, neoclassical, and turbulence
+    transport models, and it can be inferred indirectly from current-density reconstruction
+    combined with ion-flow measurements or from edge probes in sufficiently cool boundary
+    plasmas. Direct core measurement is difficult because electron thermal speeds
+    greatly exceed bulk flows.
+
+
+    Representative bulk electron speeds in magnetically confined plasmas range from
+    10^3-10^5 m.s^-1 for cross-field drift and turbulent transport velocities, and
+    from 10^4-10^6 m.s^-1 for parallel current-carrying flow, depending on density
+    and current density.
+
+
+    Sign convention: Positive when a component of $\mathbf{v}_e$ points along the
+    positive direction of its stated basis: outward for radial velocity, increasing
+    toroidal angle $\phi$ in the right-handed cylindrical $(R, \phi, Z)$ frame for
+    toroidal velocity, increasing poloidal angle for poloidal velocity, and along
+    the local magnetic-field direction for parallel velocity.'
+  unit: m.s^-1
+  physics_domain: transport
+  links:
+  - name:electron_temperature
+  - name:electron_density
+  - name:electric_field
+  sources:
+  - id: dd:core_profiles/profiles_1d/electrons/velocity
+    dd_path: core_profiles/profiles_1d/electrons/velocity
+    status: composed
 - name: fast_electron_density
   kind: scalar
   status: draft
@@ -224,6 +381,57 @@
   - id: dd:core_profiles/profiles_1d/electrons/density_fast
     dd_path: core_profiles/profiles_1d/electrons/density_fast
     status: composed
+- name: fast_electron_pressure
+  kind: vector
+  status: draft
+  description: Gyrotropic pressure of suprathermal electrons resolved into directions
+    parallel and perpendicular to the local magnetic field.
+  documentation: 'Fast-electron pressure describes the momentum flux carried by a
+    suprathermal electron population whose distribution need not be thermally equilibrated
+    with the bulk electrons. In magnetized plasmas it is commonly represented by parallel
+    and perpendicular pressures relative to the local magnetic-field direction, connecting
+    the shared physics behind [parallel fast-electron pressure](name:parallel_fast_electron_pressure)
+    and the total [electron pressure](name:electron_pressure).
+
+
+    For a gyrotropic fast-electron distribution, the pressure tensor is written as
+
+
+    $$
+
+    \mathbf{P}_{fe} = p_{\parallel,fe}\,\hat{b}\hat{b} + p_{\perp,fe}\,(\mathbf{I}-\hat{b}\hat{b})
+
+    $$
+
+
+    where $\mathbf{P}_{fe}$ is the fast-electron pressure tensor, $p_{\parallel,fe}$
+    and $p_{\perp,fe}$ are the pressures parallel and perpendicular to the magnetic-field
+    unit vector $\hat{b}=\mathbf{B}/|\mathbf{B}|$, and $\mathbf{I}$ is the identity
+    tensor. The scalar contribution to an isotropized pressure is often formed from
+    $(p_{\parallel,fe}+2p_{\perp,fe})/3$ when comparing with [electron pressure](name:electron_pressure).
+
+
+    Fast-electron pressure is inferred from kinetic modeling constrained by hard-X-ray,
+    electron-cyclotron-emission, synchrotron, or bremsstrahlung measurements, and
+    from transport calculations using the fast-electron distribution function. It
+    is most relevant in plasmas with electron cyclotron current drive, lower-hybrid
+    current drive, runaway-electron populations, or strong auxiliary heating. Values
+    can range from negligible compared with thermal pressure to $10^2$-$10^4$ Pa in
+    localized energetic-electron populations, with larger values possible in disruption-generated
+    runaway beams.
+
+
+    Sign convention: Positive when the component represents compressive kinetic pressure
+    from fast-electron random motion along its associated magnetic-field-aligned direction.'
+  unit: Pa
+  physics_domain: transport
+  links:
+  - name:parallel_fast_electron_pressure
+  - name:electron_pressure
+  sources:
+  - id: dd:core_profiles/profiles_1d/electrons
+    dd_path: core_profiles/profiles_1d/electrons
+    status: composed
 - name: fast_ion_density
   kind: scalar
   status: draft
@@ -271,7 +479,6 @@
   links:
   - name:ion_density
   - name:fast_ion_state_density
-  - name:ion_density
   - name:parallel_fast_ion_pressure
   sources:
   - id: dd:core_profiles/profiles_1d/ion/density_fast
@@ -279,6 +486,63 @@
     status: composed
   - id: dd:core_profiles/profiles_1d/ion/state/density_fast
     dd_path: core_profiles/profiles_1d/ion/state/density_fast
+    status: composed
+- name: fast_ion_pressure
+  kind: vector
+  status: draft
+  description: Gyrotropic pressure of energetic ions resolved into components parallel
+    and perpendicular to the local magnetic field.
+  documentation: 'Fast-ion pressure is the kinetic stress carried by suprathermal
+    ion populations produced by auxiliary heating, fusion reactions, or acceleration
+    processes. Because these ions often have anisotropic velocity distributions, the
+    pressure is represented by field-aligned parallel and perpendicular components
+    rather than by a single isotropic value. It complements [fast-ion density](name:fast_ion_density)
+    and should be distinguished from thermal-ion quantities such as [ion temperature](name:ion_temperature)
+    and [ion density](name:ion_density).
+
+
+    For a gyrotropic fast-ion distribution, the components are defined from velocity-space
+    moments:
+
+
+    $$
+
+    p_{\parallel f}=m_i\int (v_\parallel-u_\parallel)^2 f_f\,d^3v,\qquad p_{\perp
+    f}=\frac{m_i}{2}\int v_\perp^2 f_f\,d^3v
+
+    $$
+
+
+    where $m_i$ is the ion mass, $f_f$ is the fast-ion distribution function, $v_\parallel$
+    and $v_\perp$ are particle velocities relative to the magnetic-field direction,
+    and $u_\parallel$ is the parallel fast-ion flow velocity. The isotropic limit
+    satisfies $p_{\parallel f}=p_{\perp f}$.
+
+
+    Fast-ion pressure is inferred from kinetic modeling constrained by diagnostics
+    such as fast-ion D-alpha spectroscopy, neutral-particle analyzers, collective
+    Thomson scattering, neutron emission, gamma-ray spectroscopy, and charged-fusion-product
+    measurements. Related anisotropic energetic-particle quantities include [fast-ion
+    state pressure] and the electron counterpart [fast-electron pressure].
+
+
+    Representative core values range from 10^2-10^5 Pa in neutral-beam-heated, ion-cyclotron-heated,
+    or alpha-particle-producing plasmas; values are much lower near the plasma edge
+    as energetic-ion confinement degrades.
+
+
+    Sign convention: Positive when the fast-ion random kinetic stress is compressive,
+    so the parallel and perpendicular pressure components add positive diagonal entries
+    to the gyrotropic pressure tensor.'
+  unit: Pa
+  physics_domain: transport
+  links:
+  - name:fast_ion_density
+  - name:ion_temperature
+  - name:ion_density
+  sources:
+  - id: dd:core_profiles/profiles_1d/ion
+    dd_path: core_profiles/profiles_1d/ion
     status: composed
 - name: fast_ion_state_density
   kind: scalar
@@ -333,6 +597,56 @@
   - id: dd:core_profiles/profiles_1d/ion/state/density_fast
     dd_path: core_profiles/profiles_1d/ion/state/density_fast
     status: composed
+- name: fast_ion_state_pressure
+  kind: vector
+  status: draft
+  description: Directional kinetic pressure of a charge-state-resolved fast-ion population,
+    resolved parallel and perpendicular to the local magnetic field.
+  documentation: 'This quantity represents the anisotropic kinetic pressure carried
+    by energetic ions within a specified charge-state bundle. It separates momentum-space
+    pressure into components along and across the magnetic field, providing the charge-state-resolved
+    counterpart of [fast ion pressure](name:fast_ion_pressure). It is closely tied
+    to the energetic-particle population described by [fast ion density](name:fast_ion_density)
+    and differs from thermal-ion pressure associated with [ion temperature](name:ion_temperature).
+
+
+    For a gyrotropic fast-ion distribution, the directional pressures are defined
+    from velocity-space moments:
+
+
+    $$
+
+    P_\parallel = m_i \int (v_\parallel-u_\parallel)^2 f_i\,d^3v, \qquad P_\perp =
+    \frac{m_i}{2}\int v_\perp^2 f_i\,d^3v
+
+    $$
+
+
+    where $P_\parallel$ and $P_\perp$ are the parallel and perpendicular directional
+    pressures, $m_i$ is ion mass, $f_i$ is the fast-ion distribution function, $v_\parallel$
+    and $v_\perp$ are particle velocities relative to the magnetic field, and $u_\parallel$
+    is the parallel mean flow.
+
+
+    It is inferred from kinetic modeling constrained by neutral-particle analyzers,
+    fast-ion D-alpha spectroscopy, neutron emission, gamma-ray measurements, collective
+    Thomson scattering, and charge-exchange diagnostics. Core values in auxiliary-heated
+    tokamaks span about 10^2-10^5 Pa, with larger anisotropy during neutral-beam injection
+    or ion-cyclotron heating.
+
+
+    Sign convention: Positive when the directional pressure component represents compressive
+    kinetic momentum flux in the specified parallel or perpendicular direction.'
+  unit: Pa
+  physics_domain: transport
+  links:
+  - name:fast_ion_pressure
+  - name:fast_ion_density
+  - name:ion_temperature
+  sources:
+  - id: dd:core_profiles/profiles_1d/ion/state
+    dd_path: core_profiles/profiles_1d/ion/state
+    status: composed
 - name: ion_average_charge
   kind: scalar
   status: draft
@@ -376,7 +690,6 @@
   physics_domain: transport
   links:
   - name:ion_density
-  - name:ion_density
   sources:
   - id: dd:core_profiles/profiles_1d/ion/z_ion_1d
     dd_path: core_profiles/profiles_1d/ion/z_ion_1d
@@ -417,7 +730,7 @@
     [ion_temperature](name:ion_temperature), and [ion_average_charge](name:ion_average_charge).
     Representative core contributions span about 10^2-10^5 Pa for abundant main-ion
     or impurity charge states in heated tokamaks, while weak impurity states or edge
-    populations can contribute below 1 Pa; energetic components are related to [fast_ion_state_pressure](name:fast_ion_state_pressure).'
+    populations can contribute below 1 Pa; energetic components are related to [fast_ion_state_pressure].'
   unit: Pa
   physics_domain: transport
   links:
@@ -427,7 +740,6 @@
   - name:ion_density
   - name:ion_temperature
   - name:ion_average_charge
-  - name:fast_ion_state_pressure
   sources:
   - id: dd:core_profiles/profiles_1d/ion/state/pressure
     dd_path: core_profiles/profiles_1d/ion/state/pressure
@@ -548,8 +860,8 @@
     averaged over charge states or species when the context combines them.
   documentation: 'Ion temperature is the kinetic temperature associated with random
     ion motion after subtracting the mean ion flow. It represents the thermal part
-    of the ion energy distribution and is distinct from directed [ion_velocity](name:ion_velocity),
-    while combining with [ion_density](name:ion_density) to determine thermal pressure.
+    of the ion energy distribution and is distinct from directed [ion_velocity], while
+    combining with [ion_density](name:ion_density) to determine thermal pressure.
 
 
     For an ion species $s$ with distribution function $f_s(\mathbf{v})$, density $n_s$
@@ -585,7 +897,6 @@
   unit: eV
   physics_domain: transport
   links:
-  - name:ion_velocity
   - name:ion_density
   - name:thermal_ion_pressure
   - name:fast_ion_density
@@ -598,6 +909,66 @@
     status: composed
   - id: dd:core_profiles/profiles_1d/t_i_average
     dd_path: core_profiles/profiles_1d/t_i_average
+    status: composed
+- name: ion_velocity
+  kind: vector
+  status: draft
+  description: Bulk flow velocity of the ion fluid, representing the first velocity
+    moment of the ion distribution and coupling particle, momentum, and energy transport.
+  documentation: 'Ion velocity is the bulk fluid motion of the ion population obtained
+    from the first moment of the ion velocity distribution. It is distinct from thermal
+    motion described by [ion_temperature](name:ion_temperature) and contributes to
+    momentum transport, centrifugal effects, and convective particle flux together
+    with [ion_density](name:ion_density).
+
+
+    For an ion species or charge-state-averaged ion population, the fluid velocity
+    $\mathbf{u}_i$ is defined by the ion particle flux density $\mathbf{\Gamma}_i$
+    divided by the ion number density $n_i$:
+
+
+    $$
+
+    \mathbf{u}_i = \frac{\mathbf{\Gamma}_i}{n_i}
+
+    $$
+
+
+    where $\mathbf{\Gamma}_i$ is the ion particle flux density and $n_i$ is the ion
+    number density. The velocity may be resolved into radial, poloidal, toroidal,
+    or magnetic-field-parallel projections; comparison with [electron_velocity](name:electron_velocity)
+    determines current-carrying relative motion and is related to [plasma_current_density](name:plasma_current_density).
+
+
+    Ion flow is inferred from charge-exchange recombination spectroscopy, Doppler
+    spectroscopy of impurity or main-ion emission, Mach probes in the scrape-off layer,
+    and momentum-balance calculations constrained by equilibrium and transport modeling.
+    Magnetic-field geometry from [magnetic_field](name:magnetic_field) sets the parallel
+    direction and strongly influences neoclassical poloidal and toroidal rotation.
+
+
+    Typical core toroidal and parallel ion velocities are 1e3-1e5 m.s^-1 in neutral-beam-heated
+    tokamaks, while radial convective velocities are commonly 1-100 m.s^-1 except
+    during transient events. Edge and scrape-off-layer flows can approach the ion
+    sound speed, especially along open magnetic-field lines.
+
+
+    Sign convention: Positive when a resolved velocity component is aligned with its
+    positive basis direction: outward across flux surfaces for the radial component,
+    along increasing poloidal angle for the poloidal component, along increasing toroidal
+    angle $\phi$ in the right-handed cylindrical $(R, \phi, Z)$ frame for the toroidal
+    component, and along the local magnetic-field direction for the parallel component.'
+  unit: m.s^-1
+  physics_domain: transport
+  links:
+  - name:ion_temperature
+  - name:ion_density
+  - name:electron_velocity
+  - name:plasma_current_density
+  - name:magnetic_field
+  sources:
+  - id: dd:core_profiles/profiles_1d/ion/velocity
+    dd_path: core_profiles/profiles_1d/ion/velocity
     status: composed
 - name: normalized_electron_collisionality
   kind: scalar
@@ -658,9 +1029,9 @@
     vector in T, and $\hat{\mathbf{b}}=\mathbf{B}/|\mathbf{B}|$ is the unit vector
     along the magnetic field. In resistive single-fluid transport it is closely related
     to [parallel plasma current density](name:parallel_plasma_current_density) through
-    the [electrical conductivity](name:electrical_conductivity), while kinetic treatments
-    connect it to [parallel electron velocity](name:parallel_electron_velocity) through
-    the electron momentum balance.
+    the [electrical conductivity], while kinetic treatments connect it to [parallel
+    electron velocity](name:parallel_electron_velocity) through the electron momentum
+    balance.
 
 
     It is inferred from magnetic-flux evolution, loop-voltage constraints, current-density
@@ -684,9 +1055,14 @@
   links:
   - name:electric_field
   - name:parallel_plasma_current_density
-  - name:electrical_conductivity
   - name:parallel_electron_velocity
   - name:poloidal_electric_field
+  arguments:
+  - name: electric_field
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/e_field/parallel
     dd_path: core_profiles/profiles_1d/e_field/parallel
@@ -741,6 +1117,12 @@
   - name:poloidal_electron_velocity
   - name:toroidal_electron_velocity
   - name:parallel_ion_velocity
+  arguments:
+  - name: electron_velocity
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/electrons/velocity/parallel
     dd_path: core_profiles/profiles_1d/electrons/velocity/parallel
@@ -754,7 +1136,7 @@
     the pressure tensor for suprathermal electrons, excluding the bulk thermal electron
     contribution. It distinguishes kinetic stress associated with motion along the
     local magnetic-field direction from the perpendicular component, [perpendicular_fast_electron_pressure](name:perpendicular_fast_electron_pressure),
-    and together these components form [fast_electron_pressure](name:fast_electron_pressure).
+    and together these components form [fast_electron_pressure].
 
 
     For a gyrotropic fast-electron distribution, the defining kinetic moment is
@@ -793,9 +1175,14 @@
   physics_domain: transport
   links:
   - name:perpendicular_fast_electron_pressure
-  - name:fast_electron_pressure
   - name:fast_electron_density
   - name:parallel_fast_ion_pressure
+  arguments:
+  - name: fast_electron_pressure
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/electrons/pressure_fast_parallel
     dd_path: core_profiles/profiles_1d/electrons/pressure_fast_parallel
@@ -838,6 +1225,12 @@
   - name:fast_ion_pressure
   - name:fast_ion_density
   - name:thermal_ion_pressure
+  arguments:
+  - name: fast_ion_pressure
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/ion/pressure_fast_parallel
     dd_path: core_profiles/profiles_1d/ion/pressure_fast_parallel
@@ -852,7 +1245,7 @@
     bundle associated with random motion along the local magnetic field.
   documentation: 'Parallel fast-ion state pressure is the gyrotropic pressure-tensor
     component carried by energetic ions in a specified charge-state bundle along the
-    local magnetic field. It is the directional component of [fast-ion state pressure](name:fast_ion_state_pressure),
+    local magnetic field. It is the directional component of [fast-ion state pressure],
     complementing [perpendicular fast-ion state pressure](name:perpendicular_fast_ion_state_pressure)
     and distinguishing charge-state-resolved energetic-particle pressure from the
     charge-summed [parallel fast-ion pressure](name:parallel_fast_ion_pressure).
@@ -891,11 +1284,16 @@
   unit: Pa
   physics_domain: transport
   links:
-  - name:fast_ion_state_pressure
   - name:perpendicular_fast_ion_state_pressure
   - name:parallel_fast_ion_pressure
   - name:fast_ion_state_density
   - name:thermal_ion_state_pressure
+  arguments:
+  - name: fast_ion_state_pressure
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/ion/state/pressure_fast_parallel
     dd_path: core_profiles/profiles_1d/ion/state/pressure_fast_parallel
@@ -907,9 +1305,8 @@
     motion along magnetic field lines from cross-field drifts.
   documentation: 'Parallel ion velocity is the component of the ion fluid flow along
     the local magnetic-field direction. It is the field-aligned part of the full [ion
-    velocity](name:ion_velocity), complementary to cross-field components such as
-    [radial ion velocity](name:radial_ion_velocity) and geometric flow components
-    such as [toroidal ion velocity](name:toroidal_ion_velocity).
+    velocity], complementary to cross-field components such as [radial ion velocity](name:radial_ion_velocity)
+    and geometric flow components such as [toroidal ion velocity](name:toroidal_ion_velocity).
 
 
     The defining projection is
@@ -942,10 +1339,15 @@
   unit: m.s^-1
   physics_domain: transport
   links:
-  - name:ion_velocity
   - name:radial_ion_velocity
   - name:toroidal_ion_velocity
   - name:parallel_electron_velocity
+  arguments:
+  - name: ion_velocity
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/ion/velocity/parallel
     dd_path: core_profiles/profiles_1d/ion/velocity/parallel
@@ -960,8 +1362,8 @@
     component of the plasma conductivity tensor. It is the coefficient that converts
     a parallel electric field into [parallel plasma current density](name:parallel_plasma_current_density),
     and it is the plasma-specific form of [parallel electrical conductivity](name:parallel_plasma_electrical_conductivity).
-    It is the relevant component of [plasma electrical conductivity](name:plasma_electrical_conductivity)
-    for resistive current diffusion along field lines.
+    It is the relevant component of [plasma electrical conductivity] for resistive
+    current diffusion along field lines.
 
 
     The defining local Ohm-law relation is
@@ -995,10 +1397,14 @@
   physics_domain: transport
   links:
   - name:parallel_plasma_current_density
-  - name:parallel_plasma_electrical_conductivity
-  - name:plasma_electrical_conductivity
   - name:electron_temperature
   - name:plasma_resistance
+  arguments:
+  - name: plasma_electrical_conductivity
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/conductivity_parallel
     dd_path: core_profiles/profiles_1d/conductivity_parallel
@@ -1013,10 +1419,9 @@
     component associated with suprathermal electron motion transverse to the local
     magnetic field. It distinguishes magnetic-moment or cyclotron-motion energy from
     field-aligned kinetic energy and is paired with [parallel_fast_electron_pressure](name:parallel_fast_electron_pressure)
-    as the anisotropic components of [fast_electron_pressure](name:fast_electron_pressure).
-    It is related to [fast_electron_density](name:fast_electron_density) through the
-    velocity-space moment of the nonthermal electron distribution, not through a Maxwellian
-    temperature assumption.
+    as the anisotropic components of [fast_electron_pressure]. It is related to [fast_electron_density](name:fast_electron_density)
+    through the velocity-space moment of the nonthermal electron distribution, not
+    through a Maxwellian temperature assumption.
 
 
     For a gyrotropic fast electron distribution, the perpendicular pressure is the
@@ -1054,9 +1459,14 @@
   physics_domain: transport
   links:
   - name:parallel_fast_electron_pressure
-  - name:fast_electron_pressure
   - name:fast_electron_density
   - name:perpendicular_fast_ion_pressure
+  arguments:
+  - name: fast_electron_pressure
+    operator: component
+    operator_kind: projection
+    axis: perpendicular
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/electrons/pressure_fast_perpendicular
     dd_path: core_profiles/profiles_1d/electrons/pressure_fast_perpendicular
@@ -1097,6 +1507,12 @@
   - name:fast_ion_pressure
   - name:fast_ion_density
   - name:perpendicular_fast_electron_pressure
+  arguments:
+  - name: fast_ion_pressure
+    operator: component
+    operator_kind: projection
+    axis: perpendicular
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/ion/pressure_fast_perpendicular
     dd_path: core_profiles/profiles_1d/ion/pressure_fast_perpendicular
@@ -1113,7 +1529,7 @@
     tensor for a fast-ion charge-state bundle. It represents the momentum flux carried
     by suprathermal ions in the two velocity-space directions transverse to the local
     magnetic field, complementing [parallel fast ion state pressure](name:parallel_fast_ion_state_pressure)
-    within [fast ion state pressure](name:fast_ion_state_pressure).
+    within [fast ion state pressure].
 
 
     For a fast-ion distribution in charge state $q$, the perpendicular pressure is
@@ -1155,12 +1571,68 @@
   physics_domain: transport
   links:
   - name:parallel_fast_ion_state_pressure
-  - name:fast_ion_state_pressure
   - name:perpendicular_fast_ion_pressure
   - name:fast_ion_state_density
+  arguments:
+  - name: fast_ion_state_pressure
+    operator: component
+    operator_kind: projection
+    axis: perpendicular
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/ion/state/pressure_fast_perpendicular
     dd_path: core_profiles/profiles_1d/ion/state/pressure_fast_perpendicular
+    status: composed
+- name: plasma_electrical_conductivity
+  kind: vector
+  status: draft
+  description: Transport coefficient relating electric field to conductive current
+    flow in a collisional, magnetized plasma.
+  documentation: 'Plasma electrical conductivity is the effective transport coefficient
+    that connects the electric field to conductive current carried mainly by electrons
+    in a magnetized plasma. Because collisions and magnetic-field geometry make the
+    response anisotropic, the [parallel component](name:parallel_plasma_electrical_conductivity)
+    is often the dominant part and is closely related to the more general [electrical
+    conductivity](name:electrical_conductivity).
+
+
+    The local Ohmic response is expressed as
+
+
+    $$
+
+    \mathbf{j} = \boldsymbol{\sigma} \cdot \mathbf{E}
+
+    $$
+
+
+    where $\mathbf{j}$ is the [plasma current density](name:plasma_current_density)
+    in A m$^{-2}$, $\mathbf{E}$ is the [electric field](name:electric_field) in V
+    m$^{-1}$, and $\boldsymbol{\sigma}$ is the conductivity in ohm$^{-1}$ m$^{-1}$.
+    In collisional theory, the magnitude is controlled primarily by electron-ion collision
+    frequency, so it increases strongly with [electron temperature](name:electron_temperature)
+    and depends on [electron density](name:electron_density), ion charge state, and
+    [normalized electron collisionality](name:normalized_electron_collisionality).
+
+
+    It is inferred from current diffusion analysis, loop-voltage response, equilibrium-constrained
+    current-density reconstruction, or calculated from neoclassical and Spitzer-like
+    transport models. Representative values range from about $10^4$-$10^6$ ohm$^{-1}$
+    m$^{-1}$ in cool edge plasmas to $10^7$-$10^9$ ohm$^{-1}$ m$^{-1}$ in hot tokamak
+    cores.'
+  unit: m^-1.ohm^-1
+  physics_domain: transport
+  links:
+  - name:parallel_plasma_electrical_conductivity
+  - name:electrical_conductivity
+  - name:plasma_current_density
+  - name:electric_field
+  - name:electron_temperature
+  - name:electron_density
+  - name:normalized_electron_collisionality
+  sources:
+  - id: dd:core_profiles/profiles_1d/conductivity_parallel
+    dd_path: core_profiles/profiles_1d/conductivity_parallel
     status: composed
 - name: poloidal_electric_field
   kind: scalar
@@ -1216,6 +1688,12 @@
   - name:toroidal_electric_field
   - name:poloidal_electron_velocity
   - name:parallel_electric_field
+  arguments:
+  - name: electric_field
+    operator: component
+    operator_kind: projection
+    axis: poloidal
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/e_field/poloidal
     dd_path: core_profiles/profiles_1d/e_field/poloidal
@@ -1277,6 +1755,12 @@
   - name:electron_density
   - name:electron_temperature
   - name:poloidal_electric_field
+  arguments:
+  - name: electron_velocity
+    operator: component
+    operator_kind: projection
+    axis: poloidal
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/electrons/velocity/poloidal
     dd_path: core_profiles/profiles_1d/electrons/velocity/poloidal
@@ -1336,6 +1820,12 @@
   - name:parallel_electric_field
   - name:radial_electron_velocity
   - name:parallel_plasma_electrical_conductivity
+  arguments:
+  - name: electric_field
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/e_field/radial
     dd_path: core_profiles/profiles_1d/e_field/radial
@@ -1391,6 +1881,12 @@
   - name:toroidal_electron_velocity
   - name:radial_electric_field
   - name:radial_ion_velocity
+  arguments:
+  - name: electron_velocity
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/electrons/velocity/radial
     dd_path: core_profiles/profiles_1d/electrons/velocity/radial
@@ -1402,7 +1898,7 @@
     ion particles across nested magnetic surfaces in transport analyzes.
   documentation: 'Radial ion velocity is the projection of the ion fluid velocity
     onto the outward direction normal to nested magnetic flux surfaces. It is the
-    cross-field convective motion of an ion population and is the component of [ion_velocity](name:ion_velocity)
+    cross-field convective motion of an ion population and is the component of [ion_velocity]
     most directly associated with particle transport, unlike the field-aligned [parallel
     ion velocity](name:parallel_ion_velocity) or rotational [toroidal ion velocity](name:toroidal_ion_velocity).
 
@@ -1442,11 +1938,16 @@
   unit: m.s^-1
   physics_domain: transport
   links:
-  - name:ion_velocity
   - name:parallel_ion_velocity
   - name:toroidal_ion_velocity
   - name:ion_density
   - name:radial_electron_velocity
+  arguments:
+  - name: ion_velocity
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/ion/velocity/radial
     dd_path: core_profiles/profiles_1d/ion/velocity/radial
@@ -1498,7 +1999,6 @@
   physics_domain: transport
   links:
   - name:electron_density
-  - name:fast_electron_density
   - name:fast_electron_density
   - name:electron_pressure
   sources:
@@ -1666,7 +2166,7 @@
     by the thermal part of a resolved ion charge-state population. It is the charge-state-resolved
     contribution to [thermal ion pressure](name:thermal_ion_pressure) and excludes
     directional nonthermal pressure represented for energetic populations such as
-    [fast ion-state pressure](name:fast_ion_state_pressure).
+    [fast ion-state pressure].
 
 
     For a charge-state bundle with temperature expressed as an energy per particle,
@@ -1704,7 +2204,6 @@
   physics_domain: transport
   links:
   - name:thermal_ion_pressure
-  - name:fast_ion_state_pressure
   - name:thermal_ion_state_density
   - name:ion_pressure
   - name:ion_charge_state_pressure
@@ -1742,7 +2241,7 @@
 
     It is inferred from magnetic flux evolution, loop-voltage measurements, and transport
     or equilibrium analysis, often constrained together with [toroidal plasma current
-    density](name:toroidal_plasma_current_density) and [electrical conductivity](name:electrical_conductivity).
+    density](name:toroidal_plasma_current_density) and [electrical conductivity].
     The orthogonal components [radial electric field](name:radial_electric_field)
     and [poloidal electric field](name:poloidal_electric_field) describe different
     force-balance and drift physics, while [parallel electric field](name:parallel_electric_field)
@@ -1761,10 +2260,15 @@
   links:
   - name:electric_field
   - name:toroidal_plasma_current_density
-  - name:electrical_conductivity
   - name:radial_electric_field
   - name:poloidal_electric_field
   - name:parallel_electric_field
+  arguments:
+  - name: electric_field
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/e_field/toroidal
     dd_path: core_profiles/profiles_1d/e_field/toroidal
@@ -1823,6 +2327,12 @@
   - name:electron_density
   - name:toroidal_ion_velocity
   - name:toroidal_electric_field
+  arguments:
+  - name: electron_velocity
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/electrons/velocity/toroidal
     dd_path: core_profiles/profiles_1d/electrons/velocity/toroidal
@@ -1835,9 +2345,9 @@
   documentation: 'Toroidal ion velocity is the component of the bulk ion flow around
     the toroidal direction in the right-handed cylindrical $(R, \phi, Z)$ frame, where
     $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height. It
-    is the toroidal projection of [ion_velocity](name:ion_velocity), distinct from
-    thermal random motion described by [ion_temperature](name:ion_temperature), and
-    it controls toroidal rotation, momentum confinement, and centrifugal effects.
+    is the toroidal projection of [ion_velocity], distinct from thermal random motion
+    described by [ion_temperature](name:ion_temperature), and it controls toroidal
+    rotation, momentum confinement, and centrifugal effects.
 
 
     The defining projection is
@@ -1871,11 +2381,16 @@
   unit: m.s^-1
   physics_domain: transport
   links:
-  - name:ion_velocity
   - name:ion_temperature
   - name:radial_ion_velocity
   - name:parallel_ion_velocity
   - name:toroidal_electron_velocity
+  arguments:
+  - name: ion_velocity
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
   sources:
   - id: dd:core_profiles/profiles_1d/ion/velocity/toroidal
     dd_path: core_profiles/profiles_1d/ion/velocity/toroidal
@@ -1923,7 +2438,6 @@
   physics_domain: transport
   links:
   - name:ion_pressure
-  - name:ion_charge_state_pressure
   - name:ion_charge_state_pressure
   - name:ion_average_charge
   - name:ion_density
