@@ -1,6 +1,6 @@
 # Domain: electromagnetic_wave_diagnostics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 7
+# Entries: 10
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -60,6 +60,62 @@
   - id: dd:ece/t_radiation_central_x/rho_tor_norm
     dd_path: ece/t_radiation_central_x/rho_tor_norm
     status: composed
+- name: perpendicular_wave_vector_magnitude
+  kind: scalar
+  status: draft
+  description: Magnitude of the wave vector component perpendicular to the local equilibrium
+    magnetic field, setting the cross-field spatial scale of wave-plasma coupling
+    and turbulent density fluctuation backscattering.
+  documentation: 'The perpendicular wave vector magnitude $k_\perp$ is the modulus
+    of the wave propagation vector projected onto the plane perpendicular to the local
+    equilibrium magnetic field $\mathbf{B}_0$. It governs the cross-field spatial
+    periodicity of the wave and is fundamental to both electromagnetic wave propagation
+    calculations and fluctuation turbulence diagnostics. This scalar quantity is the
+    magnitude of [perpendicular_wave_vector](name:perpendicular_wave_vector).
+
+
+    $$
+
+    k_\perp = |\mathbf{k} - (\mathbf{k} \cdot \hat{b})\hat{b}|
+
+    $$
+
+
+    where $\hat{b} = \mathbf{B}_0 / |\mathbf{B}_0|$ is the unit vector along the equilibrium
+    magnetic field and $\mathbf{k}$ is the full wave vector.
+
+
+    In Doppler reflectometry, the Bragg backscattering condition selects density fluctuations
+    at $k_\perp \approx 2 k_0 \sin\theta$, where $k_0 = \omega/c$ is the vacuum wavenumber
+    and $\theta$ is the beam tilt angle. The [doppler_frequency](name:doppler_frequency)
+    shift of the backscattered signal is proportional to $k_\perp$ times the perpendicular
+    plasma flow velocity, enabling turbulence wavenumber spectra to be resolved across
+    the [spectral_frequency](name:spectral_frequency) grid. In wave beam tracing,
+    $k_\perp$ characterizes the cross-field propagation scale relevant for finite
+    Larmor radius effects and mode conversion, complementing the field-aligned scale
+    encoded in the [parallel_refractive_index](name:parallel_refractive_index).
+
+
+    Typical values in Doppler reflectometry range from a few to several hundred m$^{-1}$,
+    probing turbulent density fluctuations from the plasma minor-radius scale down
+    toward the ion gyroradius.'
+  unit: m^-1
+  physics_domain: electromagnetic_wave_diagnostics
+  links:
+  - name:perpendicular_wave_vector
+  - name:doppler_frequency
+  - name:spectral_frequency
+  - name:parallel_refractive_index
+  sources:
+  - id: dd:reflectometer_fluctuation/channel/doppler/wavenumber
+    dd_path: reflectometer_fluctuation/channel/doppler/wavenumber
+    status: composed
+  - id: dd:waves/coherent_wave/full_wave/k_perpendicular/values
+    dd_path: waves/coherent_wave/full_wave/k_perpendicular/values
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_1d/k_perpendicular
+    dd_path: waves/coherent_wave/profiles_1d/k_perpendicular
+    status: attached
 - name: radial_wave_vector_of_beam_tracing_beam
   kind: scalar
   status: draft
@@ -268,6 +324,72 @@
   - id: dd:waves/coherent_wave/beam_tracing/beam/wave_vector/n_perpendicular
     dd_path: waves/coherent_wave/beam_tracing/beam/wave_vector/n_perpendicular
     status: attached
+- name: toroidal_normalized_wave_vector_of_beam_tracing_beam
+  kind: scalar
+  status: draft
+  description: Toroidal direction cosine of the local electromagnetic wave vector
+    along a beam-tracing ray, equal to the toroidal wave vector component divided
+    by the total wave vector magnitude.
+  documentation: 'The toroidal normalized wave vector component is the projection
+    of the unit wave vector onto the geometric toroidal direction $\hat{\phi}$, quantifying
+    the fraction of the wave''s phase advance occurring in the toroidal direction
+    at each point along a beam-tracing path. It characterizes the propagation geometry
+    of electromagnetic waves in magnetized plasma and enters the local dispersion
+    relation governing wave accessibility and resonance conditions.
+
+
+    The defining relation is:
+
+
+    $$
+
+    k_{\phi,\mathrm{norm}} = \frac{k_\phi}{|\mathbf{k}|}
+
+    $$
+
+
+    where $k_\phi$ is the toroidal component of the wave vector in the right-handed
+    cylindrical $(R, \phi, Z)$ frame and $|\mathbf{k}|$ is the total wave vector magnitude.
+    The three normalized direction cosines satisfy $k_{R,\mathrm{norm}}^2 + k_{\phi,\mathrm{norm}}^2
+    + k_{Z,\mathrm{norm}}^2 = 1$, linking this component to the [radial normalized
+    wave vector](name:radial_normalized_wave_vector_of_beam_tracing_beam) and the
+    [vertical normalized wave vector](name:vertical_normalized_wave_vector_of_beam_tracing_beam).
+    The unnormalized toroidal component is available as the [toroidal wave vector
+    of beam tracing beam](name:toroidal_wave_vector_of_beam_tracing_beam).
+
+
+    This quantity is computed by beam-tracing or ray-tracing solvers integrating the
+    geometric-optics equations for RF or ECE wave propagation in inhomogeneous magnetized
+    plasma. It governs polarization selection at cyclotron harmonic layers and mode-conversion
+    regions along the beam path.
+
+
+    Values are bounded by $-1 \leq k_{\phi,\mathrm{norm}} \leq 1$. For beams launched
+    near-perpendicular to the magnetic field the toroidal direction cosine is near
+    zero; oblique launches into the plasma yield larger magnitudes.
+
+
+    Sign convention: Positive when the toroidal wave vector component $k_\phi$ points
+    in the direction of increasing toroidal angle $\phi$.'
+  unit: '1'
+  physics_domain: electromagnetic_wave_diagnostics
+  links:
+  - name:radial_normalized_wave_vector_of_beam_tracing_beam
+  - name:vertical_normalized_wave_vector_of_beam_tracing_beam
+  - name:toroidal_wave_vector_of_beam_tracing_beam
+  sources:
+  - id: dd:ece/channel/beam_tracing/beam/wave_vector/k_phi_norm
+    dd_path: ece/channel/beam_tracing/beam/wave_vector/k_phi_norm
+    status: attached
+  - id: dd:ece/channel/beam_tracing/beam/wave_vector/k_tor_norm
+    dd_path: ece/channel/beam_tracing/beam/wave_vector/k_tor_norm
+    status: attached
+  - id: dd:waves/coherent_wave/beam_tracing/beam/wave_vector/k_phi_norm
+    dd_path: waves/coherent_wave/beam_tracing/beam/wave_vector/k_phi_norm
+    status: attached
+  - id: dd:waves/coherent_wave/beam_tracing/beam/wave_vector/k_tor_norm
+    dd_path: waves/coherent_wave/beam_tracing/beam/wave_vector/k_tor_norm
+    status: attached
 - name: toroidal_wave_vector_of_beam_tracing_beam
   kind: scalar
   status: draft
@@ -338,6 +460,63 @@
     status: attached
   - id: dd:waves/coherent_wave/beam_tracing/beam/wave_vector/k_tor
     dd_path: waves/coherent_wave/beam_tracing/beam/wave_vector/k_tor
+    status: attached
+- name: vertical_normalized_wave_vector_of_beam_tracing_beam
+  kind: scalar
+  status: draft
+  description: Direction cosine of the electromagnetic wave vector along the vertical
+    Z-direction, equal to k_Z divided by the total wave-vector magnitude, evaluated
+    pointwise along a beam-tracing ray path.
+  documentation: 'The normalized vertical wave vector component is the direction cosine
+    of the local electromagnetic wave propagation direction projected onto the vertical
+    $Z$-axis of the right-handed cylindrical $(R, \phi, Z)$ frame, computed pointwise
+    along a beam-tracing or ray-tracing path. It encodes the fraction of the propagation
+    direction aligned with the vertical direction at each position along the ray.
+
+
+    The defining relation is:
+
+
+    $$
+
+    k_{Z,\mathrm{norm}} = \frac{k_Z}{|\mathbf{k}|}
+
+    $$
+
+
+    where $k_Z$ is the [vertical wave vector component](name:vertical_wave_vector_of_beam_tracing_beam)
+    and $|\mathbf{k}|$ is the total wave-vector magnitude. Together with [radial_normalized_wave_vector_of_beam_tracing_beam](name:radial_normalized_wave_vector_of_beam_tracing_beam)
+    and [toroidal_normalized_wave_vector_of_beam_tracing_beam](name:toroidal_normalized_wave_vector_of_beam_tracing_beam),
+    it fully specifies the unit propagation direction in the cylindrical $(R, \phi,
+    Z)$ frame, satisfying $k_{R,\mathrm{norm}}^2 + k_{\phi,\mathrm{norm}}^2 + k_{Z,\mathrm{norm}}^2
+    = 1$.
+
+
+    This quantity is computed during beam-tracing or ray-tracing simulations for RF
+    wave propagation and ECE diagnostics, where the Hamiltonian ray equations simultaneously
+    advance the spatial position and wave vector along the ray. The normalized form
+    characterizes the instantaneous propagation direction independently of the local
+    wave number magnitude.
+
+
+    As a direction cosine, values are bounded to $[-1, 1]$. Values near zero indicate
+    nearly horizontal propagation, while values near $\pm 1$ correspond to strongly
+    oblique launch geometries or wave turning near a vertical reflection layer.
+
+
+    Sign convention: Positive when $k_Z$ points in the direction of increasing $Z$.'
+  unit: '1'
+  physics_domain: electromagnetic_wave_diagnostics
+  links:
+  - name:vertical_wave_vector_of_beam_tracing_beam
+  - name:radial_normalized_wave_vector_of_beam_tracing_beam
+  - name:toroidal_normalized_wave_vector_of_beam_tracing_beam
+  sources:
+  - id: dd:ece/channel/beam_tracing/beam/wave_vector/k_z_norm
+    dd_path: ece/channel/beam_tracing/beam/wave_vector/k_z_norm
+    status: attached
+  - id: dd:waves/coherent_wave/beam_tracing/beam/wave_vector/k_z_norm
+    dd_path: waves/coherent_wave/beam_tracing/beam/wave_vector/k_z_norm
     status: attached
 - name: vertical_wave_vector_of_beam_tracing_beam
   kind: scalar

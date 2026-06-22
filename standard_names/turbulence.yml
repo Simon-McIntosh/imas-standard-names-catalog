@@ -1,6 +1,6 @@
 # Domain: turbulence
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 10
+# Entries: 12
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -67,6 +67,61 @@
     status: attached
   - id: dd:gyrokinetics_local/species_all/debye_length_norm
     dd_path: gyrokinetics_local/species_all/debye_length_norm
+    status: composed
+- name: normalized_gyrocenter_perturbed_gyroaveraged_density
+  kind: scalar
+  status: draft
+  description: Dimensionless gyroaveraged zeroth velocity moment of the perturbed
+    gyrocenter distribution function, normalized by the reference density, quantifying
+    the gyrocenter particle density perturbation for a gyrokinetic eigenmode.
+  documentation: 'The normalized gyrocenter perturbed gyroaveraged density is the
+    dimensionless gyrophase-averaged zeroth velocity moment of the perturbed gyrocenter
+    distribution function, scaled by the gyrokinetic reference density. It characterizes
+    how the local gyrocenter particle density departs from its equilibrium value for
+    a given eigenmode wavevector, after the fast gyromotion has been removed by the
+    gyroaveraging operator.
+
+
+    The defining moment is:
+
+
+    $$
+
+    \tilde{n}_{\mathrm{gc},s} = \frac{1}{n_{\mathrm{ref}}} \int J_0(k_\perp \rho_s)\,
+    \delta F_s \, d^3v
+
+    $$
+
+
+    where $J_0$ is the zeroth-order Bessel function of the first kind implementing
+    the gyroaveraging operation, $k_\perp$ is the perpendicular wavenumber, $\rho_s
+    = v_{th,s}/\Omega_s$ is the thermal Larmor radius of species $s$ with thermal
+    velocity $v_{th,s}$ and cyclotron frequency $\Omega_s$, $\delta F_s$ is the perturbed
+    gyrocenter distribution function, and $n_{\mathrm{ref}}$ is the normalization
+    reference density.
+
+
+    This moment enters the gyrokinetic quasi-neutrality equation, coupling the perturbed
+    electrostatic potential to gyrocenter charge-density fluctuations. It is computed
+    in linear gyrokinetic eigenmode solvers as a function of wavevector and species
+    index. The unnormalized parent quantity is [gyrocenter_perturbed_gyroaveraged_density](name:gyrocenter_perturbed_gyroaveraged_density).
+    The corresponding moments for parallel current and heat flux in the same gyrocenter
+    frame are [normalized_gyrocenter_perturbed_gyroaveraged_current_density](name:normalized_gyrocenter_perturbed_gyroaveraged_current_density)
+    and [normalized_gyrocenter_perturbed_gyroaveraged_heat_flux](name:normalized_gyrocenter_perturbed_gyroaveraged_heat_flux).
+
+
+    Sign convention: Positive when the gyroaveraged gyrocenter density perturbation
+    represents a local enhancement of particle number density above the equilibrium
+    background.'
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:gyrocenter_perturbed_gyroaveraged_density
+  - name:normalized_gyrocenter_perturbed_gyroaveraged_current_density
+  - name:normalized_gyrocenter_perturbed_gyroaveraged_heat_flux
+  sources:
+  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/density_gyroav
+    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/density_gyroav
     status: composed
 - name: parallel_momentum_flux_due_to_perturbed_parallel_vector_potential
   kind: scalar
@@ -226,6 +281,71 @@
   - id: dd:gyrokinetics_local/non_linear/fluxes_5d_rotating_frame/momentum_tor_parallel_a_field_parallel
     dd_path: gyrokinetics_local/non_linear/fluxes_5d_rotating_frame/momentum_tor_parallel_a_field_parallel
     status: attached
+- name: parallel_normalized_gyrocenter_gyroaveraged_current_density
+  kind: scalar
+  status: draft
+  description: Dimensionless parallel gyrocenter current-density moment for a linear
+    gyrokinetic eigenmode, including finite-Larmor-radius gyroaveraging through the
+    zeroth-order Bessel weighting. It represents the charge-weighted parallel flow
+    response normalized by a reference current density.
+  documentation: 'The parallel normalized gyrocenter gyroaveraged current density
+    is the dimensionless parallel current-density moment of a perturbed gyrocenter
+    distribution. The gyroaveraged qualifier denotes the finite-Larmor-radius weighting
+    by the zeroth-order Bessel function, so this quantity differs from the ungyroaveraged
+    [parallel_normalized_gyrocenter_perturbed_current_density](name:parallel_normalized_gyrocenter_perturbed_current_density)
+    by including the Bessel-weighted response at the fluctuation perpendicular scale.
+
+
+    For a species $s$ with dimensional perturbed gyrocenter distribution, a common
+    form of the normalized moment is
+
+
+    $$
+
+    \hat{j}_{\parallel,J_0,s} = \frac{q_s}{j_{\mathrm{ref},s}} \int J_0(k_\perp \rho_s)\,
+    v_\parallel\, \delta f_s(\mathbf{v})\, d^3v
+
+    $$
+
+
+    where $q_s$ is the species charge, $J_0$ is the zeroth-order Bessel function,
+    $k_\perp$ is the perpendicular wave number, $\rho_s$ is the species gyroradius,
+    $v_\parallel$ is velocity along $\hat{b}=\mathbf{B}/|\mathbf{B}|$, and $\delta
+    f_s$ is the perturbed gyrocenter phase-space density with units $s^3 m^{-6}$ when
+    SI velocity variables are used. The integral gives a particle flux density; multiplication
+    by $q_s$ gives a current density in $A m^{-2}$. The reference current density
+    $j_{\mathrm{ref},s}$ also has units $A m^{-2}$, often based on species-specific
+    or gyro-Bohm reference quantities such as $e n_{\mathrm{ref}} v_{\mathrm{ref}}$,
+    so the reported value is dimensionless.
+
+
+    This quantity is computed from the linear gyrokinetic eigenfunction by velocity-space
+    quadrature of the perturbed gyrocenter distribution. The Bessel factor suppresses
+    contributions from structures with $k_\perp \rho_s \gtrsim 1$, representing gyroaveraging
+    over the Larmor orbit; in the long-wavelength limit $k_\perp \rho_s \ll 1$, it
+    approaches the corresponding non-gyroaveraged parallel current moment.
+
+
+    Because the amplitude and phase of a linear eigenmode are arbitrary until an eigenfunction
+    normalization is chosen, absolute values should be interpreted together with that
+    normalization. With common dimensionless normalizations, magnitudes of $10^{-4}-1$
+    are typical for weakly electromagnetic modes, while values of order $1-10$ can
+    occur for strongly electromagnetic responses or for normalizations tied to small
+    reference amplitudes.
+
+
+    Sign convention: Positive when the charge-weighted gyrocenter parallel flow is
+    along $\hat{b}=\mathbf{B}/|\mathbf{B}|$.'
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:parallel_normalized_gyrocenter_gyroaveraged_pressure
+  - name:parallel_normalized_gyrocenter_gyroaveraged_heat_flux
+  - name:parallel_normalized_perturbed_current_density_bessel_1
+  sources:
+  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/j_parallel
+    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/j_parallel
+    status: composed
 - name: parallel_normalized_particle_perturbed_current_density
   kind: scalar
   status: draft

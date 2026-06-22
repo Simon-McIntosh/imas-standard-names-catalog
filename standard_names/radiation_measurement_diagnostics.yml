@@ -1,6 +1,6 @@
 # Domain: radiation_measurement_diagnostics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 25
+# Entries: 28
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -434,6 +434,73 @@
   - id: dd:spectrometer_x_ray_crystal/channel/aperture/radius
     dd_path: spectrometer_x_ray_crystal/channel/aperture/radius
     status: attached
+- name: reference_wavelength_of_spectrometer_channel
+  kind: scalar
+  status: draft
+  description: Reference wavelength of a spectrometer channel is the wavelength at
+    which that channel's spectral instrument function has maximum response. It is
+    a peak-position parameter of the channel response, distinct from a calibration
+    reference wavelength and from the wavelength of a physical spectral line.
+  documentation: 'Reference wavelength of a spectrometer channel is the wavelength
+    coordinate at which that channel''s spectral instrument function reaches its maximum
+    response. It is an instrument-response property for the channel, not the wavelength
+    of an observed spectral line and not the reference wavelength used to define or
+    check a wavelength calibration. As a wavelength, it is a non-negative spectral
+    coordinate rather than a signed direction-dependent quantity.
+
+
+    Let $G_c(\lambda)$ denote the spectral instrument function of channel $c$ as a
+    function of wavelength $\lambda$. The reference wavelength $\lambda_{\mathrm{ref},c}$
+    is the peak location:
+
+
+    $$
+
+    \lambda_{\mathrm{ref},c} = \operatorname*{arg\,max}_{\lambda} G_c(\lambda)
+
+    $$
+
+
+    where $G_c$ may be normalized or unnormalized, because the peak position is unchanged
+    by an overall response scaling. If the response model has multiple local maxima,
+    the reference wavelength denotes the designated principal response peak used to
+    define the channel center.
+
+
+    In practice, $\lambda_{\mathrm{ref},c}$ is obtained from wavelength calibration
+    measurements, an optical or diffraction geometry model, or spectral fitting of
+    known features to a channel response model. For crystal X-ray spectrometers, the
+    nominal wavelength is constrained by the Bragg relation $n\lambda = 2d\sin\theta_B$,
+    where $d$ is the lattice-plane spacing, $\theta_B$ is the Bragg angle, and $n$
+    is the diffraction order. The related [spectral_width_of_spectrometer_channel](name:spectral_width_of_spectrometer_channel)
+    describes response broadening, while [spectral_instrument_function_of_spectrometer_channel](name:spectral_instrument_function_of_spectrometer_channel)
+    describes the full wavelength-dependent response shape.
+
+
+    This quantity should be distinguished from [reference_calibration_wavelength](name:reference_calibration_wavelength),
+    which is a fiducial wavelength used to establish or validate a wavelength scale,
+    and from [wavelength_of_spectral_line](name:wavelength_of_spectral_line), which
+    is a physical photon wavelength associated with an atomic, molecular, or ionic
+    transition.
+
+
+    Typical values depend on the spectral band: crystal X-ray spectrometer channels
+    commonly lie in the range $10^{-11}$-$10^{-9}$ m, with many impurity-line measurements
+    near $10^{-10}$-$10^{-9}$ m, while ultraviolet and visible spectrometer channels
+    are typically about $10^{-7}$-$10^{-6}$ m.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:spectral_width_of_spectrometer_channel
+  - name:wavelength_of_spectrometer_channel
+  - name:bragg_wavelength
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/bin/instrument_function/centre
+    dd_path: spectrometer_x_ray_crystal/channel/bin/instrument_function/centre
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/instrument_function/centre
+    dd_path: spectrometer_x_ray_crystal/channel/instrument_function/centre
+    status: attached
 - name: spectral_absorptivity_of_filter
   kind: scalar
   status: draft
@@ -548,6 +615,74 @@
     status: composed
   - id: dd:spectrometer_visible/channel/optical_element/material_properties/refractive_index
     dd_path: spectrometer_visible/channel/optical_element/material_properties/refractive_index
+    status: attached
+- name: spectral_width_of_spectrometer_channel
+  kind: scalar
+  status: draft
+  description: Spectral width of a spectrometer channel is the Gaussian standard deviation,
+    expressed as a wavelength interval, of the channel response to monochromatic radiation.
+    It describes instrumental broadening about the channel reference wavelength.
+  documentation: 'Spectral width of a spectrometer channel is the wavelength standard
+    deviation of a Gaussian component of the channel response to monochromatic radiation.
+    It represents the instrumental contribution to line-shape broadening about the
+    [reference wavelength](name:reference_wavelength_of_spectrometer_channel), separate
+    from physical broadening in the emitting plasma. The valid physical domain is
+    $\sigma_\lambda \ge 0$; $\sigma_\lambda = 0$ is the ideal limit of no spectral
+    broadening by that component.
+
+
+    For a Gaussian component $G(\lambda)$ centered at $\lambda_0$, the width is equivalently
+    the square root of the second central moment:
+
+
+    $$
+
+    \sigma_\lambda^2 = \frac{\int (\lambda - \lambda_0)^2 G(\lambda)\, d\lambda}{\int
+    G(\lambda)\, d\lambda}
+
+    $$
+
+
+    where $\lambda$ and $\lambda_0$ are wavelengths in meters, $\lambda_0$ is the
+    channel reference wavelength, and $G(\lambda)$ is the Gaussian response component
+    expressed with the same amplitude units as the corresponding spectral instrument
+    function. The normalization of $G$ cancels in the ratio, so $\sigma_\lambda$ has
+    units of meters; the Gaussian full width at half maximum is $2\sqrt{2\ln 2}\,\sigma_\lambda$.
+
+
+    In practice, this width is estimated from calibration measurements with narrow
+    spectral lines, from optical response modeling, or by fitting measured spectra
+    while separating source broadening from instrumental broadening. Contributions
+    can include crystal rocking curve, detector spatial resolution mapped into wavelength,
+    aperture geometry, finite source extent, and alignment tolerances. Together with
+    component amplitudes represented by the [spectral_factor_of_spectrometer_channel](name:spectral_factor_of_spectrometer_channel)
+    and centers such as the reference wavelength, the widths define Gaussian terms
+    that compose the [spectral_instrument_function_of_spectrometer_channel](name:spectral_instrument_function_of_spectrometer_channel)
+    or channel-level [instrument_function_of_spectrometer_channel](name:instrument_function_of_spectrometer_channel).
+
+
+    Typical values range from $10^{-14}$-$10^{-12}$ m for high-resolution x-ray crystal
+    spectrometer channels and $10^{-12}$-$10^{-10}$ m for lower-resolution optical
+    or ultraviolet spectrometer channels. Values should be interpreted relative to
+    the channel reference wavelength and the intrinsic source line width; instrumental
+    widths comparable to or larger than the physical width dominate the measured broadening.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:reference_wavelength_of_spectrometer_channel
+  - name:instrument_function_of_spectrometer_channel
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/bin/instrument_function/scale
+    dd_path: spectrometer_x_ray_crystal/channel/bin/instrument_function/scale
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/bin/instrument_function/sigma
+    dd_path: spectrometer_x_ray_crystal/channel/bin/instrument_function/sigma
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/instrument_function/scale
+    dd_path: spectrometer_x_ray_crystal/channel/instrument_function/scale
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/instrument_function/sigma
+    dd_path: spectrometer_x_ray_crystal/channel/instrument_function/sigma
     status: attached
 - name: thickness_of_filter
   kind: scalar
@@ -1489,4 +1624,38 @@
     status: attached
   - id: dd:spectrometer_visible/channel/polarization_spectroscopy/temperature_hot_neutrals
     dd_path: spectrometer_visible/channel/polarization_spectroscopy/temperature_hot_neutrals
+    status: composed
+- name: hot_neutral_velocity
+  kind: scalar
+  status: draft
+  description: Line-of-sight projected velocity of the energetic (hot) neutral atom
+    population, inferred from the Doppler centroid shift of the broad emission component
+    in visible polarization spectroscopy.
+  documentation: "The hot neutral population consists of energetic neutral atoms \u2014\
+    \ produced primarily by charge-exchange reactions between fast ions and cold neutrals\
+    \ or by beam-neutral interactions \u2014 whose velocity distribution yields a\
+    \ broad Doppler profile overlaid on the narrower thermal (cold) component. The\
+    \ line-of-sight component $v_\\mathrm{hot}$ represents the bulk flow of this energetic\
+    \ neutral ensemble along the diagnostic chord, distinguishing it from [cold_neutral_velocity](name:cold_neutral_velocity)\
+    \ for the thermal population; the associated kinetic spread is captured by [hot_neutral_temperature](name:hot_neutral_temperature).\n\
+    \nThe centroid velocity is extracted from the observed wavelength shift of the\
+    \ emission line:\n\n$$\nv_\\mathrm{hot} = c \\, \\frac{\\lambda_\\mathrm{obs}\
+    \ - \\lambda_0}{\\lambda_0}\n$$\n\nwhere $c$ is the speed of light, $\\lambda_\\\
+    mathrm{obs}$ is the centroid wavelength of the hot neutral spectral component,\
+    \ and $\\lambda_0$ is the rest wavelength of the observed line.\n\nMeasurement\
+    \ requires fitting the observed line profile from a visible polarization spectrometer\
+    \ with a multi-Gaussian model that separates the broad hot and narrow cold neutral\
+    \ contributions; the centroid shift of the broad component yields $v_\\mathrm{hot}$.\
+    \ Hot neutrals sourced from fast-ion charge exchange carry line-of-sight velocities\
+    \ spanning tens to hundreds of km/s, substantially exceeding those of cold recycled\
+    \ neutrals.\n\nSign convention: Positive when the hot neutral atoms are moving\
+    \ from the first to the second point along the line of sight."
+  unit: m.s^-1
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:cold_neutral_velocity
+  - name:hot_neutral_temperature
+  sources:
+  - id: dd:spectrometer_visible/channel/polarization_spectroscopy/velocity_hot_neutrals
+    dd_path: spectrometer_visible/channel/polarization_spectroscopy/velocity_hot_neutrals
     status: composed
