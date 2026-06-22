@@ -1,9 +1,64 @@
 # Domain: structural_components
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 19
+# Entries: 23
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: incident_power_of_breeder_blanket_module
+  kind: scalar
+  status: draft
+  description: Power carried by fusion-born neutrons crossing into a single breeder
+    blanket module. This is an incident surface load, not the energy deposited or
+    multiplied inside the module.
+  documentation: 'Incident power of a breeder blanket module is the rate at which
+    kinetic energy of fusion-born neutrons enters one module across the surfaces exposed
+    to the external neutron field. It is a non-negative incoming surface load, distinct
+    from volumetric nuclear heating, tritium production, or neutron multiplication
+    inside the module.
+
+
+    The incident power $P_\mathrm{inc}$ is defined by integrating the incoming neutron
+    energy current over the relevant module surface:
+
+
+    $$
+
+    P_\mathrm{inc} = \int_S \int_0^\infty E\, j_n^-(E,\mathbf{r})\, dE\, dA
+
+    $$
+
+
+    where $S$ is the module surface receiving the external fusion-neutron field, $E$
+    is neutron kinetic energy in joules, $j_n^-(E,\mathbf{r})$ is the differential
+    inward neutron current density at surface position $\mathbf{r}$ with units $m^{-2}\,s^{-1}\,J^{-1}$,
+    $dE$ is an energy interval in joules, and $dA$ is a surface element in square
+    meters. The inward-current notation includes only neutrons crossing into the module
+    from outside; secondary neutrons generated after entry contribute to related neutron-power
+    quantities rather than to this incident term.
+
+
+    In practice, this quantity is evaluated from the energy- and angle-dependent neutron
+    field at the module boundary, constrained by the fusion neutron source strength,
+    module area and solid angle, gaps, and attenuation or shadowing by intervening
+    structures. It provides a boundary load for breeding and heating analyzes; [total_neutron_power_of_breeder_blanket_module](name:nuclear_heating_power_of_breeder_blanket_module)
+    describes neutron power after interactions and multiplication within the module,
+    while [power_of_breeder_blanket_module](name:power_of_breeder_blanket_module)
+    represents the broader module power balance.
+
+
+    Representative per-module values in reactor-scale deuterium-tritium blanket systems
+    are typically $10^5-10^7$ W, with smaller test modules or heavily shadowed regions
+    below $10^5$ W. Values scale mainly with total fusion neutron source strength,
+    exposed area, geometric coverage, and shielding by nearby components.'
+  unit: W
+  physics_domain: structural_components
+  links:
+  - name:nuclear_heating_power_of_breeder_blanket_module
+  - name:power_of_breeder_blanket_module
+  sources:
+  - id: dd:breeding_blanket/module/time_slice/power_incident_neutron
+    dd_path: breeding_blanket/module/time_slice/power_incident_neutron
+    status: composed
 - name: incident_radiated_power_of_breeder_blanket_module
   kind: scalar
   status: draft
@@ -47,6 +102,48 @@
   sources:
   - id: dd:breeding_blanket/module/time_slice/power_incident_radiated
     dd_path: breeding_blanket/module/time_slice/power_incident_radiated
+    status: composed
+- name: net_thermal_power_of_breeder_blanket_module
+  kind: scalar
+  status: draft
+  description: Net thermal power removed from a single breeder blanket module by its
+    coolant. It equals the total coolant enthalpy increase summed across all coolant
+    branches serving the module and combines nuclear energy deposition with the absorbed
+    fraction of incident radiation that reaches the coolant.
+  documentation: "Net thermal power of a breeder blanket module is the rate at which\
+    \ the module's coolant circuit carries thermal energy away from that module. It\
+    \ is an aggregate per-module power that combines thermal energy transferred to\
+    \ the coolant from neutron and gamma heating, decay heat when relevant, and the\
+    \ absorbed fraction of incident radiation, while excluding power generated or\
+    \ removed outside the module boundary.\n\nFor a steady coolant circuit, the defining\
+    \ calorimetric relation is the total coolant enthalpy rise across all coolant\
+    \ branches serving the module:\n\n$$\nP_{\\mathrm{th,net}} = \\sum_k \\dot{m}_k\
+    \ \\left(h_{\\mathrm{out},k} - h_{\\mathrm{in},k}\\right)\n$$\n\nwhere $k$ labels\
+    \ coolant branches, $\\dot{m}_k$ is the coolant mass flow rate in branch $k$ (kg/s),\
+    \ and $h_{\\mathrm{in},k}$ and $h_{\\mathrm{out},k}$ are the inlet and outlet\
+    \ specific enthalpies (J/kg). The common expression $\\dot{m}\\, c_p\\, \\Delta\
+    \ T$, with $c_p$ in J/(kg\xB7K), is a constant-$c_p$ approximation to this enthalpy\
+    \ balance valid when pressure changes and the temperature dependence of the heat\
+    \ capacity are small.\n\nThis module-level power aggregates the nuclear deposition\
+    \ tracked by [nuclear_heating_power_of_breeder_blanket](name:nuclear_heating_power_of_breeder_blanket)\
+    \ and its layer-resolved counterpart [nuclear_heating_power_of_breeder_blanket_layer](name:nuclear_heating_power_of_breeder_blanket_layer),\
+    \ and shares the same coolant enthalpy-balance formalism as [thermal_power_of_plant_component_port](name:thermal_power_of_plant_component_port).\
+    \ It feeds reactor-level power balance and tritium-breeding-efficiency assessments.\n\
+    \nTypical values range from about $10^4$-$10^6$ W for small test blanket modules\
+    \ or low-power operating phases, and about $10^6$-$10^7$ W per module for reactor-relevant\
+    \ breeding blanket segments, depending on module size, neutron wall loading, coolant\
+    \ design, and plasma radiated power.\n\nSign convention: Positive when thermal\
+    \ energy is removed from the breeder blanket module by the coolant circuit."
+  unit: W
+  physics_domain: structural_components
+  links:
+  - name:total_neutron_power_of_breeder_blanket_module
+  - name:absorbed_radiated_power_of_breeder_blanket_module
+  - name:nuclear_power_density_of_breeder_blanket_module
+  - name:power_of_breeder_blanket_layer
+  sources:
+  - id: dd:breeding_blanket/module/time_slice/power_thermal_extracted
+    dd_path: breeding_blanket/module/time_slice/power_thermal_extracted
     status: composed
 - name: neutron_maximum_back_surface_energy_flux_of_breeder_blanket_module
   kind: scalar
@@ -149,6 +246,63 @@
   sources:
   - id: dd:breeding_blanket/module/time_slice/wall_flux_max
     dd_path: breeding_blanket/module/time_slice/wall_flux_max
+    status: composed
+- name: nuclear_heating_power_of_breeder_blanket_layer
+  kind: scalar
+  status: draft
+  description: Total nuclear heating power deposited within one material layer of
+    a breeding blanket by neutron and photon energy deposition in that layer.
+  documentation: 'Nuclear heating power of a breeder blanket layer is the total rate
+    at which fusion-born neutrons and secondary photons deposit energy in the material
+    volume assigned to that layer. It includes local energy deposition from nuclear
+    reactions and photon interactions in structural, breeder, multiplier, coolant-channel,
+    or other functional materials that belong to the layer.
+
+
+    It is obtained by integrating the local nuclear heating power density over the
+    layer volume:
+
+
+    $$
+
+    P_{\mathrm{nuc}} = \int_{V_{\mathrm{layer}}} q_{\mathrm{nuc}}(\mathbf{x})\, dV
+
+    $$
+
+
+    where $P_{\mathrm{nuc}}$ is the layer nuclear heating power in W, $V_{\mathrm{layer}}$
+    is the physical volume of the layer in m$^3$, $dV$ is a differential volume element
+    in m$^3$, and $q_{\mathrm{nuc}}$ is the local nuclear heating power density in
+    W m$^{-3}$.
+
+
+    In practice this quantity is computed from coupled neutron-photon transport and
+    nuclear data, usually by tallying heating over the material cells representing
+    the layer. Gamma heating should be interpreted as energy deposited by photons
+    produced by neutron interactions, activation, capture, inelastic scattering, or
+    other photon sources represented in the transport model, not as a universal signature
+    of a particular breeding reaction. If a module is decomposed into non-overlapping
+    layers that completely partition the module volume, the sum of the layer heating
+    powers equals the corresponding [module nuclear heating power](name:nuclear_heating_power_of_breeder_blanket_module);
+    otherwise gaps, overlaps, homogenization choices, and separately modeled components
+    can make the sums differ.
+
+
+    Typical values for a single blanket-module layer range from about 10^3-10^6 W
+    in reactor-relevant blanket designs, depending on neutron wall loading, layer
+    volume, material composition, and radial position. Small test modules or weakly
+    irradiated peripheral layers may be below this range, while large high-power modules
+    or layers close to the plasma-facing side can exceed it.'
+  unit: W
+  physics_domain: structural_components
+  links:
+  - name:nuclear_heating_power_of_breeder_blanket_module
+  - name:nuclear_heating_power_of_breeder_blanket
+  - name:nuclear_power_density_of_breeder_blanket_layer
+  - name:power_of_breeder_blanket_layer
+  sources:
+  - id: dd:breeding_blanket/module/layer/time_slice/power_nuclear
+    dd_path: breeding_blanket/module/layer/time_slice/power_nuclear
     status: composed
 - name: nuclear_heating_power_of_breeder_blanket_module
   kind: scalar
@@ -822,6 +976,38 @@
   sources:
   - id: dd:wall/description_2d/mobile/unit/outline/z
     dd_path: wall/description_2d/mobile/unit/outline/z
+    status: composed
+- name: y_coordinate_of_ferritic_element_centroid
+  kind: scalar
+  status: draft
+  description: Y coordinate of the geometric centroid of a ferritic element in the
+    right-handed Cartesian (x, y, z) frame, where z coincides with the vertical axis
+    Z.
+  documentation: "Ferritic elements are passive structural components \u2014 typically\
+    \ magnetizable steel inserts \u2014 placed in tokamaks to reduce toroidal field\
+    \ ripple arising from the discrete set of toroidal field coils. The geometric\
+    \ centroid of such an element is its volume-averaged position, and this quantity\
+    \ gives the centroid's coordinate along the $y$-axis of the right-handed Cartesian\
+    \ $(x, y, z)$ frame, where $z = Z$ is the vertical axis and $x = R\\cos\\phi$,\
+    \ $y = R\\sin\\phi$ relate to the cylindrical $(R, \\phi, Z)$ coordinates ($R$\
+    \ = major radius, $\\phi$ = toroidal angle).\n\nThe centroid $y$ coordinate is\
+    \ defined as\n\n$$\n\\bar{y} = \\frac{1}{V} \\int_V y \\, dV\n$$\n\nwhere $V$\
+    \ is the total volume of the ferritic element and $y$ is the Cartesian coordinate\
+    \ of each volume element.\n\nThis coordinate is determined from engineering drawings\
+    \ or three-dimensional geometric models of the device. Together with [x_coordinate_of_ferritic_element_centroid](name:x_coordinate_of_ferritic_element_centroid)\
+    \ and [vertical_coordinate_of_ferritic_element](name:vertical_coordinate_of_ferritic_element_centroid),\
+    \ it fully specifies the three-dimensional centroid location in Cartesian space.\n\
+    \nSign convention: Positive when the centroid lies in the half-space $y > 0$,\
+    \ corresponding to toroidal angles $\\phi \\in (0, \\pi)$ in the cylindrical $(R,\
+    \ \\phi, Z)$ frame."
+  unit: m
+  physics_domain: structural_components
+  links:
+  - name:x_coordinate_of_ferritic_element_centroid
+  - name:vertical_coordinate_of_ferritic_element_centroid
+  sources:
+  - id: dd:ferritic/object/centroid/y
+    dd_path: ferritic/object/centroid/y
     status: composed
 - name: volumetric_force
   kind: vector

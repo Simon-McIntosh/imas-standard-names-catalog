@@ -1,6 +1,6 @@
 # Domain: plasma_wall_interactions
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 36
+# Entries: 39
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -111,6 +111,56 @@
   sources:
   - id: dd:summary/local/limiter/n_i/boron/value
     dd_path: summary/local/limiter/n_i/boron/value
+    status: composed
+- name: carbon_density_at_limiter
+  kind: scalar
+  status: draft
+  description: Unweighted number density of ionized carbon in the boundary plasma
+    immediately adjacent to a limiter, summed over all carbon ionization stages. It
+    excludes neutral carbon atoms and does not weight charge states by charge or mass.
+  documentation: 'Carbon density at a limiter is the local number density of carbon
+    impurity ions in the boundary plasma next to a limiter surface. It is an unweighted
+    sum over ionized carbon charge states and excludes neutral carbon atoms.
+
+
+    The charge-state-summed ion density is defined by:
+
+
+    $$
+
+    n_{\mathrm{C,ion}} = \sum_{q=1}^{6} n_{\mathrm{C}^{q+}}
+
+    $$
+
+
+    where $n_{\mathrm{C}^{q+}}$ is the number density of carbon ions with charge state
+    $q$ in $\mathrm{m}^{-3}$, and $n_{\mathrm{C,ion}}$ is also in $\mathrm{m}^{-3}$.
+    The sum runs over ionized carbon from $\mathrm{C}^+$ through fully stripped $\mathrm{C}^{6+}$;
+    neutral carbon $\mathrm{C}^0$ is not included.
+
+
+    In practice this quantity is obtained from local impurity charge-state populations
+    in boundary-plasma modeling, or constrained experimentally using carbon line emission
+    together with electron density, electron temperature, and collisional-radiative
+    modeling. It is sensitive to local impurity sources, ionization balance, transport,
+    and the plasma conditions adjacent to the limiter.
+
+
+    No device-independent typical range is implied by the definition. Values are non-negative,
+    reported in $\mathrm{m}^{-3}$, and should be interpreted relative to the local
+    edge plasma density and carbon impurity fraction for the discharge being considered.'
+  unit: m^-3
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:density_at_limiter
+  - name:oxygen_density_at_limiter
+  - name:nitrogen_density_at_limiter
+  - name:xenon_density_at_limiter
+  - name:carbon_density_at_plasma_boundary
+  - name:carbon_density_at_pedestal
+  sources:
+  - id: dd:summary/local/limiter/n_i/carbon/value
+    dd_path: summary/local/limiter/n_i/carbon/value
     status: composed
 - name: deuterium_density_at_limiter
   kind: scalar
@@ -1628,6 +1678,71 @@
   - id: dd:camera_ir/channel/camera/frame/region_of_interest/temperature_max
     dd_path: camera_ir/channel/camera/frame/region_of_interest/temperature_max
     status: composed
+- name: toroidal_current_of_vacuum_vessel
+  kind: scalar
+  status: draft
+  description: Net electric current flowing toroidally in the conducting vacuum vessel,
+    produced by induction from time-varying magnetic flux linked with the vessel.
+    The toroidal direction is that of the right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'Toroidal vacuum-vessel current is the net electric current carried
+    by the conducting vessel in the toroidal direction of the right-handed cylindrical
+    $(R, \phi, Z)$ frame. It is an algebraic scalar: signed contributions from vessel
+    sectors or passive conducting branches are summed to give the total vessel current,
+    rather than describing only one local branch.
+
+
+    The scalar total is defined as the signed sum of toroidal currents carried by
+    the vessel conductors:
+
+
+    $$
+
+    I_{\mathrm{vv},\phi} = \sum_{k \in \mathrm{vessel}} I_{\phi,k}
+
+    $$
+
+
+    where $I_{\mathrm{vv},\phi}$ is the total toroidal vacuum-vessel current in A,
+    and $I_{\phi,k}$ is the signed toroidal current in A carried by conducting vessel
+    sector or passive branch $k$.
+
+
+    This current is induced when magnetic flux linked by closed conducting paths in
+    the vessel changes, for example because of changing plasma current or external-coil
+    currents. In practice it is estimated from electromagnetic models of passive conductors
+    constrained by magnetic measurements, flux-loop signals, coil-current histories,
+    and vessel electrical properties; it is closely related to the current in a passive
+    conducting loop.
+
+
+    Typical absolute values are highly device and transient dependent. Net toroidal
+    vessel currents of $10^3$-$10^6$ A are common in medium and large tokamaks during
+    appreciable magnetic-flux changes, while smaller devices or slow current ramps
+    may produce values below $10^3$ A.
+
+
+    Sign convention: Positive when the vessel current flows in the direction of increasing
+    toroidal angle $\phi$ in the right-handed cylindrical $(R, \phi, Z)$ frame (counter-clockwise
+    when viewed from above $+\hat{Z}$).'
+  unit: A
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:resistance_of_vacuum_vessel
+  - name:toroidal_plasma_current
+  - name:toroidal_current_of_cryostat
+  sources:
+  - id: dd:wall/description_2d/vessel/unit/element/j_phi
+    dd_path: wall/description_2d/vessel/unit/element/j_phi
+    status: composed
+  - id: dd:wall/description_2d/vessel/unit/element/j_tor
+    dd_path: wall/description_2d/vessel/unit/element/j_tor
+    status: attached
+  - id: dd:wall/global_quantities/current_phi
+    dd_path: wall/global_quantities/current_phi
+    status: attached
+  - id: dd:wall/global_quantities/current_tor
+    dd_path: wall/global_quantities/current_tor
+    status: attached
 - name: vertical_coordinate_of_divertor_target
   kind: scalar
   status: draft
@@ -1685,6 +1800,58 @@
   sources:
   - id: dd:camera_ir/channel/target_surface_center/z
     dd_path: camera_ir/channel/target_surface_center/z
+    status: composed
+- name: vertical_coordinate_of_optical_element
+  kind: scalar
+  status: draft
+  description: Vertical Z-coordinate, in meters, of the center of an optical element
+    in the right-handed cylindrical (R, phi, Z) frame, measured upward from the machine
+    midplane.
+  documentation: 'The vertical coordinate of an optical element is the height of the
+    element''s center along the $Z$ axis of the right-handed cylindrical $(R, \phi,
+    Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical
+    height. It specifies the element position relative to the machine midplane and
+    is independent of the element orientation, aperture size, or viewing direction.
+
+
+    For an optical-element center position $\mathbf{x}_c$, the vertical coordinate
+    is the projection of its displacement from the midplane reference onto the vertical
+    basis direction:
+
+
+    $$
+
+    Z_c = (\mathbf{x}_c - \mathbf{x}_0) \cdot \hat{Z}
+
+    $$
+
+
+    where $\mathbf{x}_0$ is a reference point on the machine midplane, $\hat{Z}$ is
+    the upward vertical unit vector, and $Z_c$ is reported in meters.
+
+
+    This coordinate is usually obtained from mechanical survey, metrology, or geometry
+    models of the diagnostic hardware. For finite optical components such as lenses,
+    mirrors, fibers, or apertures, the center should be the defined geometric or optical
+    center used consistently with the corresponding radial and toroidal coordinates.
+
+
+    Typical signed values for optical elements near the vessel or diagnostic ports
+    are about $-5$ m to $5$ m in medium-sized tokamaks, with larger devices extending
+    to roughly $\pm 10$ m. Values near $0$ m indicate placement close to the machine
+    midplane.
+
+
+    Sign convention: Positive when the optical-element center lies in the $+Z$ direction,
+    upward from the machine midplane.'
+  unit: m
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:vertical_coordinate_of_diagnostic_aperture
+  - name:vertical_coordinate_of_measurement_position
+  sources:
+  - id: dd:camera_ir/fibre_bundle/geometry/centre/z
+    dd_path: camera_ir/fibre_bundle/geometry/centre/z
     status: composed
 - name: y_coordinate_of_divertor_target
   kind: scalar
@@ -1841,6 +2008,10 @@
   links:
   - name:energy_flux_at_wall_due_to_eddy_current
   - name:plasma_power_at_wall
+  arguments:
+  - name: power_due_to_ohmic_dissipation
+    operator: wall
+    operator_kind: locus
   sources:
   - id: dd:wall/global_quantities/power_currents
     dd_path: wall/global_quantities/power_currents

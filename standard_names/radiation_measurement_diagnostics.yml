@@ -1,6 +1,6 @@
 # Domain: radiation_measurement_diagnostics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 47
+# Entries: 51
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -153,6 +153,59 @@
   sources:
   - id: dd:camera_visible/channel/detector/frame/radiance
     dd_path: camera_visible/channel/detector/frame/radiance
+    status: composed
+- name: cold_neutral_fraction
+  kind: scalar
+  status: draft
+  description: Cold neutral fraction is the dimensionless fraction of a hydrogen-isotope
+    neutral population assigned to the low-energy neutral component. It is defined
+    relative to the cold and hot neutral components used in the analysis; the cold/hot
+    boundary must be specified by the diagnostic or population model.
+  documentation: 'The cold neutral fraction is the population fraction of neutral
+    atoms of a specified hydrogen isotope that are classified as cold, meaning lower
+    in kinetic energy than the corresponding hot neutral component. The classification
+    boundary between cold and hot neutrals is not universal; it is set by the diagnostic
+    interpretation, spectral decomposition, or population model used for the isotope
+    being analyzed.
+
+
+    For a two-component cold/hot decomposition, the cold neutral fraction is
+
+
+    $$
+
+    f_\mathrm{cold} = \frac{n_\mathrm{cold}}{n_\mathrm{cold} + n_\mathrm{hot}}
+
+    $$
+
+
+    where $n_\mathrm{cold}$ and $n_\mathrm{hot}$ are the cold and hot neutral number
+    densities for the same isotope, typically in $\mathrm{m}^{-3}$. For nonnegative
+    densities this gives $0 \le f_\mathrm{cold} \le 1$. If additional neutral populations
+    are treated separately or excluded from the decomposition, the fraction applies
+    only to the cold-plus-hot population used in the denominator.
+
+
+    In visible spectroscopy, this fraction is commonly inferred by separating emission
+    associated with low-energy recycled or thermal neutrals from emission associated
+    with higher-energy neutrals, using line shapes, Doppler broadening, line ratios,
+    and collisional-radiative modeling. The inferred value depends on the adopted
+    cold/hot energy threshold and on corrections for atomic physics rates, viewing
+    geometry, and instrument response.
+
+
+    Typical values can span the full range 0-1. Values near 1 indicate that the represented
+    neutral population is dominated by low-energy recycled or thermal neutrals, while
+    values near 0 indicate dominance by the hot neutral component, for example from
+    energetic charge-exchange populations or beam-related neutrals.'
+  unit: '1'
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:hot_neutral_fraction
+  - name:neutral_fraction
+  sources:
+  - id: dd:spectrometer_visible/channel/isotope_ratios/isotope/cold_neutrals_fraction
+    dd_path: spectrometer_visible/channel/isotope_ratios/isotope/cold_neutrals_fraction
     status: composed
 - name: deuterium_deuterium_power_density_due_to_fusion
   kind: scalar
@@ -1055,6 +1108,77 @@
   - id: dd:spectrometer_x_ray_crystal/channel/filter_window/photon_absorption
     dd_path: spectrometer_x_ray_crystal/channel/filter_window/photon_absorption
     status: attached
+- name: spectral_calibration_factor_of_spectrometer
+  kind: scalar
+  status: draft
+  description: Calibration factor converting a dark-corrected spectrometer count rate
+    at a wavelength channel into absolute photon spectral radiance density per unit
+    wavelength. It is wavelength-dependent and includes the effects of throughput,
+    etendue, detector gain, spectral width, and optical efficiency.
+  documentation: 'Spectral calibration factor of a spectrometer is a wavelength-dependent
+    coefficient that converts a dark-subtracted detector count rate, or an equivalent
+    count-rate-normalized signal, into absolute photon spectral radiance density.
+    The spectral coordinate $\lambda$ is wavelength in meters, and the normalization
+    is per unit wavelength, not per unit frequency, wavenumber, photon energy, or
+    integrated spectral channel. With photon counts treated as dimensionless, the
+    factor has unit $m^{-3}\,sr^{-1}$ so that multiplication by a signal rate in $s^{-1}$
+    gives photon spectral radiance density in $m^{-3}\,s^{-1}\,sr^{-1}$.
+
+
+    For a wavelength sample $i$, the defining calibration relation is:
+
+
+    $$
+
+    L_\lambda(\lambda_i) = C_\lambda(\lambda_i)\,\dot{S}(\lambda_i)
+
+    $$
+
+
+    where $L_\lambda(\lambda_i)$ is the calibrated photon spectral radiance density
+    in $m^{-3}\,s^{-1}\,sr^{-1}$, $C_\lambda(\lambda_i)$ is the spectral calibration
+    factor in $m^{-3}\,sr^{-1}$, and $\dot{S}(\lambda_i)$ is the corrected detector
+    signal rate in $s^{-1}$. If the measurement is recorded as integrated counts $N_i$
+    over an exposure time $\Delta t$, then $\dot{S}(\lambda_i)$ is obtained from $N_i/\Delta
+    t$ after dark, background, gain, and linearity corrections. For a finite spectral
+    channel, the radiance integrated over that channel is approximately $L_\lambda(\lambda_i)\Delta\lambda_{\mathrm{eff},i}$,
+    linking this quantity to the [effective_spectral_width_of_spectrometer_channel](name:effective_spectral_width_of_spectrometer_channel).
+
+
+    The factor is determined by viewing a calibrated lamp, integrating sphere, monochromator,
+    or line source with known spectral radiance under the same optical configuration
+    used for plasma measurements. It includes the collection [etendue_of_spectrometer_channel](name:etendue_of_spectrometer_channel),
+    wavelength-dependent transmission, grating or filter response, detector quantum
+    efficiency, electronic gain, and the conversion from finite channel signal to
+    per-wavelength radiance density. In grating systems it is normally assigned to
+    each detector pixel or wavelength bin; in filter spectrometers it applies to the
+    channel centered at the filter wavelength with its effective spectral width.
+
+
+    Typical values span many orders of magnitude because they scale approximately
+    as the inverse of etendue, efficiency, and spectral width. Visible high-throughput
+    systems commonly have factors around $10^{15}$-$10^{20}\ m^{-3}\,sr^{-1}$, while
+    ultraviolet systems, narrow spectral bins, or low-throughput optical paths may
+    require $10^{18}$-$10^{23}\ m^{-3}\,sr^{-1}$.'
+  unit: m^-3.sr^-1
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:effective_spectral_width_of_spectrometer_channel
+  - name:etendue_of_spectrometer_channel
+  - name:efficiency_of_spectrometer_channel
+  sources:
+  - id: dd:charge_exchange/channel/spectrum/radiance_calibration
+    dd_path: charge_exchange/channel/spectrum/radiance_calibration
+    status: attached
+  - id: dd:spectrometer_uv/channel/radiance_calibration
+    dd_path: spectrometer_uv/channel/radiance_calibration
+    status: attached
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/radiance_calibration
+    dd_path: spectrometer_visible/channel/filter_spectrometer/radiance_calibration
+    status: attached
+  - id: dd:spectrometer_visible/channel/grating_spectrometer/radiance_calibration
+    dd_path: spectrometer_visible/channel/grating_spectrometer/radiance_calibration
+    status: attached
 - name: spectral_refractive_index_of_optical_element
   kind: scalar
   status: draft
@@ -1626,6 +1750,60 @@
   - id: dd:bolometer/channel/detector/centre/z
     dd_path: bolometer/channel/detector/centre/z
     status: composed
+- name: vertical_coordinate_of_bragg_crystal
+  kind: scalar
+  status: draft
+  description: Vertical Z-coordinate of the Bragg crystal summit point in the right-handed
+    cylindrical (R, phi, Z) frame, locating the crystal within an X-ray crystal spectrometer
+    assembly.
+  documentation: 'The vertical coordinate $Z$ specifies the height of the Bragg crystal
+    summit above the device equatorial plane in the right-handed cylindrical $(R,
+    \phi, Z)$ frame, where $R$ is the major radius, $\phi$ is the toroidal angle increasing
+    counter-clockwise when viewed from above, and $Z$ is the vertical height. Together
+    with the [radial coordinate](name:radial_coordinate_of_bragg_crystal), it fully
+    defines the poloidal location of the crystal summit used as the primary geometric
+    reference for the spectrometer.
+
+
+    In X-ray crystal spectrometers, the crystal diffracts plasma X-ray emission according
+    to the Bragg condition:
+
+
+    $$
+
+    2d\sin\theta_B = n\lambda
+
+    $$
+
+
+    where $d$ is the crystal lattice spacing, $\theta_B$ is the Bragg angle, $n$ is
+    the diffraction order, and $\lambda$ is the X-ray wavelength. The summit coordinates
+    enter directly into photon path-length calculations, solid-angle integrations,
+    and line-of-sight geometry for individual detector channels. The position is established
+    from engineering metrology surveys and complements the crystal''s angular acceptance
+    described by [angular_width_of_bragg_crystal](name:angular_width_of_bragg_crystal).
+
+
+    Sign convention: Positive when the crystal summit lies above the device equatorial
+    plane in the $+Z$ direction.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:radial_coordinate_of_bragg_crystal
+  - name:angular_width_of_bragg_crystal
+  sources:
+  - id: dd:spectrometer_uv/channel/grating/summit/z
+    dd_path: spectrometer_uv/channel/grating/summit/z
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/bin/line_of_sight/second_point/z
+    dd_path: spectrometer_x_ray_crystal/channel/bin/line_of_sight/second_point/z
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/profiles_line_integrated/lines_of_sight_second_point/z
+    dd_path: spectrometer_x_ray_crystal/channel/profiles_line_integrated/lines_of_sight_second_point/z
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/crystal/summit/z
+    dd_path: spectrometer_x_ray_crystal/crystal/summit/z
+    status: composed
 - name: vertical_coordinate_of_camera
   kind: scalar
   status: draft
@@ -1840,6 +2018,118 @@
   - id: dd:spectrometer_visible/channel/grating_spectrometer/processed_line/wavelength_central
     dd_path: spectrometer_visible/channel/grating_spectrometer/processed_line/wavelength_central
     status: attached
+- name: width_of_diagnostic_aperture
+  kind: scalar
+  status: draft
+  description: "Full transverse width of a rectangular diagnostic aperture along X1\
+    \ in its local aperture frame (X1, X2, X3), where X1 and X2 span the opening and\
+    \ X3 is normal to it. It defines one clear-opening dimension for line-of-sight\
+    \ collimation, aperture area, and \xE9tendue calculations."
+  documentation: "Width of a diagnostic aperture is the full clear opening of a rectangular\
+    \ aperture measured along the $X_1$ direction of a local Cartesian aperture frame\
+    \ $(X_1, X_2, X_3)$. The $X_1$ and $X_2$ axes span the aperture plane, while $X_3$\
+    \ is normal to the aperture or aligned with the nominal line of sight. It is one\
+    \ of the two transverse dimensions that determine the finite acceptance of a collimating\
+    \ opening.\n\nFor an ideal rectangular opening, the clear aperture area is the\
+    \ product of the two transverse widths:\n\n$$\nA = w_1 w_2\n$$\n\nwhere $A$ is\
+    \ the open area in m$^2$, $w_1$ is this width along $X_1$ in m, and $w_2$ is the\
+    \ companion orthogonal width along $X_2$ in m. The geometric \xE9tendue for small-angle\
+    \ uniform acceptance scales approximately as $A\\Omega$, where $\\Omega$ is the\
+    \ accepted solid angle.\n\nIn practice, the width is taken from mechanical design\
+    \ models, engineering drawings, or as-built metrology at the limiting clear aperture,\
+    \ excluding masks, supports, bevels, or other structures that do not transmit\
+    \ the line of sight. The physical concept is the diagnostic counterpart of width_of_aperture,\
+    \ which describes the same full transverse opening dimension for non-diagnostic\
+    \ collimators. The orthogonal $X_2$ aperture width supplies the second rectangular\
+    \ dimension; [radius_of_diagnostic_aperture](name:radius_of_diagnostic_aperture)\
+    \ is the corresponding size parameter for circular diagnostic openings, while\
+    \ [filter_window_width](name:filter_window_width) describes a transmitting window\
+    \ rather than the collimating aperture itself.\n\nTypical values range from $1\
+    \ \\times 10^{-4}$-$5 \\times 10^{-2}$ m. Fiber entrances and pinholes are often\
+    \ $1 \\times 10^{-4}$-$2 \\times 10^{-3}$ m, bolometer slits and small optical\
+    \ apertures are commonly $10^{-3}$-$10^{-2}$ m, and neutron or gamma-ray collimating\
+    \ apertures may reach several $10^{-2}$ m."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:radius_of_diagnostic_aperture
+  - name:filter_window_width
+  sources:
+  - id: dd:bolometer/camera/channel/aperture/x1_width
+    dd_path: bolometer/camera/channel/aperture/x1_width
+    status: attached
+  - id: dd:bolometer/camera/channel/aperture/x2_width
+    dd_path: bolometer/camera/channel/aperture/x2_width
+    status: composed
+  - id: dd:bolometer/camera/channel/detector/x1_width
+    dd_path: bolometer/camera/channel/detector/x1_width
+    status: attached
+  - id: dd:bolometer/channel/aperture/x1_width
+    dd_path: bolometer/channel/aperture/x1_width
+    status: attached
+  - id: dd:bolometer/channel/detector/x1_width
+    dd_path: bolometer/channel/detector/x1_width
+    status: attached
+  - id: dd:camera_ir/fibre_bundle/geometry/x1_width
+    dd_path: camera_ir/fibre_bundle/geometry/x1_width
+    status: attached
+  - id: dd:camera_ir/optical_element/geometry/x1_width
+    dd_path: camera_ir/optical_element/geometry/x1_width
+    status: composed
+  - id: dd:camera_visible/channel/fibre_bundle/geometry/x1_width
+    dd_path: camera_visible/channel/fibre_bundle/geometry/x1_width
+    status: composed
+  - id: dd:camera_visible/channel/fibre_bundle/geometry/x2_width
+    dd_path: camera_visible/channel/fibre_bundle/geometry/x2_width
+    status: composed
+  - id: dd:camera_visible/channel/optical_element/geometry/x1_width
+    dd_path: camera_visible/channel/optical_element/geometry/x1_width
+    status: attached
+  - id: dd:camera_x_rays/aperture/x1_width
+    dd_path: camera_x_rays/aperture/x1_width
+    status: attached
+  - id: dd:hard_x_rays/channel/aperture/x1_width
+    dd_path: hard_x_rays/channel/aperture/x1_width
+    status: attached
+  - id: dd:mse/channel/aperture/x1_width
+    dd_path: mse/channel/aperture/x1_width
+    status: attached
+  - id: dd:mse/channel/detector/x1_width
+    dd_path: mse/channel/detector/x1_width
+    status: attached
+  - id: dd:neutron_diagnostic/detector/aperture/x1_width
+    dd_path: neutron_diagnostic/detector/aperture/x1_width
+    status: attached
+  - id: dd:neutron_diagnostic/detectors/aperture/x1_width
+    dd_path: neutron_diagnostic/detectors/aperture/x1_width
+    status: attached
+  - id: dd:soft_x_rays/channel/aperture/x1_width
+    dd_path: soft_x_rays/channel/aperture/x1_width
+    status: attached
+  - id: dd:soft_x_rays/channel/detector/x1_width
+    dd_path: soft_x_rays/channel/detector/x1_width
+    status: attached
+  - id: dd:spectrometer_uv/channel/aperture/x1_width
+    dd_path: spectrometer_uv/channel/aperture/x1_width
+    status: composed
+  - id: dd:spectrometer_visible/channel/aperture/x1_width
+    dd_path: spectrometer_visible/channel/aperture/x1_width
+    status: attached
+  - id: dd:spectrometer_visible/channel/detector/x1_width
+    dd_path: spectrometer_visible/channel/detector/x1_width
+    status: attached
+  - id: dd:spectrometer_visible/channel/fibre_bundle/geometry/x1_width
+    dd_path: spectrometer_visible/channel/fibre_bundle/geometry/x1_width
+    status: attached
+  - id: dd:spectrometer_visible/channel/grating_spectrometer/slit_width
+    dd_path: spectrometer_visible/channel/grating_spectrometer/slit_width
+    status: attached
+  - id: dd:spectrometer_visible/channel/polarizer/x1_width
+    dd_path: spectrometer_visible/channel/polarizer/x1_width
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/aperture/x1_width
+    dd_path: spectrometer_x_ray_crystal/channel/aperture/x1_width
+    status: composed
 - name: width_of_hard_xray_detector
   kind: scalar
   status: draft

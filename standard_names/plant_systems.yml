@@ -1,6 +1,6 @@
 # Domain: plant_systems
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 41
+# Entries: 49
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -447,6 +447,41 @@
   - id: dd:summary/gas_injection_prefill/helium_4/value
     dd_path: summary/gas_injection_prefill/helium_4/value
     status: composed
+- name: accumulated_hydrogen_count_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Cumulative count of hydrogen atoms delivered by gas injection after
+    plasma breakdown, expressed in equivalent electrons; hydrogen's atomic number
+    Z = 1 means each atom contributes one equivalent electron.
+  documentation: "The accumulated hydrogen count due to gas injection is the time-integrated\
+    \ number of hydrogen atoms introduced into the plasma vessel by gas injection\
+    \ systems after plasma breakdown. Because hydrogen has atomic number $Z_H = 1$,\
+    \ the equivalent-electron count equals the atom count directly, unlike heavier\
+    \ species such as the analogous [accumulated carbon count due to gas injection](name:accumulated_carbon_count_due_to_gas_injection),\
+    \ which multiplies by $Z = 6$.\n\nThe defining relation for equivalent-electron\
+    \ counting is:\n\n$$\nN_\\mathrm{eq} = Z \\cdot N_\\mathrm{atoms}\n$$\n\nwhere\
+    \ $N_\\mathrm{atoms}$ is the number of injected atoms of the species and $Z$ is\
+    \ its atomic number. For hydrogen, $Z_H = 1$, so $N_\\mathrm{eq} = N_\\mathrm{atoms}$.\n\
+    \nThis quantity is obtained by integrating the gas valve flow rate over time from\
+    \ plasma breakdown onward. The [accumulated hydrogen prefill count](name:accumulated_hydrogen_prefill_count)\
+    \ records the hydrogen contributed during the pre-breakdown prefill phase; the\
+    \ two together account for the full hydrogen gas inventory. Analogous counts for\
+    \ other injected species \u2014 such as [accumulated nitrogen count](name:accumulated_nitrogen_count)\
+    \ and [deuterium count due to gas injection](name:deuterium_count_due_to_gas_injection)\
+    \ \u2014 follow the same equivalent-electron convention, scaled by the respective\
+    \ atomic number.\n\nSign convention: Positive when hydrogen atoms have been injected\
+    \ after plasma breakdown."
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_carbon_count_due_to_gas_injection
+  - name:accumulated_hydrogen_prefill_count
+  - name:accumulated_nitrogen_count
+  - name:deuterium_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_accumulated/hydrogen/value
+    dd_path: summary/gas_injection_accumulated/hydrogen/value
+    status: composed
 - name: accumulated_krypton_count
   kind: scalar
   status: draft
@@ -647,6 +682,50 @@
   - id: dd:summary/gas_injection_accumulated/neon/value
     dd_path: summary/gas_injection_accumulated/neon/value
     status: composed
+- name: accumulated_oxygen_prefill_count_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Cumulative oxygen gas introduced during the prefill phase by gas injection,
+    expressed as an equivalent-electron count where each oxygen atom contributes 8
+    count units equal to its atomic number.
+  documentation: 'The prefill phase precedes plasma breakdown, during which controlled
+    gas injection establishes an initial neutral gas background in the vessel. This
+    quantity accumulates the total oxygen inventory delivered during that phase, representing
+    each oxygen atom as 8 equivalent electrons equal to the atomic number $Z_\mathrm{O}
+    = 8$.
+
+
+    The equivalent-electron inventory is defined as:
+
+
+    $$
+
+    N_\mathrm{eq} = Z_\mathrm{O} \cdot N_\mathrm{O}
+
+    $$
+
+
+    where $N_\mathrm{O}$ is the total number of oxygen atoms injected during the prefill
+    interval and $Z_\mathrm{O} = 8$ is the atomic number of oxygen.
+
+
+    The count is inferred from calibrated gas injection valve records integrated over
+    the prefill interval, from the start of the prefill phase through plasma breakdown.
+    It is the accumulated component of [oxygen_prefill_count_due_to_gas_injection](name:oxygen_prefill_count_due_to_gas_injection)
+    and follows the same equivalent-electron convention applied to helium-3 in [accumulated_helium_3_prefill_count_due_to_gas_injection](name:accumulated_helium_3_prefill_count_due_to_gas_injection)
+    and to lithium in [accumulated_lithium_prefill_count_due_to_gas_injection](name:accumulated_lithium_prefill_count_due_to_gas_injection).
+    Post-breakdown oxygen injection is tracked separately by [oxygen_count](name:accumulated_oxygen_count_due_to_gas_injection).'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:oxygen_prefill_count_due_to_gas_injection
+  - name:accumulated_helium_3_prefill_count_due_to_gas_injection
+  - name:accumulated_lithium_prefill_count_due_to_gas_injection
+  - name:accumulated_oxygen_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_prefill/oxygen/value
+    dd_path: summary/gas_injection_prefill/oxygen/value
+    status: composed
 - name: accumulated_propane_count
   kind: scalar
   status: draft
@@ -754,6 +833,41 @@
   - id: dd:summary/gas_injection_accumulated/silane/value
     dd_path: summary/gas_injection_accumulated/silane/value
     status: composed
+- name: accumulated_total_gas_count_at_midplane_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Cumulative total number of gas particles injected from all valves located
+    near the equatorial midplane since plasma breakdown.
+  documentation: "This quantity represents the running total of gas particles delivered\
+    \ from all injection valves positioned near the equatorial midplane, accumulated\
+    \ from the moment of plasma breakdown onward. It aggregates contributions from\
+    \ all midplane valves regardless of injected species or individual valve identity,\
+    \ providing a single integrated measure of total midplane fueling inventory over\
+    \ the course of a discharge.\n\nThe accumulated count $N_\\text{mid}$ is obtained\
+    \ by integrating the total midplane injection rate $\\dot{N}_\\text{mid}(t')$\
+    \ over time:\n\n$$\nN_\\text{mid}(t) = \\int_{t_0}^{t} \\dot{N}_\\text{mid}(t')\
+    \ \\, dt'\n$$\n\nwhere $t_0$ is the time of plasma breakdown and $\\dot{N}_\\\
+    text{mid}$ is the combined instantaneous particle flux from all midplane gas injection\
+    \ valves.\n\nThe count is derived from gas injection valve diagnostics \u2014\
+    \ flow meters or pressure gages calibrated in particles per unit time \u2014 integrated\
+    \ from plasma breakdown. This midplane-specific total complements the spatially\
+    \ resolved siblings [accumulated_total_lower_gas_particle_count_due_to_gas_injection](name:accumulated_gas_particle_count_at_inlet_due_to_gas_injection)\
+    \ and [accumulated_total_upper_gas_particle_count_at_inlet_due_to_gas_injection](name:accumulated_total_upper_gas_particle_count_at_inlet_due_to_gas_injection),\
+    \ which distinguish upper and lower valve groups. For the machine-wide total across\
+    \ all injection positions, see [accumulated_total_particle_count_due_to_gas_injection](name:accumulated_total_particle_count_due_to_gas_injection)."
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_gas_particle_count_at_inlet_due_to_gas_injection
+  - name:accumulated_total_upper_gas_particle_count_at_inlet_due_to_gas_injection
+  - name:accumulated_total_particle_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_accumulated/midplane/value
+    dd_path: summary/gas_injection_accumulated/midplane/value
+    status: composed
+  - id: dd:summary/gas_injection_prefill/midplane/value
+    dd_path: summary/gas_injection_prefill/midplane/value
+    status: attached
 - name: accumulated_total_particle_count_due_to_gas_injection
   kind: scalar
   status: draft
@@ -904,6 +1018,55 @@
   sources:
   - id: dd:summary/gas_injection_prefill/xenon/value
     dd_path: summary/gas_injection_prefill/xenon/value
+    status: composed
+- name: ammonia_deuterated_source_rate
+  kind: scalar
+  status: draft
+  description: Instantaneous rate at which deuterated ammonia (ND3) molecules are
+    introduced into the plasma vessel by gas injection.
+  documentation: 'Deuterated ammonia (ND3) delivers both nitrogen impurity and deuterium
+    fuel to the plasma in a single injection stream, with each molecule contributing
+    one nitrogen atom ($Z_N = 7$) and three deuterium atoms ($Z_D = 1$). This dual-function
+    character makes ND3 injection relevant to radiative mantle formation, edge cooling,
+    and isotope fueling studies.
+
+
+    The source rate $\dot{N}_{\mathrm{ND_3}}$ is the time derivative of the cumulative
+    injected molecule count:
+
+
+    $$
+
+    \dot{N}_{\mathrm{ND_3}} = \frac{dN_{\mathrm{ND_3}}}{dt}
+
+    $$
+
+
+    where $N_{\mathrm{ND_3}}$ is the total number of ND3 molecules introduced since
+    the reference time. The time-integrated equivalent-electron inventory is tracked
+    by [accumulated deuterated ammonia count](name:accumulated_ammonia_deuterated_count),
+    where each ND3 molecule contributes 10 equivalent electrons: 7 from nitrogen and
+    3 from the three deuterium atoms. The deuterium fueling contribution from ND3
+    is three times this rate and should be combined with other deuterium sources when
+    using [deuterium source rate due to injection](name:deuterium_source_rate_due_to_injection).
+
+
+    The rate is inferred from fast gas-valve diagnostics, calibrated using reference-volume
+    pressure drops and gas conductance models. Typical injection rates range from
+    $10^{19}$ to $10^{21}$ molecules per second for steady-state impurity seeding,
+    rising to $10^{22}$ molecules per second or higher during massive gas injection
+    for disruption mitigation.
+
+
+    Sign convention: Positive when ND3 molecules flow into the plasma vessel.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_ammonia_deuterated_count
+  - name:deuterium_source_rate_due_to_injection
+  sources:
+  - id: dd:summary/gas_injection_rates/ammonia_deuterated/value
+    dd_path: summary/gas_injection_rates/ammonia_deuterated/value
     status: composed
 - name: ammonia_prefill_count
   kind: scalar
@@ -1247,6 +1410,64 @@
   - id: dd:summary/gas_injection_prefill/ethane/value
     dd_path: summary/gas_injection_prefill/ethane/value
     status: composed
+- name: ethylene_prefill_count
+  kind: scalar
+  status: draft
+  description: 'Cumulative neutral ethylene (C2H4) introduced during the prefill gas-loading
+    phase, expressed as an equivalent-electron count. Each C2H4 molecule contributes
+    16 bound atomic electrons: 12 from two carbon atoms and 4 from four hydrogen atoms.'
+  documentation: 'Ethylene prefill count is the cumulative amount of neutral ethylene
+    introduced during the prefill gas-loading interval before plasma breakdown, expressed
+    as an equivalent-electron count. The equivalent-electron convention counts the
+    bound atomic electrons in each neutral molecule; for ethylene, two carbon atoms
+    with atomic number 6 and four hydrogen atoms with atomic number 1 give 16 electrons
+    per C2H4 molecule.
+
+
+    For a molecular injection rate over the prefill interval, the count is defined
+    by
+
+
+    $$
+
+    N_{\mathrm{eq}}^{\mathrm{prefill}} = \int_{t_0}^{t_b} 16\,\dot{N}_{\mathrm{C_2H_4}}(t)\,dt
+
+    $$
+
+
+    where $\dot{N}_{\mathrm{C_2H_4}}(t)$ is the neutral ethylene molecular injection
+    rate in molecules per second, $t_0$ is the start of the prefill interval, $t_b$
+    is the breakdown time or end of prefill, and $N_{\mathrm{eq}}^{\mathrm{prefill}}$
+    is a dimensionless equivalent-electron count. Equivalently, if $N_{\mathrm{C_2H_4}}$
+    molecules are injected during prefill, the count is $16 N_{\mathrm{C_2H_4}}$.
+
+
+    In practice the molecular amount is inferred from calibrated gas-flow or valve-throughput
+    measurements, reservoir pressure changes, or gas-inventory accounting, with conversion
+    to molecule number using the gas equation of state. This quantity is restricted
+    to the prefill interval and is distinct from [accumulated_ethylene_count](name:accumulated_ethylene_count),
+    which tracks ethylene accumulated from plasma breakdown onward. It follows the
+    same equivalent-electron accounting idea used for other injected-species inventory
+    counts such as [accumulated_helium_4_prefill_count_due_to_gas_injection](name:accumulated_helium_4_count_due_to_gas_injection),
+    [accumulated_lithium_prefill_count_due_to_gas_injection](name:accumulated_lithium_prefill_count_due_to_gas_injection),
+    and [carbon_initial_count_due_to_gas_injection](name:carbon_prefill_count_due_to_gas_injection).
+
+
+    Typical prefill magnitudes are about $10^{19}$-$10^{23}$ equivalent electrons,
+    corresponding to roughly $6 \times 10^{17}$-$6 \times 10^{21}$ ethylene molecules.
+    The value depends on vessel volume, target prefill pressure, gas-line calibration,
+    and the duration of the prefill injection.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_ethylene_count
+  - name:accumulated_helium_4_count_due_to_gas_injection
+  - name:accumulated_lithium_prefill_count_due_to_gas_injection
+  - name:carbon_prefill_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_prefill/ethylene/value
+    dd_path: summary/gas_injection_prefill/ethylene/value
+    status: composed
 - name: gas_flow
   kind: scalar
   status: draft
@@ -1295,6 +1516,52 @@
   - id: dd:gas_pumping/duct/flow_rate
     dd_path: gas_pumping/duct/flow_rate
     status: attached
+- name: helium_3_source_rate_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Instantaneous rate of helium-3 atom delivery into the plasma vessel
+    by gas injection, where each He-3 atom counts as two equivalent electrons due
+    to its atomic number Z = 2.
+  documentation: 'The helium-3 source rate due to gas injection is the instantaneous
+    equivalent-electron count rate for helium-3 ($^3$He, $Z = 2$) delivered by external
+    gas injection systems into the plasma vessel. In the equivalent-electron counting
+    convention, each injected helium-3 atom contributes 2 count units to the rate,
+    so the reported value equals twice the physical atom delivery rate.
+
+
+    The equivalent-electron rate $\dot{N}_{\text{He-3}}$ is the time derivative of
+    the cumulative helium-3 inventory:
+
+
+    $$
+
+    \dot{N}_{\text{He-3}} = \frac{d N_{\text{He-3}}}{dt}
+
+    $$
+
+
+    where $N_{\text{He-3}}$ is the [accumulated helium-3 count since plasma breakdown](name:accumulated_helium_3_count_due_to_gas_injection).
+
+
+    The injection rate is inferred from calibrated gas feed diagnostics such as piezoelectric
+    or solenoid valves with integrated flow metering. Helium-3 is employed for minority-species
+    ion cyclotron heating, specialized fueling experiments, and impurity studies requiring
+    a light noble gas. The analogous hydrogen rate is [hydrogen_source_rate_due_to_gas_injection](name:hydrogen_source_rate_due_to_gas_injection),
+    and the species-summed total across all injected gasses is given by [source_rate_due_to_gas_injection](name:source_rate_due_to_gas_injection).
+
+
+    Sign convention: Positive when helium-3 gas is being delivered into the plasma
+    vessel.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_helium_3_count_due_to_gas_injection
+  - name:hydrogen_source_rate_due_to_gas_injection
+  - name:source_rate_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_rates/helium_3/value
+    dd_path: summary/gas_injection_rates/helium_3/value
+    status: composed
 - name: helium_4_prefill_count_due_to_gas_injection
   kind: scalar
   status: draft
@@ -1648,6 +1915,60 @@
   - id: dd:summary/gas_injection_rates/oxygen/value
     dd_path: summary/gas_injection_rates/oxygen/value
     status: composed
+- name: power_of_plant_subsystem
+  kind: scalar
+  status: draft
+  description: Real electrical power drawn by an individual plant subsystem during
+    operation. It is the subsystem-level contribution to plant auxiliary load accounting
+    and system-level electrical power balances.
+  documentation: 'Power of a plant subsystem is the real electrical power drawn by
+    one defined subsystem while carrying out its operational function. It represents
+    active electrical load rather than reactive or apparent power, and it is used
+    to attribute auxiliary demand within plant electrical power balances.
+
+
+    For an accounting boundary containing $N$ subsystems, the corresponding system
+    load is the sum of the subsystem loads:
+
+
+    $$
+
+    P_\mathrm{system} = \sum_{i=1}^{N} P_{\mathrm{subsystem},i}
+
+    $$
+
+
+    where $P_\mathrm{system}$ is the system real power in W, $P_{\mathrm{subsystem},i}$
+    is the real power drawn by subsystem $i$ in W, and $N$ is the dimensionless number
+    of subsystems included in the accounting boundary. The aggregate system quantity
+    is [power_of_plant_system](name:net_absorbed_power_of_plant_system); summing over
+    plant systems gives [total_power_of_plant_system](name:total_power_of_plant_system),
+    while [absorbed_power_of_plant_system](name:net_absorbed_power_of_plant_system)
+    is the closely related system-level absorbed electrical load.
+
+
+    Subsystem power is measured with calibrated active-power meters, energy monitors
+    on subsystem electrical feeds, or control-system estimates based on voltage, current,
+    and power factor. Time averaging should match the plant power-balance interval,
+    and shared services such as cooling, vacuum support, or control infrastructure
+    should be allocated consistently to avoid double counting or omission.
+
+
+    Typical subsystem loads span about $10^3-10^8$ W. Small instrumentation, control,
+    or auxiliary-service subsystems may draw $10^3-10^5$ W; pumps, local cooling loops,
+    drives, and medium auxiliary equipment commonly draw $10^5-10^7$ W; major pulsed
+    or continuous plant subsystems such as cryogenic, heating, current-drive, magnet-power,
+    or large thermal-management equipment can reach $10^7-10^8$ W depending on operating
+    phase.'
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:net_absorbed_power_of_plant_system
+  - name:total_power_of_plant_system
+  sources:
+  - id: dd:balance_of_plant/power_electric_plant_operation/system/subsystem/power
+    dd_path: balance_of_plant/power_electric_plant_operation/system/subsystem/power
+    status: composed
 - name: propane_prefill_count
   kind: scalar
   status: draft
@@ -1914,6 +2235,57 @@
   sources:
   - id: dd:balance_of_plant/power_plant/total_heat_supplied
     dd_path: balance_of_plant/power_plant/total_heat_supplied
+    status: composed
+- name: total_thermal_power_at_outlet
+  kind: scalar
+  status: draft
+  description: Total waste-heat power rejected from the power-conversion cycle to
+    the environment rather than converted into useful electrical output.
+  documentation: 'Total thermal power at the outlet is the rate at which a power-conversion
+    cycle rejects heat to its low-temperature sink. It represents the waste-heat load
+    that must be removed by condensers, cooling water systems, dry coolers, cooling
+    towers, or other heat-rejection equipment after useful electrical work has been
+    extracted.
+
+
+    For a steady power-conversion cycle, the first-law power balance is:
+
+
+    $$
+
+    P_\mathrm{out} = P_\mathrm{in} - P_\mathrm{net}
+
+    $$
+
+
+    where $P_\mathrm{out}$ is the rejected thermal power in W, $P_\mathrm{in}$ is
+    the [total thermal power at the inlet](name:total_thermal_power_at_inlet) in W,
+    and $P_\mathrm{net}$ is the net useful electrical power delivered by the conversion
+    system in W. The thermal efficiency is $\eta = P_\mathrm{net}/P_\mathrm{in}$,
+    so the rejected fraction is $P_\mathrm{out}/P_\mathrm{in} = 1 - \eta$; for a heat
+    engine operating between hot and cold reservoirs, $\eta$ is limited by the reservoir
+    temperatures through the second law of thermodynamics.
+
+
+    In practice this quantity is obtained from a plant-level energy balance, from
+    calorimetry of the heat-sink stream, or from both. Calorimetric estimates use
+    measured coolant mass flow rate and enthalpy rise across the heat-rejection equipment,
+    while electrical metering provides the net work term needed to close the cycle
+    balance.
+
+
+    For reactor-scale fusion power-plant studies, thermal efficiencies of about 30-40%
+    imply rejected heat loads of about 60-70% of the inlet thermal power. Commercial-scale
+    cases with several hundred MW of net electrical output typically reject about
+    1-3 GW of thermal power, depending on cycle efficiency, auxiliary loads, and heat-sink
+    temperature.'
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:total_thermal_power_at_inlet
+  sources:
+  - id: dd:balance_of_plant/power_plant/total_heat_rejected
+    dd_path: balance_of_plant/power_plant/total_heat_rejected
     status: composed
 - name: tritium_prefill_count
   kind: scalar

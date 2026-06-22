@@ -1,6 +1,6 @@
 # Domain: edge_plasma_physics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 91
+# Entries: 96
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -382,6 +382,57 @@
   sources:
   - id: dd:summary/local/pedestal/n_i/carbon/value
     dd_path: summary/local/pedestal/n_i/carbon/value
+    status: composed
+- name: carbon_density_at_plasma_boundary
+  kind: scalar
+  status: draft
+  description: Number density of carbon impurity ions at the plasma boundary, represented
+    by the last closed flux surface or separatrix. It sums the ion charge states C+
+    through C6+ and excludes neutral carbon.
+  documentation: 'Carbon density at the plasma boundary is the number density of carbon
+    impurity ions evaluated on the last closed flux surface, or on the separatrix
+    in a diverted plasma. It is an impurity-specific ion density and is distinct from
+    the total ion density at the boundary, which includes fuel ions, helium, and all
+    other ion species.
+
+
+    For elemental carbon with nuclear charge $Z_C=6$, the summed ion density is
+
+
+    $$
+
+    n_{\mathrm{C},b} = \sum_{z=1}^{6} n_{\mathrm{C}^{z+},b}
+
+    $$
+
+
+    where $n_{\mathrm{C}^{z+},b}$ is the boundary number density of carbon ions with
+    charge state $z$, each density term has units of $\mathrm{m^{-3}}$, and the subscript
+    $b$ denotes evaluation at the plasma boundary. Neutral carbon, $\mathrm{C^0}$,
+    is not included in this ion-density sum.
+
+
+    In practice, this quantity is inferred from edge impurity spectroscopy, charge-exchange
+    measurements for accessible charge states, and collisional-radiative modeling
+    that maps observed line emission to charge-state densities at the boundary. Equilibrium
+    reconstruction or magnetic-surface identification provides the location of the
+    last closed flux surface used for the boundary evaluation.
+
+
+    Typical summed carbon-ion densities at the plasma boundary are about $10^{15}-10^{18}\
+    \mathrm{m^{-3}}$ in many tokamak edge plasmas. Values can approach $10^{18}-10^{19}\
+    \mathrm{m^{-3}}$ in carbon-wall or strong-sputtering conditions, while actively
+    impurity-controlled plasmas may be lower.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:density_at_plasma_boundary
+  - name:nitrogen_density_at_plasma_boundary
+  - name:oxygen_density_at_plasma_boundary
+  - name:carbon_density_at_pedestal
+  sources:
+  - id: dd:summary/local/separatrix/n_i/carbon/value
+    dd_path: summary/local/separatrix/n_i/carbon/value
     status: composed
 - name: deuterium_density_at_pedestal
   kind: scalar
@@ -1061,6 +1112,60 @@
   - id: dd:summary/local/separatrix_average/magnetic_shear/value
     dd_path: summary/local/separatrix_average/magnetic_shear/value
     status: composed
+- name: gradient_of_radial_electron_density
+  kind: scalar
+  status: draft
+  description: Core-side derivative of electron number density with respect to normalized
+    poloidal flux at the H-mode pedestal, representing the density slope just inside
+    the steep pedestal region.
+  documentation: 'The gradient of radial electron density is the derivative of electron
+    number density with respect to the normalized poloidal flux coordinate $\psi_N$,
+    evaluated on the core-side branch of an H-mode pedestal density fit. It characterizes
+    the gentler radial variation just inside the steep pedestal layer and is distinct
+    from the maximum pedestal density gradient gradient_of_electron_density.
+
+
+    The core-side pedestal slope is defined by evaluating the derivative of the fitted
+    electron density $n_e$ at the core-side pedestal location $\psi_{N,\mathrm{core}}$:
+
+
+    $$
+
+    G_{n_e,\mathrm{core}} = \left.\frac{d n_e}{d\psi_N}\right|_{\psi_N = \psi_{N,\mathrm{core}}}
+
+    $$
+
+
+    where $G_{n_e,\mathrm{core}}$ is this quantity, $n_e$ is electron number density,
+    and $\psi_N$ is the normalized poloidal flux coordinate. Because $\psi_N$ is dimensionless,
+    the derivative has the same unit as electron number density.
+
+
+    In practice, this quantity is obtained by fitting edge electron density measurements
+    with a pedestal representation and taking the derivative of that fitted function
+    on the core side of the pedestal. The value should not be interpreted as the steepest
+    pedestal slope; that maximum-gradient quantity is usually larger in magnitude
+    and located within the narrow pedestal transition region.
+
+
+    Typical H-mode core-side values are often negative, with magnitudes about $10^{18}$-$10^{20}$
+    m^-3 for weakly varying or moderately sloped density, and occasionally approaching
+    $10^{21}$ m^-3 in strongly shaped or high-density pedestals. Values near zero
+    indicate an almost flat core-side density variation over the fitted interval.
+
+
+    Sign convention: Positive when electron number density increases with increasing
+    normalized poloidal flux coordinate $\psi_N$.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links: []
+  sources:
+  - id: dd:summary/pedestal_fits/linear/n_e/d_dpsi_norm/value
+    dd_path: summary/pedestal_fits/linear/n_e/d_dpsi_norm/value
+    status: composed
+  - id: dd:summary/pedestal_fits/mtanh/n_e/d_dpsi_norm/value
+    dd_path: summary/pedestal_fits/mtanh/n_e/d_dpsi_norm/value
+    status: attached
 - name: helium_3_density_at_plasma_boundary
   kind: scalar
   status: draft
@@ -1824,6 +1929,60 @@
   - id: dd:summary/local/separatrix_average/n_i/nitrogen/value
     dd_path: summary/local/separatrix_average/n_i/nitrogen/value
     status: composed
+- name: normalized_electron_collisionality_at_pedestal_top
+  kind: scalar
+  status: draft
+  description: Dimensionless ratio of the electron collision frequency to the trapped-electron
+    bounce frequency evaluated at the pressure pedestal top.
+  documentation: 'Normalized electron collisionality at the pedestal top measures
+    how rapidly Coulomb collisions scatter electrons compared with the bounce motion
+    of trapped electrons at the top of the H-mode pressure pedestal. It is a local
+    dimensionless neoclassical parameter: values much smaller than unity indicate
+    weakly collisional trapped-electron motion, while values near or above unity indicate
+    that collisions significantly modify trapped-particle dynamics.
+
+
+    A common neoclassical estimate is:
+
+
+    $$
+
+    \nu^*_e = \frac{q R \nu_{ei}}{v_{\mathrm{th},e} \epsilon^{3/2}}
+
+    $$
+
+
+    where $q$ is the safety factor, $R$ is major radius in the right-handed cylindrical
+    $(R, \phi, Z)$ frame, $\nu_{ei}$ is the local electron-ion collision frequency,
+    $v_{\mathrm{th},e}$ is the electron thermal speed, and $\epsilon$ is the local
+    inverse aspect ratio of the flux surface. The thermal speed is commonly taken
+    as $v_{\mathrm{th},e}=\sqrt{2T_e/m_e}$ when $T_e$ is expressed as an energy, so
+    the ratio can also be read as $\nu_{ei}$ divided by an effective trapped-electron
+    bounce frequency $v_{\mathrm{th},e}\epsilon^{3/2}/(qR)$.
+
+
+    In practice this quantity is computed by evaluating the local density, temperature,
+    safety factor, major radius, and flux-surface geometry at the pressure pedestal
+    top, then using them to calculate $\nu_{ei}$ and the bounce-frequency normalization.
+    The pedestal-top location is typically identified from fits to the edge pressure
+    or density and temperature gradients, while magnetic geometry is obtained from
+    an equilibrium reconstruction.
+
+
+    Representative pedestal-top values are dimensionless and commonly range from well
+    below unity to order 10, depending mainly on electron temperature, density, size,
+    safety factor, and aspect ratio. Hot, low-density pedestals tend toward lower
+    $\nu^*_e$, whereas cooler or denser pedestals tend toward higher values.'
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:electron_collisionality_at_pedestal_top
+  - name:coulomb_logarithm_at_pedestal_top
+  - name:beta_at_pedestal_top
+  sources:
+  - id: dd:summary/pedestal_fits/mtanh/nustar_pedestal_top_electron/value
+    dd_path: summary/pedestal_fits/mtanh/nustar_pedestal_top_electron/value
+    status: composed
 - name: normalized_poloidal_magnetic_flux_at_pedestal
   kind: scalar
   status: draft
@@ -2052,6 +2211,69 @@
   - id: dd:edge_transport/model/ggd/momentum/flux/parallel
     dd_path: edge_transport/model/ggd/momentum/flux/parallel
     status: composed
+- name: parallel_total_momentum_convection_velocity
+  kind: scalar
+  status: draft
+  description: Effective field-line-parallel convection velocity for total momentum
+    transport in the edge plasma.
+  documentation: 'Parallel total momentum convection velocity is the effective speed
+    along a magnetic field line that transports the total parallel momentum density.
+    It represents the advective coefficient for the combined momentum variable in
+    an edge-plasma momentum balance, not necessarily the measured parallel flow of
+    any single species.
+
+
+    The defining relation for the convective part of the total parallel momentum flux
+    is:
+
+
+    $$
+
+    \Gamma_{P_\parallel}^{\mathrm{conv}} = P_\parallel\, v_{\parallel,\mathrm{conv}}
+
+    $$
+
+
+    where $\Gamma_{P_\parallel}^{\mathrm{conv}}$ is the convective flux density of
+    total parallel momentum in kg m$^{-1}$ s$^{-2}$, $P_\parallel$ is the total parallel
+    momentum density in kg m$^{-2}$ s$^{-1}$, and $v_{\parallel,\mathrm{conv}}$ is
+    this effective convection velocity in m s$^{-1}$.
+
+
+    In practice this coefficient is obtained from edge fluid or kinetic-fluid momentum
+    closures, or computed as the ratio of convective momentum flux to total parallel
+    momentum density where that density is nonzero. In a simple single-fluid closure
+    it is usually close to the center-of-mass parallel flow velocity; in multi-species,
+    neutral-coupled, or reduced transport closures it can differ from ion or neutral
+    parallel flow velocities because it is the coefficient that advects total momentum.
+    The cross-field analog is [radial effective momentum convection velocity](name:radial_plasma_effective_momentum_convection_velocity),
+    and species-resolved analogs include [parallel ion momentum convection velocity](name:parallel_ion_momentum_convection_velocity)
+    and [parallel neutral momentum convection velocity].
+
+
+    Typical values in scrape-off-layer and divertor momentum balances are about $10^2-10^5$
+    m s$^{-1}$, spanning slow recirculating plasma or neutral flows up to ion-sound-order
+    parallel advection. This range applies to the velocity coefficient itself, because
+    it multiplies a momentum density to produce a convective momentum flux.
+
+
+    Sign convention: Positive when the field-line-parallel convection velocity points
+    in the direction of the local magnetic field vector.'
+  unit: m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:radial_plasma_effective_momentum_convection_velocity
+  - name:parallel_ion_momentum_convection_velocity
+  sources:
+  - id: dd:edge_transport/model/ggd/ion/momentum/v_parallel/values
+    dd_path: edge_transport/model/ggd/ion/momentum/v_parallel/values
+    status: composed
+  - id: dd:edge_transport/model/ggd/momentum/v_parallel/values
+    dd_path: edge_transport/model/ggd/momentum/v_parallel/values
+    status: composed
+  - id: dd:edge_transport/model/ggd/neutral/momentum/v_parallel/values
+    dd_path: edge_transport/model/ggd/neutral/momentum/v_parallel/values
+    status: composed
 - name: poloidal_flux_surface_averaged_electron_beta_at_pedestal_top
   kind: scalar
   status: draft
@@ -2150,6 +2372,48 @@
   sources:
   - id: dd:edge_transport/model/ggd/momentum/d_radial/values
     dd_path: edge_transport/model/ggd/momentum/d_radial/values
+    status: composed
+- name: safety_factor_at_pedestal
+  kind: scalar
+  status: draft
+  description: Safety factor evaluated at the H-mode pedestal, quantifying field-line
+    helicity at the steep-gradient edge transport barrier that governs ELM stability
+    and confinement.
+  documentation: "The safety factor at the pedestal is the value of $q$ on the flux\
+    \ surface that coincides with the H-mode pressure pedestal \u2014 the steep-gradient\
+    \ edge transport barrier where pressure, temperature, and density transition sharply\
+    \ from the hot core to the scrape-off layer. Along with [safety_factor_at_magnetic_axis](name:safety_factor_at_magnetic_axis)\
+    \ and [safety_factor_at_plasma_boundary](name:safety_factor_at_normalized_poloidal_magnetic_flux_equal_to_0_95),\
+    \ it characterizes the magnetic field-line helicity at a physically significant\
+    \ plasma location and is a key parameter for edge MHD stability analysis, particularly\
+    \ for edge-localized mode onset.\n\nThe safety factor is defined as the ratio\
+    \ of incremental toroidal to poloidal magnetic flux:\n\n$$\nq(\\psi) = \\frac{d\\\
+    Phi_{\\rm tor}}{d\\Phi_{\\rm pol}}\n$$\n\nwhere $\\Phi_{\\rm tor}$ is the toroidal\
+    \ magnetic flux enclosed by the flux surface labeled by poloidal flux $\\psi$,\
+    \ and $\\Phi_{\\rm pol}$ is the corresponding poloidal flux. Equivalently, $q$\
+    \ counts the number of toroidal field-line transits per single poloidal circuit.\
+    \ The pedestal value is closely related to the commonly quoted $q_{95}$ parameter,\
+    \ which evaluates [safety_factor](name:safety_factor) at the 95% normalized poloidal\
+    \ flux surface and is widely used as a global stability proxy.\n\nThe pedestal\
+    \ $q$ is extracted from magnetic equilibrium reconstruction using external flux-loop\
+    \ and magnetic-probe measurements, optionally constrained by internal current-profile\
+    \ diagnostics such as motional-Stark-effect polarimetry; the pedestal location\
+    \ is identified from electron pressure or density gradient profiles.\n\nTypical\
+    \ values in H-mode tokamak plasmas range from 3 to 6, increasing with weaker plasma\
+    \ current or a higher $q$ operating point. The [minimum_safety_factor](name:minimum_safety_factor)\
+    \ provides a complementary global bound on the $q$ profile.\n\nSign convention:\
+    \ Positive when both the toroidal magnetic field $B_\\phi$ and the plasma current\
+    \ $I_p$ point in the direction of increasing toroidal angle $\\phi$."
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:safety_factor_at_magnetic_axis
+  - name:safety_factor_at_normalized_poloidal_magnetic_flux_equal_to_0_95
+  - name:safety_factor
+  - name:minimum_safety_factor
+  sources:
+  - id: dd:summary/local/pedestal/q/value
+    dd_path: summary/local/pedestal/q/value
     status: composed
 - name: toroidal_argon_velocity_at_pedestal
   kind: scalar
@@ -3513,8 +3777,14 @@
   - name:toroidal_carbon_velocity_at_plasma_boundary
   - name:toroidal_neon_velocity_at_plasma_boundary
   sources:
+  - id: dd:summary/local/separatrix/velocity_phi/oxygen/value
+    dd_path: summary/local/separatrix/velocity_phi/oxygen/value
+    status: composed
   - id: dd:summary/local/separatrix/velocity_tor/oxygen/value
     dd_path: summary/local/separatrix/velocity_tor/oxygen/value
+    status: composed
+  - id: dd:summary/local/separatrix_average/velocity_tor/oxygen/value
+    dd_path: summary/local/separatrix_average/velocity_tor/oxygen/value
     status: composed
 - name: toroidal_tritium_velocity_at_plasma_boundary
   kind: scalar
@@ -3982,8 +4252,7 @@
     respect to $\psi_N$. Modified hyperbolic-tangent and piecewise-linear fits are
     common ways to locate the steepest pedestal segment. This normalized-flux derivative
     complements [gradient_of_electron_temperature](name:gradient_of_electron_temperature)
-    and [gradient_of_electron_density](name:gradient_of_electron_density), and differs
-    from [gradient_of_radial_electron_pressure](name:derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_pressure_at_pedestal),
+    and gradient_of_electron_density, and differs from [gradient_of_radial_electron_pressure](name:derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_pressure_at_pedestal),
     which is a spatial derivative requiring a local conversion between $\psi_N$ and
     a chosen radial distance.
 
@@ -4002,7 +4271,6 @@
   links:
   - name:electron_pressure
   - name:gradient_of_electron_temperature
-  - name:gradient_of_electron_density
   - name:derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_pressure_at_pedestal
   arguments:
   - name: electron_pressure

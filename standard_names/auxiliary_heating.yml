@@ -1,6 +1,6 @@
 # Domain: auxiliary_heating
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 66
+# Entries: 72
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -60,6 +60,52 @@
   - name:ion_state_absorbed_power_of_beam_tracing_beam
   sources:
   - id: derived:absorbed_power_of_beam_tracing_beam
+    status: composed
+- name: beam_area_of_neutral_beam_injector
+  kind: scalar
+  status: draft
+  description: Area of the active ion-source emission face of a neutral beam injector.
+    It is defined before downstream neutralization and sets the source cross-section
+    used to normalize extracted beam current density.
+  documentation: 'Beam area of a neutral beam injector is the total active area of
+    the ion-source emission face from which ions are extracted into the accelerator.
+    It describes the source-side geometric cross-section of the charged beam before
+    the neutralizer, not the area of the beam after neutralization or after downstream
+    divergence.
+
+
+    For an emitting surface $S_\mathrm{emit}$, the beam area $A_\mathrm{beam}$ is
+
+
+    $$
+
+    A_\mathrm{beam} = \int_{S_\mathrm{emit}} dA
+
+    $$
+
+
+    where $dA$ is an element of the active emitting surface. For a multi-aperture
+    or beamlet source, this integral is evaluated over the union of the active emitting
+    apertures or over the effective emitting patches defined by the source model.
+
+
+    The quantity is obtained from the ion-source and extraction-grid geometry, mechanical
+    metrology, or an effective optical model of the source. It is closely related
+    to the source-surface quantity [area_of_neutral_beam_injector](name:beam_area_of_neutral_beam_injector);
+    the `beam_area` wording emphasizes its use as the normalization area for beam
+    extraction, for example the average extracted ion current density $\langle j_i
+    \rangle = I_i/A_\mathrm{beam}$ for total extracted ion current $I_i$.
+
+
+    Typical values for heating neutral beam injectors are about 0.03-1 m^2. Compact
+    diagnostic or test sources may be 10^{-4}-10^{-2} m^2, while large negative-ion
+    heating sources can approach 1-2 m^2.'
+  unit: m^2
+  physics_domain: auxiliary_heating
+  links: []
+  sources:
+  - id: dd:nbi/unit/source/surface
+    dd_path: nbi/unit/source/surface
     status: composed
 - name: beam_major_radius_of_beam_tracing_beam
   kind: scalar
@@ -884,6 +930,60 @@
   - id: dd:ic_antennas/antenna/module/strap/geometry/oblique/length
     dd_path: ic_antennas/antenna/module/strap/geometry/oblique/length
     status: composed
+- name: maximum_angle_of_electron_cyclotron_launcher_mirror
+  kind: scalar
+  status: draft
+  description: Upper mechanical travel limit for the signed rotation angle of an electron-cyclotron
+    launcher mirror about its movement axis.
+  documentation: 'The maximum angle of an electron-cyclotron launcher mirror is the
+    upper endpoint of the allowed signed rotation interval for the mirror steering
+    actuator. It is referenced to the launcher mirror reference orientation and, together
+    with [minimum_angle_of_electron_cyclotron_launcher_mirror](name:minimum_angle_of_electron_cyclotron_launcher_mirror),
+    bounds the permitted values of the instantaneous [angle_of_electron_cyclotron_launcher_mirror](name:angle_of_electron_cyclotron_launcher_mirror).
+    This is a hardware constraint rather than a plasma quantity.
+
+
+    The admissible mirror rotation is constrained by
+
+
+    $$
+
+    \alpha_{\min} \leq \alpha \leq \alpha_{\max}
+
+    $$
+
+
+    where $\alpha_{\max}$ is this maximum angle in rad, $\alpha_{\min}$ is the corresponding
+    lower mechanical limit in rad, and $\alpha$ is the instantaneous mirror rotation
+    angle in rad.
+
+
+    The value is established from the launcher mechanical design, actuator travel,
+    clearances, and commissioning calibration. During operation it is used by steering
+    control and protection logic to reject commanded or measured mirror angles outside
+    the allowed interval. The mirror angle affects the launch direction of the electron-cyclotron
+    beam, but the mapping from mirror rotation to beam direction is specific to the
+    launcher optics.
+
+
+    Typical limits are device-specific. For many steerable electron-cyclotron mirrors
+    the allowed excursion is of order 0.1-1 rad from the reference orientation, while
+    narrower or broader ranges can occur depending on actuator geometry and mechanical
+    stops; the signed upper limit must satisfy $\alpha_{\max} \geq \alpha_{\min}$.
+
+
+    Sign convention: Positive when the mirror rotation is counter-clockwise about
+    the movement axis as seen by an observer for whom the positive mirror movement-direction
+    vector points toward the observer.'
+  unit: rad
+  physics_domain: auxiliary_heating
+  links:
+  - name:minimum_angle_of_electron_cyclotron_launcher_mirror
+  - name:angle_of_electron_cyclotron_launcher_mirror
+  sources:
+  - id: dd:ec_launchers/mirror/movement/rotation_angle_max
+    dd_path: ec_launchers/mirror/movement/rotation_angle_max
+    status: composed
 - name: outer_radius_of_antenna_strap
   kind: scalar
   status: draft
@@ -1170,6 +1270,69 @@
   - id: dd:summary/heating_current_drive/ec/power/value
     dd_path: summary/heating_current_drive/ec/power/value
     status: composed
+- name: power_due_to_first_orbit_loss
+  kind: scalar
+  status: draft
+  description: Volume-integrated non-negative power carried out of the confined fast-ion
+    population by particles whose first guiding-center orbit after birth or acceleration
+    is unconfined. It is reported as a positive loss magnitude and enters fast-ion
+    energy balances with a minus sign.
+  documentation: 'First-orbit loss power is the global energy-removal rate associated
+    with prompt escape of newly born or newly accelerated fast ions before they complete
+    their first guiding-center orbit. A particle is counted only when its loss time
+    after the source event is less than the time for its first complete orbit; particles
+    that survive this cutoff and are lost later are not included. The quantity is
+    a loss from the fast-ion population, not a spatially resolved heat-load distribution
+    on plasma-facing components.
+
+
+    The non-negative loss magnitude can be written as an energy-weighted loss-event
+    rate:
+
+
+    $$
+
+    P_{\rm fol} = \int_V \int_0^\infty E_{\rm esc}\, \dot{n}_{\rm fol}^{(1)}(\mathbf{r},
+    E_{\rm esc})\, dE_{\rm esc}\, dV
+
+    $$
+
+
+    where $P_{\rm fol}$ is the first-orbit loss power, $E_{\rm esc}$ is the particle
+    kinetic energy at escape in joules, and $\dot{n}_{\rm fol}^{(1)}$ is the rate
+    density of first-orbit loss events per source volume and per escape-energy interval,
+    with units m^-3 J^-1 s^-1. The superscript $(1)$ denotes the first-orbit classification,
+    $V$ is the source volume over which fast ions are created or accelerated, and
+    using $E_{\rm esc}$ excludes energy already transferred to the background plasma
+    before escape. In a fast-ion energy balance this loss enters as $-P_{\rm fol}$;
+    if charge-exchange loss is treated as a disjoint channel, the combined contribution
+    is $-(P_{\rm fol}+P_{\rm CX})$, where $P_{\rm CX}$ is represented by [fast_ion_power_due_to_charge_exchange](name:fast_ion_power_due_to_charge_exchange).
+
+
+    It is usually computed from orbit-following or Monte Carlo fast-ion transport
+    calculations. Markers are launched from a birth or acceleration distribution,
+    advanced in the magnetic and electric fields, classified by whether they intersect
+    a loss boundary before the first-orbit cutoff, and weighted by their escape energy
+    and source rate. Prompt-loss probes, fast-ion loss detectors, and wall heat-load
+    measurements can constrain the calculation, but the global value is generally
+    inferred from modeling rather than measured directly.
+
+
+    Typical values are 0 W when all prompt orbits are confined. For fast-ion source
+    powers of 10^6-10^7 W, representative modeled losses are often 10^3-10^5 W for
+    well-confined core sources and 10^5-10^6 W when percent-level first-orbit loss
+    fractions occur near the edge or for large orbit widths. The value scales with
+    source power and with the loss fraction set by birth position, pitch angle, particle
+    energy, plasma shape, and the distance between the initial orbit and the material
+    boundary.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:fast_ion_power_due_to_charge_exchange
+  sources:
+  - id: dd:distributions/distribution/global_quantities/power_first_orbit
+    dd_path: distributions/distribution/global_quantities/power_first_orbit
+    status: composed
 - name: power_due_to_ion_cyclotron_heating
   kind: scalar
   status: draft
@@ -1344,11 +1507,10 @@
 
 
     The centroid position in the machine frame combines with the mirror rotation [angle_of_electron_cyclotron_launcher_mirror](name:angle_of_electron_cyclotron_launcher_mirror)
-    and any mechanical [offset_of_electron_cyclotron_launcher_mirror](name:offset_of_electron_cyclotron_launcher_mirror)
-    to define the complete launch geometry used in ray-tracing and beam-tracing models
-    for electron cyclotron heating and current drive. The local boundary contour of
-    the mirror surface is described separately in the mirror-fixed planar frame via
-    [x1_coordinate_of_electron_cyclotron_launcher_mirror](name:x1_coordinate_of_electron_cyclotron_launcher_mirror)
+    and any mechanical offset_of_electron_cyclotron_launcher_mirror to define the
+    complete launch geometry used in ray-tracing and beam-tracing models for electron
+    cyclotron heating and current drive. The local boundary contour of the mirror
+    surface is described separately in the mirror-fixed planar frame via [x1_coordinate_of_electron_cyclotron_launcher_mirror](name:x1_coordinate_of_electron_cyclotron_launcher_mirror)
     and [x2_coordinate_of_electron_cyclotron_launcher_mirror](name:x2_coordinate_of_electron_cyclotron_launcher_mirror).
 
 
@@ -1360,7 +1522,6 @@
   links:
   - name:vertical_coordinate_of_electron_cyclotron_launcher_mirror
   - name:angle_of_electron_cyclotron_launcher_mirror
-  - name:offset_of_electron_cyclotron_launcher_mirror
   - name:x1_coordinate_of_electron_cyclotron_launcher_mirror
   - name:x2_coordinate_of_electron_cyclotron_launcher_mirror
   sources:
@@ -1774,6 +1935,60 @@
   - id: dd:lh_antennas/power
     dd_path: lh_antennas/power
     status: composed
+- name: total_external_heating_power
+  kind: scalar
+  status: draft
+  description: Total non-inductive auxiliary heating power absorbed or deposited in
+    the plasma, combining neutral beam, electron cyclotron, ion cyclotron, lower hybrid,
+    and similar systems. It excludes ohmic inductive heating and source power not
+    coupled to the plasma.
+  documentation: 'Total external heating power is the aggregate non-inductive auxiliary
+    power absorbed or deposited in the plasma. It includes coupled contributions from
+    neutral beam injection and radiofrequency heating systems such as electron cyclotron,
+    ion cyclotron, and lower hybrid heating, and excludes ohmic inductive heating.
+    As a sum of absorbed heating powers, it is non-negative; 0 W indicates that no
+    external auxiliary heating power is coupled to the plasma.
+
+
+    The aggregate power is commonly defined as the sum of the plasma-coupled absorbed
+    powers from the active auxiliary systems:
+
+
+    $$
+
+    P_\mathrm{ext} = P_\mathrm{NBI,abs} + P_\mathrm{EC} + P_\mathrm{IC} + P_\mathrm{LH}
+    + \cdots
+
+    $$
+
+
+    where $P_\mathrm{NBI,abs}$ is the absorbed neutral-beam power, and $P_\mathrm{EC}$,
+    $P_\mathrm{IC}$, and $P_\mathrm{LH}$ are the plasma-coupled electron-cyclotron,
+    ion-cyclotron, and lower-hybrid powers, respectively.
+
+
+    In practice, each contribution is evaluated with source-specific accounting. Neutral-beam
+    absorbed power is inferred from beam energy and current together with corrections
+    for shine-through, reionization, prompt losses, and fast-ion deposition. Radiofrequency
+    contributions are inferred from launched power corrected for transmission-line,
+    matching, reflection, and coupling losses, together with absorption estimates
+    from diagnostics or wave-deposition modeling. The total should include only power
+    coupled to the plasma, not source inefficiency, unabsorbed radiation, or power
+    lost before reaching the plasma.
+
+
+    Typical values range from 0 W when auxiliary systems are inactive to about $10^5$-$10^7$
+    W in small and medium experiments, with large high-power scenarios reaching $10^7$-$10^8$
+    W depending on the active heating mix and plasma conditions.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:total_plasma_heating_power
+  - name:total_plasma_radiated_power
+  sources:
+  - id: dd:summary/heating_current_drive/power_additional/value
+    dd_path: summary/heating_current_drive/power_additional/value
+    status: composed
 - name: total_power_due_to_electron_cyclotron_heating
   kind: scalar
   status: draft
@@ -2057,6 +2272,42 @@
     status: attached
   - id: dd:summary/heating_current_drive/nbi/angle/value
     dd_path: summary/heating_current_drive/nbi/angle/value
+    status: attached
+- name: vertical_centroid_of_coil_conductor_element
+  kind: scalar
+  status: draft
+  description: Vertical Z-coordinate of the geometric centroid of a rectangular coil
+    conductor element cross-section, measured in the right-handed cylindrical (R,
+    phi, Z) frame.
+  documentation: "The vertical centroid coordinate locates the geometric center of\
+    \ a rectangular coil conductor element cross-section along the $Z$-axis of the\
+    \ right-handed cylindrical $(R, \\phi, Z)$ frame, where $R$ is the major-radius\
+    \ distance from the machine symmetry axis, $\\phi$ is the toroidal angle increasing\
+    \ counter-clockwise when viewed from above, and $Z$ is the vertical height.\n\n\
+    For a rectangular cross-section with lower edge at $Z_\\text{min}$ and upper edge\
+    \ at $Z_\\text{max}$, the centroid is:\n\n$$\nZ_c = \\frac{Z_\\text{min} + Z_\\\
+    text{max}}{2}\n$$\n\nwhere $Z_c$ is in meters and coincides with the midpoint\
+    \ between the two horizontal bounding edges of the rectangle.\n\nThis geometric\
+    \ parameter is specified in engineering design documentation for coil, antenna,\
+    \ and passive-structure assemblies, and may be confirmed by physical survey measurements\
+    \ before or during machine operation. Paired with the corresponding major-radius\
+    \ centroid, it fully characterizes the planar position of each sub-element within\
+    \ the poloidal cross-section, providing the input required for Biot\u2013Savart\
+    \ magnetic field calculations from individual current-carrying segments. The analogous\
+    \ coordinate for the parent coil conductor is captured by [vertical_coordinate_of_coil_conductor](name:vertical_coordinate_of_coil_conductor),\
+    \ the generic conductor cross-section center by [vertical_coordinate_of_conductor_cross_section](name:vertical_coordinate_of_conductor_cross_section),\
+    \ and the ion cyclotron antenna strap center by [vertical_coordinate_of_antenna_strap](name:vertical_coordinate_of_antenna_strap).\n\
+    \nSign convention: Positive when the centroid lies above the machine midplane\
+    \ in the direction of increasing $Z$."
+  unit: m
+  physics_domain: auxiliary_heating
+  links:
+  - name:vertical_coordinate_of_coil_conductor
+  - name:vertical_coordinate_of_conductor_cross_section
+  - name:vertical_coordinate_of_antenna_strap
+  sources:
+  - id: dd:ic_antennas/antenna/module/strap/geometry/rectangle/z
+    dd_path: ic_antennas/antenna/module/strap/geometry/rectangle/z
     status: attached
 - name: vertical_coordinate_of_ion_cyclotron_heating_antenna
   kind: scalar
@@ -2353,6 +2604,59 @@
   sources:
   - id: dd:nbi/unit/aperture/outline/x2
     dd_path: nbi/unit/aperture/outline/x2
+    status: composed
+- name: x2_coordinate_of_electron_cyclotron_launcher_mirror
+  kind: scalar
+  status: draft
+  description: X2 coordinate of a point on the boundary contour of an electron cyclotron
+    launcher mirror in its local planar (X1, X2) frame.
+  documentation: 'The X2 coordinate of an electron cyclotron launcher mirror is the
+    signed in-plane displacement of a boundary-contour point along the second axis
+    of the mirror''s local planar Cartesian $(X_1, X_2)$ frame with basis $(\hat{X}_1,
+    \hat{X}_2)$. Together with the companion $X_1$ coordinate, it describes the mirror
+    outline relative to the mirror reference point, not the absolute position of the
+    mirror center.
+
+
+    For a contour point with in-plane position vector $\mathbf{r}_\perp$ measured
+    from the mirror reference point, the coordinate is
+
+
+    $$
+
+    x_2 = \mathbf{r}_\perp \cdot \hat{X}_2
+
+    $$
+
+
+    where $\hat{X}_2$ is the unit vector along the second local planar axis and $x_2$
+    is measured in meters.
+
+
+    In practice, this coordinate is obtained from the mirror design geometry, metrology,
+    or a fitted boundary model by projecting each outline point onto the local $(X_1,
+    X_2)$ axes. The local outline specifies the mirror aperture or reflecting-surface
+    boundary; placement of the mirror center in the right-handed cylindrical $(R,
+    \phi, Z)$ frame requires separate radial and vertical center coordinates, together
+    with the mirror orientation.
+
+
+    Typical values are set by the mirror size: small steering mirrors often have $x_2$
+    coordinates within about -0.1-0.1 m, while larger focusing or launcher mirrors
+    may span roughly -0.5-0.5 m.
+
+
+    Sign convention: Positive when the boundary point is displaced in the $+\hat{X}_2$
+    direction of the local planar Cartesian $(X_1, X_2)$ frame.'
+  unit: m
+  physics_domain: auxiliary_heating
+  links:
+  - name:x1_coordinate_of_electron_cyclotron_launcher_mirror
+  - name:angle_of_electron_cyclotron_launcher_mirror
+  - name:radial_centroid_of_electron_cyclotron_launcher_mirror
+  sources:
+  - id: dd:ec_launchers/mirror/geometry/outline/x2
+    dd_path: ec_launchers/mirror/geometry/outline/x2
     status: composed
 - name: fast_electron_power
   kind: scalar
