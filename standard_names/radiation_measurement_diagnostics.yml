@@ -1,6 +1,6 @@
 # Domain: radiation_measurement_diagnostics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 44
+# Entries: 47
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -103,6 +103,116 @@
   sources:
   - id: dd:spectrometer_x_ray_crystal/channel/crystal/x1_width
     dd_path: spectrometer_x_ray_crystal/channel/crystal/x1_width
+    status: composed
+- name: brightness_of_visible_camera
+  kind: scalar
+  status: draft
+  description: Photon radiance measured by a visible-band camera channel, giving the
+    number of photons collected per unit detector area, per unit time, and per unit
+    solid angle along a line of sight.
+  documentation: 'Brightness of a visible camera is the photon radiance reaching the
+    camera within its visible passband along a line of sight. It counts photons rather
+    than radiant energy, normalized by collection area, observation time, and accepted
+    solid angle, with the viewing-angle projection treated explicitly.
+
+
+    The photon radiance can be defined from the photons collected by a small detector
+    element viewing a small solid angle:
+
+
+    $$
+
+    B_\mathrm{vis} = \frac{dN_\gamma}{dt\,dA\,\cos\alpha\,d\Omega}
+
+    $$
+
+
+    where $B_\mathrm{vis}$ has unit m^-2.s^-1.sr^-1, $dN_\gamma$ is the photon count
+    with unit 1, $dt$ is the exposure or integration time in s, $dA$ is the unprojected
+    physical detector area in m^2, $\alpha$ is the [alpha angle] in rad between the
+    detector surface normal and the incoming ray, and $d\Omega$ is the accepted solid
+    angle in sr. The factor $dA\cos\alpha$ is the projected detector area normal to
+    the ray.
+
+
+    In practice this quantity is obtained from calibrated camera counts after dark-offset
+    subtraction, flat-field and gain correction, detector quantum-efficiency calibration,
+    exposure-time normalization, optical-transmission correction, and geometric calibration
+    of the viewed solid angle. It can include visible line radiation, continuum bremsstrahlung,
+    molecular-band emission, impurity radiation, and light from plasma-wall interactions
+    within the camera response band.
+
+
+    Typical magnitudes vary widely with wavelength band, viewing geometry, and plasma
+    conditions. Faint continuum or wall-background signals may be about 10^15-10^18
+    m^-2.s^-1.sr^-1, while bright edge or divertor line emission is often 10^18-10^22
+    m^-2.s^-1.sr^-1; intense transient or saturated views can exceed 10^22 m^-2.s^-1.sr^-1.'
+  unit: m^-2.s^-1.sr^-1
+  physics_domain: radiation_measurement_diagnostics
+  links: []
+  sources:
+  - id: dd:camera_visible/channel/detector/frame/radiance
+    dd_path: camera_visible/channel/detector/frame/radiance
+    status: composed
+- name: deuterium_deuterium_power_density_due_to_fusion
+  kind: scalar
+  status: draft
+  description: Local fusion energy release rate per unit volume from deuterium-deuterium
+    reactions. It includes energy released through the neutron-emitting and proton-emitting
+    D-D branches, expressed as a volumetric power density.
+  documentation: 'Deuterium-deuterium fusion power density is the local rate at which
+    nuclear binding energy is released per unit plasma volume by reactions between
+    deuterium ions. It is a source term for fusion product energy before any subsequent
+    transport, slowing down, or wall losses. The quantity includes energy released
+    in both principal D-D branches, not only the neutron-emitting branch.
+
+
+    Using a total D-D reactivity summed over the neutron-emitting and proton-emitting
+    branches, the local power density is
+
+
+    $$
+
+    p_{DD} = \frac{1}{2} n_D^2 \langle\sigma v\rangle_{DD} E_{DD} = \epsilon_{n,DD}\frac{E_{DD}}{f_n}
+
+    $$
+
+
+    where $n_D$ is deuterium ion density in $\mathrm{m}^{-3}$, $\langle\sigma v\rangle_{DD}$
+    is the velocity-distribution-averaged total D-D reactivity in $\mathrm{m}^3\,\mathrm{s}^{-1}$,
+    and $E_{DD}$ is the branch-weighted reaction energy in joules. The factor $1/2$
+    avoids double counting pairs of identical deuterons. $\epsilon_{n,DD}$ is the
+    neutron emissivity from the D-D neutron branch in $\mathrm{m}^{-3}\,\mathrm{s}^{-1}$
+    and $f_n$ is that branch''s fraction of all D-D reactions, so neutron-branch emissivity
+    is converted to total D-D power density by multiplying by $E_{DD}/f_n$. For nearly
+    equal branch probabilities, $f_n \approx 0.5$; with branch energies of 3.27 MeV
+    and 4.03 MeV, $E_{DD} \approx 3.65$ MeV = $5.85\times10^{-13}$ J per total D-D
+    reaction, and $E_{DD}/f_n \approx 7.30$ MeV = $1.17\times10^{-12}$ J per emitted
+    D-D neutron.
+
+
+    In practice, this quantity may be computed from deuterium density, ion velocity
+    distributions, and nuclear reactivity data, or inferred from neutron measurements.
+    Tomographic inversion estimates the local D-D neutron emissivity, after which
+    branch fractions and reaction energies provide the conversion to total fusion
+    power density. Absolute calibration, scattered-neutron corrections, viewing geometry,
+    fuel dilution, and nonthermal deuterium populations can all affect the inferred
+    value.
+
+
+    Typical core values in present deuterium plasmas range from 10-10^4 W m^-3 for
+    thermal ion temperatures of a few to about 15 keV. Hotter plasmas or plasmas with
+    strong fast-ion populations can reach 10^5-10^6 W m^-3 locally, while values near
+    the cool plasma edge are often much smaller.'
+  unit: W.m^-3
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:deuterium_tritium_power_density_due_to_fusion
+  - name:power_density_due_to_fusion
+  - name:deuterium_deuterium_flux_due_to_thermal_fusion
+  sources:
+  - id: dd:neutron_diagnostic/reconstructed_emissivity/fusion_power_dd
+    dd_path: neutron_diagnostic/reconstructed_emissivity/fusion_power_dd
     status: composed
 - name: deuterium_tritium_power_density_due_to_fusion
   kind: scalar
@@ -994,6 +1104,83 @@
   - id: dd:spectrometer_visible/channel/optical_element/material_properties/refractive_index
     dd_path: spectrometer_visible/channel/optical_element/material_properties/refractive_index
     status: attached
+- name: spectral_wavelength_of_optical_element
+  kind: scalar
+  status: draft
+  description: Wavelength coordinate axis defining the spectral sampling grid at which
+    the optical properties or instrument response of a diagnostic optical element
+    are characterized.
+  documentation: "This quantity specifies the set of photon wavelength values constituting\
+    \ the spectral axis used to sample the wavelength-resolved properties of a diagnostic\
+    \ optical element, such as its transmission, reflectivity, absorption, refractive\
+    \ index, or instrument response function. It applies across a wide range of diagnostic\
+    \ types, from crystal X-ray spectrometers and soft or hard X-ray filter windows\
+    \ to visible-band filter spectrometers, wherever the element's spectral behavior\
+    \ must be characterized on a defined wavelength grid.\n\nThe photon wavelength\
+    \ $\\lambda$ relates to photon energy $E$ by\n\n$$\n\\lambda = \\frac{hc}{E}\n\
+    $$\n\nwhere $h$ is Planck's constant and $c$ is the speed of light in vacuum.\
+    \ For hard X-ray filter materials the grid spans roughly 0.001\u20130.1 nm; for\
+    \ soft X-ray diagnostics, 0.1\u201350 nm; for visible-band spectrometers, 380\u2013\
+    780 nm.\n\nThis spectral coordinate is the companion axis to wavelength-resolved\
+    \ material properties such as [spectral_refractive_index_of_optical_element](name:spectral_refractive_index_of_optical_element)\
+    \ and feeds into the derivation of quantities like [effective_spectral_width_of_spectrometer_channel](name:effective_spectral_width_of_spectrometer_channel).\
+    \ For identifying individual spectral features resolved within this grid, the\
+    \ central rest-frame vacuum wavelength of a transition is given by [wavelength_of_spectral_line](name:wavelength_of_spectral_line)."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:spectral_refractive_index_of_optical_element
+  - name:effective_spectral_width_of_spectrometer_channel
+  - name:wavelength_of_spectral_line
+  sources:
+  - id: dd:bremsstrahlung_visible/channel/filter/wavelengths
+    dd_path: bremsstrahlung_visible/channel/filter/wavelengths
+    status: attached
+  - id: dd:camera_ir/optical_element/material_properties/wavelengths
+    dd_path: camera_ir/optical_element/material_properties/wavelengths
+    status: attached
+  - id: dd:camera_visible/channel/optical_element/material_properties/wavelengths
+    dd_path: camera_visible/channel/optical_element/material_properties/wavelengths
+    status: attached
+  - id: dd:camera_x_rays/filter_window/wavelengths
+    dd_path: camera_x_rays/filter_window/wavelengths
+    status: composed
+  - id: dd:charge_exchange/channel/spectrum/wavelengths
+    dd_path: charge_exchange/channel/spectrum/wavelengths
+    status: attached
+  - id: dd:hard_x_rays/channel/filter_window/wavelengths
+    dd_path: hard_x_rays/channel/filter_window/wavelengths
+    status: attached
+  - id: dd:soft_x_rays/channel/filter_window/wavelengths
+    dd_path: soft_x_rays/channel/filter_window/wavelengths
+    status: attached
+  - id: dd:spectrometer_uv/channel/wavelengths
+    dd_path: spectrometer_uv/channel/wavelengths
+    status: attached
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/wavelengths
+    dd_path: spectrometer_visible/channel/filter_spectrometer/wavelengths
+    status: attached
+  - id: dd:spectrometer_visible/channel/grating_spectrometer/wavelengths
+    dd_path: spectrometer_visible/channel/grating_spectrometer/wavelengths
+    status: attached
+  - id: dd:spectrometer_visible/channel/optical_element/material_properties/wavelengths
+    dd_path: spectrometer_visible/channel/optical_element/material_properties/wavelengths
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/bin/instrument_function/wavelengths
+    dd_path: spectrometer_x_ray_crystal/channel/bin/instrument_function/wavelengths
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/bin/wavelength
+    dd_path: spectrometer_x_ray_crystal/channel/bin/wavelength
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/wavelengths
+    dd_path: spectrometer_x_ray_crystal/channel/filter_window/wavelengths
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/instrument_function/wavelengths
+    dd_path: spectrometer_x_ray_crystal/channel/instrument_function/wavelengths
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/wavelength_frames
+    dd_path: spectrometer_x_ray_crystal/channel/wavelength_frames
+    status: attached
 - name: spectral_width_of_spectrometer_channel
   kind: scalar
   status: draft
@@ -1561,8 +1748,14 @@
   - name:lower_bound_energy_of_detector_pixel
   - name:upper_bound_energy_of_detector_pixel
   sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/crystal/wavelength_bragg
+    dd_path: spectrometer_x_ray_crystal/channel/crystal/wavelength_bragg
+    status: attached
   - id: dd:spectrometer_x_ray_crystal/channel/wavelength_frames
     dd_path: spectrometer_x_ray_crystal/channel/wavelength_frames
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/crystal/wavelength_bragg
+    dd_path: spectrometer_x_ray_crystal/crystal/wavelength_bragg
     status: attached
   - id: dd:spectrometer_x_ray_crystal/wavelength_frames
     dd_path: spectrometer_x_ray_crystal/wavelength_frames
@@ -2558,8 +2751,9 @@
     and temperatures, isotope composition, and fusion reactivity data. It is constrained
     experimentally by neutron monitors, activation systems, neutron cameras, and neutron
     spectroscopy, often using beam modulation or transport modeling to separate beam-thermal
-    emission from [thermal_neutron_flux](name:thermal_neutron_flux) and other neutron-producing
-    components. The channel-resolved components include [deuterium_deuterium_flux_due_to_beam_thermal_fusion](name:deuterium_deuterium_flux_due_to_beam_thermal_fusion),
+    emission from [thermal_neutron_flux](name:total_neutron_source_rate_due_to_thermal_fusion)
+    and other neutron-producing components. The channel-resolved components include
+    [deuterium_deuterium_flux_due_to_beam_thermal_fusion](name:deuterium_deuterium_flux_due_to_beam_thermal_fusion),
     [deuterium_tritium_flux_due_to_beam_thermal_fusion](name:deuterium_tritium_flux_due_to_beam_thermal_fusion),
     and the TT beam-thermal contribution; their sum contributes to total_neutron_flux.
 
@@ -2572,7 +2766,7 @@
   unit: Hz
   physics_domain: radiation_measurement_diagnostics
   links:
-  - name:thermal_neutron_flux
+  - name:total_neutron_source_rate_due_to_thermal_fusion
   - name:deuterium_deuterium_flux_due_to_beam_thermal_fusion
   - name:deuterium_tritium_flux_due_to_beam_thermal_fusion
   sources:

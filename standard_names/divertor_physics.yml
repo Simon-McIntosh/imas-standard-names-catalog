@@ -1,6 +1,6 @@
 # Domain: divertor_physics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 26
+# Entries: 32
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -116,6 +116,61 @@
     status: composed
   - id: dd:summary/local/divertor_target/n_i/carbon/value
     dd_path: summary/local/divertor_target/n_i/carbon/value
+    status: composed
+- name: current_of_divertor
+  kind: scalar
+  status: draft
+  description: Total net electric current carried by charged particles striking the
+    divertor assembly, summed over all divertor target surfaces. It is positive for
+    conventional current into the material and can be negative when the electron contribution
+    dominates.
+  documentation: 'Current of a divertor is the net electric current delivered to the
+    divertor by incident charged particles. It represents the charge transport associated
+    with ions and electrons striking the plasma-facing divertor targets, summed over
+    all relevant target surfaces.
+
+
+    The net incident current can be expressed as a surface integral of the signed
+    particle charge flux:
+
+
+    $$
+
+    I_\mathrm{div} = \int_{A_\mathrm{div}} \sum_s q_s\,\boldsymbol{\Gamma}_s \cdot
+    \hat{\mathbf{n}}_\mathrm{mat}\, dA
+
+    $$
+
+
+    where $A_\mathrm{div}$ is the union of divertor target surfaces, $q_s$ is the
+    signed charge of species $s$, $\boldsymbol{\Gamma}_s$ is the incident particle
+    flux density of that species, and $\hat{\mathbf{n}}_\mathrm{mat}$ is the local
+    unit normal directed from the plasma-facing side into the material.
+
+
+    In practice this current may be inferred from embedded target current sensors,
+    biased divertor circuits, Langmuir-probe measurements combined with sheath models,
+    or plasma-edge simulations that integrate ion and electron fluxes over the target
+    surfaces. Care is needed to distinguish the net signed current from separate ion
+    and electron current components, which can be much larger before cancelation.
+
+
+    Typical net summed currents are often near 0 A for electrically floating, quasi-ambipolar
+    target conditions. During biased operation, strong sheath asymmetry, detachment
+    transients, or disruption-related wall loading, absolute values from 1-10000 A
+    can occur, with larger values possible in large devices or off-normal events.
+
+
+    Sign convention: Positive when the net conventional current carried by incident
+    charged particles is directed from the plasma into the divertor material.'
+  unit: A
+  physics_domain: divertor_physics
+  links:
+  - name:current_at_divertor_target
+  - name:current_of_divertor_tile
+  sources:
+  - id: dd:divertors/divertor/current_incident
+    dd_path: divertors/divertor/current_incident
     status: composed
 - name: current_of_divertor_tile
   kind: scalar
@@ -540,6 +595,39 @@
   - id: dd:summary/boundary/strike_point_inner_r/value
     dd_path: summary/boundary/strike_point_inner_r/value
     status: composed
+- name: major_outer_radius_of_strike_point
+  kind: scalar
+  status: draft
+  description: Major-radius coordinate of the outer divertor strike point, where the
+    outer separatrix leg intersects the divertor target plate.
+  documentation: "The outer divertor strike point marks the intersection of the outer\
+    \ leg of the magnetic separatrix with the divertor target surface. Its major-radius\
+    \ coordinate $R$, measured in the right-handed cylindrical $(R, \\phi, Z)$ frame\
+    \ from the toroidal symmetry axis, locates this intersection in the radial direction\
+    \ and governs the spatial position of the outer heat-load deposition zone.\n\n\
+    In a lower single-null configuration, the outer strike point lies at a larger\
+    \ major radius than its inner counterpart described by [major_inner_radius_of_strike_point](name:major_inner_radius_of_strike_point).\
+    \ The radial position directly influences the wetted area, peak heat flux, and\
+    \ neutral compression in the outer divertor region. In double-null geometries,\
+    \ a secondary outer intersection may be present, characterized by [major_radius_of_secondary_strike_point](name:major_radius_of_secondary_strike_point).\
+    \ The vertical coordinate of the same geometric point is given by [vertical_coordinate_of_outer_divertor_target](name:vertical_coordinate_of_outer_divertor_target).\n\
+    \nThis coordinate is obtained from equilibrium reconstruction by tracing the outermost\
+    \ closed flux surface (separatrix) down to its intersection with the defined divertor\
+    \ target geometry. For medium to large tokamaks, representative outer-strike-point\
+    \ radii span approximately 1.0\u20134.0 m, depending on machine size, plasma shape,\
+    \ and divertor configuration.\n\nSign convention: Positive when $R$ is measured\
+    \ outward from the toroidal symmetry axis in the right-handed cylindrical $(R,\
+    \ \\phi, Z)$ frame, which holds for all physical divertor target locations."
+  unit: m
+  physics_domain: divertor_physics
+  links:
+  - name:major_inner_radius_of_strike_point
+  - name:major_radius_of_secondary_strike_point
+  - name:vertical_coordinate_of_outer_divertor_target
+  sources:
+  - id: dd:summary/boundary/strike_point_outer_r/value
+    dd_path: summary/boundary/strike_point_outer_r/value
+    status: composed
 - name: maximum_power_at_inner_divertor_target
   kind: scalar
   status: draft
@@ -791,6 +879,64 @@
   - id: dd:divertors/divertor/power_neutrals
     dd_path: divertors/divertor/power_neutrals
     status: composed
+- name: neutral_power_of_divertor_due_to_recombination
+  kind: scalar
+  status: draft
+  description: Thermal power deposited on divertor targets by recombination reactions
+    of neutral particles at the plasma-material interface, summed over all targets.
+    It represents the neutral-surface recombination contribution to the total divertor
+    heat load.
+  documentation: 'Neutral recombination power of the divertor is the heat load delivered
+    to divertor target surfaces when neutral particles undergo recombination reactions
+    that form more tightly bound neutral species, such as atomic hydrogen isotopes
+    forming molecules on a material surface. It is the contribution summed over the
+    divertor targets and excludes heat carried by charged particles or photons unless
+    that energy is deposited through the neutral recombination process at the target.
+
+
+    The integrated divertor contribution can be written as a surface integral over
+    target areas:
+
+
+    $$
+
+    P_{\mathrm{rec,n}}^{\mathrm{div}} = \sum_t \int_{A_t} \Gamma_{\mathrm{rec,n}}(\mathbf{x})\,\epsilon_{\mathrm{rec,n}}(\mathbf{x})\,dA
+
+    $$
+
+
+    where $A_t$ is the surface area of target $t$, $\Gamma_{\mathrm{rec,n}}$ is the
+    neutral recombination event rate per unit target area in m$^{-2}$ s$^{-1}$, and
+    $\epsilon_{\mathrm{rec,n}}$ is the mean energy deposited at the target per recombination
+    event in J. The effective $\epsilon_{\mathrm{rec,n}}$ is reaction-, species-,
+    and surface-dependent; it may include chemical binding energy released to the
+    surface and kinetic energy accommodated by the material, and is not generally
+    equal to an atomic ionization potential.
+
+
+    In practice this quantity is estimated from a combination of target heat-flux
+    measurements, neutral pressure and spectroscopy constraints, particle-balance
+    analysis, and neutral transport with plasma-surface interaction modeling. The
+    recombination contribution is separated from charged-particle, radiation, and
+    other neutral heat-load channels using reaction rates, recycling coefficients,
+    surface accommodation assumptions, and measured or reconstructed target conditions.
+
+
+    Typical integrated values range from near 0-10^4 W in weakly recycling or attached
+    divertor conditions to 10^4-10^6 W in strongly recycling or detached conditions
+    on present experiments. In larger devices or high-power detached regimes, values
+    of 10^6-10^7 W are possible when neutral recycling and surface recombination make
+    a substantial contribution to the divertor heat balance.'
+  unit: W
+  physics_domain: divertor_physics
+  links:
+  - name:plasma_power_of_divertor_due_to_recombination
+  - name:power_of_divertor_due_to_recombination
+  - name:neutral_power_at_divertor_target_due_to_recombination
+  sources:
+  - id: dd:divertors/divertor/power_recombination_neutrals
+    dd_path: divertors/divertor/power_recombination_neutrals
+    status: composed
 - name: nitrogen_density_at_divertor_target
   kind: scalar
   status: draft
@@ -843,6 +989,61 @@
   - id: dd:summary/local/divertor_target/n_i/nitrogen/value
     dd_path: summary/local/divertor_target/n_i/nitrogen/value
     status: composed
+- name: parallel_heat_flux_at_divertor_target
+  kind: scalar
+  status: draft
+  description: Parallel heat flux density incident on a divertor target is the power
+    transported along magnetic field lines toward the target per unit area perpendicular
+    to the local magnetic field.
+  documentation: 'Parallel heat flux at a divertor target is the field-aligned heat-flow
+    density evaluated where scrape-off-layer field lines intersect a plasma-facing
+    target surface. It characterizes how much power is carried along the magnetic
+    field toward the material surface before projection onto the surface normal.
+
+
+    The field-aligned component of the heat-flux vector is
+
+
+    $$
+
+    q_\parallel = \mathbf{q}\cdot\hat{\mathbf{b}}
+
+    $$
+
+
+    where $\mathbf{q}$ is the heat-flux vector and $\hat{\mathbf{b}}=\mathbf{B}/|\mathbf{B}|$
+    is the unit vector along the local magnetic field. The target-normal heat flux
+    is related by a magnetic-incidence projection, commonly $q_n \simeq q_\parallel
+    |\hat{\mathbf{b}}\cdot\hat{\mathbf{n}}|$, so $q_\parallel$ is generally larger
+    than the heat flux per unit target surface area when field lines strike the surface
+    at a grazing angle.
+
+
+    In practice it is inferred from divertor target heat-load measurements, such as
+    infrared thermography or embedded calorimetry, combined with surface geometry
+    and magnetic equilibrium reconstruction to de-project the measured target-normal
+    power density along the incident field line. Modeling may compute it from parallel
+    electron and ion conduction, convection, sheath transmission, and volumetric power
+    losses in the scrape-off layer and divertor plasma.
+
+
+    Typical parallel values in present tokamak divertors are about $1\times10^7-1\times10^9$
+    W m$^{-2}$ during attached or weakly detached operation, with lower values in
+    strongly detached conditions. Because of grazing magnetic incidence, the corresponding
+    target-normal surface heat flux is often smaller by factors of roughly $10-100$.
+
+
+    Sign convention: Positive when net heat is transported along the incident magnetic-field
+    line from the plasma into the divertor target surface.'
+  unit: W.m^-2
+  physics_domain: divertor_physics
+  links:
+  - name:peak_power_density_at_divertor_target
+  - name:radiated_power_over_scrape_off_layer
+  sources:
+  - id: dd:camera_ir/frame_analysis/power_flux_parallel
+    dd_path: camera_ir/frame_analysis/power_flux_parallel
+    status: composed
 - name: peak_power_density_at_divertor_target
   kind: scalar
   status: draft
@@ -885,6 +1086,120 @@
     status: attached
   - id: dd:summary/local/divertor_target/power_flux_peak/value
     dd_path: summary/local/divertor_target/power_flux_peak/value
+    status: composed
+- name: plasma_power_of_divertor_due_to_recombination
+  kind: scalar
+  status: draft
+  description: Power deposited on all divertor target surfaces by recombination or
+    neutralization of plasma ions at the material surface. It is the plasma-ion component
+    of the total divertor recombination heat load, complementary to the neutral-particle
+    recombination contribution.
+  documentation: 'Plasma recombination power of a divertor is the rate at which energy
+    is deposited on all target surfaces of that divertor by plasma ions that recombine
+    or neutralize at the material surface. It describes the plasma-ion recombination
+    contribution to the target heat load, distinct from neutral-particle recombination
+    and from conductive heat transport to the targets.
+
+
+    The total divertor recombination heat load is commonly decomposed into plasma-ion
+    and neutral-particle contributions:
+
+
+    $$
+
+    P_{\mathrm{rec,div}} = P_{\mathrm{rec,div}}^{\mathrm{plasma}} + P_{\mathrm{rec,div}}^{\mathrm{neutral}}
+
+    $$
+
+
+    where $P_{\mathrm{rec,div}}^{\mathrm{plasma}}$ is this quantity and $P_{\mathrm{rec,div}}^{\mathrm{neutral}}$
+    is the complementary [neutral recombination contribution](name:neutral_power_of_divertor_due_to_recombination).
+    The plasma-ion term can also be obtained by summing the corresponding [target-level
+    plasma-ion recombination powers](name:plasma_power_at_divertor_target_due_to_recombination)
+    over all target surfaces belonging to the divertor.
+
+
+    In practice this power is inferred from divertor power accounting, surface-interaction
+    modeling, and measurements such as target calorimetry, infrared thermography,
+    Langmuir-probe ion fluxes, spectroscopy, and bolometry. Only energy delivered
+    to the material targets by recombination or neutralization of plasma ions is included;
+    radiated power, neutral-particle recombination power, and conductive heat-load
+    components are accounted for separately.
+
+
+    Typical values range from 10^3-10^6 W per divertor in many tokamak discharges.
+    In strongly detached, high-density divertor conditions the contribution can approach
+    10^6-10^7 W, while in attached low-recycling conditions it may be negligible compared
+    with conductive and convective target heat loads.'
+  unit: W
+  physics_domain: divertor_physics
+  links:
+  - name:power_of_divertor_due_to_recombination
+  - name:neutral_power_of_divertor_due_to_recombination
+  - name:plasma_power_at_divertor_target_due_to_recombination
+  - name:power_of_divertor_due_to_conduction
+  sources:
+  - id: dd:divertors/divertor/power_recombination_plasma
+    dd_path: divertors/divertor/power_recombination_plasma
+    status: composed
+- name: power_at_divertor_target_due_to_convection
+  kind: scalar
+  status: draft
+  description: Power deposited on a divertor target by incident plasma particle flow
+    carrying thermal enthalpy and directed kinetic energy. It excludes the conductive
+    heat-flux contribution, so it represents the convective part of the target heat
+    load.
+  documentation: 'Convective power at a divertor target is the rate at which plasma
+    particles flowing into the material surface deliver thermal enthalpy and directed
+    bulk-flow kinetic energy. It is the convective contribution to [power_at_divertor_target](name:deposited_power_at_divertor_target_due_to_halo_current),
+    complements [power_at_divertor_target_due_to_conduction](name:power_at_divertor_target_due_to_conduction),
+    and may be summed over targets in [power_of_divertor_due_to_convection](name:power_of_divertor_due_to_convection).
+    For an outer target it contributes to quantities such as [power_at_outer_divertor_target](name:power_at_outer_divertor_target).
+
+
+    In a single-ion fluid description, the target-integrated convective power can
+    be written as the surface integral of the incident normal convective energy flux:
+
+
+    $$
+
+    P_\mathrm{conv} = \int_A \left[\frac{5}{2}(p_e+p_i) + \frac{1}{2}m_i n_i u_\parallel^2\right]
+    \max\!\left(0,-u_\parallel\,\hat{b}\cdot\hat{n}_\mathrm{in}\right)\,dA
+
+    $$
+
+
+    where $A$ is the target surface receiving plasma, $p_e$ and $p_i$ are the local
+    electron and ion thermal pressures at the sheath entrance or equivalent target-facing
+    plasma boundary, $m_i$ and $n_i$ are the ion mass and density, $u_\parallel$ is
+    the plasma flow velocity along the magnetic-field unit vector $\hat{b}$, and $\hat{n}_\mathrm{in}$
+    is the unit normal directed from the material surface into the plasma. The pressure
+    terms should be in energy density units; if temperatures are expressed in electronvolts,
+    the conversion to pressure includes the elementary charge.
+
+
+    In practice this quantity is computed by integrating a modeled or inferred convective
+    heat-flux density over the wetted target surface. Local density, temperature,
+    ion-saturation current, flow, and magnetic-incidence information can constrain
+    the convective term, while infrared thermography or calorimetry usually measure
+    total target heat load; separating convective from conductive power therefore
+    requires a sheath or edge-transport model.
+
+
+    Representative target-integrated values are highly device- and regime-dependent:
+    less than $10^3$ W in small or strongly detached cases, $10^4-10^6$ W in many
+    medium-size diverted tokamak plasmas, and $10^6-10^7$ W or higher during high-power
+    attached operation.'
+  unit: W
+  physics_domain: divertor_physics
+  links:
+  - name:deposited_power_at_divertor_target_due_to_halo_current
+  - name:power_at_divertor_target_due_to_conduction
+  - name:power_of_divertor_due_to_convection
+  - name:power_at_outer_divertor_target
+  sources:
+  - id: dd:divertors/divertor/target/power_convected
+    dd_path: divertors/divertor/target/power_convected
     status: composed
 - name: power_of_divertor_due_to_radiation
   kind: scalar

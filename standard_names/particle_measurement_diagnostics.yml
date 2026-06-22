@@ -1,6 +1,6 @@
 # Domain: particle_measurement_diagnostics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 29
+# Entries: 34
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -34,6 +34,48 @@
   sources:
   - id: dd:charge_exchange/channel/cone_diameter
     dd_path: charge_exchange/channel/cone_diameter
+    status: composed
+- name: height_of_neutron_detector
+  kind: scalar
+  status: draft
+  description: Full extent of the neutron detector aperture in the second local coordinate
+    direction (X2), specifying one transverse dimension of a rectangular detector
+    opening.
+  documentation: 'The height of a neutron detector specifies the aperture dimension
+    along the second axis of the detector-local Cartesian $(X1, X2)$ coordinate frame,
+    where $X2$ is oriented perpendicular to both the line-of-sight direction and the
+    $X1$ axis. This quantity applies to rectangular aperture geometries and, paired
+    with [width_of_neutron_detector](name:width_of_neutron_detector) measured along
+    the $X1$ axis, fully defines the two-dimensional rectangular aperture opening.
+
+
+    The aperture height enters the computation of geometric detector acceptance: for
+    a rectangular aperture the effective acceptance area is the product of the height
+    ($X2$) and width ($X1$) dimensions, which scales the solid angle subtended by
+    the detector and directly affects the inferred [neutron_flux_of_neutron_detector](name:neutron_flux_of_neutron_detector).
+    The aggregate quantity [surface_area_of_neutron_detector](name:surface_area_of_neutron_detector)
+    is derived from these geometric parameters.
+
+
+    In fusion neutron diagnostics, detector aperture heights range from a few millimeters
+    to a few centimeters, chosen to balance spatial resolution against counting-rate
+    requirements.
+
+
+    Sign convention: Positive when the aperture height is measured in the positive
+    $X2$ direction of the detector-local coordinate frame.'
+  unit: m
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:width_of_neutron_detector
+  - name:neutron_flux_of_neutron_detector
+  - name:surface_area_of_neutron_detector
+  sources:
+  - id: dd:neutron_diagnostic/detector/geometry/x2_width
+    dd_path: neutron_diagnostic/detector/geometry/x2_width
+    status: composed
+  - id: dd:neutron_diagnostic/detectors/detector/x2_width
+    dd_path: neutron_diagnostic/detectors/detector/x2_width
     status: composed
 - name: helium_4_density
   kind: scalar
@@ -519,6 +561,55 @@
   - id: dd:neutron_diagnostic/detectors/radiation/converter_nuclear_density
     dd_path: neutron_diagnostic/detectors/radiation/converter_nuclear_density
     status: composed
+- name: nuclear_target_atomic_fraction_of_neutron_detector_converter
+  kind: scalar
+  status: draft
+  description: Fraction of atoms in the neutron detector converter material that belong
+    to the nuclear target species responsible for the primary neutron-induced detection
+    reaction.
+  documentation: 'The nuclear target atomic fraction specifies what proportion of
+    the total atoms present in the neutron detector converter are of the isotopic
+    species that participates in the primary neutron detection reaction (for example,
+    neutron capture or fission). Converter materials exploit specific target nuclei
+    that interact with incident neutrons to produce detectable secondary charged particles;
+    the converter''s intrinsic efficiency and absolute response are set directly by
+    how many such target atoms exist within the active volume.
+
+
+    The fraction is defined as:
+
+
+    $$
+
+    f_{\rm target} = \frac{N_{\rm target}}{N_{\rm total}}
+
+    $$
+
+
+    where $N_{\rm target}$ is the number of target nuclear species atoms and $N_{\rm
+    total}$ is the total atom count in the converter.
+
+
+    This fraction enters the calculation of the total reactive nucleus inventory together
+    with the [nuclear number density](name:nuclear_density_of_neutron_detector_converter)
+    and the [converter volume](name:volume_of_neutron_detector_converter), and it
+    scales the [nuclear reaction rate per unit volume](name:nuclear_rate_of_neutron_detector_converter)
+    proportionally. Converters fabricated from isotopically enriched materials have
+    values approaching 1, while natural-abundance converter materials may exhibit
+    significantly lower fractions depending on the isotope''s natural abundance. The
+    [normalized atomic count](name:nuclear_target_atomic_fraction_of_neutron_detector_converter)
+    provides a complementary dimensionless measure of the reactive nucleus inventory
+    integrated over the full detector assembly.'
+  unit: '1'
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:nuclear_density_of_neutron_detector_converter
+  - name:volume_of_neutron_detector_converter
+  - name:nuclear_rate_of_neutron_detector_converter
+  sources:
+  - id: dd:neutron_diagnostic/detector/nuclei_n
+    dd_path: neutron_diagnostic/detector/nuclei_n
+    status: composed
 - name: oxygen_density
   kind: scalar
   status: draft
@@ -654,6 +745,67 @@
     status: composed
   - id: dd:neutron_diagnostic/detectors/supply_low_voltage/voltage_set
     dd_path: neutron_diagnostic/detectors/supply_low_voltage/voltage_set
+    status: attached
+- name: requested_upper_voltage_of_neutron_detector
+  kind: scalar
+  status: draft
+  description: Commanded target potential difference for the upper high-voltage bias
+    connection of a neutron detector, referenced to the detector high-voltage return
+    or electronics common. It specifies the requested operating bias for detector
+    electronics, not a measured supply output or detector signal.
+  documentation: 'Requested upper voltage of a neutron detector is the commanded potential
+    difference assigned to the detector''s upper high-voltage bias connection relative
+    to the detector high-voltage return or electronics reference. It sets the intended
+    operating bias for charge collection, gas multiplication, scintillator photodetector
+    gain, or related detector-electronics behavior. This quantity is a setpoint, not
+    a measured high-voltage readback and not the radiation-induced detector signal
+    voltage.
+
+
+    The reference polarity is defined by the potential difference between the commanded
+    upper bias potential and the chosen detector reference potential:
+
+
+    $$
+
+    V_{\mathrm{upper,req}} = \Phi_{\mathrm{upper,req}} - \Phi_{\mathrm{ref}}
+
+    $$
+
+
+    where $\Phi_{\mathrm{upper,req}}$ is the commanded electric potential of the upper
+    high-voltage bias connection and $\Phi_{\mathrm{ref}}$ is the detector high-voltage
+    return, electronics common, or other explicitly defined bias reference.
+
+
+    In practice the value is prescribed from the detector operating point and may
+    be held constant, ramped during conditioning, or changed between acquisition phases.
+    The realized voltage, if monitored, is a separate supply readback; detector pulse
+    or current signals are also separate physical quantities produced by neutron interactions
+    and the associated electronics chain.
+
+
+    Typical commanded magnitudes range from about 100-3000 V for many gas-filled neutron
+    detectors, fission chambers, ionization chambers, and photodetector-based systems,
+    with lower or higher values possible depending on detector type, pressure, electrode
+    spacing, insulation limits, and required gain.
+
+
+    Sign convention: Positive when the commanded potential of the upper high-voltage
+    bias connection is greater than the detector high-voltage return or electronics
+    reference potential.'
+  unit: V
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:requested_lower_voltage_of_neutron_detector
+  - name:efficiency_of_neutron_detector
+  - name:voltage_of_neutron_detector
+  sources:
+  - id: dd:neutron_diagnostic/detector/supply_high_voltage/voltage_set
+    dd_path: neutron_diagnostic/detector/supply_high_voltage/voltage_set
+    status: composed
+  - id: dd:neutron_diagnostic/detectors/supply_high_voltage/voltage_set
+    dd_path: neutron_diagnostic/detectors/supply_high_voltage/voltage_set
     status: attached
 - name: temperature_of_neutron_detector
   kind: scalar
@@ -943,6 +1095,51 @@
   - id: dd:neutron_diagnostic/detectors/radiation/converter_volume
     dd_path: neutron_diagnostic/detectors/radiation/converter_volume
     status: composed
+- name: width_of_neutron_detector
+  kind: scalar
+  status: draft
+  description: Full width of a rectangular neutron detector aperture along the first
+    local coordinate direction (X1), defining the collimation boundary on that transverse
+    axis.
+  documentation: 'The width of a neutron detector specifies the full linear extent
+    of its rectangular aperture along the first transverse local coordinate direction,
+    X1, of the detector assembly. This geometric parameter governs the collimation
+    acceptance in the X1 direction and is defined only when the aperture cross-section
+    is rectangular.
+
+
+    Together with [height_of_neutron_detector](name:height_of_neutron_detector), which
+    gives the corresponding aperture extent along the orthogonal X2 local coordinate,
+    these two dimensions fully characterize the rectangular aperture geometry. Their
+    product yields the total aperture area captured by [surface_area_of_neutron_detector](name:surface_area_of_neutron_detector),
+    which enters the solid-angle computation and flux normalization underpinning the
+    measured [neutron_flux_of_neutron_detector](name:neutron_flux_of_neutron_detector).
+    The spatial location of the detector in the machine frame is described by [major_radius_of_neutron_detector](name:major_radius_of_neutron_detector)
+    and [vertical_coordinate_of_neutron_detector](name:vertical_coordinate_of_neutron_detector).
+
+
+    Typical aperture widths in tokamak neutron diagnostics range from a few millimeters
+    to several centimeters, balancing spatial resolution against counting-rate requirements
+    and detection efficiency.
+
+
+    Sign convention: Positive when the aperture extent is measured from the lower
+    X1 boundary to the upper X1 boundary of the detector geometry.'
+  unit: m
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:height_of_neutron_detector
+  - name:surface_area_of_neutron_detector
+  - name:neutron_flux_of_neutron_detector
+  - name:major_radius_of_neutron_detector
+  - name:vertical_coordinate_of_neutron_detector
+  sources:
+  - id: dd:neutron_diagnostic/detector/geometry/x1_width
+    dd_path: neutron_diagnostic/detector/geometry/x1_width
+    status: composed
+  - id: dd:neutron_diagnostic/detectors/detector/x1_width
+    dd_path: neutron_diagnostic/detectors/detector/x1_width
+    status: attached
 - name: x2_coordinate_of_neutron_detector
   kind: scalar
   status: draft
@@ -1012,7 +1209,7 @@
     at the innermost flux surface and [xenon_density_at_pedestal](name:xenon_density_at_pedestal)
     in the edge transport barrier, while [volume_averaged_xenon_density](name:volume_averaged_xenon_density)
     provides the global impurity content figure of merit. The dimensionless impurity
-    fraction relative to electron density is given by [xenon_fraction](name:xenon_fraction).
+    fraction relative to electron density is given by xenon_fraction.
 
 
     Sign convention: Positive when ionized xenon is present in the plasma.'
@@ -1022,7 +1219,6 @@
   - name:xenon_density_at_magnetic_axis
   - name:xenon_density_at_pedestal
   - name:volume_averaged_xenon_density
-  - name:xenon_fraction
 - name: line_averaged_xenon_density
   kind: scalar
   status: draft
@@ -1061,6 +1257,42 @@
   sources:
   - id: dd:summary/line_average/n_i/xenon/value
     dd_path: summary/line_average/n_i/xenon/value
+    status: composed
+- name: fast_ion_atomic_number
+  kind: scalar
+  status: draft
+  description: Nuclear proton count of the fast ion species detected in charge exchange
+    spectroscopy, uniquely identifying the element independently of its ionization
+    state.
+  documentation: "The fast ion atomic number $Z_n$ is the number of protons in the\
+    \ nucleus of the energetic (non-thermal) ion species observed via Fast Ion Charge\
+    \ eXchange (FICX) spectroscopy. As an intrinsic nuclear property, $Z_n$ is invariant\
+    \ with respect to ionization state and unambiguously identifies the element: $Z_n\
+    \ = 1$ for hydrogen isotopes (deuterium, tritium), $Z_n = 2$ for helium (alpha\
+    \ particles), $Z_n = 6$ for carbon, and $Z_n = 74$ for tungsten.\n\nThis quantity\
+    \ is the fast-ion-population counterpart of [ion_atomic_number](name:ion_atomic_number),\
+    \ which gives the same nuclear property for a general ion species. It is physically\
+    \ distinct from [fast_ion_charge](name:fast_ion_atomic_number), which specifies\
+    \ the ionic charge state $Z_\\text{ion}$ \u2014 the net charge arising from electron\
+    \ removal \u2014 and which can vary for the same element at different ionization\
+    \ conditions. Together with [fast_ion_mass](name:ion_atomic_mass), the atomic\
+    \ number fully characterizes the fast ion species entering the spectral interpretation\
+    \ of FICX emission.\n\nIn charge exchange diagnostics, the fast ion species is\
+    \ identified prior to line inversion; $Z_n$ is an integer-valued input parameter\
+    \ rather than a derived measurement, taking values from 1 (hydrogenic fast ions\
+    \ in D-T plasmas) to the atomic number of the heaviest injected impurity species."
+  unit: '1'
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:ion_atomic_number
+  - name:ion_atomic_mass
+  arguments:
+  - name: ion_atomic_number
+    operator: fast
+    operator_kind: qualifier
+  sources:
+  - id: dd:charge_exchange/channel/ion_fast/z_ion
+    dd_path: charge_exchange/channel/ion_fast/z_ion
     status: composed
 - name: line_averaged_argon_density
   kind: scalar

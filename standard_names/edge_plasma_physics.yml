@@ -1,6 +1,6 @@
 # Domain: edge_plasma_physics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 82
+# Entries: 91
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -1824,6 +1824,75 @@
   - id: dd:summary/local/separatrix_average/n_i/nitrogen/value
     dd_path: summary/local/separatrix_average/n_i/nitrogen/value
     status: composed
+- name: normalized_poloidal_magnetic_flux_at_pedestal
+  kind: scalar
+  status: draft
+  description: Dimensionless radial coordinate of the H-mode pedestal, defined as
+    the normalized poloidal magnetic flux evaluated at the pedestal's flux surface.
+  documentation: "The normalized poloidal magnetic flux coordinate $\\psi_N$ maps\
+    \ the equilibrium poloidal flux function $\\psi$ to the interval $[0, 1]$ by subtracting\
+    \ the on-axis value and dividing by the flux range from axis to boundary. Evaluated\
+    \ at the pedestal, it provides a dimensionless, device-independent label for the\
+    \ radial location of the H-mode edge transport barrier.\n\nThe defining relation\
+    \ is:\n\n$$\n\\psi_N = \\frac{\\psi - \\psi_0}{\\psi_b - \\psi_0}\n$$\n\nwhere\
+    \ $\\psi_0$ is [the poloidal flux at the magnetic axis](name:poloidal_magnetic_flux_at_magnetic_axis),\
+    \ $\\psi_b$ is its value at the last closed flux surface, and $\\psi$ is the flux\
+    \ at the flux surface of interest. The pedestal center in this coordinate marks\
+    \ the inflection point of the steep-gradient region; combined with the pedestal\
+    \ [full width], it fully characterizes the radial extent and location of the barrier.\n\
+    \nIn H-mode operation, the pedestal position is found in the range $\\psi_N \\\
+    approx 0.88$\u2013$0.99$, with the exact value depending on plasma shaping, current,\
+    \ and heating power. It is extracted from analytic fits to edge profiles of electron\
+    \ density, temperature, or pressure using methods such as modified hyperbolic-tangent\
+    \ or piecewise-linear models. The companion quantity [poloidal magnetic flux at\
+    \ the pedestal](name:poloidal_magnetic_flux_at_pedestal) gives the corresponding\
+    \ absolute flux value without normalization.\n\nSign convention: Positive when\
+    \ the pedestal flux surface lies outside the magnetic axis, so that $\\psi > \\\
+    psi_0$."
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:poloidal_magnetic_flux_at_magnetic_axis
+  - name:poloidal_magnetic_flux_at_pedestal
+  sources:
+  - id: dd:summary/pedestal_fits/linear/n_e/pedestal_position/value
+    dd_path: summary/pedestal_fits/linear/n_e/pedestal_position/value
+    status: composed
+- name: oxygen_density_at_pedestal
+  kind: scalar
+  status: draft
+  description: Oxygen impurity ion number density at the H-mode pedestal top, where
+    the steep-gradient edge transport barrier meets the flatter core profile.
+  documentation: "The oxygen ion number density at the pedestal top characterizes\
+    \ the volumetric concentration of oxygen impurities within the H-mode edge transport\
+    \ barrier. Oxygen (atomic number $Z = 8$) enters tokamak plasmas primarily through\
+    \ plasma-wall interactions and recycling; at the pedestal, its local density contributes\
+    \ to fuel dilution, radiative heat losses, and the effective charge $Z_\\mathrm{eff}$.\n\
+    \nThe quantity $n_\\mathrm{O}$ represents the total oxygen ion number density\
+    \ summed over all ionization charge states at the pedestal-top flux surface. At\
+    \ pedestal electron temperatures of 0.3\u20131 keV, oxygen approaches full ionization,\
+    \ predominantly occupying the $\\mathrm{O}^{7+}$ and $\\mathrm{O}^{8+}$ charge\
+    \ states. This is the oxygen-specific member of the [density_at_pedestal](name:density_at_pedestal)\
+    \ family, using the same pedestal-top evaluation convention as [neon_density_at_pedestal](name:neon_density_at_pedestal),\
+    \ [carbon_density_at_pedestal](name:carbon_density_at_pedestal), and [nitrogen_density_at_pedestal](name:nitrogen_density_at_pedestal).\n\
+    \nOxygen pedestal density is inferred from charge-exchange recombination spectroscopy\
+    \ or from impurity transport modeling constrained by soft X-ray and visible spectroscopy\
+    \ data. Typical values in current tokamak experiments range from $10^{16}$ to\
+    \ $10^{18}$ m$^{-3}$, representing a trace level relative to the main ion pedestal\
+    \ density. The associated fluid velocity at the pedestal is captured by [toroidal_oxygen_velocity_at_pedestal](name:toroidal_oxygen_velocity_at_pedestal).\n\
+    \nSign convention: Positive when oxygen ions are present at the pedestal location."
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:density_at_pedestal
+  - name:neon_density_at_pedestal
+  - name:carbon_density_at_pedestal
+  - name:nitrogen_density_at_pedestal
+  - name:toroidal_oxygen_velocity_at_pedestal
+  sources:
+  - id: dd:summary/local/pedestal/n_i/oxygen/value
+    dd_path: summary/local/pedestal/n_i/oxygen/value
+    status: composed
 - name: oxygen_density_at_plasma_boundary
   kind: scalar
   status: draft
@@ -1982,6 +2051,46 @@
   sources:
   - id: dd:edge_transport/model/ggd/momentum/flux/parallel
     dd_path: edge_transport/model/ggd/momentum/flux/parallel
+    status: composed
+- name: poloidal_flux_surface_averaged_electron_beta_at_pedestal_top
+  kind: scalar
+  status: draft
+  description: Dimensionless ratio of electron kinetic pressure to flux-surface-averaged
+    poloidal magnetic pressure, evaluated at the H-mode pedestal top.
+  documentation: "The poloidal electron beta using the flux-surface-averaged poloidal\
+    \ field quantifies the electron pressure balance against the poloidal confining\
+    \ field at the outer edge of the H-mode transport barrier. Using the flux-surface\
+    \ average of the poloidal magnetic field removes the poloidally asymmetric variation\
+    \ between the high-field and low-field sides, providing a single representative\
+    \ value per flux surface at the pedestal top.\n\nThe defining relation is:\n\n\
+    $$\n\\beta_{p,e}^{\\mathrm{avg}} = \\frac{2\\mu_0 \\, p_e}{\\langle B_\\theta\
+    \ \\rangle_{\\mathrm{fs}}^2}\n$$\n\nwhere $p_e$ is the electron kinetic pressure\
+    \ at the pedestal top, $\\langle B_\\theta \\rangle_{\\mathrm{fs}}$ is the flux-surface-averaged\
+    \ poloidal magnetic field at the same flux surface \u2014 see poloidal_flux_surface_averaged_magnetic_field_at_pedestal_top\
+    \ \u2014 and $\\mu_0 = 4\\pi \\times 10^{-7}$ H m$^{-1}$ is the permeability of\
+    \ free space.\n\nValues are inferred from pedestal profile analysis, combining\
+    \ electron temperature and density fits (modified hyperbolic tangent or linear\
+    \ functions applied to Thomson scattering data) with equilibrium magnetic field\
+    \ reconstruction for the poloidal field. Typical values in H-mode pedestals range\
+    \ from 0.05 to 0.5 across current tokamaks.\n\nThe flux-surface-average normalization\
+    \ distinguishes this quantity from [poloidal_electron_beta_at_pedestal_top_high_field_side](name:poloidal_electron_beta_at_pedestal_top_high_field_side),\
+    \ which evaluates $B_\\theta$ at the high-field-side midplane, and from [poloidal_electron_beta_at_pedestal_top](name:poloidal_electron_beta_at_pedestal_top_high_field_side),\
+    \ which uses the poloidal field at a specific poloidal location. The total-species\
+    \ analog is [beta_at_pedestal_top](name:beta_at_pedestal_top)."
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:poloidal_electron_beta_at_pedestal_top_high_field_side
+  - name:beta_at_pedestal_top
+  sources:
+  - id: dd:summary/pedestal_fits/linear/beta_pol_pedestal_top_electron_average/value
+    dd_path: summary/pedestal_fits/linear/beta_pol_pedestal_top_electron_average/value
+    status: attached
+  - id: dd:summary/pedestal_fits/mtanh/beta_pol_pedestal_top_electron_average/value
+    dd_path: summary/pedestal_fits/mtanh/beta_pol_pedestal_top_electron_average/value
+    status: composed
+  - id: dd:summary/pedestal_fits/mtanh/beta_pol_pedestal_top_electron_lfs/value
+    dd_path: summary/pedestal_fits/mtanh/beta_pol_pedestal_top_electron_lfs/value
     status: composed
 - name: radial_plasma_momentum_diffusion_coefficient
   kind: scalar
@@ -2508,6 +2617,9 @@
   - name:toroidal_flux_surface_averaged_neon_velocity_at_plasma_boundary
   - name:toroidal_flux_surface_averaged_oxygen_velocity_at_plasma_boundary
   sources:
+  - id: dd:summary/local/separatrix_average/velocity_phi/deuterium/value
+    dd_path: summary/local/separatrix_average/velocity_phi/deuterium/value
+    status: composed
   - id: dd:summary/local/separatrix_average/velocity_tor/deuterium/value
     dd_path: summary/local/separatrix_average/velocity_tor/deuterium/value
     status: composed
@@ -2621,6 +2733,127 @@
   sources:
   - id: dd:summary/local/separatrix_average/velocity_phi/tungsten/value
     dd_path: summary/local/separatrix_average/velocity_phi/tungsten/value
+    status: composed
+- name: toroidal_helium_3_velocity_at_pedestal
+  kind: scalar
+  status: draft
+  description: Toroidal component of the bulk helium-3 ion flow velocity at the H-mode
+    pressure pedestal, resolved along the toroidal direction in the right-handed cylindrical
+    (R, phi, Z) frame.
+  documentation: 'Toroidal helium-3 velocity at the pedestal is the component of the
+    bulk flow velocity of $^3\mathrm{He}$ ions along the toroidal basis direction
+    at the H-mode pressure pedestal. The pedestal denotes the steep-gradient edge
+    region just inside the last-closed flux surface, where flows strongly affect radial
+    electric field balance, impurity and isotope transport, and edge stability.
+
+
+    The toroidal component is the projection of the helium-3 bulk velocity onto the
+    toroidal unit vector in the right-handed cylindrical $(R, \phi, Z)$ frame:
+
+
+    $$
+
+    v_{\phi,^3\mathrm{He}} = \mathbf{v}_{^3\mathrm{He}} \cdot \hat{\phi}
+
+    $$
+
+
+    where $\mathbf{v}_{^3\mathrm{He}}$ is the bulk helium-3 ion flow velocity and
+    $\hat{\phi}$ is the unit vector in the direction of increasing toroidal angle
+    $\phi$.
+
+
+    In practice this quantity is inferred from charge-exchange recombination spectroscopy,
+    passive spectroscopy when applicable, or edge-plasma modeling constrained by diagnostics.
+    The pedestal value is obtained by evaluating the reconstructed helium-3 toroidal
+    flow at the pedestal location, commonly identified from the steep-gradient region
+    of pressure, density, or temperature.
+
+
+    Typical pedestal toroidal ion velocities range from about $-1\times10^5$ to $1\times10^5$
+    m.s^-1 in tokamak H-mode plasmas, with isotope-specific values depending on neutral-beam
+    momentum input, collisional coupling, radial electric field shear, and edge rotation
+    damping.
+
+
+    Sign convention: Positive when the helium-3 bulk flow is in the direction of increasing
+    toroidal angle $\phi$.'
+  unit: m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:toroidal_helium_4_velocity_at_pedestal
+  - name:toroidal_helium_3_velocity_at_magnetic_axis
+  - name:toroidal_helium_3_velocity_at_plasma_boundary
+  - name:toroidal_helium_3_velocity_at_internal_transport_barrier
+  sources:
+  - id: dd:summary/local/pedestal/velocity_phi/helium_3/value
+    dd_path: summary/local/pedestal/velocity_phi/helium_3/value
+    status: composed
+  - id: dd:summary/local/pedestal/velocity_tor/helium_3/value
+    dd_path: summary/local/pedestal/velocity_tor/helium_3/value
+    status: composed
+- name: toroidal_helium_3_velocity_at_plasma_boundary
+  kind: scalar
+  status: draft
+  description: Toroidal component of the helium-3 ion bulk flow velocity at the plasma
+    boundary, resolved along the phi direction in the right-handed cylindrical (R,
+    phi, Z) frame. It characterizes rotation or flow of helium-3 ions where closed
+    magnetic flux surfaces meet the scrape-off layer.
+  documentation: 'Toroidal helium-3 velocity at the plasma boundary is the toroidal
+    component of the bulk flow velocity of $^3\mathrm{He}$ ions evaluated on the last
+    closed flux surface. It describes the directed motion of the helium-3 ion population
+    around the torus at the interface between confined plasma and the open-field-line
+    scrape-off layer.
+
+
+    The component is defined by projecting the helium-3 ion bulk velocity onto the
+    toroidal basis direction of the right-handed cylindrical $(R, \phi, Z)$ frame:
+
+
+    $$
+
+    v_{\phi,^3\mathrm{He}} = \mathbf{v}_{^3\mathrm{He}} \cdot \hat{\phi}
+
+    $$
+
+
+    where $\mathbf{v}_{^3\mathrm{He}}$ is the helium-3 ion bulk velocity and $\hat{\phi}$
+    is the unit vector in the direction of increasing toroidal angle $\phi$.
+
+
+    In practice, this quantity may be inferred from Doppler shifts of helium spectral
+    lines, charge-exchange measurements when suitable active neutrals are available,
+    or from edge plasma modeling constrained by spectroscopy and equilibrium reconstruction.
+    The boundary value is obtained by evaluating or interpolating the helium-3 flow
+    to the last closed flux surface.
+
+
+    Typical boundary values are often in the range $-5 \times 10^4$ to $5 \times 10^4$
+    m.s^-1, with larger magnitudes approaching $1 \times 10^5$ m.s^-1 possible when
+    strong momentum input, edge electric fields, or ion-temperature-gradient-driven
+    flows are present.
+
+
+    Sign convention: Positive when the helium-3 ion bulk flow is in the direction
+    of increasing toroidal angle $\phi$ in the right-handed cylindrical $(R, \phi,
+    Z)$ frame.'
+  unit: m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:toroidal_helium_4_velocity_at_plasma_boundary
+  - name:toroidal_helium_3_velocity_at_magnetic_axis
+  sources:
+  - id: dd:summary/local/separatrix/velocity_phi/helium_3/value
+    dd_path: summary/local/separatrix/velocity_phi/helium_3/value
+    status: composed
+  - id: dd:summary/local/separatrix/velocity_tor/helium_3/value
+    dd_path: summary/local/separatrix/velocity_tor/helium_3/value
+    status: composed
+  - id: dd:summary/local/separatrix_average/velocity_phi/helium_3/value
+    dd_path: summary/local/separatrix_average/velocity_phi/helium_3/value
+    status: composed
+  - id: dd:summary/local/separatrix_average/velocity_tor/helium_3/value
+    dd_path: summary/local/separatrix_average/velocity_tor/helium_3/value
     status: composed
 - name: toroidal_helium_4_velocity_at_pedestal
   kind: scalar
@@ -3390,6 +3623,73 @@
   - id: dd:summary/local/pedestal/velocity_tor/tungsten/value
     dd_path: summary/local/pedestal/velocity_tor/tungsten/value
     status: composed
+- name: toroidal_tungsten_velocity_at_plasma_boundary
+  kind: scalar
+  status: draft
+  description: Toroidal component of the tungsten impurity ion fluid velocity in the
+    right-handed cylindrical (R, phi, Z) frame, evaluated at the last closed flux
+    surface separating confined plasma from the scrape-off layer.
+  documentation: 'Toroidal tungsten velocity at the plasma boundary is the component
+    of the tungsten impurity ion fluid velocity along the toroidal direction at the
+    last closed flux surface, the surface separating confined plasma from the scrape-off
+    layer. The component is defined in the right-handed cylindrical $(R, \phi, Z)$
+    frame, where $R$ is major radius, $\phi$ is the toroidal angle increasing counter-clockwise
+    when viewed from above $+\hat{Z}$, and $Z$ is vertical height.
+
+
+    The defining projection is:
+
+
+    $$
+
+    v_{\phi,W}^{\mathrm{LCFS}} = \left.\mathbf{v}_W \cdot \hat{\phi}\right|_{\mathrm{LCFS}}
+
+    $$
+
+
+    where $\mathbf{v}_W$ is the tungsten ion fluid velocity, $\hat{\phi}$ is the unit
+    vector in the direction of increasing toroidal angle, and LCFS denotes the last
+    closed flux surface.
+
+
+    Experimentally, this velocity is commonly inferred from Doppler shifts of tungsten
+    spectral lines using edge spectroscopy or charge-exchange recombination spectroscopy
+    when suitable tungsten emission is available. In modeling and equilibrium-coupled
+    transport analysis, it is obtained by projecting the impurity fluid velocity onto
+    $\hat{\phi}$ or by solving an impurity momentum balance including electric-field
+    forces, pressure-gradient effects, collisional friction with the main ions, and
+    momentum sources.
+
+
+    Typical tokamak edge values are about $10^3-5 \times 10^4$ m.s^-1, with the sign
+    and magnitude depending on bulk plasma rotation, radial electric field, collisionality,
+    charge-state distribution, and pedestal conditions. This pointwise boundary quantity
+    is distinguished from the flux-surface average [toroidal_flux_surface_averaged_tungsten_velocity_at_plasma_boundary](name:toroidal_flux_surface_averaged_tungsten_velocity_at_plasma_boundary),
+    and it uses the same toroidal-component convention as related species velocities
+    such as [toroidal_deuterium_velocity_at_plasma_boundary](name:toroidal_deuterium_velocity_at_plasma_boundary),
+    [toroidal_nitrogen_velocity_at_plasma_boundary](name:toroidal_nitrogen_velocity_at_plasma_boundary),
+    and [toroidal_electron_velocity](name:toroidal_electron_velocity).
+
+
+    Sign convention: Positive when the tungsten ion fluid velocity points in the direction
+    of increasing toroidal angle $\phi$ in the right-handed cylindrical $(R, \phi,
+    Z)$ frame.'
+  unit: m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:tungsten_density_at_plasma_boundary
+  - name:toroidal_flux_surface_averaged_tungsten_velocity_at_plasma_boundary
+  - name:toroidal_tungsten_velocity_at_pedestal
+  sources:
+  - id: dd:summary/local/separatrix/velocity_phi/tungsten/value
+    dd_path: summary/local/separatrix/velocity_phi/tungsten/value
+    status: composed
+  - id: dd:summary/local/separatrix/velocity_tor/tungsten/value
+    dd_path: summary/local/separatrix/velocity_tor/tungsten/value
+    status: composed
+  - id: dd:summary/local/separatrix_average/velocity_tor/tungsten/value
+    dd_path: summary/local/separatrix_average/velocity_tor/tungsten/value
+    status: composed
 - name: toroidal_xenon_velocity_at_plasma_boundary
   kind: scalar
   status: draft
@@ -3620,23 +3920,21 @@
     \ through Xe$^{54+}$.\n\nThis boundary value connects the core inventory, quantified\
     \ by [volume_averaged_xenon_density](name:volume_averaged_xenon_density) and [line_averaged_xenon_density](name:line_averaged_xenon_density),\
     \ to scrape-off-layer impurity balance. The analogous on-axis value is [xenon_density_at_magnetic_axis](name:xenon_density_at_magnetic_axis),\
-    \ while [xenon_fraction](name:xenon_fraction) expresses the xenon ion content\
-    \ relative to electrons. The boundary density is inferred from passive spectroscopy\
-    \ of high-charge-state line emission near the separatrix or from two-dimensional\
-    \ edge transport modeling benchmarked to spectroscopic line-ratios. The parent\
-    \ quantity [density_at_plasma_boundary](name:density_at_plasma_boundary) defines\
-    \ the general species-agnostic framework.\n\nTypical separatrix xenon densities\
-    \ in seeded tokamak discharges range from $10^{16}$ to $10^{18}$ m$^{-3}$, depending\
-    \ on seeding rate and plasma conditions; trace-impurity backgrounds may be two\
-    \ to three orders of magnitude lower.\n\nSign convention: Positive when xenon\
-    \ ions are present at the last closed flux surface."
+    \ while xenon_fraction expresses the xenon ion content relative to electrons.\
+    \ The boundary density is inferred from passive spectroscopy of high-charge-state\
+    \ line emission near the separatrix or from two-dimensional edge transport modeling\
+    \ benchmarked to spectroscopic line-ratios. The parent quantity [density_at_plasma_boundary](name:density_at_plasma_boundary)\
+    \ defines the general species-agnostic framework.\n\nTypical separatrix xenon\
+    \ densities in seeded tokamak discharges range from $10^{16}$ to $10^{18}$ m$^{-3}$,\
+    \ depending on seeding rate and plasma conditions; trace-impurity backgrounds\
+    \ may be two to three orders of magnitude lower.\n\nSign convention: Positive\
+    \ when xenon ions are present at the last closed flux surface."
   unit: m^-3
   physics_domain: edge_plasma_physics
   links:
   - name:volume_averaged_xenon_density
   - name:line_averaged_xenon_density
   - name:xenon_density_at_magnetic_axis
-  - name:xenon_fraction
   - name:density_at_plasma_boundary
   sources:
   - id: dd:summary/local/separatrix/n_i/xenon/value
@@ -3763,6 +4061,73 @@
   - id: dd:edge_profiles/ggd/j_diamagnetic/parallel
     dd_path: edge_profiles/ggd/j_diamagnetic/parallel
     status: composed
+- name: parallel_ion_state_convection_velocity
+  kind: scalar
+  status: draft
+  description: Parallel component of the effective convective velocity used for particle
+    transport of a specified ion charge state in the edge plasma. It is a transport
+    coefficient along the local magnetic-field direction and need not equal the bulk
+    ion fluid velocity.
+  documentation: 'The parallel ion-state convection velocity is the coefficient multiplying
+    the density of one ion charge state in the convective part of its parallel particle
+    transport. It describes transport along the local magnetic-field direction in
+    the edge plasma and is an effective balance-equation coefficient, not necessarily
+    the literal mean fluid velocity of that ion state.
+
+
+    A common particle-flux decomposition defines the named quantity as:
+
+
+    $$
+
+    \Gamma_{\parallel,s} = n_s v_{\parallel,s}^{\mathrm{conv}} + \Gamma_{\parallel,s}^{\mathrm{nonconv}}
+
+    $$
+
+
+    where $\Gamma_{\parallel,s}$ is the total parallel particle flux of charge state
+    $s$ along $\hat{b}=\mathbf{B}/|\mathbf{B}|$, $n_s$ is the charge-state density,
+    $v_{\parallel,s}^{\mathrm{conv}}$ is this effective convection velocity, and $\Gamma_{\parallel,s}^{\mathrm{nonconv}}$
+    contains diffusive, drift-ordering, turbulent, and source-related contributions
+    that are not represented as density times a convective coefficient. Equivalently,
+    where $n_s$ is nonzero, the effective coefficient is the residual parallel flux
+    per particle after those nonconvective contributions have been separated; it can
+    differ from the bulk ion fluid parallel velocity.
+
+
+    In practice it is obtained from charge-state particle-balance analysis or transport
+    modeling using density evolution, parallel flux constraints, and atomic source
+    terms such as ionization, recombination, charge exchange, neutral fueling, and
+    recycling. Direct charge-state-resolved parallel flux measurements are uncommon,
+    so the coefficient is usually constrained by a combination of spectroscopy, edge
+    or divertor probes, and consistency with modeled sources and sinks. The same effective-coefficient
+    interpretation underlies related radial convection-velocity quantities such as
+    [radial_ion_convection_velocity](name:radial_ion_convection_velocity) and [radial_ion_state_effective_momentum_convection_velocity](name:radial_ion_state_momentum_convection_velocity).
+
+
+    Typical signed values in the confined edge are about $-10^4$ to $10^4\ \mathrm{m\,s^{-1}}$,
+    while scrape-off-layer and divertor values often reach $-10^5$ to $10^5\ \mathrm{m\,s^{-1}}$.
+    Magnitudes comparable to a fraction of the local ion sound speed are common near
+    material boundaries or strong source regions.
+
+
+    Sign convention: Positive when the effective convective particle flux for the
+    ion charge state is directed along the local magnetic-field unit vector $\hat{b}$.'
+  unit: m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:radial_ion_convection_velocity
+  - name:radial_ion_state_momentum_convection_velocity
+  arguments:
+  - name: ion_charge_state_effective_convection_velocity
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - id: dd:edge_transport/model/ggd/ion/state/particles/v_parallel/values
+    dd_path: edge_transport/model/ggd/ion/state/particles/v_parallel/values
+    status: composed
 - name: parallel_ion_state_momentum
   kind: scalar
   status: draft
@@ -3821,6 +4186,64 @@
   sources:
   - id: dd:edge_sources/source/ggd/ion/state/momentum/parallel
     dd_path: edge_sources/source/ggd/ion/state/momentum/parallel
+    status: composed
+- name: parallel_total_ion_energy_convection_velocity
+  kind: scalar
+  status: draft
+  description: Parallel effective convection velocity for total ion energy transport
+    in edge plasma. It is the signed field-aligned speed associated with the convective
+    part of the total ion energy flux.
+  documentation: 'Parallel total ion energy convection velocity is the signed effective
+    field-aligned speed that multiplies a total ion energy density to give the convective
+    part of the parallel ion-energy flux density. It represents advection of the ion
+    energy variable used in an edge-plasma transport model and need not be identical
+    to the bulk ion particle velocity.
+
+
+    The defining relation is the flux-density ratio:
+
+
+    $$
+
+    v_{\parallel,E_i}^{\mathrm{conv}} = \frac{q_{\parallel,E_i}^{\mathrm{conv}}}{\mathcal{E}_i}
+
+    $$
+
+
+    where $q_{\parallel,E_i}^{\mathrm{conv}}$ is the signed parallel convective flux
+    density of total ion energy in W.m^-2 and $\mathcal{E}_i$ is the total ion energy
+    density in J.m^-3, so the ratio has units m.s^-1. The denominator must be consistent
+    with the energy variable used by the transport model; for a thermal-ion contribution,
+    $T_i$ is treated as energy per ion, so $3 n_i T_i/2$ is in J.m^-3 when $T_i$ is
+    in joules, while $3 n_i e T_i/2$ is used when the numerical temperature is in
+    eV.
+
+
+    In practice, this velocity is specified by a transport closure or recovered from
+    modeled energy flux density and energy density. It is the field-aligned analog
+    of [radial_total_ion_effective_energy_convection_velocity](name:radial_ion_energy_convection_velocity),
+    with the direction taken along magnetic field lines rather than across magnetic
+    surfaces. Because enthalpy factors, species sums, or other closure choices may
+    be included in either the flux or energy variable, values should be compared only
+    when the same total-ion-energy definition is used.
+
+
+    Typical values are model dependent rather than universal. Magnitudes may be near
+    0 m.s^-1 when explicit parallel energy convection is absent and can range up to
+    the local field-aligned transport-speed scale, often order 10^2-10^5 m.s^-1 in
+    edge-plasma modeling; the chosen value should be interpreted with the same energy-density
+    convention used in the defining ratio.
+
+
+    Sign convention: Positive when the effective convection of total ion energy is
+    along the local magnetic-field direction $\hat{b}=\mathbf{B}/|\mathbf{B}|$.'
+  unit: m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:radial_ion_energy_convection_velocity
+  sources:
+  - id: dd:edge_transport/model/ggd/total_ion_energy/v_parallel/values
+    dd_path: edge_transport/model/ggd/total_ion_energy/v_parallel/values
     status: composed
 - name: poloidal_ion_energy_diffusivity
   kind: scalar
@@ -4530,4 +4953,69 @@
   sources:
   - id: dd:edge_profiles/ggd/pressure_thermal/values
     dd_path: edge_profiles/ggd/pressure_thermal/values
+    status: composed
+- name: toroidal_ion_momentum_diffusion_coefficient
+  kind: scalar
+  status: draft
+  description: Diffusion coefficient for transport of bulk-ion momentum projected
+    along the toroidal direction in the right-handed cylindrical (R, phi, Z) frame.
+    It relates the diffusive flux vector of ion toroidal momentum density to the spatial
+    gradient of that density.
+  documentation: 'Toroidal ion momentum diffusion coefficient is the scalar diffusivity
+    for transport of bulk ion momentum projected on $\hat{\phi}$ in the right-handed
+    cylindrical $(R,\phi,Z)$ frame, where $R$ is major radius, $\phi$ is toroidal
+    angle increasing counterclockwise when viewed from above $+\hat{Z}$, and $Z$ is
+    vertical height. It parameterizes the down-gradient part of transport of the toroidal
+    ion momentum density, distinct from convection, sources, sinks, and residual stresses.
+
+
+    The Fick''s-law closure for the diffusive flux vector is
+
+
+    $$
+
+    \boldsymbol{\Pi}_{\phi,i}^{\mathrm{diff}} = -D_{\phi,i}\,\nabla\!\left(m_i n_i
+    v_{\phi,i}\right)
+
+    $$
+
+
+    where $D_{\phi,i}$ is the toroidal ion momentum diffusion coefficient in $\mathrm{m^2\,s^{-1}}$,
+    $\boldsymbol{\Pi}_{\phi,i}^{\mathrm{diff}}$ is the vector flux of toroidal ion
+    momentum density in $\mathrm{kg\,m^{-1}\,s^{-2}}$, $m_i$ is ion mass in $\mathrm{kg}$,
+    $n_i$ is bulk ion density in $\mathrm{m^{-3}}$, and $v_{\phi,i}$ is the ion flow
+    velocity component along $\hat{\phi}$ in $\mathrm{m\,s^{-1}}$, positive in the
+    direction of increasing $\phi$. A scalar flux through a surface with unit normal
+    $\hat{n}$ is $\hat{n}\cdot\boldsymbol{\Pi}_{\phi,i}^{\mathrm{diff}}$ and is positive
+    along $\hat{n}$; for the toroidal spatial component, use $\hat{n}=\hat{\phi}$
+    so the driving gradient is $\hat{\phi}\cdot\nabla(m_i n_i v_{\phi,i})$. The minus
+    sign means that a positive coefficient gives transport down the projected gradient
+    of $m_i n_i v_{\phi,i}$.
+
+
+    In practice this effective coefficient is obtained by solving or fitting the ion
+    toroidal-momentum balance using measurements or reconstructions of ion density,
+    ion composition, toroidal rotation, and momentum sources and sinks. Spectroscopic
+    flow measurements, including charge-exchange recombination spectroscopy where
+    available, can constrain $v_{\phi,i}$; the inferred $D_{\phi,i}$ can include collisional
+    and turbulence-driven transport that is not represented separately by convective
+    pinch or residual-stress terms.
+
+
+    Typical edge-plasma effective values are 0.1-10 m^2 s^-1 in confined-edge transport
+    analyzes, with smaller values around 0.01-1 m^2 s^-1 possible for predominantly
+    collisional estimates and larger apparent values, 10-100 m^2 s^-1, sometimes used
+    in highly turbulent scrape-off-layer or transient-edge modeling. Negative fitted
+    values usually signal that the assumed purely diffusive closure is inadequate
+    rather than a physical diffusion coefficient with reversed sign.'
+  unit: m^2.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:toroidal_ion_charge_state_momentum_diffusivity
+  - name:toroidal_momentum_diffusion_coefficient
+  - name:toroidal_neutral_momentum_diffusion_coefficient
+  - name:parallel_momentum_diffusion_coefficient
+  sources:
+  - id: dd:edge_transport/model/ggd/ion/momentum/d/toroidal
+    dd_path: edge_transport/model/ggd/ion/momentum/d/toroidal
     status: composed

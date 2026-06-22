@@ -1,6 +1,6 @@
 # Domain: plant_systems
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 40
+# Entries: 41
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -198,8 +198,8 @@
     In practice this quantity is computed by integrating calibrated gas-injection
     flow rates from breakdown onward, converting molecular flow to carbon atom flow
     using the gas stoichiometry, and applying the factor of 6. It is the time integral
-    of [carbon_rate_due_to_gas_injection](name:carbon_rate_due_to_gas_injection) and
-    excludes the pre-breakdown inventory represented by [carbon_initial_count_due_to_gas_injection](name:carbon_prefill_count_due_to_gas_injection).
+    of [carbon_rate_due_to_gas_injection](name:carbon_source_rate_due_to_gas_injection)
+    and excludes the pre-breakdown inventory represented by [carbon_initial_count_due_to_gas_injection](name:carbon_prefill_count_due_to_gas_injection).
 
 
     Typical values are 0 for pulses without deliberate carbon-bearing gas injection
@@ -208,7 +208,7 @@
   unit: '1'
   physics_domain: plant_systems
   links:
-  - name:carbon_rate_due_to_gas_injection
+  - name:carbon_source_rate_due_to_gas_injection
   - name:carbon_prefill_count_due_to_gas_injection
   sources:
   - id: dd:summary/gas_injection_accumulated/carbon/value
@@ -547,6 +547,69 @@
   sources:
   - id: dd:summary/gas_injection_accumulated/lithium/value
     dd_path: summary/gas_injection_accumulated/lithium/value
+    status: composed
+- name: accumulated_methane_carbon_13_count_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Cumulative equivalent-electron count for carbon-13-labeled methane
+    injected after plasma breakdown. Each 13CH4 molecule contributes 10 equivalent
+    electrons, using atomic number 6 for carbon and 1 for each of the four hydrogen
+    atoms.
+  documentation: 'Accumulated carbon-13 methane count due to gas injection is the
+    running equivalent-electron count associated with neutral ${}^{13}\mathrm{CH}_4$
+    molecules admitted after plasma breakdown. The carbon isotope label identifies
+    the injected tracer species, while the electron-budget conversion is the same
+    as for ordinary methane because ${}^{12}\mathrm{C}$ and ${}^{13}\mathrm{C}$ have
+    the same nuclear charge. The accumulation starts from zero at plasma breakdown
+    and remains constant during intervals with no ${}^{13}\mathrm{CH}_4$ injection.
+
+
+    The accumulation at time $t$ is defined from the molecular injection rate by:
+
+
+    $$
+
+    N_\mathrm{acc}(t) = 10 \int_{t_\mathrm{bd}}^{t} \dot{n}_{{}^{13}\mathrm{CH}_4}(t'')
+    \, dt''
+
+    $$
+
+
+    where $N_\mathrm{acc}$ is the dimensionless equivalent-electron count, $t_\mathrm{bd}$
+    is the plasma-breakdown time in seconds, $t$ and $t''$ are times in seconds, and
+    $\dot{n}_{{}^{13}\mathrm{CH}_4}$ is the calibrated molecular injection rate in
+    molecules per second. The factor $10 = Z_\mathrm{C} + 4 Z_\mathrm{H}$ uses $Z_\mathrm{C}=6$
+    for carbon and $Z_\mathrm{H}=1$ for each hydrogen atom.
+
+
+    In practice this quantity is computed by integrating calibrated gas-valve or mass-flow
+    measurements over the discharge, with corrections for valve conductance, reservoir
+    pressure, gas temperature, and isotopic purity when needed. It is an isotope-resolved
+    component of [accumulated_gas_count](name:accumulated_methane_carbon_13_count_due_to_gas_injection)
+    and is directly comparable with accumulated_methane_count_due_to_gas_injection,
+    [accumulated_deuterated_methane_count_due_to_gas_injection](name:accumulated_deuterated_methane_count_due_to_gas_injection),
+    [accumulated_carbon_count_due_to_gas_injection](name:accumulated_carbon_count_due_to_gas_injection),
+    and [accumulated_hydrogen_count_due_to_gas_injection](name:accumulated_hydrogen_count_due_to_gas_injection)
+    in particle and wall-retention accounting.
+
+
+    Typical accumulated values for small ${}^{13}\mathrm{CH}_4$ tracer puffs are $10^{17}$-$10^{20}$
+    equivalent electrons per discharge. Larger calibration, fueling, or wall-conditioning
+    injections can reach $10^{20}$-$10^{22}$ equivalent electrons; the corresponding
+    number of injected ${}^{13}\mathrm{CH}_4$ molecules is one tenth of the equivalent-electron
+    count.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_deuterated_methane_count_due_to_gas_injection
+  - name:accumulated_carbon_count_due_to_gas_injection
+  - name:accumulated_hydrogen_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_accumulated/methane/value
+    dd_path: summary/gas_injection_accumulated/methane/value
+    status: attached
+  - id: dd:summary/gas_injection_accumulated/methane_carbon_13/value
+    dd_path: summary/gas_injection_accumulated/methane_carbon_13/value
     status: composed
 - name: accumulated_neon_count
   kind: scalar
@@ -961,6 +1024,9 @@
   - name:core_atomic_count_of_pellet
   - name:outer_atomic_count_of_pellet
   sources:
+  - id: dd:pellets/time_slice/pellet/species/density
+    dd_path: pellets/time_slice/pellet/species/density
+    status: composed
   - id: dd:spi/injector/pellet/core/species/density
     dd_path: spi/injector/pellet/core/species/density
     status: composed
@@ -1201,11 +1267,11 @@
     \ the plasma particle balance as a sink. The operational dynamic range of a given\
     \ valve or duct is bounded by [maximum_gas_flow](name:maximum_gas_flow) as the\
     \ upper limit and [minimum_gas_flow](name:minimum_gas_flow) as the lower limit.\
-    \ The species-resolved pumping counterpart is [neutral_species_flow](name:neutral_species_flow).\n\
-    \nFlow rates are inferred from calibrated mass flow controllers, pressure transducers\
-    \ combined with valve conductance models, or response-curve look-up tables that\
-    \ map control voltage to throughput. Typical injection rates range from $10^{-3}$\
-    \ to $10$ Pa\xB7m\xB3\xB7s\u207B\xB9 for trace impurity valves through high-throughput\
+    \ The species-resolved pumping counterpart is neutral_species_flow.\n\nFlow rates\
+    \ are inferred from calibrated mass flow controllers, pressure transducers combined\
+    \ with valve conductance models, or response-curve look-up tables that map control\
+    \ voltage to throughput. Typical injection rates range from $10^{-3}$ to $10$\
+    \ Pa\xB7m\xB3\xB7s\u207B\xB9 for trace impurity valves through high-throughput\
     \ fueling manifolds; pumping duct rates in large-scale devices can exceed $10$\
     \ Pa\xB7m\xB3\xB7s\u207B\xB9 during high-density operation."
   unit: Pa.m^3.s^-1
@@ -1213,7 +1279,6 @@
   links:
   - name:maximum_gas_flow
   - name:minimum_gas_flow
-  - name:neutral_species_flow
   sources:
   - id: dd:gas_injection/pipe/flow_rate
     dd_path: gas_injection/pipe/flow_rate
@@ -1358,26 +1423,25 @@
     \ of an injected pellet or shattered pellet injector (SPI) fragment, expressed\
     \ in the right-handed cylindrical $(R, \\phi, Z)$ frame where $R$ increases outward\
     \ from the machine axis.\n\nTogether with [vertical_coordinate_of_pellet_path_point](name:vertical_coordinate_of_pellet_path_point)\
-    \ (the $Z$ component) and [toroidal_angle_of_along_pellet_path](name:toroidal_angle_of_along_pellet_path)\
-    \ (the $\\phi$ component), this coordinate fully specifies the three-dimensional\
-    \ position of a point on the pellet or SPI fragment trajectory. The radial coordinate\
-    \ determines how far from the plasma center the injected material deposits fuel\
-    \ or impurity species, directly governing the radial deposition profile.\n\nPellet\
-    \ path geometry is defined by discrete anchor points \u2014 such as the injector\
-    \ exit and, for SPI systems, the shattering position \u2014 with the trajectory\
-    \ reconstructed from optical pellet diagnostics or injection geometry specifications.\
-    \ For SPI applications, the shattering-position $R$ value locates where the intact\
-    \ pellet transitions into a dispersing fragment cloud.\n\nTypical values range\
-    \ from about 1.5 m in compact tokamaks to beyond 6 m in large devices, bounded\
-    \ below by the first-wall major radius and above by the outer vessel radius.\n\
-    \nSign convention: Positive when $R$ is measured radially outward from the machine\
-    \ toroidal symmetry axis, as defined in the right-handed cylindrical $(R, \\phi,\
-    \ Z)$ frame; $R \\geq 0$ for all physically realizable positions."
+    \ (the $Z$ component) and toroidal_angle_of_along_pellet_path (the $\\phi$ component),\
+    \ this coordinate fully specifies the three-dimensional position of a point on\
+    \ the pellet or SPI fragment trajectory. The radial coordinate determines how\
+    \ far from the plasma center the injected material deposits fuel or impurity species,\
+    \ directly governing the radial deposition profile.\n\nPellet path geometry is\
+    \ defined by discrete anchor points \u2014 such as the injector exit and, for\
+    \ SPI systems, the shattering position \u2014 with the trajectory reconstructed\
+    \ from optical pellet diagnostics or injection geometry specifications. For SPI\
+    \ applications, the shattering-position $R$ value locates where the intact pellet\
+    \ transitions into a dispersing fragment cloud.\n\nTypical values range from about\
+    \ 1.5 m in compact tokamaks to beyond 6 m in large devices, bounded below by the\
+    \ first-wall major radius and above by the outer vessel radius.\n\nSign convention:\
+    \ Positive when $R$ is measured radially outward from the machine toroidal symmetry\
+    \ axis, as defined in the right-handed cylindrical $(R, \\phi, Z)$ frame; $R \\\
+    geq 0$ for all physically realizable positions."
   unit: m
   physics_domain: plant_systems
   links:
   - name:vertical_coordinate_of_pellet_path_point
-  - name:toroidal_angle_of_along_pellet_path
   sources:
   - id: dd:spi/injector/shattering_position/r
     dd_path: spi/injector/shattering_position/r

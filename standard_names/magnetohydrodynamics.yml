@@ -1,6 +1,6 @@
 # Domain: magnetohydrodynamics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 41
+# Entries: 46
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -367,6 +367,82 @@
   - id: dd:turbulence/profiles_2d/electrons/temperature
     dd_path: turbulence/profiles_2d/electrons/temperature
     status: attached
+- name: electrostatic_potential
+  kind: scalar
+  status: draft
+  description: "Scalar electric potential of the plasma, equal to the electrostatic\
+    \ work per unit positive charge relative to a grounded reference, whose negative\
+    \ gradient defines the radial electric field and drives E\xD7B plasma rotation."
+  documentation: 'The electrostatic potential $\phi$ is the scalar electric potential
+    of the plasma, quantifying the electrostatic work per unit positive charge measured
+    relative to a reference surface (conventionally the grounded vacuum vessel). It
+    encodes the large-scale electrostatic structure governing cross-field transport
+    and $E \times B$ rotation in both the core and edge regions.
+
+
+    The electrostatic contribution to the electric field is defined by:
+
+
+    $$
+
+    \mathbf{E}_{\rm es} = -\nabla\phi
+
+    $$
+
+
+    where $\phi$ is measured in V. The radial component $E_r = -\partial\phi/\partial
+    r$ enters the neoclassical radial force balance for ion species and drives $E
+    \times B$ rotation at velocity $\mathbf{v}_{E\times B} = (-\nabla\phi) \times
+    \mathbf{B}/B^2$, where $\mathbf{B}$ is the total magnetic field vector and $B
+    = |\mathbf{B}|$.
+
+
+    In the plasma core, $\phi$ is inferred from spectroscopic measurements of impurity
+    rotation combined with pressure-gradient data via the radial ion momentum balance.
+    In the edge plasma and scrape-off layer, Langmuir probes and emissive probes measure
+    the plasma potential directly relative to the vessel wall; location-specific quantities
+    are described by [electrostatic_potential_at_wall](name:electrostatic_potential_at_wall)
+    and [electrostatic_potential_at_midplane](name:electrostatic_potential_at_midplane).
+
+
+    Typical scrape-off layer values are of order a few $T_e/e$ above the vessel potential,
+    where $T_e$ is the local electron temperature; core values in high-performance
+    discharges may reach hundreds of volts as the potential integrates over a large
+    radial extent.
+
+
+    Sign convention: Positive when the local plasma potential exceeds the grounded
+    vacuum vessel reference potential.'
+  unit: V
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:electrostatic_potential_at_wall
+  - name:electrostatic_potential_at_midplane
+  sources:
+  - id: dd:core_profiles/profiles_1d/phi_potential
+    dd_path: core_profiles/profiles_1d/phi_potential
+    status: composed
+  - id: dd:edge_profiles/ggd/phi_potential/values
+    dd_path: edge_profiles/ggd/phi_potential/values
+    status: attached
+  - id: dd:edge_profiles/profiles_1d/phi_potential
+    dd_path: edge_profiles/profiles_1d/phi_potential
+    status: composed
+  - id: dd:langmuir_probes/probe/potential_plasma
+    dd_path: langmuir_probes/probe/potential_plasma
+    status: composed
+  - id: dd:mhd/ggd/phi_potential/values
+    dd_path: mhd/ggd/phi_potential/values
+    status: composed
+  - id: dd:plasma_profiles/ggd/phi_potential/values
+    dd_path: plasma_profiles/ggd/phi_potential/values
+    status: composed
+  - id: dd:plasma_profiles/profiles_1d/phi_potential
+    dd_path: plasma_profiles/profiles_1d/phi_potential
+    status: attached
+  - id: dd:wall/description_ggd/ggd/phi_potential/values
+    dd_path: wall/description_ggd/ggd/phi_potential/values
+    status: attached
 - name: energy_upper_fraction_due_to_disruption
   kind: scalar
   status: draft
@@ -615,6 +691,39 @@
   sources:
   - id: dd:mhd_linear/time_slice/toroidal_mode/growthrate
     dd_path: mhd_linear/time_slice/toroidal_mode/growthrate
+    status: composed
+- name: perturbed_electrostatic_potential_imaginary_part
+  kind: complex
+  status: draft
+  description: Imaginary part of the complex first-order electrostatic potential perturbation
+    eigenfunction for a specified toroidal Fourier mode in linear MHD stability analysis.
+  documentation: "The imaginary part of the perturbed electrostatic potential eigenfunction\
+    \ is one of two real-valued components that together fully specify the complex\
+    \ scalar perturbation $\\delta\\phi$ throughout the confined plasma for a single\
+    \ linear magnetohydrodynamic eigenmode. The irrotational component of the perturbed\
+    \ electric field is $\\delta\\mathbf{E}_\\mathrm{es} = -\\nabla\\delta\\phi$,\
+    \ separate from the inductive contribution arising from the perturbed magnetic\
+    \ vector potential.\n\nThe complex eigenfunction decomposes as:\n\n$$\n\\delta\\\
+    phi = \\operatorname{Re}(\\delta\\phi) + i\\,\\operatorname{Im}(\\delta\\phi)\n\
+    $$\n\nwhere $\\operatorname{Re}(\\delta\\phi)$ is the [real part](name:perturbed_electrostatic_potential_real_part)\
+    \ and $\\operatorname{Im}(\\delta\\phi)$ \u2014 this quantity \u2014 encodes the\
+    \ spatial phase distribution of the electrostatic perturbation for toroidal mode\
+    \ number $n$.\n\nLinear MHD or extended-MHD stability solvers compute $\\delta\\\
+    phi$ as part of the eigenmode solution for a specified $n$; the overall complex\
+    \ normalization is fixed by the solver's phase convention, so the imaginary part\
+    \ carries physical meaning only in conjunction with the real part. The same complex\
+    \ decomposition pattern applies to [perturbed_plasma_pressure_imaginary_part](name:perturbed_plasma_pressure_imaginary_part)\
+    \ and [perturbed_plasma_mass_density_imaginary_part](name:perturbed_plasma_mass_density_imaginary_part)\
+    \ within the complete set of MHD perturbation eigenfunctions for the same eigenmode."
+  unit: V
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:perturbed_electrostatic_potential_real_part
+  - name:perturbed_plasma_pressure_imaginary_part
+  - name:perturbed_plasma_mass_density_imaginary_part
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/phi_potential_perturbed/imaginary
+    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/phi_potential_perturbed/imaginary
     status: composed
 - name: perturbed_electrostatic_potential_real_part
   kind: complex
@@ -1582,6 +1691,65 @@
   - id: dd:mhd/ggd/velocity_r/values
     dd_path: mhd/ggd/velocity_r/values
     status: composed
+- name: rotation_frequency_of_neoclassical_tearing_mode
+  kind: scalar
+  status: draft
+  description: Angular rotation frequency of a neoclassical tearing mode magnetic
+    island, equal to the instantaneous time rate of change of the mode's helical phase.
+  documentation: 'The rotation frequency of a neoclassical tearing mode (NTM) quantifies
+    how rapidly the associated magnetic island rotates toroidally. It is governed
+    primarily by the local plasma rotation at the rational flux surface where the
+    island resides, modified by the electromagnetic torque balance that couples the
+    island to the surrounding plasma.
+
+
+    The rotation frequency is defined as the time derivative of the mode phase $\varphi$:
+
+
+    $$
+
+    \omega = \frac{d\varphi}{dt}
+
+    $$
+
+
+    where $\varphi$ is the instantaneous helical phase of the rotating magnetic island
+    perturbation.
+
+
+    As an NTM island grows, electromagnetic braking torques modify the local plasma
+    rotation at the rational $q = m/n$ surface (where $m$ and $n$ are the poloidal
+    and toroidal mode numbers), causing a measurable frequency shift that signals
+    mode onset and saturation. The frequency is typically inferred from Mirnov coil
+    arrays by tracking the temporal phase evolution of the rotating magnetic perturbation,
+    or computed as the time derivative of [neoclassical_tearing_mode_phase](name:neoclassical_tearing_mode_phase).
+    The [radial_width_of_neoclassical_tearing_mode](name:radial_width_of_neoclassical_tearing_mode)
+    governs the braking torque magnitude through the modified Rutherford equation,
+    while the torque balance itself is captured by torque_due_to_neoclassical_tearing_mode.
+    The time evolution of this frequency is described by [tendency_of_rotation_frequency_of_neoclassical_tearing_mode](name:tendency_of_rotation_frequency_of_neoclassical_tearing_mode).
+
+
+    Sign convention: Positive when the island rotates in the direction of increasing
+    toroidal angle $\phi$.'
+  unit: rad.s^-1
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:neoclassical_tearing_mode_phase
+  - name:radial_width_of_neoclassical_tearing_mode
+  - name:tendency_of_rotation_frequency_of_neoclassical_tearing_mode
+  sources:
+  - id: dd:ntms/time_slice/mode/detailed_evolution/dphase_dt
+    dd_path: ntms/time_slice/mode/detailed_evolution/dphase_dt
+    status: composed
+  - id: dd:ntms/time_slice/mode/detailed_evolution/frequency
+    dd_path: ntms/time_slice/mode/detailed_evolution/frequency
+    status: attached
+  - id: dd:ntms/time_slice/mode/dphase_dt
+    dd_path: ntms/time_slice/mode/dphase_dt
+    status: attached
+  - id: dd:ntms/time_slice/mode/frequency
+    dd_path: ntms/time_slice/mode/frequency
+    status: attached
 - name: sawtooth_period
   kind: scalar
   status: draft
@@ -1633,6 +1801,60 @@
   sources:
   - id: dd:sawteeth/diagnostics/previous_period
     dd_path: sawteeth/diagnostics/previous_period
+    status: composed
+- name: thermal_energy_decay_time_due_to_disruption
+  kind: scalar
+  status: draft
+  description: Effective linear decay time for the decrease of thermal plasma energy
+    during a disruption. It is the elapsed time between the upper normalized-energy
+    fraction X2 and lower fraction X1 divided by the fractional drop X2 - X1.
+  documentation: 'Thermal-energy decay time due to disruption is an effective linear
+    time scale for the reduction of thermal plasma energy during the thermal quench.
+    It characterizes the loss rate between two specified fractions of the pre-disruptive
+    thermal energy and is not an exponential e-folding time.
+
+
+    Let $t(X)$ be the time at which the normalized thermal energy $W_\mathrm{th}(t)/W_{\mathrm{th},0}$
+    reaches the fraction $X$. With $X_2$ the upper fraction and $X_1$ the lower fraction,
+    where $0 \le X_1 < X_2 \le 1$, the decay time is defined by:
+
+
+    $$
+
+    \tau_{W_\mathrm{th}} = \frac{t(X_1) - t(X_2)}{X_2 - X_1}
+
+    $$
+
+
+    where $W_\mathrm{th}$ and $W_{\mathrm{th},0}$ are thermal energies in joules,
+    $t(X_1)$, $t(X_2)$, and $\tau_{W_\mathrm{th}}$ are in seconds, and $X_1$ and $X_2$
+    are dimensionless fractions. For an 80%-to-20% definition, $X_2 = 0.8$, $X_1 =
+    0.2$, and the denominator is $0.6$.
+
+
+    In practice, $W_\mathrm{th}(t)$ is obtained from an analyzed thermal-energy time
+    trace, with the pre-disruptive reference value chosen just before the rapid energy
+    collapse. Threshold crossing times are commonly determined by interpolation, and
+    smoothing or monotonicity checks may be used to avoid noise-induced multiple crossings.
+    The chosen upper and lower fractions determine which portion of the thermal quench
+    is summarized.
+
+
+    Representative values in tokamak disruption thermal quenches are often 0.0001-0.01
+    s, but the definition itself imposes no universal range; device size, plasma conditions,
+    and threshold choice can shift the reported value.'
+  unit: s
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:energy_upper_fraction_due_to_disruption
+  - name:energy_lower_fraction_due_to_disruption
+  - name:energy_decay_time_due_to_disruption
+  sources:
+  - id: dd:summary/disruption/decay_times/energy_thermal/linear_20_80/value
+    dd_path: summary/disruption/decay_times/energy_thermal/linear_20_80/value
+    status: composed
+  - id: dd:summary/disruption/decay_times/energy_thermal/linear_custom/decay_time/value
+    dd_path: summary/disruption/decay_times/energy_thermal/linear_custom/decay_time/value
     status: composed
 - name: toroidal_halo_current
   kind: scalar
@@ -2053,6 +2275,53 @@
   - id: dd:mhd/ggd/velocity_z/values
     dd_path: mhd/ggd/velocity_z/values
     status: composed
+- name: volume_averaged_runaway_electron_kinetic_energy_density
+  kind: scalar
+  status: draft
+  description: Mean relativistic kinetic energy per unit volume of the runaway electron
+    population, obtained by averaging the local kinetic energy density over the confined
+    plasma volume.
+  documentation: 'The volume-averaged runaway electron kinetic energy density is a
+    global scalar characterizing the mean suprathermal energy stored per unit volume
+    in the runaway electron (RE) population. It is obtained by integrating the local
+    relativistic kinetic energy density over the total confined plasma volume $V$
+    and dividing by $V$.
+
+
+    The underlying local quantity is the relativistic kinetic energy moment of the
+    RE distribution function:
+
+
+    $$
+
+    u_\mathrm{RE}(\mathbf{r}) = \int f_\mathrm{RE}(\mathbf{r}, \mathbf{p})\,(\gamma
+    - 1)\,m_e c^2 \, d^3p
+
+    $$
+
+
+    where $f_\mathrm{RE}$ is the runaway electron phase-space distribution function,
+    $\gamma = (1 + p^2 / m_e^2 c^2)^{1/2}$ is the Lorentz factor, $m_e$ is the electron
+    rest mass, $c$ is the speed of light, and $\mathbf{p}$ is the relativistic momentum.
+    The volume average is then $\langle u_\mathrm{RE} \rangle = V^{-1} \int_V u_\mathrm{RE}\,dV$.
+
+
+    This quantity is evaluated from kinetic or reduced-fluid runaway electron models,
+    particularly in disruption current-quench simulations where RE populations can
+    reach energies of several to tens of MeV per particle. Multiplying by the plasma
+    volume $V$ recovers the total stored relativistic energy given by [runaway_electron_kinetic_energy](name:runaway_electron_kinetic_energy).
+    The local non-averaged counterpart is [runaway_electron_kinetic_energy_density](name:runaway_electron_kinetic_energy_density),
+    and the corresponding global particle number density is [volume_averaged_runaway_electron_density](name:volume_averaged_runaway_electron_density).'
+  unit: J.m^-3
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:runaway_electron_kinetic_energy
+  - name:runaway_electron_kinetic_energy_density
+  - name:volume_averaged_runaway_electron_density
+  sources:
+  - id: dd:runaway_electrons/global_quantities/volume_average/energy_density_kinetic
+    dd_path: runaway_electrons/global_quantities/volume_average/energy_density_kinetic
+    status: composed
 - name: poloidal_mode_number
   kind: scalar
   status: draft
@@ -2097,6 +2366,12 @@
   - name:mode_number
   - name:radial_mode_number
   - name:mode_frequency
+  arguments:
+  - name: toroidal_mhd_mode_number
+    operator: component
+    operator_kind: projection
+    axis: poloidal
+    shape: component
   sources:
   - id: dd:mhd_linear/time_slice/toroidal_mode/m_pol_dominant
     dd_path: mhd_linear/time_slice/toroidal_mode/m_pol_dominant
@@ -2160,6 +2435,12 @@
   - name:mode_number
   - name:mode_frequency
   - name:mode_phase
+  arguments:
+  - name: toroidal_mhd_mode_number
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
   sources:
   - id: dd:mhd_linear/time_slice/toroidal_mode/radial_mode_number
     dd_path: mhd_linear/time_slice/toroidal_mode/radial_mode_number
