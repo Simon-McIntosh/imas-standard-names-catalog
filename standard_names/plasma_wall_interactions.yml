@@ -1,6 +1,6 @@
 # Domain: plasma_wall_interactions
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 7
+# Entries: 11
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -113,6 +113,53 @@
   - id: dd:summary/local/limiter/n_i/deuterium_tritium/value
     dd_path: summary/local/limiter/n_i/deuterium_tritium/value
     status: composed
+- name: ion_particle_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Aggregate incident particle flux of ions, summed over all charge states,
+    arriving at the plasma-facing wall surface.
+  documentation: 'The ion particle flux at the wall is the aggregate rate at which
+    ions from the plasma impinge on a unit area of plasma-facing material, summed
+    over all ion charge states. As the ion-species component of the total [particle_flux_at_wall](name:particle_flux_at_wall),
+    it does not include contributions from neutral particles (see [neutral_particle_flux_at_wall](name:neutral_particle_flux_at_wall))
+    or electrons.
+
+
+    In fluid plasma models, the incident flux $\Gamma_i^{\rm wall}$ at a wall surface
+    element with inward surface normal $\hat{n}$ is:
+
+
+    $$
+
+    \Gamma_i^{\rm wall} = \sum_z n_{i,z} \, \mathbf{u}_{i,z} \cdot \hat{n}
+
+    $$
+
+
+    where $n_{i,z}$ is the number density of ions in charge state $z$ and $\mathbf{u}_{i,z}$
+    is the corresponding bulk ion flow velocity, with the summation running over all
+    charge states $z$. The charge-state-resolved analog is given by [ion_state_particle_flux_at_wall](name:ion_state_particle_flux_at_wall).
+
+
+    This flux is computed as a surface boundary output of edge plasma fluid simulations
+    or estimated from experimental ion saturation current density measurements via
+    the Bohm sheath criterion. Together with [ion_kinetic_energy_flux_at_wall](name:ion_kinetic_energy_flux_at_wall),
+    it characterizes the particle and energy loading on plasma-facing components and
+    serves as a key input to sputtering yield and fuel-retention models.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:particle_flux_at_wall
+  - name:neutral_particle_flux_at_wall
+  - name:ion_state_particle_flux_at_wall
+  - name:ion_kinetic_energy_flux_at_wall
+  sources:
+  - id: dd:wall/description_ggd/ggd/particle_fluxes/ion/emitted/values
+    dd_path: wall/description_ggd/ggd/particle_fluxes/ion/emitted/values
+    status: composed
+  - id: dd:wall/description_ggd/ggd/particle_fluxes/ion/incident/values
+    dd_path: wall/description_ggd/ggd/particle_fluxes/ion/incident/values
+    status: composed
 - name: iron_density_at_limiter
   kind: scalar
   status: draft
@@ -210,6 +257,102 @@
   sources:
   - id: dd:summary/local/limiter/n_i/lithium/value
     dd_path: summary/local/limiter/n_i/lithium/value
+    status: composed
+- name: neutral_particle_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Incident flux of neutral particles (atoms and molecules) arriving at
+    the plasma-facing wall per unit area per unit time, summed over all quantum states
+    of the neutral species.
+  documentation: 'The neutral particle flux at the wall is the local rate per unit
+    area at which neutral atoms and molecules impinge on plasma-facing material from
+    the plasma-boundary region. It is the total neutral contribution to [particle_flux_at_wall](name:particle_flux_at_wall),
+    summed over all quantum states of the neutral species. Neutrals reaching the wall
+    arrive primarily through charge-exchange reactions and recombination in the scrape-off
+    layer, gas injection, and desorption from the surface.
+
+
+    The incident neutral flux density is defined by integrating the wall-directed
+    component of the neutral velocity distribution:
+
+
+    $$
+
+    \Gamma_n = \int_{v_\perp > 0} v_\perp \, f_n(\mathbf{v}) \, d^3v
+
+    $$
+
+
+    where $v_\perp$ is the velocity component directed toward the wall surface and
+    $f_n(\mathbf{v})$ is the neutral particle velocity distribution function.
+
+
+    This flux is a primary driver of fuel recycling, hydrogenic implantation, and
+    physical sputtering of plasma-facing components. The quantum-state-resolved analog
+    [neutral_state_particle_flux_at_wall](name:neutral_state_particle_flux_at_wall)
+    decomposes this total by individual electronic excitation state, while [neutral_energy_flux_at_wall](name:neutral_energy_flux_at_wall)
+    gives the associated kinetic energy carried by the same neutral population. The
+    species counterparts [ion_particle_flux_at_wall](name:ion_particle_flux_at_wall)
+    and [electron_particle_flux_at_wall](name:electron_particle_flux_at_wall) complete
+    the particle-species decomposition of the total wall loading.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:particle_flux_at_wall
+  - name:neutral_state_particle_flux_at_wall
+  - name:neutral_energy_flux_at_wall
+  - name:ion_particle_flux_at_wall
+  - name:electron_particle_flux_at_wall
+  sources:
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/kinetic/neutral/emitted/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/neutral/emitted/values
+    status: composed
+  - id: dd:wall/description_ggd/ggd/particle_fluxes/neutral/emitted/values
+    dd_path: wall/description_ggd/ggd/particle_fluxes/neutral/emitted/values
+    status: attached
+  - id: dd:wall/description_ggd/ggd/particle_fluxes/neutral/incident/values
+    dd_path: wall/description_ggd/ggd/particle_fluxes/neutral/incident/values
+    status: composed
+- name: neutral_state_particle_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Incident particle flux at the plasma-facing wall for neutral particles
+    in a specified quantum state, such as a particular electronic energy level or
+    molecular internal state.
+  documentation: "The particle flux at the wall for a neutral species in a given quantum\
+    \ state quantifies the local arrival rate of neutrals \u2014 carrying a specific\
+    \ electronic excitation level, charge state, or internal molecular state \u2014\
+    \ per unit area of plasma-facing material. It provides finer resolution than [neutral_particle_flux_at_wall](name:neutral_particle_flux_at_wall),\
+    \ which sums over all neutral states, enabling plasma-wall interaction models\
+    \ to track contributions from individual neutral populations such as ground-state\
+    \ atoms, excited neutrals, or molecular dissociation products.\n\nThe incident\
+    \ flux in quantum state $s$ is defined as:\n\n$$\n\\Gamma_{\\rm wall}^{(s)} =\
+    \ \\int_{v_n > 0} v_n \\, f_s(\\mathbf{v}) \\, d^3v\n$$\n\nwhere $f_s(\\mathbf{v})$\
+    \ is the velocity distribution function of neutrals in state $s$ and $v_n$ is\
+    \ the component of particle velocity normal to the wall surface, with the integral\
+    \ restricted to particles directed toward the wall.\n\nThis quantity is evaluated\
+    \ in plasma-edge neutral-transport codes that resolve neutral populations by quantum\
+    \ state using collisional-radiative models describing excitation, ionization,\
+    \ and recombination transitions. Summing over all neutral quantum states yields\
+    \ [neutral_particle_flux_at_wall](name:neutral_particle_flux_at_wall), while including\
+    \ all particle species gives the total incident loading captured in [particle_flux_at_wall](name:particle_flux_at_wall).\
+    \ The corresponding kinetic energy flux for the same quantum state is given by\
+    \ [neutral_state_energy_flux_at_wall](name:neutral_state_energy_flux_at_wall)."
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_particle_flux_at_wall
+  - name:particle_flux_at_wall
+  - name:neutral_state_energy_flux_at_wall
+  sources:
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/kinetic/neutral/state/emitted/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/neutral/state/emitted/values
+    status: composed
+  - id: dd:wall/description_ggd/ggd/particle_fluxes/neutral/state/emitted/values
+    dd_path: wall/description_ggd/ggd/particle_fluxes/neutral/state/emitted/values
+    status: attached
+  - id: dd:wall/description_ggd/ggd/particle_fluxes/neutral/state/incident/values
+    dd_path: wall/description_ggd/ggd/particle_fluxes/neutral/state/incident/values
     status: composed
 - name: nitrogen_density_at_limiter
   kind: scalar
@@ -356,4 +499,52 @@
   sources:
   - id: dd:camera_ir/channel/target_surface_center/y
     dd_path: camera_ir/channel/target_surface_center/y
+    status: composed
+- name: reference_wavelength_of_filter
+  kind: scalar
+  status: draft
+  description: Reference wavelength of an optical filter is the nominal center or
+    peak wavelength of its passband, usually the wavelength at which the nominal transmission
+    is maximal. It identifies the spectral location of the filter response, not the
+    full passband shape or width.
+  documentation: 'Reference wavelength of a filter, $\lambda_\mathrm{ref}$, is the
+    nominal spectral position assigned to an optical bandpass filter. For a single-peaked
+    bandpass it is normally the wavelength at which the nominal spectral transmittance
+    is largest; for asymmetric or structured responses it is a manufacturer- or calibration-defined
+    reference point for the passband center.
+
+
+    For a peak-defined filter reference, the defining relation is
+
+
+    $$
+
+    \lambda_\mathrm{ref} = \operatorname*{arg\,max}_{\lambda} T_\mathrm{nom}(\lambda)
+
+    $$
+
+
+    where $T_\mathrm{nom}(\lambda)$ is the nominal spectral transmittance as a function
+    of wavelength $\lambda$.
+
+
+    The value is obtained from the filter specification or from laboratory spectral-transmission
+    calibration. It is used together with the passband width and, when available,
+    lower and upper wavelength bounds to describe the spectral region transmitted
+    by the filter; the reference wavelength alone does not fully determine the filter
+    response.
+
+
+    Typical values for visible and infrared plasma diagnostics are about $4\times10^{-7}$-$1.5\times10^{-5}$
+    m, with narrow line filters often centered near specific atomic or molecular emission
+    wavelengths and thermal-infrared filters commonly in the micrometer range.'
+  unit: m
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:wavelength_of_filter
+  - name:spectral_width_of_filter
+  - name:spectral_wavelength
+  sources:
+  - id: dd:camera_ir/channel/camera/frame/filter/wavelength_central
+    dd_path: camera_ir/channel/camera/frame/filter/wavelength_central
     status: composed

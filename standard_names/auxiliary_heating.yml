@@ -1,6 +1,6 @@
 # Domain: auxiliary_heating
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 24
+# Entries: 27
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -160,6 +160,56 @@
   sources:
   - id: dd:waves/coherent_wave/profiles_1d/ion/power_inside_fast
     dd_path: waves/coherent_wave/profiles_1d/ion/power_inside_fast
+    status: composed
+- name: fast_ion_state_power_at_inside_flux_surface
+  kind: scalar
+  status: draft
+  description: Cumulative wave power absorbed by fast (non-thermal) ions of a specified
+    charge state within the plasma volume enclosed by a selected magnetic flux surface.
+  documentation: 'Fast ion state power at an inside flux surface quantifies the net
+    wave energy per unit time deposited in the suprathermal (fast) population of a
+    single specified ion charge state, accumulated over all plasma volume enclosed
+    by a chosen flux surface. It is the fast-ion component of the total ion-state
+    absorbed power [ion_state_power_at_inside_flux_surface](name:ion_state_power_at_inside_flux_surface);
+    its thermal-ion counterpart is [thermal_ion_state_power_at_inside_flux_surface](name:thermal_ion_state_power_at_inside_flux_surface).
+
+
+    The cumulative power is the volume integral of the local fast-ion absorption density
+    $p_{\text{fast},s}$ over the plasma volume enclosed by the flux surface labeled
+    $\rho$:
+
+
+    $$
+
+    P_{\text{fast},s}(\rho) = \int_{V(\rho)} p_{\text{fast},s}(\mathbf{r}) \, dV
+
+    $$
+
+
+    where $V(\rho)$ is the volume enclosed by the flux surface and $p_{\text{fast},s}$
+    is the local fast-ion absorbed power density for charge state $s$, the volumetric
+    counterpart [fast_ion_state_power_density](name:fast_ion_state_power_density).
+
+
+    This quantity is computed by RF wave-kinetic or full-wave codes that resolve the
+    resonant energy exchange between the wave field and the non-Maxwellian fast-ion
+    distribution on a per-charge-state basis, as occurs in ICRH minority heating and
+    mode-conversion schemes. Aggregating over all charge states and ion species yields
+    [fast_ion_power_at_inside_flux_surface](name:fast_ion_power_at_inside_flux_surface).
+    The toroidal-mode-resolved complement [per_toroidal_mode_fast_ion_state_power](name:per_toroidal_mode_fast_ion_state_power)
+    decomposes the same cumulative power by toroidal harmonic when the wave field
+    is represented as a Fourier series in toroidal angle $\phi$.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:ion_state_power_at_inside_flux_surface
+  - name:thermal_ion_state_power_at_inside_flux_surface
+  - name:fast_ion_state_power_density
+  - name:fast_ion_power_at_inside_flux_surface
+  - name:per_toroidal_mode_fast_ion_state_power
+  sources:
+  - id: dd:waves/coherent_wave/profiles_1d/ion/state/power_inside_fast
+    dd_path: waves/coherent_wave/profiles_1d/ion/state/power_inside_fast
     status: composed
 - name: height_of_antenna_strap
   kind: scalar
@@ -347,6 +397,52 @@
   - id: dd:ic_antennas/antenna/module/strap/geometry/annulus/radius_outer
     dd_path: ic_antennas/antenna/module/strap/geometry/annulus/radius_outer
     status: composed
+- name: per_toroidal_mode_fast_electron_power
+  kind: scalar
+  status: draft
+  description: Wave power absorbed by the fast (non-thermal) electron population from
+    a coherent wave, attributed to a single toroidal Fourier harmonic identified by
+    mode number $n_\phi$.
+  documentation: "This quantity gives the contribution to the total absorbed fast-electron\
+    \ wave power from a single toroidal Fourier harmonic of a coherent wave, identified\
+    \ by toroidal mode number $n_\\phi$. It decomposes [fast_electron_power](name:fast_electron_power)\
+    \ \u2014 the volume-integrated power absorbed by the non-thermal electron population\
+    \ \u2014 into individual harmonic contributions.\n\nThe summation closure relation\
+    \ is:\n\n$$\nP_{\\rm fast,e} = \\sum_{n_\\phi} P_{\\rm fast,e}(n_\\phi)\n$$\n\n\
+    where $P_{\\rm fast,e}(n_\\phi)$ is the power absorbed by fast electrons from\
+    \ the harmonic with toroidal mode number $n_\\phi$.\n\nIn wave-modeling calculations,\
+    \ the electromagnetic fields of a coherent wave are expanded as a Fourier series\
+    \ in the toroidal angle $\\phi$, and the contribution from each harmonic to the\
+    \ fast-electron power balance is evaluated separately using quasilinear diffusion\
+    \ theory applied to the non-thermal electron distribution. Resonant absorption\
+    \ mechanisms \u2014 such as electron cyclotron or lower-hybrid resonances \u2014\
+    \ accelerate electrons to suprathermal energies, and the harmonic decomposition\
+    \ reveals which modes dominate this energy transfer. The radially cumulative (inside-flux-surface)\
+    \ variant is [fast_electron_power_at_inside_flux_surface](name:fast_electron_power_at_inside_flux_surface),\
+    \ while the local power-density analog per mode is [per_toroidal_mode_fast_electron_power_density](name:per_toroidal_mode_fast_electron_power_density).\
+    \ The equivalent decomposition for the thermal electron population is [per_toroidal_mode_thermal_electron_power](name:per_toroidal_mode_thermal_electron_power),\
+    \ and the fast-ion counterpart is [per_toroidal_mode_fast_ion_power](name:per_toroidal_mode_fast_ion_power)."
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:fast_electron_power
+  - name:fast_electron_power_at_inside_flux_surface
+  - name:per_toroidal_mode_fast_electron_power_density
+  - name:per_toroidal_mode_thermal_electron_power
+  - name:per_toroidal_mode_fast_ion_power
+  sources:
+  - id: dd:waves/coherent_wave/global_quantities/electrons/power_fast_n_phi
+    dd_path: waves/coherent_wave/global_quantities/electrons/power_fast_n_phi
+    status: composed
+  - id: dd:waves/coherent_wave/global_quantities/electrons/power_fast_n_tor
+    dd_path: waves/coherent_wave/global_quantities/electrons/power_fast_n_tor
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_1d/electrons/power_inside_fast_n_phi
+    dd_path: waves/coherent_wave/profiles_1d/electrons/power_inside_fast_n_phi
+    status: composed
+  - id: dd:waves/coherent_wave/profiles_1d/electrons/power_inside_fast_n_tor
+    dd_path: waves/coherent_wave/profiles_1d/electrons/power_inside_fast_n_tor
+    status: attached
 - name: per_toroidal_mode_thermal_ion_power
   kind: scalar
   status: draft
@@ -489,6 +585,81 @@
     status: composed
   - id: dd:waves/coherent_wave/profiles_2d/ion/power_density_thermal_n_tor
     dd_path: waves/coherent_wave/profiles_2d/ion/power_density_thermal_n_tor
+    status: attached
+- name: per_toroidal_mode_thermal_ion_state_power
+  kind: scalar
+  status: draft
+  description: Wave power absorbed by a specified thermal ion species and charge state
+    from one toroidal Fourier harmonic of a coherent wave. It is volume-integrated
+    over the region enclosed by a magnetic flux surface; at the outer boundary it
+    is the global contribution of that mode to charge-state-resolved ion heating.
+  documentation: 'Per-toroidal-mode thermal ion state power is the coherent-wave power
+    absorbed by the thermal population of a specified ion species and charge state
+    for one toroidal mode number. For an interior magnetic flux surface, it is a cumulative
+    volume integral over the plasma region enclosed by that surface; at the outer
+    boundary it is the total absorbed power for that charge state and mode. The toroidal
+    mode number is the integer harmonic in a Fourier decomposition with respect to
+    the toroidal angle $\phi$ in the right-handed cylindrical $(R, \phi, Z)$ frame.
+
+
+    For a magnetic flux surface $S$, the cumulative contribution of mode $n$ can be
+    written as
+
+
+    $$
+
+    P^{\mathrm{th}}_{a,z,n}(S) = \int_{V(S)} p^{\mathrm{th}}_{a,z,n}(\mathbf{x})\,
+    dV
+
+    $$
+
+
+    where $P^{\mathrm{th}}_{a,z,n}$ is the absorbed power in W, $p^{\mathrm{th}}_{a,z,n}$
+    is the local absorbed power density in W m$^{-3}$, $dV$ is the volume element
+    in m$^3$, $V(S)$ is the volume enclosed by $S$, $a$ labels the ion species, $z$
+    labels the charge state, and $n$ is dimensionless. Summing over toroidal mode
+    numbers gives the total charge-state-resolved thermal ion power, $P^{\mathrm{th}}_{a,z}(S)=\sum_n
+    P^{\mathrm{th}}_{a,z,n}(S)$, while summing over the relevant ion species and charge
+    states gives the aggregate per-mode thermal ion power, $P^{\mathrm{th}}_{\mathrm{i},n}(S)=\sum_{a,z}
+    P^{\mathrm{th}}_{a,z,n}(S)$.
+
+
+    In practice this quantity is obtained from coherent-wave absorption calculations,
+    using local wave fields and thermal ion distribution functions to evaluate the
+    absorbed power density before integrating over the enclosed volume. It may be
+    constrained or checked against global power balance, charge-state composition,
+    and diagnostics sensitive to ion heating, but it is fundamentally a mode-resolved
+    deposition quantity rather than a directly local thermodynamic state variable.
+
+
+    Typical values for an individual charge-state and toroidal-mode contribution range
+    from near 0 W for weakly coupled modes or nonresonant charge states to $10^3$-$10^7$
+    W in strongly heated plasmas. The sum over modes and charge states is bounded
+    by the coherent-wave power coupled to the plasma and by losses to other particle
+    populations or damping channels.
+
+
+    Sign convention: Positive when net wave energy is transferred from the coherent
+    wave field to the specified thermal ion charge state.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:thermal_ion_state_power
+  - name:per_toroidal_mode_thermal_ion_power
+  - name:per_toroidal_mode_fast_ion_state_power
+  - name:per_toroidal_mode_thermal_electron_power
+  sources:
+  - id: dd:waves/coherent_wave/global_quantities/ion/state/power_thermal_n_phi
+    dd_path: waves/coherent_wave/global_quantities/ion/state/power_thermal_n_phi
+    status: composed
+  - id: dd:waves/coherent_wave/global_quantities/ion/state/power_thermal_n_tor
+    dd_path: waves/coherent_wave/global_quantities/ion/state/power_thermal_n_tor
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_1d/ion/state/power_inside_thermal_n_phi
+    dd_path: waves/coherent_wave/profiles_1d/ion/state/power_inside_thermal_n_phi
+    status: composed
+  - id: dd:waves/coherent_wave/profiles_1d/ion/state/power_inside_thermal_n_tor
+    dd_path: waves/coherent_wave/profiles_1d/ion/state/power_inside_thermal_n_tor
     status: attached
 - name: perturbed_beam_major_radius_of_neutral_beam_injector
   kind: scalar
@@ -975,6 +1146,10 @@
   - name:thermal_ion_power_density
   - name:fast_ion_state_power_at_inside_flux_surface
   - name:per_toroidal_mode_fast_ion_state_power_density
+  arguments:
+  - name: ion_state_power_density
+    operator: fast
+    operator_kind: qualifier
   sources:
   - id: dd:waves/coherent_wave/profiles_1d/ion/state/power_density_fast
     dd_path: waves/coherent_wave/profiles_1d/ion/state/power_density_fast
@@ -1190,6 +1365,10 @@
   - name:thermal_ion_power_density
   - name:thermal_ion_state_power_at_inside_flux_surface
   - name:per_toroidal_mode_thermal_ion_state_power_density
+  arguments:
+  - name: ion_state_power_density
+    operator: thermal
+    operator_kind: qualifier
   sources:
   - id: dd:waves/coherent_wave/profiles_1d/ion/state/power_density_thermal
     dd_path: waves/coherent_wave/profiles_1d/ion/state/power_density_thermal

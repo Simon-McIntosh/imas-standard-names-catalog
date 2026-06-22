@@ -1,9 +1,64 @@
 # Domain: radiation_measurement_diagnostics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 14
+# Entries: 16
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: lower_bound_energy_of_detector_pixel
+  kind: scalar
+  status: draft
+  description: Minimum photon energy accepted by a detector pixel in an X-ray crystal
+    spectrometer. It is the low-energy edge of that pixel's photon-energy bandpass.
+  documentation: 'The lower bound energy of a detector pixel is the minimum photon
+    energy in the spectral interval accepted by that pixel. Together with the corresponding
+    upper bound, it defines the pixel bandpass around the calibrated [photon_energy](name:photon_energy)
+    coordinate.
+
+
+    For a crystal spectrometer calibrated by Bragg diffraction, the lower bound for
+    pixel $p$ can be written as the minimum energy over the Bragg-angle interval accepted
+    by that pixel:
+
+
+    $$
+
+    E_{\mathrm{lower},p} = \min_{\theta \in \Omega_p} \frac{n h c}{2 d \sin\theta\,
+    e}
+
+    $$
+
+
+    where $\Omega_p$ is the accepted Bragg-angle interval of pixel $p$, $n$ is the
+    positive integer diffraction order for the calibrated spectral branch, $d$ is
+    the crystal lattice-plane spacing, $h$ is Planck''s constant, $c$ is the speed
+    of light, and $e$ is the elementary charge converting joules to electronvolts.
+    Equivalently, if $d$ is expressed in nm, $hc/e = 1239.841984\ \mathrm{eV\,nm}$
+    gives $E$ directly in eV.
+
+
+    In practice this bound is obtained from the spectrometer geometry, crystal spacing
+    and orientation, detector position, pixel aperture, and a wavelength or line-emission
+    calibration. The finite pixel size and optical response determine the accepted
+    angular interval, so the lower bound is the low-energy edge of the pixel response
+    rather than merely the energy at its center.
+
+
+    Typical lower bounds for fusion X-ray crystal spectrometers are 500-20000 eV,
+    with common impurity-line measurements in the 3000-8000 eV range and harder spectral
+    branches extending to 10000-50000 eV. Adjacent-pixel energy intervals are often
+    a few eV to tens of eV, depending on dispersion and pixel size.'
+  unit: eV
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:upper_bound_energy_of_detector_pixel
+  - name:energy_of_detector_pixel
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/energy_bound_lower
+    dd_path: spectrometer_x_ray_crystal/channel/energy_bound_lower
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/energy_bound_lower
+    dd_path: spectrometer_x_ray_crystal/energy_bound_lower
+    status: composed
 - name: major_radius_of_detector_pixel
   kind: scalar
   status: draft
@@ -56,6 +111,72 @@
   - id: dd:spectrometer_x_ray_crystal/channel/camera/pixel_position/r
     dd_path: spectrometer_x_ray_crystal/channel/camera/pixel_position/r
     status: attached
+- name: neutron_energy
+  kind: scalar
+  status: draft
+  description: Kinetic energy of a fusion-born neutron, used as the energy variable
+    for neutron emission spectra, transport, and detector response calculations.
+  documentation: 'Neutron energy $E_n$ is the kinetic energy carried by a neutron
+    emitted or transported in a fusion plasma. It is the spectral variable for neutron
+    emission spectra and detector response functions, and it separates reaction channels
+    such as DD and DT fusion by their characteristic birth energies. Broad distributions
+    arise from ion thermal motion, energetic-ion reactions, scattering, and transport
+    effects.
+
+
+    Detector response calculations often fold an incident neutron spectrum with an
+    energy-dependent response over $E_n$:
+
+
+    $$
+
+    C_k = \int R_k(E_n)\, \frac{d\Phi_n}{dE_n}(E_n)\, dE_n
+
+    $$
+
+
+    where $C_k$ is the predicted signal in detector channel $k$, in counts for a fluence
+    calculation or counts s$^{-1}$ for a flux calculation; $R_k(E_n)$ is the channel
+    response, with units counts m$^2$ for this normalization; and $d\Phi_n/dE_n$ is
+    the incident differential fluence spectrum in m$^{-2}$ eV$^{-1}$ or differential
+    flux spectrum in m$^{-2}$ s$^{-1}$ eV$^{-1}$.
+
+
+    The birth spectrum is computed from two-body fusion kinematics folded with reactant
+    velocity distributions, then modified by scattering and transport before detection.
+    Measurements infer the spectrum using time-of-flight systems, recoil-particle
+    spectrometers, scintillators, activation thresholds, or other energy-sensitive
+    diagnostics together with response-function unfolding. Energy-resolved neutron
+    emission is represented by neutron_energy_spectrum, with reaction-specific fluxes
+    such as [deuterium_deuterium_flux_due_to_thermal_fusion](name:deuterium_deuterium_flux_due_to_thermal_fusion),
+    deuterium_tritium_flux_due_to_thermal_fusion, and [deuterium_tritium_flux_due_to_beam_beam_fusion](name:deuterium_tritium_flux_due_to_beam_beam_fusion).
+
+
+    Typical diagnostic coverage is $1 \times 10^3$-$2 \times 10^7$ eV. Primary thermal
+    DD neutrons occur near $2.45 \times 10^6$ eV, and primary thermal DT neutrons
+    near $1.41 \times 10^7$ eV; thermal broadening is often $10^4$-$10^5$ eV, while
+    energetic-ion populations can produce broader asymmetric tails.'
+  unit: eV
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:deuterium_deuterium_flux_due_to_thermal_fusion
+  - name:deuterium_tritium_flux_due_to_beam_beam_fusion
+  sources:
+  - id: dd:neutron_diagnostic/detector/energy_band/energies
+    dd_path: neutron_diagnostic/detector/energy_band/energies
+    status: attached
+  - id: dd:neutron_diagnostic/detector/green_functions/source_neutron_energies
+    dd_path: neutron_diagnostic/detector/green_functions/source_neutron_energies
+    status: attached
+  - id: dd:neutron_diagnostic/detectors/energy_band/energies
+    dd_path: neutron_diagnostic/detectors/energy_band/energies
+    status: attached
+  - id: dd:neutron_diagnostic/detectors/green_functions/source_neutron_energies
+    dd_path: neutron_diagnostic/detectors/green_functions/source_neutron_energies
+    status: attached
+  - id: dd:neutron_diagnostic/unit_source/radiation/reaction/energy
+    dd_path: neutron_diagnostic/unit_source/radiation/reaction/energy
+    status: composed
 - name: radiated_power_density
   kind: scalar
   status: draft

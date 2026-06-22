@@ -1,9 +1,58 @@
 # Domain: particle_measurement_diagnostics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 9
+# Entries: 12
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: line_averaged_lithium_density
+  kind: scalar
+  status: draft
+  description: Path-length average of the lithium impurity ion number density along
+    a diagnostic line of sight. It sums all ionized lithium charge states and excludes
+    neutral lithium.
+  documentation: 'Line-averaged lithium density is the path-length average of the
+    lithium impurity ion number density along a specified line of sight. The local
+    lithium ion density is the sum over ionized lithium charge states, $n_{\mathrm{Li,ion}}
+    = n_{\mathrm{Li}^+} + n_{\mathrm{Li}^{2+}} + n_{\mathrm{Li}^{3+}}$, and excludes
+    neutral lithium atoms.
+
+
+    For a chord of length $L$, the line average is defined by
+
+
+    $$
+
+    \langle n_{\mathrm{Li}} \rangle_{\mathrm{line}} = \frac{1}{L}\int_0^L n_{\mathrm{Li,ion}}(\ell)\,d\ell
+
+    $$
+
+
+    where $\ell$ is distance along the line of sight in meters, $L$ is the chord length
+    in meters, $n_{\mathrm{Li,ion}}$ is the local summed ionized-lithium density in
+    m^-3, and $\langle n_{\mathrm{Li}} \rangle_{\mathrm{line}}$ is in m^-3.
+
+
+    In practice, this quantity may be inferred from a line-integrated lithium-sensitive
+    measurement divided by the relevant chord length, or computed by integrating a
+    reconstructed local lithium ion density along the same path. It provides a bulk
+    chord measure of lithium impurity content and does not by itself resolve where
+    along the line of sight the lithium ions are located.
+
+
+    The value is non-negative and is typically interpreted relative to electron density
+    or to other impurity densities, because lithium content depends strongly on wall
+    conditioning, fueling, transport, and plasma scenario. No universal numerical
+    range is implied by the definition.'
+  unit: m^-3
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:lithium_density
+  - name:volume_averaged_lithium_density
+  - name:lithium_fraction
+  sources:
+  - id: dd:summary/line_average/n_i/lithium/value
+    dd_path: summary/line_average/n_i/lithium/value
+    status: composed
 - name: line_averaged_nitrogen_density
   kind: scalar
   status: draft
@@ -339,6 +388,60 @@
   - id: dd:neutron_diagnostic/detectors/temperature_sensor/amplitude
     dd_path: neutron_diagnostic/detectors/temperature_sensor/amplitude
     status: attached
+- name: volume_of_neutron_detector_converter
+  kind: scalar
+  status: draft
+  description: Physical volume occupied by the converter material in a neutron detector.
+    It excludes inactive supports, housings, and voids unless they are part of the
+    neutron-converting medium.
+  documentation: 'Converter volume is the physical volume occupied by material that
+    produces the detectable secondary signal from incident neutrons, such as a gas
+    fill, scintillator, fission deposit, or neutron-converting coating. It is a geometrical
+    property of the active converter medium, distinct from its nuclear number density
+    or reaction rate per unit volume.
+
+
+    The converter volume is defined by integrating over the region occupied by the
+    active converter material:
+
+
+    $$
+
+    V_\mathrm{conv} = \int_{\Omega_\mathrm{conv}} d^3x
+
+    $$
+
+
+    where $\Omega_\mathrm{conv}$ is the physical region containing converter material
+    and $d^3x$ is the local volume element.
+
+
+    In practice, $V_\mathrm{conv}$ is obtained from the detector geometry: the measured
+    or specified dimensions of gas cells, scintillator blocks, converter foils, coatings,
+    or deposits. For segmented or multilayer converters, the total volume is the sum
+    over active converter regions; for porous, patterned, or partially filled media,
+    only the fraction actually occupied by converter material is included. For thin
+    coatings, the volume is often computed as active coated area times effective converter
+    thickness.
+
+
+    Representative values are highly detector-dependent: thin fission or boron/lithium
+    coatings can be about $10^{-11}$-$10^{-7}$ m$^3$, compact solid scintillator converters
+    about $10^{-7}$-$10^{-4}$ m$^3$, and gas-filled converter regions about $10^{-5}$-$10^{-2}$
+    m$^3$. The detection probability also depends on the [nuclear number density](name:nuclear_density_of_neutron_detector_converter)
+    and microscopic cross sections, while the local conversion rate is represented
+    by the [nuclear reaction rate per unit volume](name:nuclear_rate_of_neutron_detector_converter).'
+  unit: m^3
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:nuclear_density_of_neutron_detector_converter
+  - name:nuclear_rate_of_neutron_detector_converter
+  - name:neutron_flux_of_neutron_detector_converter
+  - name:surface_area_of_neutron_detector
+  sources:
+  - id: dd:neutron_diagnostic/detectors/radiation/converter_volume
+    dd_path: neutron_diagnostic/detectors/radiation/converter_volume
+    status: composed
 - name: xenon_density
   kind: scalar
   status: draft
@@ -436,6 +539,58 @@
   sources:
   - id: dd:summary/line_average/n_i/argon/value
     dd_path: summary/line_average/n_i/argon/value
+    status: composed
+- name: line_averaged_deuterium_density
+  kind: scalar
+  status: draft
+  description: Chord-average of the deuterium ion number density along a diagnostic
+    line of sight, equal to the path integral of the local deuterium density divided
+    by the chord length.
+  documentation: 'The line-averaged deuterium ion number density gives the mean deuterium
+    particle density along a diagnostic chord through the plasma, providing a chord-path-weighted
+    scalar measure of absolute deuterium content distinct from the isotopic fraction
+    described by [volume_averaged_deuterium_fraction](name:volume_averaged_deuterium_fraction).
+
+
+    The quantity is defined as:
+
+
+    $$
+
+    \bar{n}_D = \frac{1}{L} \int_0^L n_D(\ell) \, d\ell
+
+    $$
+
+
+    where $n_D(\ell)$ is the local deuterium ion number density in m$^{-3}$ at chord
+    position $\ell$ and $L$ is the total chord length in m.
+
+
+    It is typically inferred from interferometric phase-shift measurements combined
+    with isotope-resolved spectroscopy sensitive to deuterium Balmer emission. It
+    complements the volume-based [volume_averaged_deuterium_density](name:volume_averaged_deuterium_density)
+    and analogous chord-averaged fuel densities such as [line_averaged_hydrogen_density](name:line_averaged_hydrogen_density)
+    for protium and [line_averaged_helium_4_density](name:line_averaged_helium_4_density)
+    for helium-4.
+
+
+    Typical values range from $5 \times 10^{18}$ to $5 \times 10^{20}$ m$^{-3}$ in
+    tokamak deuterium plasmas, scaling with the line-averaged electron density and
+    the deuterium fuel fraction of the isotopic mix.
+
+
+    Sign convention: Positive when deuterium ions are present in the plasma along
+    the measurement chord.'
+  unit: m^-3
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:volume_averaged_deuterium_fraction
+  - name:volume_averaged_deuterium_density
+  - name:line_averaged_hydrogen_density
+  - name:line_averaged_helium_4_density
+  sources:
+  - id: dd:summary/line_average/n_i/deuterium/value
+    dd_path: summary/line_average/n_i/deuterium/value
     status: composed
 - name: line_averaged_effective_charge
   kind: scalar

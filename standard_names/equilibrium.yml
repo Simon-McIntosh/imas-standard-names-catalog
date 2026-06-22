@@ -1,6 +1,6 @@
 # Domain: equilibrium
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 77
+# Entries: 79
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -1012,6 +1012,67 @@
   - id: dd:waves/magnetic_axis/r
     dd_path: waves/magnetic_axis/r
     status: attached
+- name: major_radius_of_plasma_boundary
+  kind: scalar
+  status: draft
+  description: Major-radius coordinate of a location on the plasma-boundary contour
+    in the right-handed cylindrical (R, phi, Z) frame, measured from the toroidal
+    symmetry axis.
+  documentation: 'The major radius of the plasma boundary is the coordinate $R_b$
+    of a point on the outermost closed flux-surface contour, measured from the toroidal
+    symmetry axis in the right-handed cylindrical $(R, \phi, Z)$ frame. In a limited
+    plasma this contour is the last closed flux surface, while in a diverted plasma
+    it is the separatrix contour.
+
+
+    Using a contour parameter $s$, the boundary can be parameterized by $(R_b(s),
+    Z_b(s))$ at fixed toroidal angle $\phi$. For a flux-surface boundary, the contour
+    is defined by the poloidal-flux condition
+
+
+    $$
+
+    \psi(R_b(s), Z_b(s)) = \psi_b
+
+    $$
+
+
+    where $R_b$ is the boundary major-radius coordinate in m, $Z_b$ is the boundary
+    vertical coordinate in m, $\psi$ is the poloidal magnetic flux in Wb, and $\psi_b$
+    is the boundary value of that flux in Wb. The parameter $s$ labels position along
+    the poloidal contour, commonly as arc length in m ordered counter-clockwise in
+    the $(R,Z)$ cross-section when plotted with $R$ increasing to the right and $Z$
+    upward; changing this ordering only re-labels the same curve.
+
+
+    The coordinate is obtained from an equilibrium reconstruction by tracing the boundary
+    flux contour and recording its $R$ value at each contour location. Together with
+    [vertical_coordinate_of_plasma_boundary](name:vertical_coordinate_of_plasma_boundary),
+    it specifies the plasma cross-sectional shape and is used to derive geometric
+    quantities such as [length_of_plasma_boundary](name:length_of_plasma_boundary)
+    and [minor_radius_of_plasma_boundary](name:minor_radius_of_plasma_boundary).
+
+
+    Typical magnitudes are device-size dependent and are comparable to the machine
+    major radius. Along a single boundary contour, $R_b$ spans the radial interval
+    between the inboard and outboard plasma edges, approximately from $R_0-a$ to $R_0+a$,
+    where $R_0$ is the magnetic-axis major radius and $a$ is the plasma minor-radius
+    scale, both expressed in meters.'
+  unit: m
+  physics_domain: equilibrium
+  links:
+  - name:minor_radius_of_plasma_boundary
+  - name:flux_surface_averaged_major_radius
+  sources:
+  - id: dd:equilibrium/time_slice/boundary/lcfs/r
+    dd_path: equilibrium/time_slice/boundary/lcfs/r
+    status: attached
+  - id: dd:equilibrium/time_slice/boundary/outline/r
+    dd_path: equilibrium/time_slice/boundary/outline/r
+    status: composed
+  - id: dd:equilibrium/time_slice/boundary_separatrix/outline/r
+    dd_path: equilibrium/time_slice/boundary_separatrix/outline/r
+    status: attached
 - name: major_radius_of_plasma_boundary_gap_reference_point
   kind: scalar
   status: draft
@@ -1812,6 +1873,82 @@
     status: attached
   - id: dd:pf_active/global_quantities/psi_coils_average
     dd_path: pf_active/global_quantities/psi_coils_average
+    status: attached
+- name: poloidal_magnetic_flux
+  kind: scalar
+  status: draft
+  description: Total magnetic flux threading a horizontal disk centered on the toroidal
+    symmetry axis, serving as the canonical radial coordinate for labeling nested
+    flux surfaces in axisymmetric plasma equilibria.
+  documentation: "The poloidal magnetic flux $\\psi$ is the total magnetic flux threading\
+    \ a horizontal disk of major radius $R$, centered on the toroidal symmetry axis\
+    \ at height $Z$ in the right-handed cylindrical $(R, \\phi, Z)$ frame. Because\
+    \ $\\psi$ is constant on each nested magnetic-flux surface in an axisymmetric\
+    \ equilibrium, it provides the natural radial coordinate for plasma profiles and\
+    \ equilibrium analysis, ranging from [the magnetic-axis value](name:poloidal_magnetic_flux_at_magnetic_axis)\
+    \ to the last-closed-flux-surface boundary.\n\nThe defining integral is:\n\n$$\n\
+    \\psi(R, Z) = \\int_0^R B_Z(R', Z) \\, 2\\pi R' \\, dR'\n$$\n\nwhere $B_Z$ is\
+    \ the vertical component of the magnetic field and $R'$ integrates from the symmetry\
+    \ axis to major radius $R$. In MHD equilibrium, $\\psi$ satisfies the Grad-Shafranov\
+    \ equation and all equilibrium quantities \u2014 plasma pressure $p(\\psi)$ and\
+    \ the toroidal-field function $F(\\psi) = R B_\\phi$ \u2014 are functions of $\\\
+    psi$ alone. The [gradient of the poloidal flux](name:radial_derivative_of_poloidal_magnetic_flux)\
+    \ determines the local poloidal-field strength, and the [time derivative](name:time_derivative_of_poloidal_magnetic_flux)\
+    \ is related to the inductive electric field by Faraday's law.\n\nEvaluated at\
+    \ specific flux surfaces, $\\psi$ serves as a coordinate label; sampled values\
+    \ such as [the pedestal value](name:poloidal_magnetic_flux_at_pedestal) provide\
+    \ reference points for normalized flux coordinates. The profile is recovered from\
+    \ external magnetic measurements \u2014 flux loop signals, pickup coil voltages,\
+    \ and Rogowski-integrated coil currents \u2014 through MHD equilibrium reconstruction,\
+    \ supplemented by internal constraints from motional Stark effect polarimetry\
+    \ where available.\n\nSign convention: Positive when the net vertical magnetic\
+    \ field $B_Z$ threading the horizontal integration disk points in the $+Z$ direction."
+  unit: Wb
+  physics_domain: equilibrium
+  links:
+  - name:poloidal_magnetic_flux_at_magnetic_axis
+  - name:radial_derivative_of_poloidal_magnetic_flux
+  - name:time_derivative_of_poloidal_magnetic_flux
+  - name:poloidal_magnetic_flux_at_pedestal
+  sources:
+  - id: dd:disruption/profiles_1d/grid/psi
+    dd_path: disruption/profiles_1d/grid/psi
+    status: composed
+  - id: dd:edge_profiles/ggd/psi/values
+    dd_path: edge_profiles/ggd/psi/values
+    status: composed
+  - id: dd:edge_profiles/profiles_1d/grid/psi
+    dd_path: edge_profiles/profiles_1d/grid/psi
+    status: composed
+  - id: dd:equilibrium/time_slice/constraints/flux_loop/measured
+    dd_path: equilibrium/time_slice/constraints/flux_loop/measured
+    status: composed
+  - id: dd:equilibrium/time_slice/constraints/flux_loop/reconstructed
+    dd_path: equilibrium/time_slice/constraints/flux_loop/reconstructed
+    status: composed
+  - id: dd:mhd/ggd/psi/values
+    dd_path: mhd/ggd/psi/values
+    status: composed
+  - id: dd:reflectometer_profile/channel/position/psi
+    dd_path: reflectometer_profile/channel/position/psi
+    status: composed
+  - id: dd:sawteeth/profiles_1d/grid/psi
+    dd_path: sawteeth/profiles_1d/grid/psi
+    status: composed
+  - id: dd:transport_solver_numerics/derivatives_1d/grid/psi
+    dd_path: transport_solver_numerics/derivatives_1d/grid/psi
+    status: attached
+  - id: dd:transport_solver_numerics/solver_1d/grid/psi
+    dd_path: transport_solver_numerics/solver_1d/grid/psi
+    status: composed
+  - id: dd:wall/description_ggd/ggd/psi/values
+    dd_path: wall/description_ggd/ggd/psi/values
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_1d/grid/psi
+    dd_path: waves/coherent_wave/profiles_1d/grid/psi
+    status: composed
+  - id: dd:waves/coherent_wave/profiles_2d/grid/psi
+    dd_path: waves/coherent_wave/profiles_2d/grid/psi
     status: attached
 - name: poloidal_magnetic_flux_at_magnetic_axis
   kind: scalar
