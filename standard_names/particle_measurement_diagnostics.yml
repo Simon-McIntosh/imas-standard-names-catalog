@@ -1,9 +1,60 @@
 # Domain: particle_measurement_diagnostics
-# Catalog sha: 5fbb9c54a54e8a3ff9c8fe12b46222cebf0e7b7f
-# Entries: 1
+# Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
+# Entries: 4
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: line_averaged_nitrogen_density
+  kind: scalar
+  status: draft
+  description: Line-averaged number density of nitrogen nuclei along a plasma diagnostic
+    chord, summed over all ionization states. It equals the path integral of the local
+    nitrogen density divided by the chord length.
+  documentation: 'Line-averaged nitrogen density is the chord-average of the local
+    nitrogen number density sampled along a diagnostic line of sight. The nitrogen
+    density includes nitrogen nuclei in all ionization states, so different charge
+    states contribute according to their local abundance along the chord.
+
+
+    For a chord path $\Gamma$, the line-averaged nitrogen density is defined by:
+
+
+    $$
+
+    \langle n_N \rangle_L = \frac{1}{L}\int_{\Gamma} n_N(\ell)\,d\ell
+
+    $$
+
+
+    where $n_N(\ell)$ is the local nitrogen number density in m^-3, summed over all
+    ionization states, $\ell$ is arclength along the chord in meters, and $L=\int_{\Gamma}d\ell$
+    is the chord length in meters over the sampled plasma region.
+
+
+    In practice this quantity is inferred from diagnostics and analysis methods that
+    constrain nitrogen content along a line of sight, often using spectroscopic signals,
+    atomic physics modeling, plasma background parameters, and the known viewing geometry.
+    Because many measurements are sensitive to emissivity or to particular charge-state
+    populations rather than directly to total nitrogen density, the conversion to
+    all-ionization-state nitrogen density is model dependent and is not simply a geometric
+    division of a raw signal by chord length.
+
+
+    Typical line-averaged nitrogen densities in tokamak plasmas range from about 1e15-1e18
+    m^-3 for trace-seeded conditions and can reach 1e19 m^-3 in strongly seeded or
+    detached-edge regimes, depending on fueling, impurity seeding rate, transport,
+    and ionization balance.'
+  unit: m^-3
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:volume_averaged_nitrogen_density
+  - name:line_averaged_oxygen_density
+  - name:line_averaged_carbon_density
+  - name:nitrogen_density
+  sources:
+  - id: dd:summary/line_average/n_i/nitrogen/value
+    dd_path: summary/line_average/n_i/nitrogen/value
+    status: composed
 - name: line_averaged_oxygen_density
   kind: scalar
   status: draft
@@ -44,4 +95,88 @@
   sources:
   - id: dd:summary/line_average/n_i/oxygen/value
     dd_path: summary/line_average/n_i/oxygen/value
+    status: composed
+- name: xenon_density
+  kind: scalar
+  status: draft
+  description: Number density of xenon ions at a given point in the plasma, summed
+    over all ionization states from singly ionized through fully stripped xenon, excluding
+    neutral xenon atoms.
+  documentation: 'Xenon is a high-$Z$ noble-gas impurity (atomic number $Z_\mathrm{Xe}
+    = 54$) introduced into fusion plasmas for radiative-mantle experiments, impurity-transport
+    studies, and disruption mitigation. The xenon ion number density $n_\mathrm{Xe}$
+    quantifies the local concentration of all charged xenon species and enters the
+    plasma effective charge through $Z_\mathrm{eff} = \sum_i Z_i^2 n_i / n_e$, where
+    $n_i$ is the partial density of ion species $i$ and $n_e$ is the electron density.
+
+
+    The total xenon ion density is the sum over all ionic charge states:
+
+
+    $$
+
+    n_\mathrm{Xe} = \sum_{z=1}^{54} n_{\mathrm{Xe}^{z+}}
+
+    $$
+
+
+    where $n_{\mathrm{Xe}^{z+}}$ is the partial number density of xenon ions carrying
+    charge $ze$. The charge-state distribution is determined by coronal equilibrium
+    or collisional-radiative modeling at the local electron temperature and density.
+
+
+    The xenon density profile is inferred from vacuum-ultraviolet or soft-X-ray line
+    emission via spectroscopy and tomographic inversion, or from charge-exchange recombination
+    spectroscopy using neutral-beam injection. Spatially resolved forms include [xenon_density_at_magnetic_axis](name:xenon_density_at_magnetic_axis)
+    at the innermost flux surface and [xenon_density_at_pedestal](name:xenon_density_at_pedestal)
+    in the edge transport barrier, while [volume_averaged_xenon_density](name:volume_averaged_xenon_density)
+    provides the global impurity content figure of merit. The dimensionless impurity
+    fraction relative to electron density is given by [xenon_fraction](name:xenon_fraction).
+
+
+    Sign convention: Positive when ionized xenon is present in the plasma.'
+  unit: m^-3
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:xenon_density_at_magnetic_axis
+  - name:xenon_density_at_pedestal
+  - name:volume_averaged_xenon_density
+  - name:xenon_fraction
+- name: line_averaged_effective_charge
+  kind: scalar
+  status: draft
+  description: Line-averaged effective ion charge Zeff of the plasma, obtained as
+    the chord-path integral of the local effective charge divided by the chord length.
+  documentation: "The line-averaged effective charge characterizes the mean impurity\
+    \ content of the plasma as sampled along a diagnostic line of sight. The local\
+    \ [effective charge](name:effective_charge) $Z_\\text{eff}$ is defined as $Z_\\\
+    text{eff} = \\sum_i n_i Z_i^2 / n_e$, where $n_i$ is the number density of ion\
+    \ species $i$, $Z_i$ is the integer charge number of species $i$, and $n_e$ is\
+    \ the electron number density; deviations above unity indicate the presence of\
+    \ impurity ions heavier than hydrogen.\n\nThe line average integrates the local\
+    \ effective charge along a chord of length $L$:\n\n$$\n\\langle Z_\\text{eff}\
+    \ \\rangle_L = \\frac{1}{L} \\int_0^L Z_\\text{eff}(l) \\, dl\n$$\n\nwhere $l$\
+    \ is the coordinate along the chord.\n\nThis quantity is inferred from visible\
+    \ or near-ultraviolet bremsstrahlung continuum emission along a chord, whose emissivity\
+    \ scales as $\\varepsilon \\propto n_e^2 Z_\\text{eff} T_e^{-1/2}$, where $T_e$\
+    \ is the electron temperature; combining this signal with a simultaneous line-integrated\
+    \ electron density measurement yields $\\langle Z_\\text{eff} \\rangle_L$ without\
+    \ requiring assumed spatial profile shapes. In a pure deuterium plasma $Z_\\text{eff}\
+    \ = 1$; with typical light impurity content in reactor-relevant tokamak operation\
+    \ values of 1.5\u20133 are common, while heavy impurity seeding scenarios can\
+    \ yield values of 4\u20136. This chord-averaged quantity complements [volume_averaged_effective_charge](name:volume_averaged_effective_charge),\
+    \ which weights by the full plasma volume, and differs from [effective_charge_at_limiter](name:effective_charge_at_limiter),\
+    \ which is a boundary-localized evaluation.\n\nSign convention: Positive for any\
+    \ plasma with nonzero electron density, since $Z_\\text{eff}$ equals the ratio\
+    \ of the charge-weighted ion density second moment to $n_e$, both of which are\
+    \ positive-definite quantities."
+  unit: '1'
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:effective_charge
+  - name:volume_averaged_effective_charge
+  - name:effective_charge_at_limiter
+  sources:
+  - id: dd:summary/line_average/zeff/value
+    dd_path: summary/line_average/zeff/value
     status: composed

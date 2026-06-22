@@ -1,6 +1,6 @@
 # Domain: edge_plasma_physics
-# Catalog sha: 5fbb9c54a54e8a3ff9c8fe12b46222cebf0e7b7f
-# Entries: 7
+# Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
+# Entries: 11
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -120,6 +120,47 @@
   - id: dd:summary/local/separatrix_average/n_i/argon/value
     dd_path: summary/local/separatrix_average/n_i/argon/value
     status: composed
+- name: electron_temperature_at_pedestal
+  kind: scalar
+  status: draft
+  description: Electron temperature at the top of the H-mode pedestal transport barrier,
+    representing the characteristic pedestal height parameter extracted from analytic
+    fits to the steep-gradient edge profile.
+  documentation: "The electron pedestal temperature $T_{e,\\mathrm{ped}}$ characterizes\
+    \ the bulk thermal energy of the electron population at the top of the H-mode\
+    \ edge transport barrier \u2014 the high-confinement pedestal formed just inside\
+    \ the separatrix. As a pedestal height parameter, it represents the plateau value\
+    \ of the electron temperature profile above the steep-gradient region, providing\
+    \ a key macroscopic boundary condition that sets the scale of core temperature\
+    \ profiles in H-mode discharges.\n\nThe pedestal height is extracted by fitting\
+    \ analytic models \u2014 including linear and smooth modified-hyperbolic-tangent\
+    \ forms \u2014 to measured edge electron temperature profiles. Each fitting approach\
+    \ yields a value $T_{e,\\mathrm{ped}}$ corresponding to the temperature at which\
+    \ the steep pedestal gradient transitions to the flatter core region, making $T_{e,\\\
+    mathrm{ped}}$ a robust, fit-model-dependent summary scalar for the pedestal state.\n\
+    \nPedestal electron temperatures in H-mode discharges on mid-scale tokamaks range\
+    \ from approximately 0.3 to 5 keV, increasing with plasma current and auxiliary\
+    \ heating power. Together with the pedestal electron density, $T_{e,\\mathrm{ped}}$\
+    \ determines the pedestal electron pressure captured by [electron_pressure_at_pedestal](name:electron_pressure_at_pedestal).\
+    \ The closely related [electron_temperature_at_pedestal_top](name:electron_temperature_at_pedestal_top)\
+    \ targets the same physical location using an explicit profile-top convention,\
+    \ while [gradient_of_electron_temperature](name:gradient_of_electron_temperature)\
+    \ quantifies the steepness of the transport barrier.\n\nSign convention: Positive\
+    \ for all physical plasmas, as electron temperature is a measure of mean thermal\
+    \ kinetic energy per degree of freedom and is intrinsically non-negative."
+  unit: eV
+  physics_domain: edge_plasma_physics
+  links:
+  - name:electron_pressure_at_pedestal
+  - name:electron_temperature_at_pedestal_top
+  - name:gradient_of_electron_temperature
+  sources:
+  - id: dd:summary/pedestal_fits/linear/t_e/pedestal_height/value
+    dd_path: summary/pedestal_fits/linear/t_e/pedestal_height/value
+    status: composed
+  - id: dd:summary/pedestal_fits/mtanh/t_e/pedestal_height/value
+    dd_path: summary/pedestal_fits/mtanh/t_e/pedestal_height/value
+    status: attached
 - name: magnetic_shear_at_pedestal
   kind: scalar
   status: draft
@@ -155,6 +196,60 @@
   sources:
   - id: dd:summary/local/pedestal/magnetic_shear/value
     dd_path: summary/local/pedestal/magnetic_shear/value
+    status: composed
+- name: nitrogen_density_at_pedestal
+  kind: scalar
+  status: draft
+  description: Number density of nitrogen impurity ions at the H-mode pedestal top,
+    where the steep-gradient edge transport barrier transitions to the flatter core
+    plasma.
+  documentation: 'Nitrogen density at the pedestal is the total number density of
+    nitrogen impurity ions at the pedestal top of an H-mode plasma. Unless a charge
+    state is specified separately, it represents the sum over all nitrogen ionization
+    states at the location where the steep edge transport barrier joins the core plasma.
+
+
+    The density is the zeroth velocity moment of the nitrogen ion distribution functions
+    at the pedestal-top position:
+
+
+    $$
+
+    n_{\mathrm{N,ped}} = \sum_q \int f_{\mathrm{N}^{q+}}(\mathbf{x}_{\mathrm{ped}},\mathbf{v})\,d^3v
+
+    $$
+
+
+    where $n_{\mathrm{N,ped}}$ is in m^-3, $q$ indexes nitrogen ionization charge
+    states, $f_{\mathrm{N}^{q+}}$ is the phase-space distribution function with units
+    m^-6 s^3, $\mathbf{x}_{\mathrm{ped}}$ is the pedestal-top position, $\mathbf{v}$
+    is particle velocity in m/s, and $d^3v$ has units m^3 s^-3. For a single resolved
+    charge state, the summation is omitted.
+
+
+    In practice this quantity is inferred from impurity spectroscopy, charge-exchange
+    recombination measurements when available, and collisional-radiative modeling,
+    often constrained by local electron density and temperature at the pedestal top.
+    The pedestal top is identified from the transition between the steep edge gradient
+    region and the core plasma, commonly using fitted electron pressure, density,
+    or temperature behavior.
+
+
+    Representative pedestal nitrogen densities span roughly 10^16-10^19 m^-3, depending
+    strongly on nitrogen seeding level, edge transport, ionization balance, and plasma
+    size. Trace or unseeded conditions are usually toward the lower end, while actively
+    seeded H-mode plasmas can reach the upper part of this range locally.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:nitrogen_density_at_plasma_boundary
+  - name:nitrogen_density_at_magnetic_axis
+  - name:nitrogen_density_at_limiter
+  - name:density_at_pedestal
+  - name:neon_density_at_pedestal
+  sources:
+  - id: dd:summary/local/pedestal/n_i/nitrogen/value
+    dd_path: summary/local/pedestal/n_i/nitrogen/value
     status: composed
 - name: nitrogen_density_at_plasma_boundary
   kind: scalar
@@ -199,12 +294,71 @@
   - id: dd:summary/local/separatrix_average/n_i/nitrogen/value
     dd_path: summary/local/separatrix_average/n_i/nitrogen/value
     status: composed
+- name: toroidal_carbon_velocity_at_pedestal_top
+  kind: scalar
+  status: draft
+  description: Toroidal component of the carbon impurity ion fluid velocity evaluated
+    at the pedestal top, the steep-gradient transport barrier just inside the separatrix
+    in H-mode plasmas.
+  documentation: 'The toroidal carbon velocity at the pedestal top quantifies the
+    $\phi$-component of the carbon impurity ion fluid velocity at the top of the H-mode
+    transport barrier, where the steep pressure-gradient region transitions to the
+    flatter core profile. Carbon (typically fully stripped C$^{6+}$ in hot plasmas)
+    provides a widely used spectroscopic tracer for plasma toroidal rotation because
+    inter-species Coulomb collisions couple impurity and main-ion momenta on the neoclassical
+    timescale.
+
+
+    The toroidal velocity component is defined as:
+
+
+    $$
+
+    v_\phi = \mathbf{v}_{\mathrm{C}} \cdot \hat{\phi}
+
+    $$
+
+
+    where $\mathbf{v}_{\mathrm{C}}$ is the carbon ion fluid velocity and $\hat{\phi}$
+    is the unit vector in the direction of increasing toroidal angle $\phi$ in the
+    right-handed cylindrical $(R, \phi, Z)$ frame.
+
+
+    This quantity is measured by charge exchange recombination spectroscopy (CXRS):
+    a neutral beam excites carbon ions in the pedestal region, and the resulting Doppler-shifted
+    C VI emission line encodes the line-of-sight velocity component. Spatial resolution
+    is set by the beam geometry and viewing configuration. Typical pedestal-top values
+    range from a few km/s up to tens of km/s depending on plasma current, heating
+    scheme, and device size. The analogous carbon velocity at other radial locations
+    includes [toroidal carbon velocity at the magnetic axis](name:toroidal_carbon_velocity_at_magnetic_axis),
+    [at the internal transport barrier](name:toroidal_carbon_velocity_at_internal_transport_barrier),
+    and [at the plasma boundary](name:toroidal_carbon_velocity_at_plasma_boundary).
+    The hydrogen-isotope counterpart in the pedestal region is [toroidal hydrogen
+    velocity at the pedestal](name:toroidal_hydrogen_velocity_at_pedestal).
+
+
+    Sign convention: Positive when the carbon ion flow is in the direction of increasing
+    toroidal angle $\phi$ (counter-clockwise when viewed from above $+\hat{Z}$).'
+  unit: m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:toroidal_carbon_velocity_at_magnetic_axis
+  - name:toroidal_carbon_velocity_at_internal_transport_barrier
+  - name:toroidal_carbon_velocity_at_plasma_boundary
+  - name:toroidal_hydrogen_velocity_at_pedestal
+  sources:
+  - id: dd:summary/local/pedestal/velocity_phi/carbon/value
+    dd_path: summary/local/pedestal/velocity_phi/carbon/value
+    status: attached
+  - id: dd:summary/local/pedestal/velocity_tor/carbon/value
+    dd_path: summary/local/pedestal/velocity_tor/carbon/value
+    status: composed
 - name: toroidal_carbon_velocity_at_plasma_boundary
   kind: scalar
   status: draft
   description: Toroidal component of the carbon impurity ion bulk flow velocity at
-    the plasma boundary, resolved in the IMAS cylindrical (R, phi, Z) frame. It is
-    the local value at the last-closed flux surface, not a flux-surface average.
+    the plasma boundary, resolved in the right-handed cylindrical (R, phi, Z) frame.
+    It is the local value at the last-closed flux surface, not a flux-surface average.
   documentation: 'Toroidal carbon velocity at the plasma boundary is the component
     of the carbon impurity ion bulk flow along the toroidal direction at the last-closed
     flux surface or separatrix. The toroidal direction is defined in the right-handed
@@ -259,6 +413,70 @@
   sources:
   - id: dd:summary/local/separatrix/velocity_tor/carbon/value
     dd_path: summary/local/separatrix/velocity_tor/carbon/value
+    status: composed
+- name: toroidal_lithium_velocity_at_pedestal
+  kind: scalar
+  status: draft
+  description: Signed toroidal component of the lithium ion fluid velocity at the
+    H-mode pedestal top in the right-handed cylindrical (R, phi, Z) frame. It represents
+    the local azimuthal rotation of lithium impurity ions at the steep-gradient edge
+    transport barrier, not a pedestal average.
+  documentation: 'Toroidal lithium velocity at the pedestal is the local toroidal
+    component of the lithium ion fluid velocity at the pedestal-top reference location,
+    near the inner edge of the steep-gradient H-mode edge transport barrier. It is
+    a signed component in the right-handed cylindrical $(R, \phi, Z)$ frame, where
+    $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height; it
+    is not a radial integral, volume average, or average over the full pedestal width.
+
+
+    The component is defined by projecting the lithium ion fluid velocity onto the
+    toroidal unit vector:
+
+
+    $$
+
+    v_{\phi}^{\mathrm{Li}} = \mathbf{v}^{\mathrm{Li}} \cdot \hat{\phi}
+
+    $$
+
+
+    where $v_{\phi}^{\mathrm{Li}}$ is the toroidal lithium velocity in m.s^-1, $\mathbf{v}^{\mathrm{Li}}$
+    is the lithium ion fluid velocity in m.s^-1, and $\hat{\phi}$ is the dimensionless
+    unit vector in the direction of increasing toroidal angle $\phi$.
+
+
+    In practice, this quantity is commonly inferred from Doppler shifts of localized
+    lithium line emission or charge-exchange emission, with corrections for viewing
+    geometry, instrumental wavelength calibration, and the projection of the measured
+    line-of-sight velocity onto $\hat{\phi}$. The pedestal-top reference location
+    is determined from edge profile analysis, typically using the radial position
+    at the top of the steep gradient region rather than a flux-surface average over
+    the pedestal.
+
+
+    Representative pedestal impurity toroidal velocities are device- and scenario-dependent
+    and may be near zero or of order $10^3-10^5$ m.s^-1 in tokamak H-mode plasmas.
+    The value can change sign with the direction of toroidal rotation and may differ
+    from main-ion rotation because lithium is an impurity species with its own charge
+    state, source distribution, and collisional coupling.
+
+
+    Sign convention: Positive when the lithium ion fluid velocity component is in
+    the $+\hat{\phi}$ direction, the direction of increasing toroidal angle $\phi$,
+    in the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:toroidal_lithium_velocity_at_magnetic_axis
+  - name:toroidal_lithium_velocity_at_internal_transport_barrier
+  - name:toroidal_nitrogen_velocity_at_pedestal
+  - name:lithium_density_at_pedestal
+  sources:
+  - id: dd:summary/local/pedestal/velocity_phi/lithium/value
+    dd_path: summary/local/pedestal/velocity_phi/lithium/value
+    status: composed
+  - id: dd:summary/local/pedestal/velocity_tor/lithium/value
+    dd_path: summary/local/pedestal/velocity_tor/lithium/value
     status: composed
 - name: parallel_diamagnetic_current_density
   kind: scalar
