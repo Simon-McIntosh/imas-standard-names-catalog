@@ -1,6 +1,6 @@
 # Domain: transport
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 159
+# Entries: 185
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -1495,6 +1495,57 @@
   - id: dd:distributions/distribution/global_quantities/collisions/electrons/power_fast
     dd_path: distributions/distribution/global_quantities/collisions/electrons/power_fast
     status: composed
+- name: helium_3_density_at_magnetic_axis
+  kind: scalar
+  status: draft
+  description: Number density of helium-3 ions evaluated at the magnetic axis, the
+    innermost flux-surface center of the plasma.
+  documentation: 'Helium-3 density at the magnetic axis is the number of helium-3
+    ions per unit volume at the innermost flux-surface center of the confined plasma.
+    The magnetic axis is the location where the gradient of the poloidal magnetic
+    flux vanishes; in an axisymmetric equilibrium it is specified by $(R_\mathrm{axis},
+    Z_\mathrm{axis})$ in the right-handed cylindrical $(R, \phi, Z)$ frame, where
+    $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height.
+
+
+    The on-axis density is the local helium-3 number density evaluated at the magnetic-axis
+    position:
+
+
+    $$
+
+    n_{^{3}\mathrm{He},\mathrm{axis}} = n_{^{3}\mathrm{He}}(R_\mathrm{axis}, Z_\mathrm{axis})
+
+    $$
+
+
+    where $n_{^{3}\mathrm{He},\mathrm{axis}}$ and $n_{^{3}\mathrm{He}}$ are helium-3
+    ion number densities in $\mathrm{m}^{-3}$, and $(R_\mathrm{axis}, Z_\mathrm{axis})$
+    gives the magnetic-axis location in the poloidal plane.
+
+
+    In practice this quantity is obtained by mapping isotope-resolved density information
+    onto magnetic flux surfaces from an equilibrium reconstruction and taking the
+    innermost value. Helium-3 densities may be inferred from neutral-particle analysis,
+    spectroscopy, particle-balance modeling, fueling rates, and integrated transport
+    analysis, depending on whether helium-3 is a trace species, a minority-heating
+    species, or a fuel component.
+
+
+    Typical values are near zero in plasmas without intentional helium-3 fueling,
+    about $10^{17}$-$10^{19}$ m^-3 in helium-3 minority experiments, and up to order
+    $10^{20}$ m^-3 when helium-3 is a major fuel ion.'
+  unit: m^-3
+  physics_domain: transport
+  links:
+  - name:density_at_magnetic_axis
+  - name:helium_3_density_at_internal_transport_barrier
+  - name:helium_3_density_at_pedestal
+  - name:helium_3_density_at_plasma_boundary
+  sources:
+  - id: dd:summary/local/magnetic_axis/n_i/helium_3/value
+    dd_path: summary/local/magnetic_axis/n_i/helium_3/value
+    status: composed
 - name: helium_4_density_at_magnetic_axis
   kind: scalar
   status: draft
@@ -1621,6 +1672,96 @@
   sources:
   - id: dd:summary/local/itb/t_i_average/value
     dd_path: summary/local/itb/t_i_average/value
+    status: composed
+- name: ion_average_temperature_at_magnetic_axis
+  kind: scalar
+  status: draft
+  description: Density-weighted ion temperature averaged over all ion species and
+    charge states, evaluated at the magnetic axis. It characterizes the central ion
+    thermal energy, not necessarily the maximum temperature in the plasma.
+  documentation: 'Ion average temperature at the magnetic axis is the local density-weighted
+    mean temperature of the ion population, including all ion species and charge states
+    represented in the plasma. The magnetic axis is the innermost closed flux surface,
+    where the gradient of poloidal magnetic flux vanishes. This quantity is the on-axis
+    counterpart of [ion_average_temperature](name:ion_average_temperature) and should
+    not be interpreted as a guaranteed global maximum, since off-axis heating, internal
+    transport barriers, or hollow radial temperature structure can shift hotter ions
+    away from the axis.
+
+
+    For resolved ion populations, the average is commonly defined as:
+
+
+    $$
+
+    T_{i,\mathrm{avg}}(\mathrm{axis}) = \frac{\sum_s \sum_\zeta n_{s,\zeta}(\mathrm{axis})\,T_{s,\zeta}(\mathrm{axis})}{\sum_s
+    \sum_\zeta n_{s,\zeta}(\mathrm{axis})}
+
+    $$
+
+
+    where $s$ labels ion species, $\zeta$ labels charge state, $n_{s,\zeta}$ is the
+    local ion density in $\mathrm{m}^{-3}$, and $T_{s,\zeta}$ is the corresponding
+    ion temperature in eV. The denominator is the local total ion density summed over
+    the same species and charge states.
+
+
+    In practice, the on-axis value is obtained from core ion temperature measurements
+    such as charge-exchange recombination spectroscopy, neutron spectroscopy, or neutral-particle
+    analysis, often combined with density composition estimates or transport reconstruction.
+    If only a dominant ion species is measured, the reported average may approximate
+    that dominant species temperature unless impurity or multiple-fuel-ion contributions
+    are explicitly included.
+
+
+    Typical on-axis values are about 100-1000 eV in low-temperature or early-phase
+    plasmas, 1000-10000 eV in many confined tokamak core plasmas, and 10000-25000
+    eV in high-performance reactor-relevant scenarios.'
+  unit: eV
+  physics_domain: transport
+  links:
+  - name:ion_average_temperature_at_plasma_boundary
+  - name:ion_average_temperature_at_limiter
+  - name:total_ion_density_at_magnetic_axis
+  sources:
+  - id: dd:summary/local/magnetic_axis/t_i_average/value
+    dd_path: summary/local/magnetic_axis/t_i_average/value
+    status: composed
+- name: ion_charge_state_particle_flux
+  kind: vector
+  status: draft
+  description: Full particle flux vector of ions in a specified ionization charge
+    state, giving the directed number flow per unit area per unit time for that charge
+    state resolved independently from all other ionization stages.
+  documentation: "The ion charge state particle flux vector characterizes the directed\
+    \ flow of ions in a specific ionization stage $z$ through a unit surface per unit\
+    \ time, treating each charge state as a distinct species in charge-state-resolved\
+    \ multi-fluid transport models. This per-stage resolution is essential for modeling\
+    \ impurity accumulation and fuel-ion evolution in confined plasmas, where ionization\
+    \ and recombination continuously couple adjacent charge states.\n\nThe flux vector\
+    \ is defined as the first velocity moment of the charge-state population:\n\n\
+    $$\n\\boldsymbol{\\Gamma}_z = n_z \\mathbf{v}_z\n$$\n\nwhere $n_z$ is the number\
+    \ density of ions in charge state $z$ and $\\mathbf{v}_z$ is the mean fluid velocity\
+    \ of that charge-state population.\n\nDirectional projections of this vector yield\
+    \ [radial_ion_charge_state_particle_flux](name:radial_ion_charge_state_particle_flux)\
+    \ for cross-field transport across magnetic flux surfaces, [poloidal_ion_charge_state_particle_flux](name:poloidal_ion_charge_state_particle_flux)\
+    \ for poloidal flow asymmetries, and [parallel_ion_charge_state_particle_flux](name:parallel_ion_charge_state_particle_flux)\
+    \ for field-aligned streaming. The scalar surface-normal analog [ion_state_particle_flux](name:ion_state_particle_flux)\
+    \ represents a single-surface projection used in one-dimensional transport approximations.\n\
+    \nCharge-state-resolved fluxes are computed in multi-fluid or kinetic transport\
+    \ codes using ionization and recombination rate coefficients from atomic databases.\
+    \ Core plasma values span approximately $10^{18}$\u2013$10^{21}$ m$^{-2}$ s$^{-1}$,\
+    \ while fluxes near plasma-facing components and divertor targets can exceed $10^{22}$\
+    \ m$^{-2}$ s$^{-1}$."
+  unit: m^-2.s^-1
+  physics_domain: transport
+  links:
+  - name:radial_ion_charge_state_particle_flux
+  - name:poloidal_ion_charge_state_particle_flux
+  - name:parallel_ion_charge_state_particle_flux
+  - name:ion_state_particle_flux
+  sources:
+  - id: derived:ion_charge_state_particle_flux
     status: composed
 - name: ion_momentum_due_to_diamagnetic_drift
   kind: scalar
@@ -1860,6 +2001,67 @@
   - id: dd:core_transport/model/profiles_1d/ion/state/energy/v
     dd_path: core_transport/model/profiles_1d/ion/state/energy/v
     status: composed
+- name: ion_state_energy_flux
+  kind: scalar
+  status: draft
+  description: Scalar energy-flux density component for a specified ion charge state,
+    equal to the power per unit area crossing an oriented surface.
+  documentation: 'Ion state energy flux is the signed scalar component of the energy-flux
+    density associated with one resolved ion charge state. It represents the net rate
+    at which that charge state''s energy crosses a unit area of an oriented surface,
+    independent of any particular decomposition into convective, conductive, or exchange
+    terms.
+
+
+    For an oriented surface with unit normal $\hat{\mathbf{n}}$, the scalar component
+    is the projection of the charge-state energy-flux-density vector onto that normal:
+
+
+    $$
+
+    F_{E,z}^{(n)} = \mathbf{F}_{E,z} \cdot \hat{\mathbf{n}}
+
+    $$
+
+
+    where $F_{E,z}^{(n)}$ is the scalar ion-state energy flux in W m$^{-2}$, $\mathbf{F}_{E,z}$
+    is the vector energy-flux density of ion charge state $z$ in W m$^{-2}$, and $\hat{\mathbf{n}}$
+    is a dimensionless unit normal defining the positive crossing direction.
+
+
+    In transport analysis, this quantity is usually obtained from charge-state-resolved
+    energy balance models or inferred from combinations of density, temperature, flow,
+    heat-conduction, and collisional energy-exchange estimates. It is the charge-state-resolved
+    counterpart of more aggregate quantities such as [energy_flux](name:energy_flux)
+    and may be summed over charge states or species to form total ion energy-flux
+    measures such as [radial_total_ion_energy_flux](name:radial_total_ion_energy_flux).
+    Direction-specific and related charge-state transport quantities include [radial_ion_charge_state_energy_flux](name:radial_ion_charge_state_energy_flux)
+    and [parallel_ion_charge_state_particle_flux](name:parallel_ion_charge_state_particle_flux).
+
+
+    Typical magnitudes span about 10$^1$-10$^5$ W m$^{-2}$ in relatively diffuse edge
+    plasma and can reach 10$^5$-10$^8$ W m$^{-2}$ in scrape-off-layer and divertor
+    heat-transport regions, depending on density, temperature, flow speed, gradients,
+    and ionization balance.
+
+
+    Sign convention: Positive when energy carried by the specified ion charge state
+    crosses the oriented surface in the direction of the chosen positive normal.'
+  unit: W.m^-2
+  physics_domain: transport
+  links:
+  - name:parallel_ion_state_energy_flux
+  - name:poloidal_ion_state_energy_flux
+  - name:radial_ion_state_energy_flux
+  - name:neutral_state_energy_flux
+  - name:parallel_total_ion_energy_flux
+  sources:
+  - id: dd:edge_transport/model/ggd/ion/state/energy/flux/values
+    dd_path: edge_transport/model/ggd/ion/state/energy/flux/values
+    status: attached
+  - id: dd:plasma_transport/model/ggd/ion/state/energy/flux/values
+    dd_path: plasma_transport/model/ggd/ion/state/energy/flux/values
+    status: attached
 - name: ion_state_particle_flux
   kind: scalar
   status: draft
@@ -2435,6 +2637,58 @@
   sources:
   - id: dd:summary/local/itb/magnetic_shear/value
     dd_path: summary/local/itb/magnetic_shear/value
+    status: composed
+- name: neon_density_at_internal_transport_barrier
+  kind: scalar
+  status: draft
+  description: Local number density of neon ions at the internal transport barrier
+    reference radius, where reduced cross-field turbulent transport can produce steep
+    impurity-density gradients.
+  documentation: 'Neon density at the internal transport barrier is the local number
+    density of ionized neon nuclei on the flux surface used to mark the internal transport
+    barrier. It represents the neon impurity concentration at the radius where cross-field
+    turbulent transport is reduced and temperature, density, or impurity gradients
+    can become steep.
+
+
+    For a fully resolved charge-state description, the total ionized neon density
+    at the barrier is
+
+
+    $$
+
+    n_{\mathrm{Ne}}(\rho_{\mathrm{ITB}}) = \sum_{q=1}^{10} n_{\mathrm{Ne}^{q+}}(\rho_{\mathrm{ITB}})
+
+    $$
+
+
+    where $\rho_{\mathrm{ITB}}$ is the chosen flux-surface label for the internal
+    transport barrier, such as the normalized toroidal flux radius $\rho_{\mathrm{tor,norm}}$,
+    and $n_{\mathrm{Ne}^{q+}}$ is the local density of neon ions with charge state
+    $q$.
+
+
+    In practice this quantity is inferred from impurity spectroscopy, soft-x-ray or
+    extreme-ultraviolet line emission, charge-exchange measurements where available,
+    and collisional-radiative modeling constrained by the local electron temperature
+    and density. Transport analysis evaluates the result on the barrier flux surface
+    identified from steep gradients or reduced inferred diffusivity.
+
+
+    Typical values range from $10^{15}$-$10^{18}$ m^-3 for trace or weakly seeded
+    neon and can approach $10^{19}$ m^-3 during strong neon seeding or impurity accumulation
+    near the barrier. The value is normally much smaller than the electron density
+    but can strongly affect radiation, dilution, and effective charge.'
+  unit: m^-3
+  physics_domain: transport
+  links:
+  - name:argon_density_at_internal_transport_barrier
+  - name:xenon_density_at_internal_transport_barrier
+  - name:nitrogen_density_at_internal_transport_barrier
+  - name:density_at_internal_transport_barrier
+  sources:
+  - id: dd:summary/local/itb/n_i/neon/value
+    dd_path: summary/local/itb/n_i/neon/value
     status: composed
 - name: neutral_source_rate
   kind: scalar
@@ -3182,6 +3436,12 @@
   physics_domain: transport
   links:
   - name:parallel_ion_particle_flux
+  arguments:
+  - name: ion_charge_state_particle_flux
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
   sources:
   - id: dd:plasma_transport/model/ggd/ion/state/particles/flux_parallel/values
     dd_path: plasma_transport/model/ggd/ion/state/particles/flux_parallel/values
@@ -3257,6 +3517,58 @@
     status: composed
   - id: dd:plasma_transport/model/ggd/total_ion_energy/d_parallel/values
     dd_path: plasma_transport/model/ggd/total_ion_energy/d_parallel/values
+    status: composed
+- name: parallel_ion_energy_flux
+  kind: scalar
+  status: draft
+  description: Projection of the ion energy flux vector onto the local magnetic field
+    direction, giving the field-aligned component of ion thermal and kinetic energy
+    transport.
+  documentation: 'The parallel ion energy flux quantifies the rate at which ion energy
+    is transported per unit area along the magnetic field direction $\hat{b} = \mathbf{B}/|\mathbf{B}|$.
+    Field-aligned ion transport dominates cross-field transport in the collisional
+    edge and scrape-off layer, making this quantity a key term in the parallel ion
+    energy balance and a primary driver of heat loads at divertor targets.
+
+
+    From Braginskii fluid closure, the parallel energy flux density combines convective
+    and conductive contributions:
+
+
+    $$
+
+    q_{\parallel,i} = \frac{5}{2} n_i T_i v_{\parallel,i} - \kappa_{\parallel,i} \nabla_\parallel
+    T_i
+
+    $$
+
+
+    where $n_i$ is the ion number density, $T_i$ is the ion temperature in energy
+    units, $v_{\parallel,i}$ is the parallel ion fluid velocity, and $\kappa_{\parallel,i}$
+    is the parallel ion thermal conductivity. The first term represents enthalpy convection
+    and the second is Fourier conduction along the field.
+
+
+    This flux appears as a divergence contribution in the ion energy conservation
+    equation and is the primary carrier of ion thermal energy toward divertor targets
+    in attached plasma regimes. For the charge-state-resolved counterpart, see [parallel_ion_state_energy_flux](name:parallel_ion_state_energy_flux);
+    the species-summed total is [parallel_total_ion_energy_flux](name:parallel_total_ion_energy_flux).
+    The electron analog is [parallel_electron_energy_flux](name:parallel_electron_energy_flux)
+    and the neutral contribution is [parallel_neutral_energy_flux](name:parallel_neutral_energy_flux).
+
+
+    Sign convention: Positive when energy is transported in the direction of the magnetic
+    field vector $\mathbf{B}$.'
+  unit: W.m^-2
+  physics_domain: transport
+  links:
+  - name:parallel_ion_state_energy_flux
+  - name:parallel_total_ion_energy_flux
+  - name:parallel_electron_energy_flux
+  - name:parallel_neutral_energy_flux
+  sources:
+  - id: dd:plasma_transport/model/ggd/ion/energy/flux_parallel/values
+    dd_path: plasma_transport/model/ggd/ion/energy/flux_parallel/values
     status: composed
 - name: parallel_ion_particle_flux
   kind: scalar
@@ -3758,6 +4070,44 @@
   - id: dd:sawteeth/profiles_1d/j_total
     dd_path: sawteeth/profiles_1d/j_total
     status: attached
+- name: particle_source_rate
+  kind: scalar
+  status: draft
+  description: Net volumetric rate of particle production or loss from a distribution
+    function source, serving as the source term in the particle-density transport
+    equation.
+  documentation: "The particle source rate $S_n$ is the net rate per unit volume at\
+    \ which particles are created or destroyed by processes described through a distribution\
+    \ function, such as neutral beam injection ionization, thermonuclear fusion birth,\
+    \ or pellet ablation.\n\nIt enters the particle continuity equation as:\n\n$$\n\
+    \\frac{\\partial n}{\\partial t} + \\nabla \\cdot \\boldsymbol{\\Gamma} = S_n\n\
+    $$\n\nwhere $n$ is the number density and $\\boldsymbol{\\Gamma}$ is the directed\
+    \ particle flux. Positive values indicate net particle production; negative values\
+    \ indicate a net particle sink from the distribution source.\n\nThis quantity\
+    \ is computed from Fokker-Planck or kinetic solvers that track the birth and thermalization\
+    \ of fast particles on a flux-surface-averaged radial grid, and it is used as\
+    \ direct input to particle transport equations in integrated modeling workflows.\
+    \ The [thermal_particle_source_rate](name:thermal_particle_source_rate) isolates\
+    \ the thermal-population contribution, while [ion_source_rate](name:ion_source_rate)\
+    \ and [electron_source_rate](name:electron_source_rate) provide species-resolved\
+    \ counterparts. For neutral particles, the analogous quantity is [neutral_source_rate](name:neutral_source_rate).\n\
+    \nTypical values in NBI-heated tokamak core plasmas span $10^{18}$\u2013$10^{21}$\
+    \ m$^{-3}$ s$^{-1}$, depending on injected power, beam energy, and local plasma\
+    \ density."
+  unit: m^-3.s^-1
+  physics_domain: transport
+  links:
+  - name:thermal_particle_source_rate
+  - name:ion_source_rate
+  - name:electron_source_rate
+  - name:neutral_source_rate
+  sources:
+  - id: dd:distribution_sources/source/ggd/particles/values
+    dd_path: distribution_sources/source/ggd/particles/values
+    status: composed
+  - id: dd:distribution_sources/source/profiles_1d/particles
+    dd_path: distribution_sources/source/profiles_1d/particles
+    status: composed
 - name: perpendicular_co_passing_fast_particle_pressure
   kind: scalar
   status: draft
@@ -3886,6 +4236,61 @@
   sources:
   - id: dd:runaway_electrons/profiles_1d/transport_perpendicular/flux
     dd_path: runaway_electrons/profiles_1d/transport_perpendicular/flux
+    status: composed
+- name: perpendicular_total_fast_ion_pressure
+  kind: scalar
+  status: draft
+  description: Total fast-ion perpendicular pressure, summed over all species, is
+    the component of the suprathermal ion gyrotropic pressure tensor associated with
+    ion motion perpendicular to the local magnetic field.
+  documentation: 'The perpendicular total fast-ion pressure $P_{\perp,\text{fast}}$
+    is the principal perpendicular component of the gyrotropic pressure tensor of
+    suprathermal ions, summed over all ion species and charge states. It quantifies
+    the kinetic energy of fast ions stored in the two velocity degrees of freedom
+    transverse to the local magnetic field $\mathbf{B}$. Together with [parallel_total_fast_ion_pressure](name:parallel_total_fast_ion_pressure),
+    it fully characterizes the pressure anisotropy of the fast-ion population described
+    by the parent [total_fast_ion_pressure](name:total_fast_ion_pressure) tensor.
+
+
+    The perpendicular pressure is the second velocity moment of the fast-ion distribution
+    function in the plane perpendicular to $\mathbf{B}$:
+
+
+    $$
+
+    P_{\perp,\text{fast}} = \sum_s \frac{m_s}{2} \int v_\perp^2 \, f_{\text{fast},s}(\mathbf{v})
+    \, d^3v
+
+    $$
+
+
+    where $m_s$ is the ion mass for species $s$, $v_\perp$ is the particle speed in
+    the plane perpendicular to $\mathbf{B}$, and $f_{\text{fast},s}$ is the fast-ion
+    velocity distribution function for species $s$, with the sum running over all
+    fast-ion species.
+
+
+    This quantity is computed from guiding-center kinetic models or Fokker-Planck
+    solvers that evolve the fast-ion distribution function. Preferential perpendicular
+    energization by ion cyclotron resonance heating drives $P_{\perp,\text{fast}}
+    \gg P_{\parallel,\text{fast}}$, while neutral beam injection at oblique angles
+    produces more moderate anisotropy. The charge-state-resolved analog is [perpendicular_fast_ion_state_pressure](name:perpendicular_fast_ion_state_pressure),
+    and the thermal-ion counterpart is [total_thermal_ion_pressure](name:total_thermal_ion_pressure).
+
+
+    Sign convention: Positive when the fast-ion population carries nonzero kinetic
+    energy in degrees of freedom perpendicular to the local magnetic field; this quantity
+    is non-negative for all physically realizable fast-ion distributions.'
+  unit: Pa
+  physics_domain: transport
+  links:
+  - name:parallel_total_fast_ion_pressure
+  - name:total_fast_ion_pressure
+  - name:perpendicular_fast_ion_state_pressure
+  - name:total_thermal_ion_pressure
+  sources:
+  - id: dd:sawteeth/profiles_1d/p_i_total_fast_perpendicular
+    dd_path: sawteeth/profiles_1d/p_i_total_fast_perpendicular
     status: composed
 - name: poloidal_center_of_mass_velocity
   kind: scalar
@@ -4390,6 +4795,69 @@
   - id: dd:plasma_profiles/ggd/j_anomalous/radial
     dd_path: plasma_profiles/ggd/j_anomalous/radial
     status: attached
+- name: radial_center_of_mass_velocity
+  kind: scalar
+  status: draft
+  description: Radial component of the plasma center-of-mass (barycentric) flow velocity,
+    projected along the major-radius direction in the right-handed cylindrical $(R,
+    \phi, Z)$ frame.
+  documentation: 'The radial center-of-mass velocity is the projection of the barycentric
+    bulk-flow velocity of the multispecies plasma onto the major-radius direction
+    $\hat{R}$ in the right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is the
+    distance from the toroidal symmetry axis. It is the radial component of [center_of_mass_velocity](name:center_of_mass_velocity),
+    which equals total plasma momentum density divided by total mass density.
+
+
+    The quantity is defined as:
+
+
+    $$
+
+    v_{R,\text{cm}} = \hat{R} \cdot \frac{\sum_s m_s n_s \mathbf{v}_s}{\sum_s m_s
+    n_s}
+
+    $$
+
+
+    where $m_s$ is the particle mass of species $s$, $n_s$ is its number density,
+    and $\mathbf{v}_s$ is its bulk fluid velocity.
+
+
+    Radial flows transport particles and energy across magnetic flux surfaces and
+    are central to cross-field transport in the plasma edge and divertor. In multi-fluid
+    transport models this component is computed directly from the species momentum
+    equations; spectroscopic Doppler measurements of [radial_ion_velocity](name:radial_ion_velocity)
+    and [radial_neutral_velocity](name:radial_neutral_velocity) for individual species,
+    weighted by their respective mass densities, can provide an observational approximation.
+    The analogous projection along the local magnetic field direction is [parallel_center_of_mass_velocity](name:parallel_center_of_mass_velocity).
+
+
+    Typical magnitudes in the plasma edge range from 10 to 1000 m/s, with larger transient
+    values near the separatrix during particle-loss events.
+
+
+    Sign convention: Positive when the flow is directed in the $+\hat{R}$ direction,
+    outward toward increasing major radius.'
+  unit: m.s^-1
+  physics_domain: transport
+  links:
+  - name:center_of_mass_velocity
+  - name:radial_ion_velocity
+  - name:radial_neutral_velocity
+  - name:parallel_center_of_mass_velocity
+  sources:
+  - id: dd:edge_profiles/ggd/velocity_mass_centre/r
+    dd_path: edge_profiles/ggd/velocity_mass_centre/r
+    status: attached
+  - id: dd:edge_profiles/ggd/velocity_mass_centre/radial
+    dd_path: edge_profiles/ggd/velocity_mass_centre/radial
+    status: composed
+  - id: dd:plasma_profiles/ggd/velocity_mass_centre/r
+    dd_path: plasma_profiles/ggd/velocity_mass_centre/r
+    status: attached
+  - id: dd:plasma_profiles/ggd/velocity_mass_centre/radial
+    dd_path: plasma_profiles/ggd/velocity_mass_centre/radial
+    status: composed
 - name: radial_conductivity
   kind: scalar
   status: draft
@@ -4496,6 +4964,73 @@
   - id: dd:plasma_profiles/ggd/j_diamagnetic/r
     dd_path: plasma_profiles/ggd/j_diamagnetic/r
     status: composed
+- name: radial_current_density_due_to_ion_neutral_friction
+  kind: scalar
+  status: draft
+  description: Radial component, along increasing major radius in the right-handed
+    cylindrical (R, phi, Z) frame, of the electric current density associated with
+    ion-neutral friction.
+  documentation: 'Radial current density due to ion-neutral friction is the major-radius
+    component of the electric current density contribution associated with collisional
+    momentum exchange between plasma ions and neutral atoms or molecules. It describes
+    charge transport produced by ion-neutral drag and the resulting ion momentum balance,
+    not the ion-neutral friction force density itself.
+
+
+    The component is defined by projecting the ion-neutral-friction current-density
+    vector onto the radial unit vector in the right-handed cylindrical $(R, \phi,
+    Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical
+    height:
+
+
+    $$
+
+    j_{R,\mathrm{in}} = \mathbf{j}_{\mathrm{in}} \cdot \hat{R}
+
+    $$
+
+
+    where $j_{R,\mathrm{in}}$ is the radial current density in A.m^-2, $\mathbf{j}_{\mathrm{in}}$
+    is the electric current density contribution due to ion-neutral friction in A.m^-2,
+    and $\hat{R}$ is the dimensionless unit vector in the direction of increasing
+    $R$.
+
+
+    In practice this quantity is computed from fluid or kinetic transport models that
+    include ion momentum balance, charge conservation, ion-neutral collision rates,
+    neutral densities, and ion-neutral relative flows. Experimental constraints commonly
+    come from combinations of plasma density and temperature measurements, spectroscopy
+    of neutral and ion populations, and magnetic or electrostatic constraints on current
+    closure.
+
+
+    Typical magnitudes are often about 0.01-100 A.m^-2 in weakly neutral, magnetized
+    edge plasma regions, and can reach 100-10000 A.m^-2 locally in cold, dense, partially
+    ionized boundary or divertor conditions. The value is sensitive to neutral density,
+    ion-neutral collision frequency, plasma magnetization, and the current-closure
+    path.
+
+
+    Sign convention: Positive when the current density contribution due to ion-neutral
+    friction points in the direction of increasing major radius $R$ in the right-handed
+    cylindrical $(R, \phi, Z)$ frame.'
+  unit: A.m^-2
+  physics_domain: transport
+  links:
+  - name:poloidal_current_density_due_to_ion_neutral_friction
+  sources:
+  - id: dd:edge_profiles/ggd/j_ion_neutral_friction/r
+    dd_path: edge_profiles/ggd/j_ion_neutral_friction/r
+    status: attached
+  - id: dd:edge_profiles/ggd/j_ion_neutral_friction/radial
+    dd_path: edge_profiles/ggd/j_ion_neutral_friction/radial
+    status: attached
+  - id: dd:plasma_profiles/ggd/j_ion_neutral_friction/r
+    dd_path: plasma_profiles/ggd/j_ion_neutral_friction/r
+    status: attached
+  - id: dd:plasma_profiles/ggd/j_ion_neutral_friction/radial
+    dd_path: plasma_profiles/ggd/j_ion_neutral_friction/radial
+    status: attached
 - name: radial_current_density_due_to_perpendicular_viscosity
   kind: scalar
   status: draft
@@ -4728,6 +5263,66 @@
   sources:
   - id: dd:transport_solver_numerics/derivatives_1d/ion/d_drho_tor_norm/pressure
     dd_path: transport_solver_numerics/derivatives_1d/ion/d_drho_tor_norm/pressure
+    status: composed
+- name: radial_derivative_of_thermal_ion_pressure
+  kind: scalar
+  status: draft
+  description: Derivative of total thermal ion pressure with respect to normalized
+    toroidal flux radius. Because that radial flux coordinate is dimensionless, the
+    derivative retains units of pressure.
+  documentation: 'The radial derivative of [thermal_ion_pressure](name:thermal_ion_pressure)
+    is the rate of change of total thermal ion pressure with respect to the flux coordinate
+    $\rho_\mathrm{tor,norm}$, the normalized toroidal flux radius. It quantifies the
+    outward pressure gradient across nested magnetic flux surfaces and provides a
+    pressure-gradient drive term for ion energy transport.
+
+
+    The defining derivative is
+
+
+    $$
+
+    G_{p_i}(\rho_\mathrm{tor,norm}) = \frac{\partial p_{i,\mathrm{th}}}{\partial \rho_\mathrm{tor,norm}}
+
+    $$
+
+
+    where $G_{p_i}$ is the radial derivative, $p_{i,\mathrm{th}}$ is the total thermal
+    ion pressure summed over the thermal ion species being modeled, and $\rho_\mathrm{tor,norm}$
+    ranges from 0 at the magnetic axis to 1 at the last closed flux surface. Since
+    $\rho_\mathrm{tor,norm}$ is dimensionless, the derivative has the same unit as
+    pressure, Pa.
+
+
+    In practice, this quantity is computed by differentiating the radial dependence
+    of thermal ion pressure inferred from ion density and temperature measurements,
+    or from a transport calculation. Smoothing, fitted basis functions, or conservative
+    finite differences are commonly used to reduce noise before differentiation. The
+    related [radial_derivative_of_ion_pressure](name:radial_derivative_of_ion_pressure)
+    is the analogous derivative for the corresponding ion pressure quantity, [second_radial_derivative_of_thermal_ion_pressure](name:second_radial_derivative_of_thermal_ion_pressure)
+    gives the associated curvature, and [radial_derivative_of_ion_temperature](name:radial_derivative_of_ion_temperature)
+    is often used with density gradients to decompose the pressure gradient.
+
+
+    Typical magnitudes are about $10^3$-$10^5$ Pa in broad core regions and can reach
+    $10^5$-$10^6$ Pa in steep pedestal or edge-gradient regions, depending on density,
+    ion temperature, plasma size, and confinement regime. In many confined plasmas
+    the value is negative over much of the radius because thermal ion pressure is
+    largest near the magnetic axis.
+
+
+    Sign convention: Positive when the total thermal ion pressure increases with increasing
+    normalized toroidal flux radius $\rho_\mathrm{tor,norm}$, outward from the magnetic
+    axis toward the last closed flux surface.'
+  unit: Pa
+  physics_domain: transport
+  links:
+  - name:thermal_ion_pressure
+  - name:second_radial_derivative_of_thermal_ion_pressure
+  - name:radial_derivative_of_ion_pressure
+  sources:
+  - id: dd:transport_solver_numerics/derivatives_1d/d_drho_tor_norm/pressure_ion_total
+    dd_path: transport_solver_numerics/derivatives_1d/d_drho_tor_norm/pressure_ion_total
     status: composed
 - name: radial_derivative_of_toroidal_electron_velocity
   kind: scalar
@@ -5127,6 +5722,58 @@
   - id: dd:plasma_transport/model/profiles_1d/neutral/state/momentum/d_radial/values
     dd_path: plasma_transport/model/profiles_1d/neutral/state/momentum/d_radial/values
     status: composed
+- name: radial_neutral_state_velocity
+  kind: scalar
+  status: draft
+  description: Radial (major-radius) component of the bulk convection velocity of
+    neutral particles in a specified internal quantum or energy state.
+  documentation: "The radial neutral state velocity is the projection of the bulk\
+    \ fluid velocity of a state-resolved neutral population onto the major-radius\
+    \ direction $\\hat{R}$ in the right-handed cylindrical $(R, \\phi, Z)$ frame,\
+    \ where $R$ is major radius and $Z$ is vertical height. It is a fluid moment of\
+    \ the state-resolved neutral distribution function, restricted to neutrals occupying\
+    \ a specified excitation, ionization, or molecular energy state, and quantifies\
+    \ their net radial convective transport \u2014 not random thermal motion.\n\n\
+    The defining relation is:\n\n$$\nv_{r,s} = \\frac{\\int v_R \\, f_s(\\mathbf{v})\
+    \ \\, d^3v}{\\int f_s(\\mathbf{v}) \\, d^3v}\n$$\n\nwhere $f_s(\\mathbf{v})$ is\
+    \ the distribution function of neutrals in internal state $s$, $v_R$ is the particle\
+    \ velocity component along $\\hat{R}$, and integration is over all of velocity\
+    \ space.\n\nIn edge plasma modeling this quantity enters the radial momentum and\
+    \ continuity equations for each neutral internal state, governing recycling fluxes\
+    \ and fueling efficiency in the scrape-off layer and divertor. It is computed\
+    \ by kinetic or fluid neutral transport codes rather than measured directly. The\
+    \ state-averaged counterpart is [radial_neutral_velocity](name:radial_neutral_velocity),\
+    \ and the [parallel_neutral_state_velocity](name:parallel_neutral_state_velocity)\
+    \ provides the analogous field-aligned component for state-resolved neutrals.\
+    \ The full velocity vector from which this component is extracted is described\
+    \ under [neutral_state_velocity](name:neutral_state_velocity).\n\nSign convention:\
+    \ Positive when the neutral state velocity is directed in the direction of increasing\
+    \ major radius $R$."
+  unit: m.s^-1
+  physics_domain: transport
+  links:
+  - name:radial_neutral_velocity
+  - name:parallel_neutral_state_velocity
+  - name:neutral_state_velocity
+  sources:
+  - id: dd:edge_profiles/ggd/neutral/state/velocity/r
+    dd_path: edge_profiles/ggd/neutral/state/velocity/r
+    status: attached
+  - id: dd:edge_profiles/ggd/neutral/state/velocity/radial
+    dd_path: edge_profiles/ggd/neutral/state/velocity/radial
+    status: composed
+  - id: dd:edge_profiles/profiles_1d/neutral/state/velocity/radial
+    dd_path: edge_profiles/profiles_1d/neutral/state/velocity/radial
+    status: composed
+  - id: dd:plasma_profiles/ggd/neutral/state/velocity/r
+    dd_path: plasma_profiles/ggd/neutral/state/velocity/r
+    status: attached
+  - id: dd:plasma_profiles/ggd/neutral/state/velocity/radial
+    dd_path: plasma_profiles/ggd/neutral/state/velocity/radial
+    status: composed
+  - id: dd:plasma_profiles/profiles_1d/neutral/state/velocity/radial
+    dd_path: plasma_profiles/profiles_1d/neutral/state/velocity/radial
+    status: composed
 - name: radial_pfirsch_schlueter_current_density
   kind: scalar
   status: draft
@@ -5180,6 +5827,63 @@
     status: composed
   - id: dd:plasma_profiles/ggd/j_pfirsch_schlueter/radial
     dd_path: plasma_profiles/ggd/j_pfirsch_schlueter/radial
+    status: composed
+- name: runaway_electron_density
+  kind: scalar
+  status: draft
+  description: Local number density of runaway electrons, the suprathermal electron
+    population that remains in the accelerating tail of the electron distribution
+    rather than thermalizing with the bulk plasma.
+  documentation: 'Runaway electron density $n_\mathrm{RE}$ is the number of runaway
+    electrons per unit physical volume at a point in the plasma. It is a non-negative
+    scalar field describing the local population of electrons whose high momentum
+    makes collisional slowing-down ineffective compared with continued acceleration
+    by the electromagnetic fields.
+
+
+    A local particle balance for the runaway population is commonly written as
+
+
+    $$
+
+    \frac{\partial n_\mathrm{RE}}{\partial t} + \nabla \cdot \boldsymbol{\Gamma}_\mathrm{RE}
+    = S_\mathrm{RE} - L_\mathrm{RE}
+
+    $$
+
+
+    where $n_\mathrm{RE}$ is the runaway electron density in m$^{-3}$, $\boldsymbol{\Gamma}_\mathrm{RE}$
+    is the runaway electron particle flux in m$^{-2}$ s$^{-1}$, and $S_\mathrm{RE}$
+    and $L_\mathrm{RE}$ are local volumetric source and loss rates in m$^{-3}$ s$^{-1}$.
+    Source terms may represent mechanisms such as Dreicer generation, avalanche multiplication,
+    or hot-tail formation; loss terms represent removal from the runaway population
+    or transport out of the local volume, depending on the model.
+
+
+    The quantity is usually inferred rather than measured directly, using hard x-ray,
+    gamma-ray, synchrotron, bremsstrahlung, or current measurements interpreted with
+    kinetic or fluid runaway-electron models. A volume average of this local field
+    gives the corresponding volume-averaged runaway electron density.
+
+
+    Typical modeled values span about $10^{12}$-$10^{18}$ m$^{-3}$. Disruption-generated
+    runaway beams often have local densities around $10^{15}$-$10^{17}$ m$^{-3}$,
+    generally well below the bulk thermal electron density even when they carry a
+    large fraction of the plasma current.'
+  unit: m^-3
+  physics_domain: transport
+  links:
+  - name:runaway_electron_count
+  - name:volume_averaged_runaway_electron_density
+  - name:parallel_runaway_electron_current_density
+  - name:volume_averaged_runaway_electron_source_rate
+  - name:fast_electron_density
+  sources:
+  - id: dd:runaway_electrons/ggd_fluid/density/values
+    dd_path: runaway_electrons/ggd_fluid/density/values
+    status: attached
+  - id: dd:runaway_electrons/profiles_1d/density
+    dd_path: runaway_electrons/profiles_1d/density
     status: composed
 - name: runaway_electron_kinetic_energy
   kind: scalar
@@ -5455,6 +6159,72 @@
   - id: dd:transport_solver_numerics/derivatives_1d/ion/d2_drho_tor_norm2/density_fast
     dd_path: transport_solver_numerics/derivatives_1d/ion/d2_drho_tor_norm2/density_fast
     status: composed
+- name: second_radial_derivative_of_toroidal_ion_velocity
+  kind: scalar
+  status: draft
+  description: Second derivative, with respect to the normalized toroidal flux radius
+    rho_tor_norm, of the charge-state-averaged ion velocity component along the phi
+    direction in the right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'The second radial derivative of toroidal ion velocity is the curvature
+    of the charge-state-averaged ion toroidal velocity with respect to the flux coordinate
+    $\rho_{\mathrm{tor,norm}}$ (normalized toroidal flux radius). The velocity component
+    is along the $\phi$ direction in the right-handed cylindrical $(R, \phi, Z)$ frame,
+    where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height;
+    $\rho_{\mathrm{tor,norm}}$ increases from 0 at the magnetic axis to 1 at the last
+    closed flux surface.
+
+
+    It is defined by differentiating the signed toroidal ion velocity twice with respect
+    to the dimensionless radial flux coordinate:
+
+
+    $$
+
+    D_{\rho\rho} v_{i,\phi} = \frac{\partial^2 v_{i,\phi}}{\partial \rho_{\mathrm{tor,norm}}^2}
+
+    $$
+
+
+    where $D_{\rho\rho} v_{i,\phi}$ is this second derivative, $v_{i,\phi}$ is the
+    charge-state-averaged toroidal ion velocity in m s$^{-1}$, and $\rho_{\mathrm{tor,norm}}$
+    is dimensionless. The derivative has units of m s$^{-1}$ because the differentiating
+    coordinate is dimensionless.
+
+
+    In practice it is obtained by fitting, reconstructing, or modeling the radial
+    dependence of [toroidal_ion_velocity](name:toroidal_ion_velocity) as a function
+    of $\rho_{\mathrm{tor,norm}}$ and differentiating the smooth representation. This
+    derivative is the second-order counterpart of [radial_derivative_of_toroidal_ion_velocity](name:radial_derivative_of_toroidal_ion_velocity);
+    it differs from [second_radial_derivative_of_toroidal_ion_state_velocity](name:second_radial_derivative_of_toroidal_ion_state_velocity),
+    which is resolved by ion charge state. Because second derivatives amplify noise
+    and localized features, smoothing or regularization is commonly needed when inferring
+    it from measured rotation.
+
+
+    Typical absolute magnitudes are broad: 10^3-10^5 m s^-1 for slowly varying core
+    rotation, 10^5-10^6 m s^-1 where momentum sources, transport barriers, or edge
+    rotation shear produce stronger curvature, and near zero where the velocity varies
+    almost linearly with $\rho_{\mathrm{tor,norm}}$. Values can be positive or negative.
+
+
+    Sign convention: Positive when $\partial^2 v_{i,\phi}/\partial \rho_{\mathrm{tor,norm}}^2
+    > 0$ for increasing $\rho_{\mathrm{tor,norm}}$ from the magnetic axis toward the
+    plasma boundary, with $v_{i,\phi}$ positive in the direction of increasing toroidal
+    angle $\phi$ in the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: m.s^-1
+  physics_domain: transport
+  links:
+  - name:second_radial_derivative_of_toroidal_ion_state_velocity
+  - name:radial_derivative_of_toroidal_ion_velocity
+  - name:second_radial_derivative_of_poloidal_ion_velocity
+  - name:toroidal_ion_velocity
+  sources:
+  - id: dd:transport_solver_numerics/derivatives_1d/ion/d2_drho_tor_norm2/velocity_phi
+    dd_path: transport_solver_numerics/derivatives_1d/ion/d2_drho_tor_norm2/velocity_phi
+    status: composed
+  - id: dd:transport_solver_numerics/derivatives_1d/ion/d2_drho_tor_norm2/velocity_tor
+    dd_path: transport_solver_numerics/derivatives_1d/ion/d2_drho_tor_norm2/velocity_tor
+    status: composed
 - name: second_radial_derivative_of_total_electron_density
   kind: scalar
   status: draft
@@ -5549,6 +6319,70 @@
   - id: dd:transport_solver_numerics/derivatives_1d/ion/d2_drho_tor_norm2/density
     dd_path: transport_solver_numerics/derivatives_1d/ion/d2_drho_tor_norm2/density
     status: composed
+- name: thermal_electron_power_density_due_to_collisions
+  kind: scalar
+  status: draft
+  description: Volumetric Coulomb-collisional energy transfer rate into the bulk thermal
+    electron population from a fast or otherwise non-Maxwellian particle population.
+    It is integrated over trapped and passing guiding-center orbit classes and is
+    positive for thermal-electron heating.
+  documentation: 'Thermal electron power density due to collisions is the local rate
+    per unit volume at which Coulomb collisions transfer kinetic energy from a fast
+    or otherwise non-Maxwellian particle population to the bulk thermal electron population.
+    It is the orbit-class-integrated electron-channel collisional heating term, including
+    trapped and passing guiding-center contributions when those classes are distinguished.
+
+
+    The quantity can be written as the negative kinetic-energy moment of the fast-particle
+    collision operator associated with collisions against thermal electrons:
+
+
+    $$
+
+    p_{e,\mathrm{th}}^{\mathrm{coll}}(\mathbf{x}) = -\int \frac{1}{2} m_f v^2\, C_{fe}[f_f](\mathbf{x},\mathbf{v})\,
+    d^3v
+
+    $$
+
+
+    where $p_{e,\mathrm{th}}^{\mathrm{coll}}$ is this power density, $m_f$ is the
+    fast-particle mass, $v=|\mathbf{v}|$ is particle speed, $f_f$ is the fast-particle
+    distribution function with units m^-6 s^3, $C_{fe}[f_f]$ is the rate of change
+    of $f_f$ caused by Coulomb collisions with thermal electrons with units m^-6 s^2,
+    and $d^3v$ is the velocity-space volume element with units m^3 s^-3. The minus
+    sign converts fast-particle kinetic-energy loss into thermal-electron energy gain,
+    giving units W m^-3.
+
+
+    This quantity is not measured directly. It is inferred from kinetic or transport
+    calculations that evaluate Coulomb drag and diffusion of the non-Maxwellian population
+    using the local thermal electron density and temperature; experimental constraints
+    may include fast-particle, neutron, charge-exchange, radiation, and thermal-electron
+    diagnostics depending on the source species and plasma regime.
+
+
+    Typical values in auxiliary-heated magnetic-fusion plasmas are 10^3-10^6 W m^-3,
+    with strongly localized deposition reaching about 10^7 W m^-3. Values can be near
+    zero in weak fast-particle regions and can be negative if collisions transfer
+    energy from the thermal electrons to the non-Maxwellian population.
+
+
+    Sign convention: Positive when Coulomb collisions transfer energy to the bulk
+    thermal electron population.'
+  unit: W.m^-3
+  physics_domain: transport
+  links:
+  - name:trapped_thermal_electron_power_density_due_to_collisions
+  - name:counter_passing_thermal_electron_power_density_due_to_collisions
+  - name:thermal_electron_power_due_to_collisions
+  - name:trapped_thermal_ion_power_density_due_to_collisions
+  sources:
+  - id: dd:distributions/distribution/profiles_1d/collisions/electrons/power_thermal
+    dd_path: distributions/distribution/profiles_1d/collisions/electrons/power_thermal
+    status: composed
+  - id: dd:distributions/distribution/profiles_2d/collisions/electrons/power_thermal
+    dd_path: distributions/distribution/profiles_2d/collisions/electrons/power_thermal
+    status: attached
 - name: thermal_ion_state_power_due_to_collisions
   kind: scalar
   status: draft
@@ -5720,6 +6554,76 @@
   - id: dd:plasma_profiles/profiles_1d/neutral/state/density_thermal
     dd_path: plasma_profiles/profiles_1d/neutral/state/density_thermal
     status: attached
+- name: thermal_neutral_state_pressure
+  kind: scalar
+  status: draft
+  description: Isotropic pressure of a neutral population in a specified internal
+    quantum or excitation state arising from random thermal motion about the mean
+    flow velocity. It excludes dynamic pressure from directed bulk flow and anisotropic
+    fast-neutral contributions.
+  documentation: 'Thermal neutral state pressure is the scalar, isotropic pressure
+    of neutral particles in one specified internal atomic, molecular, quantum, or
+    excitation state. It is the part of the state-resolved neutral pressure associated
+    with random thermal motion about the mean flow velocity, not with directed flow
+    or anisotropic fast-neutral stress.
+
+
+    For a state-resolved velocity distribution, the scalar thermal pressure is one
+    third of the trace of the random kinetic stress:
+
+
+    $$
+
+    p_{\mathrm{th},s} = \frac{1}{3} m_s \int |\mathbf{v}-\mathbf{u}_s|^2 f_s(\mathbf{v})\,d^3v
+
+    $$
+
+
+    where $p_{\mathrm{th},s}$ is the thermal pressure of state $s$ in Pa, $m_s$ is
+    the particle mass in kg, $\mathbf{v}$ is particle velocity in m s$^{-1}$, $\mathbf{u}_s$
+    is the mean flow velocity of that state in m s$^{-1}$, and $f_s$ is normalized
+    so that $n_s=\int f_s\,d^3v$ is the state density in m$^{-3}$. For a Maxwellian
+    state population this reduces to $p_{\mathrm{th},s}=n_s k_B T_s$ when $T_s$ is
+    a thermodynamic temperature in K, or equivalently $p_{\mathrm{th},s}=e\,n_s T_s$
+    when $T_s$ is expressed in eV, with $e$ the elementary charge in J eV$^{-1}$.
+
+
+    In practice this quantity is computed from state-resolved neutral fluid or kinetic
+    transport models, either by taking the velocity moment of the distribution function
+    or by using the Maxwellian product of state density and thermal temperature. Experimental
+    constraints are usually indirect: state densities may be inferred from line emission,
+    absorption, or neutral-particle diagnostics with collisional-radiative modeling,
+    while thermal temperatures may be constrained by Doppler broadening or by transport-model
+    closure assumptions.
+
+
+    Representative values vary strongly with neutral density, excitation state, and
+    local ionization and charge-exchange balance. Edge, scrape-off-layer, and divertor
+    neutral states commonly span about $10^{-6}$-$10$ Pa; excited states are often
+    toward the lower end because their populations are smaller. As a scale estimate,
+    $n_s=10^{16}$ m$^{-3}$ and $T_s=1$ eV gives $p_{\mathrm{th},s}\approx 1.6\times10^{-3}$
+    Pa.
+
+
+    Summing this quantity over internal states gives [thermal_neutral_pressure](name:thermal_neutral_pressure).
+    The total [neutral_state_pressure](name:neutral_state_pressure) may also include
+    non-thermal or directed-flow contributions, while anisotropic fast-neutral state
+    stresses are represented by [parallel_fast_neutral_state_pressure](name:parallel_fast_neutral_state_pressure)
+    and [perpendicular_fast_neutral_state_pressure](name:perpendicular_fast_neutral_state_pressure).
+    The charged-particle analog for ions is [thermal_ion_pressure](name:thermal_ion_pressure).'
+  unit: Pa
+  physics_domain: transport
+  links:
+  - name:neutral_state_pressure
+  - name:thermal_neutral_pressure
+  - name:thermal_ion_pressure
+  sources:
+  - id: dd:edge_profiles/profiles_1d/neutral/state/pressure_thermal
+    dd_path: edge_profiles/profiles_1d/neutral/state/pressure_thermal
+    status: composed
+  - id: dd:plasma_profiles/profiles_1d/neutral/state/pressure_thermal
+    dd_path: plasma_profiles/profiles_1d/neutral/state/pressure_thermal
+    status: composed
 - name: toroidal_anomalous_current_density
   kind: scalar
   status: draft
@@ -5921,6 +6825,66 @@
     status: composed
   - id: dd:summary/local/magnetic_axis/velocity_tor/argon/value
     dd_path: summary/local/magnetic_axis/velocity_tor/argon/value
+    status: composed
+- name: toroidal_carbon_velocity_at_internal_transport_barrier
+  kind: scalar
+  status: draft
+  description: Toroidal component of carbon ion flow velocity at the internal transport
+    barrier, evaluated in the right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'The toroidal component of carbon ion flow velocity at the internal
+    transport barrier (ITB) characterizes the plasma rotation of carbon impurity ions
+    at a localized region of suppressed anomalous transport in the plasma core. ITBs
+    form near flux surfaces of low magnetic shear or low-order rational safety factors,
+    where reduced turbulent transport produces steep radial gradients in temperature
+    and density profiles.
+
+
+    Carbon ion rotation is connected to the local radial electric field through the
+    ion radial force balance. For carbon ions with charge state $Z_C$, pressure $p_C$,
+    and number density $n_C$:
+
+
+    $$
+
+    E_r = v_\phi^C B_\theta - v_\theta^C B_\phi + \frac{1}{Z_C e n_C} \frac{dp_C}{dr}
+
+    $$
+
+
+    where $v_\phi^C$ is the toroidal carbon velocity, $v_\theta^C$ is the poloidal
+    carbon velocity, $B_\theta$ and $B_\phi$ are the poloidal and toroidal magnetic-field
+    components, $r$ is the minor-radial coordinate, and $e$ is the elementary charge.
+
+
+    This velocity is measured by charge-exchange recombination spectroscopy (CXRS),
+    where Doppler shifts of carbon emission lines yield the local ion rotation; the
+    ITB position is identified from the profile gradient structure. Comparing with
+    [toroidal hydrogen velocity at the ITB](name:toroidal_hydrogen_velocity_at_internal_transport_barrier),
+    [toroidal nitrogen velocity at the ITB](name:toroidal_nitrogen_velocity_at_internal_transport_barrier),
+    and [toroidal krypton velocity at the ITB](name:toroidal_krypton_velocity_at_internal_transport_barrier)
+    supports cross-species momentum balance analysis. The [carbon ion density at the
+    ITB](name:carbon_density_at_internal_transport_barrier) together with this velocity
+    characterizes the carbon particle flux at the barrier, while [toroidal carbon
+    velocity at the pedestal top](name:toroidal_carbon_velocity_at_pedestal_top) plays
+    an analogous role at the edge transport barrier.
+
+
+    Sign convention: Positive when the carbon ion velocity points in the direction
+    of increasing toroidal angle $\phi$.'
+  unit: m.s^-1
+  physics_domain: transport
+  links:
+  - name:toroidal_hydrogen_velocity_at_internal_transport_barrier
+  - name:toroidal_nitrogen_velocity_at_internal_transport_barrier
+  - name:toroidal_krypton_velocity_at_internal_transport_barrier
+  - name:carbon_density_at_internal_transport_barrier
+  - name:toroidal_carbon_velocity_at_pedestal_top
+  sources:
+  - id: dd:summary/local/itb/velocity_phi/carbon/value
+    dd_path: summary/local/itb/velocity_phi/carbon/value
+    status: composed
+  - id: dd:summary/local/itb/velocity_tor/carbon/value
+    dd_path: summary/local/itb/velocity_tor/carbon/value
     status: composed
 - name: toroidal_co_passing_fast_current_density
   kind: scalar
@@ -6166,6 +7130,45 @@
     status: attached
   - id: dd:distributions/distribution/profiles_2d/counter_passing/torque_tor_j_radial
     dd_path: distributions/distribution/profiles_2d/counter_passing/torque_tor_j_radial
+    status: attached
+- name: toroidal_current_density_due_to_diamagnetic_drift
+  kind: scalar
+  status: draft
+  description: Toroidal projection of the plasma current density carried by the diamagnetic
+    drift, arising from cross-field pressure gradients acting on magnetized plasma
+    species.
+  documentation: "The diamagnetic drift gives rise to a plasma current density flowing\
+    \ perpendicular to both the magnetic field and the plasma pressure gradient; this\
+    \ quantity is the scalar projection of that current density vector along the toroidal\
+    \ direction $\\hat{\\phi}$ in the right-handed cylindrical $(R, \\phi, Z)$ frame.\n\
+    \nThe toroidal diamagnetic current density is given by:\n\n$$\nj_{\\phi,\\mathrm{dia}}\
+    \ = \\left(\\frac{\\mathbf{B} \\times \\nabla p}{B^2}\\right) \\cdot \\hat{\\\
+    phi}\n$$\n\nwhere $p$ is the total plasma pressure, $\\mathbf{B}$ is the magnetic\
+    \ field vector, and $B = |\\mathbf{B}|$.\n\nThis is the toroidal projection of\
+    \ the parent [current_density_due_to_diamagnetic_drift](name:current_density_due_to_diamagnetic_drift)\
+    \ vector; the analogous poloidal component is described by [poloidal_current_density_due_to_diamagnetic_drift](name:poloidal_current_density_due_to_diamagnetic_drift).\
+    \ It is computed from kinetic pressure profiles combined with magnetic equilibrium\
+    \ geometry, and enters the current budget in MHD force-balance and edge-transport\
+    \ models, with greatest importance in steep-gradient regions such as the H-mode\
+    \ pedestal and internal transport barriers.\n\nTypical magnitudes span $10^4$\u2013\
+    $10^7$ A m$^{-2}$ in fusion-relevant pedestal and transport-barrier regions where\
+    \ pressure gradients are steepest.\n\nSign convention: Positive when the toroidal\
+    \ diamagnetic current density is directed in the direction of increasing toroidal\
+    \ angle $\\phi$."
+  unit: A.m^-2
+  physics_domain: transport
+  links:
+  - name:current_density_due_to_diamagnetic_drift
+  - name:poloidal_current_density_due_to_diamagnetic_drift
+  sources:
+  - id: dd:edge_profiles/ggd/j_diamagnetic/phi
+    dd_path: edge_profiles/ggd/j_diamagnetic/phi
+    status: composed
+  - id: dd:plasma_profiles/ggd/j_diamagnetic/phi
+    dd_path: plasma_profiles/ggd/j_diamagnetic/phi
+    status: composed
+  - id: dd:plasma_profiles/ggd/j_diamagnetic/toroidal
+    dd_path: plasma_profiles/ggd/j_diamagnetic/toroidal
     status: attached
 - name: toroidal_current_density_due_to_heat_viscosity
   kind: scalar
@@ -7476,6 +8479,70 @@
   - id: dd:distributions/distribution/profiles_2d/trapped/collisions/electrons/torque_fast_tor
     dd_path: distributions/distribution/profiles_2d/trapped/collisions/electrons/torque_fast_tor
     status: attached
+- name: toroidal_trapped_thermal_electron_torque_density_due_to_coulomb_collisions_with_electrons
+  kind: scalar
+  status: draft
+  description: Volumetric toroidal torque density on trapped thermal electrons produced
+    by electron-electron Coulomb collisions. It is the major-radius lever-arm times
+    the collisional toroidal force density in the right-handed cylindrical (R, phi,
+    Z) frame.
+  documentation: 'Toroidal trapped thermal electron torque density due to Coulomb
+    collisions with electrons is the rate of change of trapped-electron toroidal angular
+    momentum per unit volume caused only by electron-electron Coulomb scattering.
+    It is defined in the right-handed cylindrical $(R,\phi,Z)$ frame, where $R$ is
+    major radius and $Z$ is vertical height, and excludes electromagnetic, turbulent,
+    neutral, and electron-ion momentum sources.
+
+
+    For a local distribution function, the collisional torque density can be written
+    as the major-radius lever arm multiplying the toroidal collisional force density:
+
+
+    $$
+
+    \tau_{e,\mathrm{tr},\phi}^{(ee)}(\mathbf{x}) = R\,m_e \int_{\mathcal{T}(\mathbf{x})}
+    v_\phi\, C_{ee}[f_e,f_e](\mathbf{x},\mathbf{v})\,d^3v
+
+    $$
+
+
+    where $m_e$ is the electron mass, $v_\phi$ is the toroidal velocity component,
+    $C_{ee}[f_e,f_e]$ is the electron-electron Coulomb collision operator giving the
+    collisional time derivative of the thermal electron distribution due to electron
+    collision partners, and $\mathcal{T}(\mathbf{x})$ is the trapped region of velocity
+    space at position $\mathbf{x}$. The factor $R$ converts toroidal force density
+    to torque density about the symmetry axis, giving units of $\mathrm{N\,m^{-2}}$.
+
+
+    In practice this term is computed from kinetic or neoclassical models by evaluating
+    the electron-electron collision operator and integrating only over particle orbits
+    classified as trapped, usually according to invariants such as magnetic moment,
+    energy, and bounce accessibility. For a complete electron population, self-collisions
+    conserve total electron momentum, but the trapped-subpopulation contribution can
+    be nonzero because collisions exchange momentum between trapped and passing regions
+    of velocity space.
+
+
+    Typical magnitudes are strongly regime dependent and may range from near zero
+    in weakly collisional, nearly momentum-conserving cases to about $10^{-3}$-$10^{2}\
+    \mathrm{N\,m^{-2}}$ in edge, pedestal, or strongly anisotropic thermal electron
+    distributions.
+
+
+    Sign convention: Positive when the collisional toroidal force on trapped thermal
+    electrons is in the $+\hat{\phi}$ direction, corresponding to angular-momentum
+    transfer in the direction of increasing toroidal angle $\phi$ in the right-handed
+    cylindrical $(R,\phi,Z)$ frame.'
+  unit: N.m^-2
+  physics_domain: transport
+  links:
+  - name:toroidal_trapped_thermal_electron_torque_density_due_to_collisions
+  - name:toroidal_thermal_electron_torque_density_due_to_collisions
+  - name:toroidal_trapped_thermal_ion_torque_density_due_to_collisions
+  sources:
+  - id: dd:distributions/distribution/profiles_2d/trapped/collisions/electrons/torque_thermal_phi
+    dd_path: distributions/distribution/profiles_2d/trapped/collisions/electrons/torque_thermal_phi
+    status: composed
 - name: total_ion_density_at_internal_transport_barrier
   kind: scalar
   status: draft
@@ -8122,6 +9189,61 @@
   - id: dd:plasma_profiles/ggd/electrons/velocity/z
     dd_path: plasma_profiles/ggd/electrons/velocity/z
     status: composed
+- name: vertical_ion_state_momentum_diffusivity
+  kind: scalar
+  status: draft
+  description: Vertical component of the effective momentum diffusivity for a specified
+    ion species and charge state, describing diffusive transport of vertical momentum
+    along Z in the right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'Vertical ion-state momentum diffusivity is the $Z$-direction component
+    of an effective momentum-diffusion coefficient for ions of a specified species
+    and charge state. It quantifies how gradients of vertical flow or vertical momentum
+    density drive diffusive transport along the vertical direction in the right-handed
+    cylindrical $(R, \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal
+    angle, and $Z$ is vertical height.
+
+
+    In a local Fick-like momentum-transport closure, the vertical diffusive flux of
+    vertical ion-state momentum can be written as:
+
+
+    $$
+
+    \Pi^{\mathrm{diff}}_{a\zeta,Z} = -\rho_{a\zeta}\,\chi^{p}_{a\zeta,Z}\,\frac{\partial
+    u_{a\zeta,Z}}{\partial Z}
+
+    $$
+
+
+    where $\Pi^{\mathrm{diff}}_{a\zeta,Z}$ is the vertical diffusive flux of vertical
+    momentum for ion species $a$ and charge state $\zeta$, $\rho_{a\zeta}$ is the
+    corresponding mass density, $u_{a\zeta,Z}$ is the vertical flow velocity, and
+    $\chi^{p}_{a\zeta,Z}$ is the vertical ion-state momentum diffusivity. The minus
+    sign represents down-gradient diffusion, so positive diffusivity tends to smooth
+    spatial variations in vertical flow.
+
+
+    This quantity is not usually measured directly. It is inferred from momentum-balance
+    analysis, charge-state-resolved transport modeling, or fits constrained by measurements
+    of ion velocity, density, temperature, and fluctuation levels. Compared with [vertical
+    ion momentum diffusivity](name:vertical_ion_momentum_diffusivity), this quantity
+    retains the dependence on ion charge state; it is the transport coefficient associated
+    with the corresponding [vertical ion state momentum flux](name:vertical_ion_state_momentum_flux).
+
+
+    Typical effective values in core plasmas are about 0.01-10 m^2.s^-1, while edge,
+    scrape-off-layer, or strongly turbulent conditions can require 10-100 m^2.s^-1.
+    Classical and neoclassical contributions for a single charge state may be smaller
+    than fitted effective values that include unresolved turbulence and charge-exchange
+    effects.'
+  unit: m^2.s^-1
+  physics_domain: transport
+  links:
+  - name:vertical_ion_momentum_diffusivity
+  sources:
+  - id: dd:plasma_transport/model/ggd/ion/state/momentum/d/z
+    dd_path: plasma_transport/model/ggd/ion/state/momentum/d/z
+    status: composed
 - name: vertical_ion_state_velocity_due_to_diamagnetic_drift
   kind: scalar
   status: draft
@@ -8248,6 +9370,62 @@
   - id: dd:plasma_transport/model/ggd/neutral/state/momentum/v/z
     dd_path: plasma_transport/model/ggd/neutral/state/momentum/v/z
     status: attached
+- name: vertical_neutral_velocity
+  kind: scalar
+  status: draft
+  description: Vertical component of the neutral species bulk fluid velocity in the
+    right-handed cylindrical (R, phi, Z) frame, averaged over all neutral quantum
+    and energy states.
+  documentation: 'Vertical neutral velocity is the component of the neutral-species
+    bulk fluid velocity along the vertical $Z$ direction in the right-handed cylindrical
+    $(R, \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and
+    $Z$ is vertical height. It represents the density-weighted mean motion of the
+    neutral population after averaging over neutral quantum and energy states, distinct
+    from the state-resolved quantity [vertical_neutral_state_velocity](name:vertical_neutral_state_velocity).
+
+
+    The vertical component is defined by projecting the neutral bulk velocity onto
+    the vertical basis vector:
+
+
+    $$
+
+    v_{n,Z} = \mathbf{v}_n \cdot \hat{Z}
+
+    $$
+
+
+    where $v_{n,Z}$ is the vertical neutral velocity in m.s$^{-1}$, $\mathbf{v}_n$
+    is the neutral bulk velocity in m.s$^{-1}$ averaged over the neutral population,
+    and $\hat{Z}$ is the vertical unit vector of the right-handed cylindrical $(R,
+    \phi, Z)$ frame.
+
+
+    In practice this velocity may be obtained as the first velocity moment of a neutral
+    distribution function, from neutral fluid or kinetic transport calculations, or
+    inferred from Doppler shifts of neutral emission when the viewing geometry constrains
+    the vertical component. It is useful for describing neutral penetration, recycling
+    flows, gas fueling, and vertical momentum exchange with ions and electrons.
+
+
+    Typical values in tokamak edge and divertor plasmas are $10^2-10^4$ m.s$^{-1}$
+    for thermal or recycling neutrals. Directed gas sources, strong recycling flows,
+    or fast-neutral dominated regions can produce vertical components of order $10^4-10^5$
+    m.s$^{-1}$, with either sign depending on the flow direction.
+
+
+    Sign convention: Positive when the neutral bulk velocity has a component in the
+    $+Z$ direction of the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: m.s^-1
+  physics_domain: transport
+  links: []
+  sources:
+  - id: dd:edge_profiles/ggd/neutral/velocity/z
+    dd_path: edge_profiles/ggd/neutral/velocity/z
+    status: composed
+  - id: dd:plasma_profiles/ggd/neutral/velocity/z
+    dd_path: plasma_profiles/ggd/neutral/velocity/z
+    status: composed
 - name: volume_averaged_argon_density
   kind: scalar
   status: draft
@@ -8452,6 +9630,57 @@
   - id: dd:summary/local/itb/n_i/xenon/value
     dd_path: summary/local/itb/n_i/xenon/value
     status: composed
+- name: radial_derivative_of_ion_temperature
+  kind: scalar
+  status: draft
+  description: First radial derivative of the charge-state-averaged ion temperature
+    with respect to normalized toroidal flux radius, quantifying the local ion temperature
+    gradient that drives heat conduction in the ion energy transport equation.
+  documentation: 'The radial derivative of the charge-state-averaged [ion_temperature](name:ion_temperature)
+    with respect to the normalized toroidal flux coordinate $\rho_{\rm tor,norm}$
+    quantifies the local ion temperature gradient along the radial direction. Charge-state
+    averaging yields a single gradient profile representative of the bulk ion thermal
+    structure, as distinct from the charge-state-resolved [radial_derivative_of_ion_state_temperature](name:radial_derivative_of_ion_state_temperature).
+
+
+    The quantity is defined by:
+
+
+    $$
+
+    \frac{dT_i}{d\rho_{\rm tor,norm}}
+
+    $$
+
+
+    where $T_i$ is the charge-state-averaged ion temperature and $\rho_{\rm tor,norm}
+    \in [0, 1]$ is the normalized toroidal flux radius, with $\rho_{\rm tor,norm}
+    = 0$ at the magnetic axis and $\rho_{\rm tor,norm} = 1$ at the last closed flux
+    surface. The ion heat flux in the radial direction is proportional to this gradient
+    via $q_i \propto -n_i \chi_i \, dT_i/d\rho_{\rm tor,norm}$, where $n_i$ is the
+    ion density and $\chi_i$ is the ion heat diffusivity.
+
+
+    This derivative is computed numerically from the ion temperature profile within
+    transport solvers and enters the discretized ion energy equation. The [second_radial_derivative_of_ion_temperature](name:second_radial_derivative_of_ion_temperature)
+    provides profile curvature for higher-order schemes, and [radial_derivative_of_electron_temperature](name:radial_derivative_of_electron_temperature)
+    is the electron-channel analog.
+
+
+    Sign convention: Positive when ion temperature increases in the direction of increasing
+    normalized toroidal flux radius $\rho_{\rm tor,norm}$ (outward from the magnetic
+    axis toward the plasma boundary).'
+  unit: eV
+  physics_domain: transport
+  links:
+  - name:ion_temperature
+  - name:radial_derivative_of_ion_state_temperature
+  - name:second_radial_derivative_of_ion_temperature
+  - name:radial_derivative_of_electron_temperature
+  sources:
+  - id: dd:transport_solver_numerics/derivatives_1d/ion/d_drho_tor_norm/temperature
+    dd_path: transport_solver_numerics/derivatives_1d/ion/d_drho_tor_norm/temperature
+    status: composed
 - name: runaway_electron_current_density
   kind: vector
   status: draft
@@ -8511,6 +9740,112 @@
   - name:parallel_runaway_electron_current_density
   - name:runaway_electron_source_rate_due_to_dreicer
   - name:electric_field_due_to_dreicer
+- name: parallel_runaway_electron_current_density
+  kind: scalar
+  status: draft
+  description: Projection of the runaway electron current density vector onto the
+    local magnetic field direction, quantifying the field-aligned current carried
+    by suprathermal electrons accelerated beyond the collisional drag limit.
+  documentation: "The parallel runaway electron current density is the magnetic-field-aligned\
+    \ component of the current density carried by runaway electrons \u2014 suprathermal\
+    \ electrons whose parallel velocity grows continuously once the accelerating electric\
+    \ field exceeds the critical Dreicer threshold, overcoming collisional friction.\
+    \ This component dominates the total runaway current density because the runaway\
+    \ population is strongly anisotropic in velocity space, concentrated along the\
+    \ magnetic field direction.\n\nThe quantity is formally defined through the flux-surface\
+    \ average\n\n$$\nj_{\\parallel,RE} = \\frac{\\langle \\mathbf{j}_{RE} \\cdot \\\
+    mathbf{B} \\rangle}{B_0}\n$$\n\nwhere $\\mathbf{j}_{RE}$ is the runaway electron\
+    \ current density vector, $\\langle \\cdot \\rangle$ denotes the flux-surface\
+    \ average, and $B_0$ is a reference toroidal magnetic field magnitude. This flux-surface\
+    \ averaging removes the rapid poloidal variation and yields a radial profile characterizing\
+    \ the runaway beam structure.\n\nThe quantity arises principally during disruption\
+    \ events or in high-parallel-electric-field conditions and is computed from kinetic\
+    \ or fluid models of the runaway electron population; it can also be inferred\
+    \ from magnetic diagnostics combined with disruption modeling. It is the principal\
+    \ component of [runaway_electron_current_density](name:runaway_electron_current_density),\
+    \ and sits alongside other field-aligned current contributions such as [parallel_anomalous_current_density](name:parallel_anomalous_current_density)\
+    \ and [parallel_current_density_due_to_diamagnetic_drift](name:parallel_current_density_due_to_diamagnetic_drift).\
+    \ During major disruptions the runaway beam can carry a significant fraction of\
+    \ the pre-disruption current, with local values reaching $10^5$\u2013$10^7$ A\
+    \ m$^{-2}$, concentrated near the magnetic axis.\n\nSign convention: Positive\
+    \ when the runaway electron current flows in the direction of the local magnetic\
+    \ field vector $\\mathbf{B}$."
+  unit: A.m^-2
+  physics_domain: transport
+  links:
+  - name:runaway_electron_current_density
+  - name:parallel_anomalous_current_density
+  - name:parallel_current_density_due_to_diamagnetic_drift
+  arguments:
+  - name: runaway_electron_current_density
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - id: dd:disruption/profiles_1d/j_runaways
+    dd_path: disruption/profiles_1d/j_runaways
+    status: attached
+  - id: dd:runaway_electrons/ggd_fluid/current_density/values
+    dd_path: runaway_electrons/ggd_fluid/current_density/values
+    status: composed
+  - id: dd:runaway_electrons/global_quantities/volume_average/current_density
+    dd_path: runaway_electrons/global_quantities/volume_average/current_density
+    status: composed
+  - id: dd:runaway_electrons/profiles_1d/current_density
+    dd_path: runaway_electrons/profiles_1d/current_density
+    status: composed
+- name: second_radial_derivative_of_electron_temperature
+  kind: scalar
+  status: draft
+  description: Second derivative of electron temperature with respect to the normalized
+    toroidal flux radius, giving the radial curvature of the Te profile.
+  documentation: 'The second radial derivative of electron temperature $T_e$ with
+    respect to the normalized toroidal flux coordinate $\rho_{\rm tor,norm}$ quantifies
+    the curvature of the radial electron temperature profile. It enters the electron
+    energy transport equation as the coefficient of the diffusion-operator curvature
+    term when the equation is discretized in $\rho_{\rm tor,norm}$ coordinates, supplementing
+    the first-order spatial term captured by the [radial derivative of electron temperature](name:radial_derivative_of_electron_temperature).
+
+
+    The defining relation is:
+
+
+    $$
+
+    \frac{d^2 T_e}{d\rho_{\rm tor,norm}^2}
+
+    $$
+
+
+    where $T_e$ is the [electron temperature](name:electron_temperature) and $\rho_{\rm
+    tor,norm} \in [0, 1]$ is the normalized toroidal flux radius, equal to 0 at the
+    magnetic axis and 1 at the last closed flux surface. Because $\rho_{\rm tor,norm}$
+    is dimensionless, the result carries the same unit as $T_e$.
+
+
+    This quantity is computed numerically from the reconstructed $T_e$ radial profile
+    via finite-difference or spectral differentiation schemes; it is not measured
+    directly. The analogous curvature for the ion species is the [second radial derivative
+    of ion temperature](name:second_radial_derivative_of_ion_temperature), and the
+    corresponding electron-pressure curvature is the [second radial derivative of
+    electron pressure](name:second_radial_derivative_of_electron_pressure).
+
+
+    Sign convention: Positive when the electron temperature profile is locally concave
+    upward in $\rho_{\rm tor,norm}$, i.e., when the radial gradient $dT_e/d\rho_{\rm
+    tor,norm}$ increases with increasing $\rho_{\rm tor,norm}$.'
+  unit: eV
+  physics_domain: transport
+  links:
+  - name:radial_derivative_of_electron_temperature
+  - name:electron_temperature
+  - name:second_radial_derivative_of_ion_temperature
+  - name:second_radial_derivative_of_electron_pressure
+  sources:
+  - id: dd:transport_solver_numerics/derivatives_1d/electrons/d2_drho_tor_norm2/temperature
+    dd_path: transport_solver_numerics/derivatives_1d/electrons/d2_drho_tor_norm2/temperature
+    status: composed
 - name: second_radial_derivative_of_ion_temperature
   kind: scalar
   status: draft
@@ -8937,6 +10272,121 @@
   - id: dd:summary/volume_average/n_e/value
     dd_path: summary/volume_average/n_e/value
     status: attached
+- name: volume_averaged_electron_temperature
+  kind: scalar
+  status: draft
+  description: Electron temperature averaged over the plasma volume inside the last
+    closed flux surface. It is a global scalar measure of the bulk electron thermal
+    state for confinement and thermal energy balance studies.
+  documentation: 'Volume-averaged electron temperature is the electron temperature
+    averaged with equal weight over the plasma volume enclosed by the last closed
+    flux surface. It is a non-negative scalar that represents the bulk electron thermal
+    state, distinct from a central, line-averaged, or density-weighted temperature.
+    Because it is a volume integral of the local temperature, it depends on the spatial
+    distribution of $T_e$ within the closed-field-line region.
+
+
+    The volume average is defined by integrating the local electron temperature over
+    the enclosed plasma volume:
+
+
+    $$
+
+    \langle T_e \rangle_V = \frac{1}{V_\mathrm{LCFS}} \int_{V_\mathrm{LCFS}} T_e(\mathbf{x})\,
+    dV
+
+    $$
+
+
+    where $\langle T_e \rangle_V$ is the volume-averaged electron temperature in eV,
+    $T_e(\mathbf{x})$ is the local electron temperature in eV at position $\mathbf{x}$,
+    $dV$ is a volume element in m^3, and $V_\mathrm{LCFS}$ is the plasma volume inside
+    the last closed flux surface in m^3.
+
+
+    In practice it is computed by combining measurements or model estimates of the
+    electron temperature distribution with the reconstructed plasma geometry. Thomson
+    scattering, electron cyclotron emission, spectroscopy, and transport modeling
+    can contribute to the local temperature estimate; interpolation and flux-surface
+    mapping are commonly needed to cover the full closed plasma volume.
+
+
+    Typical values range from about 1-100 eV during early plasma formation, 100-1000
+    eV in cold or low-power discharges, and 1000-10000 eV in well-heated tokamak plasmas,
+    with higher values possible in high-performance regimes.'
+  unit: eV
+  physics_domain: transport
+  links:
+  - name:flux_surface_averaged_electron_temperature
+  - name:line_averaged_electron_temperature
+  - name:ratio_of_electron_temperature_to_volume_averaged_electron_temperature
+  sources:
+  - id: dd:core_profiles/global_quantities/t_e_volume_average
+    dd_path: core_profiles/global_quantities/t_e_volume_average
+    status: attached
+  - id: dd:plasma_initiation/global_quantities/t_e_volume_average
+    dd_path: plasma_initiation/global_quantities/t_e_volume_average
+    status: attached
+  - id: dd:plasma_profiles/global_quantities/t_e_volume_average
+    dd_path: plasma_profiles/global_quantities/t_e_volume_average
+    status: attached
+  - id: dd:summary/volume_average/t_e/value
+    dd_path: summary/volume_average/t_e/value
+    status: attached
+- name: volume_averaged_helium_3_density
+  kind: scalar
+  status: draft
+  description: Volume-averaged helium-3 ion density over the full confined plasma
+    volume. It is the mean number density of charged helium-3 ions, summed over singly
+    ionized and fully stripped states and excluding neutral atoms.
+  documentation: 'Volume-averaged helium-3 density is the plasma-volume mean of the
+    helium-3 ion number density. It includes only charged helium-3 ionization states,
+    $^3\mathrm{He}^{1+}$ and $^3\mathrm{He}^{2+}$, and excludes neutral helium-3 atoms.
+
+
+    The volume average is obtained by integrating the ion-state-summed local density
+    over the confined plasma volume and dividing by that volume:
+
+
+    $$
+
+    \langle n_{^3\mathrm{He}} \rangle_V = \frac{1}{V_p}\int_{V_p}\left(\sum_{q=1}^{2}
+    n_{^3\mathrm{He}^{q+}}(\mathbf{r})\right)\,dV
+
+    $$
+
+
+    where $\langle n_{^3\mathrm{He}} \rangle_V$ is the volume-averaged helium-3 ion
+    density in m^-3, $V_p$ is the confined plasma volume in m^3, $dV$ is a volume
+    element in m^3, $\mathbf{r}$ denotes position in the plasma, $q$ is the ion charge
+    state, and $n_{^3\mathrm{He}^{q+}}(\mathbf{r})$ is the local density in m^-3 of
+    helium-3 ions with charge $q+$.
+
+
+    In practice this quantity is inferred from particle-balance analysis or minority-species
+    transport modeling constrained by spectroscopic measurements, charge-exchange
+    recombination spectroscopy when applicable, and other diagnostics sensitive to
+    helium isotope content. It is the volume-average counterpart of [line_averaged_helium_3_density](name:line_averaged_helium_3_density);
+    local quantities such as [helium_3_density_at_magnetic_axis](name:helium_3_density_at_magnetic_axis)
+    describe where the helium-3 ions are concentrated, while [volume_averaged_helium_4_density](name:volume_averaged_helium_4_density)
+    is the analogous volume mean for the neighboring isotope.
+
+
+    Typical values range from near zero in plasmas without helium-3 fueling to 10^16-10^19
+    m^-3 for minority-ion heating scenarios, and can reach 10^19-10^20 m^-3 in plasmas
+    where helium-3 is a significant fuel component.'
+  unit: m^-3
+  physics_domain: transport
+  links:
+  - name:helium_3_density
+  - name:line_averaged_helium_3_density
+  - name:helium_3_density_at_magnetic_axis
+  - name:helium_3_density_at_plasma_boundary
+  - name:helium_3_fraction
+  sources:
+  - id: dd:summary/volume_average/n_i/helium_3/value
+    dd_path: summary/volume_average/n_i/helium_3/value
+    status: composed
 - name: volume_averaged_ion_temperature
   kind: scalar
   status: draft

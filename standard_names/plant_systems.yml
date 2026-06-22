@@ -1,6 +1,6 @@
 # Domain: plant_systems
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 11
+# Entries: 14
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -84,6 +84,59 @@
   sources:
   - id: dd:summary/gas_injection_accumulated/neon/value
     dd_path: summary/gas_injection_accumulated/neon/value
+    status: composed
+- name: accumulated_xenon_prefill_count
+  kind: scalar
+  status: draft
+  description: Accumulated xenon prefill count is the end-of-prefill neutral xenon
+    inventory expressed as an equivalent-electron count. Each xenon atom contributes
+    54 to the dimensionless count.
+  documentation: 'Accumulated xenon prefill count is the scalar final value of the
+    xenon gas dose introduced during the plasma prefill interval, expressed as an
+    equivalent-electron count rather than as a count of neutral atoms. The conversion
+    uses the xenon atomic number, so each neutral xenon atom contributes 54 equivalent
+    electrons to the dimensionless count with unit 1.
+
+
+    The end-of-prefill count is defined from the integrated neutral xenon atom flow
+    over the prefill time window:
+
+
+    $$
+
+    N_{\mathrm{Xe,prefill}}^{\mathrm{eq}}(t_{\mathrm{end}}) = 54\,N_{\mathrm{Xe,prefill}}(t_{\mathrm{end}})
+    = 54 \int_{t_{\mathrm{start}}}^{t_{\mathrm{end}}} \dot{N}_{\mathrm{Xe}}(t)\,dt
+
+    $$
+
+
+    where $N_{\mathrm{Xe,prefill}}^{\mathrm{eq}}$ is the accumulated equivalent-electron
+    count, $N_{\mathrm{Xe,prefill}}$ is the accumulated number of xenon atoms, $\dot{N}_{\mathrm{Xe}}$
+    is the neutral xenon atom flow rate in atoms per second, $t_{\mathrm{start}}$
+    is the start of prefill injection, and $t_{\mathrm{end}}$ is the end of the prefill
+    interval, usually before plasma breakdown.
+
+
+    In practice the value is computed by integrating a calibrated xenon gas-flow or
+    inventory estimate over the prefill interval. It is an accumulated final-time
+    dose, not an instantaneous flow rate, and is the xenon-specific prefill analog
+    of [accumulated_xenon_count](name:accumulated_xenon_count) when restricted to
+    the prefill phase.
+
+
+    Typical values are highly device- and scenario-dependent because prefill dosing
+    depends on vessel volume, pumping, gas-valve calibration, and the intended initial
+    neutral composition; the standard name therefore specifies the counting convention
+    rather than a universal numerical range.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:argon_prefill_count
+  - name:krypton_prefill_count
+  - name:accumulated_hydrogen_prefill_count
+  sources:
+  - id: dd:summary/gas_injection_prefill/xenon/value
+    dd_path: summary/gas_injection_prefill/xenon/value
     status: composed
 - name: ammonia_prefill_count
   kind: scalar
@@ -487,6 +540,64 @@
   - id: dd:balance_of_plant/power_electric_plant_operation/power_total
     dd_path: balance_of_plant/power_electric_plant_operation/power_total
     status: composed
+- name: total_thermal_power_at_inlet
+  kind: scalar
+  status: draft
+  description: Gross thermal power delivered to the heat-input side of a power conversion
+    cycle in a fusion power plant. It is the total recoverable heat entering the cycle
+    before thermal-to-electric conversion, as opposed to the rejected heat or the
+    net electrical output.
+  documentation: 'Total thermal power at the inlet is the gross heat rate carried
+    into the power conversion cycle by the working and coolant fluids, before any
+    thermal-to-electric conversion. It is the heat-input reference against which rejected
+    heat and thermal conversion efficiency are balanced, and is the counterpart of
+    the [total thermal power at the outlet](name:total_thermal_power_at_outlet), which
+    carries the rejected heat to the cold sink.
+
+
+    The inlet thermal power is the sum, over all coolant and working-fluid streams
+    feeding the cycle, of mass flow rate multiplied by the enthalpy rise relative
+    to the cycle''s cold-return state:
+
+
+    $$
+
+    P_\mathrm{th,in} = \sum_i \dot{m}_i \left( h_{i,\mathrm{in}} - h_{i,\mathrm{ref}}
+    \right)
+
+    $$
+
+
+    where $\dot{m}_i$ is the mass flow rate of stream $i$ in kg/s, $h_{i,\mathrm{in}}$
+    is its specific enthalpy at the cycle inlet in J/kg, and $h_{i,\mathrm{ref}}$
+    is the specific enthalpy of the corresponding cold return state in J/kg. The thermal
+    conversion efficiency follows inline as $\eta_\mathrm{th} = (P_\mathrm{th,in}
+    - P_\mathrm{th,out})/P_\mathrm{th,in}$, where $P_\mathrm{th,out}$ is the heat
+    rejected from the cycle.
+
+
+    In practice this quantity is obtained from a steady-state plant heat balance or
+    calorimetrically from measured coolant mass flow rates and enthalpy changes across
+    the heat exchangers that feed the conversion cycle. The per-stream contributions
+    correspond to the [thermal power of plant component ports](name:thermal_power_of_plant_component_port)
+    summed over the inlet ports of the conversion cycle.
+
+
+    For reactor-scale plants the inlet thermal power is of the order of one to several
+    gigawatts, with the precise value set by the heat sources coupled to the cycle
+    and the plant design.
+
+
+    Sign convention: Positive when net heat flows into the power conversion cycle.'
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:total_thermal_power_at_outlet
+  - name:total_power_of_plant_system
+  sources:
+  - id: dd:balance_of_plant/power_plant/total_heat_supplied
+    dd_path: balance_of_plant/power_plant/total_heat_supplied
+    status: composed
 - name: tritium_prefill_count
   kind: scalar
   status: draft
@@ -521,3 +632,60 @@
   - id: dd:summary/gas_injection_prefill/tritium/value
     dd_path: summary/gas_injection_prefill/tritium/value
     status: composed
+- name: vertical_velocity_of_pellet
+  kind: scalar
+  status: draft
+  description: Z component of the shattered pellet center-of-mass velocity in the
+    right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'The vertical velocity of a pellet is the $Z$ component $v_Z$ of
+    the center-of-mass velocity of a shattered pellet or its fragment cloud. It describes
+    motion parallel to the vertical direction in the right-handed cylindrical $(R,
+    \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and $Z$
+    is vertical height. Together with [radial velocity of the pellet](name:radial_velocity_of_pellet)
+    and [toroidal velocity of the pellet](name:toroidal_velocity_of_pellet), it forms
+    the cylindrical component representation of the pellet translational velocity.
+
+
+    The pellet center-of-mass velocity decomposes in the right-handed cylindrical
+    $(R, \phi, Z)$ frame as:
+
+
+    $$
+
+    \mathbf{v}_\mathrm{pellet} = v_R \hat{R} + v_\phi \hat{\phi} + v_Z \hat{Z}
+
+    $$
+
+
+    where $v_R$, $v_\phi$, and $v_Z$ are the radial, toroidal, and vertical velocity
+    components, all in m.s^-1, and $\hat{R}$, $\hat{\phi}$, and $\hat{Z}$ are the
+    corresponding unit vectors.
+
+
+    In practice, $v_Z$ is obtained from the time derivative of the pellet or fragment-cloud
+    center-of-mass position, or from a reconstructed trajectory and launch geometry.
+    For a fragment cloud, the center-of-mass velocity represents the mass-weighted
+    translational motion of the cloud rather than the motion of any individual fragment.
+
+
+    Typical values are configuration- and trajectory-dependent and are reported in
+    m.s^-1. For a given pellet speed $|\mathbf{v}_\mathrm{pellet}|$, the component
+    satisfies $-|\mathbf{v}_\mathrm{pellet}| \le v_Z \le |\mathbf{v}_\mathrm{pellet}|$;
+    it may be near zero for nearly horizontal trajectories or comparable to the total
+    speed for strongly inclined trajectories.
+
+
+    Sign convention: Positive when the pellet center of mass moves in the direction
+    of increasing $Z$ in the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: m.s^-1
+  physics_domain: plant_systems
+  links:
+  - name:radial_velocity_of_pellet
+  - name:toroidal_velocity_of_pellet
+  sources:
+  - id: dd:spi/injector/pellet/velocity_z
+    dd_path: spi/injector/pellet/velocity_z
+    status: composed
+  - id: dd:spi/injector/velocity_mass_centre_fragments_z
+    dd_path: spi/injector/velocity_mass_centre_fragments_z
+    status: attached

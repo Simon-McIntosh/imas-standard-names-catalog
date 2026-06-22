@@ -1,6 +1,6 @@
 # Domain: equilibrium
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 79
+# Entries: 82
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -1403,6 +1403,63 @@
   - id: dd:summary/boundary/minor_radius/value
     dd_path: summary/boundary/minor_radius/value
     status: attached
+- name: non_axisymmetric_magnetic_field
+  kind: vector
+  status: draft
+  description: Non-axisymmetric part of the vacuum magnetic field vector, obtained
+    by removing the toroidally averaged component, representing toroidally varying
+    perturbations such as error fields, resonant magnetic perturbations, and finite
+    coil geometry effects.
+  documentation: 'The non-axisymmetric magnetic field is the vector magnetic induction
+    formed by subtracting the axisymmetric (toroidally averaged) component from the
+    total vacuum magnetic field, retaining only the part that varies with toroidal
+    angle $\phi$. It encompasses both intrinsic error fields arising from coil misalignment
+    and discrete conductor geometry, and deliberately applied perturbation fields
+    from coil systems used in resonant magnetic perturbation (RMP) experiments targeting
+    edge-localized mode suppression.
+
+
+    The decomposition into non-axisymmetric and axisymmetric parts is defined as:
+
+
+    $$
+
+    \mathbf{B}_\mathrm{na}(R,\phi,Z) = \mathbf{B}_\mathrm{vac}(R,\phi,Z) - \frac{1}{2\pi}\int_0^{2\pi}\mathbf{B}_\mathrm{vac}(R,\phi'',Z)\,d\phi''
+
+    $$
+
+
+    where $\mathbf{B}_\mathrm{vac}$ is the total vacuum magnetic field and the integral
+    extracts its toroidal average. The vector is expressed in the right-handed cylindrical
+    $(R, \phi, Z)$ frame with $\hat{R} \times \hat{\phi} = \hat{Z}$.
+
+
+    The field is computed by Biot-Savart integration over each conductor''s geometry
+    followed by subtraction of the axisymmetric component; it represents the vacuum
+    perturbation only and does not include plasma shielding or amplification, which
+    require magnetohydrodynamic or kinetic modeling. The individual cylindrical components
+    are [radial_non_axisymmetric_magnetic_field](name:radial_non_axisymmetric_magnetic_field),
+    [toroidal_non_axisymmetric_magnetic_field](name:toroidal_non_axisymmetric_magnetic_field),
+    and [vertical_non_axisymmetric_magnetic_field](name:vertical_non_axisymmetric_magnetic_field).
+    The normal projection onto prescribed control surfaces is given by [non_axisymmetric_magnetic_field_at_control_surface](name:non_axisymmetric_magnetic_field_at_control_surface),
+    commonly used as an equilibrium reconstruction constraint.
+
+
+    Typical perturbation amplitudes at the plasma boundary range from $10^{-5}$ to
+    $10^{-2}$ T, with deliberately applied RMP systems at the upper end and residual
+    intrinsic error fields around $10^{-4}$ T for well-corrected devices.
+
+
+    Sign convention: Positive when each cylindrical component points in the direction
+    of its respective basis vector, $+\hat{R}$, $+\hat{\phi}$, or $+\hat{Z}$, in the
+    right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: T
+  physics_domain: equilibrium
+  links:
+  - name:radial_non_axisymmetric_magnetic_field
+  - name:toroidal_non_axisymmetric_magnetic_field
+  - name:vertical_non_axisymmetric_magnetic_field
+  - name:non_axisymmetric_magnetic_field_at_control_surface
 - name: normalized_poloidal_flux_coordinate_at_minimum_safety_factor
   kind: scalar
   status: draft
@@ -1698,6 +1755,39 @@
   - id: dd:equilibrium/time_slice/constraints/j_parallel/measured
     dd_path: equilibrium/time_slice/constraints/j_parallel/measured
     status: composed
+- name: plasma_current_density
+  kind: vector
+  status: draft
+  description: Net electric current density vector of the plasma, equal to the sum
+    of charge-weighted mean particle flows over all charged plasma species (electrons
+    and ions) at each point.
+  documentation: "The plasma current density $\\mathbf{j}$ is the vector field representing\
+    \ the net conventional electric charge flux per unit area at each spatial point\
+    \ in the plasma, contributed by all charged species collectively. It is the plasma-only\
+    \ component of the broader [current_density](name:current_density) field, entering\
+    \ both Amp\xE8re's law and the MHD pressure balance.\n\nThe defining relation\
+    \ is:\n\n$$\n\\mathbf{j} = \\sum_s n_s q_s \\mathbf{v}_s\n$$\n\nwhere $n_s$ is\
+    \ the number density, $q_s$ is the charge, and $\\mathbf{v}_s$ is the mean fluid\
+    \ velocity for species $s$. This vector field appears in Amp\xE8re's law $\\nabla\
+    \ \\times \\mathbf{B} = \\mu_0 \\mathbf{j}$ and determines the Lorentz force density\
+    \ $\\mathbf{j} \\times \\mathbf{B}$ that, in MHD equilibrium, balances the pressure\
+    \ gradient $\\nabla p$.\n\nThe current density profile is inferred from motional\
+    \ Stark effect polarimetry combined with magnetics-based equilibrium reconstruction;\
+    \ on-axis values in H-mode tokamaks range from approximately 1 to 10 MA m$^{-2}$.\
+    \ Component-resolved contributions from specific mechanisms\u2014such as friction-driven\
+    \ currents\u2014are captured in related names including [poloidal_current_density_due_to_ion_neutral_friction](name:poloidal_current_density_due_to_ion_neutral_friction)\
+    \ and [parallel_current_density_due_to_ion_neutral_friction](name:parallel_current_density_due_to_ion_neutral_friction).\n\
+    \nSign convention: Positive when the current vector points in the direction of\
+    \ conventional current flow, with the toroidal projection positive when the plasma\
+    \ bulk current flows in the direction of increasing toroidal angle $\\phi$ in\
+    \ the right-handed cylindrical $(R, \\phi, Z)$ frame where $\\hat{R} \\times \\\
+    hat{\\phi} = \\hat{Z}$."
+  unit: A.m^-2
+  physics_domain: equilibrium
+  links:
+  - name:current_density
+  - name:poloidal_current_density_due_to_ion_neutral_friction
+  - name:parallel_current_density_due_to_ion_neutral_friction
 - name: plasma_resistance
   kind: scalar
   status: draft
@@ -2276,6 +2366,68 @@
   - id: dd:waves/coherent_wave/profiles_1d/grid/psi_boundary
     dd_path: waves/coherent_wave/profiles_1d/grid/psi_boundary
     status: attached
+- name: radial_magnetic_field
+  kind: scalar
+  status: draft
+  description: Projection of the magnetic field vector onto the outward major-radius
+    direction in the right-handed cylindrical (R, phi, Z) frame, forming the radial
+    part of the poloidal field in tokamak geometry.
+  documentation: "The radial magnetic field $B_R = \\mathbf{B} \\cdot \\hat{R}$ is\
+    \ the component of the magnetic induction resolved along $\\hat{R}$, the unit\
+    \ vector pointing away from the toroidal symmetry axis in the right-handed cylindrical\
+    \ $(R, \\phi, Z)$ frame. In an axisymmetric tokamak equilibrium, $B_R$ is entirely\
+    \ a poloidal-field quantity and is generally much smaller in magnitude than the\
+    \ dominant toroidal component; it encodes information about flux-surface shape\
+    \ and poloidal field structure.\n\nIn axisymmetric equilibrium, $B_R$ is related\
+    \ to the poloidal magnetic flux function $\\psi(R, Z)$ by:\n\n$$\nB_R = -\\frac{1}{R}\\\
+    frac{\\partial \\psi}{\\partial Z}\n$$\n\nwhere $R$ is the major radius in meters\
+    \ and $Z$ is the vertical coordinate in meters. Together with $B_Z = \\frac{1}{R}\\\
+    partial\\psi/\\partial R$, this satisfies the solenoidal constraint $\\nabla \\\
+    cdot \\mathbf{B} = 0$ in axisymmetric form. The companion [parallel_magnetic_field](name:parallel_magnetic_field)\
+    \ gives the field-aligned projection, while [radial_magnetic_vector_potential](name:radial_magnetic_vector_potential)\
+    \ provides the corresponding vector-potential component in the same radial direction.\n\
+    \n$B_R$ is obtained by differentiating the reconstructed poloidal flux on a computational\
+    \ grid, or evaluated directly on generalized geometry description grids for complex\
+    \ wall and boundary regions. Magnitudes in the core plasma are typically 0.001\u2013\
+    0.1 T, increasing near the X-point and divertor where the poloidal field changes\
+    \ direction rapidly.\n\nSign convention: Positive when $B_R$ points in the direction\
+    \ of increasing major radius $R$, away from the toroidal symmetry axis."
+  unit: T
+  physics_domain: equilibrium
+  links:
+  - name:parallel_magnetic_field
+  - name:radial_magnetic_vector_potential
+  sources:
+  - id: dd:edge_profiles/ggd/b_field/r
+    dd_path: edge_profiles/ggd/b_field/r
+    status: attached
+  - id: dd:edge_profiles/ggd/b_field/radial
+    dd_path: edge_profiles/ggd/b_field/radial
+    status: attached
+  - id: dd:equilibrium/time_slice/ggd/b_field_r/values
+    dd_path: equilibrium/time_slice/ggd/b_field_r/values
+    status: composed
+  - id: dd:equilibrium/time_slice/profiles_2d/b_field_r
+    dd_path: equilibrium/time_slice/profiles_2d/b_field_r
+    status: attached
+  - id: dd:equilibrium/time_slice/profiles_2d/b_r
+    dd_path: equilibrium/time_slice/profiles_2d/b_r
+    status: composed
+  - id: dd:mhd/ggd/b_field_r/values
+    dd_path: mhd/ggd/b_field_r/values
+    status: attached
+  - id: dd:plasma_profiles/ggd/b_field/r
+    dd_path: plasma_profiles/ggd/b_field/r
+    status: attached
+  - id: dd:plasma_profiles/ggd/b_field/radial
+    dd_path: plasma_profiles/ggd/b_field/radial
+    status: attached
+  - id: dd:tf/field_map/b_field_r/values
+    dd_path: tf/field_map/b_field_r/values
+    status: attached
+  - id: dd:wall/description_ggd/ggd/b_field/r
+    dd_path: wall/description_ggd/ggd/b_field/r
+    status: composed
 - name: radial_magnetization_of_iron_core_segment
   kind: scalar
   status: draft
@@ -2392,6 +2544,12 @@
   - name:vertical_non_axisymmetric_magnetic_field
   - name:toroidal_non_axisymmetric_magnetic_field
   - name:non_axisymmetric_magnetic_field_at_control_surface
+  arguments:
+  - name: non_axisymmetric_magnetic_field
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
   sources:
   - id: dd:b_field_non_axisymmetric/time_slice/control_surface/b_field_r
     dd_path: b_field_non_axisymmetric/time_slice/control_surface/b_field_r
@@ -3154,6 +3312,12 @@
   - name:radial_non_axisymmetric_magnetic_field
   - name:vertical_non_axisymmetric_magnetic_field
   - name:non_axisymmetric_magnetic_field_at_control_surface
+  arguments:
+  - name: non_axisymmetric_magnetic_field
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
   sources:
   - id: dd:b_field_non_axisymmetric/time_slice/control_surface/b_field_phi
     dd_path: b_field_non_axisymmetric/time_slice/control_surface/b_field_phi
@@ -4391,6 +4555,12 @@
   unit: T
   physics_domain: equilibrium
   links: []
+  arguments:
+  - name: non_axisymmetric_magnetic_field
+    operator: component
+    operator_kind: projection
+    axis: vertical
+    shape: component
   sources:
   - id: dd:b_field_non_axisymmetric/time_slice/control_surface/b_field_z
     dd_path: b_field_non_axisymmetric/time_slice/control_surface/b_field_z
