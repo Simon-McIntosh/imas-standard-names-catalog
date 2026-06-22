@@ -1,6 +1,6 @@
 # Domain: magnetic_field_systems
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 41
+# Entries: 45
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -347,6 +347,49 @@
   - id: dd:tf/coil/neutron_fast_flux_inboard
     dd_path: tf/coil/neutron_fast_flux_inboard
     status: composed
+- name: height_of_correction_coil
+  kind: scalar
+  status: draft
+  description: Full height of the rectangular cross-section of a correction-coil conductor
+    along the binormal axis of the local Frenet-Serret (tangent, normal, binormal)
+    frame.
+  documentation: 'The height of a correction coil is the full transverse extent of
+    a rectangular conductor cross-section along the binormal basis vector $\hat{b}$
+    of the local Frenet-Serret frame $(\hat{t}, \hat{n}, \hat{b})$ attached to the
+    conductor centerline. It is the dimension perpendicular to the normal-direction
+    width and is meaningful when the conductor cross-section is represented as rectangular.
+
+
+    For a rectangular cross-section, the complementary width $w$ is measured along
+    $\hat{n}$ and the height $h$ is measured along $\hat{b}$. Their product gives
+    the cross-sectional area $A = w h$, where $h$ and $w$ are in meters and $A$ is
+    in square meters. For a conductor carrying current $I$ in amperes, a simple average
+    engineering current density is $J_\mathrm{eng} = I/A$ in A m^-2, before any corrections
+    for insulation, cooling channels, or nonconducting structural material.
+
+
+    In design and metrology, the height is obtained by resolving the rectangular cross-section
+    onto the $\hat{b}$ direction of the local Frenet-Serret frame $(\hat{t}, \hat{n},
+    \hat{b})$ along the conductor centerline. The associated local coordinates are
+    described by [binormal_coordinate_of_correction_coil](name:binormal_coordinate_of_correction_coil)
+    and [normal_coordinate_of_correction_coil](name:normal_coordinate_of_correction_coil),
+    while the perpendicular rectangular dimension is [width_of_correction_coil](name:width_of_correction_coil).
+
+
+    Representative values for correction-coil conductor or winding-pack heights are
+    0.01-0.2 m for compact internal or edge coils and 0.05-0.5 m for larger external
+    coils. The selected value depends on required ampere-turns, current density limits,
+    cooling layout, insulation thickness, and mechanical support requirements.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:width_of_correction_coil
+  - name:area_of_correction_coil
+  - name:height_of_toroidal_field_coil
+  sources:
+  - id: dd:coils_non_axisymmetric/coil/conductor/cross_section/height
+    dd_path: coils_non_axisymmetric/coil/conductor/cross_section/height
+    status: attached
 - name: height_of_iron_core_segment
   kind: scalar
   status: draft
@@ -439,6 +482,50 @@
   - id: dd:pf_passive/loop/element/geometry/rectangle/height
     dd_path: pf_passive/loop/element/geometry/rectangle/height
     status: composed
+- name: inner_radius_of_correction_coil
+  kind: scalar
+  status: draft
+  description: Inner radius of the annular cross-section of a non-axisymmetric correction
+    coil conductor, defining the bore size of the hollow conductor or winding pack.
+  documentation: 'The inner radius defines the bore boundary of the annular cross-section
+    used to model a correction coil conductor or winding pack. Together with the outer
+    radius given by [radius_of_correction_coil](name:radius_of_correction_coil), it
+    fully specifies the hollow circular geometry, with conductor material occupying
+    the annular region between $r_{\rm in}$ (this quantity) and $r_{\rm out}$.
+
+
+    The cross-sectional area enclosed by the conductor annulus is
+
+
+    $$
+
+    A = \pi \left( r_{\rm out}^2 - r_{\rm in}^2 \right)
+
+    $$
+
+
+    where $r_{\rm out}$ is the outer radius and $r_{\rm in}$ is the inner radius,
+    both in meters.
+
+
+    This parameter enters electromagnetic and structural models of non-axisymmetric
+    coils used for error field correction or ELM suppression. The [area_of_correction_coil](name:area_of_correction_coil)
+    is computed directly from the inner and outer radii. An analogous bore parameter
+    for poloidal field coils is given by [inner_radius_of_poloidal_field_coil](name:inner_radius_of_poloidal_field_coil).
+
+
+    Sign convention: Positive when measured as a radial distance from the conductor
+    bore axis to the inner conducting surface.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:radius_of_correction_coil
+  - name:area_of_correction_coil
+  - name:inner_radius_of_poloidal_field_coil
+  sources:
+  - id: dd:coils_non_axisymmetric/coil/conductor/cross_section/radius_inner
+    dd_path: coils_non_axisymmetric/coil/conductor/cross_section/radius_inner
+    status: attached
 - name: inner_radius_of_ferritic_element
   kind: scalar
   status: draft
@@ -1000,6 +1087,64 @@
   sources:
   - id: dd:ferritic/object/time_slice/b_field_r
     dd_path: ferritic/object/time_slice/b_field_r
+    status: composed
+- name: radial_outline_of_coil_conductor_element
+  kind: scalar
+  status: draft
+  description: Absolute, non-negative major-radius coordinate R of an outline point,
+    including an arc start point, on the cross-sectional contour of a coil conductor
+    element in the right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'The radial outline of a coil conductor element is the major-radius
+    component $R$ of a point on the element''s cross-sectional contour at fixed toroidal
+    angle $\phi$. It is an absolute, non-negative distance from the toroidal symmetry
+    axis in the right-handed cylindrical $(R, \phi, Z)$ frame, not a signed local
+    offset from a conductor reference point.
+
+
+    The major radius is related to horizontal Cartesian coordinates by:
+
+
+    $$
+
+    R = \sqrt{x^2 + y^2}
+
+    $$
+
+
+    where $x$ and $y$ are horizontal distances in meters in a right-handed Cartesian
+    $(x, y, z)$ frame with origin on the toroidal symmetry axis and $z$ parallel to
+    the vertical $Z$ direction; $R$ is in meters. The accompanying vertical outline
+    coordinate $Z$ is the vertical height in meters in the right-handed cylindrical
+    $(R, \phi, Z)$ frame.
+
+
+    In practice, outline coordinates are obtained from engineering geometry, CAD models,
+    or surveyed conductor contours and then expressed in the right-handed cylindrical
+    $(R, \phi, Z)$ frame. For a contour represented using circular arcs, an $R$ value
+    locates an outline construction point such as an arc start point; the corresponding
+    $Z$ value gives its vertical position, while separate arc parameters determine
+    the curved segment between construction points.
+
+
+    This quantity is closely related to [major_radius_of_coil_conductor_element](name:major_radius_of_coil_conductor_element),
+    which describes a characteristic major-radius coordinate of the same type of conductor
+    element. It is also analogous to [radial_outline_of_poloidal_field_coil](name:radial_outline_of_poloidal_field_coil)
+    and uses the same major-radius geometry as [major_radius_of_toroidal_field_coil](name:major_radius_of_toroidal_field_coil).
+
+
+    Typical values are device-specific non-negative lengths measured in meters and
+    lie at the major radii occupied by the conductor outline. Within a single conductor
+    cross-section, variations among outline points are usually set by the conductor''s
+    radial width rather than by the full device size, so no universal numerical range
+    is implied by the quantity.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:radial_outline_of_poloidal_field_coil
+  - name:major_radius_of_coil_conductor_element
+  sources:
+  - id: dd:pf_passive/loop/element/geometry/arcs_of_circle/r
+    dd_path: pf_passive/loop/element/geometry/arcs_of_circle/r
     status: composed
 - name: radial_vacuum_magnetic_vector_potential
   kind: scalar
@@ -1662,7 +1807,7 @@
 
     This quantity is determined from the conductor geometry, for example from engineering
     design data, survey geometry, or a geometric model used for magnetic-field calculations.
-    Together with the companion major-radius coordinate [major_radius_of_conductor_cross_section](name:major_radius_of_conductor_cross_section),
+    Together with the companion major-radius coordinate major_radius_of_conductor_cross_section,
     it locates the conductor cross-section center in the poloidal $(R, Z)$ plane.
 
 
@@ -1676,10 +1821,7 @@
     in the $+Z$ direction in the right-handed cylindrical $(R, \phi, Z)$ frame.'
   unit: m
   physics_domain: magnetic_field_systems
-  links:
-  - name:vertical_outline_of_conductor_cross_section
-  - name:vertical_coordinate_of_coil_conductor
-  - name:vertical_coordinate_of_antenna_strap
+  links: []
   sources:
   - id: dd:ferritic/object/axisymmetric/annulus/z
     dd_path: ferritic/object/axisymmetric/annulus/z
@@ -1872,6 +2014,63 @@
   sources:
   - id: dd:pf_active/vertical_force/limit_min
     dd_path: pf_active/vertical_force/limit_min
+    status: composed
+- name: vertical_vacuum_magnetic_vector_potential
+  kind: scalar
+  status: draft
+  description: Vertical Z component of the vacuum magnetic vector potential produced
+    by toroidal-field coil currents, evaluated in the right-handed cylindrical (R,
+    phi, Z) frame.
+  documentation: 'The vertical vacuum magnetic vector potential is the $Z$ component
+    $A_Z$ of the magnetic vector potential $\mathbf{A}_{\mathrm{vac}}$ produced by
+    toroidal-field coil currents with plasma-current and material-response currents
+    excluded. It is evaluated along $\hat{Z}$ in the right-handed cylindrical $(R,
+    \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and $Z$
+    is vertical height. The associated vacuum magnetic field satisfies $\mathbf{B}_{\mathrm{vac}}
+    = \nabla \times \mathbf{A}_{\mathrm{vac}}$.
+
+
+    In the Coulomb gage with reference $\mathbf{A}_{\mathrm{vac}} \to 0$ far from
+    localized coils, the Biot-Savart definition of the component is:
+
+
+    $$
+
+    A_Z(R, \phi, Z) = \hat{Z}\cdot\frac{\mu_0}{4\pi}\int_{\Omega_{\mathrm{TF}}}\frac{\mathbf{J}_{\mathrm{TF}}(\mathbf{r}'')}{|\mathbf{r}-\mathbf{r}''|}\,d^3r''
+
+    $$
+
+
+    where $\mathbf{r}$ is the field point with cylindrical coordinates $(R, \phi,
+    Z)$ in meters, $\mathbf{r}''$ is a source point in meters, $\Omega_{\mathrm{TF}}$
+    is the toroidal-field-coil conductor volume, $\mathbf{J}_{\mathrm{TF}}$ is the
+    coil current density in A m$^{-2}$, $d^3r''$ is the source volume element in m$^3$,
+    $\mu_0$ is the vacuum permeability in N A$^{-2}$, and $A_Z$ is in T m.
+
+
+    It is normally computed from coil geometry and currents using Biot-Savart quadrature
+    or a magnetostatic vector-potential solver. Together with the radial and toroidal
+    components of $\mathbf{A}_{\mathrm{vac}}$, it determines associated vacuum-field
+    components through the cylindrical curl, including [toroidal_vacuum_magnetic_field](name:toroidal_vacuum_magnetic_field)
+    and non-axisymmetric field components such as [vertical_non_axisymmetric_magnetic_field](name:vertical_non_axisymmetric_magnetic_field).
+
+
+    Typical magnitudes in the plasma region are about $10^{-3}$-$10$ T m for medium
+    to large tokamaks, with larger local values possible near high-current coil conductors.
+    The value depends on coil current, conductor geometry, distance from the coils,
+    and the specified gage reference.
+
+
+    Sign convention: Positive when the gage-fixed vacuum magnetic vector potential
+    has a component in the $+Z$ direction of the right-handed cylindrical $(R, \phi,
+    Z)$ frame.'
+  unit: T.m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:radial_vacuum_magnetic_vector_potential
+  sources:
+  - id: dd:tf/field_map/a_field_z/values
+    dd_path: tf/field_map/a_field_z/values
     status: composed
 - name: voltage_of_correction_coil
   kind: scalar

@@ -1,6 +1,6 @@
 # Domain: auxiliary_heating
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 40
+# Entries: 43
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -534,78 +534,6 @@
     status: composed
   - id: dd:waves/coherent_wave/profiles_1d/ion/power_inside_fast_n_tor
     dd_path: waves/coherent_wave/profiles_1d/ion/power_inside_fast_n_tor
-    status: attached
-- name: per_toroidal_mode_thermal_ion_power
-  kind: scalar
-  status: draft
-  description: Cumulative coherent-wave power absorbed by bulk thermal ions inside
-    a flux surface, resolved by toroidal mode number. It is the toroidal-mode spectrum
-    of thermal-ion heating.
-  documentation: 'Per-toroidal-mode thermal-ion power is the cumulative rate at which
-    a coherent wave transfers energy to the bulk thermal ion population for a single
-    toroidal Fourier mode. The toroidal mode number labels Fourier structure in the
-    toroidal angle $\phi$ of the right-handed cylindrical $(R, \phi, Z)$ frame, where
-    $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height; it
-    is not a cyclotron resonance harmonic order.
-
-
-    For a closed flux surface labeled by a radial surface label $\rho$, the cumulative
-    power for ion species $i$ and toroidal mode $n$ is the volume integral of the
-    corresponding local absorbed power density:
-
-
-    $$
-
-    P_{i,n}(\rho) = \int_{V(\rho)} p_{i,n}(\mathbf{x})\, dV
-
-    $$
-
-
-    where $P_{i,n}$ is the cumulative absorbed power in W, $p_{i,n}$ is the [per-toroidal-mode
-    thermal-ion power density](name:per_toroidal_mode_thermal_ion_power_density) in
-    W m$^{-3}$, $dV$ is a volume element in m$^3$, and $V(\rho)$ is the plasma volume
-    enclosed by the selected flux surface. Summing $P_{i,n}$ over toroidal mode number
-    gives the corresponding [thermal-ion power inside the flux surface](name:thermal_ion_power_at_inside_flux_surface)
-    in W.
-
-
-    This quantity is usually computed from coherent-wave heating calculations by decomposing
-    the wave field or absorbed power density into toroidal Fourier modes and integrating
-    the wave-particle energy transfer over the chosen plasma volume. Experimentally
-    it is inferred indirectly through consistency between wave coupling, ion heating,
-    power balance, and equilibrium or transport analysis rather than measured as a
-    separate direct observable.
-
-
-    Typical per-mode values range from near 0 W for weakly coupled modes to $10^3$-$10^7$
-    W for strongly absorbed radio-frequency heating in medium and large tokamaks.
-    The sum over modes is bounded by the absorbed wave power available to thermal
-    ions and can vary strongly with species composition, resonance location, wave
-    spectrum, and plasma temperature.
-
-
-    Sign convention: Positive when electromagnetic wave energy is absorbed by the
-    bulk thermal ion population.'
-  unit: W
-  physics_domain: auxiliary_heating
-  links:
-  - name:thermal_ion_power_at_inside_flux_surface
-  - name:per_toroidal_mode_thermal_electron_power
-  - name:per_toroidal_mode_fast_ion_power
-  - name:per_toroidal_mode_thermal_ion_state_power
-  - name:per_toroidal_mode_thermal_ion_power_density
-  sources:
-  - id: dd:waves/coherent_wave/global_quantities/ion/power_thermal_n_phi
-    dd_path: waves/coherent_wave/global_quantities/ion/power_thermal_n_phi
-    status: composed
-  - id: dd:waves/coherent_wave/global_quantities/ion/power_thermal_n_tor
-    dd_path: waves/coherent_wave/global_quantities/ion/power_thermal_n_tor
-    status: attached
-  - id: dd:waves/coherent_wave/profiles_1d/ion/power_inside_thermal_n_phi
-    dd_path: waves/coherent_wave/profiles_1d/ion/power_inside_thermal_n_phi
-    status: composed
-  - id: dd:waves/coherent_wave/profiles_1d/ion/power_inside_thermal_n_tor
-    dd_path: waves/coherent_wave/profiles_1d/ion/power_inside_thermal_n_tor
     status: attached
 - name: per_toroidal_mode_thermal_ion_power_density
   kind: scalar
@@ -1229,6 +1157,61 @@
   - id: dd:lh_antennas/power
     dd_path: lh_antennas/power
     status: composed
+- name: total_power_of_neutral_beam_injector
+  kind: scalar
+  status: draft
+  description: Aggregate neutral beam injection power carried by all active injector
+    units into the vacuum vessel, evaluated before plasma absorption, shinethrough,
+    charge-exchange, wall, or other downstream losses are applied.
+  documentation: 'Total neutral-beam-injector power is the aggregate rate at which
+    kinetic energy is carried by neutral atoms from all active injector units into
+    the vacuum vessel. It is a launched source power for the neutral beam injection
+    system, distinct from absorbed_power_of_neutral_beam_injector and from net plasma-heating
+    quantities such as power_due_to_neutral_beam_injection.
+
+
+    The total is defined by summing the launched power of each active injector unit:
+
+
+    $$
+
+    P_{\mathrm{NBI,total}} = \sum_{k \in \mathcal{A}} P_{\mathrm{NBI},k}
+
+    $$
+
+
+    where $P_{\mathrm{NBI},k}$ is the [power_of_neutral_beam_injector](name:power_of_neutral_beam_injector)
+    for injector unit $k$, and $\mathcal{A}$ is the set of active injector units.
+    The accounting direction is into the vacuum vessel: each term is the kinetic-energy
+    flux delivered across the vessel interface toward the plasma region, and later
+    shinethrough, ionization, charge-exchange, wall, or plasma-absorption losses are
+    not subtracted from this total.
+
+
+    In practice, this quantity is evaluated from injector operating measurements such
+    as acceleration voltage, extracted beam current, neutralization efficiency, species
+    and energy fractions, beamline transmission, and pulse timing, with calorimetry
+    or dedicated beam diagnostics used for calibration. For multi-energy neutral beams,
+    each injector contribution includes the weighted kinetic-energy flux of all neutral
+    species components launched by that injector.
+
+
+    Representative values range from $10^5$-$10^6$ W for small or commissioning injectors
+    to $10^6$-$5 \times 10^7$ W for multi-injector tokamak heating systems; the value
+    is zero when no neutral beam injector is active. It is the neutral-beam analog
+    of aggregate launched-power quantities for other auxiliary heating systems, such
+    as [total_power_of_ion_cyclotron_heating_antenna](name:total_power_of_ion_cyclotron_heating_antenna)
+    and [total_power_of_electron_cyclotron_launcher](name:total_power_of_electron_cyclotron_launcher).'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:power_of_neutral_beam_injector
+  - name:total_power_of_ion_cyclotron_heating_antenna
+  - name:total_power_of_electron_cyclotron_launcher
+  sources:
+  - id: dd:summary/heating_current_drive/power_launched_nbi/value
+    dd_path: summary/heating_current_drive/power_launched_nbi/value
+    status: composed
 - name: vertical_coordinate_of_ion_cyclotron_heating_antenna
   kind: scalar
   status: draft
@@ -1779,6 +1762,71 @@
   - id: dd:waves/coherent_wave/profiles_2d/e_field_n_tor/minus/phase
     dd_path: waves/coherent_wave/profiles_2d/e_field_n_tor/minus/phase
     status: composed
+- name: perpendicular_fast_particle_energy
+  kind: scalar
+  status: draft
+  description: Perpendicular fast-particle energy is the non-negative kinetic energy
+    content of the suprathermal particle population associated with motion perpendicular
+    to the local magnetic field. For a gyrotropic fast-particle pressure tensor, it
+    equals the plasma-volume integral of the perpendicular fast-particle pressure.
+  documentation: 'Perpendicular fast-particle energy is the volume-integrated kinetic
+    energy of the fast, suprathermal particle population associated with velocity
+    components perpendicular to the local magnetic field. It includes the two perpendicular
+    velocity-space degrees of freedom and excludes the kinetic energy associated with
+    motion parallel to the magnetic field. The value is non-negative and is zero when
+    the plasma volume contains no perpendicular fast-particle pressure.
+
+
+    For a gyrotropic fast-particle pressure tensor, the perpendicular energy is defined
+    by the volume integral of the perpendicular pressure component:
+
+
+    $$
+
+    W_{\perp,\mathrm{fast}} = \int_V p_{\perp,\mathrm{fast}}(\mathbf{x})\, dV
+
+    $$
+
+
+    where $W_{\perp,\mathrm{fast}}$ is in J, $p_{\perp,\mathrm{fast}}$ is the [perpendicular
+    fast-particle pressure](name:perpendicular_fast_particle_pressure) in Pa ($\mathrm{J\,m^{-3}}$),
+    $dV$ is a volume element in $\mathrm{m^3}$, and $V$ is the plasma volume considered.
+    For the pressure tensor $\mathbf{P}_\mathrm{fast}=p_{\perp,\mathrm{fast}}(\mathbf{I}-\mathbf{b}\mathbf{b})+p_{\parallel,\mathrm{fast}}\mathbf{b}\mathbf{b}$,
+    the total fast-particle energy is $W_\mathrm{fast}=W_{\perp,\mathrm{fast}}+W_{\parallel,\mathrm{fast}}$,
+    with $W_{\parallel,\mathrm{fast}}=\frac{1}{2}\int_V p_{\parallel,\mathrm{fast}}\,dV$.
+    Thus the isotropic relation $3p/2$ applies to total scalar-pressure energy density,
+    not to the perpendicular component alone.
+
+
+    In practice this quantity is computed from modeled or reconstructed fast-particle
+    distribution functions by taking the perpendicular kinetic-energy moment to obtain
+    $p_{\perp,\mathrm{fast}}$ and integrating it over the plasma volume. It may include
+    contributions from neutral-beam ions, radio-frequency-heated ions, fusion alpha
+    particles, or other suprathermal species, constrained by fast-particle diagnostics,
+    neutron emission, diamagnetic measurements, and equilibrium pressure balance.
+
+
+    Typical values range from $10^3$-$10^5$ J in low- to moderate-power heated plasmas
+    and $10^5$-$10^7$ J in strongly heated or reactor-scale plasmas. For an isotropic
+    fast-particle distribution, the perpendicular part is about two thirds of the
+    total fast-particle kinetic energy; pitch-angle anisotropy can make this fraction
+    larger or smaller.'
+  unit: J
+  physics_domain: auxiliary_heating
+  links:
+  - name:parallel_fast_particle_energy
+  - name:fast_particle_energy
+  - name:perpendicular_fast_particle_pressure
+  arguments:
+  - name: fast_particle_energy
+    operator: component
+    operator_kind: projection
+    axis: perpendicular
+    shape: component
+  sources:
+  - id: dd:summary/global_quantities/energy_fast_perpendicular/value
+    dd_path: summary/global_quantities/energy_fast_perpendicular/value
+    status: composed
 - name: thermal_electron_power
   kind: scalar
   status: draft
@@ -1955,6 +2003,119 @@
     status: composed
   - id: dd:waves/coherent_wave/profiles_2d/electrons/power_density_thermal
     dd_path: waves/coherent_wave/profiles_2d/electrons/power_density_thermal
+    status: attached
+- name: thermal_ion_power
+  kind: scalar
+  status: draft
+  description: Total RF wave power absorbed by the bulk Maxwellian (thermal) ion population
+    from a coherent wave, volume-integrated over the entire plasma.
+  documentation: "Thermal ion power is the net rate at which a coherent RF wave deposits\
+    \ energy into the bulk Maxwellian ion distribution, integrated over the entire\
+    \ plasma volume. As the thermal ion-channel component of [ion_power](name:ion_power),\
+    \ it isolates wave energy transferred directly to the thermal bulk, distinct from\
+    \ absorption by suprathermal populations captured by [fast_ion_power](name:fast_ion_power).\n\
+    \nThe absorbed power follows from the volume integral of the wave\u2013plasma\
+    \ energy coupling:\n\n$$\nP_{\\rm th,i} = \\frac{1}{2} \\int_V \\mathrm{Re}\\\
+    !\\left(\\mathbf{J}_{\\rm th,i}^* \\cdot \\mathbf{E}\\right) dV\n$$\n\nwhere $\\\
+    mathbf{J}_{\\rm th,i}$ is the thermal ion current density driven by the coherent\
+    \ wave electric field $\\mathbf{E}$, and $V$ is the plasma volume.\n\nFull-wave\
+    \ or ray-tracing codes that incorporate the Maxwellian ion dielectric response\
+    \ (via the plasma dispersion function) are used to evaluate this quantity. Together\
+    \ with [thermal_electron_power](name:thermal_electron_power), [fast_ion_power](name:fast_ion_power),\
+    \ and [fast_electron_power](name:fast_electron_power), it partitions [absorbed_power](name:absorbed_power)\
+    \ across all plasma populations. In ion cyclotron resonance heating, the fraction\
+    \ directed to the thermal bulk versus fast minority ions depends on the resonance\
+    \ harmonic, minority concentration, and wave polarization at the resonance layer.\
+    \ The spatially resolved volumetric deposition per toroidal mode is described\
+    \ by [per_toroidal_mode_thermal_ion_power_density](name:per_toroidal_mode_thermal_ion_power_density)."
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:ion_power
+  - name:fast_ion_power
+  - name:thermal_electron_power
+  - name:fast_electron_power
+  - name:absorbed_power
+  - name:per_toroidal_mode_thermal_ion_power_density
+  sources:
+  - id: dd:waves/coherent_wave/global_quantities/ion/power_thermal
+    dd_path: waves/coherent_wave/global_quantities/ion/power_thermal
+    status: composed
+- name: per_toroidal_mode_thermal_ion_power
+  kind: scalar
+  status: draft
+  description: Cumulative coherent-wave power absorbed by bulk thermal ions inside
+    a flux surface, resolved by toroidal mode number. It is the toroidal-mode spectrum
+    of thermal-ion heating.
+  documentation: 'Per-toroidal-mode thermal-ion power is the cumulative rate at which
+    a coherent wave transfers energy to the bulk thermal ion population for a single
+    toroidal Fourier mode. The toroidal mode number labels Fourier structure in the
+    toroidal angle $\phi$ of the right-handed cylindrical $(R, \phi, Z)$ frame, where
+    $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height; it
+    is not a cyclotron resonance harmonic order.
+
+
+    For a closed flux surface labeled by a radial surface label $\rho$, the cumulative
+    power for ion species $i$ and toroidal mode $n$ is the volume integral of the
+    corresponding local absorbed power density:
+
+
+    $$
+
+    P_{i,n}(\rho) = \int_{V(\rho)} p_{i,n}(\mathbf{x})\, dV
+
+    $$
+
+
+    where $P_{i,n}$ is the cumulative absorbed power in W, $p_{i,n}$ is the [per-toroidal-mode
+    thermal-ion power density](name:per_toroidal_mode_thermal_ion_power_density) in
+    W m$^{-3}$, $dV$ is a volume element in m$^3$, and $V(\rho)$ is the plasma volume
+    enclosed by the selected flux surface. Summing $P_{i,n}$ over toroidal mode number
+    gives the corresponding [thermal-ion power inside the flux surface](name:thermal_ion_power_at_inside_flux_surface)
+    in W.
+
+
+    This quantity is usually computed from coherent-wave heating calculations by decomposing
+    the wave field or absorbed power density into toroidal Fourier modes and integrating
+    the wave-particle energy transfer over the chosen plasma volume. Experimentally
+    it is inferred indirectly through consistency between wave coupling, ion heating,
+    power balance, and equilibrium or transport analysis rather than measured as a
+    separate direct observable.
+
+
+    Typical per-mode values range from near 0 W for weakly coupled modes to $10^3$-$10^7$
+    W for strongly absorbed radio-frequency heating in medium and large tokamaks.
+    The sum over modes is bounded by the absorbed wave power available to thermal
+    ions and can vary strongly with species composition, resonance location, wave
+    spectrum, and plasma temperature.
+
+
+    Sign convention: Positive when electromagnetic wave energy is absorbed by the
+    bulk thermal ion population.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:thermal_ion_power_at_inside_flux_surface
+  - name:per_toroidal_mode_thermal_electron_power
+  - name:per_toroidal_mode_fast_ion_power
+  - name:per_toroidal_mode_thermal_ion_state_power
+  - name:per_toroidal_mode_thermal_ion_power_density
+  arguments:
+  - name: thermal_ion_power
+    operator: per_toroidal_mode
+    operator_kind: qualifier
+  sources:
+  - id: dd:waves/coherent_wave/global_quantities/ion/power_thermal_n_phi
+    dd_path: waves/coherent_wave/global_quantities/ion/power_thermal_n_phi
+    status: composed
+  - id: dd:waves/coherent_wave/global_quantities/ion/power_thermal_n_tor
+    dd_path: waves/coherent_wave/global_quantities/ion/power_thermal_n_tor
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_1d/ion/power_inside_thermal_n_phi
+    dd_path: waves/coherent_wave/profiles_1d/ion/power_inside_thermal_n_phi
+    status: composed
+  - id: dd:waves/coherent_wave/profiles_1d/ion/power_inside_thermal_n_tor
+    dd_path: waves/coherent_wave/profiles_1d/ion/power_inside_thermal_n_tor
     status: attached
 - name: thermal_ion_state_power
   kind: scalar

@@ -1,9 +1,48 @@
 # Domain: radiation_measurement_diagnostics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 28
+# Entries: 30
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: bragg_crystal_width
+  kind: scalar
+  status: draft
+  description: Full width of the Bragg crystal in an X-ray crystal spectrometer along
+    the first transverse (X1) axis, applicable only for rectangular crystal geometry.
+  documentation: 'The Bragg crystal width specifies the physical extent of the diffracting
+    crystal element along its first transverse coordinate axis (X1) in an X-ray crystal
+    spectrometer channel. This dimension is only defined for rectangular crystal geometry;
+    together with bragg_crystal_height along the orthogonal X2 axis and [thickness_of_bragg_crystal](name:thickness_of_bragg_crystal)
+    through the crystal body, it fully parameterizes the three-dimensional rectangular
+    crystal geometry required for solid-angle and acceptance calculations.
+
+
+    The X1 width governs the acceptance aperture along the meridional or sagittal
+    direction depending on the crystal mount orientation. A larger width intercepts
+    a greater solid angle of X-ray emission from the plasma source, increasing photon
+    throughput, but can introduce geometric aberrations in curved-crystal focusing
+    arrangements such as Johann or Johansson geometries. The [bragg_wavelength](name:bragg_wavelength)
+    separately characterizes the diffraction condition, linking crystal orientation
+    to the photon energies that satisfy Bragg''s law.
+
+
+    Typical crystal widths for fusion-diagnostic X-ray spectrometers range from a
+    few millimeters to a few tens of millimeters, depending on crystal material and
+    spectrometer geometry.
+
+
+    Sign convention: Positive when the extent is measured as a physical length from
+    one edge of the crystal to the other along the X1 transverse axis of the crystal
+    coordinate frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:thickness_of_bragg_crystal
+  - name:bragg_wavelength
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/crystal/x1_width
+    dd_path: spectrometer_x_ray_crystal/channel/crystal/x1_width
+    status: composed
 - name: lower_bound_energy_of_detector_pixel
   kind: scalar
   status: draft
@@ -303,7 +342,7 @@
     $$
 
 
-    where $r$ is the aperture radius in meters and $A$ is the [area_of_diagnostic_aperture](name:area_of_diagnostic_aperture)
+    where $r$ is the aperture radius in meters and $A$ is the area_of_diagnostic_aperture
     in square meters. The corresponding [diameter_of_diagnostic_aperture](name:diameter_of_diagnostic_aperture)
     is $d = 2r$, where $d$ is the full edge-to-edge distance through the aperture
     center.
@@ -324,7 +363,9 @@
     radii of about 0.001-0.01 m; larger values can occur in wide-aperture systems.'
   unit: m
   physics_domain: radiation_measurement_diagnostics
-  links: []
+  links:
+  - name:width_of_diagnostic_aperture
+  - name:diameter_of_diagnostic_aperture
   sources:
   - id: dd:bolometer/camera/channel/aperture/radius
     dd_path: bolometer/camera/channel/aperture/radius
@@ -477,7 +518,7 @@
     describes the full wavelength-dependent response shape.
 
 
-    This quantity should be distinguished from [reference_calibration_wavelength](name:reference_calibration_wavelength),
+    This quantity should be distinguished from [reference_calibration_wavelength](name:reference_calibration_wavelength_of_spectrometer_channel),
     which is a fiducial wavelength used to establish or validate a wavelength scale,
     and from [wavelength_of_spectral_line](name:wavelength_of_spectral_line), which
     is a physical photon wavelength associated with an atomic, molecular, or ionic
@@ -492,8 +533,9 @@
   physics_domain: radiation_measurement_diagnostics
   links:
   - name:spectral_width_of_spectrometer_channel
-  - name:wavelength_of_spectrometer_channel
-  - name:bragg_wavelength
+  - name:spectral_instrument_function_of_spectrometer_channel
+  - name:reference_calibration_wavelength_of_spectrometer_channel
+  - name:wavelength_of_spectral_line
   sources:
   - id: dd:spectrometer_x_ray_crystal/channel/bin/instrument_function/centre
     dd_path: spectrometer_x_ray_crystal/channel/bin/instrument_function/centre
@@ -683,6 +725,68 @@
     status: attached
   - id: dd:spectrometer_x_ray_crystal/channel/instrument_function/sigma
     dd_path: spectrometer_x_ray_crystal/channel/instrument_function/sigma
+    status: attached
+- name: surface_area_of_filter
+  kind: scalar
+  status: draft
+  description: Total true geometric area of the filter window surface that intercepts
+    incoming radiation. For curved windows, this is the material surface area, not
+    merely the planar projected aperture.
+  documentation: 'Surface area of a filter is the true geometric area of the filter-window
+    face exposed to the accepted radiation beam. It describes the size of the intercepting
+    surface and is distinct from [thickness_of_filter](name:thickness_of_filter),
+    which governs attenuation through the material.
+
+
+    For an arbitrarily shaped or curved window, the surface area can be defined by
+    integrating over the exposed surface:
+
+
+    $$
+
+    A = \int_U \left| \frac{\partial \mathbf{r}}{\partial u} \times \frac{\partial
+    \mathbf{r}}{\partial v} \right|\,du\,dv
+
+    $$
+
+
+    where $A$ is the surface area in m^2, $\mathbf{r}(u,v)$ is the position vector
+    of the window surface in meters, and $u$ and $v$ are dimensionless surface parameters
+    spanning the exposed region $U$. For a flat window this reduces to the planar
+    aperture area; for a rectangular clear aperture with side lengths $a$ and $b$
+    in meters, the area is $ab$.
+
+
+    In practice, the value is obtained from mechanical design dimensions, aperture-mask
+    geometry, optical or mechanical metrology, or a surface model of the installed
+    window. For curved filter windows, the true surface area should be computed from
+    the measured or specified curvature rather than from the projected outline alone.
+    The area scales the intercepted photon rate for a given incident flux density,
+    while the energy-dependent transmission is set primarily by material composition
+    and filter thickness.
+
+
+    Typical values range from 10^{-6}-10^{-4} m^2 for small channel filters and from
+    10^{-4}-10^{-2} m^2 for larger camera or spectrometer filter windows.'
+  unit: m^2
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:thickness_of_filter
+  - name:filter_window_width
+  - name:filter_window_height
+  - name:area_of_filter
+  sources:
+  - id: dd:camera_x_rays/filter_window/surface
+    dd_path: camera_x_rays/filter_window/surface
+    status: attached
+  - id: dd:hard_x_rays/channel/filter_window/surface
+    dd_path: hard_x_rays/channel/filter_window/surface
+    status: attached
+  - id: dd:soft_x_rays/channel/filter_window/surface
+    dd_path: soft_x_rays/channel/filter_window/surface
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/surface
+    dd_path: spectrometer_x_ray_crystal/channel/filter_window/surface
     status: attached
 - name: thickness_of_filter
   kind: scalar

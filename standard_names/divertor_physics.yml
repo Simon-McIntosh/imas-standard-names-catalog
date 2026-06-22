@@ -1,6 +1,6 @@
 # Domain: divertor_physics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 15
+# Entries: 19
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -65,6 +65,57 @@
     status: composed
   - id: dd:summary/local/divertor_target/n_i/beryllium/value
     dd_path: summary/local/divertor_target/n_i/beryllium/value
+    status: composed
+- name: carbon_density_at_divertor_target
+  kind: scalar
+  status: draft
+  description: Number density of carbon ions in the plasma immediately adjacent to
+    a divertor target surface, summed over charge states C+ through C6+. Neutral carbon
+    atoms and molecules are excluded unless a neutral-inclusive quantity is explicitly
+    specified.
+  documentation: 'Carbon density at a divertor target is the local number density
+    of carbon ions in the plasma immediately adjacent to a divertor target surface.
+    It is a charge-state-summed impurity ion density, so neutral carbon atoms and
+    molecules are treated as separate species and are not included.
+
+
+    The charge-state-summed carbon ion density is obtained by summing over the ionization
+    stages of carbon:
+
+
+    $$
+
+    n_{C,\mathrm{ion}} = \sum_{q=1}^{6} n_{C^{q+}}
+
+    $$
+
+
+    where $n_{C,\mathrm{ion}}$ is the total carbon ion density in m^-3, $n_{C^{q+}}$
+    is the density of carbon ions in charge state $q$ in m^-3, and $q$ is the dimensionless
+    positive ion charge state ranging from $1$ up to the nuclear charge $6$.
+
+
+    This density is commonly inferred from divertor spectroscopy of carbon emission
+    lines combined with local electron density and temperature estimates and a collisional-radiative
+    model, or evolved per charge state in edge-plasma transport calculations and then
+    summed.
+
+
+    Typical values near divertor targets span a wide range depending on plasma-facing
+    material composition, recycling regime, and detachment state, and are generally
+    a fraction of the local total ion density.'
+  unit: m^-3
+  physics_domain: divertor_physics
+  links:
+  - name:density_at_divertor_target
+  - name:nitrogen_density_at_divertor_target
+  - name:neon_density_at_divertor_target
+  sources:
+  - id: dd:summary/local/divertor_plate/n_i/carbon/value
+    dd_path: summary/local/divertor_plate/n_i/carbon/value
+    status: composed
+  - id: dd:summary/local/divertor_target/n_i/carbon/value
+    dd_path: summary/local/divertor_target/n_i/carbon/value
     status: composed
 - name: effective_charge_at_divertor_target
   kind: scalar
@@ -532,6 +583,90 @@
   - id: dd:summary/local/divertor_target/n_i/nitrogen/value
     dd_path: summary/local/divertor_target/n_i/nitrogen/value
     status: composed
+- name: peak_power_density_at_divertor_target
+  kind: scalar
+  status: draft
+  description: Spatial maximum of the heat flux density deposited on the divertor
+    target surface, equal to the most severe local thermal load per unit area at the
+    point of highest power concentration in the strike zone.
+  documentation: "The peak power flux density at the divertor target quantifies the\
+    \ maximum local heat load per unit area deposited anywhere on the divertor target\
+    \ surface under a given plasma condition. It is the spatial maximum of the heat\
+    \ flux distribution across the strike zone and governs the thermal stress, erosion\
+    \ rate, and component lifetime of divertor plasma-facing components.\n\nFor a\
+    \ heat flux profile $q(\\mathbf{x})$ distributed over the target surface, the\
+    \ peak value is:\n\n$$\nq_\\mathrm{peak} = \\max_{\\mathbf{x} \\in S_\\mathrm{target}}\
+    \ q(\\mathbf{x})\n$$\n\nwhere $\\mathbf{x}$ denotes position on the target surface\
+    \ $S_\\mathrm{target}$ and $q$ is the local power per unit area from combined\
+    \ particle and radiation loads.\n\nThe spatial heat flux distribution on target\
+    \ tiles is resolved primarily by infrared thermography, with the peak extracted\
+    \ from the measured surface temperature rise and the known surface thermal diffusivity\
+    \ of the tile material. In numerical simulations, the peak is determined as the\
+    \ maximum over the computed deposition profile on the strike zone.\n\nSteady-state\
+    \ peak heat flux values in H-mode operation range from 1-20 MW/m\xB2 in present-day\
+    \ devices; reactor design limits for tungsten monoblock divertor components are\
+    \ set near 10 MW/m\xB2 for continuous operation, with transient events exceeding\
+    \ steady-state limits by large factors. Analogous peak loads on other plasma-facing\
+    \ surfaces are captured by [peak power density at the limiter](name:peak_power_density_at_limiter),\
+    \ [peak power density at the first wall](name:peak_power_density_at_first_wall),\
+    \ and the device-level [peak power density at the wall](name:peak_power_density_at_wall),\
+    \ while [power at the divertor target due to radiation](name:power_at_divertor_target_due_to_radiation)\
+    \ quantifies the integrated radiative contribution to the total target heat load."
+  unit: W.m^-2
+  physics_domain: divertor_physics
+  links:
+  - name:peak_power_density_at_limiter
+  - name:peak_power_density_at_first_wall
+  - name:peak_power_density_at_wall
+  - name:power_at_divertor_target_due_to_radiation
+  sources:
+  - id: dd:divertors/divertor/target/power_flux_peak
+    dd_path: divertors/divertor/target/power_flux_peak
+    status: attached
+  - id: dd:summary/local/divertor_target/power_flux_peak/value
+    dd_path: summary/local/divertor_target/power_flux_peak/value
+    status: composed
+- name: power_of_divertor_due_to_radiation
+  kind: scalar
+  status: draft
+  description: Total net radiative power deposited on the divertor, summed over all
+    targets, from photon emission by impurity and hydrogenic species during plasma-wall
+    interaction.
+  documentation: "The total net radiative power deposited on the divertor is the aggregate\
+    \ photon power absorbed across all divertor targets, contributed by line radiation\
+    \ from impurity species (carbon, neon, argon, tungsten, and similar) and hydrogenic\
+    \ Balmer and Lyman continuum emission. The net value equals the total incident\
+    \ radiative flux integrated over all target surfaces minus the fraction reflected\
+    \ by the plasma-facing materials, and is summed over all targets in the divertor\
+    \ assembly.\n\n$$\nP_{\\mathrm{div,rad}} = \\sum_k \\int_{A_k} \\left(1 - \\rho_k\\\
+    right) F_{\\mathrm{rad}}(\\mathbf{x})\\, dA\n$$\n\nwhere $k$ indexes individual\
+    \ divertor targets, $A_k$ is the wetted surface area of target $k$, $\\rho_k$\
+    \ is the effective surface reflectivity, and $F_{\\mathrm{rad}}$ is the local\
+    \ incident radiative power flux density in W m$^{-2}$.\n\nThis aggregate is inferred\
+    \ from bolometric tomography using fan-array or tangential bolometers that reconstruct\
+    \ the radiated power distribution in the divertor volume, or estimated from integrated\
+    \ impurity spectroscopy combined with impurity transport modeling.\n\nIn high-recycling\
+    \ attached conditions, radiative losses to the divertor are a modest fraction\
+    \ of the power crossing the separatrix; in detached or impurity-seeded regimes\
+    \ they can constitute 30\u201380% of the total divertor heat load, substantially\
+    \ reducing the conducted and convected channels quantified by [power_of_divertor_due_to_conduction](name:power_of_divertor_due_to_conduction)\
+    \ and [power_of_divertor_due_to_convection](name:power_of_divertor_due_to_convection).\
+    \ The per-target counterpart is [power_at_divertor_target_due_to_radiation](name:power_at_divertor_target_due_to_radiation),\
+    \ and the analogous radiation to the main chamber wall is [radiated_power_at_wall](name:radiated_power_at_wall)."
+  unit: W
+  physics_domain: divertor_physics
+  links:
+  - name:power_of_divertor_due_to_conduction
+  - name:power_of_divertor_due_to_convection
+  - name:power_at_divertor_target_due_to_radiation
+  - name:radiated_power_at_wall
+  sources:
+  - id: dd:divertors/divertor/power_black_body
+    dd_path: divertors/divertor/power_black_body
+    status: composed
+  - id: dd:divertors/divertor/power_radiated
+    dd_path: divertors/divertor/power_radiated
+    status: composed
 - name: total_ion_density_at_divertor_target
   kind: scalar
   status: draft
@@ -672,6 +807,66 @@
   sources:
   - id: dd:divertors/divertor/target/tile/surface_outline/z
     dd_path: divertors/divertor/target/tile/surface_outline/z
+    status: composed
+- name: power_at_divertor_target_due_to_conduction
+  kind: scalar
+  status: draft
+  description: Thermal power deposited on a single divertor target by conductive plasma
+    heat flow along magnetic field lines. It is the target-surface integral of the
+    conductive heat-flux component into the material, excluding heat carried by convective
+    particle flow.
+  documentation: 'Power at a divertor target due to conduction is the thermal power
+    deposited on one divertor target by electron and ion heat conduction along magnetic
+    field lines in the scrape-off-layer plasma. It represents only the temperature-gradient-driven
+    heat-flow channel and excludes enthalpy and kinetic energy carried to the target
+    by net particle flow, which belongs to [power_at_divertor_target_due_to_convection](name:power_at_divertor_target_due_to_convection).
+
+
+    For a target surface $A_t$, with unit normal $\mathbf{n}_t$ directed from the
+    target material toward the plasma, a surface-integral definition is:
+
+
+    $$
+
+    P_{\mathrm{cond},t} = -\int_{A_t} \left(q_{\parallel e,\mathrm{cond}} + q_{\parallel
+    i,\mathrm{cond}}\right)\left(\mathbf{b}\cdot\mathbf{n}_t\right)\,dA,\qquad q_{\parallel
+    s,\mathrm{cond}} = -\kappa_{\parallel s}\nabla_\parallel T_s,\ s\in\{e,i\}
+
+    $$
+
+
+    where $P_{\mathrm{cond},t}$ is in W; $q_{\parallel e,\mathrm{cond}}$ and $q_{\parallel
+    i,\mathrm{cond}}$ are electron and ion conductive parallel heat-flux densities
+    in W m$^{-2}$; $\mathbf{b}$ is the unit vector along the magnetic field; $dA$
+    is a target-surface element in m$^2$; $\nabla_\parallel=\mathbf{b}\cdot\nabla$;
+    $T_s$ is the species temperature; and $\kappa_{\parallel s}$ is the species parallel
+    thermal conductivity, in W m$^{-1}$ eV$^{-1}$ if $T_s$ is expressed in eV. The
+    leading minus sign follows from the chosen normal direction, so heat entering
+    the material from the plasma contributes positively.
+
+
+    In practice, this quantity is computed by integrating separated electron and ion
+    conductive heat-flux channels over the wetted part of a divertor target. It can
+    also be inferred from measured target heat loads when an edge-plasma power-balance
+    model separates conductive heat flow from convective particle-energy transport.
+    Summing this quantity over all divertor targets gives [power_of_divertor_due_to_conduction](name:power_of_divertor_due_to_conduction),
+    and it is one contribution to the broader divertor thermal power balance represented
+    by [thermal_power_of_divertor](name:thermal_power_of_divertor).
+
+
+    Typical per-target values are highly scenario dependent: an unloaded target is
+    near 0 W, while a wetted strike region in present tokamaks is often in the 10^4-10^7
+    W range. The value is constrained by the exhaust power entering the scrape-off
+    layer and by how much of that power is dissipated before the field lines intersect
+    the target.'
+  unit: W
+  physics_domain: divertor_physics
+  links:
+  - name:power_at_divertor_target_due_to_convection
+  - name:thermal_power_of_divertor
+  sources:
+  - id: dd:divertors/divertor/target/power_conducted
+    dd_path: divertors/divertor/target/power_conducted
     status: composed
 - name: power_of_divertor_due_to_conduction
   kind: scalar

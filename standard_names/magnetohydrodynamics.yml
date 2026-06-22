@@ -1,6 +1,6 @@
 # Domain: magnetohydrodynamics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 30
+# Entries: 34
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -100,6 +100,51 @@
   sources:
   - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/alfven_frequency_spectrum/real
     dd_path: mhd_linear/time_slice/toroidal_mode/plasma/alfven_frequency_spectrum/real
+    status: composed
+- name: alfven_time
+  kind: scalar
+  status: draft
+  description: "Alfv\xE9n time is the non-negative shear-Alfv\xE9n transit time used\
+    \ to normalize ideal-MHD dynamics. It is the magnetic-axis major radius divided\
+    \ by the local Alfv\xE9n speed, using the on-axis toroidal magnetic-field magnitude\
+    \ and the local ion mass density at the flux surface of interest."
+  documentation: "Alfv\xE9n time $\\tau_A$ is a characteristic MHD timescale for shear\
+    \ Alfv\xE9n-wave propagation across a tokamak plasma, with the transit length\
+    \ set by the magnetic-axis major radius. It is a non-negative duration and provides\
+    \ the inverse frequency scale commonly used to normalize ideal-MHD oscillation\
+    \ frequencies and instability growth rates.\n\nUsing the magnetic-axis major radius\
+    \ as the characteristic length and the local Alfv\xE9n speed from the on-axis\
+    \ toroidal magnetic-field magnitude and local ion mass density, the Alfv\xE9n\
+    \ time is defined by:\n\n$$\n\\tau_A(\\rho_f) = \\frac{R_0}{v_A(\\rho_f)} = \\\
+    frac{R_0 \\sqrt{\\mu_0\\,m_i\\,n_i(\\rho_f)}}{B_0}\n$$\n\nwhere $\\rho_f$ is the\
+    \ flux-surface label used to localize the density, such as the normalized toroidal-flux\
+    \ radius $\\rho_\\mathrm{tor,norm}$; $R_0$ is the magnetic-axis major radius in\
+    \ m; $v_A$ is the Alfv\xE9n speed in m s$^{-1}$; $\\mu_0$ is the permeability\
+    \ of free space in H m$^{-1}$; $m_i$ is the ion mass in kg; $n_i$ is the ion number\
+    \ density in m$^{-3}$; and $B_0$ is the magnitude of the toroidal magnetic-field\
+    \ component at the magnetic axis in T. In the right-handed cylindrical $(R,\\\
+    phi,Z)$ frame, where $R$ is major radius, $\\phi$ is toroidal angle, and $Z$ is\
+    \ vertical height, $B_0$ denotes a magnitude, so reversal of toroidal-field direction\
+    \ does not change $\\tau_A$.\n\nIn practice, $\\tau_A$ is computed from an equilibrium\
+    \ magnetic-axis position, an on-axis toroidal-field magnitude, and ion density\
+    \ and composition at the flux surface of interest. For multi-ion plasmas, the\
+    \ product $m_i n_i$ is commonly replaced by the total ion mass density $\\sum_s\
+    \ m_s n_s$, with electron mass usually negligible for this MHD normalization.\
+    \ Frequencies such as the real part of an Alfv\xE9n eigenmode frequency and linear\
+    \ growth rates are often compared with or normalized by $\\tau_A^{-1}$.\n\nFor\
+    \ tokamak parameters $R_0 \\sim 1-6$ m, $B_0 \\sim 1-8$ T, and deuterium ion density\
+    \ $n_i \\sim 10^{19}-10^{20}$ m$^{-3}$, representative values are typically of\
+    \ order $10^{-7}-10^{-6}$ s. The timescale increases with major radius and with\
+    \ the square root of ion mass density, and decreases in inverse proportion to\
+    \ the magnetic-field magnitude."
+  unit: s
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:alfven_frequency
+  - name:per_toroidal_mode_growth_rate
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/tau_alfven
+    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/tau_alfven
     status: composed
 - name: effective_charge
   kind: scalar
@@ -656,6 +701,113 @@
   - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/mass_density_perturbed/real
     dd_path: mhd_linear/time_slice/toroidal_mode/plasma/mass_density_perturbed/real
     status: composed
+- name: perturbed_plasma_pressure_imaginary_part
+  kind: complex
+  status: draft
+  description: Imaginary part of the complex first-order plasma pressure perturbation
+    eigenfunction for a specified toroidal Fourier mode in linear MHD stability analysis.
+  documentation: 'The perturbed plasma pressure $\tilde{p}$ is the complex scalar
+    eigenfunction representing the linearized first-order pressure perturbation for
+    a single toroidal mode number $n$ in a linear MHD stability calculation. The total
+    pressure decomposes as $p = p_0 + \mathrm{Re}[\tilde{p}\,e^{i(n\phi - \omega t)}]$,
+    where $p_0$ is the equilibrium pressure profile, $\phi$ is the toroidal angle
+    in the right-handed cylindrical $(R, \phi, Z)$ frame, and $\omega$ is the complex
+    eigenfrequency.
+
+
+    This quantity is the imaginary component of $\tilde{p}$ under the standard complex
+    decomposition:
+
+
+    $$
+
+    \tilde{p} = \mathrm{Re}(\tilde{p}) + i\,\mathrm{Im}(\tilde{p})
+
+    $$
+
+
+    where both $\mathrm{Re}(\tilde{p})$ and $\mathrm{Im}(\tilde{p})$ are real-valued
+    scalar fields resolved on the two-dimensional poloidal cross-section. Combined
+    with [perturbed_plasma_pressure_real_part](name:perturbed_plasma_pressure_real_part),
+    this quantity fully specifies the complex pressure perturbation amplitude at each
+    grid point for the given mode.
+
+
+    The imaginary part encodes the local spatial phase of the pressure perturbation
+    relative to the phase reference convention of the linear MHD eigenvalue solver.
+    Eigenfunction normalization is solver-dependent, so absolute amplitudes are physically
+    meaningful only when a normalization convention is explicitly fixed. This quantity
+    is structurally analogous to [perturbed_plasma_mass_density_imaginary_part](name:perturbed_plasma_mass_density_imaginary_part)
+    and [perturbed_plasma_temperature_imaginary_part](name:perturbed_plasma_temperature_imaginary_part),
+    which follow the same Fourier decomposition for their respective physical scalars.
+
+
+    Sign convention: Positive when $\mathrm{Im}(\tilde{p}) > 0$ under the decomposition
+    $\tilde{p} = \mathrm{Re}(\tilde{p}) + i\,\mathrm{Im}(\tilde{p})$ with toroidal
+    Fourier factor $e^{in\phi}$, where $\phi$ increases counter-clockwise viewed from
+    above $+\hat{Z}$.'
+  unit: Pa
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:perturbed_plasma_pressure_real_part
+  - name:perturbed_plasma_mass_density_imaginary_part
+  - name:perturbed_plasma_temperature_imaginary_part
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/pressure_perturbed/imaginary
+    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/pressure_perturbed/imaginary
+    status: composed
+- name: perturbed_plasma_pressure_real_part
+  kind: complex
+  status: draft
+  description: Real part of the complex first-order plasma pressure perturbation eigenfunction
+    for a specified toroidal Fourier mode in linear MHD stability analysis.
+  documentation: 'The real part of the complex pressure perturbation eigenfunction
+    $\tilde{p}$ gives the in-phase component of the linearized first-order pressure
+    variation associated with a given toroidal MHD mode, distributed over the poloidal
+    cross-section.
+
+
+    The full pressure field decomposes as:
+
+
+    $$
+
+    p = p_0 + \text{Re}\!\left[\tilde{p}(R,Z)\, e^{i(n_\phi \phi - \omega t)}\right]
+
+    $$
+
+
+    where $p_0$ is the equilibrium pressure profile, $n_\phi$ is the toroidal mode
+    number, $\phi$ is the toroidal angle in the right-handed cylindrical $(R, \phi,
+    Z)$ frame, and $\omega$ is the complex MHD eigenfrequency. The quantity $\text{Re}(\tilde{p})$
+    is the real component of the parent eigenfunction [perturbed_plasma_pressure](name:perturbed_plasma_pressure)
+    evaluated on the poloidal plane.
+
+
+    Together with the [perturbed_plasma_pressure_imaginary_part](name:perturbed_plasma_pressure_imaginary_part),
+    it fully specifies the complex amplitude and phase of $\tilde{p}$; the amplitude
+    is $|\tilde{p}| = \sqrt{\text{Re}(\tilde{p})^2 + \text{Im}(\tilde{p})^2}$. Analogous
+    real-part eigenfunctions for other linearized MHD perturbation quantities include
+    [perturbed_plasma_mass_density_real_part](name:perturbed_plasma_mass_density_real_part)
+    and [perturbed_plasma_temperature_real_part](name:perturbed_plasma_temperature_real_part).
+
+
+    This quantity is produced by linear MHD stability solvers as part of the eigenvalue
+    problem on the poloidal grid. Because the eigenfunction phase is fixed by the
+    solver normalization convention, the absolute sign of $\text{Re}(\tilde{p})$ is
+    convention-dependent; only relative magnitudes and phase angles among the perturbed
+    quantities in the same eigenfunction carry physical content.'
+  unit: Pa
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:perturbed_plasma_pressure
+  - name:perturbed_plasma_pressure_imaginary_part
+  - name:perturbed_plasma_mass_density_real_part
+  - name:perturbed_plasma_temperature_real_part
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/pressure_perturbed/real
+    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/pressure_perturbed/real
+    status: composed
 - name: perturbed_plasma_temperature_imaginary_part
   kind: complex
   status: draft
@@ -1111,6 +1263,76 @@
   sources:
   - id: dd:mhd_linear/time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate1/imaginary
     dd_path: mhd_linear/time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate1/imaginary
+    status: composed
+- name: radial_perturbed_vacuum_magnetic_field_real_part
+  kind: complex
+  status: draft
+  description: Real part of the complex flux-surface-normal component of the linearized
+    magnetic-field perturbation eigenfunction in the current-free vacuum region outside
+    the plasma, for a specified toroidal Fourier harmonic in linear-MHD stability
+    analysis.
+  documentation: 'This quantity is the real coefficient of the radial vacuum magnetic-field
+    perturbation eigenfunction for one toroidal harmonic. Here radial means the projection
+    of the complex perturbation field onto the outward normal to the unperturbed magnetic
+    flux surfaces, rather than the major-radius direction of the right-handed cylindrical
+    $(R, \phi, Z)$ frame.
+
+
+    A common Fourier and complex-amplitude convention is
+
+
+    $$
+
+    \delta \mathbf{B}^{\rm vac}(\mathbf{x},\phi,t) = \operatorname{Re}\left\{\delta\tilde{\mathbf{B}}^{\rm
+    vac}_n(\mathbf{x})\,e^{i(n\phi-\omega t)}\right\}, \qquad \delta\tilde B^{\rm
+    vac}_{n,r} = \delta\tilde{\mathbf{B}}^{\rm vac}_n \cdot \hat{\mathbf n}_\psi =
+    \delta B^{\rm vac,Re}_{n,r} + i\,\delta B^{\rm vac,Im}_{n,r}
+
+    $$
+
+
+    where $\delta\tilde{\mathbf{B}}^{\rm vac}_n$ is the complex magnetic-field eigenfunction
+    for toroidal mode number $n$, $\phi$ is the toroidal angle in the right-handed
+    cylindrical $(R, \phi, Z)$ frame, $\omega$ is the mode angular frequency, $\hat{\mathbf
+    n}_\psi$ is the outward flux-surface normal, and $\delta B^{\rm vac,Re}_{n,r}$
+    is this real part. Both the complex radial amplitude and its real and imaginary
+    parts have unit T.
+
+
+    In the vacuum region the perturbed current density is zero, so the magnetic perturbation
+    satisfies $\nabla\times\delta\tilde{\mathbf{B}}^{\rm vac}_n=0$ and $\nabla\cdot\delta\tilde{\mathbf{B}}^{\rm
+    vac}_n=0$, subject to matching conditions at the plasma boundary and electromagnetic
+    boundary conditions at conducting structures. It is typically computed as part
+    of a linear-MHD stability calculation and may be compared with magnetic measurements
+    outside the plasma after an overall eigenfunction normalization is chosen.
+
+
+    Because linear eigenfunctions can be scaled arbitrarily, the numerical magnitude
+    depends on the chosen normalization. When scaled to experimentally observed edge
+    or external magnetic perturbations, representative radial vacuum-field amplitudes
+    are often about $10^{-6}$-$10^{-3}$ T, with larger values possible for deliberately
+    driven perturbations or rapidly growing modes.
+
+
+    Sign convention: Positive when the radial projection of the complex vacuum perturbation
+    onto the outward flux-surface normal has a positive real coefficient in the Fourier
+    convention $e^{i(n\phi-\omega t)}$, with $\phi$ increasing in the right-handed
+    cylindrical $(R, \phi, Z)$ frame.'
+  unit: T
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:radial_perturbed_vacuum_magnetic_field_imaginary_part
+  - name:radial_perturbed_vacuum_magnetic_field
+  - name:radial_perturbed_plasma_magnetic_field_real_part
+  - name:poloidal_perturbed_vacuum_magnetic_field_real_part
+  - name:toroidal_perturbed_vacuum_magnetic_field_real_part
+  arguments:
+  - name: radial_perturbed_vacuum_magnetic_field
+    operator: real_part
+    operator_kind: unary_postfix
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate1/real
+    dd_path: mhd_linear/time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate1/real
     status: composed
 - name: radial_plasma_velocity
   kind: scalar

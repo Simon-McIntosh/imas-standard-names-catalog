@@ -1,6 +1,6 @@
 # Domain: plasma_wall_interactions
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 18
+# Entries: 22
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -262,6 +262,72 @@
   - id: dd:wall/description_ggd/ggd/particle_fluxes/ion/incident/values
     dd_path: wall/description_ggd/ggd/particle_fluxes/ion/incident/values
     status: composed
+- name: ion_state_energy_flux_at_wall_due_to_recombination
+  kind: scalar
+  status: draft
+  description: Energy flux density emitted from a plasma-facing wall by recombination
+    of a specified ion charge state. It gives the charge-state-resolved contribution
+    to the recombination energy released per unit wall area.
+  documentation: 'Ion-state recombination energy flux at the wall is the power per
+    unit plasma-facing surface area emitted at the surface when ions of a specified
+    species and charge state recombine. It represents only that initial charge-state
+    contribution; summing over charge states for one ion species gives [ion_energy_flux_at_wall_due_to_recombination](name:ion_energy_flux_at_wall_due_to_recombination),
+    and summing over ion species gives [energy_flux_at_wall_due_to_recombination](name:energy_flux_at_wall_due_to_recombination).
+    This quantity refers to recombination energy release, not to the incident ion
+    kinetic or thermal energy flux.
+
+
+    For ions of species $s$ arriving in charge state $z$, a local estimate is the
+    recombining particle flux multiplied by the total ionization energy recovered
+    during neutralization:
+
+
+    $$
+
+    q^{\mathrm{rec}}_{s,z} = \Gamma_{s,z} \, e \sum_{k=1}^{z} I_{s,k}
+
+    $$
+
+
+    where $q^{\mathrm{rec}}_{s,z}$ is the recombination energy flux density in W m$^{-2}$,
+    $\Gamma_{s,z}$ is the flux of recombining ions of species $s$ and charge state
+    $z$ to the wall in m$^{-2}$ s$^{-1}$, $I_{s,k}$ is the $k$th ionization potential
+    of species $s$ in eV, and $e$ converts eV to joule. More detailed surface models
+    may partition this released energy among photons, emitted neutrals, electrons,
+    and solid-surface heating, but the charge-state-resolved energy scale is set by
+    the sum of ionization potentials.
+
+
+    In practice this quantity is computed from charge-state-resolved ion fluxes to
+    plasma-facing components together with atomic ionization energies and surface
+    recombination or neutralization models. It may also be constrained indirectly
+    by combining particle-flux estimates from probes, spectroscopy, or particle balance
+    with atomic data, while keeping it separate from incident kinetic heat flux, radiation
+    absorbed at the wall, and chemical or sputtering energy terms.
+
+
+    Typical charge-state-resolved values range from less than 10$^{2}$ W m$^{-2}$
+    on weakly wetted wall regions to 10$^{4}$-10$^{6}$ W m$^{-2}$ in recycling divertor
+    or limiter regions. Local values can approach 10$^{6}$-10$^{7}$ W m$^{-2}$ for
+    very large particle fluxes or high charge states, but the summed recombination
+    contribution is usually below the total plasma heat load.
+
+
+    Sign convention: Positive when recombination energy is emitted from the wall surface
+    into the adjacent plasma or vacuum.'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:energy_flux_at_wall_due_to_recombination
+  - name:ion_energy_flux_at_wall_due_to_recombination
+  - name:ion_state_kinetic_energy_flux_at_wall
+  sources:
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/recombination/ion/state/emitted/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/ion/state/emitted/values
+    status: composed
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/recombination/ion/state/incident/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/ion/state/incident/values
+    status: composed
 - name: iron_density_at_limiter
   kind: scalar
   status: draft
@@ -410,6 +476,57 @@
   sources:
   - id: dd:summary/local/limiter/n_i/lithium/value
     dd_path: summary/local/limiter/n_i/lithium/value
+    status: composed
+- name: neon_density_at_limiter
+  kind: scalar
+  status: draft
+  description: Neon ion number density in the boundary plasma immediately adjacent
+    to a limiter surface, evaluated at the plasma-side sheath entrance. It is summed
+    over neon ionization stages unless a charge-state-resolved quantity is specified.
+  documentation: 'Neon density at the limiter is the local number density of neon
+    ions in the boundary plasma just outside a limiter surface, at the plasma-side
+    sheath entrance. It is the limiter-surface analog of [neon_density_at_plasma_boundary](name:neon_density_at_plasma_boundary),
+    restricted to the plasma-wall interaction region rather than the global plasma
+    boundary.
+
+
+    For a small plasma volume adjacent to the limiter, the charge-state-summed neon
+    ion density is the count of neon ions per unit volume:
+
+
+    $$
+
+    n_\mathrm{Ne} = \frac{N_\mathrm{Ne}}{V}
+
+    $$
+
+
+    where $N_\mathrm{Ne}=\sum_z N_{\mathrm{Ne}^{z+}}$ is the total number of neon
+    ions over all included ionization stages and $V$ is the sampled plasma volume
+    in m^3, giving $n_\mathrm{Ne}$ in m^-3.
+
+
+    In practice this quantity is inferred from limiter-viewing spectroscopy with collisional-radiative
+    modeling, from edge impurity transport analysis constrained by local electron
+    density and temperature, or from plasma-wall interaction simulations. It counts
+    neon ions in the plasma, not neutral neon at the wall and not a charge-weighted
+    quantity such as an effective charge contribution.
+
+
+    Typical limiter-adjacent neon ion densities are about 10^14-10^18 m^-3 in trace
+    to moderately seeded boundary plasmas, with local values approaching 10^19 m^-3
+    during strong neon puffing or very dense, cool edge conditions.'
+  unit: m^-3
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:density_at_limiter
+  - name:neon_density_at_pedestal
+  - name:xenon_density_at_limiter
+  - name:argon_density_at_limiter
+  - name:nitrogen_density_at_limiter
+  sources:
+  - id: dd:summary/local/limiter/n_i/neon/value
+    dd_path: summary/local/limiter/n_i/neon/value
     status: composed
 - name: neutral_particle_flux_at_wall
   kind: scalar
@@ -672,6 +789,102 @@
   sources:
   - id: dd:summary/local/limiter/n_i/oxygen/value
     dd_path: summary/local/limiter/n_i/oxygen/value
+    status: composed
+- name: power_density_at_wall
+  kind: scalar
+  status: draft
+  description: Power flux density deposited on plasma-facing wall surfaces by all
+    incident particle and radiation channels from the boundary plasma.
+  documentation: "Power density at the wall quantifies the total thermal energy load\
+    \ per unit surface area delivered to plasma-facing components, aggregating contributions\
+    \ from charged particle impact, neutral atom bombardment, charge-exchange flux,\
+    \ and photon irradiation. It provides a spatially distributed measure of wall\
+    \ heating across the full plasma-facing geometry, in contrast to extremal statistics\
+    \ such as [peak_power_density_at_first_wall](name:peak_power_density_at_first_wall)\
+    \ or [peak_power_density_at_divertor_target](name:peak_power_density_at_divertor_target).\n\
+    \nThe local wall power density $q_w$ sums over all incident energy channels:\n\
+    \n$$\nq_w = \\sum_s \\Gamma_s \\, E_s + q_{\\mathrm{rad}}\n$$\n\nwhere $\\Gamma_s$\
+    \ is the incident particle flux density of species $s$, $E_s$ is the mean energy\
+    \ deposited per particle, and $q_{\\mathrm{rad}}$ is the radiative contribution\
+    \ represented by [energy_flux_at_wall_due_to_radiation](name:energy_flux_at_wall_due_to_radiation).\n\
+    \nSpatially resolved wall heat loads are measured via calibrated infrared thermography\
+    \ or derived from boundary plasma transport simulations validated against bolometric\
+    \ total-power measurements. The [electron_energy_flux_at_wall](name:electron_energy_flux_at_wall)\
+    \ and ion contributions can be tracked separately as components of this total.\n\
+    \nTypical steady-state values range from 0.1\u20131 MW/m\xB2 on the main first\
+    \ wall to 5\u201320 MW/m\xB2 at actively loaded divertor strike zones; transient\
+    \ power loads during edge-localized modes can transiently exceed these by an order\
+    \ of magnitude."
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:peak_power_density_at_first_wall
+  - name:peak_power_density_at_divertor_target
+  - name:energy_flux_at_wall_due_to_radiation
+  - name:electron_energy_flux_at_wall
+  sources:
+  - id: dd:wall/description_ggd/ggd/power_density/values
+    dd_path: wall/description_ggd/ggd/power_density/values
+    status: composed
+- name: surface_emissivity
+  kind: scalar
+  status: draft
+  description: 'Surface emissivity is the dimensionless effective thermal emissivity
+    of a plasma-facing surface: the ratio of its emitted thermal radiance or radiative
+    exitance to that of a blackbody at the same surface temperature. As a scalar,
+    it represents the stated spectral band and angular averaging rather than a wavelength-
+    and direction-resolved emissivity.'
+  documentation: 'Surface emissivity is a dimensionless measure of how efficiently
+    a real surface emits thermal radiation compared with a blackbody at the same surface
+    temperature. For a scalar value, it is an effective emissivity averaged over the
+    relevant wavelength band and angular domain, not the full spectral, directional,
+    or polarization-dependent emissivity function.
+
+
+    The effective value can be defined as a weighted ratio of emitted spectral radiance
+    to blackbody spectral radiance:
+
+
+    $$
+
+    \epsilon_\mathrm{eff}(T_s) = \frac{\int_{\lambda}\int_{\Omega} W(\lambda,\Omega)\,L_\lambda^\mathrm{surf}(T_s,\Omega)\,d\Omega\,d\lambda}{\int_{\lambda}\int_{\Omega}
+    W(\lambda,\Omega)\,L_\lambda^\mathrm{bb}(T_s)\,d\Omega\,d\lambda}
+
+    $$
+
+
+    where $T_s$ is the surface temperature, $L_\lambda^\mathrm{surf}$ is the emitted
+    spectral radiance of the real surface, $L_\lambda^\mathrm{bb}$ is the blackbody
+    spectral radiance at the same temperature, $\Omega$ is the selected angular domain,
+    and $W(\lambda,\Omega)$ specifies the spectral response and angular weighting.
+    For a broadband hemispherical thermal model, the angular domain is the outward
+    hemisphere and the associated emitted heat-flux density is $q_\mathrm{rad}=\epsilon_\mathrm{eff}\sigma
+    T_s^4$; total radiated power is obtained by integrating that flux density over
+    surface area.
+
+
+    In practice, surface emissivity is obtained from material data, laboratory calibration,
+    in-situ calibration, or fitting of thermal-radiation measurements together with
+    an independent temperature estimate. It is strongly affected by material composition,
+    roughness, oxidation, deposited layers, erosion, temperature, wavelength band,
+    and viewing angle, so the averaging convention should match the radiation model
+    or infrared measurement being interpreted.
+
+
+    Typical values range from 0.02-0.2 for clean polished metals, 0.3-0.9 for oxidized
+    or rough metals, 0.7-0.95 for graphite and many carbon-rich surfaces, and about
+    0.1-0.6 for tungsten plasma-facing components depending on wavelength and surface
+    condition. For an opaque passive surface the physical range is normally $0 \le
+    \epsilon_\mathrm{eff} \le 1$; apparent values outside this range usually indicate
+    calibration, reflection, background-subtraction, or model-assumption errors.'
+  unit: '1'
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:surface_temperature
+  - name:maximum_surface_temperature
+  sources:
+  - id: dd:camera_ir/channel/camera/frame/region_of_interest/emissivity
+    dd_path: camera_ir/channel/camera/frame/region_of_interest/emissivity
     status: composed
 - name: surface_temperature
   kind: scalar

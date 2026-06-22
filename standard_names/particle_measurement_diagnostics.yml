@@ -1,6 +1,6 @@
 # Domain: particle_measurement_diagnostics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 23
+# Entries: 27
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -85,11 +85,10 @@
     \ of krypton ions in charge state $q$. The [chord-averaged form](name:line_averaged_krypton_density)\
     \ integrates this local quantity along a line of sight, while [volume_averaged_krypton_density](name:volume_averaged_krypton_density)\
     \ provides a global mean. The concentration relative to electron density is tracked\
-    \ by [krypton_fraction](name:krypton_fraction), and the pedestal-region value\
-    \ by [krypton_density_at_pedestal](name:krypton_density_at_pedestal).\n\nKrypton\
-    \ (atomic number $Z=36$) is injected as a high-$Z$ seeding gas for radiative power\
-    \ exhaust and divertor detachment control. Its local density is inferred from\
-    \ passive spectroscopy of charge-state emission lines, active charge-exchange\
+    \ by krypton_fraction, and the pedestal-region value by [krypton_density_at_pedestal](name:krypton_density_at_pedestal).\n\
+    \nKrypton (atomic number $Z=36$) is injected as a high-$Z$ seeding gas for radiative\
+    \ power exhaust and divertor detachment control. Its local density is inferred\
+    \ from passive spectroscopy of charge-state emission lines, active charge-exchange\
     \ recombination spectroscopy, or tomographic inversion of multi-chord line-integrated\
     \ measurements. Typical seeded-discharge values in tokamak edge and divertor regions\
     \ range from $10^{16}$ to $10^{18}$ m$^{-3}$, corresponding to 0.01\u20131% of\
@@ -100,8 +99,53 @@
   links:
   - name:line_averaged_krypton_density
   - name:volume_averaged_krypton_density
-  - name:krypton_fraction
   - name:krypton_density_at_pedestal
+- name: line_averaged_beryllium_density
+  kind: scalar
+  status: draft
+  description: Chord-average of the beryllium ion number density along a diagnostic
+    line of sight, equal to the path integral of the local beryllium density divided
+    by the chord length.
+  documentation: 'The line-averaged beryllium ion number density quantifies the mean
+    beryllium ion content along a plasma diagnostic chord, normalized by chord length.
+    It is the chord-integrated analog of the local [beryllium_density](name:beryllium_density)
+    and is the most directly accessible measure of beryllium impurity concentration
+    from line-of-sight diagnostics.
+
+
+    The quantity is defined as:
+
+
+    $$
+
+    \bar{n}_{Be} = \frac{1}{L} \int_0^L n_{Be}(l) \, dl
+
+    $$
+
+
+    where $n_{Be}(l)$ is the local beryllium ion number density at path coordinate
+    $l$ along the chord and $L$ is the total chord length.
+
+
+    Inferred from passive spectroscopy of beryllium emission lines by inverting chord-integrated
+    emission intensities using atomic emissivity coefficients; the result aggregates
+    contributions from all beryllium ionization states present along the chord. The
+    [volume_averaged_beryllium_density](name:volume_averaged_beryllium_density) provides
+    a complementary global volume average, while [beryllium_density_at_magnetic_axis](name:beryllium_density_at_magnetic_axis)
+    gives the local on-axis value.
+
+
+    Sign convention: Positive when beryllium ions populate the measurement chord.'
+  unit: m^-3
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:beryllium_density
+  - name:volume_averaged_beryllium_density
+  - name:beryllium_density_at_magnetic_axis
+  sources:
+  - id: dd:summary/line_average/n_i/beryllium/value
+    dd_path: summary/line_average/n_i/beryllium/value
+    status: composed
 - name: line_averaged_helium_4_density
   kind: scalar
   status: draft
@@ -262,6 +306,109 @@
   - id: dd:summary/line_average/n_i/lithium/value
     dd_path: summary/line_average/n_i/lithium/value
     status: composed
+- name: neutron_rate_of_neutron_detector
+  kind: scalar
+  status: draft
+  description: Number of individual neutron detection events registered per unit time
+    by a neutron detector operating in pulse-counting mode.
+  documentation: 'Neutron rate of a neutron detector is the count rate of resolved
+    neutron-induced pulses recorded by the detector. It is a detector response quantity,
+    not the total neutron emission rate of the plasma source and not the incident
+    neutron flux at the detector location.
+
+
+    The rate is defined from the cumulative number of accepted neutron detection events:
+
+
+    $$
+
+    R_n(t) = \frac{dN_\mathrm{det}(t)}{dt}
+
+    $$
+
+
+    where $R_n(t)$ is the neutron detection rate and $N_\mathrm{det}(t)$ is the cumulative
+    number of neutron events that pass the detector pulse-height, timing, and discrimination
+    criteria.
+
+
+    In practice, the rate is obtained by counting pulses in a finite time bin and
+    dividing by the bin duration, with corrections as needed for dead time, background,
+    pile-up, and neutron-gamma discrimination. For a given neutron field it depends
+    on detector efficiency, active area or volume, shielding, collimation, and the
+    neutron energy and angular response; at high rates, unresolved pile-up can make
+    pulse counting unreliable and motivate current-mode or other integrating operation.
+
+
+    Typical pulse-counting rates range from about 10^0-10^7 s^-1, depending on detector
+    type, distance from the plasma, shielding, and fusion power. Rates above roughly
+    10^6-10^7 s^-1 often require careful dead-time correction or a change of operating
+    mode.'
+  unit: s^-1
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:efficiency_of_neutron_detector
+  - name:flux_of_neutron_detector
+  - name:rate_of_neutron_detector
+  sources:
+  - id: dd:neutron_diagnostic/detector/mode/counting
+    dd_path: neutron_diagnostic/detector/mode/counting
+    status: composed
+  - id: dd:neutron_diagnostic/detector/mode/spectrum
+    dd_path: neutron_diagnostic/detector/mode/spectrum
+    status: attached
+  - id: dd:neutron_diagnostic/detectors/mode/counting
+    dd_path: neutron_diagnostic/detectors/mode/counting
+    status: attached
+- name: nitrogen_density
+  kind: scalar
+  status: draft
+  description: Local number density of all nitrogen nuclei per unit plasma volume,
+    summed over all ionization states from neutral nitrogen through fully stripped
+    ions.
+  documentation: 'Local number density of all nitrogen nuclei per unit plasma volume,
+    totaling contributions from every ionization state of the species.
+
+
+    The total nitrogen density is the sum over all charge states:
+
+
+    $$
+
+    n_N = \sum_{z=0}^{7} n_{N^{z+}}
+
+    $$
+
+
+    where $n_{N^{z+}}$ is the number density of nitrogen ions in charge state $z+$,
+    with $z = 0$ for neutral nitrogen and $z = 7$ for fully stripped N$^{7+}$ (atomic
+    number $Z_N = 7$).
+
+
+    Nitrogen is commonly seeded into fusion plasmas as a radiative impurity to dissipate
+    excess divertor heat flux; the local $n_N$ directly determines the radiative cooling
+    power and the nitrogen contribution to the effective charge $Z_\mathrm{eff}$.
+    It is inferred from vacuum-ultraviolet or extreme-ultraviolet emission spectroscopy
+    analyzed with collisional-radiative models, or from active charge-exchange recombination
+    spectroscopy.
+
+
+    During active nitrogen seeding, core concentrations in present-day tokamaks range
+    from $10^{17}$ to $5 \times 10^{18}$ m$^{-3}$, with elevated values near the plasma
+    edge. The [line-averaged nitrogen density](name:line_averaged_nitrogen_density)
+    and [volume-averaged nitrogen density](name:volume_averaged_nitrogen_density)
+    provide chord-integrated and globally averaged measures of the nitrogen particle
+    inventory; [nitrogen_fraction](name:nitrogen_fraction) normalizes $n_N$ to the
+    electron density.
+
+
+    Sign convention: Positive when nitrogen nuclei are present in the plasma volume.'
+  unit: m^-3
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:line_averaged_nitrogen_density
+  - name:volume_averaged_nitrogen_density
+  - name:nitrogen_fraction
 - name: line_averaged_nitrogen_density
   kind: scalar
   status: draft
@@ -309,6 +456,10 @@
   - name:line_averaged_oxygen_density
   - name:line_averaged_carbon_density
   - name:nitrogen_density
+  arguments:
+  - name: nitrogen_density
+    operator: line_averaged
+    operator_kind: qualifier
   sources:
   - id: dd:summary/line_average/n_i/nitrogen/value
     dd_path: summary/line_average/n_i/nitrogen/value
@@ -389,7 +540,7 @@
     \ charge-exchange recombination spectroscopy, and soft X-ray emission tomography.\
     \ Spatially averaged forms include [line_averaged_oxygen_density](name:line_averaged_oxygen_density)\
     \ (chord integral divided by chord length) and [volume_averaged_oxygen_density](name:volume_averaged_oxygen_density)\
-    \ (integral over the plasma volume). The dimensionless [oxygen_fraction](name:oxygen_fraction)\
+    \ (integral over the plasma volume). The dimensionless [oxygen_fraction](name:ratio_of_volume_averaged_oxygen_ion_density_to_volume_averaged_electron_density)\
     \ relates this local density to the electron density as an impurity concentration\
     \ measure.\n\nIn well-conditioned fusion plasmas the core oxygen density is a\
     \ small fraction of the electron density; edge concentrations of $10^{15}$\u2013\
@@ -401,7 +552,7 @@
   links:
   - name:line_averaged_oxygen_density
   - name:volume_averaged_oxygen_density
-  - name:oxygen_fraction
+  - name:ratio_of_volume_averaged_oxygen_ion_density_to_volume_averaged_electron_density
 - name: line_averaged_oxygen_density
   kind: scalar
   status: draft
@@ -506,6 +657,56 @@
   - id: dd:neutron_diagnostic/detectors/supply_low_voltage/voltage_set
     dd_path: neutron_diagnostic/detectors/supply_low_voltage/voltage_set
     status: attached
+- name: temperature_of_neutron_detector
+  kind: scalar
+  status: draft
+  description: Calibrated thermodynamic temperature, in kelvin, representing the thermal
+    state of a neutron detector assembly or its neutron-conversion element. It is
+    the temperature used to characterize detector response, not the raw temperature-sensor
+    voltage.
+  documentation: 'Temperature of a neutron detector is the calibrated thermodynamic
+    temperature representing the thermal state of the detector assembly, housing,
+    electronics-adjacent sensor location, or neutron-to-charged-particle converter
+    element. The reported quantity is an absolute temperature in kelvin and is therefore
+    non-negative; it is distinct from a raw sensor output such as [voltage_of_temperature_sensor](name:voltage_of_temperature_sensor).
+
+
+    When the detector temperature is spatially non-uniform or measured by several
+    sensors, the scalar value should represent the location or thermal component most
+    relevant to the detector response, such as the converter material or the sensor
+    thermally coupled to the active detector module. If several readings are combined,
+    the value is normally a calibrated representative temperature, for example an
+    average or response-weighted estimate, with the choice determined by the detector
+    calibration model.
+
+
+    In practice the temperature is obtained from thermistors, resistance temperature
+    detectors, thermocouples, semiconductor sensors, or similar devices attached to
+    the detector body, converter, or local electronics package. The calibrated temperature
+    is used to monitor gain stability, temperature-dependent efficiency, electronic
+    noise, and time-dependent corrections applied to neutron count-rate or signal
+    measurements such as [voltage_of_neutron_detector](name:voltage_of_neutron_detector)
+    and [neutron_flux_of_neutron_detector](name:neutron_flux_of_neutron_detector).
+
+
+    Representative operating values for room-temperature neutron detector systems
+    are often about 280-330 K. Detectors with active heating, cooling, in-vessel placement,
+    or thermally isolated converter elements may operate outside this range, and transient
+    heating during a discharge can produce smaller time-dependent excursions around
+    the local baseline.'
+  unit: K
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:neutron_flux_of_neutron_detector
+  - name:voltage_of_neutron_detector
+  - name:voltage_of_temperature_sensor
+  sources:
+  - id: dd:neutron_diagnostic/detector/temperature
+    dd_path: neutron_diagnostic/detector/temperature
+    status: attached
+  - id: dd:neutron_diagnostic/detectors/radiation/converter_temperature
+    dd_path: neutron_diagnostic/detectors/radiation/converter_temperature
+    status: composed
 - name: voltage_of_neutron_detector
   kind: scalar
   status: draft
@@ -1064,8 +1265,8 @@
     equilibrium modeling, or from impurity charge exchange spectroscopy on selected
     iron charge states. Typical line-averaged values range from $10^{14}$ to $10^{17}$
     m$^{-3}$ depending on iron source strength, impurity transport, and plasma conditions.
-    The [iron_fraction](name:iron_fraction) provides a related dimensionless indicator
-    of iron contamination normalized to electron density, while [line_averaged_nitrogen_density](name:line_averaged_nitrogen_density)
+    The iron_fraction provides a related dimensionless indicator of iron contamination
+    normalized to electron density, while [line_averaged_nitrogen_density](name:line_averaged_nitrogen_density)
     is a sibling quantity measured by the same chord-averaging technique for a lighter
     impurity species.
 
@@ -1076,7 +1277,6 @@
   links:
   - name:iron_density
   - name:volume_averaged_iron_density
-  - name:iron_fraction
   - name:line_averaged_nitrogen_density
   sources:
   - id: dd:summary/line_average/n_i/iron/value

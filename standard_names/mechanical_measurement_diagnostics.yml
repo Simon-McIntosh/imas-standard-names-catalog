@@ -1,6 +1,6 @@
 # Domain: mechanical_measurement_diagnostics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 11
+# Entries: 13
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -558,6 +558,99 @@
   sources:
   - id: dd:langmuir_probes/embedded/j_i_parallel_sigma
     dd_path: langmuir_probes/embedded/j_i_parallel_sigma
+    status: composed
+- name: thermal_energy_of_plant_component_port
+  kind: scalar
+  status: draft
+  description: Cumulative thermal energy extracted through a cooling-loop port on
+    a plant component since the start of the plasma pulse, obtained by time-integrating
+    the measured coolant enthalpy balance.
+  documentation: 'The thermal energy of a plant component port is the total heat removed
+    by the cooling loop of that component, accumulated from pulse start to the current
+    measurement time. It is the time-integral of the instantaneous [thermal power
+    extracted at the port](name:thermal_power_of_plant_component_port), making it
+    a running calorimetric total rather than a rate quantity.
+
+
+    The defining relation is:
+
+
+    $$
+
+    E_\text{th}(t) = \int_0^t P_\text{th}(t'') \, dt''
+
+    $$
+
+
+    where $P_\text{th}$ is the instantaneous extracted thermal power (in W) and the
+    lower integration limit is the start of the pulse.
+
+
+    The integrand $P_\text{th}$ is itself derived from the coolant enthalpy balance
+    $P_\text{th} = \dot{m} c_p (T_\text{out} - T_\text{in})$, where $\dot{m}$ is the
+    coolant mass flow rate, $c_p$ is the specific heat capacity of the coolant, and
+    $T_\text{out}$ and $T_\text{in}$ are the [outlet](name:coolant_temperature_at_outlet)
+    and [inlet](name:coolant_temperature_at_inlet) coolant temperatures. This cumulative
+    measure is used in pulse-integrated heat load accounting for plasma-facing components
+    and cooling circuits, complementing the instantaneous power signal for assessing
+    total energy deposition over a discharge.'
+  unit: J
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:thermal_power_of_plant_component_port
+  - name:coolant_temperature_at_outlet
+  - name:coolant_temperature_at_inlet
+  sources:
+  - id: dd:calorimetry/group/component/energy_cumulated
+    dd_path: calorimetry/group/component/energy_cumulated
+    status: composed
+- name: vertical_angle_of_camera
+  kind: scalar
+  status: draft
+  description: Vertical angular field of view of the camera, defined as the total
+    angular span covered along the detector-plane vertical direction.
+  documentation: 'Vertical angle of a camera is the vertical field-of-view width:
+    the total angular span imaged between the lower and upper edges of the active
+    detector area along the detector-plane vertical direction. It is an angular aperture,
+    not a signed pointing or elevation angle, so it is reported as a non-negative
+    value in radians.
+
+
+    For an ideal rectilinear optical model with an effective focal length, the vertical
+    field of view is commonly approximated by:
+
+
+    $$
+
+    \theta_v = 2\arctan\left(\frac{h}{2 f_\mathrm{eff}}\right)
+
+    $$
+
+
+    where $\theta_v$ is the vertical angular field of view, $h$ is the active detector
+    height in meters, and $f_\mathrm{eff}$ is the effective focal length in meters.
+    This relation assumes a rectilinear projection and an effective focal length that
+    already includes the relevant optical configuration.
+
+
+    In practice, the value is obtained from optical design parameters, laboratory
+    calibration, or a ray-tracing model of the camera and its lenses. For distorted,
+    telecentric, or otherwise non-rectilinear optics, the field of view is better
+    determined from the calibrated viewing rays at the vertical detector edges, or
+    equivalently from the difference between the upper and lower vertical viewing-angle
+    bounds of the detector pixels.
+
+
+    Typical values for diagnostic cameras range from about 0.05-1 rad, with narrow
+    views used for localized high-resolution imaging and wider views used to cover
+    larger plasma-facing regions.'
+  unit: rad
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:x_angle_of_camera
+  sources:
+  - id: dd:camera_ir/channel/camera/field_of_view_vertical
+    dd_path: camera_ir/channel/camera/field_of_view_vertical
     status: composed
 - name: y_coordinate_of_sensor_attachment_point
   kind: scalar

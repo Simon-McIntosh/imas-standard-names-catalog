@@ -1,9 +1,59 @@
 # Domain: plant_systems
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 18
+# Entries: 22
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: accumulated_carbon_count_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Cumulative carbon injected by gas injection after plasma breakdown,
+    expressed as an equivalent-electron count with six counts per carbon atom.
+  documentation: 'The accumulated carbon count due to gas injection is the running
+    total of carbon introduced after plasma breakdown by gas injection, expressed
+    as an equivalent-electron count. Each injected carbon atom contributes 6 to the
+    dimensionless count, corresponding to the atomic number of carbon, so the value
+    is non-negative and increases only when carbon-bearing gas is injected.
+
+
+    The accumulated equivalent-electron count is related to the carbon atom source
+    rate by
+
+
+    $$
+
+    N_{C,\mathrm{acc}}(t) = 6 \int_{t_\mathrm{bd}}^{t} \Gamma_{C,\mathrm{gas}}(t'')\,dt''
+
+    $$
+
+
+    where $N_{C,\mathrm{acc}}$ is the accumulated dimensionless equivalent-electron
+    count, $t_\mathrm{bd}$ is the plasma-breakdown time, $t$ and $t''$ are times in
+    seconds, and $\Gamma_{C,\mathrm{gas}}$ is the injected carbon atom rate in atoms
+    per second. The corresponding physical number of injected carbon atoms is $N_{C,\mathrm{acc}}/6$.
+
+
+    In practice this quantity is computed by integrating calibrated gas-injection
+    flow rates from breakdown onward, converting molecular flow to carbon atom flow
+    using the gas stoichiometry, and applying the factor of 6. It is the time integral
+    of [carbon_rate_due_to_gas_injection](name:carbon_rate_due_to_gas_injection) and
+    excludes the pre-breakdown inventory represented by [carbon_initial_count_due_to_gas_injection](name:carbon_initial_count_due_to_gas_injection).
+
+
+    Typical values are 0 for pulses without deliberate carbon-bearing gas injection
+    and about $10^{18}$-$10^{22}$ for trace or impurity-gas injection cases, depending
+    on injected gas species, calibrated valve throughput, and injection duration.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:carbon_initial_count_due_to_gas_injection
+  - name:carbon_count_due_to_gas_injection
+  - name:accumulated_hydrogen_count_due_to_gas_injection
+  - name:deuterium_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_accumulated/carbon/value
+    dd_path: summary/gas_injection_accumulated/carbon/value
+    status: composed
 - name: accumulated_ethane_count
   kind: scalar
   status: draft
@@ -354,6 +404,51 @@
   - name:outer_atomic_count_of_pellet
   - name:count_of_pellet
   - name:normalized_atomic_count_of_pellet
+- name: core_density_of_pellet
+  kind: scalar
+  status: draft
+  description: Number density of a constituent atomic species in the inner core layer
+    of a pellet used by a shattered-pellet injector.
+  documentation: 'Core density of pellet is the number density of a specified atomic
+    species within the pellet''s inner core layer. It represents how many atoms of
+    that species are present per unit volume of the core material and is non-negative
+    by physical definition.
+
+
+    The density is defined by the species population in the core divided by the core
+    volume:
+
+
+    $$
+
+    n_{s,\mathrm{core}} = \frac{N_{s,\mathrm{core}}}{V_\mathrm{core}}
+
+    $$
+
+
+    where $n_{s,\mathrm{core}}$ is the core species number density in m$^{-3}$, $N_{s,\mathrm{core}}$
+    is the number of atoms of species $s$ in the core and is dimensionless, and $V_\mathrm{core}$
+    is the core volume in m$^3$.
+
+
+    In practice this quantity is obtained from the specified pellet composition and
+    core geometry, or equivalently from the total core species inventory normalized
+    by the core volume. It is species-resolved: different atomic constituents of the
+    same core can have different values.
+
+
+    No device-independent typical numerical range is implied by the standard name
+    alone; values depend on the chosen pellet material, mixture, and core volume.'
+  unit: m^-3
+  physics_domain: plant_systems
+  links:
+  - name:density_of_pellet
+  - name:core_atomic_count_of_pellet
+  - name:outer_atomic_count_of_pellet
+  sources:
+  - id: dd:spi/injector/pellet/core/species/density
+    dd_path: spi/injector/pellet/core/species/density
+    status: composed
 - name: ethane_prefill_count
   kind: scalar
   status: draft
@@ -404,6 +499,55 @@
   - id: dd:summary/gas_injection_prefill/ethane/value
     dd_path: summary/gas_injection_prefill/ethane/value
     status: composed
+- name: gas_flow
+  kind: scalar
+  status: draft
+  description: Volumetric throughput rate of gas in an injection or pumping system,
+    expressed as the product of local gas pressure and volumetric flow speed.
+  documentation: "The gas flow $Q$ characterizes the pressure-weighted volumetric\
+    \ throughput of gas in a plasma-facing gas handling system, encompassing injection\
+    \ valves, injection pipes, and pumping ducts. It is the primary quantity governing\
+    \ particle delivery to and removal from the plasma vessel, directly linking hardware\
+    \ actuator settings to the plasma particle inventory.\n\nThe defining relation\
+    \ is:\n\n$$\nQ = p \\cdot \\dot{V}\n$$\n\nwhere $p$ is the local gas pressure\
+    \ and $\\dot{V}$ is the volumetric flow rate. This standard vacuum-engineering\
+    \ throughput convention yields a quantity proportional to particle flux that remains\
+    \ well-defined independent of downstream pressure variations, making it the natural\
+    \ actuator variable for density control systems.\n\nIn gas injection applications,\
+    \ $Q$ acts as the primary actuator for plasma fueling, impurity seeding, and density\
+    \ control. In pumping ducts, it quantifies the particle exhaust rate entering\
+    \ the plasma particle balance as a sink. The operational dynamic range of a given\
+    \ valve or duct is bounded by [maximum_gas_flow](name:maximum_gas_flow) as the\
+    \ upper limit and [minimum_gas_flow](name:minimum_gas_flow) as the lower limit.\
+    \ The species-resolved pumping counterpart is [neutral_species_flow](name:neutral_species_flow).\n\
+    \nFlow rates are inferred from calibrated mass flow controllers, pressure transducers\
+    \ combined with valve conductance models, or response-curve look-up tables that\
+    \ map control voltage to throughput. Typical injection rates range from $10^{-3}$\
+    \ to $10$ Pa\xB7m\xB3\xB7s\u207B\xB9 for trace impurity valves through high-throughput\
+    \ fueling manifolds; pumping duct rates in large-scale devices can exceed $10$\
+    \ Pa\xB7m\xB3\xB7s\u207B\xB9 during high-density operation."
+  unit: Pa.m^3.s^-1
+  physics_domain: plant_systems
+  links:
+  - name:maximum_gas_flow
+  - name:minimum_gas_flow
+  - name:neutral_species_flow
+  sources:
+  - id: dd:gas_injection/pipe/flow_rate
+    dd_path: gas_injection/pipe/flow_rate
+    status: attached
+  - id: dd:gas_injection/pipe/valve/flow_rate
+    dd_path: gas_injection/pipe/valve/flow_rate
+    status: attached
+  - id: dd:gas_injection/valve/flow_rate
+    dd_path: gas_injection/valve/flow_rate
+    status: composed
+  - id: dd:gas_injection/valve/response_curve/flow_rate
+    dd_path: gas_injection/valve/response_curve/flow_rate
+    status: attached
+  - id: dd:gas_pumping/duct/flow_rate
+    dd_path: gas_pumping/duct/flow_rate
+    status: attached
 - name: krypton_prefill_count
   kind: scalar
   status: draft
@@ -677,6 +821,54 @@
   - id: dd:spi/injector/velocity_mass_centre_fragments_r
     dd_path: spi/injector/velocity_mass_centre_fragments_r
     status: attached
+- name: silane_source_rate
+  kind: scalar
+  status: draft
+  description: Instantaneous injection rate of silane (SiH4) gas into the plasma vessel,
+    expressed in equivalent electrons per second.
+  documentation: 'Silane ($\mathrm{SiH_4}$, silicon tetrahydride) is a silicon-bearing
+    compound injected as a controlled impurity source in plasma experiments. The source
+    rate quantifies the instantaneous rate of silane introduction expressed as an
+    equivalent-electron flux, where each $\mathrm{SiH_4}$ molecule contributes the
+    combined atomic numbers of its constituent atoms.
+
+
+    Each silane molecule carries $Z_\mathrm{Si} + 4\,Z_\mathrm{H} = 14 + 4 = 18$ equivalent
+    electrons. The equivalent-electron rate $\dot{N}_\mathrm{eq}$ relates to the molecular
+    injection flux $\dot{N}_{\mathrm{SiH_4}}$ by:
+
+
+    $$
+
+    \dot{N}_\mathrm{eq} = 18 \, \dot{N}_{\mathrm{SiH_4}}
+
+    $$
+
+
+    where $Z_\mathrm{Si} = 14$ is the atomic number of silicon, $Z_\mathrm{H} = 1$
+    is the atomic number of hydrogen, and $\dot{N}_{\mathrm{SiH_4}}$ is the molecular
+    injection rate in molecules per second.
+
+
+    The instantaneous rate is inferred from calibrated gas-valve systems monitoring
+    flow at the injection manifold. Integrating this rate over the plasma discharge
+    from breakdown gives the [accumulated silane count](name:accumulated_silane_count),
+    which tracks the total equivalent-electron inventory of silane introduced during
+    a discharge. Analogous rate quantities for other injected species include [xenon_source_rate](name:xenon_source_rate)
+    and [nitrogen_source_rate](name:nitrogen_source_rate).
+
+
+    Sign convention: Positive when silane gas is being injected into the plasma vessel.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_silane_count
+  - name:xenon_source_rate
+  - name:nitrogen_source_rate
+  sources:
+  - id: dd:summary/gas_injection_rates/silane/value
+    dd_path: summary/gas_injection_rates/silane/value
+    status: composed
 - name: total_power_of_plant_system
   kind: scalar
   status: draft
