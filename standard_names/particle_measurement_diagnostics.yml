@@ -1,9 +1,40 @@
 # Domain: particle_measurement_diagnostics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 17
+# Entries: 21
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: diameter_of_diagnostic_aperture
+  kind: scalar
+  status: draft
+  description: Full linear width of a circular diagnostic aperture at the entrance
+    pupil, equal to twice the aperture radius and determining the solid-angle light-collection
+    acceptance of the diagnostic channel.
+  documentation: "The diameter of a diagnostic aperture is the full chord across the\
+    \ circular opening at the entrance pupil of the optical collection system. It\
+    \ is geometrically related to the [radius_of_diagnostic_aperture](name:radius_of_diagnostic_aperture)\
+    \ by $d = 2r$, and it directly governs the solid angle subtended at a given distance\
+    \ from the plasma emission region, setting the total light throughput and therefore\
+    \ the signal-to-noise balance of the diagnostic.\n\nThe solid angle $\\Omega$\
+    \ subtended by a circular aperture of diameter $d$ at perpendicular distance $L$\
+    \ from the emission region is:\n\n$$\n\\Omega \\approx \\frac{\\pi d^2}{4 L^2}\n\
+    $$\n\nwhere $d$ is the aperture diameter and $L$ is the line-of-sight distance\
+    \ from the plasma to the aperture plane.\n\nThis geometric parameter characterizes\
+    \ the entrance cone of spectroscopic diagnostics, including charge exchange recombination\
+    \ spectroscopy channels where the aperture diameter limits angular acceptance\
+    \ and spatial resolution. Typical values in fusion diagnostic systems range from\
+    \ a few millimeters to several centimeters depending on the required \xE9tendue\
+    \ and spatial selectivity of the measurement.\n\nSign convention: Positive when\
+    \ measured as the full chord through the aperture center in the plane of the entrance\
+    \ pupil."
+  unit: m
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:radius_of_diagnostic_aperture
+  sources:
+  - id: dd:charge_exchange/channel/cone_diameter
+    dd_path: charge_exchange/channel/cone_diameter
+    status: composed
 - name: helium_4_density
   kind: scalar
   status: draft
@@ -39,6 +70,38 @@
   - name:volume_averaged_helium_4_density
   - name:helium_4_density_at_plasma_boundary
   - name:fraction
+- name: krypton_density
+  kind: scalar
+  status: draft
+  description: Local number density of krypton impurity summed over all ionization
+    states, giving the total krypton particle concentration per unit plasma volume.
+  documentation: "The krypton number density is the volumetric concentration of krypton\
+    \ impurity at a given point in the plasma, encompassing all ionization states\
+    \ from neutral krypton Kr$^0$ through fully stripped Kr$^{36+}$. It is the primary\
+    \ local measure of krypton seeding level and the parent quantity from which spatially\
+    \ averaged forms are derived.\n\nThe total krypton particle density $n_\\mathrm{Kr}$\
+    \ at a given location is defined as:\n\n$$\nn_\\mathrm{Kr} = \\sum_{q=0}^{36}\
+    \ n_\\mathrm{Kr}^{(q)}\n$$\n\nwhere $n_\\mathrm{Kr}^{(q)}$ is the number density\
+    \ of krypton ions in charge state $q$. The [chord-averaged form](name:line_averaged_krypton_density)\
+    \ integrates this local quantity along a line of sight, while [volume_averaged_krypton_density](name:volume_averaged_krypton_density)\
+    \ provides a global mean. The concentration relative to electron density is tracked\
+    \ by [krypton_fraction](name:krypton_fraction), and the pedestal-region value\
+    \ by [krypton_density_at_pedestal](name:krypton_density_at_pedestal).\n\nKrypton\
+    \ (atomic number $Z=36$) is injected as a high-$Z$ seeding gas for radiative power\
+    \ exhaust and divertor detachment control. Its local density is inferred from\
+    \ passive spectroscopy of charge-state emission lines, active charge-exchange\
+    \ recombination spectroscopy, or tomographic inversion of multi-chord line-integrated\
+    \ measurements. Typical seeded-discharge values in tokamak edge and divertor regions\
+    \ range from $10^{16}$ to $10^{18}$ m$^{-3}$, corresponding to 0.01\u20131% of\
+    \ the local electron density.\n\nSign convention: Positive when krypton particles\
+    \ are present in the plasma volume element."
+  unit: m^-3
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:line_averaged_krypton_density
+  - name:volume_averaged_krypton_density
+  - name:krypton_fraction
+  - name:krypton_density_at_pedestal
 - name: line_averaged_helium_4_density
   kind: scalar
   status: draft
@@ -142,6 +205,10 @@
   - name:line_averaged_argon_density
   - name:krypton_density_at_pedestal
   - name:krypton_density_at_limiter
+  arguments:
+  - name: krypton_density
+    operator: line_averaged
+    operator_kind: qualifier
   sources:
   - id: dd:summary/line_average/n_i/krypton/value
     dd_path: summary/line_average/n_i/krypton/value
@@ -246,6 +313,38 @@
   - id: dd:summary/line_average/n_i/nitrogen/value
     dd_path: summary/line_average/n_i/nitrogen/value
     status: composed
+- name: oxygen_density
+  kind: scalar
+  status: draft
+  description: Total number density of oxygen atoms and ions across all charge states,
+    from neutral to fully stripped, giving the local oxygen impurity concentration
+    at a point in the plasma.
+  documentation: "The local oxygen number density $n_\\mathrm{O}$ quantifies the total\
+    \ concentration of oxygen impurity per unit plasma volume, encompassing neutral\
+    \ atomic oxygen and all ionic charge states up to fully stripped O$^{8+}$. Oxygen\
+    \ is a ubiquitous low-Z impurity in fusion devices, entering through wall outgassing\
+    \ and vessel conditioning; it contributes to radiative power losses and dilutes\
+    \ the hydrogenic fuel inventory.\n\nThe total oxygen density is defined as the\
+    \ sum over all ionization states:\n\n$$\nn_\\mathrm{O} = \\sum_{Z=0}^{8} n_{\\\
+    mathrm{O}^{Z+}}\n$$\n\nwhere $n_{\\mathrm{O}^{Z+}}$ is the number density of oxygen\
+    \ in charge state $Z^+$, with $Z$ ranging from 0 (neutral) to 8 (fully stripped).\n\
+    \nThe local density is inferred from passive extreme-ultraviolet spectroscopy,\
+    \ charge-exchange recombination spectroscopy, and soft X-ray emission tomography.\
+    \ Spatially averaged forms include [line_averaged_oxygen_density](name:line_averaged_oxygen_density)\
+    \ (chord integral divided by chord length) and [volume_averaged_oxygen_density](name:volume_averaged_oxygen_density)\
+    \ (integral over the plasma volume). The dimensionless [oxygen_fraction](name:oxygen_fraction)\
+    \ relates this local density to the electron density as an impurity concentration\
+    \ measure.\n\nIn well-conditioned fusion plasmas the core oxygen density is a\
+    \ small fraction of the electron density; edge concentrations of $10^{15}$\u2013\
+    $10^{17}$ m$^{-3}$ are representative of limiter and divertor configurations.\n\
+    \nSign convention: Positive when oxygen atoms or ions are present in the plasma\
+    \ volume element."
+  unit: m^-3
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:line_averaged_oxygen_density
+  - name:volume_averaged_oxygen_density
+  - name:oxygen_fraction
 - name: line_averaged_oxygen_density
   kind: scalar
   status: draft
@@ -283,6 +382,10 @@
   - name:volume_averaged_oxygen_density
   - name:line_averaged_nitrogen_density
   - name:line_averaged_carbon_density
+  arguments:
+  - name: oxygen_density
+    operator: line_averaged
+    operator_kind: qualifier
   sources:
   - id: dd:summary/line_average/n_i/oxygen/value
     dd_path: summary/line_average/n_i/oxygen/value
@@ -810,6 +913,57 @@
   sources:
   - id: dd:summary/line_average/zeff/value
     dd_path: summary/line_average/zeff/value
+    status: composed
+- name: line_averaged_hydrogen_density
+  kind: scalar
+  status: draft
+  description: Line-of-sight average of the hydrogen ion number density over a specified
+    chord through the plasma. It represents the path-length-normalized hydrogen ion
+    content, not neutral hydrogen density and not electron density.
+  documentation: 'Line-averaged hydrogen density is the path-length average of the
+    local hydrogen ion number density along a chosen chord through the plasma. Hydrogen
+    density here denotes the density of hydrogen ions, excluding neutral hydrogen
+    atoms and excluding electrons.
+
+
+    For a chord $C$ of averaging length $L$, the line average is defined by
+
+
+    $$
+
+    \langle n_\mathrm{H} \rangle_C = \frac{1}{L}\int_C n_\mathrm{H}(l)\,dl
+
+    $$
+
+
+    where $n_\mathrm{H}(l)$ is the local hydrogen ion number density at path-length
+    coordinate $l$, and $L = \int_C dl$ is the chord length over which the average
+    is taken.
+
+
+    This quantity is generally inferred from a combination of constraints rather than
+    measured directly by interferometric phase shift alone. Interferometry primarily
+    constrains line-integrated electron density; hydrogen ion density is separated
+    from electron density using quasineutrality together with composition information
+    from spectroscopy, charge-exchange measurements, impurity modeling, particle balance,
+    or transport analysis. In a nearly pure singly ionized hydrogen plasma it can
+    be close to the line-averaged electron density, while impurity dilution, multiple
+    ion species, and neutral populations make the hydrogen ion density distinct.
+
+
+    Typical line-averaged hydrogen ion densities in magnetically confined plasmas
+    range from $10^{18}$-$10^{20}\ \mathrm{m^{-3}}$, with lower values in weakly fueled
+    or edge-dominated conditions and higher values in high-density core plasmas.'
+  unit: m^-3
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:hydrogen_density
+  - name:volume_averaged_hydrogen_density
+  - name:line_averaged_deuterium_density
+  - name:hydrogen_fraction
+  sources:
+  - id: dd:summary/line_average/n_i/hydrogen/value
+    dd_path: summary/line_average/n_i/hydrogen/value
     status: composed
 - name: line_averaged_tritium_density
   kind: scalar

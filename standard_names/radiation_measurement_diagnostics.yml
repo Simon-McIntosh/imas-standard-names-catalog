@@ -1,6 +1,6 @@
 # Domain: radiation_measurement_diagnostics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 17
+# Entries: 22
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -176,6 +176,58 @@
     status: attached
   - id: dd:neutron_diagnostic/unit_source/radiation/reaction/energy
     dd_path: neutron_diagnostic/unit_source/radiation/reaction/energy
+    status: composed
+- name: nitrogen_fraction
+  kind: scalar
+  status: draft
+  description: 'Volume-averaged nitrogen concentration: the total nitrogen-particle
+    density over all charge states divided by electron density.'
+  documentation: 'Nitrogen fraction is the dimensionless volume-averaged abundance
+    of nitrogen relative to electrons in a plasma. It counts nitrogen nuclei in all
+    ionization states, from neutral $\mathrm{N}^{0}$ through fully stripped $\mathrm{N}^{7+}$,
+    and normalizes their total number density by the local electron density.
+
+
+    Using a volume average over the plasma volume, the fraction is defined as:
+
+
+    $$
+
+    f_\mathrm{N} = \left\langle \frac{\sum_{q=0}^{7} n_{\mathrm{N}^{q+}}}{n_e} \right\rangle_V
+
+    $$
+
+
+    where $n_{\mathrm{N}^{q+}}$ is the number density of nitrogen with charge state
+    $q$, $q=0$ denotes neutral nitrogen, $q=7$ denotes fully stripped nitrogen, $n_e$
+    is electron density, and $\langle\cdot\rangle_V$ denotes volume averaging. Fully
+    stripped nitrogen is $\mathrm{N}^{7+}$; there is no $\mathrm{N}^{8+}$ charge state
+    for nitrogen.
+
+
+    In practice, this quantity is inferred from a combination of impurity spectroscopy,
+    charge-exchange recombination measurements when available, bolometric radiation
+    constraints, electron-density measurements, and collisional-radiative or transport
+    modeling to complete the charge-state distribution. Neutral and fully stripped
+    populations can be difficult to observe directly, so their contributions are often
+    inferred from ionization-balance modeling rather than measured as isolated emission
+    features.
+
+
+    Typical values are $10^{-4}$-$10^{-3}$ for trace background nitrogen and $10^{-3}$-$5\times10^{-2}$
+    during deliberate nitrogen seeding for radiative divertor or edge-cooling control.
+    Larger fractions increase radiated power and fuel dilution and therefore strongly
+    affect plasma performance.'
+  unit: '1'
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:volume_averaged_nitrogen_density
+  - name:line_averaged_nitrogen_density
+  - name:neon_fraction
+  - name:total_plasma_fraction
+  sources:
+  - id: dd:summary/composition/nitrogen/value
+    dd_path: summary/composition/nitrogen/value
     status: composed
 - name: radiated_power_density
   kind: scalar
@@ -687,6 +739,51 @@
   - id: dd:bolometer/channel/detector/centre/z
     dd_path: bolometer/channel/detector/centre/z
     status: composed
+- name: vertical_coordinate_of_camera
+  kind: scalar
+  status: draft
+  description: "Vertical (Z) coordinate of the center of a camera in the right-handed\
+    \ cylindrical (R, \u03C6, Z) frame."
+  documentation: "The vertical coordinate $Z$ locates the geometric center of a camera\
+    \ \u2014 encompassing visible, X-ray, and UV imaging instruments \u2014 along\
+    \ the machine symmetry axis in the right-handed cylindrical $(R, \\phi, Z)$ frame,\
+    \ where $R$ is the major radius from the symmetry axis, $\\phi$ is the toroidal\
+    \ angle, and $Z$ is the height measured from the machine midplane with $Z$ increasing\
+    \ upward.\n\nThis coordinate is obtained from mechanical survey, laser tracker\
+    \ measurements, or design models of the diagnostic installation referenced to\
+    \ the machine coordinate origin. Together with $R$ and $\\phi$, it fully specifies\
+    \ the three-dimensional position of the camera center in the tokamak geometry.\
+    \ The analogous vertical coordinate for general optical elements is given by [vertical_coordinate_of_optical_element](name:vertical_coordinate_of_optical_element),\
+    \ and for diagnostic apertures by [vertical_coordinate_of_diagnostic_aperture](name:vertical_coordinate_of_diagnostic_aperture).\n\
+    \nSign convention: Positive when the camera center lies above the machine midplane\
+    \ in the direction of increasing $Z$."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:vertical_coordinate_of_optical_element
+  - name:vertical_coordinate_of_diagnostic_aperture
+  sources:
+  - id: dd:camera_visible/channel/fibre_bundle/geometry/centre/z
+    dd_path: camera_visible/channel/fibre_bundle/geometry/centre/z
+    status: composed
+  - id: dd:camera_x_rays/camera/centre/z
+    dd_path: camera_x_rays/camera/centre/z
+    status: attached
+  - id: dd:spectrometer_uv/channel/grating/image_field/centre/z
+    dd_path: spectrometer_uv/channel/grating/image_field/centre/z
+    status: attached
+  - id: dd:spectrometer_visible/channel/fibre_bundle/geometry/centre/z
+    dd_path: spectrometer_visible/channel/fibre_bundle/geometry/centre/z
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/camera/center/z
+    dd_path: spectrometer_x_ray_crystal/camera/center/z
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/camera/centre/z
+    dd_path: spectrometer_x_ray_crystal/camera/centre/z
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/camera/centre/z
+    dd_path: spectrometer_x_ray_crystal/channel/camera/centre/z
+    status: attached
 - name: vertical_coordinate_of_detector_pixel
   kind: scalar
   status: draft
@@ -788,6 +885,68 @@
   - id: dd:hard_x_rays/channel/detector/x1_width
     dd_path: hard_x_rays/channel/detector/x1_width
     status: composed
+- name: x1_coordinate_of_optical_element
+  kind: scalar
+  status: draft
+  description: X1 coordinate of an optical element's outline vertices or fiber-center
+    positions in the element-local two-dimensional Cartesian (X1, X2) frame.
+  documentation: "The X1 coordinate locates a point \u2014 such as an aperture outline\
+    \ vertex, a detector-face boundary vertex, or an optical fiber center \u2014 along\
+    \ the first axis of the element-local two-dimensional Cartesian (X1, X2) frame.\
+    \ This local frame is defined independently for each optical element, with its\
+    \ origin placed at a reference feature of the component (for example, a grating\
+    \ summit, a detector center, or a fiber bundle centroid) and its axes aligned\
+    \ with the element's principal directions.\n\nTogether with the companion X2 coordinate,\
+    \ the (X1, X2) pair describes the planar geometry of optical elements such as\
+    \ aperture boundaries, detector active areas, grating outlines, or fiber spatial\
+    \ layouts. Closed polygons formed from ordered (X1, X2) vertex pairs define the\
+    \ collimating or sensitive area used in etendue calculations and line-of-sight\
+    \ reconstruction. Analogous coordinates for other diagnostic components follow\
+    \ the same convention: [x1_coordinate_of_aperture](name:x1_coordinate_of_aperture)\
+    \ and [x1_coordinate_of_diagnostic_aperture](name:x1_coordinate_of_filter) describe\
+    \ collimating aperture outlines, while [x1_coordinate_of_soft_xray_detector](name:x1_coordinate_of_soft_xray_detector)\
+    \ covers detector-face vertices.\n\nTypical values span the physical dimensions\
+    \ of the optical element, ranging from fractions of a millimeter for individual\
+    \ optical fiber cores to several centimeters for large detector faces or diffraction\
+    \ grating surfaces.\n\nSign convention: Positive when the point lies in the positive\
+    \ X1 direction from the origin of the element-local (X1, X2) coordinate frame."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:x1_coordinate_of_aperture
+  - name:x1_coordinate_of_filter
+  - name:x1_coordinate_of_soft_xray_detector
+  sources:
+  - id: dd:camera_ir/fibre_bundle/fibre_positions/x1
+    dd_path: camera_ir/fibre_bundle/fibre_positions/x1
+    status: attached
+  - id: dd:camera_ir/optical_element/geometry/outline/x1
+    dd_path: camera_ir/optical_element/geometry/outline/x1
+    status: attached
+  - id: dd:camera_visible/channel/fibre_bundle/fibre_positions/x1
+    dd_path: camera_visible/channel/fibre_bundle/fibre_positions/x1
+    status: attached
+  - id: dd:camera_visible/channel/fibre_bundle/geometry/outline/x1
+    dd_path: camera_visible/channel/fibre_bundle/geometry/outline/x1
+    status: attached
+  - id: dd:camera_visible/channel/optical_element/geometry/outline/x1
+    dd_path: camera_visible/channel/optical_element/geometry/outline/x1
+    status: composed
+  - id: dd:spectrometer_uv/channel/detector/outline/x1
+    dd_path: spectrometer_uv/channel/detector/outline/x1
+    status: composed
+  - id: dd:spectrometer_uv/channel/grating/outline/x1
+    dd_path: spectrometer_uv/channel/grating/outline/x1
+    status: attached
+  - id: dd:spectrometer_visible/channel/fibre_bundle/fibre_positions/x1
+    dd_path: spectrometer_visible/channel/fibre_bundle/fibre_positions/x1
+    status: attached
+  - id: dd:spectrometer_visible/channel/optical_element/geometry/outline/x1
+    dd_path: spectrometer_visible/channel/optical_element/geometry/outline/x1
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/reflector/outline/x1
+    dd_path: spectrometer_x_ray_crystal/channel/reflector/outline/x1
+    status: attached
 - name: x1_coordinate_of_soft_xray_detector
   kind: scalar
   status: draft
@@ -819,6 +978,39 @@
   sources:
   - id: dd:soft_x_rays/channel/detector/outline/x1
     dd_path: soft_x_rays/channel/detector/outline/x1
+    status: composed
+- name: x2_coordinate_of_filter
+  kind: scalar
+  status: draft
+  description: X2 coordinate of filter window outline vertices in the local orthogonal
+    (X1, X2) plane frame, giving the second-axis positions that jointly define the
+    filter aperture boundary shape.
+  documentation: "The filter aperture boundary is represented as a closed polygon\
+    \ of vertices whose positions are specified in a local orthogonal 2D coordinate\
+    \ system $(X_1, X_2)$ attached to the filter element. The X2 coordinate provides\
+    \ the second-axis component of each boundary vertex, and together with [x1_coordinate_of_filter](name:x1_coordinate_of_filter),\
+    \ fully defines the transverse cross-sectional outline of the filter window. This\
+    \ planar boundary geometry is used to compute the \xE9tendue, solid angle, and\
+    \ angular acceptance of the associated X-ray diagnostic channel.\n\nThe local\
+    \ $(X_1, X_2)$ frame is defined in the plane of the filter element; both axes\
+    \ form a right-handed orthogonal pair with the origin fixed to the filter element\
+    \ mounting reference. Filter windows in X-ray diagnostics span dimensions from\
+    \ roughly 0.001\u20130.05 m, so outline vertex coordinates lie within that range\
+    \ of the local frame origin. The identical coordinate convention governs the aperture\
+    \ outline described by [x2_coordinate_of_diagnostic_aperture](name:x2_coordinate_of_diagnostic_aperture),\
+    \ while the closely related [x2_coordinate_of_filter_window](name:x2_coordinate_of_filter_window)\
+    \ applies the same scheme to a more narrowly scoped filter-window object.\n\n\
+    Sign convention: Positive when the vertex position lies in the positive $X_2$\
+    \ direction from the local frame origin."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:x1_coordinate_of_filter
+  - name:x2_coordinate_of_diagnostic_aperture
+  - name:x2_coordinate_of_filter_window
+  sources:
+  - id: dd:soft_x_rays/channel/filter_window/outline/x2
+    dd_path: soft_x_rays/channel/filter_window/outline/x2
     status: composed
 - name: x2_coordinate_of_filter_window
   kind: scalar
@@ -927,6 +1119,90 @@
   sources:
   - id: dd:hard_x_rays/channel/detector/outline/x2
     dd_path: hard_x_rays/channel/detector/outline/x2
+    status: composed
+- name: x2_coordinate_of_optical_element
+  kind: scalar
+  status: draft
+  description: Coordinate of a point on an optical element measured along the second
+    axis of the element's local planar (X1, X2) frame. It is the signed in-plane displacement
+    from the local origin resolved on the X2 basis direction.
+  documentation: 'The x2 coordinate of an optical element is the signed distance,
+    within the element''s local plane, from the element''s local origin to a specified
+    point resolved along the second local in-plane axis. The coordinate is defined
+    in a local planar $(X_1,X_2)$ frame with origin $O$ and basis $(\hat{\mathbf{X}}_1,\hat{\mathbf{X}}_2)$
+    attached to the optical element, rather than in a global laboratory frame.
+
+
+    For an orthonormal local planar basis, the coordinate is the projection of the
+    point displacement onto the second basis direction:
+
+
+    $$
+
+    x_2 = (\mathbf{r}-\mathbf{r}_O) \cdot \hat{\mathbf{X}}_2
+
+    $$
+
+
+    where $\mathbf{r}$ is the position vector of the point, $\mathbf{r}_O$ is the
+    position vector of the local origin, and $\hat{\mathbf{X}}_2$ is the unit vector
+    along the local $X_2$ axis.
+
+
+    In practice, this coordinate is obtained from mechanical drawings, optical metrology,
+    or calibration fits by expressing measured point positions in the element''s local
+    planar $(X_1,X_2)$ frame. The same definition applies whether the point represents
+    a fiber center, an aperture-outline vertex, a detector-face point, or another
+    geometrical feature of an optical component.
+
+
+    There is no universal physical range because the value is set by the transverse
+    size of the particular optical element and by the chosen local origin. Meaningful
+    values normally lie within the element''s active or mechanical aperture; compact
+    diagnostic optics may have absolute coordinates of order $10^{-4}$-$10^{-1}$ m,
+    while larger optical elements can extend beyond this range.
+
+
+    Sign convention: Positive when the displacement from the local origin to the point
+    has a component in the $+\hat{\mathbf{X}}_2$ direction of the optical element''s
+    local planar $(\hat{\mathbf{X}}_1,\hat{\mathbf{X}}_2)$ basis.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:x1_coordinate_of_optical_element
+  sources:
+  - id: dd:camera_ir/fibre_bundle/fibre_positions/x2
+    dd_path: camera_ir/fibre_bundle/fibre_positions/x2
+    status: attached
+  - id: dd:camera_ir/optical_element/geometry/outline/x2
+    dd_path: camera_ir/optical_element/geometry/outline/x2
+    status: attached
+  - id: dd:camera_visible/channel/fibre_bundle/fibre_positions/x2
+    dd_path: camera_visible/channel/fibre_bundle/fibre_positions/x2
+    status: attached
+  - id: dd:camera_visible/channel/fibre_bundle/geometry/outline/x2
+    dd_path: camera_visible/channel/fibre_bundle/geometry/outline/x2
+    status: attached
+  - id: dd:camera_visible/channel/optical_element/geometry/outline/x2
+    dd_path: camera_visible/channel/optical_element/geometry/outline/x2
+    status: composed
+  - id: dd:spectrometer_uv/channel/detector/outline/x2
+    dd_path: spectrometer_uv/channel/detector/outline/x2
+    status: composed
+  - id: dd:spectrometer_uv/channel/grating/outline/x2
+    dd_path: spectrometer_uv/channel/grating/outline/x2
+    status: composed
+  - id: dd:spectrometer_visible/channel/fibre_bundle/fibre_positions/x2
+    dd_path: spectrometer_visible/channel/fibre_bundle/fibre_positions/x2
+    status: attached
+  - id: dd:spectrometer_visible/channel/fibre_bundle/geometry/outline/x2
+    dd_path: spectrometer_visible/channel/fibre_bundle/geometry/outline/x2
+    status: attached
+  - id: dd:spectrometer_visible/channel/optical_element/geometry/outline/x2
+    dd_path: spectrometer_visible/channel/optical_element/geometry/outline/x2
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/reflector/outline/x2
+    dd_path: spectrometer_x_ray_crystal/channel/reflector/outline/x2
     status: composed
 - name: hot_neutral_temperature
   kind: scalar
