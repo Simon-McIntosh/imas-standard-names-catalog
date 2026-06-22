@@ -1,6 +1,6 @@
 # Domain: auxiliary_heating
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 36
+# Entries: 39
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -461,52 +461,6 @@
   - id: dd:ic_antennas/antenna/module/strap/geometry/annulus/radius_outer
     dd_path: ic_antennas/antenna/module/strap/geometry/annulus/radius_outer
     status: composed
-- name: per_toroidal_mode_fast_electron_power
-  kind: scalar
-  status: draft
-  description: Wave power absorbed by the fast (non-thermal) electron population from
-    a coherent wave, attributed to a single toroidal Fourier harmonic identified by
-    mode number $n_\phi$.
-  documentation: "This quantity gives the contribution to the total absorbed fast-electron\
-    \ wave power from a single toroidal Fourier harmonic of a coherent wave, identified\
-    \ by toroidal mode number $n_\\phi$. It decomposes [fast_electron_power](name:fast_electron_power)\
-    \ \u2014 the volume-integrated power absorbed by the non-thermal electron population\
-    \ \u2014 into individual harmonic contributions.\n\nThe summation closure relation\
-    \ is:\n\n$$\nP_{\\rm fast,e} = \\sum_{n_\\phi} P_{\\rm fast,e}(n_\\phi)\n$$\n\n\
-    where $P_{\\rm fast,e}(n_\\phi)$ is the power absorbed by fast electrons from\
-    \ the harmonic with toroidal mode number $n_\\phi$.\n\nIn wave-modeling calculations,\
-    \ the electromagnetic fields of a coherent wave are expanded as a Fourier series\
-    \ in the toroidal angle $\\phi$, and the contribution from each harmonic to the\
-    \ fast-electron power balance is evaluated separately using quasilinear diffusion\
-    \ theory applied to the non-thermal electron distribution. Resonant absorption\
-    \ mechanisms \u2014 such as electron cyclotron or lower-hybrid resonances \u2014\
-    \ accelerate electrons to suprathermal energies, and the harmonic decomposition\
-    \ reveals which modes dominate this energy transfer. The radially cumulative (inside-flux-surface)\
-    \ variant is [fast_electron_power_at_inside_flux_surface](name:fast_electron_power_at_inside_flux_surface),\
-    \ while the local power-density analog per mode is [per_toroidal_mode_fast_electron_power_density](name:per_toroidal_mode_fast_electron_power_density).\
-    \ The equivalent decomposition for the thermal electron population is [per_toroidal_mode_thermal_electron_power](name:per_toroidal_mode_thermal_electron_power),\
-    \ and the fast-ion counterpart is [per_toroidal_mode_fast_ion_power](name:per_toroidal_mode_fast_ion_power)."
-  unit: W
-  physics_domain: auxiliary_heating
-  links:
-  - name:fast_electron_power
-  - name:fast_electron_power_at_inside_flux_surface
-  - name:per_toroidal_mode_fast_electron_power_density
-  - name:per_toroidal_mode_thermal_electron_power
-  - name:per_toroidal_mode_fast_ion_power
-  sources:
-  - id: dd:waves/coherent_wave/global_quantities/electrons/power_fast_n_phi
-    dd_path: waves/coherent_wave/global_quantities/electrons/power_fast_n_phi
-    status: composed
-  - id: dd:waves/coherent_wave/global_quantities/electrons/power_fast_n_tor
-    dd_path: waves/coherent_wave/global_quantities/electrons/power_fast_n_tor
-    status: attached
-  - id: dd:waves/coherent_wave/profiles_1d/electrons/power_inside_fast_n_phi
-    dd_path: waves/coherent_wave/profiles_1d/electrons/power_inside_fast_n_phi
-    status: composed
-  - id: dd:waves/coherent_wave/profiles_1d/electrons/power_inside_fast_n_tor
-    dd_path: waves/coherent_wave/profiles_1d/electrons/power_inside_fast_n_tor
-    status: attached
 - name: per_toroidal_mode_fast_ion_power
   kind: scalar
   status: draft
@@ -932,6 +886,63 @@
   - id: dd:summary/heating_current_drive/power_launched_ic/value
     dd_path: summary/heating_current_drive/power_launched_ic/value
     status: composed
+- name: forward_power_of_ion_cyclotron_heating_antenna
+  kind: scalar
+  status: draft
+  description: The incident RF power traveling from the generator toward the ion cyclotron
+    heating antenna along the transmission line, before any reflection occurs at the
+    antenna-plasma interface.
+  documentation: 'Forward power is the incident traveling-wave RF power propagating
+    from the RF generator toward the ion cyclotron heating antenna along the coaxial
+    transmission line. It represents the total power available at the antenna reference
+    plane before coupling to the plasma, and is the primary input quantity used to
+    compute coupling efficiency together with the returning wave power.
+
+
+    The net power launched into the vacuum vessel is determined by subtracting the
+    reflected wave power:
+
+
+    $$
+
+    P_\mathrm{net} = P_\mathrm{fwd} - P_\mathrm{ref}
+
+    $$
+
+
+    where $P_\mathrm{fwd}$ is this forward power, $P_\mathrm{ref}$ is the [reflected
+    power of the antenna](name:reflected_power_of_ion_cyclotron_heating_antenna),
+    and $P_\mathrm{net}$ corresponds to the [net launched power](name:power_of_ion_cyclotron_heating_antenna).
+    The antenna coupling efficiency is $\eta = (P_\mathrm{fwd} - P_\mathrm{ref}) /
+    P_\mathrm{fwd} = 1 - |\Gamma|^2$, where $\Gamma$ is the voltage reflection coefficient
+    at the antenna aperture.
+
+
+    Forward power is measured using calibrated directional couplers installed on the
+    coaxial transmission line between the RF generator and the antenna strap feed,
+    providing real-time monitoring for power control and antenna protection against
+    excessive reflected power.
+
+
+    Typical forward power levels per ICRH antenna range from 1 to above 10 MW on large
+    tokamaks, with coupling efficiencies between 70% and 95% depending on plasma edge
+    density, strap phasing, and plasma-antenna gap.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:reflected_power_of_ion_cyclotron_heating_antenna
+  - name:power_of_ion_cyclotron_heating_antenna
+  arguments:
+  - name: power_of_ion_cyclotron_heating_antenna
+    operator: forward
+    operator_kind: qualifier
+  sources:
+  - id: dd:ic_antennas/antenna/module/power_forward
+    dd_path: ic_antennas/antenna/module/power_forward
+    status: attached
+  - id: dd:ic_antennas/antenna/power_forward
+    dd_path: ic_antennas/antenna/power_forward
+    status: composed
 - name: reflected_power_of_ion_cyclotron_heating_antenna
   kind: scalar
   status: draft
@@ -1317,6 +1328,92 @@
   - id: dd:nbi/unit/aperture/outline/x2
     dd_path: nbi/unit/aperture/outline/x2
     status: composed
+- name: fast_electron_power
+  kind: scalar
+  status: draft
+  description: Total wave power absorbed by the fast (suprathermal) electron population
+    from a coherent wave, globally integrated over the plasma volume.
+  documentation: "Fast electron power is the volume integral of the local wave energy\
+    \ absorption rate by the non-thermal (suprathermal) electron population, representing\
+    \ the globally integrated fraction of coherent wave energy transferred to electrons\
+    \ whose velocities substantially exceed the bulk thermal velocity.\n\nThe defining\
+    \ relation is:\n\n$$\nP_\\mathrm{fast,e} = \\int_V p_\\mathrm{fast,e}(\\mathbf{r})\\\
+    , dV\n$$\n\nwhere $p_\\mathrm{fast,e}$ is the [fast electron power density](name:fast_electron_power_density)\
+    \ \u2014 the local volumetric wave-energy absorption rate on the suprathermal\
+    \ electron population and $V$ is the total plasma volume.\n\nThis quantity is\
+    \ computed from wave-kinetic or quasilinear solvers that partition the electron\
+    \ velocity distribution into thermal and suprathermal components; in electron\
+    \ cyclotron resonance heating scenarios, the fast electron channel captures absorption\
+    \ at harmonic resonances and energy transfer during suprathermal tail formation.\
+    \ The thermally absorbed complement is [thermal_electron_power](name:thermal_electron_power);\
+    \ comparing the two characterizes the non-thermal efficiency of a given wave-heating\
+    \ scheme.\n\nTogether with [thermal_electron_power](name:thermal_electron_power)\
+    \ and [fast_ion_power](name:fast_ion_power), this quantity contributes to [absorbed_power](name:absorbed_power)\
+    \ \u2014 the total wave energy transferred to the plasma per unit time. It enters\
+    \ the electron energy balance as a suprathermal source term within [electron_power](name:electron_power),\
+    \ the all-channel electron energy-balance quantity."
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:fast_electron_power_density
+  - name:thermal_electron_power
+  - name:fast_ion_power
+  - name:absorbed_power
+  - name:electron_power
+  sources:
+  - id: dd:waves/coherent_wave/global_quantities/electrons/power_fast
+    dd_path: waves/coherent_wave/global_quantities/electrons/power_fast
+    status: composed
+- name: per_toroidal_mode_fast_electron_power
+  kind: scalar
+  status: draft
+  description: Wave power absorbed by the fast (non-thermal) electron population from
+    a coherent wave, attributed to a single toroidal Fourier harmonic identified by
+    mode number $n_\phi$.
+  documentation: "This quantity gives the contribution to the total absorbed fast-electron\
+    \ wave power from a single toroidal Fourier harmonic of a coherent wave, identified\
+    \ by toroidal mode number $n_\\phi$. It decomposes [fast_electron_power](name:fast_electron_power)\
+    \ \u2014 the volume-integrated power absorbed by the non-thermal electron population\
+    \ \u2014 into individual harmonic contributions.\n\nThe summation closure relation\
+    \ is:\n\n$$\nP_{\\rm fast,e} = \\sum_{n_\\phi} P_{\\rm fast,e}(n_\\phi)\n$$\n\n\
+    where $P_{\\rm fast,e}(n_\\phi)$ is the power absorbed by fast electrons from\
+    \ the harmonic with toroidal mode number $n_\\phi$.\n\nIn wave-modeling calculations,\
+    \ the electromagnetic fields of a coherent wave are expanded as a Fourier series\
+    \ in the toroidal angle $\\phi$, and the contribution from each harmonic to the\
+    \ fast-electron power balance is evaluated separately using quasilinear diffusion\
+    \ theory applied to the non-thermal electron distribution. Resonant absorption\
+    \ mechanisms \u2014 such as electron cyclotron or lower-hybrid resonances \u2014\
+    \ accelerate electrons to suprathermal energies, and the harmonic decomposition\
+    \ reveals which modes dominate this energy transfer. The radially cumulative (inside-flux-surface)\
+    \ variant is [fast_electron_power_at_inside_flux_surface](name:fast_electron_power_at_inside_flux_surface),\
+    \ while the local power-density analog per mode is [per_toroidal_mode_fast_electron_power_density](name:per_toroidal_mode_fast_electron_power_density).\
+    \ The equivalent decomposition for the thermal electron population is [per_toroidal_mode_thermal_electron_power](name:per_toroidal_mode_thermal_electron_power),\
+    \ and the fast-ion counterpart is [per_toroidal_mode_fast_ion_power](name:per_toroidal_mode_fast_ion_power)."
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:fast_electron_power
+  - name:fast_electron_power_at_inside_flux_surface
+  - name:per_toroidal_mode_fast_electron_power_density
+  - name:per_toroidal_mode_thermal_electron_power
+  - name:per_toroidal_mode_fast_ion_power
+  arguments:
+  - name: fast_electron_power
+    operator: per_toroidal_mode
+    operator_kind: qualifier
+  sources:
+  - id: dd:waves/coherent_wave/global_quantities/electrons/power_fast_n_phi
+    dd_path: waves/coherent_wave/global_quantities/electrons/power_fast_n_phi
+    status: composed
+  - id: dd:waves/coherent_wave/global_quantities/electrons/power_fast_n_tor
+    dd_path: waves/coherent_wave/global_quantities/electrons/power_fast_n_tor
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_1d/electrons/power_inside_fast_n_phi
+    dd_path: waves/coherent_wave/profiles_1d/electrons/power_inside_fast_n_phi
+    status: composed
+  - id: dd:waves/coherent_wave/profiles_1d/electrons/power_inside_fast_n_tor
+    dd_path: waves/coherent_wave/profiles_1d/electrons/power_inside_fast_n_tor
+    status: attached
 - name: fast_electron_power_density
   kind: scalar
   status: draft
@@ -1376,12 +1473,68 @@
   - name:thermal_electron_power_density
   - name:electron_power_density
   - name:fast_ion_power_density
+  arguments:
+  - name: electron_power_density
+    operator: fast
+    operator_kind: qualifier
   sources:
   - id: dd:waves/coherent_wave/profiles_1d/electrons/power_density_fast
     dd_path: waves/coherent_wave/profiles_1d/electrons/power_density_fast
     status: composed
   - id: dd:waves/coherent_wave/profiles_2d/electrons/power_density_fast
     dd_path: waves/coherent_wave/profiles_2d/electrons/power_density_fast
+    status: attached
+- name: per_toroidal_mode_fast_electron_power_density
+  kind: scalar
+  status: draft
+  description: RF wave energy deposition rate per unit volume into the suprathermal
+    electron population, resolved per toroidal mode number, such that summing over
+    all modes recovers the total fast electron power density.
+  documentation: "Fast electron power density per toroidal mode is the volumetric\
+    \ rate at which a coherent RF wave deposits energy into the suprathermal (non-thermal)\
+    \ electron population attributed to a single toroidal harmonic of the wave field.\
+    \ The fast electrons are those resonantly accelerated above the bulk thermal velocity\
+    \ through wave-particle interaction, forming a non-Maxwellian energetic tail in\
+    \ the electron distribution function.\n\nThe total [fast electron power density](name:fast_electron_power_density)\
+    \ is recovered by summing over all toroidal mode numbers:\n\n$$\nP_\\mathrm{fast,e}(r)\
+    \ = \\sum_{n_\\phi} p_\\mathrm{fast,e}(r,\\, n_\\phi)\n$$\n\nwhere $p_\\mathrm{fast,e}(r,\
+    \ n_\\phi)$ is the power density contribution from toroidal mode number $n_\\\
+    phi$ and $r$ is the radial coordinate.\n\nThe mode-resolved deposition is computed\
+    \ by wave-propagation models \u2014 ray-tracing or full-wave solvers equipped\
+    \ with quasilinear diffusion operators \u2014 that decompose the RF electric field\
+    \ into toroidal harmonics and evaluate the mode-dependent damping on the fast\
+    \ electron component of the distribution function.\n\nThe harmonic structure of\
+    \ fast-electron absorption depends on wave type: electron cyclotron heating concentrates\
+    \ deposition near the fundamental or harmonic cyclotron resonance in a narrow\
+    \ toroidal mode range, while lower-hybrid and ICRH Landau and transit-time damping\
+    \ distribute absorption across a broader toroidal mode spectrum. The fast-ion\
+    \ counterpart is [per_toroidal_mode_fast_ion_power_density](name:per_toroidal_mode_fast_ion_power_density),\
+    \ the thermal electron counterpart is [per_toroidal_mode_thermal_electron_power_density](name:per_toroidal_mode_thermal_electron_power_density),\
+    \ and the mode-resolved total absorbed power density summed over all populations\
+    \ is given by [per_toroidal_mode_absorbed_power_density](name:per_toroidal_mode_absorbed_power_density)."
+  unit: W.m^-3
+  physics_domain: auxiliary_heating
+  links:
+  - name:fast_electron_power_density
+  - name:per_toroidal_mode_fast_ion_power_density
+  - name:per_toroidal_mode_thermal_electron_power_density
+  - name:per_toroidal_mode_absorbed_power_density
+  arguments:
+  - name: fast_electron_power_density
+    operator: per_toroidal_mode
+    operator_kind: qualifier
+  sources:
+  - id: dd:waves/coherent_wave/profiles_1d/electrons/power_density_fast_n_phi
+    dd_path: waves/coherent_wave/profiles_1d/electrons/power_density_fast_n_phi
+    status: composed
+  - id: dd:waves/coherent_wave/profiles_1d/electrons/power_density_fast_n_tor
+    dd_path: waves/coherent_wave/profiles_1d/electrons/power_density_fast_n_tor
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_2d/electrons/power_density_fast_n_phi
+    dd_path: waves/coherent_wave/profiles_2d/electrons/power_density_fast_n_phi
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_2d/electrons/power_density_fast_n_tor
+    dd_path: waves/coherent_wave/profiles_2d/electrons/power_density_fast_n_tor
     status: attached
 - name: fast_ion_state_power
   kind: scalar
@@ -1729,6 +1882,10 @@
   - name:fast_electron_power_density
   - name:thermal_electron_power_at_inside_flux_surface
   - name:thermal_ion_power_density
+  arguments:
+  - name: electron_power_density
+    operator: thermal
+    operator_kind: qualifier
   sources:
   - id: dd:waves/coherent_wave/profiles_1d/electrons/power_density_thermal
     dd_path: waves/coherent_wave/profiles_1d/electrons/power_density_thermal

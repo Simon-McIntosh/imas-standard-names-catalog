@@ -1,9 +1,170 @@
 # Domain: mechanical_measurement_diagnostics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 4
+# Entries: 8
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: coolant_temperature_at_inlet
+  kind: scalar
+  status: draft
+  description: Temperature of the coolant fluid at the entry point of a cooling loop
+    or calorimetry component, used with the outlet temperature and mass flow rate
+    to compute deposited thermal power via enthalpy balance.
+  documentation: 'The coolant inlet temperature is the absolute temperature of the
+    working fluid measured at the inlet port of a cooling circuit, before traversing
+    the component and absorbing heat. It establishes the upstream thermal boundary
+    condition for thermodynamic analysis of the cooling loop and is a primary input
+    to heat load calculations.
+
+
+    Combined with [coolant_temperature_at_outlet](name:coolant_temperature_at_outlet)
+    and the coolant mass flow rate from [coolant_flow](name:coolant_flow), the deposited
+    thermal power $P$ is determined by:
+
+
+    $$
+
+    P = \dot{m} \, c_p \, (T_\mathrm{out} - T_\mathrm{in})
+
+    $$
+
+
+    where $\dot{m}$ is the mass flow rate in kg s$^{-1}$, $c_p$ is the specific heat
+    capacity of the coolant in J kg$^{-1}$ K$^{-1}$, $T_\mathrm{in}$ is the inlet
+    temperature, and $T_\mathrm{out}$ is the outlet temperature.
+
+
+    Measured using calibrated resistance temperature detectors (RTDs) or thermocouples
+    mounted at the inlet manifold of the cooling circuit. It applies to calorimetry
+    components, cooling loops, and breeding blanket module circuits.
+
+
+    Typical inlet temperatures in water-cooled tokamak circuits range from 290-330
+    K; helium-cooled blanket systems may operate at inlet temperatures up to 550 K
+    or higher depending on the thermal design point. The temperature difference $(T_\mathrm{out}
+    - T_\mathrm{in})$ is the key diagnostic observable for computing [thermal_power_of_plant_component_port](name:thermal_power_of_plant_component_port).'
+  unit: K
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:coolant_temperature_at_outlet
+  - name:coolant_flow
+  - name:thermal_power_of_plant_component_port
+  sources:
+  - id: dd:breeding_blanket/module/cooling/time_slice/temperature_inlet
+    dd_path: breeding_blanket/module/cooling/time_slice/temperature_inlet
+    status: attached
+  - id: dd:calorimetry/cooling_loop/temperature_in
+    dd_path: calorimetry/cooling_loop/temperature_in
+    status: attached
+  - id: dd:calorimetry/group/component/temperature_in
+    dd_path: calorimetry/group/component/temperature_in
+    status: composed
+- name: coolant_temperature_at_outlet
+  kind: scalar
+  status: draft
+  description: Absolute temperature of the cooling fluid at the exit port of a cooling
+    loop or calorimetry component, serving as the downstream thermal boundary condition
+    in calorimetric heat-load assessment.
+  documentation: 'The coolant outlet temperature is the absolute thermodynamic temperature
+    of the working fluid leaving a cooling-loop channel or calorimetry component.
+    Paired with [coolant_temperature_at_inlet](name:coolant_temperature_at_inlet)
+    and the [coolant mass flow rate](name:coolant_flow), it supplies the thermodynamic
+    data needed to close the first-law calorimetric enthalpy balance.
+
+
+    The deposited thermal power $P_{th}$ is defined by:
+
+
+    $$
+
+    P_{th} = \dot{m} \, c_p \, (T_{\mathrm{out}} - T_{\mathrm{in}})
+
+    $$
+
+
+    where $\dot{m}$ is the coolant mass flow rate, $c_p$ is the specific heat capacity
+    of the coolant at constant pressure (approximately 4180 J kg$^{-1}$ K$^{-1}$ for
+    water), $T_{\mathrm{out}}$ is this outlet temperature, and $T_{\mathrm{in}}$ is
+    the [inlet temperature](name:coolant_temperature_at_inlet). The resulting [deposited
+    thermal power](name:thermal_power_of_plant_component_port) and [cumulative thermal
+    energy](name:thermal_energy_of_plant_component_port) are derived from this relation.
+
+
+    Outlet temperature is measured by resistance temperature detectors (RTDs) or calibrated
+    thermocouples mounted at the component exit manifold. For water-cooled plasma-facing
+    and structural components, outlet temperatures range from 300 to 400 K, with temperature
+    rises of a few to tens of kelvins depending on the incident heat load.'
+  unit: K
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:coolant_temperature_at_inlet
+  - name:coolant_flow
+  - name:thermal_power_of_plant_component_port
+  - name:thermal_energy_of_plant_component_port
+  sources:
+  - id: dd:breeding_blanket/module/cooling/time_slice/temperature_outlet
+    dd_path: breeding_blanket/module/cooling/time_slice/temperature_outlet
+    status: attached
+  - id: dd:calorimetry/cooling_loop/temperature_out
+    dd_path: calorimetry/cooling_loop/temperature_out
+    status: attached
+  - id: dd:calorimetry/group/component/temperature_out
+    dd_path: calorimetry/group/component/temperature_out
+    status: composed
+- name: effective_area_of_langmuir_probe
+  kind: scalar
+  status: draft
+  description: Effective ion collection area of a Langmuir probe, equal to the plasma-facing
+    surface area projected onto the plane perpendicular to the local magnetic field.
+  documentation: 'Effective area of a Langmuir probe is the collecting area presented
+    to ions streaming along the local magnetic field. It is the projected part of
+    the plasma-facing surface that intercepts field-aligned particle flux, and is
+    smaller than the geometric area when the magnetic field strikes the surface obliquely.
+
+
+    For a locally planar collector, the effective collection area is defined by the
+    field-surface incidence angle:
+
+
+    $$
+
+    A_\mathrm{eff} = A \sin\alpha = A\,|\hat{\mathbf{b}}\cdot\hat{\mathbf{n}}|
+
+    $$
+
+
+    where $A_\mathrm{eff}$ is the effective collection area in m^2, $A$ is the geometric
+    plasma-facing area in m^2, $\alpha$ is the [angle_of_langmuir_probe](name:angle_of_langmuir_probe)
+    in radians measured between the local magnetic field line direction and the plasma-facing
+    surface, $\hat{\mathbf{b}}$ is the dimensionless unit vector along the magnetic
+    field, and $\hat{\mathbf{n}}$ is the dimensionless unit normal to the collector
+    surface. Thus $\alpha=0$ gives zero effective area for a field line tangent to
+    the surface, while $\alpha=\pi/2$ gives the full geometric area for normal incidence.
+    For a curved or segmented collector, the same projection is applied locally and
+    summed over the exposed plasma-facing surface.
+
+
+    In practice, this quantity is computed from the known exposed probe geometry and
+    the local magnetic-field direction at the probe position. It is used when converting
+    measured ion saturation current to [parallel_ion_current_density](name:parallel_ion_current_density),
+    because that current density is defined per unit area perpendicular to the magnetic
+    field.
+
+
+    Typical effective areas for small embedded or flush-mounted Langmuir probes are
+    about 10^-8-10^-5 m^2. Larger protruding tips or collector plates may reach about
+    10^-4 m^2, while very grazing magnetic-field incidence can reduce the effective
+    area by orders of magnitude relative to the geometric surface area.'
+  unit: m^2
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:area_of_langmuir_probe
+  - name:ion_saturated_current
+  - name:ion_saturated_current_density
+  sources:
+  - id: dd:langmuir_probes/embedded/surface_area_effective
+    dd_path: langmuir_probes/embedded/surface_area_effective
+    status: composed
 - name: electron_average_temperature_at_midplane
   kind: scalar
   status: draft
@@ -199,3 +360,80 @@
   - id: dd:langmuir_probes/reciprocating/plunge/collector/j_i_saturation
     dd_path: langmuir_probes/reciprocating/plunge/collector/j_i_saturation
     status: composed
+- name: parallel_ion_current_density
+  kind: scalar
+  status: draft
+  description: Parallel ion current density is the projection of the total ion electric-current
+    density onto the local magnetic-field direction. It is a charge-weighted sum over
+    ion species and charge states, so each ion particle flux contributes in proportion
+    to its charge state rather than as an unweighted particle count.
+  documentation: 'Parallel ion current density is the component of ion electric-current
+    density flowing along the local magnetic field. For an ion population with multiple
+    species or charge states, the unqualified quantity represents the total ion contribution,
+    obtained by charge-weighting and summing the parallel particle fluxes of the contributing
+    ion populations.
+
+
+    The projection and charge-weighted aggregation are
+
+
+    $$
+
+    j_{\parallel i} = \mathbf{j}_i \cdot \hat{\mathbf{b}} = e \sum_s Z_s \, \Gamma_{\parallel
+    s}
+
+    $$
+
+
+    where $j_{\parallel i}$ is the parallel ion current density in A m$^{-2}$, $\mathbf{j}_i$
+    is the total ion current-density vector in A m$^{-2}$, $\hat{\mathbf{b}}=\mathbf{B}/|\mathbf{B}|$
+    is the unit vector along the local magnetic field, $e$ is the elementary charge
+    in C, $s$ indexes ion species and charge states, $Z_s$ is the ion charge state,
+    and $\Gamma_{\parallel s}$ is the signed parallel particle flux of population
+    $s$ in m$^{-2}$ s$^{-1}$. This distinguishes the current density from an unweighted
+    ion particle flux: highly charged ions contribute proportionally more electric
+    current for the same particle flux.
+
+
+    In practice, this quantity may be inferred from charged-particle collection by
+    Langmuir probes or other plasma-facing collectors using a sheath and collection-area
+    model, local magnetic-field direction, and surface geometry. It may also be computed
+    from kinetic or fluid descriptions by taking the first velocity moment of the
+    ion distribution for each species and charge state, multiplying by charge, summing,
+    and projecting along $\hat{\mathbf{b}}$.
+
+
+    Representative boundary-plasma magnitudes vary strongly with density, temperature,
+    magnetic-field incidence angle, and proximity to material surfaces. Edge and divertor
+    measurements commonly span order-of-magnitude ranges such as $10^2$-$10^5$ A m$^{-2}$,
+    with larger transient or near-sheath values possible in high-flux conditions.
+
+
+    Sign convention: Positive when the net ion charge flux is in the local magnetic-field
+    direction $\hat{\mathbf{b}}=\mathbf{B}/|\mathbf{B}|$.'
+  unit: A.m^-2
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:ion_current_density
+  - name:effective_area_of_langmuir_probe
+  - name:parallel_ion_fluctuating_current_density
+  - name:ion_saturated_current_density
+  sources:
+  - id: dd:langmuir_probes/embedded/j_i_parallel
+    dd_path: langmuir_probes/embedded/j_i_parallel
+    status: attached
+  - id: dd:langmuir_probes/embedded/j_ion_parallel
+    dd_path: langmuir_probes/embedded/j_ion_parallel
+    status: attached
+  - id: dd:langmuir_probes/probe/j_ion_parallel
+    dd_path: langmuir_probes/probe/j_ion_parallel
+    status: composed
+  - id: dd:langmuir_probes/reciprocating/plunge/collector/j_i_parallel
+    dd_path: langmuir_probes/reciprocating/plunge/collector/j_i_parallel
+    status: attached
+  - id: dd:langmuir_probes/reciprocating/plunge/j_i_parallel
+    dd_path: langmuir_probes/reciprocating/plunge/j_i_parallel
+    status: attached
+  - id: dd:langmuir_probes/reciprocating/plunge/j_ion_parallel
+    dd_path: langmuir_probes/reciprocating/plunge/j_ion_parallel
+    status: attached
