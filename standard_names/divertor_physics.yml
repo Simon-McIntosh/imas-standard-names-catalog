@@ -1,6 +1,6 @@
 # Domain: divertor_physics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 19
+# Entries: 23
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -116,6 +116,112 @@
     status: composed
   - id: dd:summary/local/divertor_target/n_i/carbon/value
     dd_path: summary/local/divertor_target/n_i/carbon/value
+    status: composed
+- name: current_of_divertor_tile
+  kind: scalar
+  status: draft
+  description: Net electric current flowing from the plasma across the electrostatic
+    sheath onto the plasma-facing surface of an individual divertor tile.
+  documentation: 'The current of a divertor tile is the net electric current flowing
+    from the plasma across the electrostatic sheath onto the plasma-facing surface
+    of a single tile. It provides tile-resolved resolution of the current distribution
+    across the divertor strike zone, complementing the target-integrated quantity
+    [current_at_divertor_target](name:current_at_divertor_target).
+
+
+    The tile current integrates the local net sheath current density $j_s$ over the
+    plasma-facing tile area $A_\mathrm{tile}$:
+
+
+    $$
+
+    I_\mathrm{tile} = \int_{A_\mathrm{tile}} j_s \, dA
+
+    $$
+
+
+    where $j_s$ depends on the local ion saturation current density, the tile-to-plasma
+    sheath potential, and the local [electron temperature at the divertor target](name:electron_temperature_at_divertor_target).
+    Dividing by the tile area, available from [surface_area_of_divertor_tile](name:surface_area_of_divertor_tile),
+    converts this quantity to a mean incident current density.
+
+
+    Tile currents are measured using isolated tile circuits or embedded Langmuir probes
+    whose signals are routed through the mechanical tile support structure, enabling
+    time-resolved acquisition during plasma operation including transient ELM events.
+
+
+    Summing contributions from all tiles on a given target recovers [current_at_divertor_target](name:current_at_divertor_target),
+    and summing over all targets gives [current_of_divertor](name:current_of_divertor).
+    Tile-level current data are used to diagnose thermoelectric current loops, local
+    erosion hot spots, and strike-zone asymmetries driven by 3D magnetic perturbations.
+
+
+    Sign convention: Positive when net electric current flows from the plasma onto
+    the tile surface.'
+  unit: A
+  physics_domain: divertor_physics
+  links:
+  - name:current_at_divertor_target
+  - name:electron_temperature_at_divertor_target
+  - name:surface_area_of_divertor_tile
+  - name:current_of_divertor
+  sources:
+  - id: dd:divertors/divertor/target/tile/current_incident
+    dd_path: divertors/divertor/target/tile/current_incident
+    status: composed
+- name: deuterium_density_at_divertor_target
+  kind: scalar
+  status: draft
+  description: Number density of deuterium ions in the plasma immediately adjacent
+    to a divertor target. It is the species-resolved fuel-ion population at the plasma-material
+    interface in deuterium-fueled operation.
+  documentation: 'Deuterium density at the divertor target is the local number density
+    of deuterium ions, usually singly ionized $D^+$, in the plasma next to a divertor
+    target surface. It is a species-resolved ion density, distinct from the species-agnostic
+    [density at divertor target](name:density_at_divertor_target) and from [total
+    ion density at divertor target](name:total_ion_density_at_divertor_target), which
+    sums over all ion species present.
+
+
+    For a small volume element adjacent to the target, the deuterium ion density is
+    defined by the local particle population per unit volume:
+
+
+    $$
+
+    n_D = \frac{dN_D}{dV}
+
+    $$
+
+
+    where $N_D$ is the number of deuterium ions in the volume element $dV$ and $n_D$
+    is the corresponding number density.
+
+
+    In practice, this quantity is inferred from local divertor plasma measurements
+    and modeling, such as target-region probe analysis, spectroscopic interpretation
+    of deuterium emission, or divertor Thomson scattering when available. The inferred
+    value depends strongly on recycling, ionization balance, cross-field transport,
+    sheath-edge conditions, and whether the divertor is attached, partially detached,
+    or detached.
+
+
+    Typical values are about $10^{18}-10^{20}$ m^-3 in attached divertor conditions
+    and can reach $10^{20}-10^{21}$ m^-3 in high-recycling or detached divertor conditions,
+    depending on fueling, target heat flux, and divertor geometry.'
+  unit: m^-3
+  physics_domain: divertor_physics
+  links:
+  - name:density_at_divertor_target
+  - name:hydrogen_density_at_divertor_target
+  - name:tritium_density_at_divertor_target
+  sources:
+  - id: dd:summary/local/divertor_plate/n_i/deuterium/value
+    dd_path: summary/local/divertor_plate/n_i/deuterium/value
+    status: attached
+  - id: dd:summary/local/divertor_target/n_i/deuterium/value
+    dd_path: summary/local/divertor_target/n_i/deuterium/value
     status: composed
 - name: effective_charge_at_divertor_target
   kind: scalar
@@ -492,6 +598,62 @@
   - id: dd:wall/global_quantities/power_density_outer_target_max
     dd_path: wall/global_quantities/power_density_outer_target_max
     status: composed
+- name: neon_density_at_divertor_target
+  kind: scalar
+  status: draft
+  description: Number density of ionized neon immediately adjacent to the divertor
+    target, summed over all neon charge states Ne1+ through Ne10+ and excluding neutral
+    neon atoms.
+  documentation: 'Neon density at the divertor target is the local number density
+    of ionized neon in the plasma directly next to the material target surface. It
+    represents the total population of neon ions over all bound-electron configurations,
+    excluding neutral neon, and is used to quantify impurity content, radiative cooling,
+    and dilution in the divertor plasma.
+
+
+    The total ionized neon density is the sum over neon charge-state densities:
+
+
+    $$
+
+    n_{\mathrm{Ne}} = \sum_{q=1}^{10} n_{\mathrm{Ne}^{q+}}
+
+    $$
+
+
+    where $n_{\mathrm{Ne}^{q+}}$ is the number density of neon ions with charge $q$
+    and the upper limit corresponds to fully stripped neon.
+
+
+    In practice this quantity is inferred from impurity emission measurements combined
+    with atomic-physics modeling, or obtained from edge and divertor plasma simulations
+    that evolve impurity ionization, recombination, radiation, and transport. The
+    ratio to [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target)
+    gives the local neon ionic fraction; interpretation is also coupled to local [electron_density_at_divertor_target](name:electron_density_at_divertor_target)
+    and [ion_temperature_at_divertor_target](name:ion_temperature_at_divertor_target).
+
+
+    Typical values range from about $10^{15}$-$10^{20}$ m$^{-3}$, depending strongly
+    on neon seeding level, divertor detachment state, plasma density, and impurity
+    transport. In trace-seeded attached conditions the value may be far below the
+    main-ion density, while in strongly radiating or detached divertor plasmas it
+    can approach percent-level fractions of the local ion density.'
+  unit: m^-3
+  physics_domain: divertor_physics
+  links:
+  - name:density_at_divertor_target
+  - name:argon_density_at_divertor_target
+  - name:nitrogen_density_at_divertor_target
+  - name:krypton_density_at_divertor_target
+  - name:electron_density_at_divertor_target
+  - name:ion_temperature_at_divertor_target
+  sources:
+  - id: dd:summary/local/divertor_plate/n_i/neon/value
+    dd_path: summary/local/divertor_plate/n_i/neon/value
+    status: composed
+  - id: dd:summary/local/divertor_target/n_i/neon/value
+    dd_path: summary/local/divertor_target/n_i/neon/value
+    status: composed
 - name: neutral_power_at_divertor_target
   kind: scalar
   status: draft
@@ -530,6 +692,43 @@
   sources:
   - id: dd:divertors/divertor/target/power_neutrals
     dd_path: divertors/divertor/target/power_neutrals
+    status: composed
+- name: neutral_power_of_divertor
+  kind: scalar
+  status: draft
+  description: Net power deposited on all divertor targets by neutral particles, aggregated
+    over all targets in the divertor assembly.
+  documentation: "Neutral particles \u2014 charge-exchange atoms, recycled hydrogen\
+    \ atoms and molecules, and dissociation products \u2014 transport energy to divertor\
+    \ target surfaces through thermal accommodation, dissociation, and recombination\
+    \ processes. This quantity aggregates the neutral-particle heat load over all\
+    \ individual divertor targets, capturing the total neutral-particle contribution\
+    \ to the divertor power balance without resolving individual targets or specific\
+    \ interaction processes.\n\nThe neutral power deposition arises from both the\
+    \ kinetic energy and the internal (potential) energy carried by neutral particles\
+    \ to the target surface. In attached divertor operation, this channel is typically\
+    \ smaller than the electron and ion heat-flux contributions; in deeply detached\
+    \ regimes, where volumetric recombination is strong and plasma recedes from the\
+    \ target, the neutral component can grow substantially as energy is transported\
+    \ to the surface via neutral atom and molecule flux rather than direct plasma\
+    \ contact. The process-specific subset due to recombination is given by [neutral\
+    \ power of divertor due to recombination](name:neutral_power_of_divertor_due_to_recombination),\
+    \ while [neutral power at divertor target](name:neutral_power_at_divertor_target)\
+    \ provides the same physical quantity resolved for an individual target. The electric-current\
+    \ component of the divertor heat load is separately captured by [power of divertor](name:power_of_divertor).\
+    \ This quantity is computed from edge-plasma transport modeling or inferred by\
+    \ decomposing calorimetric measurements of total target heat load into species-resolved\
+    \ channels.\n\nSign convention: Positive when net power is directed from the neutral\
+    \ particles toward the divertor targets."
+  unit: W
+  physics_domain: divertor_physics
+  links:
+  - name:neutral_power_of_divertor_due_to_recombination
+  - name:neutral_power_at_divertor_target
+  - name:power_of_divertor
+  sources:
+  - id: dd:divertors/divertor/power_neutrals
+    dd_path: divertors/divertor/power_neutrals
     status: composed
 - name: nitrogen_density_at_divertor_target
   kind: scalar

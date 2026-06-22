@@ -1,9 +1,60 @@
 # Domain: plant_systems
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 22
+# Entries: 25
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: accumulated_ammonia_deuterated_count
+  kind: scalar
+  status: draft
+  description: 'Accumulated deuterated ammonia (ND3) introduced after plasma breakdown,
+    expressed as an equivalent-electron count. Each neutral ND3 molecule contributes
+    10 equivalent electrons: 7 from nitrogen and 1 from each of the three deuterium
+    atoms.'
+  documentation: 'Accumulated deuterated ammonia count is the cumulative amount of
+    neutral ND3 gas injected after plasma breakdown, expressed as the number of electrons
+    associated with those neutral molecules in complete ionization accounting. It
+    tracks delivered deuterated-ammonia inventory, not net plasma electron density
+    or electric charge, and is the deuterated-isotopologue counterpart of [accumulated_ammonia_count](name:accumulated_ammonia_count).
+
+
+    The conversion from molecular injection to equivalent-electron count is
+
+
+    $$
+
+    N_\mathrm{eq}(t) = 10 \int_{t_\mathrm{bd}}^{t} \Gamma_{\mathrm{ND}_3}(t'')\, dt''
+
+    $$
+
+
+    where $N_\mathrm{eq}$ is a dimensionless equivalent-electron count, $t_\mathrm{bd}$
+    is the plasma-breakdown time, and $\Gamma_{\mathrm{ND}_3}$ is the neutral ND3
+    molecular injection rate in molecules per second. The factor 10 is the neutral-molecule
+    electron inventory, $7+1+1+1$, from nitrogen plus three deuterium atoms.
+
+
+    In practice this quantity is computed by integrating a calibrated ND3 molecular
+    flow rate, commonly inferred from gas-injection hardware such as mass-flow controllers,
+    pulsed valves, plenum pressure and temperature evolution, and calibrated line
+    conductance. The accumulation starts at breakdown, increases during ND3 delivery,
+    and remains unchanged when no deuterated ammonia is injected.
+
+
+    Typical values are strongly device- and scenario-dependent. Small calibrated impurity
+    puffs may correspond to $10^{18}-10^{21}$ equivalent electrons, routine radiative-seeding
+    injections to $10^{21}-10^{23}$ equivalent electrons, and large cooling or mitigation
+    injections to $10^{23}-10^{25}$ equivalent electrons or higher.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_ammonia_count
+  - name:ammonia_prefill_count
+  - name:ammonia_source_rate
+  sources:
+  - id: dd:summary/gas_injection_accumulated/ammonia_deuterated/value
+    dd_path: summary/gas_injection_accumulated/ammonia_deuterated/value
+    status: composed
 - name: accumulated_carbon_count_due_to_gas_injection
   kind: scalar
   status: draft
@@ -37,7 +88,7 @@
     flow rates from breakdown onward, converting molecular flow to carbon atom flow
     using the gas stoichiometry, and applying the factor of 6. It is the time integral
     of [carbon_rate_due_to_gas_injection](name:carbon_rate_due_to_gas_injection) and
-    excludes the pre-breakdown inventory represented by [carbon_initial_count_due_to_gas_injection](name:carbon_initial_count_due_to_gas_injection).
+    excludes the pre-breakdown inventory represented by [carbon_initial_count_due_to_gas_injection](name:carbon_prefill_count_due_to_gas_injection).
 
 
     Typical values are 0 for pulses without deliberate carbon-bearing gas injection
@@ -46,10 +97,8 @@
   unit: '1'
   physics_domain: plant_systems
   links:
-  - name:carbon_initial_count_due_to_gas_injection
-  - name:carbon_count_due_to_gas_injection
-  - name:accumulated_hydrogen_count_due_to_gas_injection
-  - name:deuterium_count_due_to_gas_injection
+  - name:carbon_rate_due_to_gas_injection
+  - name:carbon_prefill_count_due_to_gas_injection
   sources:
   - id: dd:summary/gas_injection_accumulated/carbon/value
     dd_path: summary/gas_injection_accumulated/carbon/value
@@ -85,8 +134,8 @@
     the discharge. This quantity complements [ethane_prefill_count](name:ethane_prefill_count),
     which covers only the prefill phase preceding breakdown. Related hydrocarbon injection
     counts include [accumulated_propane_count](name:accumulated_propane_count) (C3H8,
-    26 electrons per molecule) and [ethylene_count](name:ethylene_count) (C2H4, 16
-    electrons per molecule).
+    26 electrons per molecule) and [ethylene_count](name:accumulated_ethylene_count)
+    (C2H4, 16 electrons per molecule).
 
 
     Sign convention: Positive when ethane gas is injected into the plasma vessel.'
@@ -95,7 +144,7 @@
   links:
   - name:ethane_prefill_count
   - name:accumulated_propane_count
-  - name:ethylene_count
+  - name:accumulated_ethylene_count
   sources:
   - id: dd:summary/gas_injection_accumulated/ethane/value
     dd_path: summary/gas_injection_accumulated/ethane/value
@@ -273,6 +322,41 @@
   sources:
   - id: dd:summary/gas_injection_accumulated/propane/value
     dd_path: summary/gas_injection_accumulated/propane/value
+    status: composed
+- name: accumulated_xenon_count
+  kind: scalar
+  status: draft
+  description: Cumulative number of xenon atoms from gas injection accumulated since
+    plasma breakdown, expressed in equivalent electrons, where each xenon atom contributes
+    54 equivalent electrons corresponding to its atomic number Z = 54.
+  documentation: "The accumulated xenon count tracks the total xenon atoms introduced\
+    \ by gas injection from plasma breakdown onward, expressed as a dimensionless\
+    \ equivalent-electron tally in which each neutral xenon atom contributes 54 counts\
+    \ equal to its atomic number $Z_{\\mathrm{Xe}} = 54$.\n\nThe defining integral\
+    \ is:\n\n$$\nN_{\\mathrm{Xe,eq}}(t) = 54 \\int_{t_{\\mathrm{bd}}}^{t} \\frac{dN_{\\\
+    mathrm{Xe}}}{dt'} \\, dt'\n$$\n\nwhere $dN_{\\mathrm{Xe}}/dt'$ is the instantaneous\
+    \ xenon injection rate in atoms s$^{-1}$, $t_{\\mathrm{bd}}$ is the time of plasma\
+    \ breakdown in s, and $N_{\\mathrm{Xe,eq}}$ is dimensionless. The prefill xenon\
+    \ inventory prior to breakdown is excluded from this integral and is tracked separately\
+    \ by [accumulated_xenon_prefill_count](name:accumulated_xenon_prefill_count).\n\
+    \nThe instantaneous injection rate contributing to this integral is characterized\
+    \ by [xenon_source_rate](name:xenon_source_rate). Xenon is employed as a high-$Z$\
+    \ impurity in disruption mitigation and radiative cooling experiments; in massive\
+    \ gas injection scenarios the equivalent-electron count can reach $10^{23}$\u2013\
+    $10^{24}$. For lighter noble gas comparisons, see [accumulated_neon_count](name:accumulated_neon_count)\
+    \ ($Z = 10$) and [accumulated_krypton_count](name:accumulated_krypton_count) ($Z\
+    \ = 36$).\n\nSign convention: Positive when xenon gas is injected into the vessel\
+    \ after plasma breakdown, incrementing the cumulative count."
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_xenon_prefill_count
+  - name:xenon_source_rate
+  - name:accumulated_neon_count
+  - name:accumulated_krypton_count
+  sources:
+  - id: dd:summary/gas_injection_accumulated/xenon/value
+    dd_path: summary/gas_injection_accumulated/xenon/value
     status: composed
 - name: accumulated_xenon_prefill_count
   kind: scalar
@@ -589,7 +673,7 @@
     or gas-injection quantities such as [argon_prefill_count](name:argon_prefill_count),
     [neon_prefill_count](name:neon_prefill_count), [tritium_prefill_count](name:tritium_prefill_count),
     [accumulated_xenon_prefill_count](name:accumulated_xenon_prefill_count), [accumulated_helium_4_prefill_count_due_to_gas_injection](name:accumulated_helium_4_count_due_to_gas_injection),
-    and [carbon_initial_count_due_to_gas_injection](name:carbon_initial_count_due_to_gas_injection);
+    and [carbon_initial_count_due_to_gas_injection](name:carbon_prefill_count_due_to_gas_injection);
     [accumulated_krypton_count](name:accumulated_krypton_count) denotes the krypton
     inventory accumulated beyond the prefill-only interval.
 
@@ -607,7 +691,7 @@
   - name:tritium_prefill_count
   - name:accumulated_xenon_prefill_count
   - name:accumulated_helium_4_count_due_to_gas_injection
-  - name:carbon_initial_count_due_to_gas_injection
+  - name:carbon_prefill_count_due_to_gas_injection
   - name:accumulated_krypton_count
   sources:
   - id: dd:summary/gas_injection_prefill/krypton/value
@@ -762,6 +846,56 @@
   - id: dd:balance_of_plant/power_plant/power_electric_generated
     dd_path: balance_of_plant/power_plant/power_electric_generated
     status: attached
+- name: propane_prefill_count
+  kind: scalar
+  status: draft
+  description: Total propane (C3H8) introduced during the plasma prefill phase, expressed
+    as an equivalent-electron count using 26 electrons per propane molecule.
+  documentation: 'Propane prefill count is the accumulated amount of propane introduced
+    before plasma breakdown, expressed on an equivalent-electron basis. A propane
+    molecule, C$_3$H$_8$, contains $3 \times 6 + 8 \times 1 = 26$ electrons, so each
+    injected molecule contributes 26 to this count.
+
+
+    The accumulated prefill count is defined from the propane molecular flow integrated
+    over the prefill interval:
+
+
+    $$
+
+    N_{\mathrm{eq}} = 26\,N_{\mathrm{mol}} = 26 \int_{t_{\mathrm{start}}}^{t_{\mathrm{bd}}}
+    \dot{N}_{\mathrm{mol}}(t)\,dt
+
+    $$
+
+
+    where $N_{\mathrm{eq}}$ is the dimensionless equivalent-electron count, $N_{\mathrm{mol}}$
+    is the dimensionless count of propane molecules injected during prefill, $\dot{N}_{\mathrm{mol}}$
+    is the propane molecular flow rate in molecules s$^{-1}$, and $t_{\mathrm{start}}$
+    and $t_{\mathrm{bd}}$ are the prefill start time and breakdown time in seconds.
+
+
+    In practice, the value is obtained from the propane gas-injection accounting over
+    the prefill interval, using the inferred or measured molecular throughput and
+    the gas-species conversion factor. It contributes to the total prefill inventory
+    [prefill_count](name:accumulated_lithium_prefill_count_due_to_gas_injection) and
+    is directly comparable with other prefill gas counts because all are expressed
+    on the same equivalent-electron scale.
+
+
+    The physical range is $N_{\mathrm{eq}} \ge 0$, with $N_{\mathrm{eq}} = 0$ when
+    no propane is introduced during prefill. No universal numerical range is implied:
+    values depend strongly on vessel volume, prefill pressure target, gas-line calibration,
+    and pulse scenario, and may vary by many orders of magnitude between devices and
+    operating regimes.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_lithium_prefill_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_prefill/propane/value
+    dd_path: summary/gas_injection_prefill/propane/value
+    status: composed
 - name: radial_velocity_of_pellet
   kind: scalar
   status: draft
@@ -999,7 +1133,7 @@
     \ complements [deuterium_prefill_count](name:deuterium_prefill_count), [neon_prefill_count](name:neon_prefill_count),\
     \ and [krypton_prefill_count](name:krypton_prefill_count), which together with\
     \ this name characterize the full multi-species neutral gas inventory available\
-    \ at breakdown; the aggregate is captured by [prefill_count](name:prefill_count).\n\
+    \ at breakdown; the aggregate is captured by [prefill_count](name:accumulated_lithium_prefill_count_due_to_gas_injection).\n\
     \nSign convention: Positive when tritium atoms have been injected into the vessel\
     \ during the prefill phase."
   unit: '1'
@@ -1008,7 +1142,7 @@
   - name:deuterium_prefill_count
   - name:neon_prefill_count
   - name:krypton_prefill_count
-  - name:prefill_count
+  - name:accumulated_lithium_prefill_count_due_to_gas_injection
   sources:
   - id: dd:summary/gas_injection_prefill/tritium/value
     dd_path: summary/gas_injection_prefill/tritium/value

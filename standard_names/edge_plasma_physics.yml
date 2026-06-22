@@ -1,6 +1,6 @@
 # Domain: edge_plasma_physics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 58
+# Entries: 62
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -528,6 +528,70 @@
   - id: dd:summary/local/separatrix/zeff/value
     dd_path: summary/local/separatrix/zeff/value
     status: composed
+  - id: dd:summary/local/separatrix_average/zeff/value
+    dd_path: summary/local/separatrix_average/zeff/value
+    status: composed
+- name: electron_density_at_plasma_boundary
+  kind: scalar
+  status: draft
+  description: Electron number density at the plasma boundary (separatrix), the last
+    closed flux surface separating confined plasma from the scrape-off layer.
+  documentation: 'Electron density at the plasma boundary is the electron number density
+    evaluated on the separatrix, the last closed magnetic flux surface. In the right-handed
+    cylindrical $(R, \phi, Z)$ frame, with $R$ major radius, $\phi$ toroidal angle,
+    and $Z$ vertical height, this surface separates closed magnetic field lines in
+    the confined plasma from open field lines in the scrape-off layer.
+
+
+    Using the normalized toroidal-flux radius $\rho_{\mathrm{tor,norm}}$ as a flux-surface
+    label, the separatrix value is the confined-side limit:
+
+
+    $$
+
+    n_{e,\mathrm{sep}} = \lim_{\rho_{\mathrm{tor,norm}} \to 1^-} n_e(\rho_{\mathrm{tor,norm}})
+
+    $$
+
+
+    where $n_e$ is the electron number density and $\rho_{\mathrm{tor,norm}}=1$ labels
+    the separatrix. Together with the boundary electron temperature, it determines
+    the boundary electron pressure through the inline relation $p_{e,\mathrm{sep}}
+    = n_{e,\mathrm{sep}} T_{e,\mathrm{sep}}$ when $T_e$ is expressed as an energy
+    per electron.
+
+
+    In practice, this quantity is obtained by mapping edge electron-density measurements
+    onto magnetic flux surfaces from an equilibrium reconstruction. Common inputs
+    include Thomson scattering, reflectometry, and interferometry constrained by fitted
+    pedestal or scrape-off-layer density shapes; the largest uncertainties often come
+    from separatrix position, steep edge gradients, and diagnostic calibration.
+
+
+    Typical values in tokamak H-mode edge plasmas are about $0.3-3 \times 10^{19}$
+    m$^{-3}$, with lower values possible in low-density or limiter-like plasmas and
+    higher values in strongly fueled, high-density discharges.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:density_at_plasma_boundary
+  - name:flux_surface_averaged_electron_density_at_plasma_boundary
+  - name:electron_temperature_at_plasma_boundary
+  - name:electron_density_at_pedestal
+  - name:gradient_of_electron_density
+  sources:
+  - id: dd:summary/local/separatrix/n_e/value
+    dd_path: summary/local/separatrix/n_e/value
+    status: attached
+  - id: dd:summary/pedestal_fits/linear/n_e/offset/value
+    dd_path: summary/pedestal_fits/linear/n_e/offset/value
+    status: composed
+  - id: dd:summary/pedestal_fits/linear/n_e/separatrix/value
+    dd_path: summary/pedestal_fits/linear/n_e/separatrix/value
+    status: composed
+  - id: dd:summary/pedestal_fits/mtanh/n_e/separatrix/value
+    dd_path: summary/pedestal_fits/mtanh/n_e/separatrix/value
+    status: composed
 - name: electron_heat_decay_length_over_scrape_off_layer
   kind: scalar
   status: draft
@@ -1010,6 +1074,64 @@
   - id: dd:summary/local/pedestal/t_i_average/value
     dd_path: summary/local/pedestal/t_i_average/value
     status: composed
+- name: ion_heat_decay_length_over_scrape_off_layer
+  kind: scalar
+  status: draft
+  description: Radial e-folding decay length of the ion heat flux in the scrape-off
+    layer, equal to the inverse magnitude of its outward logarithmic radial gradient.
+    It is non-negative by definition and characterizes how rapidly ion heat exhaust
+    falls away from the separatrix.
+  documentation: 'The ion heat decay length over the scrape-off layer is the radial
+    e-folding scale over which the ion heat flux decreases outside the confined plasma.
+    It characterizes the width of the ion heat exhaust channel and complements the
+    electron-channel quantity [electron_heat_decay_length_over_scrape_off_layer](name:electron_heat_decay_length_over_scrape_off_layer)
+    in determining the overall heat-exhaust fall-off described by [heat_decay_length_over_scrape_off_layer](name:heat_decay_length_over_scrape_off_layer).
+
+
+    The local decay length is the inverse magnitude of the outward logarithmic gradient
+    of the ion heat flux:
+
+
+    $$
+
+    \lambda_{q_i} = \left|\frac{\partial \ln q_i}{\partial r_\perp}\right|^{-1}
+
+    $$
+
+
+    where $q_i(r_\perp)$ is the positive ion heat-flux density in W m^-2, $r_\perp$
+    is distance in meters measured locally outward from the separatrix approximately
+    normal to magnetic flux surfaces, and $\lambda_{q_i}$ is in meters. For an exponential
+    dependence $q_i \propto \exp(-r_\perp/\lambda_{q_i})$, the ion heat flux decreases
+    by a factor $e$ over one decay length.
+
+
+    In practice, this quantity is inferred by fitting or differentiating the radial
+    dependence of ion heat-flux estimates in the scrape-off layer. Those estimates
+    may come from target heat measurements, probe-based ion energy and particle flux
+    measurements, edge power balance, or transport modeling with magnetic mapping
+    between divertor and upstream locations. It is distinct from ion temperature decay
+    lengths such as [radial_average_ion_temperature_decay_length_over_scrape_off_layer](name:radial_average_ion_temperature_decay_length_over_scrape_off_layer)
+    and ion_average_decay_length_over_scrape_off_layer, because it describes heat-flux
+    fall-off rather than temperature fall-off.
+
+
+    Typical magnitudes in present tokamak scrape-off layers are on the order of 0.001-0.03
+    m, ranging from millimeter-scale widths in narrow high-confinement conditions
+    to centimeter-scale widths in broader low-confinement or high-collisionality conditions.
+    The value depends on plasma density, power crossing the separatrix, magnetic geometry,
+    collisionality, and whether the quoted location is upstream or mapped to the divertor
+    target.'
+  unit: m
+  physics_domain: edge_plasma_physics
+  links:
+  - name:electron_heat_decay_length_over_scrape_off_layer
+  - name:heat_decay_length_over_scrape_off_layer
+  - name:radial_average_ion_temperature_decay_length_over_scrape_off_layer
+  sources:
+  - id: dd:summary/scrape_off_layer/heat_flux_i_decay_length/value
+    dd_path: summary/scrape_off_layer/heat_flux_i_decay_length/value
+    status: composed
 - name: iron_density_at_pedestal
   kind: scalar
   status: draft
@@ -1481,6 +1603,69 @@
     status: composed
   - id: dd:summary/local/separatrix_average/n_i/oxygen/value
     dd_path: summary/local/separatrix_average/n_i/oxygen/value
+    status: composed
+- name: parallel_plasma_momentum_flux
+  kind: scalar
+  status: draft
+  description: Parallel plasma momentum flux is the double projection of the charged-plasma
+    momentum-flux tensor along the local magnetic-field direction. It includes bulk-flow
+    transport of parallel momentum, isotropic pressure, and parallel viscous or anisotropic
+    stress.
+  documentation: 'Parallel plasma momentum flux is the component of the charged-plasma
+    momentum-flux tensor obtained by projecting both tensor indices along the local
+    magnetic-field direction. It represents the effective pressure-like transport
+    of parallel momentum through a surface normal to the field, including streaming
+    inertia, thermodynamic pressure, and parallel viscous stress. Because it is a
+    double projection, it is unchanged by reversing the sign chosen for the magnetic-field
+    unit vector and should not be interpreted as a one-way directed flux.
+
+
+    For charged species $s$, the total parallel component is
+
+
+    $$
+
+    \Phi_{\parallel,\mathrm{plasma}} = \hat{\mathbf{b}}\cdot\left[\sum_{s\in\mathrm{charged}}\left(\rho_s\mathbf{u}_s\mathbf{u}_s
+    + p_s\mathbf{I} + \boldsymbol{\pi}_s\right)\right]\cdot\hat{\mathbf{b}} = \sum_{s\in\mathrm{charged}}\left(\rho_s
+    u_{\parallel s}^2 + p_s + \pi_{\parallel\parallel s}\right)
+
+    $$
+
+
+    where $\hat{\mathbf{b}}=\mathbf{B}/|\mathbf{B}|$ is dimensionless, $\rho_s$ is
+    mass density in $\mathrm{kg\,m^{-3}}$, $\mathbf{u}_s\mathbf{u}_s$ is the dyadic
+    product of the flow velocity with itself, $\mathbf{u}_s$ is in $\mathrm{m\,s^{-1}}$,
+    $u_{\parallel s}=\mathbf{u}_s\cdot\hat{\mathbf{b}}$, $p_s$ is scalar pressure
+    in $\mathrm{kg\,m^{-1}\,s^{-2}}$, $\mathbf{I}$ is the identity tensor, $\boldsymbol{\pi}_s$
+    is the viscous or anisotropic stress tensor in $\mathrm{kg\,m^{-1}\,s^{-2}}$,
+    and $\pi_{\parallel\parallel s}=\hat{\mathbf{b}}\cdot\boldsymbol{\pi}_s\cdot\hat{\mathbf{b}}$.
+    The $\rho_s u_{\parallel s}^2$ term is mean-flow advective transport; a Reynolds-stress
+    contribution from turbulent velocity fluctuations would be a separate modeled
+    closure.
+
+
+    In edge-plasma modeling this quantity is computed from charged-species density,
+    parallel flow, scalar pressure, and a closure or kinetic evaluation of the parallel
+    stress. Experimentally, its components are constrained by density and temperature
+    measurements, spectroscopic flow measurements, probes where applicable, and momentum-balance
+    analysis; the viscous or anisotropic stress contribution is often inferred rather
+    than directly measured. The neutral counterpart resolved by neutral state is [parallel_neutral_state_momentum_flux](name:parallel_neutral_state_momentum_flux).
+
+
+    Typical magnitudes in scrape-off-layer and divertor plasmas are 0.1-10^4 kg m^-1
+    s^-2. Attached edge conditions commonly give 10-10^3 kg m^-1 s^-2, while cold
+    detached regions can be below 10 kg m^-1 s^-2 and short transients or high-recycling
+    divertor conditions can reach 10^4 kg m^-1 s^-2 or more.'
+  unit: kg.m^-1.s^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:plasma_momentum_flux
+  - name:parallel_center_of_mass_velocity
+  - name:parallel_neutral_momentum_flux
+  - name:parallel_momentum
+  sources:
+  - id: dd:edge_transport/model/ggd/momentum/flux/parallel
+    dd_path: edge_transport/model/ggd/momentum/flux/parallel
     status: composed
 - name: radial_plasma_momentum_diffusion_coefficient
   kind: scalar
@@ -2117,6 +2302,12 @@
   sources:
   - id: dd:summary/local/separatrix/velocity_phi/helium_4/value
     dd_path: summary/local/separatrix/velocity_phi/helium_4/value
+    status: composed
+  - id: dd:summary/local/separatrix/velocity_tor/helium_4/value
+    dd_path: summary/local/separatrix/velocity_tor/helium_4/value
+    status: composed
+  - id: dd:summary/local/separatrix_average/velocity_tor/helium_4/value
+    dd_path: summary/local/separatrix_average/velocity_tor/helium_4/value
     status: composed
 - name: toroidal_hydrogen_velocity_at_pedestal
   kind: scalar
@@ -2855,6 +3046,78 @@
   - id: dd:summary/local/separatrix_average/n_i/xenon/value
     dd_path: summary/local/separatrix_average/n_i/xenon/value
     status: composed
+- name: gradient_of_electron_pressure
+  kind: scalar
+  status: draft
+  description: Signed derivative of electron pressure with respect to normalized poloidal
+    magnetic flux, evaluated at the H-mode pedestal location of greatest absolute
+    pressure steepness. The selection uses the largest magnitude of the derivative,
+    while the reported value retains its algebraic sign.
+  documentation: 'The gradient of electron pressure is the signed slope of [electron_pressure](name:electron_pressure)
+    with respect to the normalized poloidal magnetic flux coordinate $\psi_N$ in the
+    H-mode pedestal. It is evaluated at the pedestal location where the absolute value
+    of that slope is greatest, so a steep outward pressure drop is selected by magnitude
+    but reported with its negative sign.
+
+
+    The defining value is
+
+
+    $$
+
+    G_{p_e} = \left.\frac{d p_e}{d\psi_N}\right|_{\psi_N=\psi_*}, \qquad \psi_* =
+    \operatorname*{arg\,max}_{\psi_N \in \mathrm{pedestal}} \left|\frac{d p_e}{d\psi_N}\right|
+
+    $$
+
+
+    where $p_e$ is electron pressure, $\psi_N$ is normalized poloidal magnetic flux
+    increasing from 0 at the magnetic axis to 1 at the last closed flux surface, and
+    $\psi_*$ is the pedestal location of maximum absolute slope. Electron pressure
+    is $p_e=n_e k_B T_e$ when $T_e$ is thermodynamic temperature in K, equivalently
+    $p_e=n_e e T_e$ when $T_e$ is reported in eV; $n_e$ is electron density in m$^{-3}$,
+    $k_B$ is the Boltzmann constant, and $e$ is the elementary charge.
+
+
+    In practice this quantity is obtained by fitting the radial dependence of electron
+    pressure across the pedestal, often from electron density and temperature measurements
+    such as Thomson scattering, and then differentiating the fitted function with
+    respect to $\psi_N$. Modified hyperbolic-tangent and piecewise-linear fits are
+    common ways to locate the steepest pedestal segment. This normalized-flux derivative
+    complements [gradient_of_electron_temperature](name:gradient_of_electron_temperature)
+    and [gradient_of_electron_density](name:gradient_of_electron_density), and differs
+    from [gradient_of_radial_electron_pressure](name:gradient_of_radial_electron_pressure),
+    which is a spatial derivative requiring a local conversion between $\psi_N$ and
+    a chosen radial distance.
+
+
+    Typical signed values are usually negative in ordinary H-mode pedestals. Absolute
+    magnitudes are about $10^4$-$10^6$ Pa in present tokamaks; small or low-pressure
+    pedestals can be near $10^3$ Pa, while high-performance pedestals can reach several
+    $10^6$ Pa.
+
+
+    Sign convention: Positive when electron pressure increases as the normalized poloidal
+    magnetic flux coordinate $\psi_N$ increases from the magnetic axis toward the
+    last closed flux surface.'
+  unit: Pa
+  physics_domain: edge_plasma_physics
+  links:
+  - name:electron_pressure
+  - name:gradient_of_electron_temperature
+  - name:gradient_of_electron_density
+  - name:electron_pressure_at_pedestal
+  arguments:
+  - name: electron_pressure
+    operator: gradient
+    operator_kind: unary_prefix
+  sources:
+  - id: dd:summary/pedestal_fits/linear/pressure_electron/d_dpsi_norm_max/value
+    dd_path: summary/pedestal_fits/linear/pressure_electron/d_dpsi_norm_max/value
+    status: composed
+  - id: dd:summary/pedestal_fits/mtanh/pressure_electron/d_dpsi_norm_max/value
+    dd_path: summary/pedestal_fits/mtanh/pressure_electron/d_dpsi_norm_max/value
+    status: attached
 - name: parallel_diamagnetic_current_density
   kind: scalar
   status: draft
@@ -2937,7 +3200,7 @@
     and recombination momentum transfer, collisional friction, and externally applied
     momentum sources. Complementary projections of the same charge-state-resolved
     ion momentum source are represented by [poloidal_ion_state_momentum](name:poloidal_ion_state_momentum),
-    [toroidal_ion_state_momentum](name:toroidal_ion_state_momentum), and [radial_ion_state_momentum](name:radial_ion_state_momentum).
+    [toroidal_ion_state_momentum](name:toroidal_ion_state_momentum), and radial_ion_state_momentum.
 
 
     Typical absolute magnitudes are strongly case dependent: they range from near
@@ -2954,10 +3217,8 @@
   unit: kg.m^-1.s^-2
   physics_domain: edge_plasma_physics
   links:
+  - name:poloidal_ion_state_momentum
   - name:toroidal_ion_state_momentum
-  - name:radial_ion_charge_state_momentum
-  - name:parallel_neutral_momentum
-  - name:parallel_momentum
   sources:
   - id: dd:edge_sources/source/ggd/ion/state/momentum/parallel
     dd_path: edge_sources/source/ggd/ion/state/momentum/parallel

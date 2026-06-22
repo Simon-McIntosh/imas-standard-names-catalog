@@ -1,6 +1,6 @@
 # Domain: equilibrium
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 88
+# Entries: 89
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -1389,7 +1389,7 @@
     are [radial_non_axisymmetric_magnetic_field](name:radial_non_axisymmetric_magnetic_field),
     [toroidal_non_axisymmetric_magnetic_field](name:toroidal_non_axisymmetric_magnetic_field),
     and [vertical_non_axisymmetric_magnetic_field](name:vertical_non_axisymmetric_magnetic_field).
-    The normal projection onto prescribed control surfaces is given by [non_axisymmetric_magnetic_field_at_control_surface](name:non_axisymmetric_magnetic_field_at_control_surface),
+    The normal projection onto prescribed control surfaces is given by non_axisymmetric_magnetic_field_at_control_surface,
     commonly used as an equilibrium reconstruction constraint.
 
 
@@ -1407,7 +1407,6 @@
   - name:radial_non_axisymmetric_magnetic_field
   - name:toroidal_non_axisymmetric_magnetic_field
   - name:vertical_non_axisymmetric_magnetic_field
-  - name:non_axisymmetric_magnetic_field_at_control_surface
 - name: normalized_poloidal_flux_coordinate_at_minimum_safety_factor
   kind: scalar
   status: draft
@@ -2523,10 +2522,9 @@
     and feedback-correction algorithms. Together with [vertical_non_axisymmetric_magnetic_field](name:vertical_non_axisymmetric_magnetic_field)
     and [toroidal_non_axisymmetric_magnetic_field](name:toroidal_non_axisymmetric_magnetic_field),
     it provides the complete cylindrical decomposition of the non-axisymmetric vacuum
-    field; [non_axisymmetric_magnetic_field_at_control_surface](name:non_axisymmetric_magnetic_field_at_control_surface)
-    gives the corresponding surface-normal projection. Typical perturbation amplitudes
-    for RMP and error-field applications range from $10^{-5}$ to $10^{-2}$ T in medium-
-    to large-scale tokamaks.
+    field; non_axisymmetric_magnetic_field_at_control_surface gives the corresponding
+    surface-normal projection. Typical perturbation amplitudes for RMP and error-field
+    applications range from $10^{-5}$ to $10^{-2}$ T in medium- to large-scale tokamaks.
 
 
     Sign convention: Positive when $B_R$ points in the direction of increasing major
@@ -2536,7 +2534,6 @@
   links:
   - name:vertical_non_axisymmetric_magnetic_field
   - name:toroidal_non_axisymmetric_magnetic_field
-  - name:non_axisymmetric_magnetic_field_at_control_surface
   arguments:
   - name: non_axisymmetric_magnetic_field
     operator: component
@@ -3090,6 +3087,68 @@
   sources:
   - id: dd:b_field_non_axisymmetric/time_slice/control_surface/phi
     dd_path: b_field_non_axisymmetric/time_slice/control_surface/phi
+    status: composed
+- name: toroidal_current_density
+  kind: scalar
+  status: draft
+  description: Toroidal component of the total current density vector, representing
+    the net conventional current per unit area flowing in the direction of increasing
+    toroidal angle in the plasma.
+  documentation: "The toroidal current density $J_\\phi$ is the $\\hat{\\phi}$-projection\
+    \ of the total [current density](name:current_density) vector $\\mathbf{J}$ in\
+    \ the right-handed cylindrical $(R, \\phi, Z)$ frame, where $\\hat{\\phi}$ points\
+    \ in the direction of increasing toroidal angle. It combines all current-carrying\
+    \ mechanisms in the toroidal channel: ohmic induction, bootstrap current, and\
+    \ wave- or beam-driven non-inductive contributions.\n\nIn axisymmetric MHD equilibrium,\
+    \ $J_\\phi$ is the source term in the Grad-Shafranov equation:\n\n$$\n\\Delta^*\
+    \ \\psi = -\\mu_0 R \\, J_\\phi\n$$\n\nwhere $\\psi$ is the poloidal magnetic\
+    \ flux, $\\mu_0$ is the permeability of free space, and $\\Delta^* \\equiv R\\\
+    ,\\partial_R(R^{-1}\\,\\partial_R) + \\partial_Z^2$ is the elliptic flux-surface\
+    \ operator acting in the $(R, Z)$ plane.\n\nThe profile of $J_\\phi$ is obtained\
+    \ from equilibrium reconstruction \u2014 combining external magnetic measurements\
+    \ with internal diagnostics such as motional Stark effect polarimetry \u2014 or\
+    \ from MHD and transport codes operating on generalized grid representations.\
+    \ With [poloidal_current_density](name:poloidal_current_density) and [radial_current_density](name:radial_total_current_density),\
+    \ it completes the cylindrical $(R, \\phi, Z)$ decomposition of $\\mathbf{J}$;\
+    \ the [toroidal_diamagnetic_current_density](name:toroidal_current_density_due_to_diamagnetic_drift)\
+    \ isolates the diamagnetic-drift contribution to this toroidal component.\n\n\
+    In present-day tokamak H-mode discharges, peak core values span 0.5\u20135 MA\
+    \ m$^{-2}$, declining toward the plasma edge.\n\nSign convention: Positive when\
+    \ $J_\\phi$ points in the direction of increasing toroidal angle $\\phi$."
+  unit: A.m^-2
+  physics_domain: equilibrium
+  links:
+  - name:current_density
+  - name:poloidal_current_density
+  - name:radial_total_current_density
+  - name:toroidal_current_density_due_to_diamagnetic_drift
+  sources:
+  - id: dd:edge_profiles/ggd/j_total/phi
+    dd_path: edge_profiles/ggd/j_total/phi
+    status: composed
+  - id: dd:edge_profiles/ggd/r_j_total_phi/values
+    dd_path: edge_profiles/ggd/r_j_total_phi/values
+    status: attached
+  - id: dd:equilibrium/time_slice/constraints/j_tor/measured
+    dd_path: equilibrium/time_slice/constraints/j_tor/measured
+    status: composed
+  - id: dd:mhd/ggd/j_phi/values
+    dd_path: mhd/ggd/j_phi/values
+    status: composed
+  - id: dd:mhd/ggd/j_tor/values
+    dd_path: mhd/ggd/j_tor/values
+    status: composed
+  - id: dd:mhd/ggd/j_tor_r/values
+    dd_path: mhd/ggd/j_tor_r/values
+    status: composed
+  - id: dd:plasma_profiles/ggd/r_j_total_phi/values
+    dd_path: plasma_profiles/ggd/r_j_total_phi/values
+    status: attached
+  - id: dd:wall/description_ggd/ggd/j_total/phi
+    dd_path: wall/description_ggd/ggd/j_total/phi
+    status: composed
+  - id: dd:wall/description_ggd/ggd/j_total/toroidal
+    dd_path: wall/description_ggd/ggd/j_total/toroidal
     status: composed
 - name: toroidal_flux_radius_at_plasma_boundary
   kind: scalar
