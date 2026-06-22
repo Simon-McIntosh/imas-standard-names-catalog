@@ -1,9 +1,66 @@
 # Domain: auxiliary_heating
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 6
+# Entries: 9
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: current_due_to_neutral_beam_injection
+  kind: scalar
+  status: draft
+  description: Non-inductive toroidal plasma current produced by neutral beam injection
+    through directed momentum transfer from fast beam ions to the background plasma
+    during Coulomb-collision thermalization.
+  documentation: 'Current due to neutral beam injection is the neutral-beam contribution
+    to the total non-inductive plasma current, current_due_to_non_inductive_current_drive.
+    Injected neutrals are ionized in the plasma, become energetic fast ions, and transfer
+    directed momentum to electrons and ions as they slow down, producing a net driven
+    current.
+
+
+    At a global level, the driven current can be represented as the integral of a
+    local NBI current-drive source density over the confined plasma volume:
+
+
+    $$
+
+    I_{\mathrm{NBI}} = \int_{V_p} S_{I,\mathrm{NBI}}(\mathbf{x})\, dV
+
+    $$
+
+
+    where $I_{\mathrm{NBI}}$ is the total NBI-driven current, $S_{I,\mathrm{NBI}}$
+    is the local driven-current source density in $\mathrm{A\,m^{-3}}$, $\mathbf{x}$
+    is position, $V_p$ is the plasma volume, and $dV$ is a volume element in $\mathrm{m^3}$.
+
+
+    In practice this quantity is computed from neutral-beam deposition, ionization,
+    fast-ion orbit and slowing-down physics, pitch-angle scattering, collisional momentum
+    exchange, and the plasma equilibrium. It depends strongly on the injected and
+    absorbed neutral-beam power, [power_due_to_neutral_beam_injection](name:power_due_to_neutral_beam_injection)
+    and [absorbed_power_of_neutral_beam_injector](name:absorbed_power_of_neutral_beam_injector),
+    as well as beam energy, tangency geometry, fast-ion confinement, electron temperature,
+    density, and trapped-particle fraction.
+
+
+    Typical values range from $1\times10^4$-$1\times10^6$ A in present-day tokamaks,
+    with lower values for weak or poorly aligned beams and values near or above $1\times10^6$
+    A in large, high-power, high-temperature plasmas.
+
+
+    Sign convention: Positive when the toroidal projection of the driven parallel
+    plasma current flows in the direction of increasing toroidal angle $\phi$ in the
+    right-handed cylindrical $(R,\phi,Z)$ frame with basis $(\hat{R},\hat{\phi},\hat{Z})$,
+    where $R$ is major radius, $\phi$ increases counter-clockwise when viewed from
+    above $+\hat{Z}$, and $Z$ is vertical height.'
+  unit: A
+  physics_domain: auxiliary_heating
+  links:
+  - name:power_due_to_neutral_beam_injection
+  - name:absorbed_power_of_neutral_beam_injector
+  sources:
+  - id: dd:summary/heating_current_drive/nbi/current/value
+    dd_path: summary/heating_current_drive/nbi/current/value
+    status: composed
 - name: height_of_antenna_strap
   kind: scalar
   status: draft
@@ -224,6 +281,62 @@
   - id: dd:lh_antennas/antenna/power_reflected
     dd_path: lh_antennas/antenna/power_reflected
     status: composed
+- name: thermal_ion_power_at_inside_flux_surface
+  kind: scalar
+  status: draft
+  description: Cumulative wave power absorbed by the thermal ion population within
+    the plasma volume enclosed by a specified magnetic flux surface.
+  documentation: 'Thermal ion power at an inside flux surface is the cumulative rate
+    at which wave energy is deposited in the bulk ion population inside the volume
+    enclosed by that magnetic flux surface. It represents thermal-ion heating integrated
+    from the magnetic axis to the chosen surface and excludes direct deposition to
+    electrons and fast ions.
+
+
+    The cumulative power for a flux surface labeled by the dimensionless radial coordinate
+    $\rho$ in a flux coordinate system $(\rho,\theta,\phi)$ is defined from the local
+    thermal-ion wave-power density:
+
+
+    $$
+
+    P_{\mathrm{th\,ion}}(\rho) = \int_{V(\rho)} p_{\mathrm{th\,ion}} \, dV''
+
+    $$
+
+
+    where $V(\rho)$ is the plasma volume enclosed by the flux surface, $p_{\mathrm{th\,ion}}$
+    is the local net wave-power density for thermal ions in W m^-3, $dV''$ is a volume
+    element in m^3, and $P_{\mathrm{th\,ion}}$ is the cumulative power.
+
+
+    In practice this quantity is computed by integrating wave-power deposition densities
+    from wave propagation and wave-particle absorption modeling over the reconstructed
+    plasma volume. Experimental constraints include injected wave power, coupling
+    losses, ion temperature evolution, species composition, and other heating and
+    transport terms needed to separate thermal-ion absorption from electron or fast-ion
+    channels.
+
+
+    Typical values are near 0 W at the magnetic axis and increase toward the total
+    thermal-ion absorbed wave power at the plasma boundary. Medium-size tokamak discharges
+    commonly have 10^4-10^6 W, while high-power wave-heating scenarios in large devices
+    can reach 10^6-2 x 10^7 W within the outer flux surfaces.
+
+
+    Sign convention: Positive when wave energy is transferred to the thermal ion population.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:ion_power_at_inside_flux_surface
+  - name:fast_ion_power_at_inside_flux_surface
+  - name:thermal_ion_state_power_at_inside_flux_surface
+  - name:per_toroidal_mode_thermal_ion_power
+  - name:thermal_electron_power_at_inside_flux_surface
+  sources:
+  - id: dd:waves/coherent_wave/profiles_1d/ion/power_inside_thermal
+    dd_path: waves/coherent_wave/profiles_1d/ion/power_inside_thermal
+    status: composed
 - name: total_absorbed_power_of_lower_hybrid_antenna
   kind: scalar
   status: draft
@@ -273,3 +386,68 @@
   - id: dd:lh_antennas/power
     dd_path: lh_antennas/power
     status: composed
+- name: fast_ion_state_power_density
+  kind: scalar
+  status: draft
+  description: Absorbed wave power density deposited on fast (non-thermal) ions in
+    a specified charge state, expressed per unit plasma volume. When averaged over
+    a magnetic flux surface, it is the local radial source whose volume integral gives
+    the cumulative absorbed power for that state.
+  documentation: 'Fast-ion state power density is the volumetric rate at which wave
+    energy is transferred to the non-thermal ion population in a specified charge
+    state. It is a charge-state-resolved component of [fast_ion_power_density](name:fast_ion_power_density)
+    and is distinct from heating of the thermal-ion population represented by [thermal_ion_power_density](name:thermal_ion_power_density).
+
+
+    For nested magnetic flux surfaces labeled by a dimensionless radial label $\rho$,
+    the flux-surface-averaged density is
+
+
+    $$
+
+    p_{\mathrm{fast},c}(\rho) = \frac{1}{V''(\rho)} \int_{S(\rho)} \frac{q_{\mathrm{fast},c}(\mathbf{x})}{|\nabla
+    \rho|} \, dA
+
+    $$
+
+
+    where $p_{\mathrm{fast},c}$ is this power density in W m^-3, $c$ denotes the charge
+    state, $q_{\mathrm{fast},c}$ is the local wave-to-fast-ion energy-transfer density
+    in W m^-3, $S(\rho)$ is the magnetic flux surface, $dA$ is the area element in
+    m^2, $|\nabla\rho|$ has units m^-1, and $V''(\rho)$ is the differential volume
+    in m^3 per unit $\rho$. Integrating $p_{\mathrm{fast},c}(\rho)V''(\rho)$ from
+    the magnetic axis to a chosen surface gives [fast_ion_state_power_at_inside_flux_surface](name:fast_ion_state_power_at_inside_flux_surface)
+    in W.
+
+
+    In practice, this quantity is computed from wave absorption or energy-balance
+    modeling that partitions deposited wave power among ion species, charge states,
+    and thermal or fast components. Inputs typically include wave fields, resonance
+    physics, the fast-ion distribution, charge-state populations, equilibrium geometry,
+    and collisional energy exchange; no particular reconstruction or heating code
+    is implied.
+
+
+    Typical flux-surface-averaged magnitudes are 10^3-10^6 W m^-3 for charge-state-resolved
+    fast-ion wave heating in present tokamaks. Strongly localized resonant absorption
+    can approach 10^7 W m^-3, while regions with little matching fast-ion population
+    are near 0 W m^-3.
+
+
+    Sign convention: Positive when energy is transferred from the wave field to fast
+    ions in the specified charge state.'
+  unit: W.m^-3
+  physics_domain: auxiliary_heating
+  links:
+  - name:fast_ion_power_density
+  - name:ion_state_power_density
+  - name:thermal_ion_power_density
+  - name:fast_ion_state_power_at_inside_flux_surface
+  - name:per_toroidal_mode_fast_ion_state_power_density
+  sources:
+  - id: dd:waves/coherent_wave/profiles_1d/ion/state/power_density_fast
+    dd_path: waves/coherent_wave/profiles_1d/ion/state/power_density_fast
+    status: composed
+  - id: dd:waves/coherent_wave/profiles_2d/ion/state/power_density_fast
+    dd_path: waves/coherent_wave/profiles_2d/ion/state/power_density_fast
+    status: attached

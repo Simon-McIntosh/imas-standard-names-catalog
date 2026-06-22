@@ -1,6 +1,6 @@
 # Domain: particle_measurement_diagnostics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 4
+# Entries: 7
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -96,6 +96,126 @@
   - id: dd:summary/line_average/n_i/oxygen/value
     dd_path: summary/line_average/n_i/oxygen/value
     status: composed
+- name: voltage_of_neutron_detector
+  kind: scalar
+  status: draft
+  description: Instantaneous or sampled raw electrical output voltage of a neutron
+    detector module, measured relative to its electronics reference or baseline before
+    pulse extraction, filtering, calibration, or conversion to neutron rate.
+  documentation: 'Voltage of a neutron detector is the signed electrical potential
+    difference produced at the detector output at a specified instant or sample of
+    the raw waveform. It represents the direct analog signal relative to an electronics
+    reference level or baseline, not a calibrated neutron flux, count rate, pulse
+    height, or integrated charge.
+
+
+    For an output node with electric potential $\Phi_\mathrm{out}(t)$ and a reference
+    or baseline potential $\Phi_\mathrm{ref}(t)$, the raw detector voltage is defined
+    by:
+
+
+    $$
+
+    V_\mathrm{raw}(t) = \Phi_\mathrm{out}(t) - \Phi_\mathrm{ref}(t)
+
+    $$
+
+
+    where $t$ is the sampling time, $\Phi_\mathrm{out}$ is the detector or front-end
+    electronics output potential, and $\Phi_\mathrm{ref}$ is the chosen electronics
+    ground, bias reference, or estimated baseline.
+
+
+    In practice this quantity is obtained from the uncalibrated detector readout before
+    pulse finding, shaping correction, pile-up rejection, energy calibration, efficiency
+    correction, or conversion to neutron rate. For pulsed detectors it is the waveform
+    sample value; derived quantities such as pulse maximum, pulse integral, or discriminator
+    counts should be treated separately.
+
+
+    Typical raw amplitudes range from 1e-3-10 V depending on detector type, biasing,
+    preamplifier gain, termination, and neutron intensity. Baseline fluctuations and
+    electronic noise are often in the 1e-4-1e-2 V range, while large pulses may approach
+    the dynamic range or saturation limit of the acquisition electronics.
+
+
+    Sign convention: Positive when the detector output potential is above the chosen
+    electronics reference or baseline potential.'
+  unit: V
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:peak_voltage_of_neutron_detector
+  - name:neutron_rate_of_neutron_detector
+  sources:
+  - id: dd:neutron_diagnostic/detectors/amplitude_raw
+    dd_path: neutron_diagnostic/detectors/amplitude_raw
+    status: composed
+- name: peak_voltage_of_neutron_detector
+  kind: scalar
+  status: draft
+  description: Peak voltage of a neutron detector is the baseline-referenced pulse
+    height of the processed detector signal, evaluated at the pulse extremum after
+    applying the channel pulse-polarity convention. It represents the voltage amplitude
+    assigned to an individual detector response.
+  documentation: 'Peak voltage of a neutron detector is the pulse height assigned
+    to the processed voltage waveform from a detector module. It is referenced to
+    the local pre-pulse baseline and uses the channel pulse-polarity convention, so
+    it is not simply the raw algebraic maximum of the unprocessed waveform or an absolute
+    value over the full record.
+
+
+    For a pulse-search window, the baseline-referenced peak voltage can be written
+    as the maximum polarity-corrected excursion:
+
+
+    $$
+
+    V_{\mathrm{peak}} = \max_{t \in W}\left[p\left(V_{\mathrm{proc}}(t)-V_{\mathrm{base}}\right)\right]
+
+    $$
+
+
+    where $V_{\mathrm{peak}}$, $V_{\mathrm{proc}}(t)$, and $V_{\mathrm{base}}$ are
+    in volts, $W$ is the time window associated with the pulse, and $p$ is the pulse-polarity
+    factor: $p=+1$ for positive-going processed pulses and $p=-1$ for negative-going
+    processed pulses.
+
+
+    In practice, the digitized detector output is conditioned by shaping, filtering,
+    or other signal-processing steps before the peak is found. The baseline is usually
+    estimated from pre-pulse samples or a nearby quiet interval, and pulse pileup,
+    saturation, and electronic noise determine whether the extracted peak is reliable.
+    This quantity is distinct from the instantaneous [detector voltage](name:voltage_of_neutron_detector),
+    which denotes the voltage signal itself before the peak-height reduction.
+
+
+    Representative processed pulse heights are strongly instrument-dependent, but
+    neutron detector electronics commonly report values from about 0.001-5 V for resolved
+    pulses. Values near the noise floor are threshold-dependent, while values approaching
+    the acquisition full scale may indicate saturation rather than a proportional
+    neutron response.
+
+
+    Sign convention: Positive when the pulse excursion is in the channel''s configured
+    pulse-polarity direction relative to the local baseline; for a positive-going
+    channel this means the processed voltage at the pulse peak exceeds the baseline,
+    and for a negative-going channel it means it is below the baseline before polarity
+    correction.'
+  unit: V
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:voltage_of_neutron_detector
+  - name:neutron_flux_of_neutron_detector
+  - name:neutron_rate_of_neutron_detector
+  - name:requested_upper_voltage_of_neutron_detector
+  arguments:
+  - name: voltage_of_neutron_detector
+    operator: peak
+    operator_kind: qualifier
+  sources:
+  - id: dd:neutron_diagnostic/detectors/amplitude_peak
+    dd_path: neutron_diagnostic/detectors/amplitude_peak
+    status: composed
 - name: xenon_density
   kind: scalar
   status: draft
@@ -142,6 +262,58 @@
   - name:xenon_density_at_pedestal
   - name:volume_averaged_xenon_density
   - name:xenon_fraction
+- name: line_averaged_argon_density
+  kind: scalar
+  status: draft
+  description: Line-averaged number density of argon ions along a chord through the
+    plasma, obtained by dividing the path integral of the local argon ion density
+    by the chord length.
+  documentation: 'Line-averaged argon density is the chord-averaged number density
+    of argon ions along a line of sight through the plasma. The local argon ion density
+    is understood as the sum over argon ionization stages, so the line average represents
+    the effective argon ion content sampled by the chord.
+
+
+    The line average is defined by normalizing the line-integrated density by the
+    chord length through the plasma:
+
+
+    $$
+
+    \langle n_{\mathrm{Ar}} \rangle_L = \frac{1}{L}\int_{\mathrm{chord}} n_{\mathrm{Ar}}(l)\,dl
+
+    $$
+
+
+    where $l$ is distance along the chord in meters, $L$ is the chord length through
+    the plasma in meters, and $n_{\mathrm{Ar}}(l)$ is the local argon ion number density
+    in $m^{-3}$. The integral has units of $m^{-2}$, and division by $L$ gives a line-averaged
+    density in $m^{-3}$.
+
+
+    In practice this quantity is obtained by first converting calibrated diagnostic
+    signals to an argon density line integral, using the appropriate atomic physics,
+    instrument response, and plasma-parameter modeling for the measurement. Raw brightness,
+    spectral intensity, or other chord-integrated signals are not themselves line-averaged
+    density; they must be interpreted as or transformed into $\int n_{\mathrm{Ar}}
+    dl$ before normalization by the effective chord length.
+
+
+    Typical values are about $10^{14}-10^{16}\ m^{-3}$ for trace argon concentrations,
+    $10^{16}-10^{18}\ m^{-3}$ during deliberate argon seeding or impurity transport
+    studies, and can approach $10^{19}\ m^{-3}$ transiently during strong gas injection
+    or disruption-mitigation scenarios.'
+  unit: m^-3
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:argon_density
+  - name:volume_averaged_argon_density
+  - name:line_averaged_nitrogen_density
+  - name:line_averaged_effective_charge
+  sources:
+  - id: dd:summary/line_average/n_i/argon/value
+    dd_path: summary/line_average/n_i/argon/value
+    status: composed
 - name: line_averaged_effective_charge
   kind: scalar
   status: draft
