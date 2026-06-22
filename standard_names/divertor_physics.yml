@@ -1,6 +1,6 @@
 # Domain: divertor_physics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 32
+# Entries: 34
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -438,6 +438,59 @@
   - id: dd:wall/global_quantities/electrons/power_inner_target
     dd_path: wall/global_quantities/electrons/power_inner_target
     status: composed
+- name: helium_4_density_at_divertor_target
+  kind: scalar
+  status: draft
+  description: Number density of helium-4 ions in the plasma immediately adjacent
+    to a divertor target. It is summed over all helium-4 ionization charge states
+    up to fully ionized helium and excludes neutral helium atoms.
+  documentation: 'Helium-4 density at a divertor target is the local number density
+    of ionized helium-4 in the plasma next to a plasma-facing divertor surface. It
+    represents the charge-state-summed helium-4 ion population at that location, excluding
+    neutral helium atoms, and is relevant to helium ash accumulation and exhaust.
+
+
+    The charge-state-summed density is defined as the sum over ionized charge states:
+
+
+    $$
+
+    n_{\mathrm{He4,target}} = \sum_{q=1}^{2} n_{{}^{4}\mathrm{He}^{q+},\mathrm{target}}
+
+    $$
+
+
+    where $n_{\mathrm{He4,target}}$ is the helium-4 ion density in m^-3, $q$ is the
+    ion charge state, $q=1$ is singly ionized helium-4, $q=2$ is fully ionized helium-4,
+    and each charge-state density $n_{{}^{4}\mathrm{He}^{q+},\mathrm{target}}$ is
+    in m^-3. The neutral state $q=0$ is not included.
+
+
+    In practice this quantity is inferred from measurements and analysis sensitive
+    to helium ion populations near the divertor target, together with local plasma
+    conditions and atomic-physics interpretation. It is commonly compared with upstream
+    or global helium-4 measures such as [helium_4_density_at_plasma_boundary](name:helium_4_density_at_plasma_boundary)
+    and [volume_averaged_helium_4_density](name:volume_averaged_helium_4_density),
+    and with the total ion population [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target).
+
+
+    Typical order-of-magnitude values can span $10^{16}$-$10^{20}$ m^-3, from trace
+    helium concentrations to helium-rich divertor conditions. The value depends strongly
+    on helium source rate, ionization balance, recycling, pumping, parallel transport,
+    and divertor plasma density.'
+  unit: m^-3
+  physics_domain: divertor_physics
+  links:
+  - name:helium_3_density_at_divertor_target
+  - name:helium_4_density_at_plasma_boundary
+  - name:density_at_divertor_target
+  sources:
+  - id: dd:summary/local/divertor_plate/n_i/helium_4/value
+    dd_path: summary/local/divertor_plate/n_i/helium_4/value
+    status: composed
+  - id: dd:summary/local/divertor_target/n_i/helium_4/value
+    dd_path: summary/local/divertor_target/n_i/helium_4/value
+    status: attached
 - name: hydrogen_density_at_divertor_target
   kind: scalar
   status: draft
@@ -685,68 +738,6 @@
   sources:
   - id: dd:wall/global_quantities/power_density_inner_target_max
     dd_path: wall/global_quantities/power_density_inner_target_max
-    status: composed
-- name: maximum_power_at_outer_divertor_target
-  kind: scalar
-  status: draft
-  description: Maximum, over a specified time interval, of the total power deposited
-    on the outer divertor target. The outer target is the divertor target on the larger-major-radius
-    side in the right-handed cylindrical (R, phi, Z) frame.
-  documentation: 'Maximum power at the outer divertor target is the largest value,
-    within a chosen time interval, of the total power deposited on the plasma-facing
-    target surface at larger major radius. The outer target is identified in the right-handed
-    cylindrical $(R, \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal
-    angle, and $Z$ is vertical height. The quantity is non-negative because it counts
-    deposited energy flow into the target material.
-
-
-    For a time interval $T$, it is obtained from the local deposited heat-flux density
-    by integrating over the outer target surface and taking the temporal maximum:
-
-
-    $$
-
-    P_{\mathrm{max,OT}} = \max_{t \in T} \int_{S_{\mathrm{OT}}} q_{\perp,\mathrm{dep}}(\mathbf{r},
-    t)\, dA
-
-    $$
-
-
-    where $P_{\mathrm{max,OT}}$ is this maximum power, $S_{\mathrm{OT}}$ is the plasma-facing
-    surface of the outer divertor target, $q_{\perp,\mathrm{dep}}(\mathbf{r}, t)$
-    is the local perpendicular deposited heat-flux density at surface position $\mathbf{r}$
-    and time $t$, and $dA$ is the surface-area element. The deposited heat-flux density
-    is defined as positive for heat flux into the target surface. The corresponding
-    instantaneous integrated quantity is [power_at_outer_divertor_target](name:power_at_outer_divertor_target).
-
-
-    In practice, the time-dependent outer-target power is inferred from infrared thermography
-    with thermal modeling, embedded calorimetry, probe-based heat-flux estimates,
-    and global power-balance constraints, or computed by integrating modeled loads
-    over the target. Conductive, convective, and radiative contributions are related
-    to [power_of_divertor_due_to_conduction](name:power_of_divertor_due_to_conduction),
-    [power_of_divertor_due_to_convection](name:power_of_divertor_due_to_convection),
-    and [power_at_divertor_target_due_to_radiation](name:power_at_divertor_target_due_to_radiation).
-    Comparison with [maximum_power_at_inner_divertor_target](name:maximum_power_at_inner_divertor_target)
-    separates larger- and smaller-major-radius divertor loading, while [peak_power_density_at_divertor_target](name:peak_power_density_at_divertor_target)
-    describes the local peak heat-flux density rather than integrated power.
-
-
-    Representative order-of-magnitude maxima are device and scenario dependent: $10^5-10^6$
-    W in low-power or strongly detached cases, $10^6-10^7$ W in many diverted tokamak
-    scenarios, and $10^7-10^8$ W in large high-heating-power cases. These ranges are
-    indicative rather than definitional; the actual value depends on heating power,
-    radiated fraction, detachment state, strike-point sharing, and wetted area.'
-  unit: W
-  physics_domain: divertor_physics
-  links:
-  - name:power_at_outer_divertor_target
-  - name:maximum_power_at_inner_divertor_target
-  - name:peak_power_density_at_divertor_target
-  - name:electron_power_at_outer_divertor_target
-  sources:
-  - id: dd:wall/global_quantities/power_density_outer_target_max
-    dd_path: wall/global_quantities/power_density_outer_target_max
     status: composed
 - name: neon_density_at_divertor_target
   kind: scalar
@@ -1200,6 +1191,126 @@
   sources:
   - id: dd:divertors/divertor/target/power_convected
     dd_path: divertors/divertor/target/power_convected
+    status: composed
+- name: power_at_outer_divertor_target
+  kind: scalar
+  status: draft
+  description: Net power deposited on the outer divertor target, the divertor plate
+    located at larger major radius in the right-handed cylindrical (R, phi, Z) frame.
+    It is the integral of the net energy flux into the wetted target surface, summed
+    over all energy-deposition mechanisms.
+  documentation: 'Power at the outer divertor target is the net rate at which energy
+    is deposited on the material surface of the outer divertor target, the plate located
+    at the larger major radius in the right-handed cylindrical $(R, \phi, Z)$ frame.
+    It is an all-mechanism total integrated over the wetted strike-zone area of that
+    single target, not a mechanism-resolved or per-channel contribution.
+
+
+    The deposited power is defined by integrating the local net deposited energy-flux
+    density normal to the target surface over the wetted area:
+
+
+    $$
+
+    P_\mathrm{out} = \int_{A_w} q_{\perp,\mathrm{dep}} \, dA
+
+    $$
+
+
+    where $q_{\perp,\mathrm{dep}}$ is the local net deposited energy-flux density
+    in W m$^{-2}$, $dA$ is a target-surface area element in m$^2$, and $A_w$ is the
+    wetted strike-zone area of the outer target in m$^2$. The flux density $q_{\perp,\mathrm{dep}}$
+    is the net sum of all energy delivered to the surface by the plasma and associated
+    channels arriving at that point.
+
+
+    In experiments this quantity is commonly inferred from infrared thermography of
+    the target tiles, embedded calorimetry, thermocouples, or heat-balance analysis.
+    Langmuir probes, spectroscopy, and edge-plasma modeling can constrain the local
+    flux profile and the underlying deposition channels. This target-specific quantity
+    is distinct from the mechanism-resolved divertor-power quantities, which are aggregated
+    over all divertor targets rather than resolved to the outer target alone.
+
+
+    Typical values are strongly discharge- and device-dependent, spanning roughly
+    $10^3-10^7$ W, with lower values under low-power or strongly detached conditions
+    and higher values under high-power attached or partially detached conditions.
+
+
+    Sign convention: Positive when net energy is deposited onto the outer divertor
+    target surface.'
+  unit: W
+  physics_domain: divertor_physics
+  links:
+  - name:power_of_divertor_due_to_conduction
+  - name:power_of_divertor_due_to_convection
+  - name:neutral_power_of_divertor
+  - name:plasma_power_of_divertor_due_to_recombination
+- name: maximum_power_at_outer_divertor_target
+  kind: scalar
+  status: draft
+  description: Maximum, over a specified time interval, of the total power deposited
+    on the outer divertor target. The outer target is the divertor target on the larger-major-radius
+    side in the right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'Maximum power at the outer divertor target is the largest value,
+    within a chosen time interval, of the total power deposited on the plasma-facing
+    target surface at larger major radius. The outer target is identified in the right-handed
+    cylindrical $(R, \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal
+    angle, and $Z$ is vertical height. The quantity is non-negative because it counts
+    deposited energy flow into the target material.
+
+
+    For a time interval $T$, it is obtained from the local deposited heat-flux density
+    by integrating over the outer target surface and taking the temporal maximum:
+
+
+    $$
+
+    P_{\mathrm{max,OT}} = \max_{t \in T} \int_{S_{\mathrm{OT}}} q_{\perp,\mathrm{dep}}(\mathbf{r},
+    t)\, dA
+
+    $$
+
+
+    where $P_{\mathrm{max,OT}}$ is this maximum power, $S_{\mathrm{OT}}$ is the plasma-facing
+    surface of the outer divertor target, $q_{\perp,\mathrm{dep}}(\mathbf{r}, t)$
+    is the local perpendicular deposited heat-flux density at surface position $\mathbf{r}$
+    and time $t$, and $dA$ is the surface-area element. The deposited heat-flux density
+    is defined as positive for heat flux into the target surface. The corresponding
+    instantaneous integrated quantity is [power_at_outer_divertor_target](name:power_at_outer_divertor_target).
+
+
+    In practice, the time-dependent outer-target power is inferred from infrared thermography
+    with thermal modeling, embedded calorimetry, probe-based heat-flux estimates,
+    and global power-balance constraints, or computed by integrating modeled loads
+    over the target. Conductive, convective, and radiative contributions are related
+    to [power_of_divertor_due_to_conduction](name:power_of_divertor_due_to_conduction),
+    [power_of_divertor_due_to_convection](name:power_of_divertor_due_to_convection),
+    and [power_at_divertor_target_due_to_radiation](name:power_at_divertor_target_due_to_radiation).
+    Comparison with [maximum_power_at_inner_divertor_target](name:maximum_power_at_inner_divertor_target)
+    separates larger- and smaller-major-radius divertor loading, while [peak_power_density_at_divertor_target](name:peak_power_density_at_divertor_target)
+    describes the local peak heat-flux density rather than integrated power.
+
+
+    Representative order-of-magnitude maxima are device and scenario dependent: $10^5-10^6$
+    W in low-power or strongly detached cases, $10^6-10^7$ W in many diverted tokamak
+    scenarios, and $10^7-10^8$ W in large high-heating-power cases. These ranges are
+    indicative rather than definitional; the actual value depends on heating power,
+    radiated fraction, detachment state, strike-point sharing, and wetted area.'
+  unit: W
+  physics_domain: divertor_physics
+  links:
+  - name:power_at_outer_divertor_target
+  - name:maximum_power_at_inner_divertor_target
+  - name:peak_power_density_at_divertor_target
+  - name:electron_power_at_outer_divertor_target
+  arguments:
+  - name: power_at_outer_divertor_target
+    operator: maximum
+    operator_kind: qualifier
+  sources:
+  - id: dd:wall/global_quantities/power_density_outer_target_max
+    dd_path: wall/global_quantities/power_density_outer_target_max
     status: composed
 - name: power_of_divertor_due_to_radiation
   kind: scalar

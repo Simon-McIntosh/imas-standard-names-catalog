@@ -1,6 +1,6 @@
 # Domain: equilibrium
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 95
+# Entries: 97
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -277,58 +277,6 @@
     status: composed
   - id: dd:equilibrium/time_slice/global_quantities/surface
     dd_path: equilibrium/time_slice/global_quantities/surface
-    status: composed
-- name: flux_surface_averaged_major_radius
-  kind: scalar
-  status: draft
-  description: Flux-surface average of the major radius coordinate R on each nested
-    magnetic flux surface, yielding the mean distance from the toroidal symmetry axis
-    weighted by the inverse poloidal field strength.
-  documentation: 'The flux-surface averaged major radius $\langle R \rangle$ is the
-    mean value of the cylindrical major radius coordinate $R$ over a closed toroidal
-    magnetic flux surface, weighted by the local inverse poloidal magnetic field magnitude.
-    It belongs to the family of geometric metric coefficients (sometimes denoted $gm8$
-    in neoclassical transport literature) that enter the flux-surface-averaged forms
-    of transport and equilibrium equations, and is the flux-surface-averaging transformation
-    of the parent quantity [major_radius](name:major_radius).
-
-
-    The defining expression is:
-
-
-    $$
-
-    \langle R \rangle = \frac{\oint R \, \frac{dl}{B_p}}{\oint \frac{dl}{B_p}}
-
-    $$
-
-
-    where $l$ is the poloidal arc length along the flux surface and $B_p$ is the poloidal
-    magnetic field magnitude, with integrals taken over one complete poloidal circuit.
-    Because $B_p$ is smaller on the outboard low-field side, field lines dwell longer
-    there, and $\langle R \rangle$ is shifted toward larger $R$ relative to a simple
-    geometric centroid; it lies between the [inner_major_radius_of_flux_surface](name:inner_major_radius_of_flux_surface)
-    and the [outer_major_radius_of_flux_surface](name:outer_major_radius_of_flux_surface).
-
-
-    This coefficient is computed directly from the magnetic geometry obtained in equilibrium
-    reconstruction, and is closely related to [flux_surface_average_magnetic_field](name:flux_surface_average_magnetic_field)
-    and [flux_surface_averaged_curvature](name:flux_surface_averaged_curvature), which
-    are derived from the same surface-averaging procedure.
-
-
-    Sign convention: Positive when $R$ is measured outward from the toroidal symmetry
-    axis in the $+\hat{R}$ direction of the right-handed cylindrical $(R, \phi, Z)$
-    frame.'
-  unit: m
-  physics_domain: equilibrium
-  links:
-  - name:outer_major_radius_of_flux_surface
-  - name:flux_surface_average_magnetic_field
-  - name:flux_surface_averaged_curvature
-  sources:
-  - id: dd:equilibrium/time_slice/profiles_1d/gm8
-    dd_path: equilibrium/time_slice/profiles_1d/gm8
     status: composed
 - name: height_of_plasma_filament
   kind: scalar
@@ -2359,6 +2307,67 @@
   - id: dd:waves/coherent_wave/profiles_1d/grid/psi_boundary
     dd_path: waves/coherent_wave/profiles_1d/grid/psi_boundary
     status: attached
+- name: radial_coordinate
+  kind: scalar
+  status: draft
+  description: Major-radius coordinate R in the right-handed cylindrical (R, phi,
+    Z) frame; it is the perpendicular distance from the toroidal symmetry axis to
+    a point.
+  documentation: 'The radial coordinate $R$ is the major-radius coordinate of a point
+    in the right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is measured outward
+    from the toroidal symmetry axis, $\phi$ is the toroidal angle, and $Z$ is vertical
+    height. Surfaces of constant $R$ are circular cylinders coaxial with the toroidal
+    symmetry axis, so $R$ gives geometric position relative to that axis rather than
+    distance from a plasma center.
+
+
+    The radial coordinate follows from horizontal Cartesian coordinates in a right-handed
+    Cartesian $(X,Y,Z)$ frame with basis $(\hat{x}, \hat{y}, \hat{z})$, with $\hat{z}$
+    parallel to vertical $+\hat{Z}$ and with the origin on the toroidal symmetry axis:
+
+
+    $$
+
+    R = \sqrt{X^2 + Y^2}
+
+    $$
+
+
+    where $X$ and $Y$ are measured in meters from that origin in the horizontal plane.
+
+
+    Because $R$ is a geometric coordinate, it is computed by transforming point locations
+    to the right-handed cylindrical $(R, \phi, Z)$ frame, or by direct geometric reconstruction
+    of those locations. It is distinct from [major_radius_of_magnetic_axis](name:major_radius_of_magnetic_axis)
+    and [major_radius_of_geometric_axis](name:major_radius_of_geometric_axis), which
+    are selected values of $R$ at particular physically defined positions; the radial
+    coordinate can be evaluated at any point.
+
+
+    The range is device dependent: $R=0$ m lies on the toroidal symmetry axis, while
+    off-axis device and plasma locations have $R>0$ m up to the outer radial extent
+    considered. No universal numerical interval is implied by the quantity itself.'
+  unit: m
+  physics_domain: equilibrium
+  links:
+  - name:flux_surface_averaged_major_radius
+  - name:major_radius_of_plasma_boundary
+  sources:
+  - id: dd:distributions/distribution/profiles_2d/grid/r
+    dd_path: distributions/distribution/profiles_2d/grid/r
+    status: attached
+  - id: dd:edge_transport/model/ggd/ion/momentum/flux_limiter/r
+    dd_path: edge_transport/model/ggd/ion/momentum/flux_limiter/r
+    status: composed
+  - id: dd:equilibrium/time_slice/ggd/r/values
+    dd_path: equilibrium/time_slice/ggd/r/values
+    status: attached
+  - id: dd:equilibrium/time_slice/profiles_2d/r
+    dd_path: equilibrium/time_slice/profiles_2d/r
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_2d/grid/r
+    dd_path: waves/coherent_wave/profiles_2d/grid/r
+    status: attached
 - name: radial_magnetic_field
   kind: scalar
   status: draft
@@ -2703,111 +2712,6 @@
   sources:
   - id: dd:pf_plasma/element/geometry/annulus/radius_outer
     dd_path: pf_plasma/element/geometry/annulus/radius_outer
-    status: attached
-- name: reference_major_radius
-  kind: scalar
-  status: draft
-  description: Fixed major-radius coordinate in the right-handed cylindrical (R, phi,
-    Z) system at which the vacuum toroidal magnetic field is specified. It is a non-negative
-    geometric radius; the sign of the toroidal field is carried by the associated
-    field value, not by the radius.
-  documentation: 'Reference major radius $R_0$ is the major-radius coordinate in the
-    right-handed cylindrical $(R, \phi, Z)$ system at which the [toroidal vacuum magnetic
-    field](name:toroidal_vacuum_magnetic_field) value $B_0$ is defined. It is a geometric
-    distance from the toroidal symmetry axis and is therefore non-negative; it does
-    not carry the sign of the magnetic field.
-
-
-    For an axisymmetric vacuum toroidal field in a current-free region, the toroidal
-    field scales inversely with major radius:
-
-
-    $$
-
-    B_\phi^\mathrm{vac}(R) = B_0\,\frac{R_0}{R}
-
-    $$
-
-
-    where $B_\phi^\mathrm{vac}(R)$ is the toroidal vacuum magnetic-field component
-    in tesla at major radius $R$ in meters, $B_0$ is the signed toroidal vacuum magnetic
-    field in tesla at $R_0$, and $R_0$ is the reference major radius in meters. The
-    factor $R_0/R$ is positive; the field direction is determined by the sign of $B_0$.
-
-
-    In practice, $R_0$ is specified from the device geometry or equilibrium reference
-    setup rather than measured by an independent diagnostic. It identifies where $B_0$
-    is quoted, and quantities that use the same vacuum-field reference, including
-    flux-radius definitions such as [toroidal flux radius of the magnetic axis](name:toroidal_flux_radius_of_magnetic_axis),
-    should use a consistent $B_0$ and $R_0$ pair.
-
-
-    Representative tokamak values are about 0.3-7 m, ranging from compact or spherical
-    devices to large conventional devices; the appropriate value is facility and configuration
-    dependent.'
-  unit: m
-  physics_domain: equilibrium
-  links: []
-  sources:
-  - id: dd:core_profiles/vacuum_toroidal_field/r0
-    dd_path: core_profiles/vacuum_toroidal_field/r0
-    status: attached
-  - id: dd:core_sources/vacuum_toroidal_field/r0
-    dd_path: core_sources/vacuum_toroidal_field/r0
-    status: attached
-  - id: dd:core_transport/vacuum_toroidal_field/r0
-    dd_path: core_transport/vacuum_toroidal_field/r0
-    status: attached
-  - id: dd:disruption/vacuum_toroidal_field/r0
-    dd_path: disruption/vacuum_toroidal_field/r0
-    status: attached
-  - id: dd:distribution_sources/vacuum_toroidal_field/r0
-    dd_path: distribution_sources/vacuum_toroidal_field/r0
-    status: attached
-  - id: dd:distributions/vacuum_toroidal_field/r0
-    dd_path: distributions/vacuum_toroidal_field/r0
-    status: attached
-  - id: dd:edge_profiles/vacuum_toroidal_field/r0
-    dd_path: edge_profiles/vacuum_toroidal_field/r0
-    status: attached
-  - id: dd:equilibrium/vacuum_toroidal_field/r0
-    dd_path: equilibrium/vacuum_toroidal_field/r0
-    status: composed
-  - id: dd:mhd_linear/vacuum_toroidal_field/r0
-    dd_path: mhd_linear/vacuum_toroidal_field/r0
-    status: attached
-  - id: dd:ntms/vacuum_toroidal_field/r0
-    dd_path: ntms/vacuum_toroidal_field/r0
-    status: attached
-  - id: dd:plasma_profiles/vacuum_toroidal_field/r0
-    dd_path: plasma_profiles/vacuum_toroidal_field/r0
-    status: attached
-  - id: dd:plasma_sources/vacuum_toroidal_field/r0
-    dd_path: plasma_sources/vacuum_toroidal_field/r0
-    status: attached
-  - id: dd:plasma_transport/vacuum_toroidal_field/r0
-    dd_path: plasma_transport/vacuum_toroidal_field/r0
-    status: attached
-  - id: dd:radiation/vacuum_toroidal_field/r0
-    dd_path: radiation/vacuum_toroidal_field/r0
-    status: attached
-  - id: dd:runaway_electrons/vacuum_toroidal_field/r0
-    dd_path: runaway_electrons/vacuum_toroidal_field/r0
-    status: attached
-  - id: dd:sawteeth/vacuum_toroidal_field/r0
-    dd_path: sawteeth/vacuum_toroidal_field/r0
-    status: attached
-  - id: dd:summary/global_quantities/r0/value
-    dd_path: summary/global_quantities/r0/value
-    status: attached
-  - id: dd:tf/r0
-    dd_path: tf/r0
-    status: attached
-  - id: dd:transport_solver_numerics/vacuum_toroidal_field/r0
-    dd_path: transport_solver_numerics/vacuum_toroidal_field/r0
-    status: attached
-  - id: dd:waves/vacuum_toroidal_field/r0
-    dd_path: waves/vacuum_toroidal_field/r0
     status: attached
 - name: safety_factor_at_magnetic_axis
   kind: scalar
@@ -3324,6 +3228,52 @@
   - id: dd:summary/local/separatrix_average/position/rho_tor
     dd_path: summary/local/separatrix_average/position/rho_tor
     status: attached
+- name: toroidal_flux_radius_of_magnetic_axis
+  kind: scalar
+  status: draft
+  description: Toroidal flux radius evaluated at the magnetic axis.
+  documentation: 'Toroidal flux radius at the magnetic axis is the value of the flux
+    coordinate $\rho_\mathrm{tor}$ on the central magnetic flux surface. The coordinate
+    is a non-negative, minor-radius-like label constructed from the toroidal magnetic
+    flux interval between the magnetic axis and a flux surface; at the magnetic axis
+    that interval is zero.
+
+
+    For a flux surface, the toroidal flux radius is defined by
+
+
+    $$
+
+    \rho_\mathrm{tor} = \sqrt{\frac{|\Delta \Phi_\mathrm{tor}|}{\pi |B_0|}}
+
+    $$
+
+
+    where $\Delta \Phi_\mathrm{tor}$ is the toroidal magnetic flux difference between
+    the magnetic axis and the flux surface, and $B_0$ is the reference toroidal magnetic
+    field magnitude used for the normalization. The absolute-value form states the
+    radius convention explicitly: equivalently, a signed flux difference and signed
+    reference field may be used only when their ratio is non-negative.
+
+
+    In equilibrium reconstruction, this quantity is obtained by identifying the magnetic
+    axis and evaluating the toroidal-flux-radius coordinate on that flux surface.
+    Numerically it should be exactly zero; small nonzero values indicate interpolation
+    tolerance, finite grid resolution, or an inconsistent choice of flux origin.
+
+
+    Typical value: 0 m for all equilibria. The allowed range of $\rho_\mathrm{tor}$
+    is non-negative, $\rho_\mathrm{tor} \ge 0$, and the magnetic-axis value is the
+    inner endpoint of that range.'
+  unit: m
+  physics_domain: equilibrium
+  links:
+  - name:toroidal_flux_radius
+  - name:toroidal_flux_radius_at_pedestal_top
+  sources:
+  - id: dd:summary/local/magnetic_axis/position/rho_tor
+    dd_path: summary/local/magnetic_axis/position/rho_tor
+    status: composed
 - name: toroidal_magnetic_field
   kind: scalar
   status: draft
@@ -5775,6 +5725,60 @@
   - id: dd:waves/coherent_wave/profiles_2d/grid/volume
     dd_path: waves/coherent_wave/profiles_2d/grid/volume
     status: composed
+- name: flux_surface_averaged_major_radius
+  kind: scalar
+  status: draft
+  description: Flux-surface average of the major radius coordinate R on each nested
+    magnetic flux surface, yielding the mean distance from the toroidal symmetry axis
+    weighted by the inverse poloidal field strength.
+  documentation: 'The flux-surface averaged major radius $\langle R \rangle$ is the
+    mean value of the cylindrical major radius coordinate $R$ over a closed toroidal
+    magnetic flux surface, weighted by the local inverse poloidal magnetic field magnitude.
+    It belongs to the family of geometric metric coefficients (sometimes denoted $gm8$
+    in neoclassical transport literature) that enter the flux-surface-averaged forms
+    of transport and equilibrium equations, and is the flux-surface-averaging transformation
+    of the parent quantity [major_radius](name:major_radius_of_flux_surface).
+
+
+    The defining expression is:
+
+
+    $$
+
+    \langle R \rangle = \frac{\oint R \, \frac{dl}{B_p}}{\oint \frac{dl}{B_p}}
+
+    $$
+
+
+    where $l$ is the poloidal arc length along the flux surface and $B_p$ is the poloidal
+    magnetic field magnitude, with integrals taken over one complete poloidal circuit.
+    Because $B_p$ is smaller on the outboard low-field side, field lines dwell longer
+    there, and $\langle R \rangle$ is shifted toward larger $R$ relative to a simple
+    geometric centroid; it lies between the [inner_major_radius_of_flux_surface](name:inner_major_radius_of_flux_surface)
+    and the [outer_major_radius_of_flux_surface](name:outer_major_radius_of_flux_surface).
+
+
+    This coefficient is computed directly from the magnetic geometry obtained in equilibrium
+    reconstruction, and is closely related to [flux_surface_average_magnetic_field](name:flux_surface_average_magnetic_field)
+    and [flux_surface_averaged_curvature](name:flux_surface_averaged_curvature), which
+    are derived from the same surface-averaging procedure.
+
+
+    Sign convention: Positive when $R$ is measured outward from the toroidal symmetry
+    axis in the $+\hat{R}$ direction of the right-handed cylindrical $(R, \phi, Z)$
+    frame.'
+  unit: m
+  physics_domain: equilibrium
+  links:
+  - name:major_radius_of_flux_surface
+  - name:inner_major_radius_of_flux_surface
+  - name:outer_major_radius_of_flux_surface
+  - name:flux_surface_average_magnetic_field
+  - name:flux_surface_averaged_curvature
+  sources:
+  - id: dd:equilibrium/time_slice/profiles_1d/gm8
+    dd_path: equilibrium/time_slice/profiles_1d/gm8
+    status: composed
 - name: major_radius_of_strike_point
   kind: scalar
   status: draft
@@ -5828,4 +5832,109 @@
     status: composed
   - id: dd:equilibrium/time_slice/constraints/strike_point/position_reconstructed/r
     dd_path: equilibrium/time_slice/constraints/strike_point/position_reconstructed/r
+    status: attached
+- name: reference_major_radius
+  kind: scalar
+  status: draft
+  description: Fixed major-radius coordinate in the right-handed cylindrical (R, phi,
+    Z) system at which the vacuum toroidal magnetic field is specified. It is a non-negative
+    geometric radius; the sign of the toroidal field is carried by the associated
+    field value, not by the radius.
+  documentation: 'Reference major radius $R_0$ is the major-radius coordinate in the
+    right-handed cylindrical $(R, \phi, Z)$ system at which the [toroidal vacuum magnetic
+    field](name:toroidal_vacuum_magnetic_field) value $B_0$ is defined. It is a geometric
+    distance from the toroidal symmetry axis and is therefore non-negative; it does
+    not carry the sign of the magnetic field.
+
+
+    For an axisymmetric vacuum toroidal field in a current-free region, the toroidal
+    field scales inversely with major radius:
+
+
+    $$
+
+    B_\phi^\mathrm{vac}(R) = B_0\,\frac{R_0}{R}
+
+    $$
+
+
+    where $B_\phi^\mathrm{vac}(R)$ is the toroidal vacuum magnetic-field component
+    in tesla at major radius $R$ in meters, $B_0$ is the signed toroidal vacuum magnetic
+    field in tesla at $R_0$, and $R_0$ is the reference major radius in meters. The
+    factor $R_0/R$ is positive; the field direction is determined by the sign of $B_0$.
+
+
+    In practice, $R_0$ is specified from the device geometry or equilibrium reference
+    setup rather than measured by an independent diagnostic. It identifies where $B_0$
+    is quoted, and quantities that use the same vacuum-field reference, including
+    flux-radius definitions such as [toroidal flux radius of the magnetic axis](name:toroidal_flux_radius_of_magnetic_axis),
+    should use a consistent $B_0$ and $R_0$ pair.
+
+
+    Representative tokamak values are about 0.3-7 m, ranging from compact or spherical
+    devices to large conventional devices; the appropriate value is facility and configuration
+    dependent.'
+  unit: m
+  physics_domain: equilibrium
+  links: []
+  sources:
+  - id: dd:core_profiles/vacuum_toroidal_field/r0
+    dd_path: core_profiles/vacuum_toroidal_field/r0
+    status: attached
+  - id: dd:core_sources/vacuum_toroidal_field/r0
+    dd_path: core_sources/vacuum_toroidal_field/r0
+    status: attached
+  - id: dd:core_transport/vacuum_toroidal_field/r0
+    dd_path: core_transport/vacuum_toroidal_field/r0
+    status: attached
+  - id: dd:disruption/vacuum_toroidal_field/r0
+    dd_path: disruption/vacuum_toroidal_field/r0
+    status: attached
+  - id: dd:distribution_sources/vacuum_toroidal_field/r0
+    dd_path: distribution_sources/vacuum_toroidal_field/r0
+    status: attached
+  - id: dd:distributions/vacuum_toroidal_field/r0
+    dd_path: distributions/vacuum_toroidal_field/r0
+    status: attached
+  - id: dd:edge_profiles/vacuum_toroidal_field/r0
+    dd_path: edge_profiles/vacuum_toroidal_field/r0
+    status: attached
+  - id: dd:equilibrium/vacuum_toroidal_field/r0
+    dd_path: equilibrium/vacuum_toroidal_field/r0
+    status: composed
+  - id: dd:mhd_linear/vacuum_toroidal_field/r0
+    dd_path: mhd_linear/vacuum_toroidal_field/r0
+    status: attached
+  - id: dd:ntms/vacuum_toroidal_field/r0
+    dd_path: ntms/vacuum_toroidal_field/r0
+    status: attached
+  - id: dd:plasma_profiles/vacuum_toroidal_field/r0
+    dd_path: plasma_profiles/vacuum_toroidal_field/r0
+    status: attached
+  - id: dd:plasma_sources/vacuum_toroidal_field/r0
+    dd_path: plasma_sources/vacuum_toroidal_field/r0
+    status: attached
+  - id: dd:plasma_transport/vacuum_toroidal_field/r0
+    dd_path: plasma_transport/vacuum_toroidal_field/r0
+    status: attached
+  - id: dd:radiation/vacuum_toroidal_field/r0
+    dd_path: radiation/vacuum_toroidal_field/r0
+    status: attached
+  - id: dd:runaway_electrons/vacuum_toroidal_field/r0
+    dd_path: runaway_electrons/vacuum_toroidal_field/r0
+    status: attached
+  - id: dd:sawteeth/vacuum_toroidal_field/r0
+    dd_path: sawteeth/vacuum_toroidal_field/r0
+    status: attached
+  - id: dd:summary/global_quantities/r0/value
+    dd_path: summary/global_quantities/r0/value
+    status: attached
+  - id: dd:tf/r0
+    dd_path: tf/r0
+    status: attached
+  - id: dd:transport_solver_numerics/vacuum_toroidal_field/r0
+    dd_path: transport_solver_numerics/vacuum_toroidal_field/r0
+    status: attached
+  - id: dd:waves/vacuum_toroidal_field/r0
+    dd_path: waves/vacuum_toroidal_field/r0
     status: attached

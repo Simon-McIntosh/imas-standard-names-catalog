@@ -1,6 +1,6 @@
 # Domain: magnetohydrodynamics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 48
+# Entries: 50
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -675,7 +675,7 @@
     \ (instability), while a negative $\\gamma$ indicates a damped or stable mode.\n\
     \nThe growth rate is obtained by solving the linearized MHD equations as an eigenvalue\
     \ problem, treating each toroidal mode number $n_\\phi$ independently under the\
-    \ assumption of an axisymmetric background equilibrium. The complementary [per_toroidal_mode_perturbed_energy](name:per_toroidal_mode_perturbed_energy)\
+    \ assumption of an axisymmetric background equilibrium. The complementary per_toroidal_mode_perturbed_energy\
     \ characterizes the energy content of the same eigenmode, and [alfven_frequency_imaginary_part](name:alfven_frequency_imaginary_part)\
     \ provides an analogous growth or damping rate for the shear Alfv\xE9n continuum.\n\
     \nIdeal kink ($n_\\phi = 1$) instabilities in high-normalized-pressure plasmas\
@@ -686,7 +686,6 @@
   unit: Hz
   physics_domain: magnetohydrodynamics
   links:
-  - name:per_toroidal_mode_perturbed_energy
   - name:alfven_frequency_imaginary_part
   sources:
   - id: dd:mhd_linear/time_slice/toroidal_mode/growthrate
@@ -1510,6 +1509,41 @@
   - id: dd:summary/global_quantities/power_ohm/value
     dd_path: summary/global_quantities/power_ohm/value
     status: composed
+- name: radial_perturbed_plasma_velocity_imaginary_part
+  kind: complex
+  status: draft
+  description: Imaginary part of the radial component of the complex first-order plasma
+    velocity perturbation eigenfunction for a specified toroidal Fourier mode in linear
+    MHD stability analysis.
+  documentation: "The radial component of the first-order plasma velocity perturbation\
+    \ eigenfunction $\\tilde{v}_r$ is a complex-valued quantity arising in linear\
+    \ MHD stability analysis, decomposed over a single toroidal Fourier mode number\
+    \ $n$. The imaginary part $\\mathrm{Im}(\\tilde{v}_r)$ is the component 90\xB0\
+    \ out of phase with [radial_perturbed_plasma_velocity_real_part](name:radial_perturbed_plasma_velocity_real_part)\
+    \ relative to the eigenmode phase reference, and the two parts together fully\
+    \ specify the complex radial eigenfunction.\n\nThe full complex radial perturbation\
+    \ is reconstructed as:\n\n$$\n\\tilde{v}_r = \\mathrm{Re}(\\tilde{v}_r) + i\\\
+    ,\\mathrm{Im}(\\tilde{v}_r)\n$$\n\nwhere $i$ is the imaginary unit. In incompressible\
+    \ ideal MHD, the radial velocity perturbation is related to the radial plasma\
+    \ displacement $\\tilde{\\xi}_r$ by $\\tilde{v}_r = -i\\omega\\,\\tilde{\\xi}_r$,\
+    \ where $\\omega$ is the complex mode frequency whose imaginary part is the growth\
+    \ or damping rate.\n\nThis quantity is computed by linear MHD stability solvers\
+    \ and its absolute magnitude is eigenfunction-normalization dependent, carrying\
+    \ physical meaning only relative to other perturbation components of the same\
+    \ mode. The imaginary parts of the toroidal and poloidal projections, [toroidal_perturbed_plasma_velocity_imaginary_part](name:toroidal_perturbed_plasma_velocity_imaginary_part)\
+    \ and [poloidal_perturbed_plasma_velocity_imaginary_part](name:poloidal_perturbed_plasma_velocity_imaginary_part),\
+    \ together with the real parts of all three components, define the full spatial\
+    \ phase structure of the first-order perturbed velocity eigenfield."
+  unit: m.s^-1
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:radial_perturbed_plasma_velocity_real_part
+  - name:toroidal_perturbed_plasma_velocity_imaginary_part
+  - name:poloidal_perturbed_plasma_velocity_imaginary_part
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate1/imaginary
+    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate1/imaginary
+    status: composed
 - name: radial_perturbed_plasma_velocity_real_part
   kind: complex
   status: draft
@@ -2038,6 +2072,68 @@
     status: attached
   - id: dd:disruption/global_quantities/current_halo_tor
     dd_path: disruption/global_quantities/current_halo_tor
+    status: attached
+- name: toroidal_magnetic_flux_at_halo_boundary
+  kind: scalar
+  status: draft
+  description: Value of the toroidal magnetic flux function on the outermost flux
+    surface bounding the halo-current region during a plasma disruption. It quantifies
+    the net toroidal-field flux threading the poloidal cross-section enclosed by that
+    boundary and is the toroidal-flux counterpart of the poloidal flux at the same
+    surface.
+  documentation: 'Toroidal magnetic flux at the halo boundary is the value of the
+    toroidal flux function on the outermost flux surface bounding the halo-current
+    region during a plasma disruption. During a disruption the plasma column moves
+    toward the wall and current flows along partially open field lines through an
+    annular halo zone; this quantity labels the flux surface enclosing that zone and
+    characterizes how much toroidal magnetic field threads the poloidal cross-section
+    inside it.
+
+
+    The toroidal magnetic flux $\Phi_\mathrm{tor}$ is the surface integral of the
+    toroidal magnetic-field component $B_\phi$ over the poloidal cross-section $S$
+    enclosed by the halo-boundary flux surface:
+
+
+    $$
+
+    \Phi_{\mathrm{tor}} = \iint_{S} B_\phi \, dR \, dZ
+
+    $$
+
+
+    where $R$ is the major radius in meters, $Z$ is the vertical height in meters,
+    $\phi$ is the toroidal angle in the right-handed cylindrical $(R, \phi, Z)$ frame,
+    $B_\phi$ is the toroidal magnetic-field component in tesla, and the area element
+    $dR\,dZ$ is in square meters, giving a result in webers.
+
+
+    The boundary value is obtained by identifying the flux surface that separates
+    the halo-current region from the surrounding region in a disruption-phase magnetic
+    equilibrium and then evaluating the toroidal flux over the enclosed poloidal area.
+    It is commonly interpreted together with [toroidal_halo_current](name:toroidal_halo_current)
+    and [poloidal_halo_current](name:poloidal_halo_current), and complements [poloidal_magnetic_flux_at_halo_boundary](name:poloidal_magnetic_flux_at_halo_boundary);
+    the contribution attributable to the plasma poloidal current is isolated by [toroidal_magnetic_flux_at_halo_boundary_due_to_poloidal_current](name:toroidal_magnetic_flux_at_halo_boundary_due_to_poloidal_current).
+
+
+    The magnitude scales mainly with the toroidal-field strength and the poloidal
+    area enclosed by the halo-boundary flux surface, and it can change rapidly during
+    vertical displacement, current quench, and halo-current growth.
+
+
+    Sign convention: Positive when $B_\phi$ over the enclosed poloidal cross-section
+    points in the direction of increasing toroidal angle $\phi$ in the right-handed
+    cylindrical $(R, \phi, Z)$ frame.'
+  unit: Wb
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:poloidal_magnetic_flux_at_halo_boundary
+  - name:toroidal_magnetic_flux_at_halo_boundary_due_to_poloidal_current
+  - name:toroidal_halo_current
+  - name:poloidal_halo_current
+  sources:
+  - id: dd:disruption/global_quantities/phi_halo_boundary
+    dd_path: disruption/global_quantities/phi_halo_boundary
     status: attached
 - name: toroidal_perturbed_plasma_magnetic_field_imaginary_part
   kind: complex

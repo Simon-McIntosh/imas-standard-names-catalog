@@ -1,6 +1,6 @@
 # Domain: radiation_measurement_diagnostics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 51
+# Entries: 61
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -350,6 +350,60 @@
   - name:wavelength_of_detector_pixel
   - name:lower_bound_energy_of_detector_pixel
   - name:upper_bound_energy_of_detector_pixel
+- name: filter_window_width
+  kind: scalar
+  status: draft
+  description: Filter window width is the full physical opening of a rectangular X-ray
+    filter aperture measured along the X1 axis of the local right-handed aperture
+    frame (X1, X2, X3), where X1 and X2 lie in the aperture plane and X3 is normal
+    to the filter surface. It is the X1 counterpart of the aperture extent along X2
+    given by the filter window height.
+  documentation: 'Filter window width is the full linear extent of a rectangular filter
+    window along the X1 axis of the local right-handed aperture frame (X1, X2, X3).
+    The X1 and X2 axes lie in the aperture plane, X3 is the outward normal to the
+    filter surface, and the orthogonal transverse extent along X2 is the [filter_window_height](name:filter_window_height).
+
+
+    The width is the span of the rectangular opening between its two edges along the
+    X1 axis:
+
+
+    $$
+
+    w = x_{1,\mathrm{max}} - x_{1,\mathrm{min}}
+
+    $$
+
+
+    where $x_{1,\mathrm{min}}$ and $x_{1,\mathrm{max}}$ are the X1 coordinates of
+    the opposing aperture edges, measured in the local aperture plane. Together with
+    the height $h$ from [filter_window_height](name:filter_window_height), the width
+    $w$ sets the geometric open area $A = w\,h$ (see [surface_area_of_filter](name:surface_area_of_filter)),
+    which contributes to the diagnostic etendue, the product of collecting area and
+    accepted solid angle.
+
+
+    The width is usually obtained from the mechanical design of the aperture, manufacturing
+    drawings, or metrology of the filter holder. In transmission calculations it is
+    used together with the filter material, angle of incidence, and [thickness_of_filter](name:thickness_of_filter)
+    to determine the photon throughput and spectral response. It is the rectangular-geometry
+    analog of the more general [width_of_diagnostic_aperture](name:width_of_diagnostic_aperture).
+
+
+    Typical values range from $1 \times 10^{-4}$-$5 \times 10^{-2}$ m, with sub-millimeter
+    openings used for narrow slits or high-resolution views and centimeter-scale openings
+    used where larger photon collection is required.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:filter_window_height
+  - name:surface_area_of_filter
+  - name:thickness_of_filter
+  - name:width_of_diagnostic_aperture
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/x1_width
+    dd_path: spectrometer_x_ray_crystal/channel/filter_window/x1_width
+    status: composed
 - name: hard_xray_outer_width
   kind: scalar
   status: draft
@@ -389,6 +443,91 @@
   sources:
   - id: dd:hard_x_rays/emissivity_profile_1d/half_width_external
     dd_path: hard_x_rays/emissivity_profile_1d/half_width_external
+    status: composed
+- name: height_of_hard_xray_detector
+  kind: scalar
+  status: draft
+  description: Full physical extent of a hard X-ray detector aperture along the local
+    X2 axis of the detector coordinate frame, applicable to rectangular aperture geometry.
+  documentation: "The height of a hard X-ray detector is the full dimension of the\
+    \ detector aperture measured along the local X2 axis of the detector coordinate\
+    \ frame (X1, X2, X3), where X1 and X2 lie in the nominal aperture plane and X3\
+    \ is normal to the detector surface. This geometric parameter is defined for rectangular\
+    \ aperture geometries and represents one of two orthogonal in-plane dimensions\
+    \ required to fully characterize the aperture opening.\n\nTogether with [width_of_hard_xray_detector](name:width_of_hard_xray_detector),\
+    \ which gives the X1 extent, the height defines the total aperture area $A = h\
+    \ \\times w$, where $h$ is the X2 extent and $w$ is the X1 extent. The aperture\
+    \ area enters the \xE9tendue calculation that determines the photon collection\
+    \ efficiency of the diagnostic channel. The analogous X2 dimension for X-ray diagnostic\
+    \ filter windows is [filter_window_height](name:filter_window_height), which follows\
+    \ the same local-frame X2 convention.\n\nSign convention: Positive when the aperture\
+    \ extent is measured in the direction of increasing X2 coordinate in the local\
+    \ detector frame."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:width_of_hard_xray_detector
+  - name:filter_window_height
+  sources:
+  - id: dd:hard_x_rays/channel/detector/x2_width
+    dd_path: hard_x_rays/channel/detector/x2_width
+    status: composed
+- name: height_of_optical_element
+  kind: scalar
+  status: draft
+  description: Height of an optical element is the usable physical aperture extent
+    measured along X2 in the right-handed local aperture frame (X1, X2, n), where
+    X1 and X2 span the aperture plane and n is the surface normal. It applies to rectangular
+    optical elements and is distinct from the X1 width.
+  documentation: 'Height of an optical element is the full usable clear-aperture dimension
+    along $X_2$ in the right-handed local aperture frame $(X_1, X_2, n)$, where $X_1$
+    and $X_2$ lie in the aperture plane and $n$ is the aperture normal. For a rectangular
+    aperture it is the second transverse dimension of the element that can transmit,
+    reflect, or otherwise accept radiation. It is distinct from [optical_element_width](name:optical_element_width),
+    which is the corresponding $X_1$ dimension; the closely related [optical_element_height](name:height_of_optical_element)
+    denotes the same physical $X_2$ extent with different standard-name wording.
+
+
+    If the usable aperture is represented by the set $\mathcal{A}$ of points on the
+    element projected onto the local aperture plane, the height is the extent of their
+    $X_2$ coordinates:
+
+
+    $$
+
+    h_\mathrm{opt} = \max_{\mathbf{p}\in\mathcal{A}} X_2(\mathbf{p}) - \min_{\mathbf{p}\in\mathcal{A}}
+    X_2(\mathbf{p})
+
+    $$
+
+
+    where $X_2(\mathbf{p})$ is the coordinate of point $\mathbf{p}$ along the second
+    transverse aperture axis. For an ideal centered rectangle this reduces to the
+    rectangle side length along $X_2$.
+
+
+    In practice the value is obtained from mechanical design, metrology, or alignment
+    surveys of mirrors, crystals, windows, filters, collimators, and camera apertures.
+    It should represent the clear or illuminated usable extent that limits optical
+    throughput and ray tracing, excluding opaque mounts, bevels, clamps, or damaged
+    regions unless those regions are intentionally part of the aperture model.
+
+
+    Typical values range from 0.001-0.05 m for small x-ray crystals, pinholes, and
+    collimating apertures, 0.01-0.3 m for infrared camera apertures and relay optics,
+    and 0.1-1 m for large windows or mirrors. The value is non-negative and may be
+    smaller than the manufactured part size when the clear aperture is limited by
+    holders or masks.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:optical_element_width
+  sources:
+  - id: dd:camera_ir/optical_element/geometry/x2_width
+    dd_path: camera_ir/optical_element/geometry/x2_width
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/reflector/x2_width
+    dd_path: spectrometer_x_ray_crystal/channel/reflector/x2_width
     status: composed
 - name: lower_bound_energy_of_detector_pixel
   kind: scalar
@@ -674,6 +813,39 @@
   - id: dd:summary/composition/nitrogen/value
     dd_path: summary/composition/nitrogen/value
     status: composed
+- name: optical_element_width
+  kind: scalar
+  status: draft
+  description: Full width of an optical-element aperture along X1 in the right-handed
+    local element frame (X1, X2, X3), where X3 is normal to the aperture surface.
+    It applies to rectangular aperture geometry.
+  documentation: "Optical element width is the usable aperture extent along the first\
+    \ transverse axis $X_1$ of a right-handed local element frame $(X_1, X_2, X_3)$.\
+    \ The axes $X_1$ and $X_2$ span the aperture surface, while $X_3$ is normal to\
+    \ that surface; for a rectangular aperture this width is one side length, paired\
+    \ with [height_of_optical_element](name:height_of_optical_element) along $X_2$.\n\
+    \nFor an aperture bounded by minimum and maximum positions along $X_1$, the width\
+    \ is\n\n$$\nW = X_{1,\\max} - X_{1,\\min}\n$$\n\nwhere $W$ is the optical element\
+    \ width in meters, and $X_{1,\\max}$ and $X_{1,\\min}$ are the largest and smallest\
+    \ local $X_1$ positions of the usable aperture boundary, also in meters. The result\
+    \ is a non-negative geometric extent.\n\nThe width is obtained from the optical\
+    \ design, clear-aperture specification, or dimensional metrology of the fabricated\
+    \ element. Together with the $X_2$ height it determines the geometric aperture\
+    \ area $W H$ for an unobscured rectangle, which affects solid angle, photon throughput,\
+    \ and \xE9tendue; [width_of_diagnostic_aperture](name:width_of_diagnostic_aperture)\
+    \ is the analogous width for a diagnostic aperture not specifically tied to an\
+    \ optical element.\n\nTypical values for X-ray crystal spectrometer reflectors\
+    \ and similar diagnostic optical elements are 0.001-0.1 m, with smaller widths\
+    \ favored for compact or high-resolution optics and larger widths used when photon\
+    \ throughput is limiting."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:height_of_optical_element
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/reflector/x1_width
+    dd_path: spectrometer_x_ray_crystal/channel/reflector/x1_width
+    status: composed
 - name: radiance_at_spectral_line
   kind: scalar
   status: draft
@@ -736,7 +908,7 @@
     approach $10^{22}$ m$^{-2}$ s$^{-1}$ sr$^{-1}$, with values depending strongly
     on species, charge state, electron temperature and density, path length, neutral-beam
     density for active measurements, and optical passband.'
-  unit: m^-2.s^-1.sr^-1
+  unit: W.m^-2.sr^-1
   physics_domain: radiation_measurement_diagnostics
   links:
   - name:spectral_calibration_factor_of_spectrometer
@@ -755,6 +927,9 @@
   - id: dd:spectrometer_visible/channel/filter_spectrometer/line_intensities
     dd_path: spectrometer_visible/channel/filter_spectrometer/line_intensities
     status: attached
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/line_power_radiances
+    dd_path: spectrometer_visible/channel/filter_spectrometer/line_power_radiances
+    status: composed
   - id: dd:spectrometer_visible/channel/filter_spectrometer/line_radiances
     dd_path: spectrometer_visible/channel/filter_spectrometer/line_radiances
     status: attached
@@ -814,6 +989,42 @@
   sources:
   - id: dd:bolometer/power_density
     dd_path: bolometer/power_density
+    status: composed
+- name: radius_of_bragg_crystal
+  kind: scalar
+  status: draft
+  description: Radius of a circular Bragg-crystal aperture, defined as the distance
+    from the aperture center to the circular edge of the active diffracting surface.
+    It is an aperture-size radius characterizing the usable transverse extent of the
+    crystal that participates in Bragg reflection, not a curvature radius of the crystal
+    substrate.
+  documentation: "The radius of a Bragg crystal is the geometric radius of the circular\
+    \ active diffracting aperture in an X-ray crystal spectrometer channel. It specifies\
+    \ the usable transverse size of the crystal face that participates in Bragg reflection,\
+    \ and it belongs to the same physical quantity class as [radius_of_diagnostic_aperture](name:radius_of_diagnostic_aperture).\
+    \ It is distinct from the substrate curvature radii and from the lattice spacing\
+    \ that fixes the diffraction angle.\n\nFor a circular aperture the radius is half\
+    \ the full diameter of the active diffracting area:\n\n$$\nr = \\frac{D}{2}\n\
+    $$\n\nwhere $r$ is the aperture radius in meters and $D$ is the full diameter\
+    \ of the active circular surface in meters. The fully illuminated collecting area\
+    \ scales as $A = \\pi r^2$, so the \xE9tendue and photon throughput of the channel\
+    \ increase with the square of this radius, subject to practical limits from focusing\
+    \ optics, angular acceptance, and edge vignetting.\n\nThis radius is determined\
+    \ from the crystal mount, aperture mask, or manufactured active area rather than\
+    \ from Bragg's law. It is independent of the toroidal and vertical curvature radii\
+    \ of the crystal substrate, which describe the shaping of a focusing crystal,\
+    \ and independent of the diffracting wavelength set by the crystal lattice.\n\n\
+    Typical values range from about 0.002-0.05 m for compact high-resolution X-ray\
+    \ spectrometer crystals, with larger specialized crystals reaching roughly 0.1\
+    \ m depending on optical layout and required photon collection."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:toroidal_curvature_of_bragg_crystal
+  - name:vertical_curvature_of_bragg_crystal
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/crystal/radius
+    dd_path: spectrometer_x_ray_crystal/channel/crystal/radius
     status: composed
 - name: radius_of_diagnostic_aperture
   kind: scalar
@@ -971,6 +1182,62 @@
   - id: dd:spectrometer_x_ray_crystal/channel/aperture/radius
     dd_path: spectrometer_x_ray_crystal/channel/aperture/radius
     status: attached
+- name: radius_of_filter
+  kind: scalar
+  status: draft
+  description: Radius of a circular diagnostic filter-window aperture, defined as
+    the distance from the aperture center to its circular edge.
+  documentation: 'Radius of a circular filter-window aperture is the distance from
+    the center of the clear opening to its circular edge. It is a purely geometric
+    parameter that sets the size of the window through which photons pass in X-ray
+    diagnostic channels, and applies only when the filter-window geometry is circular.
+    It is distinct from the filter thickness, which governs energy-dependent attenuation,
+    and from any radius of curvature of the filter surface.
+
+
+    The clear circular aperture area $A$ used in solid-angle and geometric throughput
+    (etendue) calculations follows directly from the radius $r$:
+
+
+    $$
+
+    A = \pi r^2
+
+    $$
+
+
+    where $r$ is the aperture radius in meters and $A$ is the resulting clear aperture
+    area in square meters.
+
+
+    The radius is typically taken from the mechanical design of the filter holder
+    or determined by dimensional metrology, optical microscopy, or imaging of the
+    aperture edge. When the filter window is itself the limiting circular aperture
+    of a channel, this radius coincides with the radius of the diagnostic aperture.
+
+
+    Typical values range from about $1\times10^{-4}$ m to $5\times10^{-2}$ m, with
+    sub-millimeter openings used for tightly collimated channels and millimeter-to-centimeter
+    openings used for cameras or spectrometers with larger acceptance.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:radius_of_diagnostic_aperture
+  - name:diameter_of_diagnostic_aperture
+  - name:thickness_of_filter
+  sources:
+  - id: dd:camera_x_rays/filter_window/radius
+    dd_path: camera_x_rays/filter_window/radius
+    status: attached
+  - id: dd:hard_x_rays/channel/filter_window/radius
+    dd_path: hard_x_rays/channel/filter_window/radius
+    status: attached
+  - id: dd:soft_x_rays/channel/filter_window/radius
+    dd_path: soft_x_rays/channel/filter_window/radius
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/radius
+    dd_path: spectrometer_x_ray_crystal/channel/filter_window/radius
+    status: composed
 - name: reference_wavelength_of_spectrometer_channel
   kind: scalar
   status: draft
@@ -1305,6 +1572,60 @@
   - id: dd:spectrometer_x_ray_crystal/channel/wavelength_frames
     dd_path: spectrometer_x_ray_crystal/channel/wavelength_frames
     status: attached
+- name: spectral_width_of_filter
+  kind: scalar
+  status: draft
+  description: Full wavelength extent of the spectral passband of a diagnostic optical
+    filter, measured between the pair of wavelengths at which the filter transmission
+    falls to 90% of its peak value.
+  documentation: 'The spectral width of a diagnostic optical filter quantifies the
+    range of wavelengths the filter transmits, defined as the wavelength interval
+    between the long- and short-wavelength points at which transmission equals 90%
+    of its peak value. This 90%-transmission convention provides a conservative estimate
+    of the effective passband and distinguishes the quantity from a full-width-at-half-maximum
+    measure. A narrower spectral width improves rejection of background continuum
+    and neighboring spectral lines, while a broader passband increases photon throughput
+    for faint emission features.
+
+
+    The passband full width at the 90%-transmission level is
+
+
+    $$
+
+    \Delta\lambda_{90} = \lambda_+ - \lambda_-
+
+    $$
+
+
+    where $\lambda_+$ is the long-wavelength 90%-transmission edge, reported independently
+    as [upper_wavelength_of_filter](name:upper_wavelength_of_filter), and $\lambda_-$
+    is the corresponding short-wavelength edge, reported as [lower_wavelength_of_filter](name:lower_wavelength_of_filter).
+
+
+    The spectral width is determined by calibrated laboratory transmission measurements
+    using a monochromator, or taken directly from manufacturer filter specifications.
+    It is conceptually distinct from the physical aperture dimension described by
+    [width_of_filter](name:width_of_filter), which characterizes the geometric extent
+    of the filter window rather than its wavelength selectivity.
+
+
+    Typical spectral widths range from less than 1 nm for narrow-line filters isolating
+    specific plasma emission lines to several tens of nanometers for broadband infrared
+    filters used in thermal imaging of plasma-facing components.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:upper_wavelength_of_filter
+  - name:lower_wavelength_of_filter
+  - name:width_of_filter
+  sources:
+  - id: dd:camera_ir/channel/camera/frame/filter/wavelength_width
+    dd_path: camera_ir/channel/camera/frame/filter/wavelength_width
+    status: attached
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/filter/wavelength_width
+    dd_path: spectrometer_visible/channel/filter_spectrometer/filter/wavelength_width
+    status: composed
 - name: spectral_width_of_spectrometer_channel
   kind: scalar
   status: draft
@@ -1437,6 +1758,39 @@
   - id: dd:spectrometer_x_ray_crystal/channel/filter_window/surface
     dd_path: spectrometer_x_ray_crystal/channel/filter_window/surface
     status: attached
+- name: thickness_of_bragg_crystal
+  kind: scalar
+  status: draft
+  description: Physical thickness of the Bragg crystal measured along its surface
+    normal, controlling X-ray absorption and diffraction efficiency in a crystal spectrometer
+    channel.
+  documentation: "The thickness of a Bragg crystal is the dimension measured perpendicular\
+    \ to the diffracting crystal planes \u2014 along the crystal surface normal. It\
+    \ is a fundamental geometric parameter governing the trade-off between X-ray absorption\
+    \ within the crystal bulk and the integrated diffraction efficiency, and it directly\
+    \ sets the operating regime of the Bragg reflection.\n\nFor Bragg diffraction,\
+    \ crystal thickness $t$ determines whether the crystal operates in the dynamical\
+    \ (Darwin) regime ($t \\gg \\Lambda$, where $\\Lambda$ is the X-ray extinction\
+    \ depth) with saturated peak reflectivity, or in the kinematical limit ($t \\\
+    ll \\Lambda$) where peak reflectivity scales as $t^2$. Bulk transmission through\
+    \ the crystal material follows Beer\u2013Lambert attenuation:\n\n$$\nI = I_0 \\\
+    exp(-\\mu t)\n$$\n\nwhere $I_0$ is the incident X-ray intensity and $\\mu$ is\
+    \ the linear attenuation coefficient of the crystal material at the relevant photon\
+    \ energy.\n\nCrystal thickness is fixed at fabrication and can be verified by\
+    \ X-ray transmission measurements or optical profilometry. Typical values range\
+    \ from tens of micrometers for thin mica or silicon crystals to a few millimeters\
+    \ for bent-crystal focusing geometries used in fusion X-ray spectroscopy.\n\n\
+    Together with [bragg_crystal_width](name:bragg_crystal_width) and height_of_bragg_crystal,\
+    \ the thickness fully characterizes the three-dimensional geometry of the crystal\
+    \ element."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:bragg_crystal_width
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/crystal/thickness
+    dd_path: spectrometer_x_ray_crystal/channel/crystal/thickness
+    status: composed
 - name: thickness_of_filter
   kind: scalar
   status: draft
@@ -1894,6 +2248,68 @@
   - id: dd:spectrometer_x_ray_crystal/z_frames
     dd_path: spectrometer_x_ray_crystal/z_frames
     status: attached
+- name: vertical_front_surface_radius_of_optical_element
+  kind: scalar
+  status: draft
+  description: Signed radius of curvature of an optical element's front surface along
+    the local X2 vertical direction of the aperture frame (X1, X2, z), where z is
+    the local surface-normal or optical-axis coordinate. It applies to spherical,
+    cylindrical, toroidal, and separably curved front surfaces whose vertical radius
+    is specified independently.
+  documentation: 'The vertical front-surface radius of an optical element is the signed
+    radius of curvature of the element''s entrance or reflecting surface in the $X_2$
+    principal section of the local aperture frame $(X_1, X_2, z)$. Here $X_1$ and
+    $X_2$ span the local aperture or tangent plane, $X_2$ is the vertical transverse
+    direction, and $z$ is the local surface-normal or optical-axis coordinate. This
+    is a radius in meters, not the reciprocal curvature in m$^{-1}$.
+
+
+    Near the local vertex, after subtracting any planar tilt, the small-sag form of
+    the front surface in the $X_2$ direction is
+
+
+    $$
+
+    z(x_2) - z(0) \simeq \frac{x_2^2}{2 R_2}
+
+    $$
+
+
+    where $x_2$ is displacement along $X_2$ in meters, $z$ is surface sag along the
+    local $z$ coordinate in meters, and $R_2$ is this signed vertical front-surface
+    radius in meters. The approximation assumes $|x_2| \ll |R_2|$ and a local tangent
+    frame; an exactly circular principal section has this expression as its second-order
+    expansion.
+
+
+    The value is usually obtained from optical design specifications, crystal-bending
+    geometry, or surface metrology such as profilometry or interferometry. It determines
+    vertical focusing in ray tracing and wave-optics calculations. For a spherical
+    surface the $X_1$ and $X_2$ radii are equal; for cylindrical, toroidal, or separably
+    curved surfaces the two transverse radii may differ and must be specified independently.
+    The closely related [vertical_front_surface_curvature_of_optical_element](name:vertical_front_surface_curvature_of_optical_element)
+    uses the same vertical front-surface radius convention, while x_front_surface_curvature_of_optical_element
+    refers to the orthogonal $X_1$ direction and [vertical_back_surface_curvature_of_optical_element](name:vertical_back_surface_curvature_of_optical_element)
+    to the rear surface.
+
+
+    Typical absolute values range from about 0.1-10 m for tightly bent X-ray crystal
+    reflectors to 1-100 m for weakly focusing mirrors or grazing-incidence optics.
+    A nearly flat surface is represented by a radius whose magnitude is much larger
+    than the aperture size.
+
+
+    Sign convention: Positive when the center of curvature of the front surface in
+    the $X_2$ principal section lies on the $+z$ side of the local tangent plane.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:vertical_front_surface_curvature_of_optical_element
+  - name:vertical_back_surface_curvature_of_optical_element
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/reflector/x2_curvature
+    dd_path: spectrometer_x_ray_crystal/channel/reflector/x2_curvature
+    status: composed
 - name: wavelength_of_detector_pixel
   kind: scalar
   status: draft
@@ -3003,6 +3419,78 @@
   - id: dd:spectrometer_visible/channel/polarization_spectroscopy/velocity_hot_neutrals
     dd_path: spectrometer_visible/channel/polarization_spectroscopy/velocity_hot_neutrals
     status: composed
+- name: neutron_flux_due_to_beam_beam_fusion
+  kind: scalar
+  status: draft
+  description: Total neutron emission rate from beam-beam fusion, summing the neutron-producing
+    D(d,n) helium-3 branch, D-T reactions, and T-T reactions in which both reactants
+    are energetic fast ions from neutral beam injection. The T-T contribution is a
+    neutron count rate that includes its two-neutron final-state multiplicity.
+  documentation: 'Neutron flux due to beam-beam fusion is the global neutron emission
+    count rate produced by fusion reactions between two energetic fast ions born from
+    neutral beam injection. It includes the neutron-producing deuterium-deuterium
+    branch $\mathrm{D(d,n)^3He}$, deuterium-tritium reactions, and tritium-tritium
+    reactions; it excludes beam-thermal and thermal-thermal reactions. Because the
+    unit is Hz, this quantity is a neutron production rate in $\mathrm{s^{-1}}$ rather
+    than an areal particle flux.
+
+
+    The total beam-beam neutron emission rate is the sum of neutron count rates from
+    the contributing fuel channels:
+
+
+    $$
+
+    \Gamma_{n,\mathrm{bb}} = \Gamma_{n,\mathrm{DD}(d,n),\mathrm{bb}} + \Gamma_{n,\mathrm{DT},\mathrm{bb}}
+    + \Gamma_{n,\mathrm{TT},\mathrm{bb}}
+
+    $$
+
+
+    where $\Gamma_{n,\mathrm{bb}}$ is the total beam-beam neutron emission rate, $\Gamma_{n,\mathrm{DD}(d,n),\mathrm{bb}}$
+    includes only the neutron-producing $\mathrm{D(d,n)^3He}$ branch of deuterium-deuterium
+    fusion, $\Gamma_{n,\mathrm{DT},\mathrm{bb}}$ is the deuterium-tritium neutron
+    count rate, and $\Gamma_{n,\mathrm{TT},\mathrm{bb}}$ is the tritium-tritium neutron
+    count rate. The D-T channel produces one approximately 14 MeV neutron per reaction;
+    the D-D neutron branch produces one approximately 2.45 MeV neutron per branch
+    reaction; T-T fusion produces a continuum neutron spectrum and, for the dominant
+    $\mathrm{T+T\to ^4He+2n}$ channel, contributes two emitted neutrons per reaction,
+    so its neutron rate is a count rate rather than simply a reaction rate.
+
+
+    In practice this quantity is computed from fast-ion distribution functions and
+    energy-dependent fusion reactivity kernels integrated over the two fast-ion populations.
+    It can also be inferred by combining neutron diagnostics with modeling or subtraction
+    of beam-thermal and thermal-thermal components. It is sensitive to neutral beam
+    power, injection energy, fast-ion slowing down, pitch-angle distribution, isotope
+    mix, and spatial overlap of the energetic ion populations.
+
+
+    Typical values are near 0 Hz when neutral beam injection is absent or when the
+    relevant reacting isotope is absent. In neutral-beam-heated deuterium plasmas,
+    beam-beam neutron rates are often in the range $10^{10}$-$10^{16}$ Hz; in high-power
+    mixed deuterium-tritium or tritium-rich plasmas they can reach $10^{15}$-$10^{18}$
+    Hz, depending strongly on beam energy and fast-ion confinement.'
+  unit: Hz
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:neutron_flux_due_to_beam_thermal_fusion
+  - name:deuterium_deuterium_flux_due_to_beam_beam_fusion
+  - name:deuterium_tritium_flux_due_to_beam_beam_fusion
+  - name:flux_due_to_beam_beam_fusion
+  sources:
+  - id: dd:summary/fusion/neutron_fluxes/dd/beam_beam/value
+    dd_path: summary/fusion/neutron_fluxes/dd/beam_beam/value
+    status: composed
+  - id: dd:summary/fusion/neutron_fluxes/dt/beam_beam/value
+    dd_path: summary/fusion/neutron_fluxes/dt/beam_beam/value
+    status: composed
+  - id: dd:summary/fusion/neutron_fluxes/tt/beam_beam/value
+    dd_path: summary/fusion/neutron_fluxes/tt/beam_beam/value
+    status: attached
+  - id: dd:summary/fusion/neutron_rates/tt/beam_beam/value
+    dd_path: summary/fusion/neutron_rates/tt/beam_beam/value
+    status: attached
 - name: neutron_flux_due_to_beam_thermal_fusion
   kind: scalar
   status: draft

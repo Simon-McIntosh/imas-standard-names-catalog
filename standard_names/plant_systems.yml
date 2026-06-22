@@ -1,6 +1,6 @@
 # Domain: plant_systems
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 49
+# Entries: 56
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -583,6 +583,64 @@
   - id: dd:summary/gas_injection_accumulated/lithium/value
     dd_path: summary/gas_injection_accumulated/lithium/value
     status: composed
+- name: accumulated_lithium_prefill_count_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Accumulated count of lithium introduced by gas injection during the
+    prefill phase, expressed as a dimensionless equivalent-electron count. Each lithium
+    atom contributes three count units from its atomic number.
+  documentation: 'The accumulated lithium prefill count is the total lithium delivered
+    by gas injection before plasma breakdown, converted to an equivalent-electron
+    bookkeeping count. It includes only the prefill interval and is distinct from
+    the post-breakdown accumulated lithium inventory represented by [accumulated_lithium_count](name:accumulated_lithium_count).
+
+
+    The count is defined by integrating the lithium atom injection rate over the prefill
+    window:
+
+
+    $$
+
+    N_{\mathrm{Li,eq}} = 3 \int_{t_{\mathrm{start}}}^{t_{\mathrm{bd}}} \frac{dN_{\mathrm{Li}}}{dt}
+    \, dt
+
+    $$
+
+
+    where $N_{\mathrm{Li,eq}}$ is the dimensionless equivalent-electron count, $dN_{\mathrm{Li}}/dt$
+    is the lithium atom injection rate in atoms per second, $N_{\mathrm{Li}}$ counts
+    lithium atoms rather than equivalent electrons, $t_{\mathrm{start}}$ is the start
+    of the prefill interval, and $t_{\mathrm{bd}}$ is the time of plasma breakdown.
+    The factor 3 is lithium''s atomic number, so one injected lithium atom contributes
+    three equivalent-electron count units. For non-negative flow rates and $t_{\mathrm{bd}}
+    \ge t_{\mathrm{start}}$, the accumulated count is non-negative.
+
+
+    In practice, the prefill inventory is inferred from calibrated gas-injection flow
+    measurements, reservoir conditions, valve timing, or particle-throughput calibrations
+    integrated over the pre-breakdown interval. The same equivalent-electron convention
+    is used for related prefill species inventories such as [accumulated_helium_4_prefill_count_due_to_gas_injection](name:accumulated_helium_4_count_due_to_gas_injection),
+    [accumulated_helium_3_prefill_count_due_to_gas_injection](name:accumulated_helium_3_prefill_count_due_to_gas_injection),
+    and [accumulated_oxygen_prefill_count_due_to_gas_injection](name:accumulated_oxygen_prefill_count_due_to_gas_injection).
+
+
+    Typical values for lithium prefill are often about 10^16-10^21 in dimensionless
+    equivalent-electron count, depending on the gas-injection system, valve duration,
+    requested conditioning dose, and discharge preparation scenario.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_lithium_count
+  - name:accumulated_helium_4_count_due_to_gas_injection
+  - name:accumulated_helium_3_prefill_count_due_to_gas_injection
+  - name:accumulated_oxygen_prefill_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_prefill/beryllium/value
+    dd_path: summary/gas_injection_prefill/beryllium/value
+    status: composed
+  - id: dd:summary/gas_injection_prefill/lithium/value
+    dd_path: summary/gas_injection_prefill/lithium/value
+    status: composed
 - name: accumulated_methane_carbon_13_count_due_to_gas_injection
   kind: scalar
   status: draft
@@ -681,6 +739,58 @@
   sources:
   - id: dd:summary/gas_injection_accumulated/neon/value
     dd_path: summary/gas_injection_accumulated/neon/value
+    status: composed
+- name: accumulated_nitrogen_count
+  kind: scalar
+  status: draft
+  description: Cumulative nitrogen gas injection since plasma breakdown, expressed
+    as an equivalent-electron count where each nitrogen atom contributes 7 equivalent
+    electrons equal to its atomic number.
+  documentation: 'The accumulated nitrogen count tracks the total nitrogen atoms delivered
+    by gas injection from plasma breakdown onward, weighted by the atomic number of
+    nitrogen ($Z_N = 7$) to produce a dimensionless equivalent-electron count. This
+    convention reflects the electron inventory that would result from complete ionization
+    of all injected nitrogen and places different injected species on a common quantitative
+    footing shared across the gas-injection monitoring family.
+
+
+    The count is defined as:
+
+
+    $$
+
+    C_N = Z_N \, N_N = 7 \, N_N
+
+    $$
+
+
+    where $N_N$ is the cumulative number of nitrogen atoms delivered since plasma
+    breakdown and $Z_N = 7$ is the atomic number of nitrogen. The count integrates
+    contributions from each gas valve pulse throughout the discharge and increases
+    monotonically from breakdown.
+
+
+    Nitrogen is regularly injected in fusion devices for divertor detachment seeding,
+    radiative power dissipation, and disruption mitigation. The equivalent-electron
+    count is inferred from gas valve actuation signals integrated against calibrated
+    throughput curves from the moment of plasma breakdown. Typical values span from
+    $10^{20}$ equivalent electrons for trace impurity seeding to $10^{24}$ in massive
+    gas injection scenarios. The analogous count for argon is provided by [accumulated_argon_count](name:accumulated_argon_count)
+    using $Z = 18$, the hydrogen reference uses $Z = 1$ per atom in [accumulated_hydrogen_count_due_to_gas_injection](name:accumulated_hydrogen_count_due_to_gas_injection),
+    and the prefill-only nitrogen inventory is tracked separately by [nitrogen_prefill_count](name:nitrogen_prefill_count).
+
+
+    Sign convention: Positive when nitrogen atoms have been cumulatively injected
+    into the plasma vessel after plasma breakdown onset.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_argon_count
+  - name:accumulated_hydrogen_count_due_to_gas_injection
+  - name:nitrogen_prefill_count
+  sources:
+  - id: dd:summary/gas_injection_accumulated/nitrogen/value
+    dd_path: summary/gas_injection_accumulated/nitrogen/value
     status: composed
 - name: accumulated_oxygen_prefill_count_due_to_gas_injection
   kind: scalar
@@ -931,6 +1041,37 @@
   - id: dd:summary/gas_injection_prefill/total/value
     dd_path: summary/gas_injection_prefill/total/value
     status: composed
+- name: accumulated_tritium_count_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Cumulative number of tritium atoms delivered by gas injection since
+    plasma breakdown, expressed as an equivalent-electron count where each tritium
+    atom corresponds to one equivalent electron.
+  documentation: "The accumulated tritium count due to gas injection is the running\
+    \ total of tritium ($^3\\mathrm{H}$) atoms introduced to the plasma vessel through\
+    \ gas injection valves, accumulated continuously from plasma breakdown onward.\
+    \ The quantity is dimensionless, representing each injected atom as an equivalent-electron\
+    \ contribution scaled by its atomic number.\n\nFor tritium, whose atomic number\
+    \ is $Z = 1$, the equivalent-electron inventory equals the raw atom count directly:\n\
+    \n$$\nN_\\mathrm{eq} = Z \\cdot N_\\mathrm{atoms} = N_\\mathrm{atoms}\n$$\n\n\
+    where $N_\\mathrm{atoms}$ is the total number of tritium atoms injected after\
+    \ breakdown. The equivalent-electron convention provides a species-independent\
+    \ basis for comparing injected particle inventories \u2014 for higher-$Z$ species\
+    \ such as argon ($Z = 18$), the multiplier is correspondingly larger.\n\nThis\
+    \ is the time-integrated form of [tritium_count_due_to_gas_injection](name:tritium_count_due_to_gas_injection),\
+    \ accumulating monotonically as gas is puffed after breakdown. Tritium introduced\
+    \ before breakdown is tracked separately as [tritium_prefill_count](name:tritium_prefill_count).\
+    \ The deuterium analog in the same equivalent-electron framework is [deuterium_count_due_to_gas_injection](name:deuterium_count_due_to_gas_injection)."
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:tritium_count_due_to_gas_injection
+  - name:tritium_prefill_count
+  - name:deuterium_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_accumulated/tritium/value
+    dd_path: summary/gas_injection_accumulated/tritium/value
+    status: composed
 - name: accumulated_xenon_count
   kind: scalar
   status: draft
@@ -1018,6 +1159,59 @@
   sources:
   - id: dd:summary/gas_injection_prefill/xenon/value
     dd_path: summary/gas_injection_prefill/xenon/value
+    status: composed
+- name: ammonia_deuterated_prefill_count
+  kind: scalar
+  status: draft
+  description: Equivalent-electron count of deuterated ammonia (ND3) accumulated during
+    the plasma prefill phase, with each ND3 molecule contributing 10 equivalent electrons.
+  documentation: 'The prefill equivalent-electron count for deuterated ammonia (ND3)
+    quantifies the total ND3 inventory introduced into the vessel before plasma breakdown,
+    using the same equivalent-electron bookkeeping adopted across the prefill gas
+    inventory family. This enables direct comparison of different gas species on a
+    common electron-count basis regardless of molecular mass.
+
+
+    The count is defined by multiplying the number of delivered ND3 molecules by the
+    total electron count of one neutral ND3 molecule:
+
+
+    $$
+
+    C = 10 \, N_{\mathrm{ND_3}}
+
+    $$
+
+
+    where $N_{\mathrm{ND_3}}$ is the number of injected molecules; the factor 10 arises
+    from the atomic number of nitrogen ($Z_N = 7$) plus three deuterium atoms ($3
+    \times Z_D = 3 \times 1 = 3$). Note that NH3 and ND3 carry the same equivalent-electron
+    factor because deuterium and protium share atomic number $Z = 1$.
+
+
+    The value is derived from gas injection flow records integrated over the prefill
+    phase, ending at plasma breakdown. The analogous count for standard ammonia is
+    [ammonia_prefill_count](name:ammonia_prefill_count), while post-breakdown ND3
+    accumulation is tracked by [accumulated_ammonia_deuterated_count](name:accumulated_ammonia_deuterated_count).
+    The same equivalent-electron convention governs [accumulated_xenon_prefill_count](name:accumulated_xenon_prefill_count)
+    and the broader prefill inventory family.
+
+
+    Sign convention: Positive when deuterated ammonia gas has been injected during
+    the prefill phase.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:ammonia_prefill_count
+  - name:accumulated_ammonia_deuterated_count
+  - name:accumulated_xenon_prefill_count
+  arguments:
+  - name: accumulated_lithium_prefill_count_due_to_gas_injection
+    operator: ammonia_deuterated
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/gas_injection_prefill/ammonia_deuterated/value
+    dd_path: summary/gas_injection_prefill/ammonia_deuterated/value
     status: composed
 - name: ammonia_deuterated_source_rate
   kind: scalar
@@ -1111,6 +1305,10 @@
   - name:nitrogen_prefill_count
   - name:ethylene_prefill_count
   - name:accumulated_ammonia_count
+  arguments:
+  - name: accumulated_lithium_prefill_count_due_to_gas_injection
+    operator: ammonia
+    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/ammonia/value
     dd_path: summary/gas_injection_prefill/ammonia/value
@@ -1145,6 +1343,70 @@
   - name:outer_atomic_count_of_pellet
   - name:count_of_pellet
   - name:normalized_atomic_count_of_pellet
+- name: beryllium_source_rate
+  kind: scalar
+  status: draft
+  description: Electron-equivalent rate at which beryllium contributes to the plasma
+    particle source balance. It uses the same electron-counting convention as other
+    species source rates; the corresponding beryllium nucleus rate depends on the
+    assumed electron yield or charge state.
+  documentation: 'Beryllium source rate is the electron-equivalent contribution of
+    beryllium to the plasma particle balance. It counts the electron source credited
+    to beryllium under the chosen charge-state accounting, so it can be compared directly
+    with electron-equivalent source quantities such as [total_electron_source_rate](name:total_electron_source_rate)
+    and [electron_source_rate_due_to_surface_emission](name:electron_source_rate_due_to_surface_emission).
+    It is not an unqualified neutral-atom or nucleus throughput.
+
+
+    The conversion from beryllium nucleus accounting to the electron-equivalent rate
+    is
+
+
+    $$
+
+    S_\mathrm{Be} = \sum_k y_{e,k}\,\dot{N}_{\mathrm{Be},k}
+
+    $$
+
+
+    where $S_\mathrm{Be}$ is the beryllium source rate in s^-1, $\dot{N}_{\mathrm{Be},k}$
+    is the beryllium nucleus source rate for channel $k$ in s^-1, and $y_{e,k}$ is
+    the dimensionless number of electrons credited per beryllium nucleus for that
+    channel. The value $y_{e,k}=4$ applies only when each beryllium nucleus is counted
+    as fully ionized to $\mathrm{Be}^{4+}$; other effective yields may be used for
+    partial ionization, charge-state-resolved accounting, or model-specific penetration
+    assumptions.
+
+
+    In practice, this rate is obtained from the source accounting used for beryllium:
+    calibrated material-injection or inventory data, spectroscopy-constrained impurity
+    influx estimates, erosion or material-balance models, or integrated particle-balance
+    calculations. Comparisons with neighboring species quantities such as [xenon_source_rate](name:xenon_source_rate)
+    should be made in electron-equivalent units; comparison of nucleus rates requires
+    dividing by the adopted electron yield.
+
+
+    Absolute values scale with plasma size, operating scenario, source mechanism,
+    and the yield convention, so no universal device-independent absolute range exists.
+    A useful scale is the fraction $f_\mathrm{Be}=S_\mathrm{Be}/S_e$ relative to a
+    total electron source rate $S_e$: for orientation, $f_\mathrm{Be}=10^{-6}-10^{-3}$
+    of $S_e=10^{20}-10^{24}$ s^-1 corresponds to $S_\mathrm{Be}=10^{14}-10^{21}$ s^-1.
+    Deliberate material introduction, transient erosion, or different charge-state
+    accounting can give values outside this range.
+
+
+    Sign convention: Positive when beryllium processes produce a net increase in the
+    plasma electron particle balance.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:carbon_source_rate_due_to_gas_injection
+  - name:xenon_source_rate
+  - name:hydrogen_source_rate_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_rates/beryllium/value
+    dd_path: summary/gas_injection_rates/beryllium/value
+    status: composed
 - name: core_density_of_pellet
   kind: scalar
   status: draft
@@ -1299,6 +1561,10 @@
   - name:accumulated_hydrogen_prefill_count
   - name:accumulated_xenon_prefill_count
   - name:deuterium_count_due_to_gas_injection
+  arguments:
+  - name: accumulated_lithium_prefill_count_due_to_gas_injection
+    operator: deuterium
+    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/deuterium/value
     dd_path: summary/gas_injection_prefill/deuterium/value
@@ -1406,6 +1672,10 @@
   - name:accumulated_ethane_count
   - name:ethylene_prefill_count
   - name:propane_prefill_count
+  arguments:
+  - name: accumulated_lithium_prefill_count_due_to_gas_injection
+    operator: ethane
+    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/ethane/value
     dd_path: summary/gas_injection_prefill/ethane/value
@@ -1464,6 +1734,10 @@
   - name:accumulated_helium_4_count_due_to_gas_injection
   - name:accumulated_lithium_prefill_count_due_to_gas_injection
   - name:carbon_prefill_count_due_to_gas_injection
+  arguments:
+  - name: accumulated_lithium_prefill_count_due_to_gas_injection
+    operator: ethylene
+    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/ethylene/value
     dd_path: summary/gas_injection_prefill/ethylene/value
@@ -1675,6 +1949,10 @@
   - name:accumulated_helium_4_count_due_to_gas_injection
   - name:carbon_prefill_count_due_to_gas_injection
   - name:accumulated_krypton_count
+  arguments:
+  - name: accumulated_lithium_prefill_count_due_to_gas_injection
+    operator: krypton
+    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/krypton/value
     dd_path: summary/gas_injection_prefill/krypton/value
@@ -1712,6 +1990,68 @@
   sources:
   - id: dd:spi/injector/shattering_position/r
     dd_path: spi/injector/shattering_position/r
+    status: composed
+- name: maximum_gas_flow
+  kind: scalar
+  status: draft
+  description: Operational upper limit on pressure-weighted gas throughput through
+    a gas injection valve, expressed as gas pressure times volumetric flow rate in
+    the injection direction.
+  documentation: 'Maximum gas flow $Q_{\max}$ is the upper engineering limit on pressure-weighted
+    volumetric gas throughput deliverable by a gas injection valve. It bounds the
+    instantaneous [gas_flow](name:gas_flow) in the positive injection direction and,
+    together with [minimum_gas_flow](name:minimum_gas_flow), defines the usable valve
+    throughput range.
+
+
+    The pressure-throughput limit is defined from the product of gas pressure and
+    volumetric flow rate over the allowed operating states of the valve:
+
+
+    $$
+
+    Q_{\max} = \max_{\mathrm{allowed}} \left(p\,\dot{V}\right)
+
+    $$
+
+
+    where $p$ is the gas pressure in Pa at the specified reference section, $\dot{V}$
+    is the volumetric flow rate in m$^3$ s$^{-1}$ for the same gas state, and $Q_{\max}$
+    is in Pa m$^3$ s$^{-1}$.
+
+
+    The value is usually obtained from valve specifications, calibrated flow-bench
+    measurements, or pressure-decay tests under specified gas species, temperature,
+    and upstream/downstream pressure conditions. It is a pressure-throughput limit,
+    not directly a particle source rate: for an ideal gas at gas temperature $T_g$,
+    the molecule rate is $\dot{N}=Q/(k_B T_g)$ and the molar rate is $\dot{n}=Q/(R
+    T_g)$, so comparison with total_upper_source_rate requires the gas temperature
+    and composition.
+
+
+    Typical maximum throughputs range from $0.01-10\ \mathrm{Pa\,m^3\,s^{-1}}$ for
+    small fueling or impurity-seeding valves, $10-10^3\ \mathrm{Pa\,m^3\,s^{-1}}$
+    for high-capacity gas puffing valves, and $10^3-10^6\ \mathrm{Pa\,m^3\,s^{-1}}$
+    for fast disruption-mitigation injection systems.
+
+
+    Sign convention: Positive when gas is transported from the upstream supply side
+    of the valve toward the injection outlet.'
+  unit: Pa.m^3.s^-1
+  physics_domain: plant_systems
+  links:
+  - name:gas_flow
+  - name:minimum_gas_flow
+  arguments:
+  - name: gas_flow
+    operator: maximum
+    operator_kind: qualifier
+  sources:
+  - id: dd:gas_injection/pipe/valve/flow_rate_max
+    dd_path: gas_injection/pipe/valve/flow_rate_max
+    status: attached
+  - id: dd:gas_injection/valve/flow_rate_max
+    dd_path: gas_injection/valve/flow_rate_max
     status: composed
 - name: neon_prefill_count
   kind: scalar
@@ -1763,6 +2103,10 @@
   - name:deuterium_prefill_count
   - name:tritium_prefill_count
   - name:accumulated_neon_count
+  arguments:
+  - name: accumulated_lithium_prefill_count_due_to_gas_injection
+    operator: neon
+    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/neon/value
     dd_path: summary/gas_injection_prefill/neon/value
@@ -1969,6 +2313,54 @@
   - id: dd:balance_of_plant/power_electric_plant_operation/system/subsystem/power
     dd_path: balance_of_plant/power_electric_plant_operation/system/subsystem/power
     status: composed
+- name: prefill_gas_pressure
+  kind: scalar
+  status: draft
+  description: Neutral gas pressure in the vessel during the prefill phase, which
+    sets the ionization conditions for electron avalanche breakdown at plasma startup
+    via the Townsend mechanism.
+  documentation: 'The prefill gas pressure is the neutral gas pressure established
+    in the vacuum vessel before plasma breakdown during the startup phase. A controlled
+    amount of working gas is admitted to bring the vessel to a target pressure that
+    optimizes the electron avalanche threshold for the available loop voltage.
+
+
+    The Townsend ionization model relates the gas pressure to the avalanche breakdown
+    condition through the first Townsend ionization coefficient:
+
+
+    $$
+
+    \alpha = A \, p \, \exp\!\left(-\frac{B \, p}{E}\right)
+
+    $$
+
+
+    where $\alpha$ is the number of ionizations per unit path length, $p$ is the prefill
+    gas pressure, $E$ is the applied electric field, and $A$ and $B$ are gas-species
+    constants. Breakdown is achieved when $\alpha d \geq \ln(1 + 1/\gamma)$, where
+    $d$ is the path length and $\gamma$ is the secondary electron emission coefficient,
+    so the prefill gas pressure directly controls the loop voltage required for plasma
+    initiation.
+
+
+    Vessel pressure during the prefill phase is measured by calibrated ionization
+    gages or Penning gages and regulated through mass-flow-controlled gas injection
+    valves. This quantity is closely related to [prefill_pressure](name:prefill_gas_pressure),
+    which captures the same physical pressure in the specific context of the Townsend
+    electric field calculation.
+
+
+    Typical prefill pressures in tokamak startup range from $10^{-4}$ to $10^{-1}$
+    Pa, with the optimal working point set by the Paschen curve minimum for the injected
+    gas species.'
+  unit: Pa
+  physics_domain: plant_systems
+  links: []
+  sources:
+  - id: dd:plasma_initiation/b_field_lines/pressure
+    dd_path: plasma_initiation/b_field_lines/pressure
+    status: composed
 - name: propane_prefill_count
   kind: scalar
   status: draft
@@ -2015,6 +2407,10 @@
   physics_domain: plant_systems
   links:
   - name:accumulated_lithium_prefill_count_due_to_gas_injection
+  arguments:
+  - name: accumulated_lithium_prefill_count_due_to_gas_injection
+    operator: propane
+    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/propane/value
     dd_path: summary/gas_injection_prefill/propane/value
@@ -2317,6 +2713,10 @@
   - name:neon_prefill_count
   - name:krypton_prefill_count
   - name:accumulated_lithium_prefill_count_due_to_gas_injection
+  arguments:
+  - name: accumulated_lithium_prefill_count_due_to_gas_injection
+    operator: tritium
+    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/tritium/value
     dd_path: summary/gas_injection_prefill/tritium/value

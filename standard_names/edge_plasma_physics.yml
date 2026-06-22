@@ -1,6 +1,6 @@
 # Domain: edge_plasma_physics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 96
+# Entries: 103
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -434,6 +434,57 @@
   - id: dd:summary/local/separatrix/n_i/carbon/value
     dd_path: summary/local/separatrix/n_i/carbon/value
     status: composed
+- name: coulomb_logarithm_at_pedestal_top
+  kind: scalar
+  status: draft
+  description: Dimensionless Coulomb logarithm evaluated at the H-mode pressure pedestal
+    top, characterizing Debye screening of binary Coulomb collisions in the pedestal
+    plasma.
+  documentation: 'The Coulomb logarithm at the pedestal top is the value of the plasma
+    Coulomb logarithm evaluated at the radial location marking the top of the H-mode
+    pressure pedestal. It measures the logarithmic separation between long-range Debye
+    shielding and the shortest effective collision impact parameter, and is a key
+    factor in collisional transport estimates near the edge transport barrier.
+
+
+    The Coulomb logarithm is defined by the ratio of maximum to minimum effective
+    impact parameters:
+
+
+    $$
+
+    \ln\Lambda = \ln\left(\frac{\lambda_D}{b_{\min}}\right)
+
+    $$
+
+
+    where $\lambda_D$ is the Debye length in meters and $b_{\min}$ is the minimum
+    effective impact parameter in meters, usually taken as the larger of the classical
+    distance of closest approach and the quantum de Broglie wavelength for the relevant
+    colliding species.
+
+
+    In practice this quantity is computed from local pedestal-top plasma conditions,
+    primarily electron temperature and electron density, after identifying the pedestal
+    top from fitted edge pressure or kinetic profiles. It is used as an input to collision
+    frequencies, resistivity estimates, neoclassical transport coefficients, and derived
+    quantities such as [normalized_electron_collisionality_at_pedestal_top](name:normalized_electron_collisionality_at_pedestal_top).
+
+
+    Typical pedestal-top values in tokamak H-mode plasmas are about 15-20 for electron
+    temperatures of roughly 200-1000 eV and electron densities of about $10^{19}$-$10^{20}$
+    m^-3, with weak logarithmic dependence on the local plasma parameters.'
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:coulomb_logarithm
+  sources:
+  - id: dd:summary/pedestal_fits/linear/coulomb_factor_pedestal_top/value
+    dd_path: summary/pedestal_fits/linear/coulomb_factor_pedestal_top/value
+    status: attached
+  - id: dd:summary/pedestal_fits/mtanh/coulomb_factor_pedestal_top/value
+    dd_path: summary/pedestal_fits/mtanh/coulomb_factor_pedestal_top/value
+    status: composed
 - name: deuterium_density_at_pedestal
   kind: scalar
   status: draft
@@ -540,6 +591,39 @@
   sources:
   - id: dd:summary/local/pedestal/n_i/deuterium_tritium/value
     dd_path: summary/local/pedestal/n_i/deuterium_tritium/value
+    status: composed
+- name: deuterium_tritium_density_at_plasma_boundary
+  kind: scalar
+  status: draft
+  description: Number density of the fictitious deuterium-tritium pseudo-species (mean
+    atomic mass 2.5 amu) at the plasma boundary, the last closed flux surface separating
+    confined plasma from the scrape-off layer.
+  documentation: "The deuterium-tritium pseudo-species is a fictitious single-ion\
+    \ plasma constituent with mean atomic mass 2.5 amu, introduced in transport simulations\
+    \ to represent the combined D-T fuel mixture as a single fluid rather than tracking\
+    \ deuterium and tritium separately. The number density $n_{DT,\\text{sep}}$ is\
+    \ evaluated at the separatrix \u2014 the last closed flux surface bounding the\
+    \ confined plasma \u2014 making it the DT-species realization of the more general\
+    \ [density_at_plasma_boundary](name:density_at_plasma_boundary).\n\nThe separatrix\
+    \ density provides an upstream boundary condition for scrape-off-layer transport\
+    \ models and sets fueling depth and recycling source strengths at the plasma edge.\
+    \ It is inferred from edge Thomson scattering or reflectometry measurements combined\
+    \ with equilibrium reconstruction to locate the separatrix position in the right-handed\
+    \ cylindrical $(R, \\phi, Z)$ frame. Typical values in H-mode operation range\
+    \ from $10^{18}$ to $10^{20}$ m$^{-3}$, generally lower than the [deuterium_tritium_density_at_pedestal](name:deuterium_tritium_density_at_pedestal)\
+    \ value by a factor of two to four. The corresponding quantity at a limiter contact\
+    \ surface is [deuterium_tritium_density_at_limiter](name:deuterium_tritium_density_at_limiter).\n\
+    \nSign convention: Positive when deuterium-tritium fuel ions are present at the\
+    \ last closed flux surface."
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:density_at_plasma_boundary
+  - name:deuterium_tritium_density_at_pedestal
+  - name:deuterium_tritium_density_at_limiter
+  sources:
+  - id: dd:summary/local/separatrix/n_i/deuterium_tritium/value
+    dd_path: summary/local/separatrix/n_i/deuterium_tritium/value
     status: composed
 - name: edge_localized_mode_frequency
   kind: scalar
@@ -866,7 +950,7 @@
     \ determines the pedestal electron pressure captured by electron_pressure_at_pedestal.\
     \ The closely related [electron_temperature_at_pedestal_top](name:electron_temperature_at_pedestal_top)\
     \ targets the same physical location using an explicit profile-top convention,\
-    \ while [gradient_of_electron_temperature](name:gradient_of_electron_temperature)\
+    \ while [gradient_of_electron_temperature](name:derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_temperature_at_pedestal_top)\
     \ quantifies the steepness of the transport barrier.\n\nSign convention: Positive\
     \ for all physical plasmas, as electron temperature is a measure of mean thermal\
     \ kinetic energy per degree of freedom and is intrinsically non-negative."
@@ -874,7 +958,7 @@
   physics_domain: edge_plasma_physics
   links:
   - name:electron_temperature_at_pedestal_top
-  - name:gradient_of_electron_temperature
+  - name:derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_temperature_at_pedestal_top
   sources:
   - id: dd:summary/pedestal_fits/linear/t_e/pedestal_height/value
     dd_path: summary/pedestal_fits/linear/t_e/pedestal_height/value
@@ -1424,7 +1508,7 @@
     may come from target heat measurements, probe-based ion energy and particle flux
     measurements, edge power balance, or transport modeling with magnetic mapping
     between divertor and upstream locations. It is distinct from ion temperature decay
-    lengths such as [radial_average_ion_temperature_decay_length_over_scrape_off_layer](name:radial_average_ion_temperature_decay_length_over_scrape_off_layer)
+    lengths such as radial_average_ion_temperature_decay_length_over_scrape_off_layer
     and ion_average_decay_length_over_scrape_off_layer, because it describes heat-flux
     fall-off rather than temperature fall-off.
 
@@ -1440,7 +1524,6 @@
   links:
   - name:electron_heat_decay_length_over_scrape_off_layer
   - name:heat_decay_length_over_scrape_off_layer
-  - name:radial_average_ion_temperature_decay_length_over_scrape_off_layer
   sources:
   - id: dd:summary/scrape_off_layer/heat_flux_i_decay_length/value
     dd_path: summary/scrape_off_layer/heat_flux_i_decay_length/value
@@ -1983,6 +2066,68 @@
   - id: dd:summary/pedestal_fits/mtanh/nustar_pedestal_top_electron/value
     dd_path: summary/pedestal_fits/mtanh/nustar_pedestal_top_electron/value
     status: composed
+- name: normalized_poloidal_flux_coordinate_of_pedestal
+  kind: scalar
+  status: draft
+  description: Radial flux-surface location of the H-mode pedestal, expressed by the
+    normalized poloidal flux coordinate. It identifies the position of the edge transport
+    barrier relative to the magnetic axis and the last closed flux surface.
+  documentation: 'The normalized poloidal flux coordinate of the pedestal is the value
+    of the flux coordinate $\psi_N$ at the characteristic radial location of the H-mode
+    pedestal or edge transport barrier. It specifies where the pedestal sits between
+    the magnetic axis and the last closed flux surface; the associated normalized_width_of_pedestal
+    gives the pedestal extent in the same coordinate.
+
+
+    The normalized poloidal flux coordinate is defined by normalizing the poloidal
+    magnetic flux to its magnetic-axis and last-closed-flux-surface values:
+
+
+    $$
+
+    \psi_N = \frac{\psi - \psi_\mathrm{axis}}{\psi_\mathrm{LCFS} - \psi_\mathrm{axis}}
+
+    $$
+
+
+    where $\psi$ is the poloidal magnetic flux at the flux surface of interest, $\psi_\mathrm{axis}$
+    is its value at the magnetic axis, and $\psi_\mathrm{LCFS}$ is its value at the
+    last closed flux surface. With this definition, $\psi_N = 0$ at the magnetic axis
+    and $\psi_N = 1$ at the last closed flux surface.
+
+
+    In practice, the pedestal position is obtained by mapping edge measurements of
+    density, temperature, or pressure onto equilibrium flux surfaces and locating
+    the characteristic pedestal center or transition position from the resulting radial
+    variation. Different physical channels and fitting choices can give slightly different
+    pedestal positions, so the quantity should be interpreted as the location associated
+    with the specified pedestal observable.
+
+
+    In H-mode plasmas the pedestal position is usually close to the plasma edge, typically
+    $\psi_N = 0.90$-$1.05$, with many pedestal centers lying around $0.95$-$1.00$.
+    Values below 1 are inside the last closed flux surface, while values slightly
+    above 1 can occur when the inferred transition extends into the near scrape-off-layer
+    region or when the fitted midpoint lies just outside the separatrix.'
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links: []
+  sources:
+  - id: dd:summary/pedestal_fits/linear/pressure_electron/pedestal_position/value
+    dd_path: summary/pedestal_fits/linear/pressure_electron/pedestal_position/value
+    status: attached
+  - id: dd:summary/pedestal_fits/linear/t_e/pedestal_position/value
+    dd_path: summary/pedestal_fits/linear/t_e/pedestal_position/value
+    status: composed
+  - id: dd:summary/pedestal_fits/mtanh/n_e/pedestal_position/value
+    dd_path: summary/pedestal_fits/mtanh/n_e/pedestal_position/value
+    status: attached
+  - id: dd:summary/pedestal_fits/mtanh/pressure_electron/pedestal_position/value
+    dd_path: summary/pedestal_fits/mtanh/pressure_electron/pedestal_position/value
+    status: attached
+  - id: dd:summary/pedestal_fits/mtanh/t_e/pedestal_position/value
+    dd_path: summary/pedestal_fits/mtanh/t_e/pedestal_position/value
+    status: attached
 - name: normalized_poloidal_magnetic_flux_at_pedestal
   kind: scalar
   status: draft
@@ -2314,6 +2459,156 @@
   - id: dd:summary/pedestal_fits/mtanh/beta_pol_pedestal_top_electron_lfs/value
     dd_path: summary/pedestal_fits/mtanh/beta_pol_pedestal_top_electron_lfs/value
     status: composed
+- name: poloidal_magnetic_flux_at_pedestal
+  kind: scalar
+  status: draft
+  description: Poloidal magnetic flux at the H-mode pressure pedestal top location,
+    providing a dimensional flux-surface label for the edge pedestal.
+  documentation: 'Poloidal magnetic flux at the pedestal is the value of the poloidal
+    flux function on the flux surface identified as the H-mode pressure pedestal top.
+    This surface is the radial location assigned to the core-side top of the steep
+    edge pedestal region; it is distinct from the pedestal center or maximum-gradient
+    surface unless a particular pedestal analysis explicitly defines those surfaces
+    to coincide.
+
+
+    In a right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is major radius
+    in meters, $\phi$ is toroidal angle, and $Z$ is vertical height in meters, the
+    full poloidal magnetic flux at a point on the pedestal-top surface may be written
+    as the horizontal-disk integral of the vertical magnetic field:
+
+
+    $$
+
+    \psi_{\mathrm{ped}} = \int_0^{R_{\mathrm{ped}}} B_Z(R'', Z_{\mathrm{ped}})\, 2\pi
+    R''\, dR''
+
+    $$
+
+
+    where $(R_{\mathrm{ped}}, Z_{\mathrm{ped}})$ is any point on the pedestal-top
+    flux surface, $B_Z$ is the vertical magnetic-field component in tesla, and $\psi_{\mathrm{ped}}$
+    is in Wb. The lower integration limit fixes the additive reference to zero flux
+    for the zero-radius disk on the toroidal symmetry axis; adding a constant offset
+    to the flux function would shift this absolute value but not flux differences
+    between surfaces.
+
+
+    In practice, an equilibrium reconstruction provides $\psi(R,Z)$, while pedestal
+    analysis of edge pressure or its components determines the pedestal-top radial
+    location. The pedestal flux is obtained by evaluating the equilibrium flux on
+    that flux surface, rather than by assuming the surface is the pedestal center
+    or the point of maximum pressure gradient.
+
+
+    Typical absolute values, using a consistent additive reference, are about 0.1-5
+    Wb in small and medium tokamaks and 5-50 Wb in large high-current tokamaks. Because
+    the pedestal top lies close to the outer confined plasma boundary, $\psi_{\mathrm{ped}}$
+    is usually near the boundary poloidal flux, with the pedestal-to-boundary flux
+    interval much smaller than the axis-to-boundary flux span.
+
+
+    Sign convention: Positive when $B_Z$ on the horizontal integration disk points
+    in the $+Z$ direction of the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: Wb
+  physics_domain: edge_plasma_physics
+  links:
+  - name:normalized_poloidal_magnetic_flux_at_pedestal
+  - name:poloidal_magnetic_flux_at_internal_transport_barrier
+  sources:
+  - id: dd:summary/local/pedestal/position/psi
+    dd_path: summary/local/pedestal/position/psi
+    status: composed
+- name: poloidal_momentum_coefficient
+  kind: scalar
+  status: draft
+  description: Dimensionless momentum-flux-density limiter that scales the collisionless
+    free-streaming bound for gradient-driven poloidal momentum transport. It caps
+    the modeled poloidal momentum-flux density while leaving its direction set by
+    the underlying transport closure.
+  documentation: 'The poloidal momentum coefficient is a dimensionless flux-limiter
+    parameter for gradient-driven momentum transport in the poloidal direction on
+    a magnetic surface. It scales the collisionless free-streaming bound used to limit
+    the modeled poloidal momentum-flux density, so the coefficient controls the allowed
+    magnitude rather than the sign of the flux.
+
+
+    A common limiter form constrains the poloidal momentum-flux density for species
+    or population $s$ by
+
+
+    $$
+
+    |\Pi_{\theta,s}| \le \alpha_{\theta,s}\,\Pi_{\mathrm{fs},s}, \qquad \Pi_{\mathrm{fs},s}
+    \sim m_s n_s v_{\mathrm{th},s}^{2}
+
+    $$
+
+
+    where $\Pi_{\theta,s}$ is the poloidal momentum-flux density in kg m^-1 s^-2,
+    $\alpha_{\theta,s}$ is the poloidal momentum coefficient, $\Pi_{\mathrm{fs},s}$
+    is the selected free-streaming momentum-flux-density estimate in kg m^-1 s^-2,
+    $m_s$ is particle mass, $n_s$ is number density, and $v_{\mathrm{th},s}$ is thermal
+    speed. The index $\theta$ denotes the poloidal direction in a chosen flux-coordinate
+    system $(\rho,\theta,\phi)$; factors of order unity in the free-streaming estimate
+    are closure-dependent. Because the limiter is applied to $|\Pi_{\theta,s}|$, the
+    sign of the limited flux follows the underlying diffusive or reference momentum
+    flux.
+
+
+    The coefficient is specified as a transport-model closure parameter rather than
+    measured directly. It is used to prevent a diffusion approximation from producing
+    momentum-flux densities larger than a collisionless population could carry across
+    the same direction, especially in low-collisionality edge-plasma regimes where
+    unbounded gradient-driven diffusion can overestimate transport.
+
+
+    Typical model choices are non-negative fractions not exceeding order unity. Smaller
+    values impose a stronger cap on poloidal momentum transport, while values near
+    unity allow momentum-flux densities comparable to the chosen free-streaming estimate.
+
+
+    Conceptually related limiters include the [parallel momentum coefficient](name:parallel_momentum_coefficient)
+    and [toroidal momentum coefficient](name:toroidal_ion_state_momentum_coefficient)
+    for other directional momentum-flux-density limits, and energy-flux limiters such
+    as the [total ion energy coefficient](name:total_ion_energy_coefficient).'
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:parallel_momentum_coefficient
+  - name:toroidal_ion_state_momentum_coefficient
+  - name:total_ion_energy_coefficient
+  sources:
+  - id: dd:edge_transport/model/ggd/ion/momentum/flux_limiter/poloidal
+    dd_path: edge_transport/model/ggd/ion/momentum/flux_limiter/poloidal
+    status: attached
+  - id: dd:edge_transport/model/ggd/ion/state/momentum/flux_limiter/poloidal
+    dd_path: edge_transport/model/ggd/ion/state/momentum/flux_limiter/poloidal
+    status: attached
+  - id: dd:edge_transport/model/ggd/momentum/flux_limiter/poloidal
+    dd_path: edge_transport/model/ggd/momentum/flux_limiter/poloidal
+    status: composed
+  - id: dd:edge_transport/model/ggd/neutral/momentum/flux_limiter/poloidal
+    dd_path: edge_transport/model/ggd/neutral/momentum/flux_limiter/poloidal
+    status: attached
+  - id: dd:edge_transport/model/ggd/neutral/state/momentum/flux_limiter/poloidal
+    dd_path: edge_transport/model/ggd/neutral/state/momentum/flux_limiter/poloidal
+    status: attached
+  - id: dd:plasma_transport/model/ggd/ion/momentum/flux_limiter/poloidal
+    dd_path: plasma_transport/model/ggd/ion/momentum/flux_limiter/poloidal
+    status: attached
+  - id: dd:plasma_transport/model/ggd/ion/state/momentum/flux_limiter/poloidal
+    dd_path: plasma_transport/model/ggd/ion/state/momentum/flux_limiter/poloidal
+    status: composed
+  - id: dd:plasma_transport/model/ggd/momentum/flux_limiter/poloidal
+    dd_path: plasma_transport/model/ggd/momentum/flux_limiter/poloidal
+    status: attached
+  - id: dd:plasma_transport/model/ggd/neutral/momentum/flux_limiter/poloidal
+    dd_path: plasma_transport/model/ggd/neutral/momentum/flux_limiter/poloidal
+    status: attached
+  - id: dd:plasma_transport/model/profiles_1d/neutral/state/momentum/flux_limiter/poloidal
+    dd_path: plasma_transport/model/profiles_1d/neutral/state/momentum/flux_limiter/poloidal
+    status: attached
 - name: radial_plasma_momentum_diffusion_coefficient
   kind: scalar
   status: draft
@@ -3786,6 +4081,69 @@
   - id: dd:summary/local/separatrix_average/velocity_tor/oxygen/value
     dd_path: summary/local/separatrix_average/velocity_tor/oxygen/value
     status: composed
+- name: toroidal_plasma_momentum_at_pedestal
+  kind: scalar
+  status: draft
+  description: Total plasma momentum in the toroidal phi direction of the right-handed
+    cylindrical (R, phi, Z) frame, summed over all ion species and electrons and evaluated
+    at the pedestal top.
+  documentation: 'Toroidal plasma momentum at the pedestal top is the net linear momentum
+    component along the toroidal direction of the right-handed cylindrical $(R,\phi,Z)$
+    frame, where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical
+    height. It is the pedestal-top value of the radial flux-surface function [toroidal_total_plasma_momentum](name:toroidal_total_plasma_momentum),
+    summed over all ion species and electrons, and characterizes the rotation state
+    at the edge transport barrier.
+
+
+    The scalar is the total toroidal plasma momentum function evaluated at the pedestal
+    flux surface:
+
+
+    $$
+
+    P_\phi^{\mathrm{ped}} = P_\phi(\rho_{\mathrm{ped}}) = \int_{V(\rho_{\mathrm{ped}})}
+    \sum_s m_s n_s(\mathbf{x}) v_{\phi,s}(\mathbf{x})\, dV
+
+    $$
+
+
+    where $P_\phi^{\mathrm{ped}}$ and $P_\phi$ have units kg m s^-1, $\rho_{\mathrm{ped}}$
+    is the pedestal-top value of a dimensionless radial flux-surface label such as
+    the normalized toroidal flux radius $\rho_{\mathrm{tor,norm}}$, $V(\rho_{\mathrm{ped}})$
+    is the plasma volume enclosed by that flux surface, $s$ indexes ion species and
+    electrons, $m_s$ is species mass in kg, $n_s$ is number density in m^-3, $v_{\phi,s}$
+    is toroidal velocity in m s^-1, and $dV$ is the volume element in m^3.
+
+
+    In practice this quantity is derived from equilibrium geometry together with density,
+    composition, and toroidal-flow estimates near the pedestal top. The pedestal-top
+    flux surface is commonly identified from the edge pressure, temperature, or density
+    gradient structure; ion flows may be constrained by spectroscopic measurements
+    and momentum-balance modeling, while electron contributions are included in the
+    species sum but are usually small because of the electron mass.
+
+
+    Typical absolute magnitudes are about 10^-2-10 kg m s^-1 in medium-size tokamaks,
+    and can reach 10-100 kg m s^-1 in large, high-density plasmas or cases with strong
+    external torque. Values close to zero occur for weak rotation or when counter-directed
+    species contributions nearly cancel.
+
+
+    Sign convention: Positive when the net toroidal plasma momentum points in the
+    direction of increasing toroidal angle $\phi$ in the right-handed cylindrical
+    $(R,\phi,Z)$ frame.'
+  unit: kg.m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:toroidal_total_plasma_momentum
+  - name:toroidal_plasma_momentum_at_magnetic_axis
+  sources:
+  - id: dd:summary/local/pedestal/momentum_phi/value
+    dd_path: summary/local/pedestal/momentum_phi/value
+    status: skipped
+  - id: dd:summary/local/pedestal/momentum_tor/value
+    dd_path: summary/local/pedestal/momentum_tor/value
+    status: attached
 - name: toroidal_tritium_velocity_at_plasma_boundary
   kind: scalar
   status: draft
@@ -4251,7 +4609,7 @@
     such as Thomson scattering, and then differentiating the fitted function with
     respect to $\psi_N$. Modified hyperbolic-tangent and piecewise-linear fits are
     common ways to locate the steepest pedestal segment. This normalized-flux derivative
-    complements [gradient_of_electron_temperature](name:gradient_of_electron_temperature)
+    complements [gradient_of_electron_temperature](name:derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_temperature_at_pedestal_top)
     and gradient_of_electron_density, and differs from [gradient_of_radial_electron_pressure](name:derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_pressure_at_pedestal),
     which is a spatial derivative requiring a local conversion between $\psi_N$ and
     a chosen radial distance.
@@ -4270,7 +4628,7 @@
   physics_domain: edge_plasma_physics
   links:
   - name:electron_pressure
-  - name:gradient_of_electron_temperature
+  - name:derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_temperature_at_pedestal_top
   - name:derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_pressure_at_pedestal
   arguments:
   - name: electron_pressure
@@ -5108,6 +5466,68 @@
   - id: dd:edge_transport/model/ggd/ion/state/particles/d_radial/values
     dd_path: edge_transport/model/ggd/ion/state/particles/d_radial/values
     status: composed
+- name: radial_ion_state_momentum_diffusivity
+  kind: scalar
+  status: draft
+  description: Radial ion-state momentum diffusivity is the cross-field diffusion
+    coefficient for the directed momentum density of a specified ion charge state.
+    It parameterizes the Fickian part of radial momentum transport, with nonnegative
+    values driving momentum flux down outward radial gradients.
+  documentation: 'Radial ion-state momentum diffusivity is a scalar transport coefficient
+    relating the outward radial gradient of directed momentum density for a specified
+    ion charge state to the diffusive radial flux of that momentum. The radial label
+    used here increases outward across magnetic flux surfaces, from the core side
+    toward the scrape-off-layer and material boundary, and the coefficient represents
+    charge-state-resolved collisional or turbulent redistribution rather than convective
+    momentum transport.
+
+
+    The local Fickian closure for the diffusive radial momentum flux density is
+
+
+    $$
+
+    \Pi_{r,\mathrm{diff}}^{(z)} = -D_{p,r}^{(z)} \frac{\partial}{\partial r}\left(m_i
+    n^{(z)} u^{(z)}\right)
+
+    $$
+
+
+    where $D_{p,r}^{(z)}$ is the radial momentum diffusivity for ion charge state
+    $z$, $r$ is an outward-increasing cross-field radial label, $m_i$ is ion mass,
+    $n^{(z)}$ is the charge-state density, and $u^{(z)}$ is the directed flow speed
+    of the transported momentum component. The product $m_i n^{(z)} u^{(z)}$ is the
+    directed momentum density with units kg m^-2 s^-1, and $\Pi_{r,\mathrm{diff}}^{(z)}$
+    is the radial flux density of directed momentum with units kg m^-1 s^-2, taken
+    as positive for outward transport. The minus sign means that a nonnegative diffusivity
+    carries momentum from larger to smaller momentum density along the outward radial
+    direction.
+
+
+    In practice this quantity is an effective closure parameter in edge momentum-balance
+    modeling. It may be inferred or chosen together with particle, energy, and convective
+    momentum-transport coefficients so that modeled charge-state densities and flows
+    are consistent with available constraints; it should not be confused with a momentum
+    pinch velocity or with a source of momentum.
+
+
+    Typical numerical values are not universal because the coefficient depends strongly
+    on the radial region, turbulence level, collisionality, charge state, and the
+    chosen momentum-transport closure. Physically, larger values imply faster smoothing
+    of charge-state momentum-density gradients, with a characteristic diffusive time
+    scale of order $L^2/D_{p,r}^{(z)}$ across a cross-field length $L$, while zero
+    represents no diffusive radial momentum transport in this closure.'
+  unit: m^2.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:ion_state_momentum_diffusivity
+  - name:radial_ion_state_diffusivity
+  - name:radial_ion_state_energy_diffusivity
+  - name:radial_ion_charge_state_momentum_diffusivity
+  sources:
+  - id: dd:edge_transport/model/ggd/ion/state/momentum/d_radial/values
+    dd_path: edge_transport/model/ggd/ion/state/momentum/d_radial/values
+    status: composed
 - name: ratio_of_vertical_vorticity_to_major_radius
   kind: scalar
   status: draft
@@ -5161,6 +5581,17 @@
   - name:ratio_of_plasma_vorticity_to_major_radius
   - name:poloidal_vorticity
   - name:toroidal_vorticity
+  arguments:
+  - name: vertical_vorticity
+    operator: ratio
+    operator_kind: binary
+    role: a
+    separator: to
+  - name: major_radius_of_poloidal_magnetic_field_probe
+    operator: ratio
+    operator_kind: binary
+    role: b
+    separator: to
   sources:
   - id: dd:edge_profiles/ggd/vorticity_over_r/z
     dd_path: edge_profiles/ggd/vorticity_over_r/z

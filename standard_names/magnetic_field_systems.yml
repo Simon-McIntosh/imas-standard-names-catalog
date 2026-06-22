@@ -1,6 +1,6 @@
 # Domain: magnetic_field_systems
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 66
+# Entries: 71
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -1114,6 +1114,139 @@
   - id: dd:tf/coil/conductor/cross_section/delta_r
     dd_path: tf/coil/conductor/cross_section/delta_r
     status: composed
+- name: maximum_force_of_poloidal_field_coil
+  kind: scalar
+  status: draft
+  description: Upper bound on a signed electromagnetic force resultant for poloidal-field
+    coils, with the resultant and its sign defined by the weights in one row of the
+    force-combination matrix.
+  documentation: 'Maximum force of a poloidal-field coil is the upper allowable value
+    of a signed electromagnetic force resultant acting on the poloidal-field coil
+    system. Each row of the force-combination matrix defines one such resultant by
+    weighting independent products of coil currents; this quantity is the upper bound
+    for that row. Together with [minimum_force_of_poloidal_field_coil](name:minimum_force_of_poloidal_field_coil),
+    it defines the admissible signed force interval for the matrix-defined load.
+
+
+    The force resultant for row $k$ of the force-combination matrix is constrained
+    by the maximum limit:
+
+
+    $$
+
+    F_k = \sum_j C_{kj} G_j \le F_{k,\max}
+
+    $$
+
+
+    where $F_k$ is the $k$-th [force_of_poloidal_field_coil](name:force_of_poloidal_field_coil)
+    and $F_{k,\max}$ is its maximum limit, both in N. The index $j$ runs over the
+    matrix columns, each representing an independent coil-current product $G_j$ such
+    as $I_m I_n$; $G_j$ has dimensions of current squared when currents are in A.
+    The coefficient $C_{kj}$ is the signed force weight for that product, with units
+    $\mathrm{N}\,\mathrm{A}^{-2}$ for currents in A, so each term $C_{kj}G_j$ has
+    units N.
+
+
+    The limit is normally selected from allowable mechanical loads or scenario-design
+    constraints and used when evaluating candidate coil currents. The same matrix
+    formalism can describe radial loads along $R$ or vertical loads along $Z$ in the
+    right-handed cylindrical $(R, \phi, Z)$ frame, as in [radial_force_of_poloidal_field_coil](name:radial_force_of_poloidal_field_coil)
+    and [vertical_force_of_poloidal_field_coil](name:vertical_force_of_poloidal_field_coil),
+    or aggregate resultants such as [radial_total_maximum_force_of_poloidal_field_coil](name:radial_total_maximum_force_of_poloidal_field_coil).
+    If no finite upper ceiling is imposed for a particular row, the absence of a bound
+    means that row does not constrain the force from above.
+
+
+    No device-independent numerical range is intrinsic to this quantity. Finite values
+    are real numbers in N determined by the selected load combination and allowable-load
+    model; their scale follows the electromagnetic force coefficients and the square
+    of the relevant coil currents, and may differ between radial $R$, vertical $Z$,
+    and aggregate load constraints in the right-handed cylindrical $(R, \phi, Z)$
+    frame.
+
+
+    Sign convention: Positive when the force resultant computed from the corresponding
+    row of the force-combination matrix is positive, i.e. when the weighted sum of
+    the signed coil-current products specified by that row is positive.'
+  unit: N
+  physics_domain: magnetic_field_systems
+  links:
+  - name:minimum_force_of_poloidal_field_coil
+  - name:radial_total_maximum_force_of_poloidal_field_coil
+  - name:vertical_maximum_force
+  sources:
+  - id: dd:pf_active/force_limits/limit_max
+    dd_path: pf_active/force_limits/limit_max
+    status: composed
+- name: minimum_force_of_poloidal_field_coil
+  kind: scalar
+  status: draft
+  description: Lower engineering limit on a signed net electromagnetic force formed
+    from poloidal field coil force components in the right-handed cylindrical (R,
+    phi, Z) frame. It is a hard constraint for axisymmetric PF coil-system design
+    and scenario optimization.
+  documentation: 'Minimum force of a poloidal field coil system is the lower engineering
+    bound on a signed net electromagnetic force formed from individual poloidal-field-coil
+    force components. It constrains axisymmetric coil-system design and scenario optimization
+    by excluding coil-current waveforms or plasma scenarios that would exceed allowable
+    mechanical loading in the negative limiting sense. The force components are resolved
+    in the right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is major radius
+    outward from the symmetry axis, $\phi$ increases counter-clockwise when viewed
+    from above $+\hat{Z}$, and $Z$ is vertical height.
+
+
+    For the $i$-th force constraint, acceptable operating states satisfy:
+
+
+    $$
+
+    \mathbf{c}_i \cdot \mathbf{F} \ge F_{\min,i}
+
+    $$
+
+
+    where $\mathbf{F}$ is the vector of electromagnetic force components on the poloidal
+    field coils in N, $\mathbf{c}_i$ is the dimensionless vector of weighting coefficients
+    that defines the signed force combination, and $F_{\min,i}$ is the minimum permitted
+    value in N. If no finite lower bound is imposed for a particular combination,
+    the lower constraint is mathematically absent rather than represented by a mechanical
+    force value.
+
+
+    The actual signed combination is the [force_of_poloidal_field_coil](name:force_of_poloidal_field_coil).
+    It is typically computed from electromagnetic equilibrium or coil-design models
+    by integrating $\mathbf{J}\times\mathbf{B}$ loads over conductor volumes, or equivalently
+    by evaluating mutual forces between current-carrying circuits and surrounding
+    magnetic fields. The lower bound is set from structural allowables for winding
+    packs, casings, supports, insulation, and fatigue margins, and is used together
+    with [maximum_force_of_poloidal_field_coil](name:maximum_force_of_poloidal_field_coil)
+    to define the admissible force interval for each signed combination.
+
+
+    Typical absolute magnitudes of finite lower limits are 10^5-10^8 N for medium-sized
+    PF coil systems and can approach 10^9 N in very large devices or for aggregate
+    load combinations. The signed value may be negative, zero, or positive depending
+    on the chosen combination-matrix weights and on whether the limiting sense is
+    inward, outward, downward, or upward.
+
+
+    Sign convention: Positive when the limiting force corresponds to a weighted electromagnetic-force
+    resultant in the sense selected by positive weighting coefficients: $+\hat{R}$
+    for outward radial components, $+\hat{\phi}$ for increasing toroidal angle $\phi$,
+    and $+\hat{Z}$ for upward vertical components in the right-handed cylindrical
+    $(R, \phi, Z)$ frame; negative weighting coefficients reverse the selected sense.'
+  unit: N
+  physics_domain: magnetic_field_systems
+  links:
+  - name:force_of_poloidal_field_coil
+  - name:maximum_force_of_poloidal_field_coil
+  - name:radial_total_minimum_force_of_poloidal_field_coil
+  - name:vertical_minimum_force
+  sources:
+  - id: dd:pf_active/force_limits/limit_min
+    dd_path: pf_active/force_limits/limit_min
+    status: composed
 - name: normal_coordinate_of_correction_coil
   kind: scalar
   status: draft
@@ -1500,6 +1633,67 @@
   - id: dd:ferritic/object/time_slice/b_field_r
     dd_path: ferritic/object/time_slice/b_field_r
     status: composed
+- name: radial_minimum_force_of_poloidal_field_coil
+  kind: scalar
+  status: draft
+  description: Minimum allowed value of the signed weighted radial-force combination
+    for a poloidal field coil set. It is the lower structural bound applied to a selected
+    radial loading mode of the coils.
+  documentation: 'Radial minimum force of a poloidal field coil set is the lower allowable
+    value of a signed weighted combination of radial electromagnetic forces on the
+    axisymmetric coils. The radial direction refers to the major-radius coordinate
+    $R$ in the right-handed cylindrical $(R, \phi, Z)$ frame; the sign of the combined
+    loading mode is defined by the selected force-combination weights, not by a universal
+    inward or outward convention.
+
+
+    The lower-bound constraint is
+
+
+    $$
+
+    F_{\mathrm{rad}}^{\mathrm{comb}} = \sum_{j=1}^{N_{\mathrm{coil}}} w_j F_{R,j},
+    \qquad F_{\mathrm{rad}}^{\mathrm{comb}} \ge F_{\mathrm{rad,min}}
+
+    $$
+
+
+    where $F_{\mathrm{rad}}^{\mathrm{comb}}$ is the signed combined radial force in
+    N, $F_{R,j}$ is the radial electromagnetic force assigned to coil $j$ in N, $w_j$
+    is the dimensionless combination weight for that coil, $N_{\mathrm{coil}}$ is
+    the number of coils included in the combination, and $F_{\mathrm{rad,min}}$ is
+    this minimum allowable value in N. Different choices of $w_j$ represent different
+    mechanically relevant load modes, such as a single-coil limit, a group load, or
+    a differential load between coil groups.
+
+
+    In practice the individual coil forces are computed from coil currents and magnetic
+    fields using the Lorentz force density or an equivalent magnetic-energy derivative,
+    then combined with the prescribed weights from the structural constraint set.
+    The limit is normally established from engineering analysis of coil supports,
+    cases, and attachments, and is used to reject operating points whose radial loading
+    would exceed the allowed lower bound.
+
+
+    Typical magnitudes of lower radial-force limits are strongly machine-specific:
+    small devices may use bounds of order 10^4-10^6 N, medium-sized tokamaks often
+    use 10^6-10^8 N, and large superconducting systems can use 10^8-10^9 N for the
+    most demanding load combinations. The signed stored value may be negative or positive
+    depending on the selected combination weights and the allowable load interval.
+
+
+    Sign convention: Positive when the weighted combination $\sum_j w_j F_{R,j}$ is
+    positive for the selected radial-force combination weights.'
+  unit: N
+  physics_domain: magnetic_field_systems
+  links:
+  - name:radial_total_maximum_force_of_poloidal_field_coil
+  - name:vertical_minimum_force
+  - name:minimum_force_of_poloidal_field_coil
+  sources:
+  - id: dd:pf_active/radial_force/limit_min
+    dd_path: pf_active/radial_force/limit_min
+    status: composed
 - name: radial_outline_of_coil_conductor_element
   kind: scalar
   status: draft
@@ -1591,6 +1785,62 @@
   sources:
   - id: dd:pf_active/coil/geometry/arcs_of_circle/r
     dd_path: pf_active/coil/geometry/arcs_of_circle/r
+    status: composed
+- name: radial_total_maximum_force_of_poloidal_field_coil
+  kind: scalar
+  status: draft
+  description: Upper allowable bound on a signed linear combination of radial electromagnetic
+    forces across an axisymmetric poloidal field coil system. It is used as a mechanical
+    integrity constraint for coil-current scenarios and machine protection.
+  documentation: 'Radial total maximum force of a poloidal field coil system is the
+    upper allowable bound on a signed linear combination of the radial electromagnetic
+    forces acting on the coils. The radial direction is the major-radius direction
+    $R$ in the right-handed cylindrical $(R, \phi, Z)$ frame, and the bound represents
+    a mechanical integrity constraint for the coil support structure.
+
+
+    The constraint is commonly expressed as a weighted-force inequality:
+
+
+    $$
+
+    F_{R,\mathrm{comb}} = \sum_i w_i F_{R,i} \le F_{R,\mathrm{max}}
+
+    $$
+
+
+    where $F_{R,\mathrm{comb}}$ is the signed combined radial force in N, $w_i$ is
+    a dimensionless linear-combination weight, $F_{R,i}$ is the individual radial
+    force on coil $i$ in N, and $F_{R,\mathrm{max}}$ is the maximum allowable bound
+    in N. Each $F_{R,i}$ is obtained by integrating the Lorentz force density $\mathbf{J}_i
+    \times \mathbf{B}$ over the coil conductor and projecting onto $R$, where $\mathbf{J}_i$
+    is current density in A m^-2 and $\mathbf{B}$ is magnetic flux density in T.
+
+
+    This limit is evaluated from electromagnetic load calculations using the coil
+    currents, conductor geometry, and magnetic field from the full coil and plasma
+    configuration. The resulting force combination is compared with structural margins
+    from support design, stress analysis, preload assumptions, and protection requirements.
+
+
+    Typical allowable magnitudes are highly machine-dependent: small devices may have
+    limits of order 10^5-10^6 N, medium and large tokamaks often use 10^6-10^8 N,
+    and reactor-scale coil systems can exceed 10^8 N. The appropriate value depends
+    on coil size, support stiffness, load sharing, disruption assumptions, and the
+    chosen linear-combination weights.
+
+
+    Sign convention: Positive when the defining weighted sum is positive under the
+    specified linear-combination weights, taking each individual radial force as positive
+    toward increasing $R$ in the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: N
+  physics_domain: magnetic_field_systems
+  links:
+  - name:radial_minimum_force_of_poloidal_field_coil
+  - name:maximum_force_of_poloidal_field_coil
+  sources:
+  - id: dd:pf_active/radial_force/limit_max
+    dd_path: pf_active/radial_force/limit_max
     status: composed
 - name: radial_vacuum_magnetic_vector_potential
   kind: scalar
@@ -2276,6 +2526,55 @@
     status: composed
   - id: dd:tf/coil/resistance
     dd_path: tf/coil/resistance
+    status: composed
+- name: temperature_of_poloidal_field_coil
+  kind: scalar
+  status: draft
+  description: Bulk conductor temperature of an individual poloidal field coil.
+  documentation: 'Bulk conductor temperature of a poloidal field coil is the representative
+    thermodynamic temperature of the current-carrying winding material for one physically
+    distinct PF coil. It determines temperature-dependent resistance in normal conductors
+    and the thermal margin and allowable current density in superconducting windings.
+
+
+    When internal temperature gradients are small, or when a single engineering temperature
+    is required, the bulk value is commonly interpreted as a conductor-volume average:
+
+
+    $$
+
+    T_\mathrm{PF} = \frac{1}{V_c}\int_{V_c} T(\mathbf{x})\,dV
+
+    $$
+
+
+    where $T_\mathrm{PF}$ is the bulk coil temperature, $T(\mathbf{x})$ is the local
+    conductor temperature, and $V_c$ is the volume of current-carrying conductor.
+    In current-limit characterization, this temperature is an independent variable
+    in relations such as $I_\max(T_\mathrm{PF}, B)$ or $J_c(T_\mathrm{PF}, B)$, where
+    $B$ is magnetic flux density in tesla and $J_c$ is an allowable or critical current
+    density in A m^-2.
+
+
+    The temperature may be measured by embedded resistance thermometers, thermocouples,
+    cryogenic temperature sensors, or inferred from conductor resistance and thermal
+    models. Each value refers to a named or otherwise physically identified PF winding,
+    such as a particular shaping, vertical-field, divertor-control, or central-solenoid
+    module when that module is part of the poloidal-field coil system.
+
+
+    Typical values are strongly design dependent: cryogenic superconducting windings
+    are often operated in the range of a few K to several tens of K, while normal-conducting
+    copper coils are commonly near 290-400 K during operation, with pulse heating
+    and cooling conditions setting the detailed value.'
+  unit: K
+  physics_domain: magnetic_field_systems
+  links:
+  - name:current_of_poloidal_field_coil
+  - name:area_of_poloidal_field_coil
+  sources:
+  - id: dd:pf_active/coil/temperature
+    dd_path: pf_active/coil/temperature
     status: composed
 - name: thickness_of_iron_core_segment
   kind: scalar

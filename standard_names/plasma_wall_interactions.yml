@@ -1,6 +1,6 @@
 # Domain: plasma_wall_interactions
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 39
+# Entries: 46
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -500,6 +500,53 @@
   sources:
   - id: dd:summary/local/limiter/n_i/hydrogen/value
     dd_path: summary/local/limiter/n_i/hydrogen/value
+    status: composed
+- name: ion_average_temperature_at_limiter
+  kind: scalar
+  status: draft
+  description: Ion average temperature at a limiter is the density-weighted temperature
+    of the boundary-plasma ion population adjacent to a limiter surface, averaged
+    over all ion species and their charge states.
+  documentation: 'Ion average temperature at a limiter is the local thermal temperature
+    of ions in the boundary plasma adjacent to a limiter surface. It represents the
+    mixture-averaged ion thermal energy near the plasma-wall interface and includes
+    all contributing ion species and ionization states.
+
+
+    A common definition is the density-weighted average over species and charge states:
+
+
+    $$
+
+    T_{i,\mathrm{avg}} = \frac{\sum_s \sum_z n_{s,z} T_{i,s,z}}{\sum_s \sum_z n_{s,z}}
+
+    $$
+
+
+    where $s$ indexes ion species, $z$ indexes charge states, $n_{s,z}$ is the local
+    number density of ions in charge state $z$ of species $s$ in $\mathrm{m}^{-3}$,
+    and $T_{i,s,z}$ is the corresponding ion temperature in eV. The resulting $T_{i,\mathrm{avg}}$
+    is in eV; if charge states are not separately resolved, the same expression applies
+    using the available effective species populations and temperatures.
+
+
+    In practice, this quantity is obtained from boundary-plasma measurements, edge
+    modeling, or a combination of both at a location representative of the limiter
+    interaction region. It is a plasma ion temperature, not a material surface temperature,
+    and may correspond to the ion population approaching the sheath when the limiter
+    directly intersects open magnetic field lines.
+
+
+    Typical limiter-edge values are of order 1-100 eV. Cold, strongly recycling boundary
+    plasmas may have ion average temperatures of only a few eV, while attached or
+    high-power limiter conditions can reach several tens of eV or higher.'
+  unit: eV
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:ion_temperature_at_midplane
+  sources:
+  - id: dd:summary/local/limiter/t_i_average/value
+    dd_path: summary/local/limiter/t_i_average/value
     status: composed
 - name: ion_kinetic_energy_flux_at_wall
   kind: scalar
@@ -1087,6 +1134,68 @@
   - id: dd:wall/description_ggd/ggd/particle_fluxes/neutral/incident/values
     dd_path: wall/description_ggd/ggd/particle_fluxes/neutral/incident/values
     status: composed
+- name: neutral_particle_flux_at_wall_due_to_recombination
+  kind: scalar
+  status: draft
+  description: Neutral particle flux density emitted from a plasma-facing wall by
+    recombination or neutralization of incident plasma ions at the surface, summed
+    over all neutral species and internal states. It counts outgoing neutral particles
+    per unit wall area and time.
+  documentation: 'Neutral particle flux at a wall due to recombination is the emitted
+    particle-number flux density of neutral atoms or molecules produced when incident
+    plasma ions are neutralized at a plasma-facing material surface. It is aggregated
+    over all neutral product species and internal states and excludes neutral emission
+    from other wall processes unless they are part of the recombination or neutralization
+    channel.
+
+
+    The aggregate recombination emission flux is the sum of the state-resolved recombination
+    fluxes:
+
+
+    $$
+
+    \Gamma_{n,\mathrm{rec}} = \sum_{s,q} \Gamma_{n,s,q}^{\mathrm{rec}}
+
+    $$
+
+
+    where $\Gamma_{n,\mathrm{rec}}$ and $\Gamma_{n,s,q}^{\mathrm{rec}}$ have units
+    of m^-2 s^-1, $s$ indexes neutral product species, and $q$ indexes internal states
+    such as electronic, vibrational, or rotational states. The state-resolved terms
+    correspond to [neutral_state_particle_flux_at_wall_due_to_recombination](name:neutral_state_particle_flux_at_wall_due_to_recombination),
+    while the more general state-resolved wall flux convention is represented by [neutral_state_particle_flux_at_wall](name:neutral_state_particle_flux_at_wall).
+
+
+    In modeling, this flux is obtained from the incident ion flux to each wall surface
+    element together with recombination, neutralization, recycling, and product-branching
+    probabilities for the material and plasma conditions. For an individual incoming
+    ion channel, the emitted neutral contribution is commonly proportional to the
+    incident ion flux multiplied by the probability that the ion is neutralized and
+    leaves the surface as a specified neutral product; summing over product branches
+    gives the aggregate. Experimentally it is usually inferred indirectly from edge
+    neutral diagnostics, spectroscopy, pressure measurements, and plasma-wall interaction
+    modeling rather than measured as a direct surface particle counter.
+
+
+    Representative values span many orders of magnitude: main-chamber wall values
+    may be about 10^18-10^22 m^-2 s^-1, while divertor or limiter regions with strong
+    recycling can reach about 10^21-10^24 m^-2 s^-1. The total neutral particle flux
+    from all wall emission mechanisms is described by [neutral_particle_flux_at_wall](name:neutral_particle_flux_at_wall),
+    and the related energy-weighted neutral wall flux is described by [neutral_energy_flux_at_wall](name:neutral_energy_flux_at_wall).
+
+
+    Sign convention: Positive when neutral particles cross the plasma-facing surface
+    from the material into the plasma.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_state_particle_flux_at_wall_due_to_recombination
+  - name:neutral_particle_flux_at_wall
+  sources:
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/recombination/neutral/emitted/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/neutral/emitted/values
+    status: composed
 - name: neutral_state_energy_flux_due_to_recombination
   kind: scalar
   status: draft
@@ -1186,6 +1295,67 @@
     status: attached
   - id: dd:wall/description_ggd/ggd/particle_fluxes/neutral/state/incident/values
     dd_path: wall/description_ggd/ggd/particle_fluxes/neutral/state/incident/values
+    status: composed
+- name: neutral_state_particle_flux_at_wall_due_to_recombination
+  kind: scalar
+  status: draft
+  description: State-resolved particle flux density of neutral atoms or molecules
+    emitted from a plasma-facing wall in a specified product species and quantum state
+    when incident ions recombine at or near the material surface. Summing over all
+    neutral product species and quantum states recovers the total emitted recombination
+    neutral flux.
+  documentation: 'State-resolved particle flux density of neutrals emitted from a
+    plasma-facing wall by surface recombination, resolved by neutral product species
+    and quantum state. When incident plasma ions capture electrons at or near the
+    material surface, they leave as neutral atoms or molecules; this quantity counts
+    those emitted neutrals per unit wall area per unit time in one specified electronic,
+    vibrational, or rotational state, providing a state-selective recycling source
+    from the material boundary into the adjacent plasma.
+
+
+    Summing over all neutral product species and quantum states recovers the total
+    emitted recombination neutral flux:
+
+
+    $$
+
+    \Gamma^{0}_{\mathrm{rec}} = \sum_{s}\sum_{q} \Gamma^{0}_{\mathrm{rec},s,q}
+
+    $$
+
+
+    where $\Gamma^{0}_{\mathrm{rec},s,q}$ is the emitted neutral particle flux for
+    product species $s$ in quantum state $q$, $\Gamma^{0}_{\mathrm{rec}}$ is the aggregate
+    emitted recombination neutral flux, and both are expressed in m^-2.s^-1.
+
+
+    This quantity is computed in plasma-surface interaction and edge transport models
+    from incident ion fluxes, surface recombination probabilities, material conditions,
+    and state-selective branching into neutral products. It can be constrained indirectly
+    through spectroscopy, neutral pressure gages, and neutral particle diagnostics
+    sensitive to recycling. It is the emitted counterpart of the incident neutral
+    flux [neutral_state_particle_flux_at_wall](name:neutral_state_particle_flux_at_wall),
+    and its species-and-state sum gives [neutral_particle_flux_at_wall_due_to_recombination](name:neutral_particle_flux_at_wall_due_to_recombination).
+
+
+    As an emitted particle number flux it is non-negative, vanishing when recombination
+    into the specified state is absent. Typical state-resolved magnitudes range from
+    about 10^18 to 10^23 m^-2.s^-1 in tokamak plasma-facing regions, with the largest
+    contributions in high-recycling or detached divertor conditions and much smaller
+    values for weakly populated excited states.
+
+
+    Sign convention: Positive when neutral particles cross from the plasma-facing
+    material surface into the adjacent plasma or vacuum region.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_particle_flux_at_wall_due_to_recombination
+  - name:neutral_state_particle_flux_at_wall
+  - name:neutral_state_energy_flux_due_to_recombination
+  sources:
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/recombination/neutral/state/emitted/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/neutral/state/emitted/values
     status: composed
 - name: nitrogen_density_at_limiter
   kind: scalar
@@ -1743,6 +1913,54 @@
   - id: dd:wall/global_quantities/current_tor
     dd_path: wall/global_quantities/current_tor
     status: attached
+- name: tungsten_density_at_limiter
+  kind: scalar
+  status: draft
+  description: Tungsten ion number density in the boundary plasma immediately adjacent
+    to a limiter surface at the plasma-limiter contact.
+  documentation: 'Tungsten density at a limiter is the local number density of tungsten
+    ions in the boundary plasma immediately next to a limiter surface. It characterizes
+    how much tungsten released from the limiter is present in the plasma-facing region
+    before dilution, ionization, and transport redistribute it elsewhere.
+
+
+    When charge states are resolved, the total tungsten ion density at the limiter
+    is the sum over ionization stages:
+
+
+    $$
+
+    n_{\mathrm{W,lim}} = \sum_{z=1}^{74} n_{\mathrm{W}^{z+},\mathrm{lim}}
+
+    $$
+
+
+    where $n_{\mathrm{W}^{z+},\mathrm{lim}}$ is the number density in m^-3 of tungsten
+    ions with charge $z$ adjacent to the limiter, and 74 is the atomic number of tungsten.
+    Neutral tungsten is not included in this ion density.
+
+
+    In practice this quantity is estimated from edge impurity diagnostics and boundary-plasma
+    modeling, for example by combining spectroscopic line emission, local plasma conditions,
+    atomic data, and transport or source estimates. It is closely related to tungsten
+    density at other plasma locations, but can be more directly affected by local
+    sputtering, prompt redeposition, sheath conditions, and near-surface plasma parameters.
+
+
+    Typical values are highly device- and discharge-dependent. Trace tungsten conditions
+    may give about $10^{10}-10^{14}$ m^-3 near a limiter, while strong local sputtering
+    or transient impurity release can raise the boundary value to about $10^{15}-10^{17}$
+    m^-3.'
+  unit: m^-3
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:density_at_limiter
+  - name:tungsten_density_at_pedestal
+  - name:tungsten_density_at_magnetic_axis
+  sources:
+  - id: dd:summary/local/limiter/n_i/tungsten/value
+    dd_path: summary/local/limiter/n_i/tungsten/value
+    status: composed
 - name: vertical_coordinate_of_divertor_target
   kind: scalar
   status: draft
@@ -1853,6 +2071,61 @@
   - id: dd:camera_ir/fibre_bundle/geometry/centre/z
     dd_path: camera_ir/fibre_bundle/geometry/centre/z
     status: composed
+- name: x_coordinate_of_diagnostic_aperture
+  kind: scalar
+  status: draft
+  description: X coordinate of the center of a diagnostic aperture, measured along
+    the x axis in a right-handed camera Cartesian frame with basis (x, y, z). It locates
+    the aperture laterally relative to the chosen camera-frame origin.
+  documentation: 'The x coordinate of a diagnostic aperture is the signed lateral
+    position of the aperture center relative to the origin of a right-handed camera
+    Cartesian frame with basis $(\hat{x}, \hat{y}, \hat{z})$. It specifies one component
+    of the aperture center location used to define viewing geometry, optical alignment,
+    and line-of-sight calculations.
+
+
+    The coordinate is the projection of the aperture-center displacement onto the
+    camera-frame x basis direction:
+
+
+    $$
+
+    x_\mathrm{ap} = (\mathbf{r}_\mathrm{ap} - \mathbf{r}_0) \cdot \hat{x}
+
+    $$
+
+
+    where $\mathbf{r}_\mathrm{ap}$ is the aperture-center position, $\mathbf{r}_0$
+    is the origin of the camera Cartesian frame, and $\hat{x}$ is the unit vector
+    along its x axis.
+
+
+    In practice, this coordinate is determined from mechanical design drawings, metrology,
+    optical calibration, or camera alignment procedures. Together with the corresponding
+    y and z coordinates, it fixes the aperture center used to construct rays or fields
+    of view for diagnostics such as infrared cameras, visible cameras, bolometry,
+    or spectroscopy systems.
+
+
+    Typical values depend on the chosen camera origin and optical layout. For compact
+    in-vessel or port-mounted diagnostics, offsets are often in the range -0.5-0.5
+    m, while larger external optical assemblies may have offsets of order -2-2 m.
+
+
+    Sign convention: Positive when the aperture center is displaced from the camera-frame
+    origin in the $+\hat{x}$ direction of the right-handed camera Cartesian frame
+    with basis $(\hat{x}, \hat{y}, \hat{z})$.'
+  unit: m
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:y_coordinate_of_diagnostic_aperture
+  - name:x1_coordinate_of_filter
+  - name:x2_coordinate_of_diagnostic_aperture
+  - name:x_coordinate_of_sensor_attachment_point
+  sources:
+  - id: dd:camera_ir/channel/camera/pinhole/x
+    dd_path: camera_ir/channel/camera/pinhole/x
+    status: composed
 - name: y_coordinate_of_divertor_target
   kind: scalar
   status: draft
@@ -1891,6 +2164,51 @@
   sources:
   - id: dd:camera_ir/channel/target_surface_center/y
     dd_path: camera_ir/channel/target_surface_center/y
+    status: composed
+- name: y_direction_unit_vector_of_camera
+  kind: scalar
+  status: draft
+  description: Y component of the camera's image-up unit vector in its local right-handed
+    Cartesian (x, y, z) frame. It is a dimensionless scalar giving the projection
+    of the camera's image-up direction onto the local +y axis.
+  documentation: 'The y direction unit vector component of a camera is the y projection
+    of the camera''s image-up unit vector, which defines the physical direction appearing
+    upward in the recorded image. It is resolved in the camera''s local right-handed
+    Cartesian $(\hat{x}, \hat{y}, \hat{z})$ frame and is a dimensionless scalar.
+
+
+    The component is the projection of the normalized up vector onto the local $\hat{y}$
+    basis direction:
+
+
+    $$
+
+    u_y = \mathbf{u}_{\mathrm{up}} \cdot \hat{y}
+
+    $$
+
+
+    where $\mathbf{u}_{\mathrm{up}} = (u_x, u_y, u_z)$ is the camera image-up unit
+    vector with dimensionless components satisfying $u_x^2 + u_y^2 + u_z^2 = 1$.
+
+
+    The up vector is established from the camera mounting geometry and refined by
+    optical calibration or an in-vessel surveyed reference direction, then normalized
+    before its components are used. The y component alone does not fix the camera
+    pose; the complete image-up axis requires all three components, and the full orientation
+    additionally requires the viewing direction.
+
+
+    Values lie in the range $[-1, 1]$: near $+1$ the image-up direction is nearly
+    aligned with $+\hat{y}$, near $-1$ with $-\hat{y}$, and near $0$ the up direction
+    has little projection along $\hat{y}$.'
+  unit: '1'
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:x_direction_unit_vector_of_camera
+  sources:
+  - id: dd:camera_ir/channel/camera/up/y
+    dd_path: camera_ir/channel/camera/up/y
     status: composed
 - name: power_at_wall_due_to_conduction
   kind: scalar
@@ -2072,6 +2390,53 @@
   sources:
   - id: dd:summary/composition/beryllium/value
     dd_path: summary/composition/beryllium/value
+    status: composed
+- name: ratio_of_volume_averaged_oxygen_ion_density_to_volume_averaged_electron_density
+  kind: scalar
+  status: draft
+  description: Ratio of volume-averaged total oxygen ion number density to volume-averaged
+    electron density, expressing the global oxygen impurity concentration as a dimensionless
+    plasma composition fraction.
+  documentation: 'The oxygen fraction $f_O$ measures the global oxygen impurity burden
+    in a fusion plasma as the ratio of the volume-averaged oxygen ion density to the
+    volume-averaged electron density, where both averages are taken over the plasma
+    volume enclosed by the last closed flux surface.
+
+
+    $$
+
+    f_O = \frac{\langle n_O \rangle}{\langle n_e \rangle}
+
+    $$
+
+
+    where $\langle n_O \rangle = \sum_{q=1}^{8} \langle n_{O^{q+}} \rangle$ is the
+    volume-averaged oxygen ion number density summed over all ionization stages from
+    $O^{1+}$ to $O^{8+}$, and $\langle n_e \rangle$ is the [volume-averaged electron
+    density](name:volume_averaged_electron_density).
+
+
+    The quantity is inferred from vacuum ultraviolet or soft X-ray spectroscopy of
+    oxygen emission lines combined with collisional-radiative or coronal equilibrium
+    modeling; it is the normalized complement to [volume_averaged_oxygen_density](name:volume_averaged_oxygen_density),
+    which carries the absolute density, while [line_averaged_oxygen_density](name:line_averaged_oxygen_density)
+    provides a routinely measured chord-integrated cross-check.
+
+
+    In clean, well-conditioned tokamak discharges $f_O$ remains below 0.01; values
+    of several percent can occur during commissioning, after disruptions, or with
+    intentional oxygen seeding. Because each fully-stripped oxygen ion contributes
+    eight electrons, even modest $f_O$ values measurably dilute fuel ion density and
+    enhance radiative power losses through oxygen line emission.'
+  unit: '1'
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:volume_averaged_electron_density
+  - name:volume_averaged_oxygen_density
+  - name:line_averaged_oxygen_density
+  sources:
+  - id: dd:summary/composition/oxygen/value
+    dd_path: summary/composition/oxygen/value
     status: composed
 - name: reference_wavelength_of_filter
   kind: scalar
