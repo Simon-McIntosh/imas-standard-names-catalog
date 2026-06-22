@@ -1,9 +1,71 @@
 # Domain: radiation_measurement_diagnostics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 35
+# Entries: 44
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: back_surface_curvature_of_optical_element
+  kind: scalar
+  status: draft
+  description: Radius of curvature of the rear surface of a diagnostic optical element
+    along the local X1 axis, applicable to spherical, cylindrical, and toroidal surface
+    geometries.
+  documentation: 'The back-surface X1 radius of curvature $R_{\mathrm{back},X1}$ describes
+    the curvature of the exit face of a diagnostic optical element in the X1 direction
+    of the local surface frame $(X1, X2, X3)$, where $X1$ and $X2$ span the optical
+    surface and $X3$ is the outward surface normal. This parameter is required by
+    ray-tracing and Gaussian-optics models to compute the wavefront transformation
+    induced by the rear surface of lenses, windows, and mirrors used in visible and
+    infrared camera systems and visible spectrometer diagnostics. A finite value applies
+    only when the surface curvature type permits non-planar geometry in X1: specifically,
+    spherical (type 2), cylindrical along X1 (type 4), and toroidal (type 5) surface
+    types.
+
+
+    For a thick lens in air, the paraxial focal length $f$ is related to the front
+    and back radii by the Lensmaker''s equation:
+
+
+    $$
+
+    \frac{1}{f} = (n-1)\left[\frac{1}{R_{\mathrm{front},X1}} - \frac{1}{R_{\mathrm{back},X1}}
+    + \frac{(n-1)d}{n\,R_{\mathrm{front},X1}\,R_{\mathrm{back},X1}}\right]
+
+    $$
+
+
+    where $n$ is the refractive index of the element material, $d$ is the axial thickness,
+    and $R_{\mathrm{front},X1}$ is the front-surface radius of curvature given by
+    front_surface_curvature_of_optical_element. For toroidal or cylindrical elements
+    the orthogonal principal curvature in X2 is an independent parameter given by
+    [vertical_back_surface_curvature_of_optical_element](name:vertical_back_surface_curvature_of_optical_element);
+    for a spherical surface both principal radii are equal.
+
+
+    Absolute values range from a few millimeters for tightly curved condenser elements
+    to hundreds of meters for near-flat windows and beam-splitters; a zero value conventionally
+    represents an infinite radius (planar surface).
+
+
+    Sign convention: Positive when the center of curvature of the back surface lies
+    on the exit (transmitted-beam) side of the optical element.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:vertical_back_surface_curvature_of_optical_element
+  sources:
+  - id: dd:camera_ir/optical_element/back_surface/x1_curvature
+    dd_path: camera_ir/optical_element/back_surface/x1_curvature
+    status: attached
+  - id: dd:camera_ir/optical_element/back_surface/x2_curvature
+    dd_path: camera_ir/optical_element/back_surface/x2_curvature
+    status: composed
+  - id: dd:camera_visible/channel/optical_element/back_surface/x1_curvature
+    dd_path: camera_visible/channel/optical_element/back_surface/x1_curvature
+    status: composed
+  - id: dd:spectrometer_visible/channel/optical_element/back_surface/x1_curvature
+    dd_path: spectrometer_visible/channel/optical_element/back_surface/x1_curvature
+    status: attached
 - name: bragg_crystal_width
   kind: scalar
   status: draft
@@ -21,9 +83,9 @@
     direction depending on the crystal mount orientation. A larger width intercepts
     a greater solid angle of X-ray emission from the plasma source, increasing photon
     throughput, but can introduce geometric aberrations in curved-crystal focusing
-    arrangements such as Johann or Johansson geometries. The [bragg_wavelength](name:bragg_wavelength)
-    separately characterizes the diffraction condition, linking crystal orientation
-    to the photon energies that satisfy Bragg''s law.
+    arrangements such as Johann or Johansson geometries. The bragg_wavelength separately
+    characterizes the diffraction condition, linking crystal orientation to the photon
+    energies that satisfy Bragg''s law.
 
 
     Typical crystal widths for fusion-diagnostic X-ray spectrometers range from a
@@ -38,7 +100,6 @@
   physics_domain: radiation_measurement_diagnostics
   links:
   - name:thickness_of_bragg_crystal
-  - name:bragg_wavelength
   sources:
   - id: dd:spectrometer_x_ray_crystal/channel/crystal/x1_width
     dd_path: spectrometer_x_ray_crystal/channel/crystal/x1_width
@@ -78,6 +139,93 @@
   sources:
   - id: dd:neutron_diagnostic/reconstructed_emissivity/fusion_power_dt
     dd_path: neutron_diagnostic/reconstructed_emissivity/fusion_power_dt
+    status: composed
+- name: energy_of_detector_pixel
+  kind: scalar
+  status: draft
+  description: Characteristic photon energy assigned to a detector pixel in an X-ray
+    crystal spectrometer from the pixel's Bragg diffraction geometry.
+  documentation: 'The energy of a detector pixel is the central photon energy represented
+    by that pixel''s spectral channel in an X-ray crystal spectrometer. It is set
+    by the pixel position relative to the diffracting crystal and detector surface,
+    and is the energy counterpart of the pixel Bragg wavelength [wavelength_of_detector_pixel](name:wavelength_of_detector_pixel).
+    The finite spectral acceptance of the pixel is bracketed by [lower_bound_energy_of_detector_pixel](name:lower_bound_energy_of_detector_pixel)
+    and [upper_bound_energy_of_detector_pixel](name:upper_bound_energy_of_detector_pixel).
+
+
+    For diffraction order $n$, the central pixel energy follows from Bragg''s law
+    and the photon relation $E = hc/\lambda$:
+
+
+    $$
+
+    E_\mathrm{pix} = \frac{n h c}{2 e d \sin\theta_\mathrm{pix}}
+
+    $$
+
+
+    where $E_\mathrm{pix}$ is the photon energy in eV, $n$ is the dimensionless positive
+    integer diffraction order, $h$ is Planck''s constant in J s, $c$ is the speed
+    of light in vacuum in m s^-1, $e$ is the elementary charge used to convert joules
+    to electronvolts, $d$ is the crystal-plane spacing in meters, and $\theta_\mathrm{pix}$
+    is the Bragg angle for the pixel in radians.
+
+
+    The energy-to-pixel mapping is obtained from the spectrometer geometry by ray
+    tracing, from an optical model of the crystal and detector, or by calibration
+    against emission lines with well-known photon energies. In fusion applications
+    these lines often come from highly ionized impurities, such as He-like or H-like
+    argon, krypton, or other injected species.
+
+
+    Typical photon energies range from a few hundred eV for soft X-ray instruments
+    to 5-20 keV for harder X-ray crystal spectrometers, depending on the chosen crystal
+    spacing, diffraction order, viewing geometry, and target spectral lines.'
+  unit: eV
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:wavelength_of_detector_pixel
+  - name:lower_bound_energy_of_detector_pixel
+  - name:upper_bound_energy_of_detector_pixel
+- name: hard_xray_outer_width
+  kind: scalar
+  status: draft
+  description: Outer half-width of the hard X-ray emissivity peak in normalized toroidal
+    flux coordinate, defined as the radial distance from the peak to the half-maximum
+    point on the separatrix-facing side.
+  documentation: "The outer half-width of the hard X-ray emissivity peak measures\
+    \ the radial distance in normalized toroidal flux coordinate $\\rho_{tor,norm}$\
+    \ from the emissivity maximum to its half-maximum point on the side facing the\
+    \ separatrix. Hard X-ray emission in magnetized plasmas originates from bremsstrahlung\
+    \ of energetic non-thermal electrons \u2014 runaway and fast electrons \u2014\
+    \ as they scatter off background plasma ions; a spatially localized emissivity\
+    \ peak therefore reflects a confined population of such electrons, and the outer\
+    \ half-width characterizes how far that population extends radially toward the\
+    \ plasma edge.\n\nThe outer half-width $\\Delta\\rho_{ext}$ is defined by:\n\n\
+    $$\n\\Delta\\rho_{ext} = \\rho_{1/2,ext} - \\rho_{peak}\n$$\n\nwhere $\\rho_{peak}$\
+    \ is the $\\rho_{tor,norm}$ coordinate of the emissivity maximum, $\\rho_{1/2,ext}$\
+    \ is the outboard coordinate at which the emissivity falls to half its peak value,\
+    \ and $\\rho_{tor,norm} = \\sqrt{\\Phi_{tor}/\\Phi_{tor,\\mathrm{LCFS}}}$ with\
+    \ $\\Phi_{tor,\\mathrm{LCFS}}$ the toroidal magnetic flux enclosed by the last-closed\
+    \ flux surface.\n\nThe emissivity radial distribution is inferred from multi-chord\
+    \ hard X-ray camera brightnesses via tomographic inversion under the assumption\
+    \ of toroidal symmetry. Comparing the outer half-width with the complementary\
+    \ [hard_xray_inner_width](name:hard_xray_inner_width) reveals radial asymmetry\
+    \ in the non-thermal electron population; a larger outer value relative to the\
+    \ inner indicates that the fast electron distribution extends further toward the\
+    \ separatrix than toward the magnetic axis. Both quantities are expressed on the\
+    \ [normalized_toroidal_flux_coordinate](name:normalized_toroidal_flux_coordinate)\
+    \ scale.\n\nSign convention: Positive when the outer half-maximum boundary lies\
+    \ at greater $\\rho_{tor,norm}$ than the emissivity peak, in the direction of\
+    \ increasing normalized toroidal flux toward the separatrix."
+  unit: '1'
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:hard_xray_inner_width
+  - name:normalized_toroidal_flux_coordinate
+  sources:
+  - id: dd:hard_x_rays/emissivity_profile_1d/half_width_external
+    dd_path: hard_x_rays/emissivity_profile_1d/half_width_external
     status: composed
 - name: lower_bound_energy_of_detector_pixel
   kind: scalar
@@ -125,6 +273,10 @@
   unit: eV
   physics_domain: radiation_measurement_diagnostics
   links: []
+  arguments:
+  - name: energy_of_detector_pixel
+    operator: lower_bound
+    operator_kind: qualifier
   sources:
   - id: dd:spectrometer_x_ray_crystal/channel/energy_bound_lower
     dd_path: spectrometer_x_ray_crystal/channel/energy_bound_lower
@@ -132,6 +284,63 @@
   - id: dd:spectrometer_x_ray_crystal/energy_bound_lower
     dd_path: spectrometer_x_ray_crystal/energy_bound_lower
     status: composed
+- name: lower_photon_energy
+  kind: scalar
+  status: draft
+  description: Minimum photon energy defining the low-energy edge of an X-ray detector,
+    camera pixel, or energy-resolved emission band. Incident photons below this cutoff
+    are rejected, not counted, or excluded from the corresponding photon-energy window.
+  documentation: 'Lower photon energy is the minimum photon energy admitted by a photon-counting
+    or energy-selective X-ray measurement. Together with an upper cutoff such as [upper_photon_energy](name:upper_photon_energy),
+    it defines the accepted photon-energy interval; for pixel-specific thresholds
+    it is the lower-edge counterpart of [lower_bound_energy_of_detector_pixel](name:lower_bound_energy_of_detector_pixel)
+    and is paired with [upper_bound_energy_of_detector_pixel](name:upper_bound_energy_of_detector_pixel).
+
+
+    Photon energy is related to radiation frequency and wavelength by:
+
+
+    $$
+
+    E_\gamma = h\nu = \frac{hc}{\lambda}
+
+    $$
+
+
+    where $E_\gamma$ is photon energy, $h$ is Planck''s constant, $\nu$ is photon
+    frequency, $c$ is the speed of light, and $\lambda$ is wavelength. The lower threshold
+    $E_\mathrm{lower}$ selects photons satisfying $E_\gamma \ge E_\mathrm{lower}$,
+    usually in combination with an upper threshold $E_\mathrm{upper}$.
+
+
+    In practice this threshold is set by detector absorption filters, scintillator
+    or semiconductor response, electronic discrimination levels, pulse-height analysis,
+    or analysis choices used to isolate an energy band for emissivity inference. Calibration
+    with known radiation sources or modeled detector response functions is used to
+    relate the threshold setting to photon energy.
+
+
+    Typical lower thresholds are about 100-1000 eV for soft X-ray measurements and
+    about 1e3-1e5 eV for hard X-ray measurements, depending on detector material,
+    filter stack, electronic noise floor, and the intended spectral band.'
+  unit: eV
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:upper_photon_energy
+  - name:lower_bound_energy_of_detector_pixel
+  sources:
+  - id: dd:camera_x_rays/energy_threshold_lower
+    dd_path: camera_x_rays/energy_threshold_lower
+    status: composed
+  - id: dd:hard_x_rays/channel/energy_band/lower_bound
+    dd_path: hard_x_rays/channel/energy_band/lower_bound
+    status: attached
+  - id: dd:hard_x_rays/emissivity_profile_1d/lower_bound
+    dd_path: hard_x_rays/emissivity_profile_1d/lower_bound
+    status: attached
+  - id: dd:soft_x_rays/channel/energy_band/lower_bound
+    dd_path: soft_x_rays/channel/energy_band/lower_bound
+    status: attached
 - name: major_radius_of_detector_pixel
   kind: scalar
   status: draft
@@ -827,7 +1036,7 @@
     component amplitudes represented by the spectral_factor_of_spectrometer_channel
     and centers such as the reference wavelength, the widths define Gaussian terms
     that compose the spectral_instrument_function_of_spectrometer_channel or channel-level
-    [instrument_function_of_spectrometer_channel](name:instrument_function_of_spectrometer_channel).
+    [instrument_function_of_spectrometer_channel](name:spectral_width_of_spectrometer_channel).
 
 
     Typical values range from $10^{-14}$-$10^{-12}$ m for high-resolution x-ray crystal
@@ -839,8 +1048,10 @@
   physics_domain: radiation_measurement_diagnostics
   links:
   - name:reference_wavelength_of_spectrometer_channel
-  - name:instrument_function_of_spectrometer_channel
   sources:
+  - id: dd:charge_exchange/channel/spectrum/instrument_function
+    dd_path: charge_exchange/channel/spectrum/instrument_function
+    status: composed
   - id: dd:spectrometer_x_ray_crystal/channel/bin/instrument_function/scale
     dd_path: spectrometer_x_ray_crystal/channel/bin/instrument_function/scale
     status: attached
@@ -979,6 +1190,123 @@
   - id: dd:spectrometer_x_ray_crystal/filter_window/thickness
     dd_path: spectrometer_x_ray_crystal/filter_window/thickness
     status: attached
+- name: total_plasma_radiated_power
+  kind: scalar
+  status: draft
+  description: Total radiated power from the entire plasma volume, integrated over
+    all photon energies and emission mechanisms, representing the global electromagnetic
+    radiative loss from the plasma.
+  documentation: 'Total plasma radiated power is the aggregate electromagnetic power
+    emitted by the plasma and carried away by photons. It includes continuum and line
+    radiation from all plasma regions included in the physical volume being considered,
+    and is a global loss term in the plasma power balance.
+
+
+    If $\epsilon_\mathrm{rad}(\mathbf{r})$ is the spectral-integrated volumetric radiative
+    emissivity, the total radiated power is
+
+
+    $$
+
+    P_\mathrm{rad} = \int_V \epsilon_\mathrm{rad}(\mathbf{r})\, dV
+
+    $$
+
+
+    where $V$ is the plasma volume, $\epsilon_\mathrm{rad}$ has units W m$^{-3}$,
+    and $dV$ has units m$^3$.
+
+
+    In experiments, this quantity is commonly inferred from bolometric measurements
+    by reconstructing the spatial emissivity distribution and integrating it over
+    the plasma volume. It may also be computed from radiation models that combine
+    impurity line radiation, recombination radiation, bremsstrahlung, and other relevant
+    photon-emission processes. Related quantities may restrict the integration region,
+    for example to the plasma inside the last closed flux surface, or isolate a specific
+    contribution such as [bremsstrahlung_power](name:bremsstrahlung_power).
+
+
+    Typical values range from $10^4$-$10^6$ W in small or moderate plasmas and from
+    $10^6$-$5 \times 10^7$ W in high-power tokamak plasmas. The radiated fraction
+    of the injected or conducted heating power is often 20-80%, depending strongly
+    on density, impurity content, edge conditions, and detachment state.'
+  unit: W
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:plasma_radiated_power
+  - name:bremsstrahlung_power
+  sources:
+  - id: dd:bolometer/power_radiated_inside_lcfs
+    dd_path: bolometer/power_radiated_inside_lcfs
+    status: composed
+  - id: dd:bolometer/power_radiated_total
+    dd_path: bolometer/power_radiated_total
+    status: attached
+  - id: dd:summary/global_quantities/power_radiated/value
+    dd_path: summary/global_quantities/power_radiated/value
+    status: attached
+  - id: dd:summary/global_quantities/power_radiated_inside_lcfs/value
+    dd_path: summary/global_quantities/power_radiated_inside_lcfs/value
+    status: attached
+- name: upper_bound_energy_of_detector_pixel
+  kind: scalar
+  status: draft
+  description: High-energy edge of the photon spectral acceptance interval for a detector
+    pixel in an X-ray crystal spectrometer. It is the maximum photon energy included
+    in that pixel's bandpass.
+  documentation: 'The upper bound energy of a detector pixel is the largest photon
+    energy accepted within that pixel''s spectral bandpass. In a dispersive X-ray
+    crystal spectrometer it marks the high-energy edge of the interval over which
+    photons diffracted by the crystal are assigned to that pixel, complementing the
+    lower bound and bracketing the representative pixel energy.
+
+
+    For a crystal reflection, the high-energy edge is related to the Bragg angle at
+    the corresponding edge of the pixel acceptance:
+
+
+    $$
+
+    E_{\mathrm{upper}} = \frac{n h c}{2 d \sin\theta_{\mathrm{upper}}}
+
+    $$
+
+
+    where $E_{\mathrm{upper}}$ is in eV, $n$ is the dimensionless diffraction order,
+    $h$ is Planck''s constant in eV s, $c$ is the speed of light in $m\,s^{-1}$, $d$
+    is the lattice-plane spacing in meters, and $\theta_{\mathrm{upper}}$ is the Bragg
+    angle in radians. Equivalently, $n\lambda_{\mathrm{upper}} = 2d\sin\theta_{\mathrm{upper}}$
+    with photon wavelength $\lambda_{\mathrm{upper}}$ in meters and $E_{\mathrm{upper}}
+    = hc/\lambda_{\mathrm{upper}}$.
+
+
+    In practice this quantity is obtained from the calibrated mapping between detector
+    position and photon energy, using the crystal spacing, diffraction order, spectrometer
+    geometry, and detector pixel extent. Calibration may be refined with known spectral
+    lines, and the resulting bound can include effects from finite pixel size, crystal
+    rocking curve, source extent, alignment uncertainty, and the chosen definition
+    of the pixel response threshold.
+
+
+    Typical upper-bound energies for fusion X-ray crystal spectrometers are 1000-20000
+    eV. The separation from the corresponding lower bound is often 1-50 eV in high-resolution
+    line spectroscopy and can be larger for broad-band or lower-dispersion configurations.'
+  unit: eV
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:lower_bound_energy_of_detector_pixel
+  - name:energy_of_detector_pixel
+  arguments:
+  - name: energy_of_detector_pixel
+    operator: upper_bound
+    operator_kind: qualifier
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/energy_bound_upper
+    dd_path: spectrometer_x_ray_crystal/channel/energy_bound_upper
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/energy_bound_upper
+    dd_path: spectrometer_x_ray_crystal/energy_bound_upper
+    status: composed
 - name: upper_photon_energy
   kind: scalar
   status: draft
@@ -1059,8 +1387,14 @@
   physics_domain: radiation_measurement_diagnostics
   links: []
   sources:
+  - id: dd:bremsstrahlung_visible/channel/filter/wavelength_upper
+    dd_path: bremsstrahlung_visible/channel/filter/wavelength_upper
+    status: attached
   - id: dd:camera_x_rays/filter_window/wavelength_upper
     dd_path: camera_x_rays/filter_window/wavelength_upper
+    status: composed
+  - id: dd:hard_x_rays/channel/filter_window/wavelength_upper
+    dd_path: hard_x_rays/channel/filter_window/wavelength_upper
     status: composed
   - id: dd:soft_x_rays/channel/filter_window/wavelength_upper
     dd_path: soft_x_rays/channel/filter_window/wavelength_upper
@@ -1195,6 +1529,44 @@
   - id: dd:spectrometer_x_ray_crystal/z_frames
     dd_path: spectrometer_x_ray_crystal/z_frames
     status: attached
+- name: wavelength_of_detector_pixel
+  kind: scalar
+  status: draft
+  description: Photon wavelength assigned to each detector pixel of an X-ray crystal
+    spectrometer by the Bragg diffraction geometry of the dispersing crystal.
+  documentation: "In an X-ray crystal spectrometer, each detector pixel intercepts\
+    \ photons diffracted at a specific angle by the Bragg crystal, and this angle\
+    \ uniquely determines the photon wavelength. The wavelength varies primarily along\
+    \ the principal dispersion direction of the detector, with a secondary dependence\
+    \ across the orthogonal direction arising from the elliptical curvature of iso-wavelength\
+    \ surfaces produced by curved-crystal geometry.\n\nThe per-pixel wavelength follows\
+    \ Bragg's law:\n\n$$\n\\lambda = \\frac{2d\\sin\\theta}{n}\n$$\n\nwhere $d$ is\
+    \ the interplanar spacing of the diffracting crystal planes, $\\theta$ is the\
+    \ local Bragg angle at the pixel position in the spectrometer focal plane, and\
+    \ $n$ is the integer diffraction order.\n\nThe wavelength map is computed from\
+    \ the spectrometer geometry \u2014 crystal curvature, crystal-to-detector distance,\
+    \ and pixel coordinates \u2014 and calibrated against known spectral emission\
+    \ lines; the reference diffraction wavelength at the nominal crystal orientation\
+    \ is described by bragg_wavelength. Pixel-by-pixel energy bounds on the spectral\
+    \ acceptance window are provided by [lower_bound_energy_of_detector_pixel](name:lower_bound_energy_of_detector_pixel)\
+    \ and [upper_bound_energy_of_detector_pixel](name:upper_bound_energy_of_detector_pixel).\
+    \ Typical wavelengths for fusion-relevant X-ray impurity emission lines (helium-like\
+    \ argon, titanium, or iron charge states) fall in the range 0.1\u20131 nm.\n\n\
+    Sign convention: Positive when the wavelength is assigned at a positive Bragg\
+    \ diffraction angle from the crystal surface, which is satisfied for all physically\
+    \ detected photons."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:lower_bound_energy_of_detector_pixel
+  - name:upper_bound_energy_of_detector_pixel
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/wavelength_frames
+    dd_path: spectrometer_x_ray_crystal/channel/wavelength_frames
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/wavelength_frames
+    dd_path: spectrometer_x_ray_crystal/wavelength_frames
+    status: composed
 - name: wavelength_of_spectral_line
   kind: scalar
   status: draft
@@ -1948,6 +2320,128 @@
   - id: dd:soft_x_rays/channel/detector/outline/x2
     dd_path: soft_x_rays/channel/detector/outline/x2
     status: composed
+- name: cold_neutral_temperature
+  kind: scalar
+  status: draft
+  description: Translational kinetic temperature of the low-energy neutral atom component,
+    represented by the narrow Doppler-broadened contribution to visible spectral emission.
+    It characterizes the cold population separately from hotter charge-exchange or
+    beam-related neutrals.
+  documentation: 'Cold neutral temperature is the translational kinetic temperature
+    of the low-energy neutral atom population contributing to an observed emission
+    line. In two-component Doppler models it corresponds to the narrow Gaussian component,
+    while the broad component is associated with hotter neutrals described by [hot_neutral_temperature](name:hot_neutral_temperature).
+    It is a component-resolved quantity and is distinct from a state- or population-averaged
+    [neutral_state_temperature](name:neutral_state_temperature).
+
+
+    For a non-relativistic Maxwellian neutral distribution with isotropic velocity
+    spread along the line of sight, the Doppler full width at half maximum of a spectral
+    line is related to the cold neutral temperature by:
+
+
+    $$
+
+    T_\mathrm{cold} = \frac{m c^2}{8 \ln 2\, e}\left(\frac{\Delta\lambda_\mathrm{D,FWHM}}{\lambda_0}\right)^2
+
+    $$
+
+
+    where $m$ is the neutral atom mass, $c$ is the speed of light, $e$ is the elementary
+    charge, $\lambda_0$ is the rest wavelength, and $\Delta\lambda_\mathrm{D,FWHM}$
+    is the Doppler contribution to the fitted narrow-line full width after other broadening
+    mechanisms have been accounted for. The result is expressed in eV.
+
+
+    In practice this quantity is inferred by fitting visible emission-line shapes
+    with one or more components. Instrumental resolution, fine-structure effects,
+    Zeeman or Stark broadening, and line blending must be modeled or deconvolved so
+    that the remaining narrow width represents neutral thermal motion. If the neutral
+    distribution is non-Maxwellian, strongly anisotropic, or sufficiently energetic
+    for relativistic corrections to matter, the fitted value should be interpreted
+    as an effective cold-component temperature rather than a true thermodynamic temperature.
+
+
+    Typical cold neutral temperatures in edge and divertor spectroscopy are of order
+    0.1-10 eV, depending on recycling conditions, isotope mass, ionization mean free
+    path, and local coupling to the plasma. Values much smaller than the associated
+    [hot_neutral_temperature](name:hot_neutral_temperature) indicate a clear separation
+    between recycled thermal neutrals and hotter charge-exchange or beam-related populations.'
+  unit: eV
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:hot_neutral_temperature
+  - name:neutral_state_temperature
+  - name:cold_neutral_velocity
+  - name:cold_neutral_fraction
+  arguments:
+  - name: neutral_state_temperature
+    operator: cold
+    operator_kind: qualifier
+  sources:
+  - id: dd:spectrometer_visible/channel/isotope_ratios/isotope/cold_neutrals_temperature
+    dd_path: spectrometer_visible/channel/isotope_ratios/isotope/cold_neutrals_temperature
+    status: attached
+  - id: dd:spectrometer_visible/channel/polarization_spectroscopy/temperature_cold_neutrals
+    dd_path: spectrometer_visible/channel/polarization_spectroscopy/temperature_cold_neutrals
+    status: composed
+- name: cold_neutral_velocity
+  kind: scalar
+  status: draft
+  description: Line-of-sight projected velocity of the cold neutral atom population
+    inferred from an emission-line Doppler shift.
+  documentation: 'Cold neutral velocity is the scalar projection of the mean velocity
+    of the cold neutral atom population along a specified spectrometer line of sight.
+    The cold component is the relatively narrow, low-energy neutral emission component,
+    complementary to [hot_neutral_velocity](name:hot_neutral_velocity), with the corresponding
+    thermal width characterized by [cold_neutral_temperature](name:cold_neutral_temperature).
+
+
+    For nonrelativistic Doppler shifts, the line-of-sight velocity is determined from
+    the signed centroid shift of the cold spectral component:
+
+
+    $$
+
+    v_\mathrm{los} = c\,\frac{\Delta\lambda_\mathrm{los}}{\lambda_0}
+
+    $$
+
+
+    where $v_\mathrm{los}$ is the line-of-sight velocity in m.s^-1, $\Delta\lambda_\mathrm{los}$
+    is the signed wavelength shift in meters after applying the line-of-sight orientation
+    convention, $\lambda_0$ is the rest or central [wavelength_of_spectral_line](name:wavelength_of_spectral_line)
+    in meters, and $c$ is the speed of light in m.s^-1. With this definition, $\Delta\lambda_\mathrm{los}>0$
+    corresponds to motion from the first line-of-sight point toward the second; depending
+    on viewing geometry, this may correspond to either the measured redshift or its
+    negative.
+
+
+    In practice this quantity is obtained from the calibrated centroid of the cold
+    component of an atomic emission line. Spectral modeling separates this centroid
+    shift from instrumental calibration offsets, line blending, thermal broadening,
+    and any broader hot-neutral contribution; the result is only the velocity component
+    projected along the observed line of sight, not the full neutral flow vector.
+
+
+    Typical magnitudes in edge and divertor neutral spectroscopy are of order 1,000-30,000
+    m.s^-1, with signed values near zero possible when the neutral flow is weak or
+    nearly perpendicular to the line of sight.
+
+
+    Sign convention: Positive when cold neutral atoms move from the first defining
+    point of the line of sight toward the second defining point.'
+  unit: m.s^-1
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:hot_neutral_velocity
+  - name:hot_neutral_temperature
+  - name:neutral_velocity
+  - name:cold_neutral_temperature
+  sources:
+  - id: dd:spectrometer_visible/channel/polarization_spectroscopy/velocity_cold_neutrals
+    dd_path: spectrometer_visible/channel/polarization_spectroscopy/velocity_cold_neutrals
+    status: composed
 - name: hot_neutral_temperature
   kind: scalar
   status: draft
@@ -2067,7 +2561,7 @@
     emission from [thermal_neutron_flux](name:thermal_neutron_flux) and other neutron-producing
     components. The channel-resolved components include [deuterium_deuterium_flux_due_to_beam_thermal_fusion](name:deuterium_deuterium_flux_due_to_beam_thermal_fusion),
     [deuterium_tritium_flux_due_to_beam_thermal_fusion](name:deuterium_tritium_flux_due_to_beam_thermal_fusion),
-    and the TT beam-thermal contribution; their sum contributes to [total_neutron_flux](name:total_neutron_flux).
+    and the TT beam-thermal contribution; their sum contributes to total_neutron_flux.
 
 
     Typical beam-thermal neutron emission rates are about $10^{12}$-$10^{16}$ Hz in
@@ -2078,9 +2572,9 @@
   unit: Hz
   physics_domain: radiation_measurement_diagnostics
   links:
-  - name:deuterium_tritium_flux_due_to_beam_thermal_fusion
+  - name:thermal_neutron_flux
   - name:deuterium_deuterium_flux_due_to_beam_thermal_fusion
-  - name:flux_due_to_beam_thermal_fusion
+  - name:deuterium_tritium_flux_due_to_beam_thermal_fusion
   sources:
   - id: dd:summary/fusion/neutron_fluxes/dd/beam_thermal/value
     dd_path: summary/fusion/neutron_fluxes/dd/beam_thermal/value

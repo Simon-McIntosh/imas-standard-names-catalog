@@ -1,6 +1,6 @@
 # Domain: magnetohydrodynamics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 38
+# Entries: 41
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -145,6 +145,66 @@
   sources:
   - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/tau_alfven
     dd_path: mhd_linear/time_slice/toroidal_mode/plasma/tau_alfven
+    status: composed
+- name: critical_momentum_due_to_avalanche
+  kind: scalar
+  status: draft
+  description: Scalar threshold momentum separating drag-dominated electrons from
+    electrons that can run away under electric-field acceleration in avalanche modeling.
+    It is a momentum-space boundary used when evaluating avalanche multiplication
+    and Compton or tritium beta-decay seed contributions, not a source rate.
+  documentation: 'Critical momentum due to avalanche is the scalar electron momentum
+    threshold at which electric-field acceleration just balances collisional slowing-down
+    in the runaway-electron kinetic equation. Above this boundary an electron is in
+    the runaway region; below it Coulomb drag dominates. It is a momentum magnitude
+    and does not encode the direction of motion along the magnetic field.
+
+
+    A common relativistic Coulomb-drag approximation for field-aligned motion gives
+
+
+    $$
+
+    p_{c,\mathrm{av}} = m_e c \left(\frac{|E_\parallel|}{E_c} - 1\right)^{-1/2}
+
+    $$
+
+
+    where $p_{c,\mathrm{av}}$ is the critical momentum, $m_e$ is the electron rest
+    mass in kg, $c$ is the speed of light in m s^-1, $E_\parallel$ is the electric-field
+    component parallel to the magnetic field in V m^-1, and $E_c$ is the Connor-Hastie
+    critical electric field in V m^-1. The expression is valid for $|E_\parallel|
+    > E_c$ and follows from the force balance $e|E_\parallel|=F_\mathrm{drag}$ with
+    high-energy Coulomb drag $F_\mathrm{drag}\simeq eE_c[1+(m_ec/p)^2]$ in N; $E_c$
+    is often approximated by $n_e e^3\ln\Lambda/(4\pi\epsilon_0^2m_ec^2)$, with $n_e$
+    in m^-3 and $\ln\Lambda$ dimensionless.
+
+
+    In practice, the threshold is computed from the local parallel electric field,
+    electron density and temperature, effective charge, Coulomb logarithm, and any
+    model corrections for partial screening, radiation reaction, or pitch-angle dynamics.
+    Avalanche multiplication, Compton scattering, and tritium beta decay provide source
+    terms for the runaway population; this critical momentum supplies the drag-versus-acceleration
+    boundary used to decide whether those electrons enter the runaway region.
+
+
+    Typical thresholds are most transparent in normalized form $\bar p_c=p_{c,\mathrm{av}}/(m_ec)$.
+    For $|E_\parallel|/E_c$ of about 1.1-10, $\bar p_c$ is about 0.3-3, corresponding
+    to roughly 1e-22-1e-21 kg m s^-1; very near $E_c$ the threshold can be much larger,
+    while for $|E_\parallel|\le E_c$ this simple balance gives no finite runaway threshold.'
+  unit: kg.m^-1.s^-1
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:volume_averaged_runaway_electron_critical_momentum_due_to_avalanche
+  sources:
+  - id: dd:runaway_electrons/ggd_fluid/momentum_critical_avalanche/values
+    dd_path: runaway_electrons/ggd_fluid/momentum_critical_avalanche/values
+    status: attached
+  - id: dd:runaway_electrons/global_quantities/volume_average/momentum_critical_avalanche
+    dd_path: runaway_electrons/global_quantities/volume_average/momentum_critical_avalanche
+    status: composed
+  - id: dd:runaway_electrons/profiles_1d/momentum_critical_avalanche
+    dd_path: runaway_electrons/profiles_1d/momentum_critical_avalanche
     status: composed
 - name: effective_charge
   kind: scalar
@@ -338,7 +398,7 @@
     t(X_1)$, so both numerator and denominator are negative and $\tau_\mathrm{th,lin}$
     is positive. The resulting decay time is reported as [thermal_decay_time](name:thermal_energy_decay_time_due_to_disruption).
     This quantity is the energy-specific instance of the general [upper_fraction_due_to_disruption](name:upper_fraction_due_to_disruption)
-    concept, which applies analogously to plasma-current metrics as in [plasma_linear_decay_time](name:plasma_linear_decay_time).
+    concept, which applies analogously to plasma-current metrics as in plasma_linear_decay_time.
 
 
     Sign convention: Positive when the upper threshold level X2 is set to a nonzero
@@ -350,7 +410,6 @@
   - name:energy_lower_fraction_due_to_disruption
   - name:thermal_energy_decay_time_due_to_disruption
   - name:upper_fraction_due_to_disruption
-  - name:plasma_linear_decay_time
   sources:
   - id: dd:summary/disruption/decay_times/energy_thermal/linear_custom/x2
     dd_path: summary/disruption/decay_times/energy_thermal/linear_custom/x2
@@ -524,6 +583,39 @@
   - id: dd:plasma_transport/model/ggd/momentum/v/parallel
     dd_path: plasma_transport/model/ggd/momentum/v/parallel
     status: attached
+- name: per_toroidal_mode_growth_rate
+  kind: scalar
+  status: draft
+  description: Linear exponential growth rate of a single MHD eigenmode resolved per
+    toroidal mode number, equal to the imaginary part of the complex eigenfrequency
+    from linear stability analysis.
+  documentation: "The per-toroidal-mode growth rate is the linear growth rate $\\\
+    gamma$ of a plasma MHD instability eigenmode for a specific toroidal Fourier mode\
+    \ number $n_\\phi$. It is the imaginary part of the complex eigenfrequency $\\\
+    omega = \\omega_r + i\\gamma$, where the real part $\\omega_r$ is the mode oscillation\
+    \ frequency given by mode_frequency.\n\nThe eigenmode amplitude $A$ evolves in\
+    \ time as:\n\n$$\nA(t) \\propto e^{(\\gamma + i\\omega_r)\\,t}\n$$\n\nwhere $t$\
+    \ is time. A positive $\\gamma$ signals exponential growth of the perturbation\
+    \ (instability), while a negative $\\gamma$ indicates a damped or stable mode.\n\
+    \nThe growth rate is obtained by solving the linearized MHD equations as an eigenvalue\
+    \ problem, treating each toroidal mode number $n_\\phi$ independently under the\
+    \ assumption of an axisymmetric background equilibrium. The complementary [per_toroidal_mode_perturbed_energy](name:per_toroidal_mode_perturbed_energy)\
+    \ characterizes the energy content of the same eigenmode, and [alfven_frequency_imaginary_part](name:alfven_frequency_imaginary_part)\
+    \ provides an analogous growth or damping rate for the shear Alfv\xE9n continuum.\n\
+    \nIdeal kink ($n_\\phi = 1$) instabilities in high-normalized-pressure plasmas\
+    \ can reach $10^3$\u2013$10^5$ Hz, while resistive tearing modes grow on slower\
+    \ timescales, $\\gamma \\sim 1$\u2013$10^3$ Hz.\n\nSign convention: Positive when\
+    \ the eigenmode amplitude grows exponentially in time, indicating instability;\
+    \ negative when the mode is stable or damped."
+  unit: Hz
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:per_toroidal_mode_perturbed_energy
+  - name:alfven_frequency_imaginary_part
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/growthrate
+    dd_path: mhd_linear/time_slice/toroidal_mode/growthrate
+    status: composed
 - name: perturbed_electrostatic_potential_real_part
   kind: complex
   status: draft
@@ -1073,6 +1165,69 @@
   sources:
   - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate2/imaginary
     dd_path: mhd_linear/time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate2/imaginary
+    status: composed
+- name: poloidal_perturbed_plasma_velocity_imaginary_part
+  kind: complex
+  status: draft
+  description: Imaginary part of the first-order poloidal projection in a flux-coordinate
+    basis (rho, theta, phi) of the complex plasma velocity perturbation eigenfunction
+    for a specified toroidal Fourier mode. It is the quadrature component relative
+    to the chosen complex eigenfunction phase.
+  documentation: 'The imaginary part of the poloidal perturbed plasma velocity is
+    the quadrature component of the first-order complex velocity eigenfunction for
+    a selected toroidal Fourier mode. The poloidal direction is represented by the
+    unit vector $\hat{\mathbf e}_\theta$ associated with increasing poloidal angle
+    $\theta$ in a flux-coordinate basis $(\rho,\theta,\phi)$, with $\phi$ the toroidal
+    angle of the right-handed cylindrical $(R,\phi,Z)$ frame, where $R$ is major radius
+    and $Z$ is vertical height.
+
+
+    The projected component and its imaginary part are defined by
+
+
+    $$
+
+    v_{\theta,\mathrm{im}} = \operatorname{Im}\!\left(\tilde v_\theta\right), \qquad
+    \tilde v_\theta = \tilde{\mathbf v}\cdot\hat{\mathbf e}_\theta
+
+    $$
+
+
+    where $\tilde{\mathbf v}$ is the complex first-order plasma velocity perturbation
+    eigenfunction for the selected toroidal mode, $\hat{\mathbf e}_\theta$ is the
+    positive poloidal unit vector, and $v_{\theta,\mathrm{im}}$ and $\tilde v_\theta$
+    have units of m s$^{-1}$. If $\tilde v_\theta = v_{\theta,\mathrm{re}} + i v_{\theta,\mathrm{im}}$,
+    this quantity is the coefficient of the imaginary term.
+
+
+    In practice, this component is computed from linear magnetohydrodynamic stability
+    calculations or inferred through model-constrained analysis of fluctuation diagnostics.
+    The physical perturbation is reconstructed by combining real and imaginary components
+    with the selected Fourier phase convention; the absolute complex phase and overall
+    eigenfunction amplitude are arbitrary until a normalization is specified, while
+    relative phases between velocity, magnetic-field, displacement, and density perturbations
+    carry physical information.
+
+
+    Typical values cannot be assigned universally because linear eigenfunction normalization
+    is arbitrary. After a physical amplitude normalization is chosen, poloidal perturbation
+    velocities in tokamak plasmas commonly span about 1-10^5 m s$^{-1}$, from small
+    coherent fluctuations to large-amplitude MHD activity.
+
+
+    Sign convention: Positive when $\operatorname{Im}(\tilde{\mathbf v}\cdot\hat{\mathbf
+    e}_\theta)$ is directed along $+\hat{\mathbf e}_\theta$, toward increasing poloidal
+    angle $\theta$ in the flux-coordinate basis $(\rho,\theta,\phi)$.'
+  unit: m.s^-1
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:poloidal_perturbed_plasma_velocity
+  - name:poloidal_perturbed_plasma_velocity_real_part
+  - name:radial_perturbed_plasma_velocity_imaginary_part
+  - name:toroidal_perturbed_plasma_velocity_imaginary_part
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate2/imaginary
+    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate2/imaginary
     status: composed
 - name: poloidal_perturbed_vacuum_magnetic_field_real_part
   kind: complex

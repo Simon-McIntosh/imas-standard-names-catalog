@@ -1,6 +1,6 @@
 # Domain: plasma_wall_interactions
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 32
+# Entries: 34
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -1332,6 +1332,60 @@
   - id: dd:wall/description_ggd/ggd/power_density/values
     dd_path: wall/description_ggd/ggd/power_density/values
     status: composed
+- name: radiated_power_at_wall
+  kind: scalar
+  status: draft
+  description: Net photon power deposited on plasma-facing first-wall surfaces by
+    radiation emitted from the plasma. It is the surface-integrated incident radiative
+    power intercepted by the wall minus the power carried away by reflected photons.
+  documentation: 'Radiated power at the wall is the net radiative heating power delivered
+    to plasma-facing first-wall surfaces by photons originating in the plasma. It
+    is the radiation-only contribution to the wall heat-load budget, distinct from
+    conductive, convective, neutral-particle, and charge-exchange energy channels,
+    and it complements the total wall load described by thermal_power_at_wall.
+
+
+    The net deposited radiative power is defined by the incident photon power on the
+    wall minus the reflected photon power:
+
+
+    $$
+
+    P_\mathrm{rad,wall} = P_\mathrm{inc} - P_\mathrm{ref} = (1 - \mathcal{R}_\mathrm{eff})
+    P_\mathrm{inc}
+
+    $$
+
+
+    where $P_\mathrm{inc}$ is the photon power incident on all relevant first-wall
+    surfaces, $P_\mathrm{ref}$ is the photon power reflected from those surfaces,
+    and $\mathcal{R}_\mathrm{eff}$ is an effective wall reflectivity averaged over
+    surface material, spectrum, angle of incidence, and illuminated area.
+
+
+    This quantity is usually estimated from bolometric measurements of plasma radiation
+    combined with geometric view-factor or ray-tracing calculations that determine
+    how much photon power reaches the first wall. It may also be inferred from infrared
+    thermography or surface calorimetry when the radiative component can be separated
+    from other heat-load channels. It is related to [radiated_power_at_inside_flux_surface](name:total_plasma_radiated_power),
+    but represents only the photon power that escapes the plasma region and is absorbed
+    at the wall; the analogous divertor-target radiation load is [power_at_divertor_target_due_to_radiation](name:power_at_divertor_target_due_to_radiation).
+
+
+    Typical values range from $10^3$-$10^5$ W in small experiments to $10^6$-$10^8$
+    W in large tokamaks during high-density, impurity-seeded, or detached-plasma operation.
+    The value increases with total plasma radiation, wall view factor, and wall absorptivity,
+    and decreases when a larger fraction of photons is intercepted by divertor targets
+    or reflected by plasma-facing materials.'
+  unit: W
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:total_plasma_radiated_power
+  - name:power_at_divertor_target_due_to_radiation
+  sources:
+  - id: dd:wall/global_quantities/power_radiated
+    dd_path: wall/global_quantities/power_radiated
+    status: composed
 - name: surface_emissivity
   kind: scalar
   status: draft
@@ -1658,7 +1712,7 @@
     probes, and edge Thomson scattering can constrain the deposited heat flux, electron
     temperature gradients, and the partition between conductive and convective channels.
     Together with [power_at_wall_due_to_convection](name:power_at_wall_due_to_convection),
-    this quantity forms the main kinetic thermal contribution to [plasma_power_at_wall](name:plasma_power_at_wall);
+    this quantity forms the main kinetic thermal contribution to plasma_power_at_wall;
     it is also part of thermal_power_at_wall and the divertor-local thermal load described
     by [thermal_power_of_divertor](name:thermal_power_of_divertor).
 
@@ -1675,11 +1729,64 @@
   physics_domain: plasma_wall_interactions
   links:
   - name:power_at_wall_due_to_convection
-  - name:plasma_power_at_wall
   - name:thermal_power_of_divertor
   sources:
   - id: dd:wall/global_quantities/power_conducted
     dd_path: wall/global_quantities/power_conducted
+    status: composed
+- name: power_at_wall_due_to_ohmic_dissipation
+  kind: scalar
+  status: draft
+  description: Total resistive Joule power converted to heat within conducting wall,
+    plasma-facing, and vessel structures by induced, halo, or other plasma-wall currents.
+  documentation: 'Power at the wall due to ohmic dissipation is the total rate at
+    which electrical energy is converted into heat inside conducting wall, plasma-facing,
+    and vessel structures by currents associated with plasma-wall interaction. It
+    includes resistive dissipation from eddy currents induced by changing magnetic
+    fields and from halo or shared currents that pass through conducting structures.
+
+
+    The instantaneous Joule-heating power over the conducting material volume is
+
+
+    $$
+
+    P_\mathrm{ohm} = \int_V \eta(\mathbf{x},T)\, |\mathbf{j}(\mathbf{x})|^2 \, dV
+
+    $$
+
+
+    where $V$ is the conducting material volume, $\eta(\mathbf{x},T)$ is the electrical
+    resistivity at position $\mathbf{x}$ and material temperature $T$ in $\Omega\,\mathrm{m}$,
+    $\mathbf{j}$ is the local current density in $\mathrm{A}\,\mathrm{m}^{-2}$, and
+    $dV$ is a differential volume element in $\mathrm{m}^3$. For passive resistive
+    materials, $\eta \ge 0$ and $|\mathbf{j}|^2 \ge 0$, so the integral is non-negative
+    and represents heat production rather than a signed electromagnetic power flow.
+
+
+    This quantity is computed from electromagnetic circuit or field models of the
+    conducting structures, often constrained by magnetic sensors, wall-current measurements,
+    halo-current measurements, and material resistivity data. Thermal analysis or
+    calorimetry can provide an independent constraint when other heat sources, such
+    as particle impact, radiation, and recombination, are separated. The related [energy
+    flux at wall due to eddy current](name:energy_flux_at_wall_due_to_eddy_current)
+    describes a local surface heat flux from eddy-current dissipation only; this quantity
+    is a volume-integrated power and may also include halo-current dissipation.
+
+
+    Typical values are about 10^3-10^6 W during routine operation with slowly varying
+    fields, and about 10^6-10^9 W during disruptions, vertical displacement events,
+    or rapid current quenches in large devices. The magnitude depends on plasma current,
+    magnetic-field ramp rate, wall geometry, material resistivity, and the electrical
+    circuit paths that connect the plasma to surrounding conducting structures.'
+  unit: W
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:energy_flux_at_wall_due_to_eddy_current
+  - name:plasma_power_at_wall
+  sources:
+  - id: dd:wall/global_quantities/power_currents
+    dd_path: wall/global_quantities/power_currents
     status: composed
 - name: reference_wavelength_of_filter
   kind: scalar

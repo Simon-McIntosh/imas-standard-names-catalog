@@ -1,9 +1,75 @@
 # Domain: electromagnetic_wave_diagnostics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 13
+# Entries: 16
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: faraday_angle
+  kind: scalar
+  status: draft
+  description: Signed rotation angle of the plane of linear polarization of an electromagnetic
+    probe beam after propagation through a magnetized plasma. It is produced by Faraday
+    circular birefringence and is proportional to wavelength squared times the line
+    integral of electron density multiplied by the magnetic-field component along
+    the beam path.
+  documentation: 'Faraday angle is the signed change in orientation of a linearly
+    polarized electromagnetic wave after it traverses a magnetized plasma. The rotation
+    arises because the left- and right-circularly polarized components of the wave
+    have different refractive indices in the presence of a magnetic field component
+    along the beam path. Since a linear polarization plane is physically unchanged
+    by a rotation of $\pi$, reported angles may be phase-unwrapped when rotations
+    exceed this periodicity.
+
+
+    For a cold plasma away from wave resonances, the single-pass Faraday angle is
+    commonly approximated by:
+
+
+    $$
+
+    \chi_F = C_F \lambda^2 \int_{\mathcal{L}} n_e(l)\,B_\parallel(l)\,dl
+
+    $$
+
+
+    where $\chi_F$ is the Faraday angle, $C_F \simeq 2.63 \times 10^{-13}\,\mathrm{T}^{-1}$
+    in SI units, $\lambda$ is the vacuum wavelength, $n_e$ is the electron number
+    density, $l$ is distance along the beam path $\mathcal{L}$, and $B_\parallel =
+    \mathbf{B}\cdot\hat{k}$ is the magnetic-field component along the propagation
+    direction $\hat{k}$.
+
+
+    Faraday angle is measured by polarimetry, using the change between the injected
+    and received linear polarization states of a probing beam. It is computed in forward
+    models by integrating density and magnetic-field information along the optical
+    path, with corrections for refraction, multiple passes, window rotations, and
+    calibration offsets when they are significant.
+
+
+    Typical absolute values in magnetically confined plasmas range from 0.01-5 rad
+    for far-infrared or submillimeter polarimetry, depending strongly on wavelength,
+    path length, density, and magnetic-field strength. Low-density plasmas or short
+    chords can give milliradian rotations, while long paths through dense, high-field
+    plasmas can produce rotations of several radians.
+
+
+    Sign convention: Positive when the emergent polarization plane is rotated counter-clockwise
+    relative to the incident plane as viewed looking along the beam propagation direction.'
+  unit: rad
+  physics_domain: electromagnetic_wave_diagnostics
+  links:
+  - name:line_averaged_electron_density
+  - name:poloidal_magnetic_field
+  sources:
+  - id: dd:equilibrium/time_slice/constraints/faraday_angle/measured
+    dd_path: equilibrium/time_slice/constraints/faraday_angle/measured
+    status: attached
+  - id: dd:equilibrium/time_slice/constraints/faraday_angle/reconstructed
+    dd_path: equilibrium/time_slice/constraints/faraday_angle/reconstructed
+    status: attached
+  - id: dd:polarimeter/channel/faraday_angle
+    dd_path: polarimeter/channel/faraday_angle
+    status: composed
 - name: normalized_toroidal_flux_coordinate_at_measurement_position
   kind: scalar
   status: draft
@@ -557,6 +623,95 @@
     status: composed
   - id: dd:waves/coherent_wave/beam_tracing/beam/wave_vector/k_z
     dd_path: waves/coherent_wave/beam_tracing/beam/wave_vector/k_z
+    status: attached
+- name: x1_coordinate_of_reflectometer_antenna
+  kind: scalar
+  status: draft
+  description: Positions of the reflectometer antenna aperture outline vertices along
+    the X1 axis of the local (X1, X2) orthogonal coordinate frame.
+  documentation: 'The X1 coordinate positions define the vertices of the aperture
+    polygon of a reflectometer antenna projected onto the first axis of the local
+    orthogonal (X1, X2) frame attached to the antenna element. Together with [x2_coordinate_of_reflectometer_antenna](name:x2_coordinate_of_reflectometer_antenna),
+    the X1 coordinates fully characterize the two-dimensional cross-sectional shape
+    of the emission or detection aperture for both profile and fluctuation reflectometer
+    channels.
+
+
+    Reflectometers probe plasma electron density by transmitting microwaves that reflect
+    from density cutoff layers; the detailed aperture outline described by the X1
+    vertex positions determines the launched beam pattern and influences diffraction
+    modeling in wave propagation calculations. The [width_of_reflectometer_antenna](name:width_of_reflectometer_antenna)
+    provides a scalar summary of the aperture extent derived from the full polygon
+    geometry.
+
+
+    The outline is specified as an ordered polygon in the (X1, X2) plane, with the
+    number of vertices chosen to represent non-rectangular aperture shapes. Typical
+    aperture dimensions for fusion-relevant reflectometer antennas span a few centimeters
+    to several tens of centimeters, depending on operating frequency and the required
+    beam directivity.
+
+
+    Sign convention: Positive when the vertex position lies in the positive X1 direction
+    from the local frame origin.'
+  unit: m
+  physics_domain: electromagnetic_wave_diagnostics
+  links:
+  - name:x2_coordinate_of_reflectometer_antenna
+  - name:width_of_reflectometer_antenna
+  sources:
+  - id: dd:reflectometer_fluctuation/channel/antenna_emission_static/outline/x1
+    dd_path: reflectometer_fluctuation/channel/antenna_emission_static/outline/x1
+    status: attached
+  - id: dd:reflectometer_profile/channel/antenna_detection/outline/x1
+    dd_path: reflectometer_profile/channel/antenna_detection/outline/x1
+    status: composed
+  - id: dd:reflectometer_profile/channel/antenna_emission/outline/x1
+    dd_path: reflectometer_profile/channel/antenna_emission/outline/x1
+    status: attached
+- name: electron_absorbed_power_of_beam_tracing_beam
+  kind: scalar
+  status: draft
+  description: Wave power absorbed by the electron population from a single coherent
+    beam-tracing beam, representing the electron contribution to total path-integrated
+    wave energy deposition.
+  documentation: "The electron absorbed power of a beam-tracing beam is the total\
+    \ wave power transferred from a single traced coherent electromagnetic beam to\
+    \ the electron population over its computed propagation path. It represents the\
+    \ electron contribution to wave energy deposition and sums with the ion species\
+    \ contributions \u2014 ion_absorbed_power_of_beam_tracing_beam and [ion_state_absorbed_power_of_beam_tracing_beam](name:ion_state_absorbed_power_of_beam_tracing_beam)\
+    \ \u2014 to give the species-summed [absorbed_power_of_beam_tracing_beam](name:absorbed_power_of_beam_tracing_beam).\n\
+    \nThe path-integrated electron absorbed power is determined by the local electron\
+    \ damping coefficient $\\alpha_e(s)$ and the evolving beam power $P(s)$:\n\n$$\n\
+    P_{e,\\mathrm{abs}} = \\int_{\\mathrm{path}} 2\\,\\alpha_e(s)\\,P(s)\\,ds\n$$\n\
+    \nwhere $s$ is the arc length along the ray and $\\alpha_e$ derives from the electron\
+    \ contribution to the anti-Hermitian part of the plasma dielectric tensor. For\
+    \ electron cyclotron resonance heating and ECE diagnostics, $\\alpha_e$ peaks\
+    \ near the resonance layer where the wave frequency satisfies $\\omega = n\\,\\\
+    Omega_{ce}$, with $\\Omega_{ce} = eB/m_e$ the local electron cyclotron frequency\
+    \ and $n$ a harmonic integer.\n\nThis quantity is computed by beam-tracing solvers\
+    \ that propagate ray equations through a plasma equilibrium and evaluate the electron\
+    \ dielectric response at each point along the path. The ratio $P_{e,\\mathrm{abs}}\
+    \ / P_0$ \u2014 where $P_0$ is the [initial_power_of_beam_tracing_beam](name:initial_power_of_beam_tracing_beam)\
+    \ \u2014 characterizes single-pass absorption efficiency, which approaches unity\
+    \ in strongly absorbing scenarios such as fundamental or second-harmonic electron\
+    \ cyclotron resonance heating."
+  unit: W
+  physics_domain: electromagnetic_wave_diagnostics
+  links:
+  - name:ion_state_absorbed_power_of_beam_tracing_beam
+  - name:absorbed_power_of_beam_tracing_beam
+  - name:initial_power_of_beam_tracing_beam
+  arguments:
+  - name: absorbed_power_of_beam_tracing_beam
+    operator: electron
+    operator_kind: qualifier
+  sources:
+  - id: dd:ece/channel/beam_tracing/beam/electrons/power
+    dd_path: ece/channel/beam_tracing/beam/electrons/power
+    status: composed
+  - id: dd:waves/coherent_wave/beam_tracing/beam/electrons/power
+    dd_path: waves/coherent_wave/beam_tracing/beam/electrons/power
     status: attached
 - name: wave_electric_field
   kind: vector

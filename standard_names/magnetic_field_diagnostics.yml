@@ -1,9 +1,96 @@
 # Domain: magnetic_field_diagnostics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 7
+# Entries: 10
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: area_of_poloidal_magnetic_field_probe
+  kind: scalar
+  status: draft
+  description: Cross-sectional area of each turn of a poloidal magnetic field probe
+    coil, which together with the turn count determines the effective flux-sensing
+    area of the pickup coil.
+  documentation: "The cross-sectional area of each individual turn of a poloidal magnetic\
+    \ field probe coil is the geometric enclosed area of the wire loop in the plane\
+    \ perpendicular to the probe's sensitive axis. Combined with the number of turns\
+    \ $N$, it determines the total effective flux-sensing area $NA$ that links induced\
+    \ voltage to the local magnetic field component.\n\nThe induced terminal voltage\
+    \ follows Faraday's induction law:\n\n$$\nV = -N A \\frac{dB_n}{dt}\n$$\n\nwhere\
+    \ $V$ is the terminal voltage, $N$ is the turn count, $A$ is the cross-sectional\
+    \ area per turn, and $B_n$ is the magnetic field component normal to the coil\
+    \ plane. Integrating the [voltage_of_poloidal_magnetic_field_probe](name:voltage_of_poloidal_magnetic_field_probe)\
+    \ signal and dividing by $NA$ recovers the local poloidal field time trace.\n\n\
+    The area is established during probe fabrication and verified by calibration in\
+    \ a known applied field. It plays the same fundamental role for the poloidal sensing\
+    \ channel as [area_of_toroidal_magnetic_field_probe](name:area_of_toroidal_magnetic_field_probe)\
+    \ plays for the toroidal channel. Typical values for tokamak pickup coils range\
+    \ from $10^{-5}$ to $10^{-4}$ m\xB2, reflecting a balance between sensitivity\
+    \ and spatial resolution.\n\nSign convention: Positive when measured as the geometric\
+    \ cross-section of the coil loop enclosed by the windings in the plane perpendicular\
+    \ to the probe's sensitive axis."
+  unit: m^2
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:voltage_of_poloidal_magnetic_field_probe
+  - name:area_of_toroidal_magnetic_field_probe
+  sources:
+  - id: dd:magnetics/b_field_pol_probe/area
+    dd_path: magnetics/b_field_pol_probe/area
+    status: composed
+  - id: dd:magnetics/bpol_probe/area
+    dd_path: magnetics/bpol_probe/area
+    status: attached
+- name: area_of_toroidal_magnetic_field_probe
+  kind: scalar
+  status: draft
+  description: Cross-sectional area of each turn of a toroidal magnetic field probe
+    coil, which together with the number of turns sets the total effective flux pickup
+    area for converting induced voltage to the toroidal magnetic field.
+  documentation: 'The cross-sectional area of a single winding turn of a toroidal
+    magnetic field probe determines how much toroidal magnetic flux threads each loop
+    of the coil. The product of this area with the turn count gives the total effective
+    pickup area that governs the coil''s voltage response to changes in the toroidal
+    field component $B_\phi$.
+
+
+    The induced terminal voltage follows Faraday''s law:
+
+
+    $$
+
+    V = -N A \frac{dB_\phi}{dt}
+
+    $$
+
+
+    where $V$ is the [terminal voltage](name:voltage_of_toroidal_magnetic_field_probe),
+    $N$ is the algebraic turn count (see [count_of_toroidal_magnetic_field_probe](name:count_of_toroidal_magnetic_field_probe)),
+    $A$ is the per-turn cross-sectional area, and $B_\phi$ is the local toroidal magnetic
+    field component in the right-handed cylindrical $(R, \phi, Z)$ frame.
+
+
+    The area is determined from the coil''s physical dimensions during fabrication
+    or verified by laboratory calibration; time-integrating the measured voltage and
+    dividing by $NA$ recovers the absolute field $B_\phi$. The corresponding quantity
+    for poloidal pickup coils is [area_of_poloidal_magnetic_field_probe](name:area_of_poloidal_magnetic_field_probe).
+
+
+    Typical single-turn cross-sectional areas in tokamak magnetics diagnostics range
+    from $10^{-5}$ to $10^{-3}$ m$^2$, depending on probe dimensions and required
+    sensitivity.'
+  unit: m^2
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:voltage_of_toroidal_magnetic_field_probe
+  - name:count_of_toroidal_magnetic_field_probe
+  - name:area_of_poloidal_magnetic_field_probe
+  sources:
+  - id: dd:magnetics/b_field_phi_probe/area
+    dd_path: magnetics/b_field_phi_probe/area
+    status: attached
+  - id: dd:magnetics/b_field_tor_probe/area
+    dd_path: magnetics/b_field_tor_probe/area
+    status: composed
 - name: major_radius_of_flux_loop
   kind: scalar
   status: draft
@@ -262,6 +349,60 @@
   - id: dd:magnetics/b_field_tor_probe/position/z
     dd_path: magnetics/b_field_tor_probe/position/z
     status: composed
+- name: voltage_of_poloidal_magnetic_field_probe
+  kind: scalar
+  status: draft
+  description: Terminal voltage induced at the terminals of a poloidal magnetic field
+    probe coil by the time variation of the local poloidal magnetic field component
+    threading the coil windings.
+  documentation: 'The terminal voltage of a poloidal magnetic field probe is the raw
+    inductive electrical signal generated when the poloidal magnetic field component
+    at the sensor location changes with time. It is the primary electrical observable
+    from which the local poloidal field is derived during post-processing.
+
+
+    For a coil with $N$ turns and effective cross-sectional area $A$ per turn, Faraday''s
+    law gives:
+
+
+    $$
+
+    V = -N A \frac{dB_p}{dt}
+
+    $$
+
+
+    where $B_p$ is the poloidal magnetic field component along the probe''s sensitive
+    axis, $N$ is the algebraic turn count encoding the winding direction, and $A$
+    is the effective [area of each turn](name:area_of_poloidal_magnetic_field_probe).
+
+
+    The raw voltage is time-integrated in post-processing to recover the instantaneous
+    $B_p$, with corrections for resistive losses and signal drift. Arrays of poloidal
+    field probes distributed around the vacuum vessel provide the boundary field measurements
+    essential for equilibrium reconstruction and real-time plasma shape control. The
+    directly analogous signal for probes oriented to sense the toroidal field is [voltage_of_toroidal_magnetic_field_probe](name:voltage_of_toroidal_magnetic_field_probe);
+    the complement for flux-enclosed measurements is [voltage_of_flux_loop](name:voltage_of_flux_loop).
+    The probe''s spatial location entering the field derivation is given by [major_radius_of_poloidal_magnetic_field_probe](name:major_radius_of_poloidal_magnetic_field_probe).
+
+
+    Sign convention: Positive when the poloidal magnetic flux threading the coil in
+    the direction of the probe''s positive sensitive-axis normal is decreasing with
+    time.'
+  unit: V
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:area_of_poloidal_magnetic_field_probe
+  - name:voltage_of_toroidal_magnetic_field_probe
+  - name:voltage_of_flux_loop
+  - name:major_radius_of_poloidal_magnetic_field_probe
+  sources:
+  - id: dd:magnetics/b_field_pol_probe/voltage
+    dd_path: magnetics/b_field_pol_probe/voltage
+    status: composed
+  - id: dd:magnetics/bpol_probe/voltage
+    dd_path: magnetics/bpol_probe/voltage
+    status: attached
 - name: voltage_of_toroidal_magnetic_field_probe
   kind: scalar
   status: draft

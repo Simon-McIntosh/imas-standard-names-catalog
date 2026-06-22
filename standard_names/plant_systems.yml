@@ -1,6 +1,6 @@
 # Domain: plant_systems
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 37
+# Entries: 40
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -1230,6 +1230,58 @@
   - id: dd:gas_pumping/duct/flow_rate
     dd_path: gas_pumping/duct/flow_rate
     status: attached
+- name: helium_4_prefill_count_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Total neutral helium-4 gas injected during the prefill phase, expressed
+    as an equivalent-electron count with two electrons per helium-4 atom.
+  documentation: 'Helium-4 prefill count due to gas injection is the total equivalent-electron
+    inventory supplied by externally injected neutral helium-4 during the prefill
+    phase. Each helium-4 atom contributes two electron equivalents for complete ionization,
+    so this is a gas-inventory bookkeeping count rather than a count of free electrons
+    before breakdown.
+
+
+    The total over the selected prefill interval is obtained by integrating the neutral
+    helium-4 atom injection rate and multiplying by the helium electron yield:
+
+
+    $$
+
+    N_{\mathrm{e,eq}}^{{}^{4}\mathrm{He}} = 2 \int_{t_\mathrm{start}}^{t_\mathrm{end}}
+    \Gamma_{{}^{4}\mathrm{He}}(t)\,dt
+
+    $$
+
+
+    where $\Gamma_{{}^{4}\mathrm{He}}$ is the neutral helium-4 atom injection rate
+    in atoms s$^{-1}$, $t_\mathrm{start}$ is the start of helium-4 prefill gas admission,
+    and $t_\mathrm{end}$ is the evaluation endpoint of the prefill interval, commonly
+    just before plasma breakdown. The related [accumulated_helium_4_prefill_count_due_to_gas_injection](name:accumulated_helium_4_count_due_to_gas_injection)
+    is the same integral retained as a function of its upper time limit; evaluating
+    it at $t_\mathrm{end}$ gives this total.
+
+
+    In practice, the count is inferred from calibrated helium-4 gas throughput, isotopic
+    mixture fraction, valve-flow calibration, or an equivalent gas balance over the
+    prefill interval. Only the injected helium-4 component is included; helium-3,
+    other gas species, wall-released or recycled neutrals, and postbreakdown fueling
+    are excluded. A helium-4 atom count, as opposed to this equivalent-electron count,
+    is smaller by a factor of 2.
+
+
+    Typical values range from $10^{18}$-$10^{22}$ equivalent electrons in small and
+    medium devices and from $10^{22}$-$10^{24}$ equivalent electrons in large tokamak
+    prefill scenarios, depending on vessel volume, target neutral pressure, gas temperature,
+    and prefill duration.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_helium_4_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_prefill/helium_4/value
+    dd_path: summary/gas_injection_prefill/helium_4/value
+    status: composed
 - name: krypton_prefill_count
   kind: scalar
   status: draft
@@ -1384,6 +1436,37 @@
   - id: dd:summary/gas_injection_prefill/neon/value
     dd_path: summary/gas_injection_prefill/neon/value
     status: composed
+- name: neon_source_rate
+  kind: scalar
+  status: draft
+  description: Instantaneous injection rate of neon gas into the plasma vessel, expressed
+    in equivalent electrons per second.
+  documentation: 'The neon source rate quantifies the instantaneous rate at which
+    neon gas is introduced into the plasma vessel through gas injection systems. Each
+    neon atom (atomic number $Z = 10$) contributes 10 equivalent electrons to the
+    count, so the source rate equals 10 times the atomic injection rate expressed
+    in atoms per second. Neon seeding is widely applied in fusion devices to control
+    edge radiation and protect plasma-facing components from excessive heat loads,
+    and is also employed in disruption mitigation scenarios requiring rapid radiative
+    cooling. The source rate is inferred from calibrated flow controllers or gas injection
+    valve diagnostics, with values ranging from $10^{20}$ to $10^{23}$ s$^{-1}$ depending
+    on the seeding scenario. Integrating this rate over time yields the [accumulated
+    neon count](name:accumulated_neon_count). Analogous injection rates for other
+    species include [nitrogen_source_rate](name:nitrogen_source_rate) and [oxygen_source_rate](name:oxygen_source_rate),
+    which follow the same equivalent-electron convention.
+
+
+    Sign convention: Positive when neon gas is being injected into the plasma vessel.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_neon_count
+  - name:nitrogen_source_rate
+  - name:oxygen_source_rate
+  sources:
+  - id: dd:summary/gas_injection_rates/neon/value
+    dd_path: summary/gas_injection_rates/neon/value
+    status: composed
 - name: net_power_of_plant_system
   kind: scalar
   status: draft
@@ -1444,6 +1527,63 @@
   - id: dd:balance_of_plant/power_plant/power_electric_generated
     dd_path: balance_of_plant/power_plant/power_electric_generated
     status: attached
+- name: oxygen_source_rate
+  kind: scalar
+  status: draft
+  description: Instantaneous rate at which oxygen gas is injected into the plasma
+    vessel, expressed as the equivalent number of bound electrons carried by the injected
+    oxygen atoms or molecules per second.
+  documentation: 'Oxygen source rate is the instantaneous input of oxygen gas into
+    the plasma vessel, expressed as an equivalent-electron rate. The equivalent-electron
+    convention counts eight electrons per oxygen atom, so the quantity tracks the
+    injected oxygen inventory on the same counting basis as total neutral-gas injection
+    rates rather than the instantaneous plasma electron source after ionization.
+
+
+    The relation between the equivalent-electron source rate and the injected neutral
+    oxygen flow is
+
+
+    $$
+
+    S_\mathrm{O} = 8\,\dot{N}_\mathrm{O} = 16\,\dot{N}_{\mathrm{O}_2} = \frac{dN_{\mathrm{O},e}}{dt}
+
+    $$
+
+
+    where $S_\mathrm{O}$ is the oxygen source rate in equivalent electrons per second,
+    $\dot{N}_\mathrm{O}$ is the rate of injected oxygen atoms, $\dot{N}_{\mathrm{O}_2}$
+    is the rate of injected oxygen molecules, and $N_{\mathrm{O},e}$ is the accumulated
+    equivalent-electron count. For mixed atomic and molecular gas, contributions are
+    summed with eight equivalent electrons per oxygen nucleus.
+
+
+    In practice, $S_\mathrm{O}$ is computed from calibrated gas-handling signals such
+    as mass-flow-controller demand, reservoir pressure drop, or piezoelectric valve
+    opening together with gas temperature and conductance calibration. Its time integral
+    gives [accumulated_oxygen_count_due_to_gas_injection](name:accumulated_oxygen_count_due_to_gas_injection),
+    and it contributes to the aggregate [electron_source_rate_due_to_injection](name:electron_source_rate_due_to_injection)
+    along with other injected species such as [hydrogen_source_rate_due_to_gas_injection](name:hydrogen_source_rate_due_to_gas_injection),
+    [nitrogen_source_rate](name:nitrogen_source_rate), and [neon_source_rate](name:neon_source_rate).
+    Oxygen injection is commonly used for impurity seeding, radiative-power control,
+    radiative mantle formation, and divertor detachment studies; the subsequent ionization
+    balance is a plasma response, not part of this injection-rate definition.
+
+
+    Typical controlled oxygen injection rates are about $10^{19}-10^{22}\ \mathrm{s}^{-1}$
+    in equivalent-electron units. Small calibration puffs or wall-conditioning flows
+    can be below $10^{19}\ \mathrm{s}^{-1}$, while large impurity puffs in high-density
+    plasmas may approach or exceed $10^{22}\ \mathrm{s}^{-1}$.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_oxygen_count_due_to_gas_injection
+  - name:neon_source_rate
+  - name:nitrogen_source_rate
+  sources:
+  - id: dd:summary/gas_injection_rates/oxygen/value
+    dd_path: summary/gas_injection_rates/oxygen/value
+    status: composed
 - name: propane_prefill_count
   kind: scalar
   status: draft

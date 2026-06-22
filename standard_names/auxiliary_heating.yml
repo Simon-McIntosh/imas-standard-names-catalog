@@ -1,6 +1,6 @@
 # Domain: auxiliary_heating
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 58
+# Entries: 62
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -859,9 +859,9 @@
     full non-rectangular outline also depends on the [width](name:width_of_antenna_strap),
     [thickness](name:thickness_of_antenna_strap), and inclination angles such as $\alpha$
     in [alpha_angle_of_antenna_strap](name:alpha_angle_of_antenna_strap) and $\beta$
-    in [angle_of_antenna_strap](name:angle_of_antenna_strap). No universal $1/\cos\alpha$
-    or similar conversion is implied unless the angle reference directions and the
-    selected base edge are specified by the geometric construction.
+    in angle_of_antenna_strap. No universal $1/\cos\alpha$ or similar conversion is
+    implied unless the angle reference directions and the selected base edge are specified
+    by the geometric construction.
 
 
     In practice the value is taken from antenna engineering drawings, CAD geometry,
@@ -877,10 +877,9 @@
   unit: m
   physics_domain: auxiliary_heating
   links:
-  - name:alpha_angle_of_antenna_strap
-  - name:height_of_antenna_strap
   - name:width_of_antenna_strap
   - name:thickness_of_antenna_strap
+  - name:alpha_angle_of_antenna_strap
   sources:
   - id: dd:ic_antennas/antenna/module/strap/geometry/oblique/length
     dd_path: ic_antennas/antenna/module/strap/geometry/oblique/length
@@ -1032,7 +1031,7 @@
     Dynamic NBI tilting is employed in beam emission spectroscopy applications, where
     the beam is periodically steered to sweep the measurement volume radially across
     the plasma cross-section. The radial extent of this steering is quantified by
-    the perturbed tangency radius, complementing [perturbed_angle_of_neutral_beam_injector](name:perturbed_angle_of_neutral_beam_injector),
+    the perturbed tangency radius, complementing perturbed_angle_of_neutral_beam_injector,
     which captures the simultaneous change in vertical inclination angle of the beam.
 
 
@@ -1042,7 +1041,6 @@
   physics_domain: auxiliary_heating
   links:
   - name:beam_major_radius_of_neutral_beam_injector
-  - name:perturbed_angle_of_neutral_beam_injector
   arguments:
   - name: beam_major_radius_of_neutral_beam_injector
     operator: perturbed
@@ -1265,6 +1263,44 @@
   - id: dd:ic_antennas/antenna/power_forward
     dd_path: ic_antennas/antenna/power_forward
     status: composed
+- name: radial_centroid_of_electron_cyclotron_launcher_mirror
+  kind: scalar
+  status: draft
+  description: Major radius coordinate of the geometric center of an electron cyclotron
+    launcher mirror, measured from the toroidal symmetry axis in the right-handed
+    cylindrical (R, phi, Z) frame.
+  documentation: 'The radial centroid of an electron cyclotron launcher mirror is
+    the perpendicular distance $R$ of the mirror''s geometric center from the machine
+    toroidal symmetry axis, defined in the right-handed cylindrical $(R, \phi, Z)$
+    frame where $R$ is the major radius in meters. Together with [vertical_coordinate_of_electron_cyclotron_launcher_mirror](name:vertical_coordinate_of_electron_cyclotron_launcher_mirror),
+    it fully locates the mirror center in the meridional plane, establishing the geometric
+    reference point from which EC beam injection angles and trajectories are computed.
+
+
+    The centroid position in the machine frame combines with the mirror rotation [angle_of_electron_cyclotron_launcher_mirror](name:angle_of_electron_cyclotron_launcher_mirror)
+    and any mechanical [offset_of_electron_cyclotron_launcher_mirror](name:offset_of_electron_cyclotron_launcher_mirror)
+    to define the complete launch geometry used in ray-tracing and beam-tracing models
+    for electron cyclotron heating and current drive. The local boundary contour of
+    the mirror surface is described separately in the mirror-fixed planar frame via
+    [x1_coordinate_of_electron_cyclotron_launcher_mirror](name:x1_coordinate_of_electron_cyclotron_launcher_mirror)
+    and [x2_coordinate_of_electron_cyclotron_launcher_mirror](name:x2_coordinate_of_electron_cyclotron_launcher_mirror).
+
+
+    Sign convention: Positive when the mirror centroid lies at a finite major radius
+    from the toroidal symmetry axis ($R > 0$), which holds for all physical in-vessel
+    launcher positions.'
+  unit: m
+  physics_domain: auxiliary_heating
+  links:
+  - name:vertical_coordinate_of_electron_cyclotron_launcher_mirror
+  - name:angle_of_electron_cyclotron_launcher_mirror
+  - name:offset_of_electron_cyclotron_launcher_mirror
+  - name:x1_coordinate_of_electron_cyclotron_launcher_mirror
+  - name:x2_coordinate_of_electron_cyclotron_launcher_mirror
+  sources:
+  - id: dd:ec_launchers/mirror/geometry/centre/r
+    dd_path: ec_launchers/mirror/geometry/centre/r
+    status: attached
 - name: radial_normalized_wave_vector_of_beam_tracing_beam
   kind: scalar
   status: draft
@@ -1932,6 +1968,95 @@
   sources:
   - id: dd:ic_antennas/reference_point/z
     dd_path: ic_antennas/reference_point/z
+    status: composed
+- name: x1_coordinate_of_aperture
+  kind: scalar
+  status: draft
+  description: First local transverse coordinate of a neutral-beam injector collimating-aperture
+    outline vertex, measured from the aperture origin in the local aperture-plane
+    Cartesian (X1, X2) frame.
+  documentation: 'The $X_1$ coordinate of an aperture is the signed distance of an
+    outline vertex along the first axis of the local aperture-plane Cartesian $(X_1,
+    X_2)$ frame with in-plane basis $(\hat{X}_1, \hat{X}_2)$. The frame origin is
+    the aperture reference point, normally the nominal beam-axis intersection with
+    the aperture plane or the mechanical center used for alignment; $X_1=0$ is the
+    line through that origin parallel to the $X_2$ axis. It is not a coordinate in
+    the right-handed cylindrical $(R, \phi, Z)$ frame; it describes transverse position
+    within the injector aperture plane.
+
+
+    Together with [x2_coordinate_of_aperture](name:x2_coordinate_of_aperture), ordered
+    vertices define the closed planar aperture boundary: consecutive vertices lie
+    on adjacent boundary segments, and the final vertex is connected back to the first.
+    The coordinate is determined by projecting each vertex position in the aperture
+    plane onto the $+\hat{X}_1$ axis after the local origin and axis orientation have
+    been established from component geometry and alignment.
+
+
+    Typical neutral-beam collimating apertures have transverse half-widths of 0.01-0.3
+    m, so individual $X_1$ vertex coordinates commonly span from about -0.3 m to 0.3
+    m. Small beamlet or mask openings may be at the 0.001-0.02 m scale, while large
+    shaped collimators can approach 0.5 m in full width.
+
+
+    Sign convention: Positive when the vertex displacement from the aperture origin
+    is along the $+X_1$ direction of the local aperture-plane Cartesian $(X_1, X_2)$
+    frame.'
+  unit: m
+  physics_domain: auxiliary_heating
+  links:
+  - name:x2_coordinate_of_aperture
+  - name:x1_coordinate_of_filter
+  sources:
+  - id: dd:nbi/unit/aperture/outline/x1
+    dd_path: nbi/unit/aperture/outline/x1
+    status: composed
+- name: x1_coordinate_of_neutral_beam_injector
+  kind: scalar
+  status: draft
+  description: Position along X1 of a neutral beam injector source-outline vertex
+    in the beam-local Cartesian (X1, X2) frame, referenced to the aperture center.
+  documentation: 'The $X_1$ coordinate of a neutral beam injector source-outline vertex
+    is the signed displacement of that vertex along the first transverse axis of the
+    beam-local Cartesian $(X_1, X_2)$ frame. This frame has basis axes $(\hat{X}_1,
+    \hat{X}_2)$ in the source extraction plane, transverse to the nominal beam propagation
+    direction. The origin is the source-aperture center, i.e. the intersection of
+    the nominal beam centerline with the extraction plane.
+
+
+    Together with the [X2 coordinate](name:x2_coordinate_of_neutral_beam_injector),
+    this quantity defines a vertex of the closed outline of the beam extraction surface.
+    The outline geometry is usually obtained from the source-aperture design or as-built
+    metrology; vertices are normally ordered consistently around the aperture, clockwise
+    or counterclockwise as viewed along the nominal beam direction. A rectangular
+    source outline uses four vertices, while chamfered, rounded, or segmented extraction
+    surfaces may use more.
+
+
+    The local source outline complements global injector-position quantities such
+    as the [vertical coordinate of a neutral beam injector](name:vertical_coordinate_of_neutral_beam_injector),
+    which are expressed in the right-handed cylindrical $(R, \phi, Z)$ frame where
+    $R$ is major radius, $\phi$ is toroidal angle increasing counterclockwise when
+    viewed from $+\hat{Z}$, and $Z$ is vertical height.
+
+
+    Representative absolute values of $X_1$ for neutral beam source outlines are typically
+    0.05-0.5 m, depending on source size and whether $X_1$ is aligned with the wider
+    or narrower aperture dimension; large high-power source modules can be larger.
+
+
+    Sign convention: Positive when the source-outline vertex is displaced from the
+    local origin in the $+\hat{X}_1$ direction of the beam-local Cartesian $(X_1,
+    X_2)$ frame.'
+  unit: m
+  physics_domain: auxiliary_heating
+  links:
+  - name:x2_coordinate_of_neutral_beam_injector
+  - name:x1_coordinate_of_neutron_detector
+  - name:x2_coordinate_of_aperture
+  sources:
+  - id: dd:nbi/unit/source/outline/x1
+    dd_path: nbi/unit/source/outline/x1
     status: composed
 - name: x2_coordinate_of_aperture
   kind: scalar
@@ -3255,6 +3380,66 @@
   - name:parallel_wave_driven_current_density
   - name:per_toroidal_mode_current_due_to_wave_driven_current_drive
   - name:toroidal_plasma_current
+  sources:
+  - id: dd:waves/coherent_wave/profiles_1d/current_parallel_density
+    dd_path: waves/coherent_wave/profiles_1d/current_parallel_density
+    status: composed
+- name: parallel_wave_driven_current_density
+  kind: scalar
+  status: draft
+  description: Flux-surface-averaged parallel current density produced by resonant
+    wave-particle interactions, giving the net RF-driven current per unit area along
+    the magnetic field direction.
+  documentation: 'The parallel wave-driven current density is the flux-surface average
+    of the wave-driven current projected along the equilibrium magnetic field, capturing
+    the RF current-drive contribution to the parallel current profile from a single
+    coherent wave. Resonant electromagnetic waves transfer directed momentum to the
+    plasma, altering the particle velocity distribution in a way that produces a net
+    current preferentially aligned with the magnetic field direction.
+
+
+    The defining relation is:
+
+
+    $$
+
+    j_{\parallel,\mathrm{wave}} = \frac{\langle \mathbf{j}_\mathrm{wave} \cdot \mathbf{B}
+    \rangle}{B_0}
+
+    $$
+
+
+    where $\langle \cdots \rangle$ denotes the flux-surface average, $\mathbf{j}_\mathrm{wave}$
+    is the local wave-driven current density vector of the parent [wave_driven_current_density](name:wave_driven_current_density),
+    $\mathbf{B}$ is the magnetic field, and $B_0$ is the on-axis reference magnetic
+    field magnitude.
+
+
+    This quantity is computed by quasi-linear or wave-kinetic RF solvers that determine
+    the non-Maxwellian perturbation to the particle distribution induced by resonant
+    wave absorption, then flux-surface-average the resulting driven current. The per-toroidal-mode
+    resolved version is [parallel_per_toroidal_mode_wave_driven_current_density](name:parallel_per_toroidal_mode_wave_driven_current_density).
+    Summed over all wave contributions, this quantity constitutes the wave-current-drive
+    component of [parallel_non_inductive_current_density](name:parallel_non_inductive_current_density),
+    alongside parallel_current_density_due_to_bootstrap and in contrast to the resistively
+    driven [parallel_ohmic_current_density](name:parallel_ohmic_current_density).
+
+
+    Sign convention: Positive when the wave-driven parallel current flows in the direction
+    of the equilibrium magnetic field $\mathbf{B}$.'
+  unit: A.m^-2
+  physics_domain: auxiliary_heating
+  links:
+  - name:wave_driven_current_density
+  - name:parallel_per_toroidal_mode_wave_driven_current_density
+  - name:parallel_non_inductive_current_density
+  - name:parallel_ohmic_current_density
+  arguments:
+  - name: wave_driven_current_density
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
   sources:
   - id: dd:waves/coherent_wave/profiles_1d/current_parallel_density
     dd_path: waves/coherent_wave/profiles_1d/current_parallel_density

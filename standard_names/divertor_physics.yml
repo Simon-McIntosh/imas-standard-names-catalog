@@ -1,6 +1,6 @@
 # Domain: divertor_physics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 24
+# Entries: 26
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -265,6 +265,71 @@
     status: composed
   - id: dd:summary/local/divertor_target/zeff/value
     dd_path: summary/local/divertor_target/zeff/value
+    status: attached
+- name: electron_density_at_divertor_target
+  kind: scalar
+  status: draft
+  description: Electron number density in the plasma immediately adjacent to the divertor
+    target surface. It is the downstream scrape-off-layer electron density at the
+    target and is distinct from the electron density at the plasma boundary or separatrix.
+  documentation: 'Electron density at the divertor target is the local number of free
+    electrons per unit volume in the plasma adjacent to the plasma-facing target,
+    usually interpreted as a sheath-entrance or near-target plasma density rather
+    than a property inside the solid surface. It characterizes downstream scrape-off-layer
+    conditions at the material boundary and should not be identified with the separatrix
+    value [electron_density_at_plasma_boundary](name:electron_density_at_plasma_boundary),
+    which is evaluated upstream at the plasma boundary.
+
+
+    As a local number density it is defined by
+
+
+    $$
+
+    n_{e,t} = \left.\frac{dN_e}{dV}\right|_{\mathrm{target}}
+
+    $$
+
+
+    where $N_e$ is the number of free electrons in a small plasma volume $V$ adjacent
+    to the target and $n_{e,t}$ is expressed in m$^{-3}$.
+
+
+    In practice, $n_{e,t}$ is obtained from near-target diagnostics and edge-plasma
+    modeling. Flush or embedded Langmuir probes infer it from ion-saturation current
+    using sheath assumptions, effective ion mass, and local electron and ion temperatures;
+    divertor Thomson scattering and spectroscopic analysis can provide independent
+    constraints where available. Reduced two-point scrape-off-layer estimates may
+    infer $n_{e,t}$ from upstream or separatrix conditions and target temperature
+    using quasineutrality and parallel pressure or momentum balance, but the coefficient
+    relating upstream and target quantities depends on ion temperature, Mach number,
+    sheath boundary conditions, volumetric momentum losses, radiation, recycling,
+    and detachment state. Therefore a fixed electron-only pressure-balance factor
+    is not a general definition; in such formulas both $n_{e,t}$ and any upstream
+    density $n_{e,u}$ are electron number densities in m$^{-3}$.
+
+
+    Typical values are about $10^{18}$-$10^{20}$ m$^{-3}$ in sheath-limited or attached
+    divertor conditions and $10^{20}$-$10^{21}$ m$^{-3}$ in high-recycling conditions.
+    During detachment, the near-target density may rise before rollover and then decrease
+    as the ionization front moves away from the target, so the range is strongly dependent
+    on fueling, magnetic geometry, and power exhaust regime.'
+  unit: m^-3
+  physics_domain: divertor_physics
+  links:
+  - name:electron_temperature_at_divertor_target
+  - name:density_at_divertor_target
+  - name:deuterium_density_at_divertor_target
+  - name:hydrogen_density_at_divertor_target
+  sources:
+  - id: dd:divertors/divertor/target/two_point_model/n_e_target
+    dd_path: divertors/divertor/target/two_point_model/n_e_target
+    status: attached
+  - id: dd:summary/local/divertor_plate/n_e/value
+    dd_path: summary/local/divertor_plate/n_e/value
+    status: attached
+  - id: dd:summary/local/divertor_target/n_e/value
+    dd_path: summary/local/divertor_target/n_e/value
     status: attached
 - name: electron_power_at_inner_divertor_target
   kind: scalar
@@ -946,6 +1011,61 @@
   - id: dd:summary/local/divertor_target/n_i_total/value
     dd_path: summary/local/divertor_target/n_i_total/value
     status: composed
+- name: tungsten_density_at_divertor_target
+  kind: scalar
+  status: draft
+  description: Number density of tungsten ions at the divertor target, summed over
+    all ionization stages and excluding neutral tungsten atoms.
+  documentation: 'Tungsten (atomic number $Z = 74$) is the primary plasma-facing material
+    in the divertor regions of present-day and next-generation fusion devices, where
+    ion bombardment causes physical sputtering and releases tungsten atoms that rapidly
+    ionize in the scrape-off-layer plasma. The tungsten ion number density at the
+    divertor target quantifies the total local concentration of tungsten ions per
+    unit volume in the plasma immediately adjacent to the strike-zone surface, and
+    is a key component of the broader [density_at_divertor_target](name:density_at_divertor_target)
+    species set.
+
+
+    When charge states are not individually resolved, this quantity represents the
+    sum over all ionization stages:
+
+
+    $$
+
+    n_W = \sum_{q=1}^{74} n_{W^{q+}}
+
+    $$
+
+
+    where $n_{W^{q+}}$ is the number density of tungsten ions in charge state $q$
+    at the target location. Neutral tungsten atoms are excluded from this sum.
+
+
+    This quantity is inferred from optical emission spectroscopy of tungsten line
+    radiation, charge-exchange recombination spectroscopy, or impurity transport codes
+    constrained by global particle balance. It characterizes the local impurity source
+    strength at the plasma-material interface and is a key input for assessing core
+    contamination risk, since tungsten fractional concentrations above approximately
+    $10^{-5}$ relative to the electron density can produce intolerable radiated power
+    losses in the confined plasma. The boundary impurity content reaching the separatrix
+    is tracked separately by [tungsten_density_at_plasma_boundary](name:tungsten_density_at_plasma_boundary).
+    Co-seeded impurity densities at the same location, such as [nitrogen_density_at_divertor_target](name:nitrogen_density_at_divertor_target)
+    and [argon_density_at_divertor_target](name:argon_density_at_divertor_target),
+    are routinely compared with this quantity in divertor detachment control studies.'
+  unit: m^-3
+  physics_domain: divertor_physics
+  links:
+  - name:density_at_divertor_target
+  - name:tungsten_density_at_plasma_boundary
+  - name:nitrogen_density_at_divertor_target
+  - name:argon_density_at_divertor_target
+  sources:
+  - id: dd:summary/local/divertor_plate/n_i/tungsten/value
+    dd_path: summary/local/divertor_plate/n_i/tungsten/value
+    status: composed
+  - id: dd:summary/local/divertor_target/n_i/tungsten/value
+    dd_path: summary/local/divertor_target/n_i/tungsten/value
+    status: attached
 - name: vertical_coordinate_of_inner_divertor_target
   kind: scalar
   status: draft

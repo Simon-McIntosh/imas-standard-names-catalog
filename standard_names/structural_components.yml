@@ -1,6 +1,6 @@
 # Domain: structural_components
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 15
+# Entries: 17
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -47,6 +47,54 @@
   sources:
   - id: dd:breeding_blanket/module/time_slice/power_incident_radiated
     dd_path: breeding_blanket/module/time_slice/power_incident_radiated
+    status: composed
+- name: neutron_maximum_back_surface_energy_flux_of_breeder_blanket_module
+  kind: scalar
+  status: draft
+  description: Peak neutron energy flux density escaping through the plasma-distal
+    rear face of a breeding blanket module, serving as the primary figure of merit
+    for blanket shielding effectiveness against the fusion neutron field.
+  documentation: 'The back surface of a breeding blanket module is its plasma-distal
+    face, which interfaces with the vacuum vessel and structural components located
+    behind the blanket. The maximum neutron energy flux at this surface quantifies
+    the spatial peak of the neutron energy current per unit area escaping through
+    the rear face after the neutron population has traversed the full blanket material
+    stack, including breeding, multiplying, and structural layers.
+
+
+    The local neutron energy flux at a point $\mathbf{r}$ on the back surface is:
+
+
+    $$
+
+    \Phi_n(\mathbf{r}) = \int_0^\infty \int_{\hat{\Omega}\cdot\hat{n}\,>\,0} E\,\psi(\mathbf{r},\hat{\Omega},E)\,(\hat{\Omega}\cdot\hat{n})\,d\hat{\Omega}\,dE
+
+    $$
+
+
+    where $\psi$ is the neutron angular flux (neutrons per unit area per unit time
+    per unit solid angle per unit energy), $E$ is neutron energy, $\hat{\Omega}$ is
+    the particle direction unit vector, and $\hat{n}$ is the outward surface normal
+    at the back face. The standard name records the maximum of $\Phi_n$ over all back-surface
+    area elements of the module.
+
+
+    This quantity is evaluated through neutron transport calculations applied to the
+    three-dimensional blanket geometry. For reactor-scale designs, the incoming neutron
+    energy flux at the first wall is of order 2 MW m$^{-2}$; shielding requirements
+    typically demand that back-surface values be reduced by three or more orders of
+    magnitude to protect superconducting coils and other sensitive components. Compare
+    with [neutron_maximum_energy_flux_at_first_wall](name:neutron_maximum_energy_flux_at_first_wall),
+    which characterizes the peak incoming flux at the plasma-facing surface, and [nuclear_heating_power_of_breeder_blanket_module](name:nuclear_heating_power_of_breeder_blanket_module)
+    for the corresponding volumetrically integrated nuclear energy deposition.'
+  unit: W.m^-2
+  physics_domain: structural_components
+  links:
+  - name:neutron_maximum_energy_flux_at_first_wall
+  - name:nuclear_heating_power_of_breeder_blanket_module
+  sources:
+  - id: dd:breeding_blanket/module/time_slice/escape_flux_max
+    dd_path: breeding_blanket/module/time_slice/escape_flux_max
     status: composed
 - name: neutron_maximum_energy_flux_at_first_wall
   kind: scalar
@@ -147,6 +195,52 @@
   sources:
   - id: dd:breeding_blanket/time_slice/power_nuclear_shields
     dd_path: breeding_blanket/time_slice/power_nuclear_shields
+    status: composed
+- name: nuclear_power_density_of_limiter_tile
+  kind: scalar
+  status: draft
+  description: Local volumetric heating rate in a limiter tile due to neutron scattering,
+    neutron capture, and secondary gamma radiation interactions with the tile material.
+  documentation: 'Nuclear power density in a limiter tile is the volumetric rate of
+    energy deposition arising from nuclear interactions between the fusion neutron
+    field and the tile material, including fast neutron elastic and inelastic scattering,
+    radiative capture, and secondary gamma heating. It characterizes how the total
+    nuclear heat load is distributed spatially within the tile volume.
+
+
+    The nuclear power density $q''''''_\mathrm{nuc}(\mathbf{r})$ at a point $\mathbf{r}$
+    within the tile is:
+
+
+    $$
+
+    q''''''_\mathrm{nuc}(\mathbf{r}) = \sum_r \Sigma_r(\mathbf{r})\,\phi(\mathbf{r})\,Q_r
+
+    $$
+
+
+    where $\Sigma_r(\mathbf{r})$ is the macroscopic cross section for reaction $r$,
+    $\phi(\mathbf{r})$ is the local neutron flux, and $Q_r$ is the energy deposited
+    per reaction. Integrating $q''''''_\mathrm{nuc}$ over the tile volume yields the
+    total nuclear power deposited in the tile, as given by [nuclear_power_of_limiter_tile](name:nuclear_power_of_limiter_tile).
+
+
+    This quantity is computed from neutronics transport calculations using the fusion
+    neutron source spectrum and material-specific nuclear cross-section libraries,
+    with the spatial distribution depending on local material composition and tile
+    geometry. Analogous volumetric nuclear heating quantities for breeding blanket
+    structures are given by [nuclear_power_density_of_breeder_blanket_module](name:nuclear_power_density_of_breeder_blanket_module)
+    and [nuclear_power_density_of_breeder_blanket_layer](name:nuclear_power_density_of_breeder_blanket_layer),
+    where nuclear deposition additionally drives tritium breeding.'
+  unit: W.m^-3
+  physics_domain: structural_components
+  links:
+  - name:nuclear_power_of_limiter_tile
+  - name:nuclear_power_density_of_breeder_blanket_module
+  - name:nuclear_power_density_of_breeder_blanket_layer
+  sources:
+  - id: dd:wall/description_2d/limiter/unit/midplane_power_density_nuclear
+    dd_path: wall/description_2d/limiter/unit/midplane_power_density_nuclear
     status: composed
 - name: resistivity_of_cryostat
   kind: scalar
@@ -381,7 +475,7 @@
   documentation: 'Thickness of the cryostat is the local through-wall extent of the
     load-bearing cryostat vessel material between its inner and outer faces. It is
     a structural geometry parameter for the cryostat wall and is distinct from the
-    effective thermal shielding thickness represented by [thermal_thickness_of_cryostat](name:thermal_thickness_of_cryostat).
+    effective thermal shielding thickness represented by [thermal_thickness_of_cryostat](name:thickness_of_cryostat).
 
 
     The general wall-normal definition is the absolute projection of the separation
@@ -421,14 +515,20 @@
   unit: m
   physics_domain: structural_components
   links:
-  - name:thermal_thickness_of_cryostat
   - name:thickness_of_vacuum_vessel
+  - name:resistivity_of_cryostat
   sources:
   - id: dd:cryostat/description_2d/cryostat/unit/annular/thickness
     dd_path: cryostat/description_2d/cryostat/unit/annular/thickness
     status: composed
   - id: dd:cryostat/description_2d/cryostat/unit/element/midplane_thickness
     dd_path: cryostat/description_2d/cryostat/unit/element/midplane_thickness
+    status: attached
+  - id: dd:cryostat/description_2d/thermal_shield/unit/annular/thickness
+    dd_path: cryostat/description_2d/thermal_shield/unit/annular/thickness
+    status: composed
+  - id: dd:cryostat/description_2d/thermal_shield/unit/element/midplane_thickness
+    dd_path: cryostat/description_2d/thermal_shield/unit/element/midplane_thickness
     status: attached
 - name: tritium_breeding_ratio_of_breeder_blanket_module
   kind: scalar
