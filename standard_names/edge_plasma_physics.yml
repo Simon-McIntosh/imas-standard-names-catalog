@@ -1,6 +1,6 @@
 # Domain: edge_plasma_physics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 42
+# Entries: 45
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -780,7 +780,7 @@
     temperature of all ion species and charge states evaluated at the core-side shoulder
     of the H-mode pedestal. The pedestal top is distinct from the pedestal foot near
     the separatrix and scrape-off layer.
-  documentation: 'Ion average temperature at the pedestal top is the [ion_average_temperature](name:ion_average_temperature)
+  documentation: 'Ion average temperature at the pedestal top is the ion_average_temperature
     evaluated at the core-side shoulder of the H-mode edge transport barrier. Moving
     outward from the plasma center, this location marks the transition from the central
     plasma to the steep-gradient pedestal region; it is distinct from the pedestal
@@ -821,10 +821,7 @@
     mix, collisionality, and edge-localized-mode phase.'
   unit: eV
   physics_domain: edge_plasma_physics
-  links:
-  - name:total_ion_density_at_pedestal
-  - name:ion_average_temperature_at_magnetic_axis
-  - name:ion_average_temperature_at_internal_transport_barrier
+  links: []
   sources:
   - id: dd:summary/local/pedestal/t_i_average/value
     dd_path: summary/local/pedestal/t_i_average/value
@@ -1197,6 +1194,67 @@
   - id: dd:summary/local/separatrix_average/n_i/oxygen/value
     dd_path: summary/local/separatrix_average/n_i/oxygen/value
     status: composed
+- name: radial_plasma_momentum_diffusion_coefficient
+  kind: scalar
+  status: draft
+  description: Effective radial diffusion coefficient for cross-field transport of
+    ion-fluid momentum in the edge plasma. It aggregates the momentum carried by all
+    ion species and charge states into a single transport parameter, rather than resolving
+    it per species or charge state.
+  documentation: 'Radial plasma momentum diffusion coefficient is the scalar coefficient
+    that relates the radial (cross-field) diffusive flux of ion-fluid momentum to
+    the radial gradient of momentum density in the edge plasma. It is an aggregate
+    quantity summed over all ion species and charge states; electron inertial momentum
+    is usually negligible in these ion-dominated edge regimes and is not included.
+    It complements the species- and charge-state-resolved [radial_ion_state_momentum_diffusivity](name:radial_ion_state_momentum_diffusivity).
+
+
+    In a Fickian transport closure, the radial diffusive flux of a momentum component
+    is proportional to the radial gradient of the corresponding aggregate momentum
+    density:
+
+
+    $$
+
+    \Gamma_j = -D \, \frac{\partial \mathcal{P}_j}{\partial r_\perp}
+
+    $$
+
+
+    where $D$ is the radial plasma momentum diffusion coefficient, $\Gamma_j$ is the
+    radial flux of the $j$-th momentum component in kg m^-1 s^-2, $r_\perp$ is the
+    distance measured outward normal to flux surfaces in m, and $\mathcal{P}_j = \sum_{a,z}
+    m_a\, n_{a,z}\, u_{a,z,j}$ is the aggregate ion momentum density in kg m^-2 s^-1,
+    with $m_a$ the ion mass in kg, $n_{a,z}$ the number density of charge state $z$
+    of species $a$ in m^-3, and $u_{a,z,j}$ the corresponding fluid-velocity component
+    in m s^-1. The leading minus sign means a positive coefficient drives momentum
+    down its gradient, from regions of higher toward lower momentum density.
+
+
+    The coefficient is typically inferred as an effective transport parameter from
+    edge momentum-balance analysis, measured ion flows and rotation shear, and comparisons
+    with collisional, neoclassical, or turbulence-based transport estimates. It is
+    the aggregate momentum counterpart to the aggregate energy and particle transport
+    coefficients [radial_total_energy_diffusion_coefficient](name:radial_total_energy_diffusion_coefficient)
+    and [radial_diffusion_coefficient](name:radial_diffusion_coefficient), and pairs
+    with the convective term radial_ion_effective_momentum_convection_velocity in
+    diffusion-convection closures.
+
+
+    Representative effective edge-plasma values used in transport modeling are of
+    order 0.01-10 m^2 s^-1, with smaller values where diffusive coupling is weak and
+    larger values in regions of strong turbulent or externally driven momentum redistribution.
+    This range is indicative and not a physical bound.'
+  unit: m^2.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:radial_ion_state_momentum_diffusivity
+  - name:radial_total_energy_diffusion_coefficient
+  - name:radial_diffusion_coefficient
+  sources:
+  - id: dd:edge_transport/model/ggd/momentum/d_radial/values
+    dd_path: edge_transport/model/ggd/momentum/d_radial/values
+    status: composed
 - name: toroidal_argon_velocity_at_pedestal
   kind: scalar
   status: draft
@@ -1480,6 +1538,68 @@
   sources:
   - id: dd:summary/local/pedestal/velocity_phi/deuterium_tritium/value
     dd_path: summary/local/pedestal/velocity_phi/deuterium_tritium/value
+    status: composed
+- name: toroidal_deuterium_velocity_at_pedestal
+  kind: scalar
+  status: draft
+  description: Toroidal component of the deuterium ion fluid velocity evaluated at
+    the H-mode pedestal, defined as the projection of the deuterium flow along increasing
+    toroidal angle phi in the right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'Toroidal deuterium velocity at the pedestal is the toroidal component
+    of the deuterium ion fluid velocity evaluated in the steep-gradient edge region
+    that forms the H-mode pedestal. It represents the projection of the species flow
+    along the toroidal basis direction in the right-handed cylindrical $(R,\phi,Z)$
+    frame, where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical
+    height.
+
+
+    The component is defined by projecting the local deuterium fluid velocity onto
+    the toroidal unit vector:
+
+
+    $$
+
+    v_{\phi,D,\mathrm{ped}} = \mathbf{v}_{D,\mathrm{ped}} \cdot \hat{\phi}
+
+    $$
+
+
+    where $\mathbf{v}_{D,\mathrm{ped}}$ is the deuterium ion fluid velocity at the
+    pedestal in m.s^-1, $\hat{\phi}$ is the dimensionless unit vector in the direction
+    of increasing toroidal angle $\phi$, and $v_{\phi,D,\mathrm{ped}}$ is the toroidal
+    component in m.s^-1.
+
+
+    In practice this quantity is inferred from spectroscopic ion Doppler measurements,
+    momentum-balance analysis, or edge transport interpretation. Measurements often
+    involve impurity-ion rotation and require physics assumptions to relate the observed
+    species to deuterium, including collisional coupling, neoclassical effects, and
+    radial electric-field constraints; the pedestal location is identified from the
+    local steep-gradient edge region.
+
+
+    Typical pedestal toroidal deuterium velocities are strongly scenario dependent.
+    Many edge analyzes find values from near 0 to several $10^4$ m.s^-1 in magnitude,
+    while plasmas with strong external torque or large intrinsic rotation can approach
+    order $10^5$ m.s^-1; either sign is possible depending on the rotation direction.
+
+
+    Sign convention: Positive when the deuterium ion fluid velocity at the pedestal
+    points in the direction of increasing toroidal angle $\phi$ in the right-handed
+    cylindrical $(R,\phi,Z)$ frame.'
+  unit: m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:toroidal_deuterium_velocity_at_magnetic_axis
+  - name:toroidal_deuterium_velocity_at_plasma_boundary
+  - name:toroidal_tritium_velocity_at_pedestal
+  - name:toroidal_hydrogen_velocity_at_pedestal
+  sources:
+  - id: dd:summary/local/pedestal/velocity_phi/deuterium/value
+    dd_path: summary/local/pedestal/velocity_phi/deuterium/value
+    status: composed
+  - id: dd:summary/local/pedestal/velocity_tor/deuterium/value
+    dd_path: summary/local/pedestal/velocity_tor/deuterium/value
     status: composed
 - name: toroidal_deuterium_velocity_at_plasma_boundary
   kind: scalar
@@ -1973,6 +2093,69 @@
   - id: dd:summary/local/pedestal/velocity_tor/neon/value
     dd_path: summary/local/pedestal/velocity_tor/neon/value
     status: attached
+- name: toroidal_neutral_momentum_coefficient
+  kind: scalar
+  status: draft
+  description: Dimensionless factor applied to the toroidal component of neutral-particle
+    momentum flux density in edge-plasma transport closures. It scales the component
+    along increasing toroidal angle in the right-handed cylindrical (R, phi, Z) frame
+    without defining the sign of that flux.
+  documentation: 'The toroidal neutral momentum coefficient is a dimensionless flux-limiter
+    factor for the toroidal component of neutral-particle momentum transport. It is
+    associated with momentum carried by neutral atoms or molecules along the $\phi$
+    direction in the right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is major
+    radius, $\phi$ is toroidal angle, and $Z$ is vertical height. The coefficient
+    represents closure-model scaling of a signed toroidal momentum-flux density; it
+    does not by itself define the direction or sign of that flux.
+
+
+    When used as a multiplicative limiter, its role can be written as:
+
+
+    $$
+
+    \Pi_{\phi,n}^{\mathrm{lim}} = C_{\phi,n}\,\Pi_{\phi,n}^{\mathrm{ref}}
+
+    $$
+
+
+    where $C_{\phi,n}$ is the dimensionless toroidal neutral momentum coefficient,
+    $\Pi_{\phi,n}^{\mathrm{ref}}$ is the reference or unmodified toroidal neutral
+    momentum-flux density, and $\Pi_{\phi,n}^{\mathrm{lim}}$ is the limited or effective
+    toroidal neutral momentum-flux density. Both flux-density variables have units
+    of $\mathrm{kg\,m^{-1}\,s^{-2}}$, equivalently $\mathrm{N\,m^{-2}}$. The sign
+    of the associated flux component is the sign of [toroidal_neutral_momentum_flux](name:toroidal_neutral_momentum_flux),
+    while this coefficient only scales that component.
+
+
+    The coefficient is specified or computed within a neutral momentum-transport closure,
+    for example from local collisionality, neutral mean free path, gradients, or a
+    prescribed flux-limiting rule. It is not normally a directly measured observable;
+    experimental information constrains it indirectly through comparisons between
+    modeled and observed edge-plasma and neutral behavior.
+
+
+    Typical values are closure-specific dimensionless factors of order unity. In a
+    purely attenuating limiter, $C_{\phi,n}=1$ leaves the reference toroidal momentum
+    flux unchanged and $0 \le C_{\phi,n} \le 1$ reduces its magnitude; more general
+    calibrated closures may define a different admissible interval, so the valid numerical
+    range is part of the closure definition rather than a universal neutral-physics
+    constant.'
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:neutral_momentum_coefficient
+  - name:parallel_neutral_momentum_coefficient
+  - name:radial_neutral_momentum_coefficient
+  - name:vertical_neutral_momentum_coefficient
+  - name:toroidal_neutral_state_momentum_coefficient
+  sources:
+  - id: dd:edge_transport/model/ggd/neutral/momentum/flux_limiter/phi
+    dd_path: edge_transport/model/ggd/neutral/momentum/flux_limiter/phi
+    status: attached
+  - id: dd:edge_transport/model/ggd/neutral/momentum/flux_limiter/toroidal
+    dd_path: edge_transport/model/ggd/neutral/momentum/flux_limiter/toroidal
+    status: composed
 - name: tritium_density_at_pedestal
   kind: scalar
   status: draft

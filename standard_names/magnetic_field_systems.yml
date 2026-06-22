@@ -1,6 +1,6 @@
 # Domain: magnetic_field_systems
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 35
+# Entries: 37
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -1001,6 +1001,49 @@
   - id: dd:ferritic/object/time_slice/b_field_r
     dd_path: ferritic/object/time_slice/b_field_r
     status: composed
+- name: radial_vacuum_magnetic_vector_potential
+  kind: scalar
+  status: draft
+  description: Radial (R) component of the vacuum magnetic vector potential produced
+    by toroidal-field coil currents, evaluated in the right-handed cylindrical (R,
+    phi, Z) frame.
+  documentation: 'The radial component $A_R$ of the vacuum magnetic vector potential
+    is the projection of $\mathbf{A}_\mathrm{vac}$ onto the major-radius direction
+    $\hat{R}$ in the right-handed cylindrical $(R, \phi, Z)$ frame. It represents
+    the $R$-directed contribution of the vector field generated exclusively by toroidal-field
+    coil conductor currents in the absence of any plasma contribution, forming part
+    of the complete [vacuum magnetic vector potential](name:vacuum_magnetic_vector_potential)
+    vector $(A_R, A_\phi, A_Z)$.
+
+
+    The vacuum magnetic field is related to the vector potential by $\mathbf{B}_\mathrm{vac}
+    = \nabla \times \mathbf{A}_\mathrm{vac}$, so the poloidal field components follow
+    from the cylindrical curl of $(A_R, A_\phi, A_Z)$. Because only $\nabla \times
+    \mathbf{A}_\mathrm{vac}$ is gage-invariant, $A_R$ individually depends on the
+    chosen gage; the Coulomb gage $\nabla \cdot \mathbf{A} = 0$ is standard for static
+    TF coil computations.
+
+
+    This component is calculated numerically via Biot-Savart integration over the
+    TF coil conductor geometry and current distribution, and is used in equilibrium
+    reconstruction and MHD stability analysis on both structured and unstructured
+    spatial grids. The complementary vertical component is provided by [vertical_vacuum_magnetic_vector_potential](name:vertical_vacuum_magnetic_vector_potential),
+    while the analogous quantity incorporating full plasma and coil contributions
+    is [radial_magnetic_vector_potential](name:radial_magnetic_vector_potential).
+
+
+    Sign convention: Positive when $A_R$ points in the direction of increasing major
+    radius $R$.'
+  unit: T.m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:vacuum_magnetic_vector_potential
+  - name:vertical_vacuum_magnetic_vector_potential
+  - name:radial_magnetic_vector_potential
+  sources:
+  - id: dd:tf/field_map/a_field_r/values
+    dd_path: tf/field_map/a_field_r/values
+    status: composed
 - name: radius_of_passive_structure
   kind: scalar
   status: draft
@@ -1111,6 +1154,58 @@
   sources:
   - id: dd:pf_active/coil/element/geometry/arcs_of_circle/curvature_radii
     dd_path: pf_active/coil/element/geometry/arcs_of_circle/curvature_radii
+    status: composed
+- name: major_radius_of_poloidal_field_coil
+  kind: scalar
+  status: draft
+  description: Major radius coordinate of an arc-of-circle defining point for a poloidal
+    field coil conductor, equal to the radial distance in meters from the toroidal
+    symmetry axis in the right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'Major radius for a poloidal field coil is the $R$ coordinate of
+    a point on the conductor contour in the right-handed cylindrical $(R,\phi,Z)$
+    frame, where $R$ is distance from the toroidal symmetry axis, $\phi$ is toroidal
+    angle, and $Z$ is vertical height. For an arc-of-circle contour, this quantity
+    locates each arc-defining point radially and complements the associated [vertical
+    coordinate of the poloidal field coil].
+
+
+    The relation to horizontal Cartesian coordinates of the same point is:
+
+
+    $$
+
+    R = \sqrt{x^2 + y^2}
+
+    $$
+
+
+    where $R$, $x$, $y$, and the associated $Z$ coordinate are all lengths in meters.
+    The coordinates $x$ and $y$ are measured in a right-handed Cartesian $(\hat{x},\hat{y},\hat{z})$
+    frame with $x=y=0$ on the toroidal symmetry axis and $\hat{z}$ parallel to the
+    vertical $+\hat{Z}$ direction.
+
+
+    The value is determined from engineering geometry, CAD models, or mechanical survey
+    of the coil conductor. In an arc-of-circle representation, the radial coordinate
+    of each defining point and its associated vertical coordinate determine the arc
+    segments that form the conductor cross-section; it is a geometric quantity rather
+    than a magnetic field or current.
+
+
+    Typical values are device-scale non-negative distances in meters. Central-solenoid
+    conductors generally have smaller $R$ than outboard poloidal-field coils, but
+    the admissible range is machine-specific and no universal numerical interval is
+    implied by the quantity definition.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links: []
+  arguments:
+  - name: radius_of_poloidal_field_coil
+    operator: major
+    operator_kind: qualifier
+  sources:
+  - id: dd:pf_active/coil/element/geometry/arcs_of_circle/r
+    dd_path: pf_active/coil/element/geometry/arcs_of_circle/r
     status: composed
 - name: outer_radius_of_poloidal_field_coil
   kind: scalar

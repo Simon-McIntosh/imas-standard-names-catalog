@@ -1,6 +1,6 @@
 # Domain: radiation_measurement_diagnostics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 22
+# Entries: 25
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -885,6 +885,65 @@
   - id: dd:hard_x_rays/channel/detector/x1_width
     dd_path: hard_x_rays/channel/detector/x1_width
     status: composed
+- name: x1_coordinate_of_filter
+  kind: scalar
+  status: draft
+  description: X1 coordinate of a vertex or sampled point on a diagnostic filter boundary
+    in the local planar (X1, X2) frame. It gives the projection of that boundary point
+    along the first in-plane basis direction and is distinct from quantities that
+    specifically name a separate filter-window component.
+  documentation: 'The $x_1$ coordinate of a filter is the signed in-plane position
+    of a point on the boundary of the filtering element or its transmissive footprint,
+    expressed in a local planar $(X_1, X_2)$ frame with basis $(\hat{X}_1, \hat{X}_2)$.
+    It describes the filter boundary itself; [x1_coordinate_of_filter_window](name:x1_coordinate_of_filter_window)
+    should be used when the intended object is a separately identified filter-window
+    component.
+
+
+    For a boundary point at position $\mathbf{r}_v$ and a filter-frame origin at $\mathbf{r}_0$,
+    the coordinate is the projection onto the first local basis direction:
+
+
+    $$
+
+    x_1 = (\mathbf{r}_v - \mathbf{r}_0) \cdot \hat{X}_1
+
+    $$
+
+
+    where $\hat{X}_1$ is the first in-plane unit vector of the local planar $(X_1,
+    X_2)$ frame. The origin is normally a defined reference point of the filter plane,
+    such as a geometric center or mechanical fiducial, while $\hat{X}_1$ and $\hat{X}_2$
+    span the plane and are fixed by the diagnostic mechanical definition or calibration
+    fiducials.
+
+
+    The coordinate is obtained from mechanical drawings, CAD geometry, survey metrology,
+    or calibration of the filter aperture used in the X-ray diagnostic line of sight.
+    Together with the corresponding [x2_coordinate_of_filter](name:x2_coordinate_of_filter),
+    it defines a polygonal or sampled boundary used to compute geometric transmission,
+    vignetting, and ray intersections through the filter.
+
+
+    Typical absolute coordinate excursions are about $10^{-4}$-$10^{-2}$ m for compact
+    soft-X-ray filter apertures and can reach a few $10^{-2}$ m for larger spectrometer
+    filter openings.
+
+
+    Sign convention: Positive when the boundary point lies in the $+\hat{X}_1$ direction
+    from the origin of the local planar $(X_1, X_2)$ frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:x2_coordinate_of_filter
+  - name:x1_coordinate_of_filter_window
+  sources:
+  - id: dd:soft_x_rays/channel/filter_window/outline/x1
+    dd_path: soft_x_rays/channel/filter_window/outline/x1
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/outline/x1
+    dd_path: spectrometer_x_ray_crystal/channel/filter_window/outline/x1
+    status: attached
 - name: x1_coordinate_of_optical_element
   kind: scalar
   status: draft
@@ -978,6 +1037,129 @@
   sources:
   - id: dd:soft_x_rays/channel/detector/outline/x1
     dd_path: soft_x_rays/channel/detector/outline/x1
+    status: composed
+- name: x2_coordinate_of_diagnostic_aperture
+  kind: scalar
+  status: draft
+  description: X2 coordinate of a diagnostic aperture outline vertex in the local
+    aperture-plane (X1, X2) frame. Together with the X1 coordinate, it defines the
+    transverse boundary used in sight-line, acceptance, and etendue geometry.
+  documentation: 'The $x_2$ coordinate of a diagnostic aperture is the signed position
+    of an outline vertex along the second axis of the local aperture-plane $(X_1,
+    X_2)$ frame. Paired with the corresponding $x_1$ coordinate, it specifies the
+    transverse polygon or curved boundary that limits the rays accepted by an aperture,
+    fiber entrance, detector face, or similar diagnostic opening.
+
+
+    For a polygonal aperture outline, the paired vertex coordinates determine the
+    enclosed geometric area through the shoelace relation:
+
+
+    $$
+
+    A = \frac{1}{2}\left|\sum_{i=1}^{N}\left(x_{1,i}x_{2,i+1} - x_{1,i+1}x_{2,i}\right)\right|
+
+    $$
+
+
+    where $N$ is the number of outline vertices, cyclic indexing is used so vertex
+    $N+1$ is vertex $1$, and $x_{1,i}$ and $x_{2,i}$ are measured in meters. The resulting
+    area $A$ is in square meters and is one input to aperture acceptance and etendue
+    calculations.
+
+
+    In practice, $x_2$ values are obtained from mechanical drawings, optical design
+    models, metrology of aperture plates or fiber bundles, or calibration of detector
+    geometry. The coordinate is interpreted only relative to the local aperture-plane
+    $(X_1, X_2)$ frame, whose origin and axis directions are defined by the diagnostic
+    geometry.
+
+
+    Typical magnitudes range from $10^{-5}$-$10^{-1}$ m, from tens of micrometers
+    for small fiber cores to millimeters or centimeters for pinholes, slits, detector
+    faces, and camera apertures.
+
+
+    Sign convention: Positive when the vertex is displaced in the $+X_2$ direction
+    of the local aperture-plane $(X_1, X_2)$ frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:x1_coordinate_of_filter
+  - name:x2_coordinate_of_filter_window
+  - name:x2_coordinate_of_optical_element
+  sources:
+  - id: dd:bolometer/camera/channel/aperture/outline/x2
+    dd_path: bolometer/camera/channel/aperture/outline/x2
+    status: attached
+  - id: dd:bolometer/camera/channel/detector/outline/x2
+    dd_path: bolometer/camera/channel/detector/outline/x2
+    status: attached
+  - id: dd:bolometer/channel/aperture/outline/x2
+    dd_path: bolometer/channel/aperture/outline/x2
+    status: attached
+  - id: dd:bolometer/channel/detector/outline/x2
+    dd_path: bolometer/channel/detector/outline/x2
+    status: attached
+  - id: dd:camera_ir/fibre_bundle/geometry/outline/x2
+    dd_path: camera_ir/fibre_bundle/geometry/outline/x2
+    status: attached
+  - id: dd:camera_visible/channel/aperture/outline/x2
+    dd_path: camera_visible/channel/aperture/outline/x2
+    status: composed
+  - id: dd:camera_visible/channel/fibre_bundle/geometry/outline/x2
+    dd_path: camera_visible/channel/fibre_bundle/geometry/outline/x2
+    status: attached
+  - id: dd:camera_x_rays/aperture/outline/x2
+    dd_path: camera_x_rays/aperture/outline/x2
+    status: attached
+  - id: dd:charge_exchange/aperture/outline/x2
+    dd_path: charge_exchange/aperture/outline/x2
+    status: attached
+  - id: dd:charge_exchange/channel/aperture/outline/x2
+    dd_path: charge_exchange/channel/aperture/outline/x2
+    status: attached
+  - id: dd:hard_x_rays/channel/aperture/outline/x2
+    dd_path: hard_x_rays/channel/aperture/outline/x2
+    status: attached
+  - id: dd:hard_x_rays/channel/filter_window/outline/x2
+    dd_path: hard_x_rays/channel/filter_window/outline/x2
+    status: composed
+  - id: dd:mse/channel/aperture/outline/x2
+    dd_path: mse/channel/aperture/outline/x2
+    status: attached
+  - id: dd:mse/channel/detector/outline/x2
+    dd_path: mse/channel/detector/outline/x2
+    status: attached
+  - id: dd:neutron_diagnostic/detector/aperture/outline/x2
+    dd_path: neutron_diagnostic/detector/aperture/outline/x2
+    status: attached
+  - id: dd:neutron_diagnostic/detectors/aperture/outline/x2
+    dd_path: neutron_diagnostic/detectors/aperture/outline/x2
+    status: attached
+  - id: dd:reflectometer_fluctuation/channel/antenna_emission_static/outline/x2
+    dd_path: reflectometer_fluctuation/channel/antenna_emission_static/outline/x2
+    status: attached
+  - id: dd:soft_x_rays/channel/aperture/outline/x2
+    dd_path: soft_x_rays/channel/aperture/outline/x2
+    status: composed
+  - id: dd:spectrometer_uv/channel/aperture/outline/x2
+    dd_path: spectrometer_uv/channel/aperture/outline/x2
+    status: attached
+  - id: dd:spectrometer_visible/channel/aperture/outline/x2
+    dd_path: spectrometer_visible/channel/aperture/outline/x2
+    status: attached
+  - id: dd:spectrometer_visible/channel/detector/outline/x2
+    dd_path: spectrometer_visible/channel/detector/outline/x2
+    status: attached
+  - id: dd:spectrometer_visible/channel/fibre_bundle/geometry/outline/x2
+    dd_path: spectrometer_visible/channel/fibre_bundle/geometry/outline/x2
+    status: attached
+  - id: dd:spectrometer_visible/channel/polarizer/outline/x2
+    dd_path: spectrometer_visible/channel/polarizer/outline/x2
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/aperture/outline/x2
+    dd_path: spectrometer_x_ray_crystal/channel/aperture/outline/x2
     status: composed
 - name: x2_coordinate_of_filter
   kind: scalar
@@ -1204,6 +1386,66 @@
   - id: dd:spectrometer_x_ray_crystal/channel/reflector/outline/x2
     dd_path: spectrometer_x_ray_crystal/channel/reflector/outline/x2
     status: composed
+- name: x2_coordinate_of_soft_xray_detector
+  kind: scalar
+  status: draft
+  description: Signed coordinate along the X2 axis of a vertex on the soft X-ray detector
+    boundary in the detector-local Cartesian (X1, X2) frame. Together with the X1
+    coordinate, it defines the detector boundary used for line-of-sight acceptance
+    and etendue calculations, distinct from any diagnostic aperture.
+  documentation: 'The $x_2$ coordinate of a soft X-ray detector is the signed in-plane
+    position of a point on the detector boundary in the detector-local Cartesian $(X_1,
+    X_2)$ frame with orthonormal basis $(\hat{\mathbf{X}}_1, \hat{\mathbf{X}}_2)$.
+    Together with the [soft-X-ray detector $x_1$ coordinate](name:x1_coordinate_of_soft_xray_detector),
+    it specifies the detector boundary; this detector surface is distinct from the
+    diagnostic aperture boundary described, for example, by the [diagnostic-aperture
+    $x_2$ coordinate](name:x2_coordinate_of_diagnostic_aperture).
+
+
+    The coordinate is the scalar projection of the detector-boundary point relative
+    to the detector-local origin onto the local $X_2$ direction:
+
+
+    $$
+
+    x_2 = (\mathbf{r}_d - \mathbf{r}_{d,0}) \cdot \hat{\mathbf{X}}_2
+
+    $$
+
+
+    where $\mathbf{r}_d$ is the detector-boundary point position vector in m, $\mathbf{r}_{d,0}$
+    is the detector-local origin position vector in m, and $\hat{\mathbf{X}}_2$ is
+    a dimensionless unit vector.
+
+
+    Detector boundary coordinates are obtained from mechanical design, survey metrology,
+    CAD models, or alignment calibration of the diagnostic head. In ray tracing and
+    etendue calculations, the detector boundary defines the detector integration surface
+    $A_d$, while the diagnostic aperture defines a separate aperture integration surface
+    $A_a$; a common geometric etendue relation is $G = \int_{A_d}\int_{A_a} \cos\alpha_d\cos\alpha_a\,
+    |\mathbf{r}_d-\mathbf{r}_a|^{-2}\, dA_d\, dA_a$, where $\mathbf{r}_d$ and $\mathbf{r}_a$
+    are detector and aperture surface-point position vectors in m, $dA_d$ and $dA_a$
+    are differential surface elements in m^2, and the cosine factors are dimensionless
+    projections onto the two surface normals.
+
+
+    Typical signed coordinate values are about -0.01-0.01 m for compact diode or chip-scale
+    soft X-ray detector elements and can extend to about -0.05-0.05 m for larger detector
+    assemblies, depending on the chosen detector-local origin.
+
+
+    Sign convention: Positive when the detector-boundary point is displaced in the
+    $+\hat{\mathbf{X}}_2$ direction of the detector-local Cartesian $(X_1, X_2)$ frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:x1_coordinate_of_soft_xray_detector
+  - name:x2_coordinate_of_hard_xray_detector
+  - name:x2_coordinate_of_neutron_detector
+  sources:
+  - id: dd:soft_x_rays/channel/detector/outline/x2
+    dd_path: soft_x_rays/channel/detector/outline/x2
+    status: composed
 - name: hot_neutral_temperature
   kind: scalar
   status: draft
@@ -1237,6 +1479,10 @@
   links:
   - name:cold_neutral_temperature
   - name:hot_neutral_velocity
+  arguments:
+  - name: neutral_state_temperature
+    operator: hot
+    operator_kind: qualifier
   sources:
   - id: dd:spectrometer_visible/channel/isotope_ratios/isotope/hot_neutrals_temperature
     dd_path: spectrometer_visible/channel/isotope_ratios/isotope/hot_neutrals_temperature

@@ -1,9 +1,71 @@
 # Domain: divertor_physics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 6
+# Entries: 9
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: beryllium_density_at_divertor_target
+  kind: scalar
+  status: draft
+  description: Local non-negative number density of beryllium ions at the divertor
+    target, summed over Be1+ through Be4+ charge states and excluding neutral beryllium
+    atoms.
+  documentation: 'Beryllium density at the divertor target is the local number of
+    beryllium ions per unit volume in the plasma adjacent to the divertor target surface.
+    It is a species-resolved, non-negative scalar density for atomic number 4 and
+    excludes neutral beryllium unless a separate neutral-density quantity is specified.
+
+
+    When individual charge states are not represented separately, the ion density
+    is the sum over the bound-electron charge states of beryllium ions:
+
+
+    $$
+
+    n_{\mathrm{Be},\mathrm{tgt}} = \sum_{q=1}^{4} n_{\mathrm{Be}^{q+},\mathrm{tgt}}
+
+    $$
+
+
+    where $n_{\mathrm{Be},\mathrm{tgt}}$ is the beryllium ion number density at the
+    divertor target, $n_{\mathrm{Be}^{q+},\mathrm{tgt}}$ is the partial number density
+    in m$^{-3}$ of ions in charge state Be$^{q+}$, and $q$ is the charge-state index;
+    an ion in charge state $q$ carries charge $+q e$, with $e$ the elementary charge.
+    The neutral state Be$^{0}$ is not included in this sum.
+
+
+    In practice this quantity is inferred from beryllium line emission together with
+    atomic population modeling, from impurity transport modeling constrained by edge
+    and divertor measurements, or from edge-plasma simulations that evolve species-resolved
+    ion densities. It is a beryllium-specific component of the local divertor-target
+    ion population and should be interpreted relative to [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target)
+    when assessing impurity concentration.
+
+
+    Typical absolute values are strongly dependent on wall material, erosion and recycling
+    conditions, ionization balance, and divertor plasma state, so no device-independent
+    numerical range is implied by the definition. Under trace-impurity conditions
+    $n_{\mathrm{Be},\mathrm{tgt}}$ is much smaller than the total target ion density;
+    in all cases it is constrained to be non-negative and not larger than the local
+    total ion density. Related beryllium-density quantities include [beryllium_density_at_plasma_boundary](name:beryllium_density_at_plasma_boundary),
+    [beryllium_density_at_limiter](name:beryllium_density_at_limiter), [volume_averaged_beryllium_density](name:volume_averaged_beryllium_density),
+    and [line_averaged_beryllium_density](name:line_averaged_beryllium_density).'
+  unit: m^-3
+  physics_domain: divertor_physics
+  links:
+  - name:density_at_divertor_target
+  - name:boron_density_at_divertor_target
+  - name:argon_density_at_divertor_target
+  - name:beryllium_density_at_plasma_boundary
+  - name:beryllium_density_at_pedestal
+  - name:beryllium_density_at_limiter
+  sources:
+  - id: dd:summary/local/divertor_plate/n_i/beryllium/value
+    dd_path: summary/local/divertor_plate/n_i/beryllium/value
+    status: composed
+  - id: dd:summary/local/divertor_target/n_i/beryllium/value
+    dd_path: summary/local/divertor_target/n_i/beryllium/value
+    status: composed
 - name: effective_charge_at_divertor_target
   kind: scalar
   status: draft
@@ -219,6 +281,64 @@
   - id: dd:summary/local/divertor_target/n_i/iron/value
     dd_path: summary/local/divertor_target/n_i/iron/value
     status: composed
+- name: maximum_power_at_inner_divertor_target
+  kind: scalar
+  status: draft
+  description: Maximum power deposited on the inner high-field-side divertor target
+    during a specified time interval. It is a non-negative surface-integrated power
+    in watts, not a local heat-flux density, and supports assessment of target thermal
+    margins.
+  documentation: 'Maximum power at the inner divertor target is the largest total
+    power deposited on the high-field-side divertor target over a specified time interval.
+    It is a non-negative surface integral of deposited heat flux over the wetted target
+    surface, expressed in watts, and is distinct from a local power-flux density expressed
+    in W m^-2.
+
+
+    The maximum deposited power is defined from the time-resolved surface heat-flux
+    distribution as:
+
+
+    $$
+
+    P_{\mathrm{inner}}^{\max} = \max_{t \in [t_1,t_2]} \int_{A_{\mathrm{inner}}(t)}
+    q_{\perp,\mathrm{dep}}(\mathbf{x}, t)\, dA
+
+    $$
+
+
+    where $[t_1,t_2]$ is the time interval of interest, $A_{\mathrm{inner}}(t)$ is
+    the wetted area of the inner divertor target, $dA$ is a surface area element in
+    m^2, and $q_{\perp,\mathrm{dep}}$ is the non-negative heat flux deposited through
+    the target surface into the plasma-facing material in W m^-2. The subscript $\perp$
+    refers to the normal to the material surface; this quantity should not be confused
+    with field-parallel heat flux $q_\parallel$ carried along magnetic field lines
+    before interception by the target.
+
+
+    In practice this quantity is obtained by integrating time-resolved target heat-flux
+    maps inferred from infrared thermography, embedded calorimetry, Langmuir probes,
+    or boundary-plasma power-balance analysis. The definition concerns net power deposited
+    at the target surface and does not require assigning the deposited energy to individual
+    carrier channels; electron, ion, neutral, or radiative contributions may be treated
+    separately when such resolved information is available.
+
+
+    Typical magnitudes are strongly device- and scenario-dependent. Present tokamak
+    discharges commonly span about $10^5-10^7$ W for an individual inner target, with
+    lower values during detached or low-power phases and higher values possible in
+    large, high-power plasmas.'
+  unit: W
+  physics_domain: divertor_physics
+  links:
+  - name:power_at_inner_divertor_target
+  - name:maximum_power_at_outer_divertor_target
+  - name:electron_power_at_inner_divertor_target
+  - name:total_ion_power_at_inner_divertor_target
+  sources:
+  - id: dd:wall/global_quantities/power_density_inner_target_max
+    dd_path: wall/global_quantities/power_density_inner_target_max
+    status: composed
 - name: maximum_power_at_outer_divertor_target
   kind: scalar
   status: draft
@@ -280,6 +400,45 @@
   sources:
   - id: dd:wall/global_quantities/power_density_outer_target_max
     dd_path: wall/global_quantities/power_density_outer_target_max
+    status: composed
+- name: neutral_power_at_divertor_target
+  kind: scalar
+  status: draft
+  description: Net power deposited on a single divertor target by incident neutral
+    particles, including contributions from charge-exchange neutrals and volume-recombined
+    ions.
+  documentation: "Neutral particles reaching the divertor \u2014 primarily hydrogen\
+    \ isotopes produced through charge exchange with the edge plasma and through volume\
+    \ recombination \u2014 carry both kinetic and potential energy that is released\
+    \ on the target surface upon impact. This quantity gives the net power deposited\
+    \ by all such neutrals on a single divertor target, forming one component of the\
+    \ total per-target heat load alongside the ion and electron contributions.\n\n\
+    The net neutral power at the target is the surface integral of the incident neutral\
+    \ energy flux density:\n\n$$\nP_{\\mathrm{n}} = \\int_A \\Gamma_{\\mathrm{n}}(\\\
+    mathbf{r})\\,\\langle E_{\\mathrm{n}} \\rangle\\, dA\n$$\n\nwhere $\\Gamma_{\\\
+    mathrm{n}}$ is the incident neutral particle flux density in m$^{-2}$ s$^{-1}$,\
+    \ $\\langle E_{\\mathrm{n}} \\rangle$ is the mean energy per incident neutral\
+    \ in J, and $A$ is the wetted target area in m$^2$.\n\nThis quantity is computed\
+    \ from edge transport models that couple fluid plasma equations to Monte Carlo\
+    \ neutral solvers, or estimated by subtracting ion and electron power contributions\
+    \ from calorimetrically measured total heat loads. The neutral power contribution\
+    \ grows most significant under detached divertor conditions, where the recombination\
+    \ front approaches the target and the mechanism quantified by [neutral_power_at_divertor_target_due_to_recombination](name:neutral_power_at_divertor_target_due_to_recombination)\
+    \ dominates. To obtain the neutral power summed over all divertor targets, see\
+    \ [neutral_power_of_divertor](name:neutral_power_of_divertor). The conduction-dominated\
+    \ plasma power channel at the same target is given by [power_at_divertor_target_due_to_conduction](name:power_at_divertor_target_due_to_conduction).\n\
+    \nSign convention: Positive when neutral particles deposit net energy on the target\
+    \ surface, corresponding to power flow directed from the divertor plasma volume\
+    \ toward the target."
+  unit: W
+  physics_domain: divertor_physics
+  links:
+  - name:neutral_power_at_divertor_target_due_to_recombination
+  - name:neutral_power_of_divertor
+  - name:power_at_divertor_target_due_to_conduction
+  sources:
+  - id: dd:divertors/divertor/target/power_neutrals
+    dd_path: divertors/divertor/target/power_neutrals
     status: composed
 - name: nitrogen_density_at_divertor_target
   kind: scalar

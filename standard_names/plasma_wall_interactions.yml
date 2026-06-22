@@ -1,6 +1,6 @@
 # Domain: plasma_wall_interactions
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 14
+# Entries: 17
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -412,6 +412,65 @@
   - id: dd:wall/description_ggd/ggd/particle_fluxes/neutral/incident/values
     dd_path: wall/description_ggd/ggd/particle_fluxes/neutral/incident/values
     status: composed
+- name: neutral_state_energy_flux_due_to_recombination
+  kind: scalar
+  status: draft
+  description: Incident energy-resolved flux density of neutral particles in a specified
+    quantum state produced by recombination and directed toward a plasma-facing wall
+    surface.
+  documentation: 'Neutral state energy flux due to recombination is the incident,
+    energy-resolved flux density of neutral particles in a specified quantum state
+    that are produced by recombination and cross a plasma-facing surface toward the
+    material. It counts the neutral particle flow associated with a kinetic-energy
+    channel and internal state, so its canonical unit is m^-2 s^-1 rather than power
+    per unit area.
+
+
+    For a surface element with unit normal $\hat{\mathbf n}_w$ directed from the material
+    toward the plasma, the incident flux in state $q$ and energy interval $\Delta
+    E$ may be written as
+
+
+    $$
+
+    \Gamma_{q,\Delta E}^{\mathrm{rec,inc}} = \int_{\mathbf v\cdot\hat{\mathbf n}_w
+    < 0,\ E(\mathbf v)\in\Delta E} \left(-\mathbf v\cdot\hat{\mathbf n}_w\right) f_q^{\mathrm{rec}}(\mathbf
+    x_w,\mathbf v)\,d^3v
+
+    $$
+
+
+    where $f_q^{\mathrm{rec}}$ is the velocity distribution of recombination-produced
+    neutrals in quantum state $q$ at wall position $\mathbf x_w$, $E(\mathbf v)$ is
+    their kinetic energy, and $-\mathbf v\cdot\hat{\mathbf n}_w$ is the positive speed
+    component into the wall. Integrating over energy intervals and summing over neutral
+    states gives the corresponding total recombination-produced incident neutral flux.
+
+
+    In practice this quantity is obtained from edge-plasma and plasma-wall interaction
+    modeling, neutral transport calculations, or diagnostics combined with a collisional-radiative
+    model that resolves recombination channels and neutral-state populations. It is
+    non-negative because only particles crossing toward the surface are included;
+    neutrals moving away from the surface are part of the outgoing flux, not the incident
+    flux.
+
+
+    Typical values depend strongly on plasma density, electron temperature near the
+    surface, recycling, and detached-divertor conditions. Representative incident
+    state-resolved recombination fluxes can range from 10^16-10^22 m^-2 s^-1, with
+    the largest values usually occurring in cold, dense recombining boundary plasmas.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_energy_flux_due_to_recombination
+  - name:energy_flux_due_to_recombination
+  - name:neutral_state_energy_flux_at_wall
+  - name:neutral_state_particle_flux_at_wall_due_to_recombination
+  - name:ion_state_energy_flux_at_wall_due_to_recombination
+  sources:
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/recombination/neutral/state/incident/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/neutral/state/incident/values
+    status: composed
 - name: neutral_state_particle_flux_at_wall
   kind: scalar
   status: draft
@@ -559,6 +618,131 @@
   sources:
   - id: dd:summary/local/limiter/n_i/oxygen/value
     dd_path: summary/local/limiter/n_i/oxygen/value
+    status: composed
+- name: surface_temperature
+  kind: scalar
+  status: draft
+  description: Thermodynamic temperature of the exposed material surface of a plasma-facing
+    component at a specified surface location and time. It is a local surface state
+    variable, distinct from a surface average or a maximum over an area.
+  documentation: 'Surface temperature is the thermodynamic temperature of the outermost
+    exposed material surface at a specified location and time. It is a local material
+    property of a plasma-facing component; surface averages, area-integrated quantities,
+    and peak values are different quantities and should not be inferred from this
+    name alone.
+
+
+    The temperature controls thermal emission from the surface. For an opaque gray
+    surface, the hemispherical radiant exitance may be approximated by the Stefan-Boltzmann
+    relation:
+
+
+    $$
+
+    M = \varepsilon \sigma T_s^4
+
+    $$
+
+
+    where $M$ is the emitted radiant power per unit surface area, $\varepsilon$ is
+    the surface emissivity, $\sigma$ is the Stefan-Boltzmann constant, and $T_s$ is
+    the surface temperature.
+
+
+    In practice, surface temperature may be obtained from infrared thermography, pyrometry,
+    embedded temperature sensors, thermocouples, or heat-transfer modeling. Thermal-emission
+    methods require knowledge of emissivity, optical transmission, viewing geometry,
+    reflected radiation, and calibration. The referenced location is the material
+    point on the exposed surface, which may be parameterized by surface coordinates
+    or by its position in the right-handed cylindrical $(R, \phi, Z)$ frame, where
+    $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height.
+
+
+    Typical values are 290-320 K for components near room temperature before operation,
+    500-1500 K for heated first-wall or divertor surfaces during plasma exposure,
+    and 1500-3000 K for localized hot spots or transient heat loads. Values approaching
+    material limits, such as about 3683 K for tungsten melting, are critical for component
+    lifetime and machine protection.'
+  unit: K
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:surface_emissivity
+  - name:maximum_surface_temperature
+  sources:
+  - id: dd:camera_ir/channel/camera/frame/apparent_temperature
+    dd_path: camera_ir/channel/camera/frame/apparent_temperature
+    status: composed
+  - id: dd:camera_ir/frame/surface_temperature
+    dd_path: camera_ir/frame/surface_temperature
+    status: composed
+- name: maximum_surface_temperature
+  kind: scalar
+  status: draft
+  description: Highest apparent surface temperature among the valid points in a defined
+    infrared camera region of interest. It is a temperature maximum, not a heat flux
+    or power-density measure.
+  documentation: 'Maximum surface temperature is the largest apparent temperature
+    assigned to an observed plasma-facing surface within a defined region of interest
+    at a given observation time. The word apparent indicates the radiance-derived
+    temperature after the assumed emissivity, optical transmission, calibration, and
+    background corrections have been applied; it may differ from the true thermodynamic
+    surface temperature if those assumptions are inaccurate. This quantity identifies
+    the hottest inferred point in the region, but it does not by itself quantify deposited
+    heat flux.
+
+
+    For a region of interest $\Omega_\mathrm{ROI}$, the maximum is defined as the
+    maximum over all valid temperature samples in that region:
+
+
+    $$
+
+    T_\mathrm{max} = \max_{p \in \Omega_\mathrm{ROI}} T_\mathrm{app}(p)
+
+    $$
+
+
+    where $T_\mathrm{max}$ and $T_\mathrm{app}(p)$ are temperatures in kelvin, $p$
+    labels a valid surface sample or camera pixel associated with the region of interest,
+    and $\Omega_\mathrm{ROI}$ is the selected set of samples. Invalid, masked, saturated,
+    or uncalibrated samples are excluded before taking the maximum; the result is
+    a pointwise maximum, not an average, percentile, or time maximum unless an additional
+    processing definition states otherwise.
+
+
+    In practice, infrared thermography infers $T_\mathrm{app}$ from measured thermal
+    radiance using camera calibration, spectral response, surface emissivity, optical
+    transmission, and reflected-background corrections. A common calibration model
+    is based on Planck spectral radiance, with $L_\lambda(T) = \epsilon(\lambda,T)\,2hc^2/\lambda^5[\exp(hc/(\lambda
+    k_B T))-1]^{-1}$ integrated over the camera bandpass, where $L_\lambda$ is spectral
+    radiance in W m^-3 sr^-1, $\epsilon$ is dimensionless emissivity, $\lambda$ is
+    wavelength in meters, $h$ is Planck''s constant in J s, $c$ is the speed of light
+    in m s^-1, $k_B$ is Boltzmann''s constant in J K^-1, and $T$ is temperature in
+    kelvin.
+
+
+    Typical values are about 290-350 K for surfaces near room temperature before plasma
+    exposure, several hundred to 1500 K during moderate heating, and above 2000 K
+    for localized hot spots in high-power operation. Allowable maxima depend strongly
+    on surface material, coatings, pulse duration, and machine-protection limits.
+
+
+    This quantity should be distinguished from heat-flux or power-density quantities
+    such as peak power density at a divertor target or limiter. Temperature is the
+    surface thermal state, whereas heat flux depends on deposited power, material
+    thermal properties, geometry, cooling, and the time history of the exposure.'
+  unit: K
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:surface_temperature
+  - name:surface_emissivity
+  arguments:
+  - name: surface_temperature
+    operator: maximum
+    operator_kind: qualifier
+  sources:
+  - id: dd:camera_ir/channel/camera/frame/region_of_interest/temperature_max
+    dd_path: camera_ir/channel/camera/frame/region_of_interest/temperature_max
     status: composed
 - name: vertical_coordinate_of_divertor_target
   kind: scalar

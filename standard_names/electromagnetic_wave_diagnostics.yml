@@ -1,6 +1,6 @@
 # Domain: electromagnetic_wave_diagnostics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 5
+# Entries: 7
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -173,6 +173,101 @@
   - name:parallel_refractive_index
   - name:perpendicular_refractive_index
   - name:radial_normalized_wave_vector_of_beam_tracing_beam
+- name: parallel_refractive_index
+  kind: scalar
+  status: draft
+  description: Projection of the refractive-index vector onto the local equilibrium
+    magnetic field direction, equal to the wave vector component parallel to the magnetic
+    field normalized by the vacuum wave number.
+  documentation: "The parallel refractive index $N_\\parallel$ is the component of\
+    \ the refractive-index vector $\\mathbf{N} = \\mathbf{k}/k_0$ projected along\
+    \ the local equilibrium magnetic field unit vector $\\hat{b} = \\mathbf{B}/|\\\
+    mathbf{B}|$, where $k_0 = \\omega/c$ is the vacuum wave number at angular frequency\
+    \ $\\omega$ and $c$ is the speed of light in vacuum. It governs the phase velocity\
+    \ of a wave along the field line and controls parallel resonance effects including\
+    \ Landau damping and transit-time magnetic pumping.\n\nThe defining relation is:\n\
+    \n$$\nN_\\parallel = \\mathbf{N} \\cdot \\hat{b} = \\frac{\\mathbf{k} \\cdot \\\
+    mathbf{B}}{k_0 |\\mathbf{B}|}\n$$\n\nwhere $\\mathbf{k}$ is the local wave vector\
+    \ and $\\mathbf{B}$ is the background magnetic field.\n\nTogether with [perpendicular_refractive_index](name:perpendicular_refractive_index),\
+    \ $N_\\parallel$ fully decomposes the parent [refractive_index](name:refractive_index)\
+    \ vector into its field-aligned and cross-field components. In beam-tracing or\
+    \ ray-tracing calculations, $N_\\parallel$ is evaluated at each point along the\
+    \ ray path; for lower hybrid current drive it is a primary launch parameter controlled\
+    \ by the phasing between antenna straps, and for electron cyclotron emission diagnostics\
+    \ it determines the Doppler shift of the resonance layer.\n\nFor lower hybrid\
+    \ waves, $N_\\parallel$ at launch lies in the range 1.5\u20133.5 to satisfy the\
+    \ wave accessibility condition in the core plasma. For nearly perpendicular electron\
+    \ cyclotron beams, $|N_\\parallel|$ is well below unity.\n\nSign convention: Positive\
+    \ when the wave vector projected onto the magnetic field $\\mathbf{B}$ points\
+    \ in the same direction as $\\mathbf{B}$."
+  unit: '1'
+  physics_domain: electromagnetic_wave_diagnostics
+  links:
+  - name:perpendicular_refractive_index
+  - name:refractive_index
+  arguments:
+  - name: refractive_index
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - id: dd:ece/channel/beam_tracing/beam/wave_vector/n_parallel
+    dd_path: ece/channel/beam_tracing/beam/wave_vector/n_parallel
+    status: composed
+  - id: dd:summary/heating_current_drive/lh/n_parallel/value
+    dd_path: summary/heating_current_drive/lh/n_parallel/value
+    status: attached
+  - id: dd:waves/coherent_wave/beam_tracing/beam/wave_vector/n_parallel
+    dd_path: waves/coherent_wave/beam_tracing/beam/wave_vector/n_parallel
+    status: attached
+- name: perpendicular_refractive_index
+  kind: scalar
+  status: draft
+  description: Component of the refractive-index vector perpendicular to the local
+    equilibrium magnetic field, evaluated at each point along a beam or ray tracing
+    path in a magnetized plasma.
+  documentation: "The perpendicular refractive index $N_\\perp$ is the magnitude of\
+    \ the component of the refractive-index vector $\\mathbf{N} = \\mathbf{k}/k_0$\
+    \ (where $\\mathbf{k}$ is the local wave vector and $k_0 = \\omega/c$ is the vacuum\
+    \ wave number) that lies perpendicular to the local equilibrium magnetic field\
+    \ direction $\\hat{b} = \\mathbf{B}/|\\mathbf{B}|$. Together with the [parallel\
+    \ refractive index](name:parallel_refractive_index) $N_\\parallel$, it fully characterizes\
+    \ the field-aligned decomposition of wave propagation geometry in a magnetized\
+    \ plasma.\n\nThe two components satisfy the identity:\n\n$$\nN_\\perp^2 + N_\\\
+    parallel^2 = |\\mathbf{N}|^2\n$$\n\nwhere $N_\\parallel = \\mathbf{N} \\cdot \\\
+    hat{b}$ and $N_\\perp = |\\mathbf{N} - N_\\parallel \\hat{b}|$. For a cold magnetized\
+    \ plasma, the Appleton-Hartree dispersion relation constrains the allowed pairs\
+    \ $(N_\\parallel, N_\\perp)$ for each propagating normal mode; cutoff surfaces\
+    \ occur where $N_\\perp \\to 0$ and mark wave reflection or mode-conversion layers,\
+    \ while cyclotron resonances correspond to $N_\\perp \\to \\infty$.\n\n$N_\\perp$\
+    \ is evaluated at each step along beam or ray tracing trajectories and enters\
+    \ directly into calculations of single-pass absorption, mode conversion efficiency,\
+    \ and wave accessibility for electron cyclotron heating, current drive, and emission\
+    \ diagnostics. Typical values for electron cyclotron beams in the plasma core\
+    \ range from near zero at cutoff layers to approximately 1\u20133 for O-mode and\
+    \ X-mode propagation, depending on wave frequency, local electron density, and\
+    \ magnetic field strength.\n\nSign convention: Positive when the refractive-index\
+    \ vector has a non-zero component perpendicular to the local equilibrium magnetic\
+    \ field direction $\\hat{b}$; $N_\\perp$ is non-negative by construction as it\
+    \ represents the magnitude of a vector projection."
+  unit: '1'
+  physics_domain: electromagnetic_wave_diagnostics
+  links:
+  - name:parallel_refractive_index
+  arguments:
+  - name: refractive_index
+    operator: component
+    operator_kind: projection
+    axis: perpendicular
+    shape: component
+  sources:
+  - id: dd:ece/channel/beam_tracing/beam/wave_vector/n_perpendicular
+    dd_path: ece/channel/beam_tracing/beam/wave_vector/n_perpendicular
+    status: composed
+  - id: dd:waves/coherent_wave/beam_tracing/beam/wave_vector/n_perpendicular
+    dd_path: waves/coherent_wave/beam_tracing/beam/wave_vector/n_perpendicular
+    status: attached
 - name: toroidal_wave_vector_of_beam_tracing_beam
   kind: scalar
   status: draft
