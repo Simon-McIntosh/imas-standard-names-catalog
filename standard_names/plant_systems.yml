@@ -1,9 +1,62 @@
 # Domain: plant_systems
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 27
+# Entries: 37
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: accumulated_ammonia_count
+  kind: scalar
+  status: draft
+  description: Accumulated ammonia count is the total NH3 injected into the plasma
+    vessel since plasma breakdown, expressed as an equivalent-electron count. Each
+    ammonia molecule contributes 10 equivalent electrons, equal to the total number
+    of electrons in neutral NH3.
+  documentation: 'Accumulated ammonia count is the time-integrated amount of ammonia
+    gas injected into the plasma vessel after plasma breakdown, represented as an
+    equivalent-electron count rather than as a molecule count or particle inventory.
+    For neutral ammonia, each $\mathrm{NH_3}$ molecule contains 10 electrons: 7 from
+    nitrogen and 1 from each of the 3 hydrogen atoms.
+
+
+    The equivalent-electron count is related to the injected molecular amount by:
+
+
+    $$
+
+    N_{e,\mathrm{eq}}^{\mathrm{NH_3}}(t) = 10 \int_{t_\mathrm{bd}}^{t} \dot{N}_{\mathrm{NH_3}}(t'')\,dt''
+
+    $$
+
+
+    where $N_{e,\mathrm{eq}}^{\mathrm{NH_3}}$ is the accumulated equivalent-electron
+    count, $\dot{N}_{\mathrm{NH_3}}$ is the ammonia molecular injection rate, and
+    $t_\mathrm{bd}$ is the plasma breakdown time. The factor 10 is stoichiometric
+    and does not imply that the molecule is fully ionized at the point of injection.
+
+
+    In practice, this quantity is computed from calibrated gas-injection valve commands,
+    flow-meter signals, reservoir pressure drops, or gas-box models, with corrections
+    for line conductance, temperature, and valve response where available. It is an
+    injected-source measure and may differ from the number of ammonia-derived particles
+    that enter the confined plasma because of wall retention, dissociation, pumping,
+    and edge neutral transport.
+
+
+    Typical values depend strongly on device size and gas-injection purpose. Small
+    diagnostic or impurity-seeding puffs may correspond to about $10^{18}$-$10^{20}$
+    equivalent electrons, while larger fueling or disruption-mitigation injections
+    can reach $10^{21}$-$10^{23}$ equivalent electrons.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_nitrogen_count
+  - name:ammonia_prefill_count
+  - name:accumulated_ammonia_deuterated_count
+  - name:ammonia_source_rate
+  sources:
+  - id: dd:summary/gas_injection_accumulated/ammonia/value
+    dd_path: summary/gas_injection_accumulated/ammonia/value
+    status: composed
 - name: accumulated_ammonia_deuterated_count
   kind: scalar
   status: draft
@@ -54,6 +107,64 @@
   sources:
   - id: dd:summary/gas_injection_accumulated/ammonia_deuterated/value
     dd_path: summary/gas_injection_accumulated/ammonia_deuterated/value
+    status: composed
+- name: accumulated_argon_count
+  kind: scalar
+  status: draft
+  description: Cumulative count of argon delivered by gas injection since plasma breakdown,
+    expressed as an equivalent-electron inventory. The count increases by 18 for each
+    argon atom, using the atomic number of argon.
+  documentation: 'The accumulated argon count is the time-integrated amount of argon
+    delivered by gas injection after plasma breakdown, represented as a dimensionless
+    equivalent-electron inventory. It counts injected argon atoms with a weighting
+    equal to the argon atomic number, so one argon atom contributes 18 count units.
+    This is an injected inventory measure, not a measure of free electrons, plasma
+    content, retained argon, or ionization state.
+
+
+    The accumulated count is defined by integrating the argon atom injection rate
+    from breakdown time:
+
+
+    $$
+
+    N_{\mathrm{Ar,eq}}(t) = 18 \int_{t_{\mathrm{bd}}}^{t} \dot{N}_{\mathrm{Ar}}(t'')\,dt''
+
+    $$
+
+
+    where $N_{\mathrm{Ar,eq}}$ is the dimensionless equivalent-electron argon count,
+    $\dot{N}_{\mathrm{Ar}}$ is the argon atom injection rate in atoms per second,
+    $t$ is time in seconds, and $t_{\mathrm{bd}}$ is the plasma-breakdown time in
+    seconds. Argon introduced before breakdown belongs to the prefill contribution
+    represented by [argon_count](name:argon_count), not to this accumulated post-breakdown
+    quantity.
+
+
+    In practice, the injection rate is obtained from calibrated gas-valve systems,
+    reservoir pressure drops, conductance models, or mass-flow measurements, and then
+    integrated from the breakdown reference time. Because this quantity represents
+    delivered gas, it is not decremented by subsequent ionization, radiation, pumping,
+    exhaust, wall retention, or redistribution within the vessel. It is analogous
+    to [accumulated_neon_count](name:accumulated_neon_count) and [accumulated_xenon_count](name:accumulated_xenon_count),
+    with the numerical weighting set by the atomic number of each species, and can
+    contribute to a total injected-particle inventory such as [accumulated_total_particle_count_due_to_gas_injection](name:accumulated_total_particle_count_due_to_gas_injection).
+
+
+    Typical values are about $10^{19}$-$10^{22}$ count units for routine argon puffs
+    or impurity seeding, corresponding to roughly $6 \times 10^{17}$-$6 \times 10^{20}$
+    argon atoms. Larger disruption-mitigation injections can reach about $10^{22}$-$10^{24}$
+    count units, depending on the valve system, reservoir pressure, and mitigation
+    strategy.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:argon_count
+  - name:accumulated_xenon_count
+  - name:accumulated_neon_count
+  sources:
+  - id: dd:summary/gas_injection_accumulated/argon/value
+    dd_path: summary/gas_injection_accumulated/argon/value
     status: composed
 - name: accumulated_carbon_count_due_to_gas_injection
   kind: scalar
@@ -193,6 +304,111 @@
   - id: dd:summary/gas_injection_accumulated/ethylene/value
     dd_path: summary/gas_injection_accumulated/ethylene/value
     status: composed
+- name: accumulated_helium_3_count_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Time-integrated helium-3 inventory added by gas injection since plasma
+    breakdown, represented as an equivalent-electron count. Each helium-3 atom contributes
+    2 equivalent electrons because its atomic number is Z = 2.
+  documentation: 'Accumulated helium-3 count due to gas injection is the total amount
+    of helium-3 introduced after plasma breakdown by gas injection, expressed as a
+    dimensionless equivalent-electron count. The equivalent-electron convention weights
+    each neutral helium-3 atom by its atomic number, so one injected helium-3 atom
+    contributes two counts.
+
+
+    The accumulated equivalent-electron count is defined from the injected helium-3
+    atomic source rate:
+
+
+    $$
+
+    N_{e,\mathrm{eq}}^{^{3}\mathrm{He}}(t) = 2 \int_{t_\mathrm{bd}}^{t} \Gamma_{^{3}\mathrm{He}}(t'')
+    \, dt''
+
+    $$
+
+
+    where $N_{e,\mathrm{eq}}^{^{3}\mathrm{He}}$ is the accumulated equivalent-electron
+    count, $t_\mathrm{bd}$ is the plasma-breakdown time, and $\Gamma_{^{3}\mathrm{He}}$
+    is the helium-3 atom injection rate in atoms/s. The factor 2 is the helium atomic
+    number and converts atoms to equivalent electrons.
+
+
+    In practice this quantity is computed from calibrated gas-injection measurements
+    such as valve flow calibrations, pressure-volume-temperature accounting, or mass-flow
+    controller signals, with isotope-specific calibration for helium-3 when available.
+    It represents gas injected after breakdown and is distinct from any prefill inventory
+    present before the plasma is formed.
+
+
+    Typical accumulated values are about $10^{18}-10^{21}$ equivalent electrons for
+    trace or minority helium-3 puffs, and can reach $10^{22}-10^{23}$ equivalent electrons
+    in large devices or long pulses with deliberate helium-3 fueling.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:helium_3_source_rate_due_to_gas_injection
+  - name:accumulated_helium_4_count_due_to_gas_injection
+  - name:accumulated_hydrogen_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_accumulated/helium_3/value
+    dd_path: summary/gas_injection_accumulated/helium_3/value
+    status: composed
+- name: accumulated_helium_3_prefill_count_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Cumulative number of helium-3 atoms introduced by gas injection during
+    the prefill phase, reported as an equivalent electron count. Each helium-3 atom
+    contributes two equivalent electrons because its atomic number is 2.
+  documentation: 'The accumulated helium-3 prefill count due to gas injection is the
+    total amount of helium-3 admitted by gas valves before plasma breakdown, reported
+    as an electron-equivalent particle count. It is an accounting convention for particle
+    inventory: each neutral helium-3 atom contributes two equivalent electrons, but
+    the gas need not be ionized during the prefill phase.
+
+
+    The electron-equivalent prefill count is obtained by integrating the helium-3
+    atomic injection rate over the prefill interval:
+
+
+    $$
+
+    N_{\mathrm{eq,prefill}}(^{3}\mathrm{He}) = 2 \int_{t_{\mathrm{start}}}^{t_{\mathrm{bd}}}
+    \dot{N}_{^{3}\mathrm{He}}(t)\,dt
+
+    $$
+
+
+    where $\dot{N}_{^{3}\mathrm{He}}(t)$ is the helium-3 atomic injection rate in
+    atoms s$^{-1}$, $t_{\mathrm{start}}$ is the start time of helium-3 prefill, $t_{\mathrm{bd}}$
+    is the breakdown time or end of the prefill phase in seconds, and the factor 2
+    converts atoms to equivalent electrons. The resulting count is dimensionless.
+
+
+    In practice this quantity is inferred from calibrated gas-valve flow, reservoir
+    depletion, pressure-rise measurements, or gas-balance analysis integrated over
+    the prefill interval. It counts the amount introduced by injection, not the amount
+    retained in the vessel after pumping, wall adsorption, or ionization. It is closely
+    related to [helium_3_initial_count](name:accumulated_helium_3_prefill_count_due_to_gas_injection),
+    is the prefill contribution to [accumulated_helium_3_count](name:accumulated_helium_3_count_due_to_gas_injection),
+    and is the helium-3 counterpart of [accumulated_helium_4_prefill_count_due_to_gas_injection](name:accumulated_helium_4_count_due_to_gas_injection).
+
+
+    Typical values are $10^{19}$-$10^{22}$ equivalent electrons for small to medium
+    devices and can approach $10^{23}$ equivalent electrons in large-volume machines
+    or high-minority-fraction helium-3 prefills. These counts correspond to half as
+    many injected helium-3 atoms and are often chosen to set the initial minority
+    concentration for ion-cyclotron-resonance-heating scenarios.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_helium_3_count_due_to_gas_injection
+  - name:accumulated_helium_4_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_prefill/helium_3/value
+    dd_path: summary/gas_injection_prefill/helium_3/value
+    status: composed
 - name: accumulated_helium_4_count_due_to_gas_injection
   kind: scalar
   status: draft
@@ -275,6 +491,62 @@
   sources:
   - id: dd:summary/gas_injection_accumulated/krypton/value
     dd_path: summary/gas_injection_accumulated/krypton/value
+    status: composed
+- name: accumulated_lithium_count
+  kind: scalar
+  status: draft
+  description: Cumulative amount of lithium supplied by gas injection after plasma
+    breakdown, reported as an equivalent-electron count. Each lithium atom contributes
+    3 equivalent electrons, so the value is three times the injected lithium atom
+    count over the post-breakdown interval.
+  documentation: 'Accumulated lithium count is the cumulative lithium supplied by
+    gas injection after plasma breakdown, converted to an equivalent-electron count
+    using the lithium atomic number 3. It excludes lithium present before breakdown
+    or introduced by other sources unless those sources are part of the gas-injection
+    flow being integrated. The corresponding accumulated lithium atom count, comparable
+    to [lithium_count](name:lithium_count) when that quantity represents an inventory
+    or prefill amount, is one third of this value.
+
+
+    The accumulated equivalent-electron count at time $t$ is defined by integrating
+    the lithium atom injection rate from breakdown to that time:
+
+
+    $$
+
+    N_{\mathrm{Li,eqe}}(t) = 3 \int_{t_\mathrm{bd}}^{t} \Gamma_{\mathrm{Li}}(t'')
+    \, dt''
+
+    $$
+
+
+    where $N_{\mathrm{Li,eqe}}$ is the accumulated lithium count expressed as equivalent
+    electrons, $\Gamma_{\mathrm{Li}}$ is the neutral lithium atom flow rate delivered
+    by gas injection in atoms/s, $t''$ is the integration time in seconds, $t_\mathrm{bd}$
+    is the plasma-breakdown time, and the factor 3 is the atomic number of lithium.
+
+
+    In practice this quantity is computed by time-integrating calibrated gas-injection
+    throughput, valve-command, pressure-drop, or mass-flow measurements after conversion
+    to a lithium atom flow rate. Corrections may account for valve response, conductance
+    of the injection line, reservoir temperature, and uncertainty in the fraction
+    of commanded material that enters the plasma chamber.
+
+
+    Typical values depend strongly on device size and seeding scenario. Small experiments
+    may accumulate about $10^{17}-10^{19}$ lithium atoms, corresponding to $3 \times
+    10^{17}-3 \times 10^{19}$ equivalent electrons, while deliberate injection in
+    medium or large tokamak discharges can reach about $10^{19}-10^{21}$ lithium atoms,
+    corresponding to $3 \times 10^{19}-3 \times 10^{21}$ equivalent electrons.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_neon_count
+  - name:accumulated_argon_count
+  - name:accumulated_helium_4_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_accumulated/lithium/value
+    dd_path: summary/gas_injection_accumulated/lithium/value
     status: composed
 - name: accumulated_neon_count
   kind: scalar
@@ -366,6 +638,121 @@
   sources:
   - id: dd:summary/gas_injection_accumulated/propane/value
     dd_path: summary/gas_injection_accumulated/propane/value
+    status: composed
+- name: accumulated_silane_count
+  kind: scalar
+  status: draft
+  description: Accumulated silane gas injection since plasma breakdown, expressed
+    as an equivalent-electron count.
+  documentation: 'Accumulated silane count is the time-integrated amount of silane,
+    SiH4, injected into the plasma after breakdown. The count is dimensionless and
+    uses an equivalent-electron convention: one SiH4 molecule corresponds to 18 equivalent
+    electrons, from silicon with atomic number 14 and four hydrogen atoms with atomic
+    number 1.
+
+
+    The accumulated count at time $t$ is defined from the silane source rate by
+
+
+    $$
+
+    N_{\mathrm{SiH_4,acc}}(t) = \int_{t_{\mathrm{bd}}}^{t} \dot{N}_{\mathrm{SiH_4,eq}}(t'')\,dt''
+    = 18\int_{t_{\mathrm{bd}}}^{t} \dot{N}_{\mathrm{SiH_4,mol}}(t'')\,dt''
+
+    $$
+
+
+    where $N_{\mathrm{SiH_4,acc}}$ is the accumulated dimensionless equivalent-electron
+    count, $t_{\mathrm{bd}}$ is the plasma-breakdown time in seconds, $t''$ is time
+    in seconds, $\dot{N}_{\mathrm{SiH_4,eq}}$ is the equivalent-electron source rate
+    in s^-1, and $\dot{N}_{\mathrm{SiH_4,mol}}$ is the molecular silane injection
+    rate in molecules per second. The factor 18 is a counting convention for the injected
+    molecular species, not a statement that neutral SiH4 supplies free electrons before
+    dissociation or ionization.
+
+
+    In practice this quantity is computed by integrating the calibrated [silane source
+    rate](name:silane_source_rate) from plasma breakdown onward. Gas present as vessel
+    prefill or static inventory before breakdown is excluded; only deliberately injected
+    silane during the plasma discharge contributes.
+
+
+    Typical values are 0 for discharges without silane injection. When silane is deliberately
+    puffed for wall conditioning or impurity seeding, accumulated values are often
+    about 10^18-10^22 in the dimensionless equivalent-electron count, depending on
+    pulse duration, valve calibration, and injection recipe.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:silane_source_rate
+  - name:accumulated_xenon_count
+  - name:accumulated_argon_count
+  sources:
+  - id: dd:summary/gas_injection_accumulated/silane/value
+    dd_path: summary/gas_injection_accumulated/silane/value
+    status: composed
+- name: accumulated_total_particle_count_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Cumulative number of particles delivered by gas injection since plasma
+    breakdown, summed over all injected species and converted to an equivalent-electron
+    count. The count resets at each new plasma breakdown event and is non-decreasing
+    within a discharge while injection continues.
+  documentation: 'Accumulated total particle count due to gas injection is the time-integrated
+    amount of neutral gas delivered after plasma breakdown, summed over all injection
+    systems and injected species. Each species is weighted by the number of electrons
+    carried by one neutral injected particle when fully ionized, so the result is
+    a dimensionless equivalent-electron count rather than a molecule count alone.
+    The accumulator is reset to zero at each new plasma breakdown event.
+
+
+    The accumulated count can be written as the species-weighted time integral of
+    the injection rates:
+
+
+    $$
+
+    N_{\mathrm{tot}}(t) = \sum_s Z_s^{\mathrm{eq}} \int_{t_{\mathrm{bd}}}^{t} \Gamma_s(t'')
+    \, dt''
+
+    $$
+
+
+    where $N_{\mathrm{tot}}$ is the dimensionless equivalent-electron count, $t_{\mathrm{bd}}$
+    is the plasma-breakdown time, $\Gamma_s$ is the neutral-particle injection rate
+    of species $s$ in $s^{-1}$, and $Z_s^{\mathrm{eq}}$ is the number of bound electrons
+    in one neutral injected particle of species $s$ when fully ionized. With non-negative
+    injection rates the value is monotonic between resets and remains constant between
+    gas pulses.
+
+
+    In practice, this quantity is computed by integrating calibrated gas-valve throughput,
+    flow-meter measurements, or reconstructed injected particle rates over time, then
+    applying the species weights before summing. It uses the same equivalent-electron
+    normalization as [accumulated_total_gas_count](name:accumulated_total_particle_count_due_to_gas_injection),
+    while specifically identifying the contribution from gas injection. If injector
+    groups are reported separately, [accumulated_total_lower_gas_particle_count_due_to_gas_injection](name:accumulated_gas_particle_count_at_inlet_due_to_gas_injection)
+    and accumulated_total_upper_gas_particle_count_due_to_gas_injection are partial
+    sums whose total equals the vessel-wide value when the partition covers all gas
+    injectors.
+
+
+    Typical accumulated values are $10^{20}$-$10^{23}$ equivalent electrons for small
+    or short-pulse experiments and $10^{22}$-$10^{25}$ equivalent electrons for larger
+    tokamak discharges, depending on fueling rate, pulse duration, gas species, and
+    whether large pre-programmed gas puffs are included. Short diagnostic or impurity
+    puffs can contribute smaller increments, often $10^{18}$-$10^{21}$ equivalent
+    electrons.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_gas_particle_count_at_inlet_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_accumulated/total/value
+    dd_path: summary/gas_injection_accumulated/total/value
+    status: attached
+  - id: dd:summary/gas_injection_prefill/total/value
+    dd_path: summary/gas_injection_prefill/total/value
     status: composed
 - name: accumulated_xenon_count
   kind: scalar
@@ -577,6 +964,173 @@
   - id: dd:spi/injector/pellet/core/species/density
     dd_path: spi/injector/pellet/core/species/density
     status: composed
+- name: deuterium_count_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Cumulative number of deuterium atoms delivered by gas injection after
+    plasma breakdown, expressed as equivalent electrons. Each deuterium atom contributes
+    one count; deuterium introduced during the prefill phase is excluded.
+  documentation: 'Deuterium count due to gas injection is the accumulated amount of
+    deuterium delivered by gas puffing or valve injection after plasma breakdown.
+    It is expressed as an equivalent-electron particle count: because deuterium has
+    atomic number one, each injected neutral deuterium atom contributes one count.
+    Deuterium supplied before breakdown belongs to [deuterium_prefill_count](name:deuterium_prefill_count)
+    rather than this quantity.
+
+
+    The accumulated count is the time integral of the deuterium injection source rate
+    from the breakdown time to the time of interest:
+
+
+    $$
+
+    N_D^\mathrm{inj}(t) = \int_{t_\mathrm{bd}}^{t} \dot{N}_D^\mathrm{inj}(t'') \,
+    dt''
+
+    $$
+
+
+    where $N_D^\mathrm{inj}$ is the accumulated deuterium equivalent-electron count
+    with unit $1$, $t_\mathrm{bd}$ is the plasma breakdown time in s, $t$ and $t''$
+    are times in s, and $\dot{N}_D^\mathrm{inj}$ is the [deuterium source rate due
+    to injection](name:deuterium_source_rate_due_to_injection) in atoms/s, equivalently
+    counts/s for deuterium.
+
+
+    In practice, the count is computed by integrating calibrated deuterium gas flow
+    rates from injection valves, gas lines, or plenum pressure changes, with corrections
+    for gas temperature, isotopic purity, valve calibration, and molecular composition
+    when relevant. Contributions from all deuterium injection paths are summed, while
+    prefill inventory and non-gas fueling sources are kept separate.
+
+
+    Typical accumulated values are dimensionless counts of about $10^{20}$-$10^{23}$
+    for short or medium tokamak pulses, and can reach $10^{24}$-$10^{25}$ in large-device
+    or long-pulse operation depending on fueling demand, plasma density, and discharge
+    duration.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:count_due_to_gas_injection
+  - name:deuterium_source_rate_due_to_injection
+  - name:accumulated_hydrogen_count_due_to_gas_injection
+  - name:accumulated_helium_3_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_accumulated/deuterium/value
+    dd_path: summary/gas_injection_accumulated/deuterium/value
+    status: composed
+- name: deuterium_prefill_count
+  kind: scalar
+  status: draft
+  description: Accumulated deuterium introduced by gas injection during the plasma
+    prefill phase, expressed as an equivalent-electron count. Because deuterium has
+    atomic charge Z = 1, each deuterium atom contributes one count; deuterium from
+    wall recycling, neutral beams, pellets, or later fueling is excluded.
+  documentation: 'Deuterium prefill count is the accumulated amount of deuterium introduced
+    as neutral gas before plasma breakdown, expressed as the number of electrons that
+    would be supplied by complete ionization. For deuterium, the atomic charge is
+    $Z_D = 1$, so the equivalent-electron count is numerically equal to the number
+    of injected deuterium atoms. The quantity is limited to the prefill gas-injection
+    phase and excludes deuterium supplied later by fueling, wall recycling, pellets,
+    or neutral beam injection.
+
+
+    The accumulated count is obtained by integrating the injected atomic deuterium
+    rate over the prefill interval:
+
+
+    $$
+
+    N_{D,\mathrm{prefill}} = \int_{t_\mathrm{start}}^{t_\mathrm{end}} Z_D\,\dot{N}_D(t)\,dt
+
+    $$
+
+
+    where $N_{D,\mathrm{prefill}}$ is the deuterium prefill count, $Z_D = 1$ is the
+    deuterium atomic charge, $\dot{N}_D(t)$ is the atomic deuterium injection rate
+    in atoms s$^{-1}$, and $t_\mathrm{start}$ and $t_\mathrm{end}$ are the start and
+    end times of the prefill interval in s. If the measured gas throughput is a molecular
+    $D_2$ rate, the corresponding atomic rate is twice the molecular rate.
+
+
+    In practice this quantity is computed from calibrated gas-valve commands, mass-flow
+    measurements, pressure-drop calibrations, or reservoir inventory changes, with
+    corrections for line volume, gas temperature, valve conductance, and species purity
+    when needed. It represents the requested or delivered neutral-gas inventory before
+    breakdown, not the amount that remains confined after ionization.
+
+
+    Typical prefill inventories are about $10^{20}-10^{23}$ equivalent-electron counts
+    in small and medium tokamaks, and may approach $10^{24}$ in large devices or high-pressure
+    prefill scenarios.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:tritium_prefill_count
+  - name:accumulated_hydrogen_prefill_count
+  - name:accumulated_xenon_prefill_count
+  - name:deuterium_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_prefill/deuterium/value
+    dd_path: summary/gas_injection_prefill/deuterium/value
+    status: composed
+- name: electron_source_rate_due_to_injection
+  kind: scalar
+  status: draft
+  description: Instantaneous electron-equivalent source rate supplied by plasma injection
+    systems. It is the sum over injected atomic species of nuclear charge number times
+    the atomic injection rate, representing the electron inventory that the injected
+    material can contribute after ionization.
+  documentation: 'Electron source rate due to injection is the electron-equivalent
+    particle rate delivered to the plasma or vessel by fueling or material injection
+    systems. It counts the number of electrons per second associated with the injected
+    atoms after ionization, and is used for particle inventory and density-control
+    accounting rather than as a local ionization-rate density.
+
+
+    For a mixture of injected atomic species, the rate is defined by
+
+
+    $$
+
+    \dot{N}_{e,\mathrm{inj}} = \sum_s Z_s\,\dot{N}_{s,\mathrm{inj}}
+
+    $$
+
+
+    where $\dot{N}_{e,\mathrm{inj}}$ is the electron-equivalent injection rate, $s$
+    indexes the injected atomic species, $Z_s$ is the nuclear charge number of species
+    $s$, and $\dot{N}_{s,\mathrm{inj}}$ is its atomic injection rate. Molecular flows
+    are converted to atomic rates before applying the sum; for example, each injected
+    $\mathrm{D}_2$ molecule contributes two deuterium atoms and therefore two electron
+    equivalents after complete ionization.
+
+
+    In practice this quantity is computed from calibrated gas-valve throughput, pellet
+    or compact-toroid particle content, or other injector flow measurements combined
+    with the specified species composition. It may represent a single injector, a
+    subsystem, or the total injected electron-equivalent rate, depending on the physical
+    scope being described.
+
+
+    Typical values span about $10^{19}$-$10^{23}$ s$^{-1}$ for ordinary gas fueling
+    valves in present-day tokamaks. Short high-throughput events such as massive gas
+    injection or pellet injection can reach about $10^{22}$-$10^{25}$ s$^{-1}$ for
+    brief intervals.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:source_rate_due_to_injection
+  - name:krypton_source_rate_due_to_gas_injection
+  - name:hydrogen_source_rate_due_to_gas_injection
+  - name:accumulated_argon_count
+  sources:
+  - id: dd:gas_injection/pipe/valve/electron_rate
+    dd_path: gas_injection/pipe/valve/electron_rate
+    status: composed
+  - id: dd:gas_injection/valve/electron_rate
+    dd_path: gas_injection/valve/electron_rate
+    status: attached
 - name: ethane_prefill_count
   kind: scalar
   status: draft

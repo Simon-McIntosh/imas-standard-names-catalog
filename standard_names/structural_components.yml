@@ -1,6 +1,6 @@
 # Domain: structural_components
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 13
+# Entries: 15
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -36,14 +36,14 @@
     This quantity represents the gross radiative power before surface reflection;
     the net thermally retained fraction is captured by [absorbed_radiated_power_of_breeder_blanket_module](name:absorbed_radiated_power_of_breeder_blanket_module),
     which subtracts the reflected component. Together with nuclear heating quantified
-    by [total_neutron_power_of_breeder_blanket_module](name:total_neutron_power_of_breeder_blanket_module),
+    by [total_neutron_power_of_breeder_blanket_module](name:nuclear_heating_power_of_breeder_blanket_module),
     this term enters the full surface thermal balance of the blanket and is a key
     input for coolant circuit design and blanket lifetime assessment.'
   unit: W
   physics_domain: structural_components
   links:
   - name:absorbed_radiated_power_of_breeder_blanket_module
-  - name:total_neutron_power_of_breeder_blanket_module
+  - name:nuclear_heating_power_of_breeder_blanket_module
   sources:
   - id: dd:breeding_blanket/module/time_slice/power_incident_radiated
     dd_path: breeding_blanket/module/time_slice/power_incident_radiated
@@ -466,7 +466,7 @@
     breeder regions of the module. The same denominator must be used for every module,
     so summing module values gives the corresponding contribution to the overall [tritium_breeding_ratio](name:tritium_breeding_ratio).
     The value is commonly interpreted together with module nuclear-load quantities
-    such as [total_neutron_power_of_breeder_blanket_module](name:total_neutron_power_of_breeder_blanket_module),
+    such as [total_neutron_power_of_breeder_blanket_module](name:nuclear_heating_power_of_breeder_blanket_module),
     because neutron power indicates source strength while material composition and
     neutron spectrum determine how effectively that source breeds tritium.
 
@@ -481,7 +481,7 @@
   physics_domain: structural_components
   links:
   - name:tritium_breeding_ratio
-  - name:incident_power_of_breeder_blanket_module
+  - name:nuclear_heating_power_of_breeder_blanket_module
   sources:
   - id: dd:breeding_blanket/module/time_slice/tritium_breeding_ratio
     dd_path: breeding_blanket/module/time_slice/tritium_breeding_ratio
@@ -545,6 +545,83 @@
   sources:
   - id: dd:breeding_blanket/module/top_cap_thickness
     dd_path: breeding_blanket/module/top_cap_thickness
+    status: composed
+- name: vertical_outline_of_limiter_tile
+  kind: scalar
+  status: draft
+  description: Vertical (Z) coordinate of the contour points tracing the poloidal
+    cross-sectional outline of a limiter tile.
+  documentation: 'The vertical outline of a limiter tile provides the ordered set
+    of $Z$ coordinates that, paired with the corresponding radial coordinates, trace
+    the poloidal cross-sectional boundary of an individual limiter tile. Limiter tiles
+    are plasma-facing solid components that can establish the last-closed flux surface
+    in limited plasma configurations, physically protecting the first wall from direct
+    high-heat-flux plasma contact.
+
+
+    The outline is defined in the right-handed cylindrical $(R, \phi, Z)$ frame, where
+    $R$ is the major radius measured from the machine symmetry axis and $Z$ is the
+    vertical height relative to the device midplane. Each point in the outline array
+    corresponds to a vertex on the tile boundary contour in the poloidal plane, and
+    the complete set of $(R, Z)$ pairs fully specifies the tile cross-section geometry.
+
+
+    These coordinates are obtained from engineering drawings, CAD models, or in-vessel
+    metrology, and are applied in heat load mapping, plasma-wall gap analysis, and
+    geometric boundary modeling. The analogous outline coordinates for divertor components
+    follow the same convention as [vertical_outline_of_divertor_tile](name:vertical_outline_of_divertor_tile),
+    and the equivalent representation for mobile wall components is [vertical_outline_of_wall_material](name:vertical_outline_of_wall_material).
+    The active contact point of a limited plasma with the limiter surface is tracked
+    separately by [vertical_coordinate_of_active_limiter_point](name:vertical_coordinate_of_active_limiter_point).
+
+
+    Typical $Z$ values for limiter tiles range from approximately $-3$ m to $+3$ m
+    depending on the tile''s poloidal location and the machine size.
+
+
+    Sign convention: Positive when $Z$ points upward in the $+\hat{Z}$ direction of
+    the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: m
+  physics_domain: structural_components
+  links:
+  - name:vertical_outline_of_divertor_tile
+  - name:vertical_outline_of_wall_material
+  - name:vertical_coordinate_of_active_limiter_point
+  sources:
+  - id: dd:wall/description_2d/limiter/unit/outline/z
+    dd_path: wall/description_2d/limiter/unit/outline/z
+    status: composed
+- name: vertical_outline_of_wall_material
+  kind: scalar
+  status: draft
+  description: Vertical Z-coordinate of the outline polygon that defines the poloidal
+    cross-sectional boundary of a mobile wall material component.
+  documentation: "The vertical $Z$-coordinate locates each vertex of the polygon that\
+    \ traces the cross-sectional shape of a mobile wall material element in the poloidal\
+    \ plane of the right-handed cylindrical $(R, \\phi, Z)$ frame, where $R$ is the\
+    \ major radius measured from the symmetry axis and $Z$ is the vertical height.\
+    \ The complete poloidal outline is formed by a sequence of $(R, Z)$ vertex pairs;\
+    \ this quantity captures the $Z$ component of those vertices, complementing the\
+    \ corresponding major-radius component of the same outline. Mobile wall components\
+    \ are plasma-facing structural elements \u2014 such as retractable limiters or\
+    \ adjustable tiles \u2014 whose positions may vary, making accurate outline tracking\
+    \ essential for equilibrium reconstruction and plasma-wall gap analysis. For fixed\
+    \ structural elements, analogous $Z$ outline coordinates are provided by [vertical_outline_of_limiter_tile](name:vertical_outline_of_limiter_tile),\
+    \ [vertical_outline_of_vacuum_vessel](name:vertical_outline_of_vacuum_vessel),\
+    \ and [vertical_outline_of_divertor_tile](name:vertical_outline_of_divertor_tile).\
+    \ Typical values span the vertical extent of the vacuum vessel, generally within\
+    \ $\\pm 3$ m for medium-sized tokamaks.\n\nSign convention: Positive when the\
+    \ outline vertex lies above the geometric midplane in the $+Z$ direction of the\
+    \ right-handed cylindrical $(R, \\phi, Z)$ frame."
+  unit: m
+  physics_domain: structural_components
+  links:
+  - name:vertical_outline_of_limiter_tile
+  - name:vertical_outline_of_vacuum_vessel
+  - name:vertical_outline_of_divertor_tile
+  sources:
+  - id: dd:wall/description_2d/mobile/unit/outline/z
+    dd_path: wall/description_2d/mobile/unit/outline/z
     status: composed
 - name: volumetric_force
   kind: vector

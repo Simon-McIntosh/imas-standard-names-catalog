@@ -1,6 +1,6 @@
 # Domain: magnetohydrodynamics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 35
+# Entries: 38
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -524,6 +524,51 @@
   - id: dd:plasma_transport/model/ggd/momentum/v/parallel
     dd_path: plasma_transport/model/ggd/momentum/v/parallel
     status: attached
+- name: perturbed_electrostatic_potential_real_part
+  kind: complex
+  status: draft
+  description: Real part of the complex first-order electrostatic potential perturbation
+    eigenfunction for a specified toroidal Fourier mode in linear MHD stability analysis.
+  documentation: 'The perturbed electrostatic potential $\delta\hat{\phi}$ is a complex
+    spatial eigenfunction in linear MHD stability analysis, representing the scalar
+    potential part of the first-order electric field perturbation $\delta\mathbf{E}
+    = -\nabla\delta\phi - \partial_t\delta\mathbf{A}$ for a single toroidal Fourier
+    mode number $n$. This quantity is the real part $\mathrm{Re}(\delta\hat{\phi})$,
+    encoding the in-phase component of the eigenfunction in the poloidal plane defined
+    by the $(R, Z)$ coordinates of the right-handed cylindrical $(R, \phi, Z)$ frame.
+
+
+    The complex eigenfunction is fully specified by combining this quantity with [perturbed_electrostatic_potential_imaginary_part](name:perturbed_electrostatic_potential_imaginary_part):
+
+
+    $$
+
+    \delta\hat{\phi}(R,Z) = \mathrm{Re}(\delta\hat{\phi}) + i\,\mathrm{Im}(\delta\hat{\phi})
+
+    $$
+
+
+    where the physical perturbation field at toroidal angle $\phi$ is recovered as
+    $\mathrm{Re}[\delta\hat{\phi}(R,Z)\,e^{in\phi}]$, and $n$ is the toroidal mode
+    number.
+
+
+    The absolute amplitude and phase of the eigenfunction depend on the normalization
+    convention adopted by the linear stability solver; only relative amplitudes among
+    simultaneously computed perturbation quantities carry physical meaning. The analogous
+    real-part components in the same eigenfunction family include [perturbed_plasma_pressure_real_part](name:perturbed_plasma_pressure_real_part)
+    and [perturbed_plasma_mass_density_real_part](name:perturbed_plasma_mass_density_real_part),
+    all resolved on the same poloidal plane for a given toroidal mode.'
+  unit: V
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:perturbed_electrostatic_potential_imaginary_part
+  - name:perturbed_plasma_pressure_real_part
+  - name:perturbed_plasma_mass_density_real_part
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/phi_potential_perturbed/real
+    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/phi_potential_perturbed/real
+    status: composed
 - name: perturbed_plasma_magnetic_field
   kind: vector
   status: draft
@@ -1364,7 +1409,7 @@
     convection, and MHD instability dynamics. The quantity is evaluated from time-dependent
     MHD simulations on unstructured spatial grids and can be inferred experimentally
     through charge exchange recombination spectroscopy combined with magnetic equilibrium
-    reconstruction. The complementary cylindrical velocity components are [toroidal_plasma_velocity](name:toroidal_plasma_velocity)
+    reconstruction. The complementary cylindrical velocity components are [toroidal_plasma_velocity](name:toroidal_impurity_ion_velocity_at_measurement_position)
     and [vertical_plasma_velocity](name:vertical_plasma_velocity); for the projection
     along the local magnetic-field direction, see [parallel_plasma_velocity](name:parallel_plasma_velocity).
 
@@ -1375,7 +1420,7 @@
   physics_domain: magnetohydrodynamics
   links:
   - name:plasma_velocity
-  - name:toroidal_plasma_velocity
+  - name:toroidal_impurity_ion_velocity_at_measurement_position
   - name:vertical_plasma_velocity
   - name:parallel_plasma_velocity
   sources:
@@ -1434,6 +1479,73 @@
   - id: dd:sawteeth/diagnostics/previous_period
     dd_path: sawteeth/diagnostics/previous_period
     status: composed
+- name: toroidal_halo_current
+  kind: scalar
+  status: draft
+  description: Toroidal halo current is the toroidal component, in the right-handed
+    cylindrical (R, phi, Z) frame, of the integrated halo-plasma current on open magnetic
+    field lines between the last closed flux surface and the first wall during a disruption
+    or vertical displacement event.
+  documentation: 'Toroidal halo current is the net toroidal component of electric
+    current carried by halo plasma on open magnetic field lines outside the last closed
+    flux surface and inside the first wall during disruptions and vertical displacement
+    events. It is the part of the total [halo current](name:halo_current) aligned
+    with the toroidal direction $\hat{\phi}$ of the right-handed cylindrical $(R,
+    \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and $Z$
+    is vertical height.
+
+
+    For a poloidal cross-section at fixed toroidal angle $\phi$ in the right-handed
+    cylindrical $(R, \phi, Z)$ frame, the integrated toroidal component can be defined
+    by the current-density flux through the halo portion of a surface whose area vector
+    points in the toroidal direction:
+
+
+    $$
+
+    I_{\mathrm{halo,tor}} = \int_{S_{\mathrm{halo}}} \mathbf{J} \cdot d\mathbf{A}_{\phi}
+
+    $$
+
+
+    where $S_{\mathrm{halo}}$ is the open-field-line halo region on the cut, $\mathbf{J}$
+    is the current density, and $d\mathbf{A}_{\phi}=\hat{\phi}\,dA$ is the oriented
+    area element normal to the toroidal direction. The result is measured in amperes
+    because $\mathbf{J}$ has units A m$^{-2}$ and $dA$ has units m$^{2}$.
+
+
+    In practice, this quantity is inferred from halo-current sensors, wall-current
+    measurements, and magnetic reconstruction of the current path, or computed by
+    integrating the toroidal current density over the open-field-line region in disruption
+    modeling. It complements [poloidal halo current](name:poloidal_halo_current);
+    electromagnetic loads are governed by $\mathbf{J}\times\mathbf{B}$, and order-of-magnitude
+    forces scale as $I_{\mathrm{halo,tor}} B_{\mathrm{pol}} L$, which is in newtons
+    when current is in A, magnetic field is in T, and effective length $L$ is in m.
+
+
+    Typical peak magnitudes are about $10^4$-$10^5$ A in medium-sized tokamaks and
+    can approach $10^6$ A in large disruptions; normalized to pre-disruption plasma
+    current, values of roughly 5-30% are commonly used for load assessment. The dominant
+    halo-current pulse during a current quench or vertical displacement event typically
+    lasts about 1-100 ms, with faster pulses in smaller devices and slower decay in
+    highly conducting structures.
+
+
+    Sign convention: Positive when the integrated halo-plasma current flows in the
+    direction of increasing toroidal angle $\phi$ in the right-handed cylindrical
+    $(R, \phi, Z)$ frame, counter-clockwise when viewed from above $+\hat{Z}$.'
+  unit: A
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:halo_current
+  - name:poloidal_halo_current
+  sources:
+  - id: dd:disruption/global_quantities/current_halo_phi
+    dd_path: disruption/global_quantities/current_halo_phi
+    status: attached
+  - id: dd:disruption/global_quantities/current_halo_tor
+    dd_path: disruption/global_quantities/current_halo_tor
+    status: attached
 - name: toroidal_perturbed_plasma_magnetic_field_imaginary_part
   kind: complex
   status: draft
@@ -1766,21 +1878,21 @@
     hat{Z}\n$$\n\nwhere $\\mathbf{v}_\\mathrm{cm}$ is the [plasma_velocity](name:plasma_velocity)\
     \ center-of-mass bulk velocity vector, a mass-weighted mean of all contributing\
     \ plasma species.\n\nTogether with [radial_plasma_velocity](name:radial_plasma_velocity)\
-    \ and [toroidal_plasma_velocity](name:toroidal_plasma_velocity), this component\
-    \ fully decomposes the bulk plasma flow in the cylindrical $(R, \\phi, Z)$ frame.\
-    \ The [parallel_plasma_velocity](name:parallel_plasma_velocity) gives the field-aligned\
-    \ projection, which combines contributions from all three cylindrical directions.\
-    \ In tokamak near-equilibrium conditions, vertical velocities are generally much\
-    \ smaller than toroidal rotation speeds but become significant near magnetic X-points,\
-    \ in scrape-off layer flows, or during vertical stability transients.\n\nSign\
-    \ convention: Positive when the plasma flow is directed in the $+Z$ direction\
-    \ (vertically upward)."
+    \ and [toroidal_plasma_velocity](name:toroidal_impurity_ion_velocity_at_measurement_position),\
+    \ this component fully decomposes the bulk plasma flow in the cylindrical $(R,\
+    \ \\phi, Z)$ frame. The [parallel_plasma_velocity](name:parallel_plasma_velocity)\
+    \ gives the field-aligned projection, which combines contributions from all three\
+    \ cylindrical directions. In tokamak near-equilibrium conditions, vertical velocities\
+    \ are generally much smaller than toroidal rotation speeds but become significant\
+    \ near magnetic X-points, in scrape-off layer flows, or during vertical stability\
+    \ transients.\n\nSign convention: Positive when the plasma flow is directed in\
+    \ the $+Z$ direction (vertically upward)."
   unit: m.s^-1
   physics_domain: magnetohydrodynamics
   links:
   - name:plasma_velocity
   - name:radial_plasma_velocity
-  - name:toroidal_plasma_velocity
+  - name:toroidal_impurity_ion_velocity_at_measurement_position
   - name:parallel_plasma_velocity
   sources:
   - id: dd:mhd/ggd/velocity_z/values
@@ -1896,4 +2008,61 @@
   sources:
   - id: dd:mhd_linear/time_slice/toroidal_mode/radial_mode_number
     dd_path: mhd_linear/time_slice/toroidal_mode/radial_mode_number
+    status: composed
+- name: vertical_magnetic_vector_potential
+  kind: scalar
+  status: draft
+  description: Z-component of the magnetic vector potential in the right-handed cylindrical
+    (R, phi, Z) frame, where the full potential satisfies the curl relation giving
+    the magnetic induction B.
+  documentation: 'The vertical component $A_Z$ is the projection of the magnetic vector
+    potential $\mathbf{A}$ onto the vertical axis $\hat{Z}$ in the right-handed cylindrical
+    $(R, \phi, Z)$ frame, where $R$ is the major radius, $\phi$ is the toroidal angle,
+    and $Z$ is the vertical height. The full potential satisfies $\mathbf{B} = \nabla
+    \times \mathbf{A}$, making $\mathbf{A}$ gage-dependent but essential in canonical
+    particle momentum, gyrokinetic formulations, and MHD perturbation theory.
+
+
+    The projection is formally defined as:
+
+
+    $$
+
+    A_Z = \mathbf{A} \cdot \hat{Z}
+
+    $$
+
+
+    where $\hat{Z}$ is the unit vector in the direction of increasing height. Through
+    the curl relation, $A_Z$ couples to the radial magnetic-field component as $B_R
+    = R^{-1}\partial A_Z/\partial\phi - \partial A_\phi/\partial Z$ and to the toroidal
+    component as $B_\phi = \partial A_R/\partial Z - \partial A_Z/\partial R$, where
+    $A_R$ and $A_\phi$ are the radial and toroidal components of $\mathbf{A}$.
+
+
+    Computed from MHD equilibria or electromagnetic simulations covering the full
+    plasma domain, including edge and wall-adjacent regions. The companion toroidal_vector_potential
+    gives the $\phi$-projection of $\mathbf{A}$, while [vertical_vacuum_magnetic_vector_potential](name:vertical_vacuum_magnetic_vector_potential)
+    isolates the vacuum contribution to $A_Z$ arising from external coil currents.
+    The corresponding magnetic-field component is [vertical_magnetic_field](name:vertical_magnetic_field).
+
+
+    Sign convention: Positive when $A_Z$ points in the direction of increasing $Z$.'
+  unit: T.m
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:vertical_vacuum_magnetic_vector_potential
+  - name:vertical_magnetic_field
+  sources:
+  - id: dd:edge_profiles/ggd/a_field/z
+    dd_path: edge_profiles/ggd/a_field/z
+    status: composed
+  - id: dd:mhd/ggd/a_field_z/values
+    dd_path: mhd/ggd/a_field_z/values
+    status: composed
+  - id: dd:plasma_profiles/ggd/a_field/z
+    dd_path: plasma_profiles/ggd/a_field/z
+    status: composed
+  - id: dd:wall/description_ggd/ggd/a_field/z
+    dd_path: wall/description_ggd/ggd/a_field/z
     status: composed

@@ -1,6 +1,6 @@
 # Domain: plasma_wall_interactions
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 26
+# Entries: 32
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -167,6 +167,58 @@
   - id: dd:summary/local/limiter/n_i/deuterium_tritium/value
     dd_path: summary/local/limiter/n_i/deuterium_tritium/value
     status: composed
+- name: effective_charge_at_limiter
+  kind: scalar
+  status: draft
+  description: Effective charge number of the ion mixture in the boundary plasma at
+    the limiter, quantifying the degree of impurity contamination at this plasma-facing
+    surface.
+  documentation: 'The effective charge $Z_\text{eff}$ at the limiter is the charge-squared-weighted
+    average ion charge of the plasma species in the scrape-off layer immediately adjacent
+    to the limiter surface. It captures the aggregate effect of all impurity species
+    on plasma resistivity and radiation behavior without resolving individual impurity
+    charge states.
+
+
+    The quantity is defined by
+
+
+    $$
+
+    Z_\text{eff} = \frac{\sum_i n_i Z_i^2}{n_e}
+
+    $$
+
+
+    where $n_i$ is the number density of ion species $i$ with integer charge number
+    $Z_i$, and $n_e = \sum_i n_i Z_i$ is the electron density enforced by quasi-neutrality.
+    For a pure hydrogen-isotope plasma, $Z_\text{eff} = 1$; impurity ions with $Z_i
+    > 1$ raise the value above unity.
+
+
+    At the limiter, $Z_\text{eff}$ is typically elevated compared to the core because
+    sputtered wall material and recycled impurities concentrate near the plasma-facing
+    surface. Typical values range from 1.5 to 4 in limiter-configuration plasmas,
+    depending on the wall material (beryllium, carbon, or tungsten) and fueling conditions.
+    This local value complements [effective_charge_at_plasma_boundary](name:effective_charge_at_plasma_boundary)
+    and [effective_charge_at_divertor_target](name:effective_charge_at_divertor_target),
+    which quantify $Z_\text{eff}$ at other boundary reference locations. It is inferred
+    from the ratio of total Bremsstrahlung emissivity to the square of the electron
+    density integrated along lines of sight through the boundary plasma, or from spectroscopic
+    resolution of individual impurity charge states.
+
+
+    Sign convention: Positive for any plasma consisting of positively charged ions
+    and electrons satisfying quasi-neutral balance.'
+  unit: '1'
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:effective_charge_at_plasma_boundary
+  - name:effective_charge_at_divertor_target
+  sources:
+  - id: dd:summary/local/limiter/zeff/value
+    dd_path: summary/local/limiter/zeff/value
+    status: composed
 - name: electron_particle_flux_at_wall
   kind: scalar
   status: draft
@@ -222,6 +274,78 @@
   - id: dd:wall/description_ggd/ggd/particle_fluxes/electrons/incident/values
     dd_path: wall/description_ggd/ggd/particle_fluxes/electrons/incident/values
     status: composed
+- name: energy_flux_at_wall_due_to_eddy_current
+  kind: scalar
+  status: draft
+  description: Energy flux density crossing the plasma-facing wall surface due to
+    Joule heating by eddy currents induced in conducting structures. It represents
+    the portion of internally deposited Ohmic power that is transported back to the
+    surface and emitted toward the plasma.
+  documentation: 'Energy flux at the wall due to eddy current is the thermal power
+    per unit wall area that reaches the plasma-facing surface after eddy-current Joule
+    heating inside conducting wall material. Time-varying magnetic fields induce currents
+    in the wall; their Ohmic dissipation deposits power within the solid, while this
+    quantity describes only the emitted surface flux directed toward the plasma.
+
+
+    The volumetric source that feeds this surface emission is the local Ohmic dissipation
+    from the induced current density:
+
+
+    $$
+
+    p_\mathrm{eddy} = \frac{|\mathbf{J}_\mathrm{eddy}|^2}{\sigma_w}
+
+    $$
+
+
+    where $p_\mathrm{eddy}$ is the volumetric power density in W m$^{-3}$, $\mathbf{J}_\mathrm{eddy}$
+    is the eddy-current density in A m$^{-2}$, and $\sigma_w$ is the wall electrical
+    conductivity in S m$^{-1}$. The corresponding surface energy flux density depends
+    on the spatial distribution of this source, the wall geometry, thermal conductivity,
+    heat capacity, and the timescale over which heat diffuses to the plasma-facing
+    surface.
+
+
+    In practice, the quantity is computed from electromagnetic and thermal analyzes
+    of conducting wall structures during magnetic transients such as disruptions,
+    current quenches, vertical displacement events, or rapid control-coil field changes.
+    It may be inferred by combining reconstructed or modeled eddy-current distributions
+    with a heat-transfer calculation that maps internal Ohmic deposition to heat flux
+    at the surface.
+
+
+    Typical values are near zero during steady conditions when magnetic fields vary
+    slowly. During fast transients, localized emitted fluxes can be 10^3-10^6 W m$^{-2}$,
+    with higher short-duration peaks possible near highly conducting structures or
+    geometric current-concentration regions.
+
+
+    This quantity is part of the wall energy balance together with radiative loading,
+    particle energy fluxes, and total Ohmic dissipation in wall structures. It is
+    distinct from the total [power_at_wall_due_to_ohmic_dissipation](name:power_at_wall_due_to_ohmic_dissipation),
+    because only the portion transported to and emitted from the plasma-facing surface
+    contributes to this surface flux density.
+
+
+    Sign convention: Positive when thermal energy is emitted from the wall surface
+    toward the plasma.'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:energy_flux_at_wall_due_to_radiation
+  - name:electron_energy_flux_at_wall
+  - name:ion_energy_flux_at_wall
+  sources:
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/current/emitted/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/current/emitted/values
+    status: composed
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/current/incident/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/current/incident/values
+    status: composed
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/recombination/ion/incident/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/ion/incident/values
+    status: composed
 - name: hydrogen_density_at_limiter
   kind: scalar
   status: draft
@@ -269,6 +393,66 @@
   sources:
   - id: dd:summary/local/limiter/n_i/hydrogen/value
     dd_path: summary/local/limiter/n_i/hydrogen/value
+    status: composed
+- name: ion_kinetic_energy_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Incident kinetic energy flux per unit wall area carried by plasma ions,
+    summed over ion species and charge states, as they strike the plasma-facing wall.
+  documentation: 'Ion kinetic energy flux at the wall is the incident component of
+    kinetic power carried by ions crossing a plasma-facing material surface per unit
+    area. It includes the translational kinetic energy of ions at impact, summed over
+    all ion species and charge states, and is the ionic contribution to the total
+    [kinetic_energy_flux_at_wall](name:kinetic_energy_flux_at_wall). It excludes ion
+    potential energy, radiation, and energy transported by particles emitted or reflected
+    from the wall.
+
+
+    For a kinetic ion distribution evaluated at a wall point, the local incident flux
+    can be written as:
+
+
+    $$
+
+    Q_{i,\mathrm{kin}}^{\mathrm{inc}}(\mathbf{x}_w) = \sum_{s,z} \int_{\mathbf{v}\cdot\hat{\mathbf{n}}_w
+    < 0} \frac{1}{2} m_s |\mathbf{v}|^2 |\mathbf{v}\cdot\hat{\mathbf{n}}_w| f_{s,z}(\mathbf{x}_w,\mathbf{v})\,d^3v
+
+    $$
+
+
+    where $Q_{i,\mathrm{kin}}^{\mathrm{inc}}$ is in W m^-2, $\mathbf{x}_w$ is the
+    wall-surface position in meters, $s$ labels ion species, $z$ labels charge state,
+    $m_s$ is the ion mass in kg, $\mathbf{v}$ is ion velocity in m s^-1, $\hat{\mathbf{n}}_w$
+    is the unit normal directed from the wall material into the plasma, and $f_{s,z}$
+    is the ion distribution function in m^-3 (m s^-1)^-3. The integration domain selects
+    ions moving toward the wall.
+
+
+    In practice this quantity is estimated from ion particle fluxes and impact energies
+    using boundary plasma diagnostics, sheath or edge-plasma modeling, kinetic simulations,
+    or wall heat-flux measurements combined with a decomposition of the total heat
+    load. Separating the ion kinetic contribution from electron heat flux, neutral
+    heat flux, potential-energy terms, radiation, and emitted-particle losses generally
+    requires model assumptions.
+
+
+    Typical magnitudes are strongly dependent on wall location and plasma regime.
+    Main-chamber surfaces may receive values from about 10^2-10^5 W m^-2, while divertor
+    or limiter strike regions in attached or partially detached operation can reach
+    about 10^5-10^7 W m^-2; short transient events can be substantially larger.
+
+
+    Sign convention: Positive when the wall-normal ion kinetic energy flux is directed
+    from the plasma into the wall material.'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:kinetic_energy_flux_at_wall
+  - name:electron_kinetic_energy_flux_at_wall
+  - name:ion_kinetic_energy_flux_at_wall_due_to_surface_emission
+  sources:
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/kinetic/ion/incident/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/ion/incident/values
     status: composed
 - name: ion_kinetic_energy_flux_at_wall_due_to_surface_emission
   kind: scalar
@@ -669,6 +853,78 @@
   - id: dd:summary/local/limiter/n_i/neon/value
     dd_path: summary/local/limiter/n_i/neon/value
     status: composed
+- name: neutral_energy_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Incident wall-normal arrival flux density of neutral atoms and molecules
+    in the kinetic-energy channel reaching a plasma-facing wall, summed over neutral
+    species and internal quantum states. It counts particle arrivals per unit wall
+    area and time, expressed in arrivals per square meter per second, and is not a
+    heat flux in watts per square meter.
+  documentation: 'Neutral energy flux at the wall is the incident arrival flux density
+    of neutral atoms and molecules associated with the kinetic-energy channel at a
+    plasma-facing surface, summed over all neutral species and internal quantum states.
+    Despite the term "energy flux" in the name, its canonical unit is particle arrivals
+    per square meter per second, so it is a particle-rate quantity and not an energy-weighted
+    heat flux in watts per square meter.
+
+
+    For a point on the wall it is defined from the inward-directed part of the neutral
+    velocity distribution as the wall-normal arrival rate per unit area:
+
+
+    $$
+
+    \Gamma^{\mathrm{inc}} = \sum_{\alpha} \int_{\mathbf{v}\cdot\hat{\mathbf{n}}_p<0}
+    \left(-\mathbf{v}\cdot\hat{\mathbf{n}}_p\right) f_{\alpha}^{0}(\mathbf{x}_w,\mathbf{v})\,
+    d^3v
+
+    $$
+
+
+    where $\Gamma^{\mathrm{inc}}$ has units $\mathrm{m^{-2}\,s^{-1}}$, $\alpha$ labels
+    neutral species and internal states, $\hat{\mathbf{n}}_p$ is the unit normal pointing
+    from the material wall toward the plasma, $\mathbf{x}_w$ is the wall position
+    in meters, $\mathbf{v}$ is the neutral velocity in meters per second, and $f_{\alpha}^{0}$
+    is the neutral distribution function with units $\mathrm{s^3\,m^{-6}}$. No factor
+    of kinetic energy multiplies the integrand: an energy-weighted neutral heat flux
+    would require weighting by $E_k = m_{\alpha} v^2 / 2$ and would instead carry
+    units $\mathrm{W\,m^{-2}}$.
+
+
+    This quantity is obtained from neutral transport modeling and kinetic wall tallies
+    that accumulate inward-crossing neutral trajectories, with contributions summed
+    over atomic, molecular, and excited populations. It is the species- and state-summed
+    counterpart of [neutral_state_energy_flux_at_wall](name:neutral_state_energy_flux_at_wall);
+    the analogous quantity without the kinetic-channel qualifier is [neutral_particle_flux_at_wall](name:neutral_particle_flux_at_wall),
+    whose state-resolved form is [neutral_state_particle_flux_at_wall](name:neutral_state_particle_flux_at_wall).
+    It should be distinguished from [energy_flux_at_wall](name:energy_flux_at_wall_due_to_eddy_current),
+    which is an energy-weighted wall loading rather than a particle-rate flux.
+
+
+    Typical values are about $10^{18}-10^{21}\ \mathrm{m^{-2}\,s^{-1}}$ on main-chamber
+    surfaces and $10^{21}-10^{24}\ \mathrm{m^{-2}\,s^{-1}}$ in strongly recycling
+    divertor or limiter regions, depending on plasma density, recycling coefficient,
+    fueling rate, and wall geometry.
+
+
+    Sign convention: Positive when neutral particles cross the wall surface from the
+    plasma side toward the material wall.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_state_energy_flux_at_wall
+  - name:neutral_particle_flux_at_wall
+  - name:neutral_state_particle_flux_at_wall
+  - name:energy_flux_at_wall_due_to_eddy_current
+  arguments:
+  - name: energy_flux_at_wall_due_to_eddy_current
+    operator: neutral
+    operator_kind: qualifier
+  sources:
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/kinetic/neutral/incident/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/neutral/incident/values
+    status: composed
 - name: neutral_particle_flux_at_wall
   kind: scalar
   status: draft
@@ -930,6 +1186,115 @@
   sources:
   - id: dd:summary/local/limiter/n_i/oxygen/value
     dd_path: summary/local/limiter/n_i/oxygen/value
+    status: composed
+- name: peak_power_density_at_first_wall
+  kind: scalar
+  status: draft
+  description: Spatial maximum of the incident heat flux density deposited on first-wall
+    plasma-facing surfaces.
+  documentation: 'Peak power density at the first wall is the largest local incident
+    thermal power per unit area deposited on first-wall plasma-facing surfaces. It
+    is the first-wall-specific form of a wall peak-load metric, distinct from peaks
+    evaluated over all wall elements, limiter surfaces, or divertor targets.
+
+
+    For a first-wall surface $S_\mathrm{FW}$, it is defined as the maximum positive
+    projection of the local power-flow vector onto the surface normal pointing from
+    the plasma-facing surface into the solid wall:
+
+
+    $$
+
+    q_{\mathrm{FW}}^{\mathrm{peak}} = \max_{\mathbf{x} \in S_\mathrm{FW}} \max\left(0,
+    \boldsymbol{q}(\mathbf{x}) \cdot \hat{\boldsymbol{n}}_w(\mathbf{x})\right)
+
+    $$
+
+
+    where $q_{\mathrm{FW}}^{\mathrm{peak}}$ is the peak first-wall power density in
+    W m^-2, $\boldsymbol{q}(\mathbf{x})$ is the local energy flux density vector in
+    W m^-2, and $\hat{\boldsymbol{n}}_w(\mathbf{x})$ is a dimensionless unit normal
+    directed into the wall material at surface location $\mathbf{x}$. The inner maximum
+    retains only incident heating and excludes outward or cooling fluxes.
+
+
+    In practice, this quantity is obtained from infrared thermography and inverse
+    heat-conduction analysis, embedded thermocouples, calorimetric measurements, or
+    modeled combinations of plasma particle bombardment, charge-exchange neutral loading,
+    and radiative heat deposition. Surface geometry, material properties, viewing
+    factors, and time response are important when converting measured temperature
+    or radiation signals into local incident heat flux.
+
+
+    Representative steady or quasi-steady first-wall peak loads are typically about
+    0.1-5 MW m^-2, depending on device size, plasma scenario, wall material, and active
+    cooling. Short transients such as edge-localized modes, runaway-electron impacts,
+    or disruptions can produce substantially larger instantaneous local peaks over
+    shorter durations. Related quantities include [power_density_at_wall](name:power_density_at_wall)
+    for a local wall heat-flux density, [peak_power_density_at_wall](name:peak_power_density_at_wall)
+    for the maximum over wall surfaces more generally, [peak_power_density_at_limiter](name:peak_power_density_at_limiter)
+    for limiter elements, and [peak_power_density_at_divertor_target](name:peak_power_density_at_divertor_target)
+    for divertor target plates.'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:peak_power_density
+  - name:energy_flux_at_wall
+  sources:
+  - id: dd:wall/first_wall_power_flux_peak
+    dd_path: wall/first_wall_power_flux_peak
+    status: composed
+- name: peak_power_density_at_limiter
+  kind: scalar
+  status: draft
+  description: Spatial maximum of the heat flux per unit surface area deposited by
+    scrape-off-layer plasma on the limiter surface.
+  documentation: 'Peak power density at a limiter is the spatial maximum of the local
+    heat flux density deposited on the wetted limiter surface by scrape-off-layer
+    plasma. It is the limiting local thermal load for limiter plasma-facing material,
+    distinct from total limiter power because it depends on how narrowly the heat
+    is distributed over the contact area.
+
+
+    The peak limiter heat-flux density is defined as the maximum of the local deposited
+    normal heat flux over the wetted limiter surface:
+
+
+    $$
+
+    q_{\mathrm{peak,lim}} = \max_{\mathbf{x} \in A_{\mathrm{lim}}} q_\perp(\mathbf{x})
+
+    $$
+
+
+    where $q_{\mathrm{peak,lim}}$ and $q_\perp$ have units W m^-2, $\mathbf{x}$ is
+    a point on the limiter surface, and $A_{\mathrm{lim}}$ is the wetted limiter surface
+    area in m^2. For attached scrape-off-layer transport, the geometric projection
+    is often approximated by $q_\perp \approx q_\parallel \sin\alpha$, where $q_\parallel$
+    is the parallel heat flux in W m^-2 and $\alpha$ is the dimensionless grazing
+    angle between the magnetic field line and the surface; sheath heat-transmission
+    factors, particle recycling, radiation, and surface incidence effects can modify
+    this simple projection.
+
+
+    In practice this quantity is inferred from infrared thermography, calorimetry,
+    embedded temperature sensors, or probes, often combined with surface thermal modeling
+    and magnetic field-line tracing to identify the wetted region. Equilibrium geometry
+    and limiter alignment are important because small changes in strike location or
+    grazing angle can strongly change the local maximum.
+
+
+    Typical steady attached limiter loads in medium-size tokamaks are about 1-10 MW
+    m^-2, with lower values in low-power or strongly radiating plasmas and substantially
+    higher short-lived peaks possible during transients or localized contact events.'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:peak_power_density_at_divertor_target
+  - name:peak_power_density_at_first_wall
+  sources:
+  - id: dd:summary/local/limiter/power_flux_peak/value
+    dd_path: summary/local/limiter/power_flux_peak/value
     status: composed
 - name: power_density_at_wall
   kind: scalar

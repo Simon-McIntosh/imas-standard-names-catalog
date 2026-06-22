@@ -1,9 +1,66 @@
 # Domain: auxiliary_heating
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 48
+# Entries: 58
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: absorbed_power_of_beam_tracing_beam
+  kind: scalar
+  status: draft
+  description: Net coherent-wave power absorbed by the plasma from one beam-tracing
+    beam over its computed trajectory. It is the final path-integrated, species-summed
+    deposited power, equal to the beam power entering the path minus the residual
+    wave power at the end.
+  documentation: 'Absorbed power of a beam-tracing beam is the net coherent-wave power
+    transferred from one traced beam to the plasma over its computed propagation path.
+    It is the final path-integrated total for that single beam, summed over all absorbing
+    species, and is distinct from scenario-level [absorbed power](name:absorbed_power)
+    obtained by summing over beams or launchers.
+
+
+    For a ray arc length $s$ increasing along the direction of wave propagation, the
+    endpoint absorbed power is
+
+
+    $$
+
+    P_{\mathrm{abs}} = P_0 - P_{\mathrm{end}} = P_0\left[1 - \exp\left(-2\int_{s_0}^{s_{\mathrm{end}}}
+    \kappa_i^{\mathrm{tot}}(s)\,ds\right)\right]
+
+    $$
+
+
+    where $P_0$ is the [launched power] or entering beam power in W, $P_{\mathrm{end}}$
+    is the residual [power of the beam-tracing beam](name:power_of_beam_tracing_beam)
+    at the end of the path in W, $s_0$ and $s_{\mathrm{end}}$ are the start and end
+    arc-length positions in m, and $\kappa_i^{\mathrm{tot}}$ is the species-summed
+    spatial amplitude-damping coefficient along the ray in m^-1. The factor of 2 appears
+    because wave power is proportional to squared wave-field amplitude; positive damping
+    therefore makes the remaining beam power decrease along increasing $s$.
+
+
+    In practice this quantity is computed by integrating local absorption along the
+    beam-tracing trajectory using the plasma dielectric response and the wave dispersion
+    relation. Species-resolved channels such as [electron absorbed power](name:electron_absorbed_power_of_beam_tracing_beam),
+    [ion absorbed power], and [ion-state absorbed power](name:ion_state_absorbed_power_of_beam_tracing_beam)
+    may be evaluated separately and summed to recover the total for the beam.
+
+
+    Typical values are bounded by 0 W and the power assigned to the traced beam. They
+    can be near 0 W for weak damping or missed resonance, and can approach the assigned
+    launched or entering power for strongly absorbed paths; in weighted beam-tracing
+    calculations this can span roughly 10^0-10^6 W per traced beam depending on launcher
+    power and beam subdivision.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:absorbed_power
+  - name:power_of_beam_tracing_beam
+  - name:electron_absorbed_power_of_beam_tracing_beam
+  - name:ion_state_absorbed_power_of_beam_tracing_beam
+  sources:
+  - id: derived:absorbed_power_of_beam_tracing_beam
+    status: composed
 - name: beam_major_radius_of_beam_tracing_beam
   kind: scalar
   status: draft
@@ -178,6 +235,133 @@
   - id: dd:summary/heating_current_drive/nbi/current/value
     dd_path: summary/heating_current_drive/nbi/current/value
     status: composed
+- name: electron_power_at_inside_flux_surface
+  kind: scalar
+  status: draft
+  description: Cumulative net power transferred to electrons within the plasma volume
+    enclosed by a specified magnetic flux surface. It sums power delivered to fast
+    suprathermal electrons and to the bulk thermal electron population.
+  documentation: 'Electron power at inside flux surface is the cumulative net rate
+    of energy transfer to all electron populations within the plasma volume enclosed
+    by a specified magnetic flux surface. It is an enclosed-volume quantity: each
+    surface includes all electron power deposition inside it, and the sum of fast
+    and thermal electron components gives the total electron-channel contribution.
+
+
+    The quantity is defined by integrating the flux-surface-averaged net electron
+    power deposition density over enclosed volume, using the flux coordinate $\rho_\mathrm{tor,norm}$,
+    the dimensionless normalized toroidal flux radius:
+
+
+    $$
+
+    P_e(\rho_s) = \int_0^{\rho_s} \left\langle q_e \right\rangle_{\rho} \frac{dV}{d\rho}
+    \, d\rho
+
+    $$
+
+
+    where $P_e$ is the enclosed electron power in W, $\rho_s$ labels the bounding
+    flux surface, $\left\langle q_e \right\rangle_{\rho}$ is the flux-surface-averaged
+    net electron power deposition density in W m$^{-3}$, and $dV/d\rho$ is the differential
+    enclosed volume in m$^3$ per unit $\rho_\mathrm{tor,norm}$. The derivative $dP_e/d\rho
+    = \left\langle q_e \right\rangle_{\rho} dV/d\rho$ is a power per unit normalized
+    flux radius, not a volumetric density by itself.
+
+
+    In practice, local electron energy-transfer rates are mapped to magnetic flux
+    surfaces from wave absorption, fast-particle slowing down, collisional exchange,
+    or power-balance calculations, then flux-surface averaged and integrated outward
+    from the magnetic axis. The decomposition corresponds to [fast_electron_power_at_inside_flux_surface](name:fast_electron_power_at_inside_flux_surface)
+    for suprathermal electrons plus [thermal_electron_power_at_inside_flux_surface](name:thermal_electron_power_at_inside_flux_surface)
+    for the bulk thermal electron population; at the outer closed surface it can be
+    compared with [total_electron_power](name:total_electron_power) when the same
+    source set and plasma volume are used.
+
+
+    Typical enclosed electron powers are 10^4-10^6 W in small or low-power experiments,
+    10^5-10^7 W for individual electron-heating systems in medium-size tokamaks, and
+    10^7-10^8 W in high-power or reactor-scale scenarios. For purely deposited auxiliary
+    power, the value generally rises from about 0 W near the magnetic axis to the
+    electron-channel total at the outer closed surface; decreases with increasing
+    $\rho_\mathrm{tor,norm}$ or negative values indicate net electron cooling or transfer
+    of energy from electrons to another channel.
+
+
+    Sign convention: Positive when net power is transferred to the electron population.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:power_at_inside_flux_surface
+  - name:fast_electron_power_at_inside_flux_surface
+  - name:thermal_electron_power_at_inside_flux_surface
+  - name:total_electron_power
+  - name:total_plasma_radiated_power
+- name: fast_electron_power_at_inside_flux_surface
+  kind: scalar
+  status: draft
+  description: Cumulative wave power absorbed by non-thermal fast electrons inside
+    a specified magnetic flux surface, equal to the enclosed-volume integral of the
+    local fast-electron power-deposition density.
+  documentation: 'Fast-electron power inside a flux surface is the cumulative rate
+    at which coherent-wave energy is absorbed by non-thermal electrons in the plasma
+    volume enclosed by a closed magnetic surface. It represents the fast-electron
+    part of the auxiliary wave-power deposition, distinct from deposition on thermal
+    electrons or ions. The surface label should be an explicitly named flux coordinate,
+    for example $(\psi,\theta,\phi)$ or $(\rho_{\mathrm{tor,norm}},\theta,\phi)$,
+    where $\theta$ is a poloidal angle and $\phi$ is the toroidal angle of the right-handed
+    cylindrical $(R,\phi,Z)$ frame with $R$ major radius and $Z$ vertical height.
+
+
+    For a selected flux surface labeled by $\chi_s$, the enclosed fast-electron power
+    is the volume integral
+
+
+    $$
+
+    P_{\mathrm{fast}\,e}^{\mathrm{inside}}(\chi_s)=\int_{\Omega_s} p_{\mathrm{fast}\,e}(\mathbf{x})\,dV
+
+    $$
+
+
+    where $\chi$ is the chosen flux-surface label, $\Omega_s$ is the plasma volume
+    enclosed between the magnetic axis and the surface $\chi=\chi_s$, $p_{\mathrm{fast}\,e}$
+    is the local [fast_electron_power_density](name:fast_electron_power_density) in
+    W m$^{-3}$, $dV$ is a volume element in m$^3$, and the result is in W.
+
+
+    In practice this quantity is obtained by integrating a local fast-electron wave-power
+    deposition density over reconstructed magnetic-flux-surface volumes. Together
+    with [thermal_electron_power_at_inside_flux_surface](name:thermal_electron_power_at_inside_flux_surface),
+    it describes how absorbed wave power is partitioned within the electron population;
+    at the outermost closed flux surface it corresponds to the global [fast_electron_power](name:fast_electron_power)
+    for the same absorption definition. The analogous non-thermal ion quantity is
+    [fast_ion_state_power_at_inside_flux_surface](name:fast_ion_state_power_at_inside_flux_surface),
+    and all such channels contribute to the overall auxiliary-heating power balance
+    represented by quantities such as [total_electron_power](name:total_electron_power).
+
+
+    Representative magnitudes range from near 0 W on surfaces enclosing little or
+    no fast-electron absorption to the order of the coupled auxiliary-wave power.
+    Depending on device size and heating scenario, enclosed fast-electron powers can
+    span roughly 10^3-10^7 W, with megawatt-scale values possible when wave absorption
+    is dominated by non-thermal electrons.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:fast_electron_power_density
+  - name:thermal_electron_power_at_inside_flux_surface
+  - name:electron_power_at_inside_flux_surface
+  - name:fast_electron_power
+  - name:fast_ion_power_at_inside_flux_surface
+  arguments:
+  - name: electron_power_at_inside_flux_surface
+    operator: fast
+    operator_kind: qualifier
+  sources:
+  - id: dd:waves/coherent_wave/profiles_1d/electrons/power_inside_fast
+    dd_path: waves/coherent_wave/profiles_1d/electrons/power_inside_fast
+    status: composed
 - name: fast_ion_power_at_inside_flux_surface
   kind: scalar
   status: draft
@@ -274,6 +458,60 @@
   sources:
   - id: dd:waves/coherent_wave/profiles_1d/ion/state/power_inside_fast
     dd_path: waves/coherent_wave/profiles_1d/ion/state/power_inside_fast
+    status: composed
+- name: forward_power_of_lower_hybrid_antenna
+  kind: scalar
+  status: draft
+  description: Incident RF power carried by the wave propagating toward a lower hybrid
+    antenna at its input reference plane. It is a per-antenna quantity, not a sum
+    over multiple antennas.
+  documentation: 'Forward power of a lower hybrid antenna is the nonnegative RF power
+    carried by the incident traveling wave at the antenna input reference plane. It
+    represents power propagating from the generator and transmission-line side toward
+    the antenna structure; "forward" specifies this propagation direction rather than
+    a signed power convention. The quantity applies to one antenna, so totals over
+    several antennas are separate quantities.
+
+
+    The launched RF power is the part of the forward power that remains after subtracting
+    the oppositely propagating reflected power:
+
+
+    $$
+
+    P_\mathrm{launched} = P_\mathrm{forward} - P_\mathrm{reflected}
+
+    $$
+
+
+    where $P_\mathrm{forward}$ is the forward power, $P_\mathrm{reflected}$ is the
+    reflected power, and $P_\mathrm{launched}$ is the launched power for the same
+    antenna and the same reference plane. If a complex voltage-wave reflection coefficient
+    $\Gamma$ is used, $\Gamma$ is dimensionless and $|\Gamma|^2$ gives the reflected-to-forward
+    power ratio under the corresponding calibration convention.
+
+
+    In practice, forward power is inferred from calibrated RF measurements that separate
+    waves traveling toward and away from the antenna, commonly using directional RF
+    measurements or equivalent network measurements near the antenna input. Corrections
+    may account for transmission-line attenuation, calibration factors, and the chosen
+    reference plane. Forward power can exceed launched power when antenna-plasma mismatch
+    or loading changes produce reflected power.
+
+
+    Typical per-antenna values in lower-hybrid heating or current-drive operation
+    are about $10^5$-$5 \times 10^6$ W, while commissioning, conditioning, or low-power
+    phases can use $10^3$-$10^5$ W.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:launched_power_of_lower_hybrid_antenna
+  - name:reflected_power_of_lower_hybrid_antenna
+  - name:frequency_of_lower_hybrid_antenna
+  - name:electron_density_at_launching_position
+  sources:
+  - id: dd:lh_antennas/antenna/power_forward
+    dd_path: lh_antennas/antenna/power_forward
     status: composed
 - name: frequency_of_electron_cyclotron_heating_antenna
   kind: scalar
@@ -430,6 +668,128 @@
   sources:
   - id: dd:ic_antennas/antenna/module/strap/geometry/annulus/radius_inner
     dd_path: ic_antennas/antenna/module/strap/geometry/annulus/radius_inner
+    status: composed
+- name: ion_state_absorbed_power_of_beam_tracing_beam
+  kind: scalar
+  status: draft
+  description: Wave power absorbed by ions of a specified species and charge state
+    along a coherent-wave beam-tracing beam path. It is the charge-state-resolved
+    contribution to the total ion power absorbed from that beam.
+  documentation: 'Ion-state absorbed power of a beam-tracing beam is the net power
+    transferred from a coherent wave beam to ions of one specified species and ionization
+    (charge) state along the traced beam path. It is the charge-state-resolved share
+    of the ion power absorbed from that beam, and summing it over all charge states
+    of a species recovers the species-level ion absorption.
+
+
+    The absorbed power is the integral of the local absorption rate per unit path
+    length over the beam representation:
+
+
+    $$
+
+    P_{i,z} = \int_{\mathcal{C}} \frac{dP_{i,z}}{d\ell} \, d\ell
+
+    $$
+
+
+    where $\mathcal{C}$ is the traced beam path, $\ell$ is distance along that path
+    in meters, and $dP_{i,z}/d\ell$ is the local net power transferred to ion species
+    $i$ in charge state $z$ per unit path length, expressed in W/m. The integral runs
+    along the beam path used to represent the propagating field, not over the full
+    plasma volume; the corresponding volumetric deposition rates per unit plasma volume
+    are tracked separately.
+
+
+    The quantity is evaluated by beam-tracing models, which extend geometrical optics
+    to include finite beam-width effects by following a Gaussian wave packet through
+    an inhomogeneous plasma. The local transfer follows from the wave field, plasma
+    equilibrium, species composition, charge-state populations, and ion distribution
+    functions, and may arise from any modeled wave-particle damping mechanism rather
+    than only ion-cyclotron resonance. The species and charge state are fixed by the
+    associated ion-state identifier.
+
+
+    Typical per-beam ion-state absorbed power spans a broad range, from near zero
+    on weakly damped paths or for trace charge states up to of order the total coupled
+    beam power for strongly resonant states; the value is bounded above by the available
+    beam power in a passively absorbing plasma.
+
+
+    Sign convention: Positive when net wave energy is transferred from the beam to
+    the specified ion charge state.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:absorbed_power_of_beam_tracing_beam
+  - name:thermal_ion_state_power_density
+  - name:fast_ion_state_power_density
+  arguments:
+  - name: absorbed_power_of_beam_tracing_beam
+    operator: ion_state
+    operator_kind: qualifier
+  sources:
+  - id: dd:waves/coherent_wave/beam_tracing/beam/ion/state/power
+    dd_path: waves/coherent_wave/beam_tracing/beam/ion/state/power
+    status: composed
+- name: launched_power_of_electron_cyclotron_launcher
+  kind: scalar
+  status: draft
+  description: Net electron cyclotron radio-frequency power crossing from a single
+    launcher into the vacuum vessel, defined as forward minus reflected power at the
+    launcher aperture or reference plane. Evaluated after transmission-line and launcher
+    losses and before any plasma absorption, reflection, or shine-through.
+  documentation: 'Launched power of an electron cyclotron launcher is the net radio-frequency
+    wave power delivered by one electron cyclotron launcher across its launch aperture
+    into the vacuum vessel. It is a boundary power for electron-cyclotron heating
+    and current-drive calculations, defined as the forward power minus the power reflected
+    back at the launcher aperture or reference plane, and before any plasma absorption,
+    reflection from cutoff or resonance regions, wall interaction, or shine-through.
+
+
+    For a launcher represented by one or more launched wave beams, the launcher launched
+    power is the sum of the launched powers of those beams:
+
+
+    $$
+
+    P_{\mathrm{EC,launched}}^{\mathrm{launcher}} = \sum_b P_{\mathrm{launched},b}
+
+    $$
+
+
+    where $P_{\mathrm{launched},b}$ is the launched power of beam $b$ in watts, taken
+    after transmission losses and before plasma interaction. Equivalently, in terms
+    of the directional power components at the reference plane, $P_{\mathrm{EC,launched}}^{\mathrm{launcher}}
+    = P_{\mathrm{forward}} - P_{\mathrm{reflected}}$, with all terms in watts.
+
+
+    This power is typically derived from gyrotron or source output power corrected
+    for transmission-line, window, switch, and launcher losses, or inferred from calibrated
+    radio-frequency power monitors near the launcher. It is commonly used as the input
+    power for ray-tracing or beam-tracing models; subsequent absorbed, reflected,
+    or shine-through power is accounted for separately.
+
+
+    Typical values for a single electron cyclotron launcher are of order $1 \times
+    10^5$ to $2 \times 10^6$ W in present tokamak systems, with multi-beam or high-power
+    launchers reaching several $10^6$ W.
+
+
+    Sign convention: Positive when electron cyclotron wave power flows from the launcher
+    into the vacuum vessel.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:power_of_electron_cyclotron_launcher
+  - name:total_power_of_electron_cyclotron_launcher
+  - name:launched_power_of_wave_beam
+  sources:
+  - id: dd:ec_antennas/antenna/power_launched
+    dd_path: ec_antennas/antenna/power_launched
+    status: attached
+  - id: dd:ec_launchers/launcher/power_launched
+    dd_path: ec_launchers/launcher/power_launched
     status: composed
 - name: launched_power_of_lower_hybrid_antenna
   kind: scalar
@@ -905,6 +1265,40 @@
   - id: dd:ic_antennas/antenna/power_forward
     dd_path: ic_antennas/antenna/power_forward
     status: composed
+- name: radial_normalized_wave_vector_of_beam_tracing_beam
+  kind: scalar
+  status: draft
+  description: Radial direction cosine of the electromagnetic wave vector along a
+    beam-tracing ray, equal to the radial component $k_R$ divided by the total wave-vector
+    magnitude $|\mathbf{k}|$.
+  documentation: "The radial normalized wave vector is the direction cosine of the\
+    \ local wave vector projected onto the major-radius direction $\\hat{R}$ of the\
+    \ right-handed cylindrical $(R, \\phi, Z)$ frame, evaluated at each point along\
+    \ the beam or ray path in beam-tracing calculations. It encodes what fraction\
+    \ of the instantaneous wave propagation direction is oriented radially \u2014\
+    \ outward from or inward toward the machine symmetry axis.\n\nThe quantity is\
+    \ defined as:\n\n$$\nk_{R,\\text{norm}} = \\frac{k_R}{|\\mathbf{k}|}\n$$\n\nwhere\
+    \ $k_R$ is the [radial wave-vector component](name:radial_wave_vector_of_beam_tracing_beam)\
+    \ and $|\\mathbf{k}|$ is the total wave-vector magnitude. Together with the [toroidal\
+    \ normalized wave vector](name:toroidal_normalized_wave_vector_of_beam_tracing_beam)\
+    \ and the [vertical normalized wave vector](name:vertical_normalized_wave_vector_of_beam_tracing_beam),\
+    \ this component forms a unit direction vector satisfying $k_{R,\\text{norm}}^2\
+    \ + k_{\\phi,\\text{norm}}^2 + k_{Z,\\text{norm}}^2 = 1$.\n\nIn beam-tracing or\
+    \ ray-tracing simulations for RF heating, the normalized wave-vector components\
+    \ track the instantaneous wave propagation direction as the ray refracts through\
+    \ an inhomogeneous magnetized plasma. Values are dimensionless and bounded to\
+    \ the interval $[-1, 1]$.\n\nSign convention: Positive when $k_R$ points in the\
+    \ direction of increasing major radius $R$, away from the machine symmetry axis."
+  unit: '1'
+  physics_domain: auxiliary_heating
+  links:
+  - name:radial_wave_vector_of_beam_tracing_beam
+  - name:toroidal_normalized_wave_vector_of_beam_tracing_beam
+  - name:vertical_normalized_wave_vector_of_beam_tracing_beam
+  sources:
+  - id: dd:waves/coherent_wave/beam_tracing/beam/wave_vector/k_r_norm
+    dd_path: waves/coherent_wave/beam_tracing/beam/wave_vector/k_r_norm
+    status: composed
 - name: reflected_power_of_ion_cyclotron_heating_antenna
   kind: scalar
   status: draft
@@ -1040,6 +1434,10 @@
   - name:thermal_electron_power_density
   - name:thermal_ion_power_at_inside_flux_surface
   - name:thermal_ion_state_power_at_inside_flux_surface
+  arguments:
+  - name: electron_power_at_inside_flux_surface
+    operator: thermal
+    operator_kind: qualifier
   sources:
   - id: dd:waves/coherent_wave/profiles_1d/electrons/power_inside_thermal
     dd_path: waves/coherent_wave/profiles_1d/electrons/power_inside_thermal
@@ -1208,6 +1606,182 @@
   - id: dd:lh_antennas/power
     dd_path: lh_antennas/power
     status: composed
+- name: total_power_due_to_electron_cyclotron_heating
+  kind: scalar
+  status: draft
+  description: Total radiofrequency power absorbed in the plasma by electron cyclotron
+    heating, summed over all electron cyclotron wave sources. It represents deposited
+    heating power, not launched, transmitted, or reflected power, and is zero or positive.
+  documentation: 'Total power due to electron cyclotron heating is the aggregate rate
+    at which electron cyclotron waves transfer electromagnetic energy to the plasma
+    through resonant interaction with electrons at the cyclotron frequency or its
+    harmonics. It is an absorbed heating power: it counts only the power that is actually
+    deposited in the plasma, excluding power that remains in transmission paths, is
+    reflected, or shines through without absorption.
+
+
+    The total absorbed electron cyclotron heating power is the sum of the absorbed
+    powers from the individual electron cyclotron wave sources:
+
+
+    $$
+
+    P_\mathrm{EC} = \sum_{i=1}^{N_\mathrm{EC}} P_{\mathrm{EC},i}
+
+    $$
+
+
+    where $N_\mathrm{EC}$ is the number of contributing electron cyclotron wave sources,
+    $P_{\mathrm{EC},i}$ (in W) is the heating power absorbed in the plasma from source
+    $i$, and $P_\mathrm{EC}$ (in W) is the total deposited power. The per-source contribution
+    is reported by [power_due_to_electron_cyclotron_heating](name:power_due_to_electron_cyclotron_heating).
+
+
+    In practice this quantity is obtained from power-balance and wave-deposition analysis
+    that combines the launched radiofrequency power with absorption estimates from
+    ray-tracing or beam-tracing calculations, accounting for single-pass absorption
+    efficiency and shine-through losses. It enters the electron energy balance as
+    a heating source term and is therefore closely related to [total_electron_power](name:total_electron_power).
+
+
+    Representative integrated values range from a few hundred kilowatts to several
+    megawatts in present-day auxiliary-heated experiments, and reach tens of megawatts
+    in high-power systems, with the exact value depending on source power, coupling
+    efficiency, plasma density and temperature, magnetic field, and the absorption
+    location. The value is zero when no electron cyclotron heating is applied.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:power_due_to_electron_cyclotron_heating
+  - name:total_power_of_electron_cyclotron_launcher
+  - name:current_due_to_electron_cyclotron_current_drive
+  - name:total_power_due_to_ion_cyclotron_heating
+  arguments:
+  - name: power_due_to_electron_cyclotron_heating
+    operator: total
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/heating_current_drive/power_ec/value
+    dd_path: summary/heating_current_drive/power_ec/value
+    status: composed
+- name: total_power_due_to_ion_cyclotron_heating
+  kind: scalar
+  status: draft
+  description: Total net radio-frequency power absorbed by the plasma through ion
+    cyclotron resonance heating, summed over all ion-cyclotron launchers or antenna
+    systems. It excludes power that is launched but reflected or lost before coupling
+    to the plasma.
+  documentation: 'Total power due to ion cyclotron heating is the aggregate rate at
+    which radio-frequency electromagnetic energy in the ion-cyclotron frequency range
+    is deposited in the plasma. It includes resonant and mode-converted wave absorption
+    from all active ion-cyclotron launchers or antenna systems, and excludes reflected
+    power and non-plasma losses.
+
+
+    The total absorbed ion-cyclotron heating power is the sum of the absorbed powers
+    from the individual contributing systems:
+
+
+    $$
+
+    P_{\mathrm{IC,tot}} = \sum_{k=1}^{N_{\mathrm{IC}}} P_{\mathrm{IC},k}
+
+    $$
+
+
+    where $N_{\mathrm{IC}}$ is the number of contributing ion-cyclotron launchers
+    or antenna systems, $k$ indexes those systems, and $P_{\mathrm{IC},k}$ is the
+    net power absorbed by the plasma from system $k$ in watts.
+
+
+    In practice, this quantity is inferred from an RF power balance using measurements
+    of forward, reflected, and coupled power together with estimates of transmission-line,
+    matching-network, antenna, and other non-plasma losses when available. It may
+    also be constrained by wave-heating analysis, modulation experiments, or global
+    plasma energy-balance checks; it is not the generator output power or the purely
+    launched RF power.
+
+
+    Typical values are $1\times10^5-1\times10^7$ W in medium-sized tokamak experiments
+    and can reach $2\times10^7-4\times10^7$ W in large high-power ion-cyclotron heating
+    scenarios. The value is zero when no ion-cyclotron RF power is coupled to and
+    absorbed by the plasma.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:power_due_to_ion_cyclotron_heating
+  - name:reflected_power_of_ion_cyclotron_heating_antenna
+  - name:total_power_due_to_electron_cyclotron_heating
+  arguments:
+  - name: power_due_to_ion_cyclotron_heating
+    operator: total
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/heating_current_drive/power_ic/value
+    dd_path: summary/heating_current_drive/power_ic/value
+    status: composed
+- name: total_power_of_ion_cyclotron_heating_antenna
+  kind: scalar
+  status: draft
+  description: System-level net radio-frequency power launched into the vacuum vessel
+    by all ion-cyclotron heating antennas. It is the sum over antennas of forward
+    power minus reflected power, so it represents launched rather than absorbed heating
+    power.
+  documentation: 'Total power of the ion-cyclotron heating antenna system is the system-level
+    net RF power launched through the antenna array into the vacuum vessel. It is
+    the aggregate of the per-antenna launched powers, distinguishing launched power
+    from the power ultimately absorbed by the plasma, such as [total_power_due_to_ion_cyclotron_heating](name:total_power_due_to_ion_cyclotron_heating).
+
+
+    The total launched power is defined by summing the net contribution from each
+    antenna:
+
+
+    $$
+
+    P_{\mathrm{ICRH,tot}} = \sum_{a=1}^{N_{\mathrm{ant}}} \left(P_{\mathrm{fwd},a}
+    - P_{\mathrm{refl},a}\right)
+
+    $$
+
+
+    where $N_{\mathrm{ant}}$ is the number of ion-cyclotron heating antennas, $P_{\mathrm{fwd},a}$
+    is the forward RF power for antenna $a$, and $P_{\mathrm{refl},a}$ is the corresponding
+    reflected RF power, with all powers expressed in W. The per-antenna net term corresponds
+    to [power_of_ion_cyclotron_heating_antenna](name:power_of_ion_cyclotron_heating_antenna),
+    while the reflected component is represented by [reflected_power_of_ion_cyclotron_heating_antenna](name:reflected_power_of_ion_cyclotron_heating_antenna).
+
+
+    In practice, the forward and reflected RF powers are inferred from calibrated
+    measurements in the antenna feeding system and combined over the active antennas.
+    The value is used as a launched-power input for heating efficiency and power-balance
+    analysis; it should not be interpreted as the absorbed ion-cyclotron heating power,
+    because coupling losses, reflection, edge interactions, and wave absorption determine
+    the fraction deposited in the plasma.
+
+
+    Typical total launched ICRH powers range from about $10^5$-$10^7$ W, depending
+    on antenna configuration, coupling conditions, and device size. High-power tokamak
+    systems commonly operate in the MW range.
+
+
+    Sign convention: Positive when the net RF power flow is from the antenna system
+    into the vacuum vessel.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:power_of_ion_cyclotron_heating_antenna
+  - name:total_power_of_electron_cyclotron_launcher
+  - name:total_launched_power_of_lower_hybrid_antenna
+  - name:total_power_of_neutral_beam_injector
+  arguments:
+  - name: power_of_ion_cyclotron_heating_antenna
+    operator: total
+    operator_kind: qualifier
+  sources:
+  - id: dd:ic_antennas/power_launched
+    dd_path: ic_antennas/power_launched
+    status: composed
 - name: total_power_of_neutral_beam_injector
   kind: scalar
   status: draft
@@ -1252,13 +1826,12 @@
     is zero when no neutral beam injector is active. It is the neutral-beam analog
     of aggregate launched-power quantities for other auxiliary heating systems, such
     as [total_power_of_ion_cyclotron_heating_antenna](name:total_power_of_ion_cyclotron_heating_antenna)
-    and [total_power_of_electron_cyclotron_launcher](name:total_power_of_electron_cyclotron_launcher).'
+    and total_power_of_electron_cyclotron_launcher.'
   unit: W
   physics_domain: auxiliary_heating
   links:
   - name:power_of_neutral_beam_injector
   - name:total_power_of_ion_cyclotron_heating_antenna
-  - name:total_power_of_electron_cyclotron_launcher
   sources:
   - id: dd:summary/heating_current_drive/power_launched_nbi/value
     dd_path: summary/heating_current_drive/power_launched_nbi/value
@@ -1393,8 +1966,8 @@
     Aperture-outline coordinates are specified from the mechanical definition of the
     collimating aperture or from a measured outline of the hardware. They are used
     when the beam-limiting opening is represented by explicit boundary vertices rather
-    than by a reduced geometric parameter such as [width_of_aperture](name:width_of_aperture)
-    for a rectangular description or [neutral_beam_radius_of_aperture](name:neutral_beam_radius_of_aperture)
+    than by a reduced geometric parameter such as width_of_aperture for a rectangular
+    description or [neutral_beam_radius_of_aperture](name:neutral_beam_radius_of_aperture)
     for a circular description.
 
 
@@ -1410,8 +1983,7 @@
   physics_domain: auxiliary_heating
   links:
   - name:x1_coordinate_of_aperture
-  - name:x2_coordinate_of_diagnostic_aperture
-  - name:x2_coordinate_of_neutral_beam_injector
+  - name:neutral_beam_radius_of_aperture
   sources:
   - id: dd:nbi/unit/aperture/outline/x2
     dd_path: nbi/unit/aperture/outline/x2
@@ -1679,6 +2251,10 @@
   - name:fast_ion_power_at_inside_flux_surface
   - name:fast_electron_power_density
   - name:ion_power_density
+  arguments:
+  - name: total_ion_power_density
+    operator: fast
+    operator_kind: qualifier
   sources:
   - id: dd:waves/coherent_wave/profiles_1d/ion/power_density_fast
     dd_path: waves/coherent_wave/profiles_1d/ion/power_density_fast
@@ -2353,6 +2929,10 @@
   - name:thermal_ion_power_at_inside_flux_surface
   - name:thermal_ion_state_power_at_inside_flux_surface
   - name:thermal_electron_power_density
+  arguments:
+  - name: total_ion_power_density
+    operator: thermal
+    operator_kind: qualifier
   sources:
   - id: dd:waves/coherent_wave/profiles_1d/ion/power_density_thermal
     dd_path: waves/coherent_wave/profiles_1d/ion/power_density_thermal

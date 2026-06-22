@@ -1,6 +1,6 @@
 # Domain: edge_plasma_physics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 70
+# Entries: 72
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -592,6 +592,44 @@
   - id: dd:summary/pedestal_fits/mtanh/n_e/separatrix/value
     dd_path: summary/pedestal_fits/mtanh/n_e/separatrix/value
     status: composed
+- name: electron_density_over_scrape_off_layer
+  kind: scalar
+  status: draft
+  description: Electron number-density baseline on the scrape-off-layer side of an
+    analytic H-mode pedestal fit. It is the fitted offset representing the low-density
+    open-field-line side of the pedestal, distinct from the density at the plasma
+    boundary and from the pedestal-top density.
+  documentation: 'Electron density over the scrape-off layer is the asymptotic baseline
+    electron number density associated with the open-field-line side of an analytic
+    H-mode pedestal representation. It is a fitted offset parameter for the scrape-off-layer
+    side of the density shape, not the density evaluated at a particular location
+    such as the last closed flux surface or the pedestal top.
+
+
+    In practice, this quantity is obtained by fitting an analytic pedestal model to
+    edge electron-density data or to a modeled edge density distribution. Different
+    analytic pedestal forms may use different width, slope, and transition parameters,
+    so the common semantic content is the fitted scrape-off-layer offset, often denoted
+    $n_{e,\mathrm{SOL}}$, rather than any specific formula for the full radial dependence.
+    The separate scrape-off-layer falloff scale is described by [electron_decay_length_over_scrape_off_layer](name:electron_decay_length_over_scrape_off_layer),
+    while nearby reference densities include [electron_density_at_plasma_boundary](name:electron_density_at_plasma_boundary)
+    and [electron_density_at_pedestal](name:electron_density_at_pedestal).
+
+
+    Typical fitted H-mode tokamak scrape-off-layer density offsets are of order $10^{18}$-$10^{20}$
+    m^-3, depending on fueling, divertor conditions, pedestal collisionality, and
+    how far the fitted interval extends into the open-field-line region. In well-constrained
+    pedestal fits this offset is usually below the pedestal-top density and should
+    be interpreted together with the chosen analytic fit form.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:electron_decay_length_over_scrape_off_layer
+  - name:electron_pressure_over_scrape_off_layer
+  sources:
+  - id: dd:summary/pedestal_fits/mtanh/n_e/offset/value
+    dd_path: summary/pedestal_fits/mtanh/n_e/offset/value
+    status: composed
 - name: electron_heat_decay_length_over_scrape_off_layer
   kind: scalar
   status: draft
@@ -664,7 +702,7 @@
     \nPedestal electron temperatures in H-mode discharges on mid-scale tokamaks range\
     \ from approximately 0.3 to 5 keV, increasing with plasma current and auxiliary\
     \ heating power. Together with the pedestal electron density, $T_{e,\\mathrm{ped}}$\
-    \ determines the pedestal electron pressure captured by [electron_pressure_at_pedestal](name:electron_pressure_at_pedestal).\
+    \ determines the pedestal electron pressure captured by electron_pressure_at_pedestal.\
     \ The closely related [electron_temperature_at_pedestal_top](name:electron_temperature_at_pedestal_top)\
     \ targets the same physical location using an explicit profile-top convention,\
     \ while [gradient_of_electron_temperature](name:gradient_of_electron_temperature)\
@@ -674,7 +712,6 @@
   unit: eV
   physics_domain: edge_plasma_physics
   links:
-  - name:electron_pressure_at_pedestal
   - name:electron_temperature_at_pedestal_top
   - name:gradient_of_electron_temperature
   sources:
@@ -1340,6 +1377,67 @@
   sources:
   - id: dd:summary/local/pedestal/magnetic_shear/value
     dd_path: summary/local/pedestal/magnetic_shear/value
+    status: composed
+- name: neon_density_at_pedestal
+  kind: scalar
+  status: draft
+  description: Neon ion number density at the H-mode pedestal top, summed over all
+    ionization charge states of the neon element. It is a non-negative elemental impurity
+    density at the transition from the steep edge transport barrier to the flatter
+    core plasma.
+  documentation: 'The neon density at the pedestal is the total number density of
+    neon ions at the H-mode pedestal top, where the steep-gradient edge transport
+    barrier joins the more weakly varying confined plasma. It is an elemental impurity
+    density: ions in different neon charge states contribute to the same total. As
+    a number density, it is non-negative and has units of $\mathrm{m}^{-3}$.
+
+
+    The charge-state-summed elemental density is defined by
+
+
+    $$
+
+    n_{\mathrm{Ne,ped}} = \sum_{q=1}^{Z_\mathrm{Ne}} n_{\mathrm{Ne}^{q+},\mathrm{ped}}
+
+    $$
+
+
+    where $n_{\mathrm{Ne,ped}}$ is the neon ion number density at the pedestal top
+    in $\mathrm{m}^{-3}$, $n_{\mathrm{Ne}^{q+},\mathrm{ped}}$ is the number density
+    in $\mathrm{m}^{-3}$ of neon ions with charge state $q+$ at the pedestal top,
+    and $Z_\mathrm{Ne}=10$ is the nuclear charge of neon.
+
+
+    In practice, this quantity is obtained by summing resolved charge-state densities,
+    or by inferring the elemental neon content from impurity measurements together
+    with a pedestal-top location determined from plasma profiles and equilibrium information.
+    It is commonly interpreted relative to [electron_density_at_pedestal](name:electron_density_at_pedestal)
+    or main_ion_density_at_pedestal, for example through the concentration $n_{\mathrm{Ne,ped}}/n_{e,\mathrm{ped}}$,
+    because neon is usually a trace or minor impurity rather than the dominant ion
+    species.
+
+
+    Typical values are strongly scenario-dependent, especially in plasmas with deliberate
+    neon seeding for edge radiation control. No device-independent absolute range
+    is implied by the definition; the physically useful scale is usually the neon
+    concentration relative to the local pedestal electron or main-ion density.
+
+
+    This quantity is the neon counterpart of pedestal impurity densities such as [nitrogen_density_at_pedestal](name:nitrogen_density_at_pedestal),
+    [oxygen_density_at_pedestal](name:oxygen_density_at_pedestal), and [xenon_density_at_pedestal](name:xenon_density_at_pedestal).
+    The same elemental neon density evaluated at an internal transport barrier is
+    represented by [neon_density_at_internal_transport_barrier](name:neon_density_at_internal_transport_barrier).'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:electron_density_at_pedestal
+  - name:nitrogen_density_at_pedestal
+  - name:oxygen_density_at_pedestal
+  - name:xenon_density_at_pedestal
+  - name:neon_density_at_internal_transport_barrier
+  sources:
+  - id: dd:summary/local/pedestal/n_i/neon/value
+    dd_path: summary/local/pedestal/n_i/neon/value
     status: composed
 - name: neon_density_at_plasma_boundary
   kind: scalar
@@ -2172,7 +2270,7 @@
     to map local measurements to the boundary surface. In transport modeling it is
     the boundary-surface representative value of deuterium toroidal rotation, distinct
     from the local [toroidal_deuterium_velocity_at_plasma_boundary](name:toroidal_deuterium_velocity_at_plasma_boundary).
-    It is directly comparable with species analogs such as [toroidal_flux_surface_averaged_helium_3_velocity_at_plasma_boundary](name:toroidal_flux_surface_averaged_helium_3_velocity_at_plasma_boundary),
+    It is directly comparable with species analogs such as [toroidal_flux_surface_averaged_helium_3_velocity_at_plasma_boundary](name:toroidal_helium_3_velocity_at_plasma_boundary),
     [toroidal_flux_surface_averaged_neon_velocity_at_plasma_boundary](name:toroidal_flux_surface_averaged_neon_velocity_at_plasma_boundary),
     and [toroidal_flux_surface_averaged_oxygen_velocity_at_plasma_boundary](name:toroidal_flux_surface_averaged_oxygen_velocity_at_plasma_boundary).
 
@@ -2191,6 +2289,7 @@
   physics_domain: edge_plasma_physics
   links:
   - name:toroidal_deuterium_velocity_at_plasma_boundary
+  - name:toroidal_helium_3_velocity_at_plasma_boundary
   - name:toroidal_flux_surface_averaged_neon_velocity_at_plasma_boundary
   - name:toroidal_flux_surface_averaged_oxygen_velocity_at_plasma_boundary
   sources:
@@ -2367,7 +2466,7 @@
   documentation: 'Toroidal helium-4 velocity at the plasma boundary is the local toroidal
     component of the helium-4 ion bulk flow evaluated on the last closed flux surface.
     It is a local boundary value at the evaluation point, not a flux-surface average;
-    by contrast, [toroidal_flux_surface_averaged_helium_3_velocity_at_plasma_boundary](name:toroidal_flux_surface_averaged_helium_3_velocity_at_plasma_boundary)
+    by contrast, [toroidal_flux_surface_averaged_helium_3_velocity_at_plasma_boundary](name:toroidal_helium_3_velocity_at_plasma_boundary)
     represents a boundary value averaged over a flux surface for helium-3.
 
 
@@ -2408,8 +2507,6 @@
   unit: m.s^-1
   physics_domain: edge_plasma_physics
   links:
-  - name:toroidal_helium_4_velocity_at_magnetic_axis
-  - name:toroidal_helium_4_velocity_at_pedestal
   - name:toroidal_helium_3_velocity_at_plasma_boundary
   sources:
   - id: dd:summary/local/separatrix/velocity_phi/helium_4/value
@@ -2913,6 +3010,9 @@
   - name:toroidal_neon_velocity_at_plasma_boundary
   - name:toroidal_xenon_velocity_at_plasma_boundary
   sources:
+  - id: dd:summary/local/separatrix/velocity_phi/nitrogen/value
+    dd_path: summary/local/separatrix/velocity_phi/nitrogen/value
+    status: composed
   - id: dd:summary/local/separatrix/velocity_tor/nitrogen/value
     dd_path: summary/local/separatrix/velocity_tor/nitrogen/value
     status: composed
@@ -3124,6 +3224,9 @@
   - name:toroidal_neon_velocity_at_plasma_boundary
   - name:toroidal_carbon_velocity_at_plasma_boundary
   sources:
+  - id: dd:summary/local/separatrix/velocity_phi/xenon/value
+    dd_path: summary/local/separatrix/velocity_phi/xenon/value
+    status: composed
   - id: dd:summary/local/separatrix/velocity_tor/xenon/value
     dd_path: summary/local/separatrix/velocity_tor/xenon/value
     status: composed

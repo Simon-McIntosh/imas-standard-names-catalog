@@ -1,6 +1,6 @@
 # Domain: radiation_measurement_diagnostics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 32
+# Entries: 35
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -42,6 +42,42 @@
   sources:
   - id: dd:spectrometer_x_ray_crystal/channel/crystal/x1_width
     dd_path: spectrometer_x_ray_crystal/channel/crystal/x1_width
+    status: composed
+- name: deuterium_tritium_power_density_due_to_fusion
+  kind: scalar
+  status: draft
+  description: Local volumetric power density from deuterium-tritium thermonuclear
+    reactions, with each reaction yielding 17.6 MeV distributed between the alpha
+    particle (3.5 MeV) and the neutron (14.1 MeV).
+  documentation: "The D-T fusion power density is the local rate at which deuterium-tritium\
+    \ reactions $D + T \\rightarrow {}^4\\mathrm{He} + n$ deposit energy per unit\
+    \ plasma volume, with each event releasing $Q_\\mathrm{DT} = 17.6\\,\\mathrm{MeV}$,\
+    \ partitioned as 3.5 MeV to the alpha particle and 14.1 MeV to the 14.1 MeV neutron.\n\
+    \nThe volumetric power density is defined by:\n\n$$\nP_\\mathrm{DT} = n_D \\,\
+    \ n_T \\, \\langle \\sigma v \\rangle_\\mathrm{DT} \\, Q_\\mathrm{DT}\n$$\n\n\
+    where $n_D$ and $n_T$ are the local deuterium and tritium number densities, $\\\
+    langle \\sigma v \\rangle_\\mathrm{DT}$ is the velocity-averaged D-T fusion reactivity\
+    \ (maximized near ion temperature $T_i \\approx 65\\,\\mathrm{keV}$), and $Q_\\\
+    mathrm{DT} = 17.6\\,\\mathrm{MeV}$ is the total energy released per reaction.\n\
+    \nThe spatial distribution of $P_\\mathrm{DT}$ is inferred from neutron emissivity\
+    \ tomography: multi-channel neutron detector signals are tomographically inverted\
+    \ to yield the [deuterium_tritium_emissivity_due_to_fusion](name:deuterium_tritium_emissivity_due_to_fusion)\
+    \ (volumetric reaction rate), which is then scaled by $Q_\\mathrm{DT}$ to obtain\
+    \ the power density. In a balanced D-T fuel mixture at reactor-relevant temperatures\
+    \ of 10\u201320 keV, the D-T channel dominates the total [power_density_due_to_fusion](name:power_density_due_to_fusion),\
+    \ exceeding the [deuterium_deuterium_power_density_due_to_fusion](name:deuterium_deuterium_power_density_due_to_fusion)\
+    \ by roughly two orders of magnitude due to the much larger D-T reactivity at\
+    \ these temperatures. Peak on-axis values in near-ignition plasmas are expected\
+    \ to reach several MW m$^{-3}$."
+  unit: W.m^-3
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:deuterium_tritium_emissivity_due_to_fusion
+  - name:power_density_due_to_fusion
+  - name:deuterium_deuterium_power_density_due_to_fusion
+  sources:
+  - id: dd:neutron_diagnostic/reconstructed_emissivity/fusion_power_dt
+    dd_path: neutron_diagnostic/reconstructed_emissivity/fusion_power_dt
     status: composed
 - name: lower_bound_energy_of_detector_pixel
   kind: scalar
@@ -266,6 +302,96 @@
   - id: dd:summary/composition/nitrogen/value
     dd_path: summary/composition/nitrogen/value
     status: composed
+- name: radiance_at_spectral_line
+  kind: scalar
+  status: draft
+  description: 'Photon radiance of an identified spectral emission line: photon rate
+    per unit area perpendicular to the viewing direction and per unit solid angle,
+    integrated over the wavelength interval assigned to the line.'
+  documentation: 'Radiance at a spectral line is the wavelength-integrated spectral
+    photon radiance associated with one identified emission line. It characterizes
+    photon number reaching an observer per unit area perpendicular to the viewing
+    direction and per unit solid angle, not total emitted power or energy radiance.
+
+
+    Let $I_\lambda(\lambda)$ be the calibrated spectral photon radiance. The line
+    radiance $L_\mathrm{line}$ is defined by integrating the continuum-subtracted
+    spectral radiance over the wavelength window assigned to the line:
+
+
+    $$
+
+    L_\mathrm{line} = \int_{\lambda_1}^{\lambda_2} \left[I_\lambda(\lambda) - I_{\lambda,\mathrm{bg}}(\lambda)\right]
+    \, d\lambda
+
+    $$
+
+
+    where $L_\mathrm{line}$ has units m$^{-2}$ s$^{-1}$ sr$^{-1}$, $\lambda$ is wavelength
+    in meters, $\lambda_1$ and $\lambda_2$ are the endpoints of the integration window
+    with $\Delta\lambda=\lambda_2-\lambda_1$ in meters, and $I_\lambda$ and $I_{\lambda,\mathrm{bg}}$
+    have units m$^{-2}$ s$^{-1}$ sr$^{-1}$ m$^{-1}$. The window is chosen to contain
+    the instrumental and physical line shape while excluding neighboring lines as
+    far as possible; the background term represents continuum emission, stray light,
+    dark signal, or other slowly varying contributions estimated from adjacent wavelengths
+    or from a simultaneous fit. For a gross line integral, the same expression applies
+    with $I_{\lambda,\mathrm{bg}}=0$.
+
+
+    In practice, line radiance is obtained from calibrated spectroscopic measurements.
+    A [spectral calibration factor](name:spectral_calibration_factor_of_spectrometer)
+    $K_\lambda(\lambda)$ converts wavelength-resolved detector signal $C_\lambda(\lambda)$,
+    after subtraction of detector background $C_{\lambda,\mathrm{bg}}(\lambda)$, to
+    spectral photon radiance; the corresponding practical relation is $L_\mathrm{line}=\int_{\lambda_1}^{\lambda_2}
+    K_\lambda(\lambda)[C_\lambda(\lambda)-C_{\lambda,\mathrm{bg}}(\lambda)]\,d\lambda$
+    over the same line window. Grating spectrometers, filter spectrometers, and charge-exchange
+    recombination spectroscopy systems use this quantity for emission-line strengths;
+    inference of densities, effective charge, or radiated power requires additional
+    atomic-physics and viewing-geometry modeling.
+
+
+    The wavelength-resolved quantity underlying the integral is related to [spectral
+    flux], while [flux at spectral line](name:spectral_flux_of_spectrometer_channel)
+    is the corresponding line-integrated photon-flux analog before radiance normalization
+    or absolute radiance calibration. [Brightness of visible camera](name:brightness_of_visible_camera)
+    is a broadband radiance analog integrated over a camera passband rather than over
+    a single identified line.
+
+
+    Typical visible and near-ultraviolet line radiances in magnetically confined plasmas
+    span about $10^{16}$-$10^{21}$ m$^{-2}$ s$^{-1}$ sr$^{-1}$ for weak-to-strong
+    steady emission. Bright edge events or active beam and charge-exchange lines can
+    approach $10^{22}$ m$^{-2}$ s$^{-1}$ sr$^{-1}$, with values depending strongly
+    on species, charge state, electron temperature and density, path length, neutral-beam
+    density for active measurements, and optical passband.'
+  unit: m^-2.s^-1.sr^-1
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:spectral_calibration_factor_of_spectrometer
+  - name:spectral_flux_of_spectrometer_channel
+  - name:brightness_of_visible_camera
+  sources:
+  - id: dd:charge_exchange/channel/spectrum/processed_line/radiance
+    dd_path: charge_exchange/channel/spectrum/processed_line/radiance
+    status: attached
+  - id: dd:spectrometer_uv/channel/processed_line/radiance
+    dd_path: spectrometer_uv/channel/processed_line/radiance
+    status: composed
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/calibrated_line_integrals
+    dd_path: spectrometer_visible/channel/filter_spectrometer/calibrated_line_integrals
+    status: attached
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/line_intensities
+    dd_path: spectrometer_visible/channel/filter_spectrometer/line_intensities
+    status: attached
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/line_radiances
+    dd_path: spectrometer_visible/channel/filter_spectrometer/line_radiances
+    status: attached
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/line_radiances_adjusted
+    dd_path: spectrometer_visible/channel/filter_spectrometer/line_radiances_adjusted
+    status: attached
+  - id: dd:spectrometer_visible/channel/grating_spectrometer/processed_line/radiance
+    dd_path: spectrometer_visible/channel/grating_spectrometer/processed_line/radiance
+    status: attached
 - name: radiated_power_density
   kind: scalar
   status: draft
@@ -1068,6 +1194,86 @@
     status: attached
   - id: dd:spectrometer_x_ray_crystal/z_frames
     dd_path: spectrometer_x_ray_crystal/z_frames
+    status: attached
+- name: wavelength_of_spectral_line
+  kind: scalar
+  status: draft
+  description: Central rest-frame vacuum wavelength of an atomic, ionic, molecular,
+    or nuclear spectral emission or absorption line. It is set by the transition energy
+    between quantum states and identifies the unshifted physical line.
+  documentation: 'Wavelength of a spectral line is the central vacuum wavelength $\lambda_0$
+    of the photon associated with a transition between two quantum states, evaluated
+    in the rest frame of the emitting or absorbing species. It is a property of the
+    transition itself, separate from observed wavelength shifts, broadening, field-induced
+    splitting, and instrumental response.
+
+
+    The rest wavelength is set by the transition energy:
+
+
+    $$
+
+    \lambda_0 = \frac{h c}{|E_u - E_l|}
+
+    $$
+
+
+    where $\lambda_0$ is the vacuum wavelength in meters, $h$ is the Planck constant
+    in joule seconds, $c$ is the speed of light in meters per second, and $E_u$ and
+    $E_l$ are the upper- and lower-state energies in joules.
+
+
+    In spectroscopy, $\lambda_0$ is usually taken from evaluated atomic, molecular,
+    or nuclear transition data, or from fitted line centers after wavelength calibration
+    and correction to vacuum wavelength. For an observed line center $\lambda_{\mathrm{obs}}$
+    in meters, the non-relativistic Doppler relation is $(\lambda_{\mathrm{obs}}-\lambda_0)/\lambda_0
+    \approx v_{\mathrm{los}}/c$ for $|v_{\mathrm{los}}| \ll c$, where $v_{\mathrm{los}}$
+    is in meters per second and is positive when the source recedes from the observer,
+    increasing the observed wavelength. Thermal Doppler Gaussian width scales as $\sigma_\lambda/\lambda_0
+    \approx \sqrt{k_B T_s/(m_s c^2)}$, where $\sigma_\lambda$ is in meters, $T_s$
+    is the species temperature in kelvin, and $m_s$ is the particle mass in kilograms;
+    equivalently use $\sqrt{T_s/(m_s c^2)}$ when $T_s$ is expressed as an energy.
+
+
+    The quantity is not limited to a particular spectral band. Lines used in plasma
+    spectroscopy commonly span about $1\times10^{-11}$-$1\times10^{-5}$ m, including
+    soft-x-ray lines near $1\times10^{-10}$-$1\times10^{-9}$ m, extreme-ultraviolet
+    and ultraviolet lines near $1\times10^{-8}$-$4\times10^{-7}$ m, visible lines
+    near $4\times10^{-7}$-$7\times10^{-7}$ m, and near-infrared lines near $7\times10^{-7}$-$1\times10^{-5}$
+    m; other atomic, molecular, or nuclear transitions can lie outside these ranges.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:reference_wavelength_of_spectrometer_channel
+  - name:spectral_flux_of_spectrometer_channel
+  - name:spectral_width_of_spectrometer_channel
+  sources:
+  - id: dd:charge_exchange/channel/bes/transition_wavelength
+    dd_path: charge_exchange/channel/bes/transition_wavelength
+    status: attached
+  - id: dd:charge_exchange/channel/ion_fast/transition_wavelength
+    dd_path: charge_exchange/channel/ion_fast/transition_wavelength
+    status: attached
+  - id: dd:charge_exchange/channel/spectrum/processed_line/wavelength_central
+    dd_path: charge_exchange/channel/spectrum/processed_line/wavelength_central
+    status: attached
+  - id: dd:spectrometer_uv/channel/processed_line/wavelength_central
+    dd_path: spectrometer_uv/channel/processed_line/wavelength_central
+    status: attached
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/calibrated_lines
+    dd_path: spectrometer_visible/channel/filter_spectrometer/calibrated_lines
+    status: attached
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/processed_line/wavelength_central
+    dd_path: spectrometer_visible/channel/filter_spectrometer/processed_line/wavelength_central
+    status: attached
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/processed_lines
+    dd_path: spectrometer_visible/channel/filter_spectrometer/processed_lines
+    status: attached
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/raw_lines
+    dd_path: spectrometer_visible/channel/filter_spectrometer/raw_lines
+    status: attached
+  - id: dd:spectrometer_visible/channel/grating_spectrometer/processed_line/wavelength_central
+    dd_path: spectrometer_visible/channel/grating_spectrometer/processed_line/wavelength_central
     status: attached
 - name: width_of_hard_xray_detector
   kind: scalar
