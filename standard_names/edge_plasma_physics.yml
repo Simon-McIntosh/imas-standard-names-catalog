@@ -1,6 +1,6 @@
 # Domain: edge_plasma_physics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 14
+# Entries: 19
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -120,6 +120,60 @@
   - id: dd:summary/local/separatrix_average/n_i/argon/value
     dd_path: summary/local/separatrix_average/n_i/argon/value
     status: composed
+- name: edge_localized_mode_frequency
+  kind: scalar
+  status: draft
+  description: Repetition rate of edge-localized mode bursts during an ELMing H-mode
+    phase. It quantifies how often pedestal relaxation events occur and sets the cadence,
+    not the size, of transient particle and energy exhaust to the scrape-off layer
+    and divertor.
+  documentation: 'Edge-localized mode frequency is the rate at which discrete ELM
+    bursts occur during an ELMing H-mode phase. It characterizes the temporal spacing
+    of pedestal relaxation events; the energy or particle loss per burst must be specified
+    separately from this rate.
+
+
+    For an analysis window of duration $\Delta t$, the frequency is defined by counting
+    ELM onsets within that window:
+
+
+    $$
+
+    f_\mathrm{ELM} = \frac{N_\mathrm{ELM}}{\Delta t} \simeq \frac{1}{\langle \tau_\mathrm{ELM}
+    \rangle}
+
+    $$
+
+
+    where $N_\mathrm{ELM}$ is the number of accepted ELM events, $\Delta t$ is measured
+    in seconds, $f_\mathrm{ELM}$ is in Hz ($\mathrm{s}^{-1}$), $\tau_\mathrm{ELM}$
+    is the time between consecutive ELM onsets in seconds, and $\langle \tau_\mathrm{ELM}
+    \rangle$ is the mean inter-ELM interval over the same window. The reciprocal-interval
+    form is equivalent to the count rate when the same events and boundary treatment
+    are used.
+
+
+    In practice, ELM onsets are identified from correlated transient signatures such
+    as edge light emission, divertor heat-flux pulses, magnetic fluctuations, density
+    bursts, or pedestal profile drops. The averaging window should be chosen so that
+    it is short enough to follow slow discharge evolution but long enough to contain
+    representative events; intervals with no ELMing H-mode, ambiguous compound events,
+    pacing triggers, or deliberately selected ELM classes should be treated by a consistent
+    event-selection rule.
+
+
+    Typical values span about 0.5-1000 Hz. Large, infrequent ELM regimes are often
+    below 10 Hz, many routinely ELMing H-mode plasmas are in the 10-100 Hz range,
+    and small-ELM or actively paced regimes can reach 100-1000 Hz; a value of 0 Hz
+    indicates that no accepted ELM events occurred in the averaging window.'
+  unit: Hz
+  physics_domain: edge_plasma_physics
+  links:
+  - name:electron_temperature_at_pedestal_top
+  sources:
+  - id: dd:summary/elms/frequency/value
+    dd_path: summary/elms/frequency/value
+    status: composed
 - name: electron_temperature_at_pedestal
   kind: scalar
   status: draft
@@ -161,6 +215,116 @@
   - id: dd:summary/pedestal_fits/mtanh/t_e/pedestal_height/value
     dd_path: summary/pedestal_fits/mtanh/t_e/pedestal_height/value
     status: attached
+- name: flux_surface_averaged_iron_density
+  kind: scalar
+  status: draft
+  description: Flux-surface average of the total iron impurity ion number density,
+    summed over all iron ionization states. It represents the density assigned to
+    a magnetic flux surface after averaging local variation around that surface, not
+    a statement that iron is spatially uniform there.
+  documentation: 'Flux-surface-averaged iron density is the average of the total iron
+    impurity ion number density on a magnetic flux surface. The total iron density
+    is summed over all iron ionization states. It is a representative density for
+    the surface and does not imply that the local iron density is uniform on that
+    surface.
+
+
+    The flux-surface average can be written using a poloidal magnetic flux label $\psi$:
+
+
+    $$
+
+    \langle n_{\mathrm{Fe}}\rangle_{\psi} = \frac{\int_{\psi=\mathrm{const}} n_{\mathrm{Fe}}\,
+    dA/|\nabla\psi|}{\int_{\psi=\mathrm{const}} dA/|\nabla\psi|}
+
+    $$
+
+
+    where $n_{\mathrm{Fe}}$ is the local total iron ion density in $\mathrm{m}^{-3}$,
+    $n_{\mathrm{Fe}}=\sum_q n_{\mathrm{Fe}^{q+}}$ over iron ionization states $q$,
+    $dA$ is a surface-area element in $\mathrm{m}^2$, and $|\nabla\psi|$ is in $\mathrm{Wb}\,\mathrm{m}^{-1}$
+    when $\psi$ is in $\mathrm{Wb}$. The weighting corresponds to averaging over the
+    thin volume between neighboring flux surfaces.
+
+
+    In practice, this quantity is obtained by combining an equilibrium reconstruction
+    that supplies the magnetic flux surfaces with local or modeled iron charge-state
+    densities. These densities may be inferred from extreme-ultraviolet, x-ray, or
+    visible line emission with collisional-radiative modeling, and may be constrained
+    by impurity transport, radiation, electron density, and electron temperature measurements.
+    Strong edge gradients and localized sources can make the local iron density vary
+    strongly on a surface, so the flux-surface average should be interpreted as an
+    averaged abundance rather than a local value.
+
+
+    Typical values for trace iron contamination are $10^{12}-10^{16}\ \mathrm{m}^{-3}$
+    in confined plasmas. During strong wall influx, impurity accumulation, disruptions,
+    or deliberate impurity injection, edge or separatrix averages can reach $10^{17}\
+    \mathrm{m}^{-3}$ or higher.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:flux_surface_averaged_carbon_density
+  - name:iron_density
+  - name:volume_averaged_iron_density
+  - name:iron_density_at_magnetic_axis
+  - name:iron_density_at_divertor_target
+  sources:
+  - id: dd:summary/local/separatrix_average/n_i/iron/value
+    dd_path: summary/local/separatrix_average/n_i/iron/value
+    status: composed
+- name: flux_surface_averaged_magnetic_shear
+  kind: scalar
+  status: draft
+  description: Flux-surface value of magnetic shear, describing how the safety factor
+    changes with normalized toroidal flux radius on a magnetic flux surface. When
+    the safety factor is a flux function, it is the representative surface value,
+    not an independent average of a local pointwise shear.
+  documentation: 'Flux-surface-averaged magnetic shear is the magnetic shear assigned
+    to an entire magnetic flux surface, quantifying the radial variation of field-line
+    pitch through the safety factor. It is the flux-surface counterpart of [magnetic_shear](name:magnetic_shear_at_pedestal);
+    when the safety factor is constant on a flux surface, no separate local-shear
+    averaging model is implied.
+
+
+    The value on a surface labeled by normalized toroidal flux radius $\rho_{\mathrm{tor}}$
+    is defined by:
+
+
+    $$
+
+    s_{\mathrm{fs}}(\rho_{\mathrm{tor}}) = \frac{\rho_{\mathrm{tor}}}{q(\rho_{\mathrm{tor}})}
+    \frac{d q}{d \rho_{\mathrm{tor}}}
+
+    $$
+
+
+    where $s_{\mathrm{fs}}$ is the flux-surface value of magnetic shear, $q$ is the
+    [safety factor](name:safety_factor), and $\rho_{\mathrm{tor}}$ labels the flux
+    surface, with $\rho_{\mathrm{tor}}=0$ at the magnetic axis and $\rho_{\mathrm{tor}}=1$
+    at the last-closed flux surface.
+
+
+    In practice, this quantity is inferred from an equilibrium description by evaluating
+    the radial derivative of $q(\rho_{\mathrm{tor}})$ at the chosen surface, such
+    as a separatrix, pedestal, or internal-transport-barrier location. It is sensitive
+    to the local radial variation of $q$, so uncertainty is largest where the safety-factor
+    variation is weakly constrained or changes rapidly.
+
+
+    Typical dimensionless values are of order unity to several in many tokamak equilibria.
+    Values near zero indicate a locally flat safety-factor variation, negative values
+    indicate reversed magnetic shear, and larger positive values can occur in steep-gradient
+    edge or separatrix regions.'
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:magnetic_shear_at_pedestal
+  - name:safety_factor
+  sources:
+  - id: dd:summary/local/separatrix_average/magnetic_shear/value
+    dd_path: summary/local/separatrix_average/magnetic_shear/value
+    status: composed
 - name: magnetic_shear_at_pedestal
   kind: scalar
   status: draft
@@ -529,6 +693,57 @@
   - id: dd:summary/local/separatrix/velocity_tor/carbon/value
     dd_path: summary/local/separatrix/velocity_tor/carbon/value
     status: composed
+- name: toroidal_deuterium_tritium_velocity_at_pedestal
+  kind: scalar
+  status: draft
+  description: Toroidal velocity of the fictitious DT single-species (atomic mass
+    2.5 amu) at the H-mode pedestal, used in simulations treating the deuterium-tritium
+    fuel as a single ion fluid.
+  documentation: 'The fictitious DT species is a single-fluid representation of the
+    deuterium-tritium fuel mixture, assigned an atomic mass of 2.5 amu (the arithmetic
+    mean of deuterium mass 2 and tritium mass 3), and treated as a single ion population
+    in transport and gyrokinetic simulations. The toroidal velocity of this species
+    at the pedestal quantifies the bulk toroidal rotation of the fuel ions within
+    the steep-gradient edge transport barrier characteristic of H-mode plasmas.
+
+
+    The toroidal component is the projection of the DT ion fluid velocity onto the
+    toroidal unit vector $\hat{\phi}$ in the right-handed cylindrical $(R, \phi, Z)$
+    frame:
+
+
+    $$
+
+    v_\phi = \mathbf{v}_\mathrm{DT} \cdot \hat{\phi}
+
+    $$
+
+
+    where $\mathbf{v}_\mathrm{DT}$ is the DT ion fluid velocity vector.
+
+
+    Toroidal rotation at the pedestal contributes to the $E \times B$ shear layer
+    that suppresses turbulent transport and sustains the H-mode confinement barrier.
+    Ion toroidal velocities are inferred from Doppler shifts in charge exchange recombination
+    spectroscopy (CXRS) emission lines on trace impurity species and corrected to
+    the DT fuel population via neoclassical offsets. This pedestal evaluation belongs
+    to a spatial family that includes [toroidal_deuterium_tritium_velocity_at_magnetic_axis](name:toroidal_deuterium_tritium_velocity_at_magnetic_axis)
+    and [toroidal_deuterium_tritium_velocity_at_internal_transport_barrier](name:toroidal_deuterium_tritium_velocity_at_internal_transport_barrier);
+    the resolved deuterium counterpart at the same location is [toroidal_deuterium_velocity_at_pedestal](name:toroidal_deuterium_velocity_at_pedestal).
+
+
+    Sign convention: Positive when $v_\phi$ points in the direction of increasing
+    toroidal angle $\phi$ (counter-clockwise when viewed from above $+\hat{Z}$).'
+  unit: m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:toroidal_deuterium_tritium_velocity_at_magnetic_axis
+  - name:toroidal_deuterium_tritium_velocity_at_internal_transport_barrier
+  - name:toroidal_deuterium_velocity_at_pedestal
+  sources:
+  - id: dd:summary/local/pedestal/velocity_phi/deuterium_tritium/value
+    dd_path: summary/local/pedestal/velocity_phi/deuterium_tritium/value
+    status: composed
 - name: toroidal_hydrogen_velocity_at_pedestal
   kind: scalar
   status: draft
@@ -709,6 +924,60 @@
   sources:
   - id: dd:edge_profiles/ggd/j_diamagnetic/parallel
     dd_path: edge_profiles/ggd/j_diamagnetic/parallel
+    status: composed
+- name: radial_electron_convection_velocity
+  kind: scalar
+  status: draft
+  description: Effective radial convection velocity for electron particle transport.
+    It is the advective coefficient multiplying electron density in a radial particle-flux
+    closure at the plasma edge.
+  documentation: 'Radial electron convection velocity is the effective advective speed
+    associated with cross-field electron particle transport at the plasma edge. It
+    represents the convective, or pinch, part of the radial electron particle flux
+    after diffusive transport has been separated from the closure.
+
+
+    A common particle-flux closure writes the radial electron particle flux as:
+
+
+    $$
+
+    \Gamma_{e,r} = -D_{e,r}\,\frac{\partial n_e}{\partial r} + v_{e,r}\,n_e
+
+    $$
+
+
+    where $\Gamma_{e,r}$ is the radial electron particle flux in $\mathrm{m^{-2}\,s^{-1}}$,
+    $D_{e,r}$ is an effective radial diffusivity in $\mathrm{m^2\,s^{-1}}$, $n_e$
+    is the electron density in $\mathrm{m^{-3}}$, $r$ is an outward radial coordinate
+    in meters, and $v_{e,r}$ is the radial electron convection velocity.
+
+
+    This quantity is usually inferred from edge transport analysis, reduced transport
+    modeling, or fits to electron-density evolution using sources, sinks, and radial
+    gradients. It is an effective closure coefficient: it need not identify a single
+    microscopic drift mechanism and may summarize turbulence, neoclassical effects,
+    and geometry-dependent transport into one advective term.
+
+
+    Typical effective values in the confined edge are from about -50 to 50 m.s^-1.
+    Larger apparent values, up to several hundred m.s^-1, can occur in the scrape-off
+    layer or during strong transient edge transport, depending on the chosen transport
+    closure and averaging interval.
+
+
+    Sign convention: Positive when the effective electron particle convection is directed
+    outward across magnetic flux surfaces from the confined plasma toward the plasma-facing
+    material surfaces.'
+  unit: m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:particle_convection_velocity
+  - name:radial_electron_energy_convection_velocity
+  - name:radial_ion_convection_velocity
+  sources:
+  - id: dd:edge_transport/model/ggd/electrons/particles/v_radial/values
+    dd_path: edge_transport/model/ggd/electrons/particles/v_radial/values
     status: composed
 - name: thermal_plasma_pressure
   kind: scalar

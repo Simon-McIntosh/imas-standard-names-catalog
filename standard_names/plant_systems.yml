@@ -1,6 +1,6 @@
 # Domain: plant_systems
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 4
+# Entries: 7
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -84,6 +84,71 @@
   sources:
   - id: dd:summary/gas_injection_accumulated/neon/value
     dd_path: summary/gas_injection_accumulated/neon/value
+    status: composed
+- name: krypton_prefill_count
+  kind: scalar
+  status: draft
+  description: Equivalent electrons from krypton injected during the prefill phase;
+    it is 36 times the number of krypton atoms delivered and is not the raw atom count.
+  documentation: 'Krypton prefill count is a bookkeeping measure of the neutral krypton
+    inventory introduced before plasma breakdown, expressed as an equivalent-electron
+    count. It converts the number of krypton atoms delivered during the prefill phase
+    into the number of electrons those atoms would contain if fully counted by atomic
+    number, enabling comparison with other species inventories.
+
+
+    The equivalent-electron count is defined from the injected krypton atom count
+    as:
+
+
+    $$
+
+    N_{\mathrm{eq,e}}^{\mathrm{Kr,prefill}} = Z_{\mathrm{Kr}} N_{\mathrm{Kr,prefill}}
+    = 36 N_{\mathrm{Kr,prefill}}
+
+    $$
+
+
+    where $N_{\mathrm{Kr,prefill}}$ is the number of krypton atoms injected during
+    the prefill phase and $Z_{\mathrm{Kr}}=36$ is the atomic number of krypton. Both
+    $N_{\mathrm{eq,e}}^{\mathrm{Kr,prefill}}$ and $N_{\mathrm{Kr,prefill}}$ are dimensionless
+    counts.
+
+
+    In practice, $N_{\mathrm{Kr,prefill}}$ is obtained by integrating a calibrated
+    krypton flow over the prefill time interval. For particle flow $\dot{N}_{\mathrm{Kr}}$
+    in atoms s$^{-1}$, $N_{\mathrm{Kr,prefill}}=\int \dot{N}_{\mathrm{Kr}}(t)\,dt$;
+    for molar flow $\dot{n}_{\mathrm{Kr}}$ in mol s$^{-1}$, $N_{\mathrm{Kr,prefill}}=N_A\int
+    \dot{n}_{\mathrm{Kr}}(t)\,dt$; and for gas throughput $Q$ in Pa m$^3$ s$^{-1}$
+    at gas temperature $T$ in K, the ideal-gas estimate is $\dot{N}_{\mathrm{Kr}}\approx
+    Q/(k_B T)$, where $N_A$ is Avogadro''s constant and $k_B$ is Boltzmann''s constant.
+    The same equivalent-electron inventory convention is used for related prefill
+    or gas-injection quantities such as [argon_prefill_count](name:argon_prefill_count),
+    [neon_prefill_count](name:neon_prefill_count), [tritium_prefill_count](name:tritium_prefill_count),
+    [accumulated_xenon_prefill_count](name:accumulated_xenon_prefill_count), [accumulated_helium_4_prefill_count_due_to_gas_injection](name:accumulated_helium_4_count_due_to_gas_injection),
+    and [carbon_initial_count_due_to_gas_injection](name:carbon_initial_count_due_to_gas_injection);
+    [accumulated_krypton_count](name:accumulated_krypton_count) denotes the krypton
+    inventory accumulated beyond the prefill-only interval.
+
+
+    Typical values are strongly device- and recipe-dependent. Trace or calibration
+    prefills may be about $10^{18}$-$10^{20}$ equivalent electrons, while larger high-atomic-number
+    gas puffs can reach $10^{21}$-$10^{24}$ equivalent electrons, corresponding to
+    approximately $3\times10^{16}$-$3\times10^{22}$ krypton atoms after division by
+    36.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:argon_prefill_count
+  - name:neon_prefill_count
+  - name:tritium_prefill_count
+  - name:accumulated_xenon_prefill_count
+  - name:accumulated_helium_4_count_due_to_gas_injection
+  - name:carbon_initial_count_due_to_gas_injection
+  - name:accumulated_krypton_count
+  sources:
+  - id: dd:summary/gas_injection_prefill/krypton/value
+    dd_path: summary/gas_injection_prefill/krypton/value
     status: composed
 - name: major_radius_of_pellet_path_point
   kind: scalar
@@ -173,4 +238,116 @@
   sources:
   - id: dd:summary/gas_injection_prefill/neon/value
     dd_path: summary/gas_injection_prefill/neon/value
+    status: composed
+- name: net_power_of_plant_system
+  kind: scalar
+  status: draft
+  description: Net electrical power of a plant system, equal to generated electrical
+    power minus internal operational electrical consumption within the same system
+    boundary.
+  documentation: 'Net electrical power of a plant system is the algebraic electrical
+    power delivered by that system after subtracting the electrical power it consumes
+    for its own operation. It indicates whether the chosen system boundary is a net
+    source or net sink of electricity at a given operating condition.
+
+
+    For a defined plant-system boundary, the net power is
+
+
+    $$
+
+    P_\mathrm{net} = P_\mathrm{elec,gen} - P_\mathrm{elec,cons}
+
+    $$
+
+
+    where $P_\mathrm{net}$, $P_\mathrm{elec,gen}$, and $P_\mathrm{elec,cons}$ are
+    electrical powers in W evaluated over the same time interval. $P_\mathrm{elec,gen}$
+    is the electrical power produced within the boundary, such as generator-terminal
+    or power-conversion output, and $P_\mathrm{elec,cons}$ is the operational electrical
+    power drawn by equipment inside the same boundary.
+
+
+    In practice, this quantity is computed from electrical metering or plant power-accounting
+    models by summing generation feeds and subtracting allocated internal loads such
+    as pumps, compressors, cryogenic equipment, control systems, power-conversion
+    auxiliaries, and other parasitic consumers. The system boundary must be applied
+    consistently: loads outside the boundary are excluded, while recirculating power
+    and auxiliary loads inside the boundary are included. During startup, shutdown,
+    standby, or operation of systems without local generation, the net power can be
+    negative.
+
+
+    Typical values depend strongly on the boundary. Purely consuming plant systems
+    are often about -1e3 to -1e8 W, large balance-of-plant or power-conversion systems
+    can range from near 0 W to 1e9 W, and whole-plant net electrical output for power-plant-scale
+    devices is commonly of order 1e8-2e9 W. Values near 0 W indicate that internal
+    electrical consumption nearly balances local electrical generation.
+
+
+    Sign convention: Positive when the system exports electrical power across its
+    boundary after subtracting internal operational consumption.'
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:total_thermal_power_at_inlet
+  - name:power_of_plant_system
+  sources:
+  - id: dd:balance_of_plant/power_electricity_net
+    dd_path: balance_of_plant/power_electricity_net
+    status: attached
+  - id: dd:balance_of_plant/power_plant/power_electric_generated
+    dd_path: balance_of_plant/power_plant/power_electric_generated
+    status: attached
+- name: total_power_of_plant_system
+  kind: scalar
+  status: draft
+  description: Aggregate electrical power consumed by all plant systems during operation.
+    It represents the total auxiliary electrical load of the plant, summed over individual
+    plant-system consumption terms.
+  documentation: 'Total plant-system power is the aggregate electrical load required
+    to operate all auxiliary plant systems. It includes electrical consumption by
+    systems such as pumps, cryogenics, heating and current-drive auxiliaries, tritium
+    processing, cooling, control, and other balance-of-plant services when those systems
+    are drawing power.
+
+
+    The total is defined as the sum of the consumed electrical power of each plant
+    system:
+
+
+    $$
+
+    P_{\mathrm{plant,total}} = \sum_i P_{\mathrm{plant},i}
+
+    $$
+
+
+    where $P_{\mathrm{plant,total}}$ is the total plant-system electrical consumption
+    in W, $P_{\mathrm{plant},i}$ is the electrical power consumed by plant system
+    $i$ in W, and the sum extends over all plant systems included in the plant operating
+    boundary. Each term is treated as a positive electrical load; this quantity is
+    not a signed net export or generation term.
+
+
+    In practice, the quantity is computed from electrical metering, plant control
+    signals, or design-point power budgets for the contributing systems. Time averaging
+    should be chosen consistently with the plant operating state being represented,
+    because pulsed operation, recirculating power, standby loads, and transient actuator
+    demands can change the aggregate load substantially.
+
+
+    Typical values range from 1-100 MW for large experimental facilities and from
+    100-1000 MW for power-plant studies, depending strongly on heating and current-drive
+    demand, cryogenic load, coolant pumping power, and balance-of-plant design.'
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:power_of_plant_system
+  - name:power_of_plant_subsystem
+  - name:net_power_of_plant_system
+  - name:total_thermal_power_at_inlet
+  sources:
+  - id: dd:balance_of_plant/power_electric_plant_operation/power_total
+    dd_path: balance_of_plant/power_electric_plant_operation/power_total
     status: composed

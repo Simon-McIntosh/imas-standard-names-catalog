@@ -1,9 +1,77 @@
 # Domain: magnetohydrodynamics
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 7
+# Entries: 11
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: alfven_frequency
+  kind: scalar
+  status: draft
+  description: "Complex angular eigenfrequency of a shear Alfv\xE9n continuum mode\
+    \ in a toroidal MHD equilibrium, whose real part gives the oscillation rate and\
+    \ imaginary part gives the exponential growth or damping rate."
+  documentation: "The Alfv\xE9n frequency is the complex angular eigenfrequency characterizing\
+    \ shear Alfv\xE9n waves and eigenmodes on the Alfv\xE9n continuum of a toroidal\
+    \ magnetohydrodynamic equilibrium. The full complex eigenfrequency $\\omega =\
+    \ \\omega_r + i\\omega_i$ encodes both the oscillatory behavior and the stability\
+    \ of the mode.\n\nThe local shear Alfv\xE9n continuum frequency on a flux surface\
+    \ is:\n\n$$\n\\omega_A = k_\\parallel v_A\n$$\n\nwhere $k_\\parallel = (nq - m)/(qR_0)$\
+    \ is the parallel wave vector ($n$ and $m$ are the toroidal and dominant poloidal\
+    \ mode numbers, $q$ is the safety factor, and $R_0$ is the major radius in m),\
+    \ and $v_A = B/\\sqrt{\\mu_0 \\rho_m}$ is the Alfv\xE9n speed ($B$ is the magnetic\
+    \ field amplitude in T, $\\mu_0$ is the vacuum permeability, and $\\rho_m$ is\
+    \ the local mass density in kg m$^{-3}$).\n\nThe real part $\\omega_r$ is resolved\
+    \ by [alfven_frequency_real_part](name:alfven_frequency_real_part), giving the\
+    \ oscillatory component, and the imaginary part $\\omega_i$ by [alfven_frequency_imaginary_part](name:alfven_frequency_imaginary_part),\
+    \ giving the growth or damping rate. With the perturbation time convention $e^{-i\\\
+    omega t}$, a positive $\\omega_i$ corresponds to exponential growth while a negative\
+    \ $\\omega_i$ indicates damping. Alfv\xE9n continuum frequencies in fusion-grade\
+    \ tokamaks span tens of kilohertz to a few megahertz, with toroidal Alfv\xE9n\
+    \ eigenmodes falling in the 50-500 kHz range."
+  unit: s^-1
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:alfven_frequency_real_part
+  - name:alfven_frequency_imaginary_part
+- name: alfven_frequency_imaginary_part
+  kind: complex
+  status: draft
+  description: "Imaginary component of the complex shear Alfv\xE9n angular eigenfrequency,\
+    \ equal to the exponential growth rate (when positive) or damping rate (when negative)\
+    \ of the associated Alfv\xE9n continuum mode."
+  documentation: "The imaginary part $\\gamma = \\operatorname{Im}(\\omega_A)$ of\
+    \ the complex shear Alfv\xE9n eigenfrequency governs the exponential amplitude\
+    \ evolution of Alfv\xE9n continuum modes in a magnetized toroidal plasma under\
+    \ linear MHD. Together with the oscillatory component [alfven_frequency_real_part](name:alfven_frequency_real_part)\
+    \ $\\omega_r = \\operatorname{Re}(\\omega_A)$, it fully characterizes the temporal\
+    \ behavior of a shear Alfv\xE9n perturbation.\n\nAdopting the $e^{-i\\omega_A\
+    \ t}$ time convention, the amplitude of a perturbed quantity evolves as:\n\n$$\n\
+    \\delta f(t) \\propto e^{-i\\omega_A t} = e^{\\gamma t}\\,e^{-i\\omega_r t}\n\
+    $$\n\nwhere $\\gamma = \\operatorname{Im}(\\omega_A)$ is the growth or damping\
+    \ rate and $\\omega_r = \\operatorname{Re}(\\omega_A)$ is the oscillatory angular\
+    \ frequency. Positive $\\gamma$ indicates an unstable (growing) mode; negative\
+    \ $\\gamma$ indicates a linearly damped mode.\n\nIn linear MHD stability analysis,\
+    \ the Alfv\xE9n frequency spectrum is resolved as a function of normalized minor\
+    \ radius and toroidal mode number $n$. In ideal MHD the imaginary part of continuum\
+    \ modes vanishes; finite values arise from resistive, kinetic, or energetic-particle\
+    \ drive effects that lift the continuum degeneracy and can render global Alfv\xE9\
+    n eigenmodes unstable. Companion perturbed eigenfunction quantities such as [perturbed_plasma_temperature_imaginary_part](name:perturbed_plasma_temperature_imaginary_part)\
+    \ share this complex-eigenvalue representation.\n\nSign convention: Positive when\
+    \ the mode amplitude grows exponentially in time under the $e^{-i\\omega_A t}$\
+    \ time convention."
+  unit: s^-1
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:alfven_frequency_real_part
+  - name:perturbed_plasma_temperature_imaginary_part
+  arguments:
+  - name: alfven_frequency
+    operator: imaginary_part
+    operator_kind: unary_postfix
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/alfven_frequency_spectrum/imaginary
+    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/alfven_frequency_spectrum/imaginary
+    status: composed
 - name: alfven_frequency_real_part
   kind: complex
   status: draft
@@ -38,10 +106,68 @@
   - name:alfven_frequency_imaginary_part
   - name:alfven_frequency
   - name:alfven_time
+  arguments:
+  - name: alfven_frequency
+    operator: real_part
+    operator_kind: unary_postfix
   sources:
   - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/alfven_frequency_spectrum/real
     dd_path: mhd_linear/time_slice/toroidal_mode/plasma/alfven_frequency_spectrum/real
     status: composed
+- name: normalized_toroidal_flux_coordinate_at_sawtooth_inversion_radius
+  kind: scalar
+  status: draft
+  description: Value of the normalized toroidal flux radius rho_tor_norm at the sawtooth
+    inversion surface. This surface is identified by the sign change of the electron-temperature
+    perturbation during a sawtooth crash and is often close to the q=1 rational surface.
+  documentation: 'The normalized toroidal flux coordinate at the sawtooth inversion
+    radius is the value of the flux coordinate $\rho_{\mathrm{tor,norm}}$ on the surface
+    where the electron-temperature perturbation changes sign during a sawtooth crash.
+    The inversion surface is a marker of the radial extent of the sawtooth crash and
+    is commonly associated with the $q=1$ rational surface.
+
+
+    The normalized toroidal flux radius on a magnetic flux surface is defined by
+
+
+    $$
+
+    \rho_{\mathrm{tor,norm}} = \left(\frac{\Phi - \Phi_0}{\Phi_b - \Phi_0}\right)^{1/2}
+
+    $$
+
+
+    where $\Phi$ is the toroidal magnetic flux enclosed by the surface in Wb, $\Phi_0$
+    is the magnetic-axis value in Wb, and $\Phi_b$ is the boundary value in Wb. For
+    this quantity, the expression is evaluated on the sawtooth inversion surface.
+
+
+    In practice, the inversion radius is inferred from time-resolved electron-temperature
+    or emissivity measurements by locating the radial position where the crash-induced
+    perturbation changes sign, then mapping that position to the reconstructed flux
+    coordinate $\rho_{\mathrm{tor,norm}}$. When direct inversion-surface localization
+    is limited, the nearby $q=1$ rational surface may be used as a physics reference,
+    often together with quantities such as [magnetic_shear_at_sawtooth_inversion_radius](name:magnetic_shear_at_sawtooth_inversion_radius).
+    The inversion radius is typically inside or comparable to the sawtooth mixing
+    radius, described by [normalized_toroidal_flux_coordinate_at_sawtooth_mixing_radius](name:normalized_toroidal_flux_coordinate_at_sawtooth_mixing_radius).
+
+
+    Values are dimensionless and lie between 0 at the magnetic axis and 1 at the plasma
+    boundary for closed-flux-surface normalization. Sawtooth inversion surfaces are
+    usually in the plasma core, commonly around 0.2-0.6, with the exact value depending
+    on the current profile, pressure profile, and sawtooth dynamics.'
+  unit: '1'
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:normalized_toroidal_flux_coordinate
+  - name:normalized_toroidal_flux_coordinate_at_sawtooth_mixing_radius
+  sources:
+  - id: dd:sawteeth/diagnostics/rho_tor_norm_inversion
+    dd_path: sawteeth/diagnostics/rho_tor_norm_inversion
+    status: composed
+  - id: dd:sawteeth/diagnostics/rho_tor_norm_q1
+    dd_path: sawteeth/diagnostics/rho_tor_norm_q1
+    status: attached
 - name: perturbed_plasma_magnetic_field
   kind: vector
   status: draft
@@ -125,6 +251,53 @@
   - name:non_axisymmetric_magnetic_field_at_control_surface
   sources:
   - id: derived:perturbed_plasma_magnetic_field
+    status: composed
+- name: perturbed_plasma_mass_density_imaginary_part
+  kind: complex
+  status: draft
+  description: Imaginary part of the complex first-order plasma mass density perturbation
+    eigenfunction for a specified toroidal Fourier mode in linear MHD stability analysis.
+  documentation: 'The imaginary part of the complex perturbed plasma mass density
+    eigenfunction $\tilde{\rho}_m$ arises when the first-order mass density perturbation
+    is separated into in-phase and quadrature components relative to a chosen eigenmode
+    phase and normalization. In the standard perturbation decomposition $\delta\rho(\mathbf{r},
+    t) = \mathrm{Re}[\tilde{\rho}_m(\mathbf{r})\, e^{i(n\phi - \omega t)}]$, where
+    $n$ is the toroidal mode number, $\phi$ is the toroidal angle, and $\omega$ is
+    the complex eigenfrequency, the eigenfunction splits as:
+
+
+    $$
+
+    \tilde{\rho}_m = \tilde{\rho}_\mathrm{re} + i\,\tilde{\rho}_\mathrm{im}
+
+    $$
+
+
+    where $\tilde{\rho}_\mathrm{re}$ is the [real part](name:perturbed_plasma_mass_density_real_part)
+    and $\tilde{\rho}_\mathrm{im}$ is this quantity. Together they encode the local
+    amplitude $|\tilde{\rho}_m|$ and spatial phase of the mass density perturbation
+    over the poloidal cross-section.
+
+
+    The equilibrium mass density about which the perturbation is defined is $\rho_{m0}
+    = \sum_s m_s n_s$, where $m_s$ and $n_s$ are the mass and number density of species
+    $s$; ion contributions dominate in fusion plasmas because electron mass is negligible.
+    These eigenfunctions are produced by linear MHD eigenvalue solvers that Fourier-decompose
+    perturbations in the toroidal direction; the imaginary part is meaningful only
+    relative to the phase convention and normalization of the specific eigenmode calculation.
+    The companion quantities [perturbed_plasma_pressure_imaginary_part](name:perturbed_plasma_pressure_imaginary_part)
+    and [perturbed_plasma_temperature_imaginary_part](name:perturbed_plasma_temperature_imaginary_part)
+    form a self-consistent set of perturbed thermodynamic eigenfunctions for the same
+    MHD mode.'
+  unit: kg.m^-3
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:perturbed_plasma_mass_density_real_part
+  - name:perturbed_plasma_pressure_imaginary_part
+  - name:perturbed_plasma_temperature_imaginary_part
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/mass_density_perturbed/imaginary
+    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/mass_density_perturbed/imaginary
     status: composed
 - name: perturbed_plasma_mass_density_real_part
   kind: complex

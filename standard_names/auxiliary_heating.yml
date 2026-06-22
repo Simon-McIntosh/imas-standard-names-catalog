@@ -1,6 +1,6 @@
 # Domain: auxiliary_heating
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 9
+# Entries: 17
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -36,8 +36,7 @@
     In practice this quantity is computed from neutral-beam deposition, ionization,
     fast-ion orbit and slowing-down physics, pitch-angle scattering, collisional momentum
     exchange, and the plasma equilibrium. It depends strongly on the injected and
-    absorbed neutral-beam power, [power_due_to_neutral_beam_injection](name:power_due_to_neutral_beam_injection)
-    and [absorbed_power_of_neutral_beam_injector](name:absorbed_power_of_neutral_beam_injector),
+    absorbed neutral-beam power, power_due_to_neutral_beam_injection and absorbed_power_of_neutral_beam_injector,
     as well as beam energy, tangency geometry, fast-ion confinement, electron temperature,
     density, and trapped-particle fraction.
 
@@ -54,12 +53,57 @@
     above $+\hat{Z}$, and $Z$ is vertical height.'
   unit: A
   physics_domain: auxiliary_heating
-  links:
-  - name:power_due_to_neutral_beam_injection
-  - name:absorbed_power_of_neutral_beam_injector
+  links: []
   sources:
   - id: dd:summary/heating_current_drive/nbi/current/value
     dd_path: summary/heating_current_drive/nbi/current/value
+    status: composed
+- name: fast_ion_power_at_inside_flux_surface
+  kind: scalar
+  status: draft
+  description: Cumulative wave power absorbed by the fast (non-thermal) ion population
+    within the plasma volume enclosed by a specified magnetic flux surface.
+  documentation: 'Fast-ion power at inside flux surface quantifies the running volume
+    integral of RF wave power deposited into the suprathermal (non-thermal) ion population,
+    profiling the radial distribution of enclosed fast-ion wave absorption. It forms
+    the fast-ion component of [ion_power_at_inside_flux_surface](name:ion_power_at_inside_flux_surface),
+    which includes both this quantity and the complementary thermal-ion contribution
+    captured by [thermal_ion_power_at_inside_flux_surface](name:thermal_ion_power_at_inside_flux_surface).
+
+
+    The enclosed fast-ion power is defined as:
+
+
+    $$
+
+    P_\mathrm{fast}(\psi) = \int_{V(\psi)} Q_\mathrm{fast}(\mathbf{r})\, dV
+
+    $$
+
+
+    where $Q_\mathrm{fast}$ is the volumetric fast-ion wave power deposition density
+    and $V(\psi)$ is the plasma volume enclosed within the flux surface at poloidal
+    flux coordinate $\psi$.
+
+
+    This quantity arises primarily in scenarios such as ion cyclotron resonance heating,
+    where waves resonantly accelerate minority ions to suprathermal energies and sustain
+    a non-Maxwellian tail population. The profile of $P_\mathrm{fast}(\psi)$ accumulates
+    with increasing enclosed volume, saturating at the total fast-ion absorbed power
+    at the last closed flux surface. For the charge-state-resolved counterpart, see
+    [fast_ion_state_power_at_inside_flux_surface](name:fast_ion_state_power_at_inside_flux_surface);
+    the local deposition density from which this integral is constructed is given
+    by [fast_ion_power_density](name:fast_ion_power_density).'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:ion_power_at_inside_flux_surface
+  - name:thermal_ion_power_at_inside_flux_surface
+  - name:fast_ion_state_power_at_inside_flux_surface
+  - name:fast_ion_power_density
+  sources:
+  - id: dd:waves/coherent_wave/profiles_1d/ion/power_inside_fast
+    dd_path: waves/coherent_wave/profiles_1d/ion/power_inside_fast
     status: composed
 - name: height_of_antenna_strap
   kind: scalar
@@ -247,6 +291,134 @@
   - id: dd:ic_antennas/antenna/module/strap/geometry/annulus/radius_outer
     dd_path: ic_antennas/antenna/module/strap/geometry/annulus/radius_outer
     status: composed
+- name: per_toroidal_mode_thermal_ion_power
+  kind: scalar
+  status: draft
+  description: Cumulative coherent-wave power absorbed by bulk thermal ions inside
+    a flux surface, resolved by toroidal mode number. It is the toroidal-mode spectrum
+    of thermal-ion heating.
+  documentation: 'Per-toroidal-mode thermal-ion power is the cumulative rate at which
+    a coherent wave transfers energy to the bulk thermal ion population for a single
+    toroidal Fourier mode. The toroidal mode number labels Fourier structure in the
+    toroidal angle $\phi$ of the right-handed cylindrical $(R, \phi, Z)$ frame, where
+    $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height; it
+    is not a cyclotron resonance harmonic order.
+
+
+    For a closed flux surface labeled by a radial surface label $\rho$, the cumulative
+    power for ion species $i$ and toroidal mode $n$ is the volume integral of the
+    corresponding local absorbed power density:
+
+
+    $$
+
+    P_{i,n}(\rho) = \int_{V(\rho)} p_{i,n}(\mathbf{x})\, dV
+
+    $$
+
+
+    where $P_{i,n}$ is the cumulative absorbed power in W, $p_{i,n}$ is the [per-toroidal-mode
+    thermal-ion power density](name:per_toroidal_mode_thermal_ion_power_density) in
+    W m$^{-3}$, $dV$ is a volume element in m$^3$, and $V(\rho)$ is the plasma volume
+    enclosed by the selected flux surface. Summing $P_{i,n}$ over toroidal mode number
+    gives the corresponding [thermal-ion power inside the flux surface](name:thermal_ion_power_at_inside_flux_surface)
+    in W.
+
+
+    This quantity is usually computed from coherent-wave heating calculations by decomposing
+    the wave field or absorbed power density into toroidal Fourier modes and integrating
+    the wave-particle energy transfer over the chosen plasma volume. Experimentally
+    it is inferred indirectly through consistency between wave coupling, ion heating,
+    power balance, and equilibrium or transport analysis rather than measured as a
+    separate direct observable.
+
+
+    Typical per-mode values range from near 0 W for weakly coupled modes to $10^3$-$10^7$
+    W for strongly absorbed radio-frequency heating in medium and large tokamaks.
+    The sum over modes is bounded by the absorbed wave power available to thermal
+    ions and can vary strongly with species composition, resonance location, wave
+    spectrum, and plasma temperature.
+
+
+    Sign convention: Positive when electromagnetic wave energy is absorbed by the
+    bulk thermal ion population.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:thermal_ion_power_at_inside_flux_surface
+  - name:per_toroidal_mode_thermal_electron_power
+  - name:per_toroidal_mode_fast_ion_power
+  - name:per_toroidal_mode_thermal_ion_state_power
+  - name:per_toroidal_mode_thermal_ion_power_density
+  sources:
+  - id: dd:waves/coherent_wave/global_quantities/ion/power_thermal_n_phi
+    dd_path: waves/coherent_wave/global_quantities/ion/power_thermal_n_phi
+    status: composed
+  - id: dd:waves/coherent_wave/global_quantities/ion/power_thermal_n_tor
+    dd_path: waves/coherent_wave/global_quantities/ion/power_thermal_n_tor
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_1d/ion/power_inside_thermal_n_phi
+    dd_path: waves/coherent_wave/profiles_1d/ion/power_inside_thermal_n_phi
+    status: composed
+  - id: dd:waves/coherent_wave/profiles_1d/ion/power_inside_thermal_n_tor
+    dd_path: waves/coherent_wave/profiles_1d/ion/power_inside_thermal_n_tor
+    status: attached
+- name: reflected_power_of_ion_cyclotron_heating_antenna
+  kind: scalar
+  status: draft
+  description: Reflected power of an ion cyclotron heating antenna is the non-negative
+    RF power carried by the backward-traveling wave from the antenna toward the feed
+    line at a specified reference plane. It quantifies antenna matching and coupling
+    shortfall, but equals forward power minus plasma-coupled power only when losses
+    and reference-plane effects are excluded.
+  documentation: 'Reflected power of an ion cyclotron heating antenna is the RF power
+    in the wave traveling back from the antenna load toward the transmission line
+    source. It is reported as a non-negative power-flow magnitude at a specified antenna
+    or feed-line reference plane, not as a signed net power.
+
+
+    At the same reference plane, the reflected power is related to the forward and
+    net powers by the local power balance:
+
+
+    $$
+
+    P_{\mathrm{refl}} = P_{\mathrm{fwd}} - P_{\mathrm{net}}
+
+    $$
+
+
+    where $P_{\mathrm{refl}}$, $P_{\mathrm{fwd}}$, and $P_{\mathrm{net}}$ are powers
+    in W; $P_{\mathrm{fwd}}$ is the incident power traveling toward the antenna, and
+    $P_{\mathrm{net}}$ is the net RF power crossing the reference plane toward the
+    antenna-plasma load. Only when losses between the reference plane and the plasma
+    are negligible does $P_{\mathrm{net}}$ approximate the power coupled to the plasma.
+
+
+    In practice, reflected power is obtained from calibrated directional couplers
+    or from a voltage-current traveling-wave decomposition in the antenna feed system.
+    The reference plane should be specified because standing waves, impedance transformations,
+    and transmission-line or antenna losses can change the apparent reflected power
+    measured at different locations.
+
+
+    Typical reflected powers range from near 0 W in well-matched conditions to 10^3-10^6
+    W in high-power ion-cyclotron operation. Well-matched systems commonly aim for
+    reflected fractions $P_{\mathrm{refl}}/P_{\mathrm{fwd}}$ below about 0.05-0.2,
+    while poor coupling or rapid load changes can produce much larger fractions approaching
+    unity.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:total_power_due_to_ion_cyclotron_heating
+  - name:reflected_power_of_lower_hybrid_antenna
+  sources:
+  - id: dd:ic_antennas/antenna/module/power_reflected
+    dd_path: ic_antennas/antenna/module/power_reflected
+    status: attached
+  - id: dd:ic_antennas/antenna/power_reflected
+    dd_path: ic_antennas/antenna/power_reflected
+    status: composed
 - name: reflected_power_of_lower_hybrid_antenna
   kind: scalar
   status: draft
@@ -280,6 +452,51 @@
   sources:
   - id: dd:lh_antennas/antenna/power_reflected
     dd_path: lh_antennas/antenna/power_reflected
+    status: composed
+- name: thermal_electron_power_at_inside_flux_surface
+  kind: scalar
+  status: draft
+  description: Cumulative wave power absorbed by the bulk thermal electron population
+    within the plasma volume enclosed by a specified magnetic flux surface.
+  documentation: 'Thermal electron power at an inside flux surface quantifies the
+    total rate at which coherent wave energy is absorbed by the bulk (Maxwellian)
+    thermal electron population within the plasma volume bounded by a given flux surface.
+    It represents the radially cumulative wave deposition profile for the thermal
+    electron channel, complementing the fast-electron contribution [fast_electron_power_at_inside_flux_surface](name:fast_electron_power_at_inside_flux_surface)
+    to form the total [electron_power_at_inside_flux_surface](name:electron_power_at_inside_flux_surface).
+
+
+    The quantity is obtained by integrating the flux-surface-averaged [thermal_electron_power_density](name:thermal_electron_power_density)
+    $p_{\mathrm{th,e}}$ over the enclosed plasma volume:
+
+
+    $$
+
+    P_{\mathrm{th,e}}(\rho) = \int_0^\rho p_{\mathrm{th,e}}(\rho'') \frac{dV}{d\rho''}
+    \, d\rho''
+
+    $$
+
+
+    where $\rho$ labels the flux surface and $dV/d\rho''$ is the differential volume
+    element per unit radial coordinate.
+
+
+    This profile is computed by RF wave propagation and absorption solvers; the value
+    at the outermost closed flux surface gives the total wave power absorbed by thermal
+    electrons. The analogous quantity for thermal ions is [thermal_ion_power_at_inside_flux_surface](name:thermal_ion_power_at_inside_flux_surface),
+    and the charge-state-resolved thermal ion analog is [thermal_ion_state_power_at_inside_flux_surface](name:thermal_ion_state_power_at_inside_flux_surface).'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:fast_electron_power_at_inside_flux_surface
+  - name:electron_power_at_inside_flux_surface
+  - name:thermal_electron_power_density
+  - name:thermal_ion_power_at_inside_flux_surface
+  - name:thermal_ion_state_power_at_inside_flux_surface
+  sources:
+  - id: dd:waves/coherent_wave/profiles_1d/electrons/power_inside_thermal
+    dd_path: waves/coherent_wave/profiles_1d/electrons/power_inside_thermal
     status: composed
 - name: thermal_ion_power_at_inside_flux_surface
   kind: scalar
@@ -337,6 +554,48 @@
   - id: dd:waves/coherent_wave/profiles_1d/ion/power_inside_thermal
     dd_path: waves/coherent_wave/profiles_1d/ion/power_inside_thermal
     status: composed
+- name: thermal_ion_state_power_at_inside_flux_surface
+  kind: scalar
+  status: draft
+  description: Cumulative radio-frequency wave power absorbed by a specified thermal
+    ion charge state inside the plasma volume enclosed by a selected magnetic flux
+    surface. It is the volume integral of the charge-state-resolved absorbed power
+    density.
+  documentation: "Thermal ion state power at an inside flux surface is the cumulative\
+    \ radio-frequency wave power transferred to one specified thermal ion species\
+    \ and charge state within the volume bounded by that magnetic flux surface. It\
+    \ is the charge-state-resolved contribution to cumulative thermal-ion RF absorption.\n\
+    \nThe cumulative absorbed power for charge state $z$ of ion species $s$ inside\
+    \ the flux surface labeled by $\rho$ is defined by the volume integral of the\
+    \ local absorbed power density:\n\n$$\nP_{\\mathrm{th},s,z}(\\rho) = \\int_{V(\\\
+    rho)} p_{\\mathrm{th},s,z}(\\mathbf{x})\\, dV\n$$\n\nwhere $P_{\\mathrm{th},s,z}$\
+    \ is in W, $p_{\\mathrm{th},s,z}$ is the local RF power density transferred to\
+    \ that thermal ion charge state in W m$^{-3}$, $dV$ is the differential volume\
+    \ element in m$^3$, and $V(\\rho)$ is the plasma volume enclosed by the magnetic\
+    \ flux surface labeled by the dimensionless normalized flux-surface coordinate\
+    \ $\\rho$.\n\nIn practice this quantity is computed from wave propagation and\
+    \ wave-particle interaction models by integrating the charge-state-resolved absorption\
+    \ over nested equilibrium volumes. Summing over all relevant charge states and\
+    \ all thermal ion species gives the total cumulative RF power absorbed by thermal\
+    \ ions inside the same flux surface; summing over charge states for only one species\
+    \ gives the species-resolved contribution.\n\nTypical values for an individual\
+    \ thermal ion charge state range from near 0 W for weakly absorbing states to\
+    \ 10^5-10^7 W when the state is a dominant RF absorber. The value depends on coupled\
+    \ RF power, resonance location, ion composition, charge-state population, temperature,\
+    \ density, and the chosen flux surface.\n\nSign convention: Positive when net\
+    \ RF energy is transferred from the wave field to the specified thermal ion charge\
+    \ state."
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:thermal_ion_power_at_inside_flux_surface
+  - name:fast_ion_state_power_at_inside_flux_surface
+  - name:ion_state_power_at_inside_flux_surface
+  - name:per_toroidal_mode_thermal_ion_state_power_density
+  sources:
+  - id: dd:waves/coherent_wave/profiles_1d/ion/state/power_inside_thermal
+    dd_path: waves/coherent_wave/profiles_1d/ion/state/power_inside_thermal
+    status: composed
 - name: total_absorbed_power_of_lower_hybrid_antenna
   kind: scalar
   status: draft
@@ -385,6 +644,54 @@
   sources:
   - id: dd:lh_antennas/power
     dd_path: lh_antennas/power
+    status: composed
+- name: fast_ion_state_power
+  kind: scalar
+  status: draft
+  description: Total RF wave power absorbed by the fast (suprathermal) ion population
+    of a specified charge state, volume-integrated over the entire plasma and excluding
+    collisional energy exchange between populations.
+  documentation: 'Fast-ion-state power is the total electromagnetic-wave energy per
+    unit time deposited into the fast (suprathermal) ion component of a single, specified
+    ion charge state, integrated over the entire plasma volume. It is the charge-state-resolved
+    fast-ion contribution to [ion_state_power](name:ion_state_power), which also includes
+    the thermal population''s absorbed wave power; collisional energy exchange between
+    the fast and thermal ion populations is excluded by definition. Fast ions typically
+    absorb RF energy through direct wave-particle resonance mechanisms such as minority-species
+    fundamental resonance or second-harmonic absorption in ion cyclotron resonance
+    heating schemes.
+
+
+    The quantity is the volume integral of the fast-ion absorbed power density $p_{\mathrm{fast},s}(\mathbf{r})$
+    for charge state $s$:
+
+
+    $$
+
+    P_{\mathrm{fast},s} = \int_V p_{\mathrm{fast},s}(\mathbf{r}) \, dV
+
+    $$
+
+
+    where $V$ is the total plasma volume and $p_{\mathrm{fast},s}$ is the local deposition
+    rate given by [fast_ion_state_power_density](name:fast_ion_state_power_density).
+
+
+    In RF wave modeling, the local deposition profile is obtained from quasi-linear
+    wave-particle interaction calculations, then integrated over all flux surfaces.
+    Summing over all charge states of a given ion species recovers [fast_ion_power](name:fast_ion_power),
+    the total fast-ion absorbed wave power without charge-state resolution. The toroidal-mode-resolved
+    cumulative variant is available via [per_toroidal_mode_fast_ion_state_power](name:per_toroidal_mode_fast_ion_state_power).'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:ion_state_power
+  - name:fast_ion_state_power_density
+  - name:fast_ion_power
+  - name:per_toroidal_mode_fast_ion_state_power
+  sources:
+  - id: dd:waves/coherent_wave/global_quantities/ion/state/power_fast
+    dd_path: waves/coherent_wave/global_quantities/ion/state/power_fast
     status: composed
 - name: fast_ion_state_power_density
   kind: scalar
@@ -451,3 +758,124 @@
   - id: dd:waves/coherent_wave/profiles_2d/ion/state/power_density_fast
     dd_path: waves/coherent_wave/profiles_2d/ion/state/power_density_fast
     status: attached
+- name: thermal_electron_power
+  kind: scalar
+  status: draft
+  description: Thermal electron power is the total coherent-wave power absorbed by
+    the bulk thermal electron population, integrated over the plasma volume. It excludes
+    power deposited in fast electrons, ions, or other channels.
+  documentation: 'Thermal electron power is the volume-integrated rate at which a
+    coherent electromagnetic wave transfers energy to the bulk thermal electron population.
+    It represents the thermal-electron heating channel of wave absorption and excludes
+    absorption assigned to fast electrons, ions, or other particle populations.
+
+
+    The quantity is defined as the volume integral of the local thermal-electron wave
+    power density:
+
+
+    $$
+
+    P_{e,\mathrm{th}} = \int_V p_{e,\mathrm{th}}(\mathbf{x}) \, dV
+
+    $$
+
+
+    where $P_{e,\mathrm{th}}$ is the total thermal electron power in W, $p_{e,\mathrm{th}}$
+    is the local power density in W m$^{-3}$, $\mathbf{x}$ is position in m, $dV$
+    is the volume element in m$^3$, and $V$ is the plasma volume over which absorption
+    is evaluated.
+
+
+    In practice this power is inferred from wave-heating power balance, electron energy
+    balance, heating modulation, or wave-absorption calculations constrained by launched
+    power, transmission, reflection, and measured plasma conditions. It is a channel-resolved
+    absorbed power, so consistency with the total absorbed wave power requires summing
+    over all absorbing populations and accounting for unabsorbed or lost wave power.
+
+
+    Typical values range from near 0 W when thermal-electron absorption is weak to
+    10^4-10^7 W in many wave-heated tokamak plasmas, with values of several 10^7 W
+    possible in high-power heating scenarios. The value depends on launched wave power,
+    coupling efficiency, wave frequency, plasma density and temperature, magnetic
+    configuration, and competing absorption by ions or fast particles.
+
+
+    Sign convention: Positive when the coherent wave transfers net energy to the bulk
+    thermal electron population.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:thermal_ion_power
+  - name:absorbed_power
+  - name:thermal_electron_power_at_inside_flux_surface
+  - name:per_toroidal_mode_thermal_electron_power
+  - name:fast_electron_power
+  sources:
+  - id: dd:waves/coherent_wave/global_quantities/electrons/power_thermal
+    dd_path: waves/coherent_wave/global_quantities/electrons/power_thermal
+    status: composed
+- name: wave_driven_current_density
+  kind: vector
+  status: draft
+  description: Local electric current density vector generated by directed momentum
+    transfer from resonant electromagnetic waves to charged particles. It is the wave-driven
+    contribution to the total current density, distinct from Ohmic and bootstrap currents.
+  documentation: 'Wave-driven current density is the local vector current carried
+    by charged particles whose distribution functions are altered by resonant electromagnetic
+    waves. It represents the current-drive contribution of auxiliary heating waves
+    to the total [current_density](name:current_density), distinct from Ohmic, inductive,
+    and bootstrap current. It is not a flux-surface average, volume average, or integrated
+    current; those operations produce derived quantities such as [parallel_wave_driven_current_density](name:parallel_wave_driven_current_density)
+    or contributions to [toroidal_plasma_current](name:toroidal_plasma_current).
+
+
+    In quasilinear kinetic descriptions, the wave-driven contribution is the first
+    velocity moment of the wave-induced perturbation to the distribution function:
+
+
+    $$
+
+    \mathbf{j}_\mathrm{wave}(\mathbf{x}) = \sum_s q_s \int \mathbf{v}\,\delta f_s^\mathrm{wave}(\mathbf{x},\mathbf{v})\,d^3v
+
+    $$
+
+
+    where $\mathbf{x}$ is position, $s$ labels particle species, $q_s$ is the species
+    charge in C, $\mathbf{v}$ is particle velocity in $\mathrm{m\,s^{-1}}$, $d^3v$
+    is the velocity-space volume element, and $\delta f_s^\mathrm{wave}$ is the wave-induced
+    perturbation to the distribution function in $\mathrm{s^3\,m^{-6}}$. The sign
+    of $q_s$ makes electron current opposite to the resonant electron drift velocity.
+
+
+    In practice, wave-driven current density is computed from injected wave spectra
+    and polarization, wave propagation and absorption, quasilinear diffusion, and
+    collisional relaxation of the resonant distribution function. It is constrained
+    experimentally by magnetic equilibrium reconstruction, loop-voltage balance, current-drive
+    efficiency estimates, and wave or emission diagnostics, but direct point measurements
+    are uncommon. Integrating or projecting this vector over space and over launched
+    modes yields mode-resolved or global current-drive quantities such as [per_toroidal_mode_current_due_to_wave_driven_current_drive](name:per_toroidal_mode_current_due_to_wave_driven_current_drive).
+
+
+    Typical local magnitudes in auxiliary-heated tokamaks are $10^3$-$10^5$ A.m^-2
+    over broad wave-absorption regions and can reach $10^5$-$10^6$ A.m^-2 in strongly
+    localized current-drive regions. Flux-surface-averaged parallel values and volume-averaged
+    values are generally smaller because regions of weak or oppositely directed drive
+    contribute to the average.
+
+
+    Sign convention: Positive when the conventional-current component of $\mathbf{j}_\mathrm{wave}$
+    points in the positive direction of its stated basis vector; in the right-handed
+    cylindrical $(R, \phi, Z)$ frame, a positive toroidal component flows in the direction
+    of increasing toroidal angle $\phi$.'
+  unit: A.m^-2
+  physics_domain: auxiliary_heating
+  links:
+  - name:current_density
+  - name:parallel_wave_driven_current_density
+  - name:per_toroidal_mode_current_due_to_wave_driven_current_drive
+  - name:toroidal_plasma_current
+  sources:
+  - id: dd:waves/coherent_wave/profiles_1d/current_parallel_density
+    dd_path: waves/coherent_wave/profiles_1d/current_parallel_density
+    status: composed
