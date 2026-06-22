@@ -1,6 +1,6 @@
 # Domain: divertor_physics
-# Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 23
+# Catalog sha: f0beac648ce2142b681294631520154cb95f206e
+# Entries: 24
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -308,15 +308,12 @@
     low-power phases to kilowatt or megawatt scales in powered divertor plasmas. The
     corresponding outer-target quantity is [electron_power_at_outer_divertor_target](name:electron_power_at_outer_divertor_target),
     while integrated divertor power balances are described by [thermal_power_of_divertor](name:thermal_power_of_divertor)
-    and [power_of_divertor](name:power_of_divertor).'
+    and power_of_divertor.'
   unit: W
   physics_domain: divertor_physics
   links:
-  - name:power_at_inner_divertor_target
   - name:electron_power_at_outer_divertor_target
-  - name:electron_temperature_at_divertor_target
-  - name:electron_density_at_divertor_target
-  - name:peak_power_density_at_divertor_target
+  - name:thermal_power_of_divertor
   sources:
   - id: dd:wall/global_quantities/electrons/power_inner_target
     dd_path: wall/global_quantities/electrons/power_inner_target
@@ -715,7 +712,7 @@
     \ power of divertor due to recombination](name:neutral_power_of_divertor_due_to_recombination),\
     \ while [neutral power at divertor target](name:neutral_power_at_divertor_target)\
     \ provides the same physical quantity resolved for an individual target. The electric-current\
-    \ component of the divertor heat load is separately captured by [power of divertor](name:power_of_divertor).\
+    \ component of the divertor heat load is separately captured by [power of divertor].\
     \ This quantity is computed from edge-plasma transport modeling or inferred by\
     \ decomposing calorimetric measurements of total target heat load into species-resolved\
     \ channels.\n\nSign convention: Positive when net power is directed from the neutral\
@@ -725,7 +722,6 @@
   links:
   - name:neutral_power_of_divertor_due_to_recombination
   - name:neutral_power_at_divertor_target
-  - name:power_of_divertor
   sources:
   - id: dd:divertors/divertor/power_neutrals
     dd_path: divertors/divertor/power_neutrals
@@ -865,6 +861,52 @@
     status: composed
   - id: dd:divertors/divertor/power_radiated
     dd_path: divertors/divertor/power_radiated
+    status: composed
+- name: surface_area_of_divertor_tile
+  kind: scalar
+  status: draft
+  description: Geometric surface area of the plasma-facing side of one divertor tile.
+    It is a per-tile area used to convert integrated heat or particle loads on that
+    tile into tile-averaged flux densities.
+  documentation: 'Surface area of a divertor tile is the geometric area of the individual
+    tile face exposed to the scrape-off-layer plasma and recycling neutrals. It is
+    defined per tile, not as an aggregate over a divertor target, cassette, or full
+    divertor, and represents the area used when tile-integrated loads are averaged
+    over that specific component.
+
+
+    For a plasma-facing tile surface $S_\mathrm{tile}$, the area is
+
+
+    $$
+
+    A_\mathrm{tile} = \int_{S_\mathrm{tile}} dA
+
+    $$
+
+
+    where $A_\mathrm{tile}$ is the tile surface area and $dA$ is the differential
+    element of the actual exposed surface, including geometric shaping, bevels, or
+    curvature when they are part of the plasma-facing face.
+
+
+    The value is normally obtained from engineering geometry, metrology, or a surface
+    mesh of the divertor component. It can be used with an integrated power or particle
+    load on the same tile, for example as $q_\mathrm{tile}=P_\mathrm{tile}/A_\mathrm{tile}$,
+    to form a tile-averaged heat flux density.
+
+
+    Typical divertor-tile surface areas are about $10^{-3}$-$10^{-1}$ m^2, depending
+    on tile size, segmentation, strike-point region coverage, and whether detailed
+    shaped features are included.'
+  unit: m^2
+  physics_domain: divertor_physics
+  links:
+  - name:wetted_area_of_divertor_target
+  - name:wetted_area_of_divertor
+  sources:
+  - id: dd:divertors/divertor/target/tile/surface_area
+    dd_path: divertors/divertor/target/tile/surface_area
     status: composed
 - name: total_ion_density_at_divertor_target
   kind: scalar

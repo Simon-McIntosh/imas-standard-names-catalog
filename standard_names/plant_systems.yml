@@ -1,6 +1,6 @@
 # Domain: plant_systems
-# Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 25
+# Catalog sha: f0beac648ce2142b681294631520154cb95f206e
+# Entries: 27
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -148,6 +148,50 @@
   sources:
   - id: dd:summary/gas_injection_accumulated/ethane/value
     dd_path: summary/gas_injection_accumulated/ethane/value
+    status: composed
+- name: accumulated_ethylene_count
+  kind: scalar
+  status: draft
+  description: Cumulative ethylene (C2H4) gas injection since plasma breakdown, expressed
+    as an equivalent-electron count where each ethylene molecule contributes 16 equivalent
+    electrons (2 carbon atoms at Z = 6 each, 4 hydrogen atoms at Z = 1 each).
+  documentation: 'Ethylene (C2H4) is a two-carbon hydrocarbon molecule in which each
+    molecule contributes 2 carbon atoms (atomic number $Z_C = 6$) and 4 hydrogen atoms
+    ($Z_H = 1$), yielding 16 equivalent electrons per molecule.
+
+
+    The accumulated equivalent-electron count is defined by:
+
+
+    $$
+
+    N_{\mathrm{eq}}(t) = 16 \int_{t_{\mathrm{bd}}}^{t} \frac{dN_{\mathrm{C_2H_4}}}{dt''}
+    \, dt''
+
+    $$
+
+
+    where $t_{\mathrm{bd}}$ is the time of plasma breakdown and $dN_{\mathrm{C_2H_4}}/dt$
+    is the instantaneous ethylene injection rate in molecules per second.
+
+
+    The integral runs from plasma breakdown onward, excluding any prefill contribution.
+    The quantity is inferred from calibrated gas-valve flow measurements and tracks
+    the hydrocarbon-based electron inventory added to the plasma, relevant to impurity
+    seeding and disruption mitigation experiments. Closely related hydrocarbon counts
+    include [accumulated_ethane_count](name:accumulated_ethane_count) (C2H6, 18 equivalent
+    electrons per molecule) and [accumulated_propane_count](name:accumulated_propane_count)
+    (C3H8, 26 equivalent electrons per molecule). For the species-summed inventory
+    across all injected gasses, see [accumulated_total_particle_count_due_to_gas_injection](name:accumulated_total_particle_count_due_to_gas_injection).'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_ethane_count
+  - name:accumulated_propane_count
+  - name:accumulated_total_particle_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_accumulated/ethylene/value
+    dd_path: summary/gas_injection_accumulated/ethylene/value
     status: composed
 - name: accumulated_helium_4_count_due_to_gas_injection
   kind: scalar
@@ -1204,3 +1248,68 @@
   - id: dd:spi/injector/velocity_mass_centre_fragments_z
     dd_path: spi/injector/velocity_mass_centre_fragments_z
     status: attached
+- name: thermal_power_of_divertor
+  kind: scalar
+  status: draft
+  description: Total heat-exhaust power deposited on the plasma-facing surfaces of
+    the divertor system. It is the surface integral of the local thermal heat flux
+    over divertor targets and included divertor components, excluding main-wall loads
+    and distinct electrical-current power.
+  documentation: 'Thermal power of the divertor is the total rate at which plasma
+    exhaust energy is deposited as heat on the divertor system. The relevant integration
+    surface is the plasma-facing boundary of the divertor system, including divertor
+    targets and any other divertor components included in the thermal-load definition,
+    but excluding main-wall surfaces. This quantity represents the thermal heat-exhaust
+    load; it is distinct from divertor power associated specifically with electric
+    currents.
+
+
+    For a specified divertor surface set, the total thermal power is the surface integral
+    of the deposited thermal heat-flux density:
+
+
+    $$
+
+    P_{\mathrm{th,div}} = \int_{S_{\mathrm{div}}} q_{\mathrm{th}}(\mathbf{x}) \, dA
+
+    $$
+
+
+    where $S_{\mathrm{div}}$ is the selected plasma-facing divertor surface, $q_{\mathrm{th}}$
+    is the local thermal heat-flux density deposited into that surface in W m$^{-2}$,
+    $dA$ is the surface element in m$^2$, and $P_{\mathrm{th,div}}$ is in W. If the
+    divertor is treated as a set of components or targets, the same quantity is the
+    sum of this integral over those components.
+
+
+    In practice it is inferred by integrating mapped divertor heat-flux measurements
+    from infrared thermography, embedded calorimetry, thermocouples, probes, or radiation
+    and neutral-exhaust analysis, often constrained by global power balance. Modeling
+    estimates compute the same surface-integrated thermal deposition from parallel
+    transport, cross-field spreading, volumetric radiation, charge-exchange neutrals,
+    and plasma-surface interaction physics.
+
+
+    Typical values are strongly device and scenario dependent: small or medium experiments
+    may deposit about $10^5$-$10^7$ W on the divertor, large tokamak scenarios about
+    $10^7$-$10^8$ W, and reactor or power-plant designs can require exhaust handling
+    at about $10^8$-$10^9$ W. The distribution over the wetted area is often as important
+    as the total, because material limits are governed by local heat flux as well
+    as integrated power.
+
+
+    Sign convention: Positive when thermal energy is deposited into the divertor system
+    from the plasma.'
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:power_of_divertor
+  - name:thermal_power_at_wall
+  - name:thermal_power_of_breeder_blanket
+  - name:power_of_divertor_due_to_fusion
+  - name:power_at_divertor_target_due_to_conduction
+  - name:power_at_divertor_target_due_to_convection
+  sources:
+  - id: dd:balance_of_plant/power_plant/heat_load_divertor
+    dd_path: balance_of_plant/power_plant/heat_load_divertor
+    status: composed

@@ -1,6 +1,6 @@
 # Domain: plasma_wall_interactions
-# Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 24
+# Catalog sha: f0beac648ce2142b681294631520154cb95f206e
+# Entries: 26
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -269,6 +269,41 @@
   sources:
   - id: dd:summary/local/limiter/n_i/hydrogen/value
     dd_path: summary/local/limiter/n_i/hydrogen/value
+    status: composed
+- name: ion_kinetic_energy_flux_at_wall_due_to_surface_emission
+  kind: scalar
+  status: draft
+  description: Kinetic energy flux density carried by ions leaving the plasma-facing
+    wall through surface emission processes such as physical sputtering and ion backscattering.
+  documentation: "The kinetic energy flux density at the plasma-facing wall surface\
+    \ carried by ions emitted outward via surface emission \u2014 the family of plasma\u2013\
+    wall interaction processes, including physical sputtering, chemical sputtering,\
+    \ and ion backscattering, that return ionic species from the wall to the plasma.\
+    \ The `kinetic` qualifier restricts this to translational kinetic energy of the\
+    \ emitted ion velocity distribution, excluding potential energy stored in electronic\
+    \ excitation or residual ionization charge, which is captured separately by [energy_flux_at_wall_due_to_recombination](name:energy_flux_at_wall_due_to_recombination).\n\
+    \nThe emitted kinetic energy flux $\\Phi_{\\mathrm{kin,emit}}$ sums over all emitted\
+    \ ion species $s$:\n\n$$\n\\Phi_{\\mathrm{kin,emit}} = \\sum_s \\int_{v_n > 0}\
+    \ \\tfrac{1}{2} m_s v^2 \\, v_n \\, f_{s,\\mathrm{emit}}(\\mathbf{v}) \\, d^3v\n\
+    $$\n\nwhere $m_s$ is the ion mass of species $s$, $v = |\\mathbf{v}|$ is the ion\
+    \ speed, $v_n > 0$ is the outward surface-normal velocity component at the wall,\
+    \ and $f_{s,\\mathrm{emit}}(\\mathbf{v})$ is the velocity distribution function\
+    \ of emitted ions.\n\nIn plasma\u2013surface interaction modeling, this flux is\
+    \ evaluated by convolving incident plasma conditions with energy-resolved surface\
+    \ emission yields and backscattering coefficients from binary-collision approximation\
+    \ databases. It is the mechanism-attributed form of [ion_energy_flux_at_wall](name:ion_kinetic_energy_flux_at_wall_due_to_surface_emission)\
+    \ and the emitted counterpart to [ion_kinetic_energy_flux_at_wall](name:ion_kinetic_energy_flux_at_wall),\
+    \ which captures the incident kinetic flux. Charge-state-resolved contributions\
+    \ are tracked by ion_state_energy_flux_at_wall, and the electron analog is [electron_energy_flux_at_wall](name:electron_energy_flux_at_wall)."
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:energy_flux_at_wall_due_to_recombination
+  - name:ion_kinetic_energy_flux_at_wall
+  - name:electron_energy_flux_at_wall
+  sources:
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/kinetic/ion/emitted/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/ion/emitted/values
     status: composed
 - name: ion_particle_flux_at_wall
   kind: scalar
@@ -1213,6 +1248,73 @@
   sources:
   - id: dd:camera_ir/channel/target_surface_center/y
     dd_path: camera_ir/channel/target_surface_center/y
+    status: composed
+- name: power_at_wall_due_to_conduction
+  kind: scalar
+  status: draft
+  description: Conductive component of plasma power deposited on first-wall and divertor
+    material surfaces. It represents heat carried by thermal conduction and excludes
+    convected, radiated, recombination, and neutral-particle power channels.
+  documentation: 'Power at wall due to conduction is the component of the wall-deposited
+    plasma energy flux carried by thermal conduction, primarily electron heat conduction
+    along magnetic field lines in the scrape-off-layer and divertor plasma. It is
+    distinct from particle enthalpy convection, radiation, recombination energy, and
+    neutral-particle energy deposition.
+
+
+    The scalar power is defined by integrating the deposited conductive heat-flux
+    density over the plasma-facing material surface:
+
+
+    $$
+
+    P_{\mathrm{wall,cond}} = \int_{A_{\mathrm{wall}}} q_{n,\mathrm{cond}}^{\mathrm{dep}}
+    \, dA
+
+    $$
+
+
+    where $P_{\mathrm{wall,cond}}$ is the conducted wall power, $A_{\mathrm{wall}}$
+    is the wetted first-wall and divertor material surface, $dA$ is a surface element
+    in $\mathrm{m^2}$, and $q_{n,\mathrm{cond}}^{\mathrm{dep}}$ is the local conductive
+    heat-flux density into the material in $\mathrm{W\,m^{-2}}$. The upstream parallel
+    conductive heat flux is often modeled as $q_{\parallel,\mathrm{cond}} = -\kappa_\parallel
+    \nabla_\parallel T_e$, where $q_{\parallel,\mathrm{cond}}$ is in $\mathrm{W\,m^{-2}}$,
+    $\kappa_\parallel$ is in $\mathrm{W\,m^{-1}\,eV^{-1}}$ when $T_e$ is expressed
+    in eV, and $\nabla_\parallel T_e$ is in $\mathrm{eV\,m^{-1}}$. Mapping this upstream
+    flux to $q_{n,\mathrm{cond}}^{\mathrm{dep}}$ includes magnetic incidence on the
+    surface and may include a sheath heat-transmission factor, so the deposited conductive
+    power is not simply the bare upstream parallel flux integrated over geometric
+    wall area.
+
+
+    In practice this quantity is inferred from wall heat-flux measurements and edge-plasma
+    modeling. Infrared thermography, calorimetry, embedded temperature sensors, Langmuir
+    probes, and edge Thomson scattering can constrain the deposited heat flux, electron
+    temperature gradients, and the partition between conductive and convective channels.
+    Together with [power_at_wall_due_to_convection](name:power_at_wall_due_to_convection),
+    this quantity forms the main kinetic thermal contribution to [plasma_power_at_wall](name:plasma_power_at_wall);
+    it is also part of thermal_power_at_wall and the divertor-local thermal load described
+    by [thermal_power_of_divertor](name:thermal_power_of_divertor).
+
+
+    Typical magnitudes range from $10^5-10^7$ W in medium-size tokamak plasmas, can
+    fall near zero in strongly detached or highly radiative conditions, and can reach
+    $10^7-10^8$ W or more in high-power devices if a large fraction of scrape-off-layer
+    power reaches material surfaces conductively.
+
+
+    Sign convention: Positive when conductive thermal energy is deposited from the
+    plasma into first-wall or divertor material surfaces.'
+  unit: W
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:power_at_wall_due_to_convection
+  - name:plasma_power_at_wall
+  - name:thermal_power_of_divertor
+  sources:
+  - id: dd:wall/global_quantities/power_conducted
+    dd_path: wall/global_quantities/power_conducted
     status: composed
 - name: reference_wavelength_of_filter
   kind: scalar

@@ -1,6 +1,6 @@
 # Domain: magnetic_field_systems
-# Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 48
+# Catalog sha: f0beac648ce2142b681294631520154cb95f206e
+# Entries: 50
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -17,7 +17,7 @@
     right-handed cylindrical $(R,\phi,Z)$ frame, where $R$ is major radius, $\phi$
     is toroidal angle, and $Z$ is vertical height. It defines the orientation of the
     slanted side associated with [major_length_of_iron_core_segment](name:major_length_of_iron_core_segment),
-    complementary to the other inclined side length [length_of_iron_core_segment](name:length_of_iron_core_segment).
+    complementary to the other inclined side length [length_of_iron_core_segment](name:major_length_of_iron_core_segment).
 
 
     For an $\alpha$-inclined side, the unit tangent in the cross-section is
@@ -58,7 +58,8 @@
     $Z$-up drawing of the right-handed cylindrical $(R,\phi,Z)$ frame.'
   unit: rad
   physics_domain: magnetic_field_systems
-  links: []
+  links:
+  - name:major_length_of_iron_core_segment
   sources:
   - id: dd:iron_core/segment/geometry/oblique/alpha
     dd_path: iron_core/segment/geometry/oblique/alpha
@@ -526,53 +527,6 @@
   - id: dd:coils_non_axisymmetric/coil/conductor/cross_section/radius_inner
     dd_path: coils_non_axisymmetric/coil/conductor/cross_section/radius_inner
     status: attached
-- name: inner_radius_of_ferritic_element
-  kind: scalar
-  status: draft
-  description: Inner radial boundary of the annular cross-section of a ferritic element
-    in the axisymmetric equivalent geometry, defining the bore of the annulus centered
-    at a reference point in the right-handed cylindrical $(R, \phi, Z)$ frame.
-  documentation: 'The inner radius specifies the hollow bore of the annular cross-section
-    used to represent a ferritic element in the axisymmetric thick-line equivalent
-    geometry. Ferritic elements are ferromagnetic inserts employed in some fusion
-    devices to reduce toroidal magnetic-field ripple; each element is modeled as an
-    axisymmetric body whose cross-section is an annulus centered at a reference point
-    $(R_0, Z_0)$ in the right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is
-    the major radius from the toroidal symmetry axis and $Z$ is the vertical height.
-
-
-    For an annular cross-section with inner radius $r_\mathrm{in}$ and outer radius
-    $r_\mathrm{out}$, the enclosed area is
-
-
-    $$
-
-    A = \pi\bigl(r_\mathrm{out}^2 - r_\mathrm{in}^2\bigr)
-
-    $$
-
-
-    with the geometric constraint $0 \leq r_\mathrm{in} < r_\mathrm{out}$. The inner
-    radius is a design parameter supplied directly to the geometry model and is not
-    inferred from in-situ measurements. Together with [outer_radius_of_ferritic_element](name:outer_radius_of_ferritic_element),
-    it fully characterizes the radial extent of the annular cross-section, while the
-    overall radial placement of the element is given by [radius_of_ferritic_element](name:radius_of_ferritic_element).
-    The analogous quantity for iron core segments is [inner_radius_of_iron_core_segment](name:inner_radius_of_iron_core_segment).
-
-
-    Sign convention: Positive as a non-negative radial distance from the annulus center
-    to the inner surface in the right-handed cylindrical $(R, \phi, Z)$ frame where
-    $R \geq 0$.'
-  unit: m
-  physics_domain: magnetic_field_systems
-  links:
-  - name:outer_radius_of_ferritic_element
-  - name:radius_of_ferritic_element
-  - name:inner_radius_of_iron_core_segment
-  sources:
-  - id: dd:ferritic/object/axisymmetric/annulus/radius_inner
-    dd_path: ferritic/object/axisymmetric/annulus/radius_inner
-    status: attached
 - name: inner_radius_of_iron_core_segment
   kind: scalar
   status: draft
@@ -771,6 +725,9 @@
   - id: dd:coils_non_axisymmetric/coil/conductor/elements/centres/r
     dd_path: coils_non_axisymmetric/coil/conductor/elements/centres/r
     status: composed
+  - id: dd:coils_non_axisymmetric/coil/conductor/elements/intermediate_points/r
+    dd_path: coils_non_axisymmetric/coil/conductor/elements/intermediate_points/r
+    status: attached
   - id: dd:coils_non_axisymmetric/coil/conductor/elements/start_points/r
     dd_path: coils_non_axisymmetric/coil/conductor/elements/start_points/r
     status: composed
@@ -779,6 +736,9 @@
     status: composed
   - id: dd:tf/coil/conductor/elements/end_points/r
     dd_path: tf/coil/conductor/elements/end_points/r
+    status: composed
+  - id: dd:tf/coil/conductor/elements/intermediate_points/r
+    dd_path: tf/coil/conductor/elements/intermediate_points/r
     status: composed
 - name: major_radius_of_toroidal_field_coil
   kind: scalar
@@ -1221,6 +1181,158 @@
   sources:
   - id: dd:tf/field_map/a_field_r/values
     dd_path: tf/field_map/a_field_r/values
+    status: composed
+- name: radius_of_ferritic_element
+  kind: scalar
+  status: draft
+  description: Cylindrical radial coordinate R of the geometric point used to locate
+    a ferritic element in the right-handed cylindrical (R, phi, Z) frame, measured
+    as distance from the toroidal symmetry axis. It is a generic radial position,
+    not an inner or outer boundary of an annular cross-section.
+  documentation: 'Radius of a ferritic element is the cylindrical radial coordinate
+    $R$ of the geometric point used to locate that element in the right-handed cylindrical
+    $(R, \phi, Z)$ frame, where $R$ is distance from the toroidal symmetry axis, $\phi$
+    is the toroidal angle, and $Z$ is the vertical height. It specifies a position
+    in the poloidal plane and is not the element''s annular thickness; for the radial
+    bounds of an annular cross-section use [inner_radius_of_ferritic_element](name:inner_radius_of_ferritic_element)
+    and [outer_radius_of_ferritic_element](name:outer_radius_of_ferritic_element),
+    and when the point is specifically an outline vertex use [major_radius_of_ferritic_element](name:major_radius_of_ferritic_element).
+
+
+    For the same point expressed in the right-handed Cartesian $(\hat{x}, \hat{y},
+    \hat{z})$ basis with $\hat{z}$ vertical, the cylindrical radius is
+
+
+    $$
+
+    R_f = \sqrt{x_f^2 + y_f^2}
+
+    $$
+
+
+    where $x_f$ and $y_f$ are the horizontal Cartesian coordinates of the ferritic-element
+    point in meters and $R_f$ is its radial distance from the toroidal symmetry axis
+    in meters.
+
+
+    In practice this coordinate is taken from the geometric description of the ferritic
+    component, such as engineering design geometry, magnetic-model geometry, or survey-derived
+    component positions.
+
+
+    Typical values are machine-size dependent, generally falling in the 0.2-15 m range
+    across tokamak magnetic-field systems, within the radial envelope occupied by
+    the ferritic structures.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:inner_radius_of_ferritic_element
+  - name:vertical_coordinate_of_ferritic_element
+- name: inner_radius_of_ferritic_element
+  kind: scalar
+  status: draft
+  description: Inner radial boundary of the annular cross-section of a ferritic element
+    in the axisymmetric equivalent geometry, defining the bore of the annulus centered
+    at a reference point in the right-handed cylindrical $(R, \phi, Z)$ frame.
+  documentation: 'The inner radius specifies the hollow bore of the annular cross-section
+    used to represent a ferritic element in the axisymmetric thick-line equivalent
+    geometry. Ferritic elements are ferromagnetic inserts employed in some fusion
+    devices to reduce toroidal magnetic-field ripple; each element is modeled as an
+    axisymmetric body whose cross-section is an annulus centered at a reference point
+    $(R_0, Z_0)$ in the right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is
+    the major radius from the toroidal symmetry axis and $Z$ is the vertical height.
+
+
+    For an annular cross-section with inner radius $r_\mathrm{in}$ and outer radius
+    $r_\mathrm{out}$, the enclosed area is
+
+
+    $$
+
+    A = \pi\bigl(r_\mathrm{out}^2 - r_\mathrm{in}^2\bigr)
+
+    $$
+
+
+    with the geometric constraint $0 \leq r_\mathrm{in} < r_\mathrm{out}$. The inner
+    radius is a design parameter supplied directly to the geometry model and is not
+    inferred from in-situ measurements. Together with [outer_radius_of_ferritic_element](name:outer_radius_of_ferritic_element),
+    it fully characterizes the radial extent of the annular cross-section, while the
+    overall radial placement of the element is given by [radius_of_ferritic_element](name:radius_of_ferritic_element).
+    The analogous quantity for iron core segments is [inner_radius_of_iron_core_segment](name:inner_radius_of_iron_core_segment).
+
+
+    Sign convention: Positive as a non-negative radial distance from the annulus center
+    to the inner surface in the right-handed cylindrical $(R, \phi, Z)$ frame where
+    $R \geq 0$.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:outer_radius_of_ferritic_element
+  - name:radius_of_ferritic_element
+  - name:inner_radius_of_iron_core_segment
+  arguments:
+  - name: radius_of_ferritic_element
+    operator: inner
+    operator_kind: qualifier
+  sources:
+  - id: dd:ferritic/object/axisymmetric/annulus/radius_inner
+    dd_path: ferritic/object/axisymmetric/annulus/radius_inner
+    status: attached
+- name: outer_radius_of_ferritic_element
+  kind: scalar
+  status: draft
+  description: Outer major-radius boundary of an annular representation of a ferritic
+    element in an axisymmetric equivalent geometry. It is the maximum R extent of
+    the ferritic annulus in the right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'The outer radius of a ferritic element is the largest major-radius
+    coordinate occupied by the annular cross-section used to represent magnetically
+    permeable material in an axisymmetric equivalent geometry. In the right-handed
+    cylindrical $(R, \phi, Z)$ frame, $R$ is distance from the toroidal symmetry axis
+    and $Z$ is vertical height; this quantity defines the radially outward boundary
+    of the annulus.
+
+
+    For an annular ferritic region $\Omega_f$ represented in the poloidal $(R,Z)$
+    plane, the outer radius is
+
+
+    $$
+
+    R_{\mathrm{outer}} = \max_{(R,Z)\in\Omega_f} R
+
+    $$
+
+
+    where $\Omega_f$ is the cross-section assigned to the ferritic material and $R$
+    is the major-radius coordinate in the right-handed cylindrical $(R, \phi, Z)$
+    frame.
+
+
+    The value is usually obtained from engineering geometry, computer-aided design
+    models, or simplified axisymmetric models of ferritic inserts, cores, shields,
+    or other magnetic structures. Together with the corresponding inner radius, it
+    sets the radial thickness and placement of the annular magnetic material used
+    in equilibrium and magnetic-field calculations.
+
+
+    Typical values are device- and component-dependent: compact ferritic inserts may
+    have outer radii of 0.2-2 m, while larger ferritic structures in medium to large
+    tokamaks may extend to 2-10 m. The value is non-negative by geometry and must
+    exceed the corresponding inner radius for a finite annular thickness.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:radius_of_ferritic_element
+  - name:inner_radius_of_ferritic_element
+  - name:outer_radius_of_iron_core_segment
+  arguments:
+  - name: radius_of_ferritic_element
+    operator: outer
+    operator_kind: qualifier
+  sources:
+  - id: dd:ferritic/object/axisymmetric/annulus/radius_outer
+    dd_path: ferritic/object/axisymmetric/annulus/radius_outer
     status: composed
 - name: radius_of_passive_structure
   kind: scalar

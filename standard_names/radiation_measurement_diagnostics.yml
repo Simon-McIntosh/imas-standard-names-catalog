@@ -1,6 +1,6 @@
 # Domain: radiation_measurement_diagnostics
-# Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 31
+# Catalog sha: f0beac648ce2142b681294631520154cb95f206e
+# Entries: 32
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -50,7 +50,7 @@
     spectrometer. It is the low-energy edge of that pixel's photon-energy bandpass.
   documentation: 'The lower bound energy of a detector pixel is the minimum photon
     energy in the spectral interval accepted by that pixel. Together with the corresponding
-    upper bound, it defines the pixel bandpass around the calibrated [photon_energy](name:photon_energy)
+    upper bound, it defines the pixel bandpass around the calibrated photon_energy
     coordinate.
 
 
@@ -88,9 +88,7 @@
     a few eV to tens of eV, depending on dispersion and pixel size.'
   unit: eV
   physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:upper_bound_energy_of_detector_pixel
-  - name:energy_of_detector_pixel
+  links: []
   sources:
   - id: dd:spectrometer_x_ray_crystal/channel/energy_bound_lower
     dd_path: spectrometer_x_ray_crystal/channel/energy_bound_lower
@@ -514,7 +512,7 @@
     nominal wavelength is constrained by the Bragg relation $n\lambda = 2d\sin\theta_B$,
     where $d$ is the lattice-plane spacing, $\theta_B$ is the Bragg angle, and $n$
     is the diffraction order. The related [spectral_width_of_spectrometer_channel](name:spectral_width_of_spectrometer_channel)
-    describes response broadening, while [spectral_instrument_function_of_spectrometer_channel](name:spectral_instrument_function_of_spectrometer_channel)
+    describes response broadening, while spectral_instrument_function_of_spectrometer_channel
     describes the full wavelength-dependent response shape.
 
 
@@ -533,7 +531,6 @@
   physics_domain: radiation_measurement_diagnostics
   links:
   - name:spectral_width_of_spectrometer_channel
-  - name:spectral_instrument_function_of_spectrometer_channel
   - name:reference_calibration_wavelength_of_spectrometer_channel
   - name:wavelength_of_spectral_line
   sources:
@@ -631,12 +628,13 @@
     \ $n^2(\\lambda) = 1 + \\sum_i B_i \\lambda^2 / (\\lambda^2 - C_i)$, with empirically\
     \ determined material coefficients $B_i$ and $C_i$ specific to the optical glass\
     \ or crystal.\n\nThe spectral refractive index is evaluated on the same wavelength\
-    \ axis defined by [spectral_wavelength](name:spectral_wavelength) and is typically\
-    \ sourced from manufacturer material specifications or measured by prism minimum-deviation\
-    \ refractometry or spectroscopic ellipsometry. For infrared optical elements,\
-    \ $n(\\lambda)$ is paired with the extinction coefficient to fully characterize\
-    \ the complex optical response governing transmission and reflection. The full\
-    \ dispersion curve constitutes the spectral resolution of the broadband [refractive_index_of_optical_element](name:refractive_index_of_optical_element).\n\
+    \ axis defined by [spectral_wavelength](name:spectral_wavelength_of_optical_element)\
+    \ and is typically sourced from manufacturer material specifications or measured\
+    \ by prism minimum-deviation refractometry or spectroscopic ellipsometry. For\
+    \ infrared optical elements, $n(\\lambda)$ is paired with the extinction coefficient\
+    \ to fully characterize the complex optical response governing transmission and\
+    \ reflection. The full dispersion curve constitutes the spectral resolution of\
+    \ the broadband [refractive_index_of_optical_element](name:refractive_index_of_optical_element).\n\
     \nTypical values span $n \\approx 1.45$\u2013$1.47$ for fused silica in the UV-visible\
     \ range, $n \\approx 1.5$ for BK7 optical glass, and $n \\approx 2.4$ for ZnSe\
     \ at mid-infrared wavelengths. Compare with [parallel_refractive_index](name:parallel_refractive_index),\
@@ -647,7 +645,10 @@
     \ used in fusion plasma diagnostics."
   unit: '1'
   physics_domain: radiation_measurement_diagnostics
-  links: []
+  links:
+  - name:spectral_wavelength_of_optical_element
+  - name:refractive_index_of_optical_element
+  - name:parallel_refractive_index
   sources:
   - id: dd:camera_ir/optical_element/material_properties/refractive_index
     dd_path: camera_ir/optical_element/material_properties/refractive_index
@@ -697,10 +698,10 @@
     while separating source broadening from instrumental broadening. Contributions
     can include crystal rocking curve, detector spatial resolution mapped into wavelength,
     aperture geometry, finite source extent, and alignment tolerances. Together with
-    component amplitudes represented by the [spectral_factor_of_spectrometer_channel](name:spectral_factor_of_spectrometer_channel)
+    component amplitudes represented by the spectral_factor_of_spectrometer_channel
     and centers such as the reference wavelength, the widths define Gaussian terms
-    that compose the [spectral_instrument_function_of_spectrometer_channel](name:spectral_instrument_function_of_spectrometer_channel)
-    or channel-level [instrument_function_of_spectrometer_channel](name:instrument_function_of_spectrometer_channel).
+    that compose the spectral_instrument_function_of_spectrometer_channel or channel-level
+    [instrument_function_of_spectrometer_channel](name:instrument_function_of_spectrometer_channel).
 
 
     Typical values range from $10^{-14}$-$10^{-12}$ m for high-resolution x-ray crystal
@@ -1123,6 +1124,62 @@
   sources:
   - id: dd:hard_x_rays/channel/detector/x1_width
     dd_path: hard_x_rays/channel/detector/x1_width
+    status: composed
+- name: x1_coordinate_of_bragg_crystal
+  kind: scalar
+  status: draft
+  description: X1 coordinate of a Bragg-crystal outline vertex, measured along the
+    first axis of the crystal-local Cartesian (X1, X2) frame. Together with the corresponding
+    X2 coordinate, it defines the crystal cross-section boundary used in diffraction
+    geometry.
+  documentation: 'The $x_1$ coordinate of a Bragg crystal is the signed scalar position
+    of an outline vertex along the first axis of the crystal-local Cartesian $(X_1,
+    X_2)$ frame. Paired with the corresponding [x2 coordinate of a Bragg crystal](name:x2_coordinate_of_bragg_crystal),
+    it identifies one vertex of the crystal cross-section boundary; consecutive paired
+    vertices define the ordered polygonal outline of the crystal aperture.
+
+
+    For a vertex with position vector $\mathbf{r}$ in the crystal-local Cartesian
+    $(X_1, X_2)$ frame, the coordinate is the projection of the displacement from
+    the local origin onto the positive $X_1$ axis:
+
+
+    $$
+
+    x_1 = (\mathbf{r} - \mathbf{r}_0) \cdot \hat{\mathbf{e}}_{X_1}
+
+    $$
+
+
+    where $\mathbf{r}_0$ is the local-frame origin and $\hat{\mathbf{e}}_{X_1}$ is
+    the unit vector along the positive $X_1$ direction.
+
+
+    Crystal outline coordinates are usually obtained from mechanical design drawings,
+    manufacturer specifications, or optical and coordinate-measuring metrology of
+    the mounted crystal. The outline specifies the physical aperture and illuminated
+    crystal extent in ray tracing or spectrometer geometry models, but it does not
+    by itself determine whether the Bragg condition is satisfied; diffraction also
+    depends on lattice spacing, incidence angle, diffraction order, and X-ray wavelength.
+
+
+    Typical coordinate magnitudes for Bragg-crystal spectrometers range from 0.001-0.10
+    m, with millimeter-scale values for small crystals and centimeter-scale values
+    for larger analyzer crystals or extended mounts.
+
+
+    Sign convention: Positive when the vertex displacement from the local origin has
+    a component along the positive $X_1$ axis of the crystal-local Cartesian $(X_1,
+    X_2)$ frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:x2_coordinate_of_bragg_crystal
+  - name:x1_coordinate_of_optical_element
+  - name:x1_coordinate_of_soft_xray_detector
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/crystal/outline/x1
+    dd_path: spectrometer_x_ray_crystal/channel/crystal/outline/x1
     status: composed
 - name: x1_coordinate_of_filter
   kind: scalar
