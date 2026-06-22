@@ -1,6 +1,6 @@
 # Domain: plant_systems
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 7
+# Entries: 10
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -85,6 +85,83 @@
   - id: dd:summary/gas_injection_accumulated/neon/value
     dd_path: summary/gas_injection_accumulated/neon/value
     status: composed
+- name: ammonia_prefill_count
+  kind: scalar
+  status: draft
+  description: Accumulated ammonia gas injected during the plasma prefill phase, expressed
+    as an equivalent-electron count.
+  documentation: 'Ammonia prefill count is the accumulated amount of NH$_3$ introduced
+    before plasma breakdown, expressed as the number of bound electrons carried by
+    the injected neutral molecules. The convention uses the full stoichiometric electron
+    content of ammonia, not the instantaneous ionization state of the gas.
+
+
+    For a number of injected ammonia molecules $N_{\mathrm{NH_3}}$, the equivalent-electron
+    count is
+
+
+    $$
+
+    N_{e,\mathrm{eq}} = 10\,N_{\mathrm{NH_3}}
+
+    $$
+
+
+    where the factor 10 is the total electron count of one neutral NH$_3$ molecule:
+    7 from nitrogen and 3 from hydrogen.
+
+
+    In practice this quantity is computed from the time-integrated ammonia gas throughput
+    during the prefill interval, using calibrated valve, pressure, flow, or reservoir-depletion
+    measurements to infer the number of NH$_3$ molecules delivered. It is specific
+    to the prefill phase and is conceptually distinct from an accumulated ammonia
+    count over a longer or differently defined injection interval.
+
+
+    Typical values are strongly device and scenario dependent. Small conditioning
+    or trace-species prefills may be around $10^{19}$-$10^{21}$ equivalent electrons,
+    while larger dedicated molecular-gas prefills can reach $10^{22}$-$10^{23}$ equivalent
+    electrons or more.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:nitrogen_prefill_count
+  - name:ethylene_prefill_count
+  - name:accumulated_ammonia_count
+  sources:
+  - id: dd:summary/gas_injection_prefill/ammonia/value
+    dd_path: summary/gas_injection_prefill/ammonia/value
+    status: composed
+- name: atomic_count_of_pellet
+  kind: scalar
+  status: draft
+  description: Total number of individual atoms in a pellet, with each atom counted
+    once regardless of whether the propellant material is monatomic, diatomic, or
+    molecular in form.
+  documentation: "The atomic count of a pellet is the total discrete number of atoms\
+    \ present throughout the entire pellet body, tallied individually without regard\
+    \ to the molecular or bonding state of the constituent propellant material. A\
+    \ diatomic fuel such as D$_2$ (frozen deuterium) contributes two atoms per molecule;\
+    \ monatomic species contribute one atom per particle. This whole-pellet total\
+    \ differs from spatially resolved counterparts such as [outer_atomic_count_of_pellet](name:outer_atomic_count_of_pellet),\
+    \ and extends the general atom-counting convention of [count_of_pellet](name:count_of_pellet).\n\
+    \nThe atomic count $N_\\mathrm{at}$ relates to the number of propellant molecules\
+    \ $N_\\mathrm{mol}$ by:\n\n$$\nN_\\mathrm{at} = \\nu \\, N_\\mathrm{mol}\n$$\n\
+    \nwhere $\\nu$ is the number of atoms per molecule of the propellant species (for\
+    \ example, $\\nu = 2$ for D$_2$ or DT, and $\\nu = 1$ for a monatomic noble gas).\n\
+    \nThe count is determined from the pellet geometry combined with the atomic number\
+    \ density of the solid propellant at cryogenic storage temperature, or from pellet\
+    \ mass measured immediately before injection. Fueling and disruption-mitigation\
+    \ pellets for large tokamaks contain on the order of $10^{21}$\u2013$10^{23}$\
+    \ atoms. The [normalized_atomic_count_of_pellet](name:normalized_atomic_count_of_pellet)\
+    \ expresses this total scaled against a reference count for nondimensional comparison\
+    \ across pellet types or injection scenarios."
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:outer_atomic_count_of_pellet
+  - name:count_of_pellet
+  - name:normalized_atomic_count_of_pellet
 - name: krypton_prefill_count
   kind: scalar
   status: draft
@@ -350,4 +427,38 @@
   sources:
   - id: dd:balance_of_plant/power_electric_plant_operation/power_total
     dd_path: balance_of_plant/power_electric_plant_operation/power_total
+    status: composed
+- name: tritium_prefill_count
+  kind: scalar
+  status: draft
+  description: Accumulated number of tritium atoms injected as gas during the plasma
+    prefill phase, expressed in equivalent electrons.
+  documentation: "The tritium prefill count records the total number of tritium atoms\
+    \ ($^3_1\\text{H}$, charge number $Z = 1$) delivered to the vessel as neutral\
+    \ gas during the prefill phase \u2014 the period from the start of gas injection\
+    \ up to plasma breakdown. Because tritium is a hydrogen isotope with $Z = 1$,\
+    \ the equivalent-electron count equals the raw atom count directly.\n\nThe prefill\
+    \ phase establishes the initial neutral gas background required for reproducible\
+    \ plasma initiation; the tritium component is particularly relevant in deuterium-tritium\
+    \ operations, where it contributes to the initial fuel mix and breakdown conditions.\
+    \ The count is accumulated from calibrated gas injection valve signals integrated\
+    \ over the duration of the prefill phase. For multi-species prefill scenarios,\
+    \ the total electron-equivalent inventory is $\\sum_s Z_s N_s$, where $Z_s$ is\
+    \ the charge number and $N_s$ the atom count for species $s$.\n\nThis quantity\
+    \ complements [deuterium_prefill_count](name:deuterium_prefill_count), [neon_prefill_count](name:neon_prefill_count),\
+    \ and [krypton_prefill_count](name:krypton_prefill_count), which together with\
+    \ this name characterize the full multi-species neutral gas inventory available\
+    \ at breakdown; the aggregate is captured by [prefill_count](name:prefill_count).\n\
+    \nSign convention: Positive when tritium atoms have been injected into the vessel\
+    \ during the prefill phase."
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:deuterium_prefill_count
+  - name:neon_prefill_count
+  - name:krypton_prefill_count
+  - name:prefill_count
+  sources:
+  - id: dd:summary/gas_injection_prefill/tritium/value
+    dd_path: summary/gas_injection_prefill/tritium/value
     status: composed

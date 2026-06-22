@@ -1,6 +1,6 @@
 # Domain: magnetic_field_systems
 # Catalog sha: 0748e8dadea8405f893ffd4087cbaae778e32e01
-# Entries: 22
+# Entries: 24
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -378,6 +378,57 @@
   - id: dd:pf_passive/loop/element/geometry/annulus/radius_inner
     dd_path: pf_passive/loop/element/geometry/annulus/radius_inner
     status: composed
+- name: major_length_of_poloidal_field_coil
+  kind: scalar
+  status: draft
+  description: Length of the parallelogram side inclined at the alpha angle from the
+    major-radius direction, defining the alpha-edge of the oblique cross-section of
+    a poloidal field coil.
+  documentation: 'In the oblique parallelogram model of a poloidal field coil cross-section,
+    the full shape in the poloidal $(R, Z)$ plane is described by two inclined side
+    lengths and their respective angles from the outward major-radius direction $+\hat{R}$.
+    The major length $L_\alpha$ is the Euclidean length of the side whose orientation
+    is inclined at the alpha angle from $+\hat{R}$, complementing the beta-side length
+    given by [length_of_poloidal_field_coil](name:length_of_poloidal_field_coil).
+
+
+    For a parallelogram cross-section with alpha-side $L_\alpha$, beta-side $L_\beta$,
+    and interior angle $\theta$ between the two sides, the cross-sectional area satisfies:
+
+
+    $$
+
+    A = L_\alpha \, L_\beta \, \sin\theta
+
+    $$
+
+
+    where $\theta$ is set by the combination of the alpha and beta inclination angles.
+
+
+    This side length, together with [radial_angle_of_poloidal_field_coil](name:radial_angle_of_poloidal_field_coil)
+    and [length_of_poloidal_field_coil](name:length_of_poloidal_field_coil), fully
+    parameterizes the oblique cross-section and enters coil flux and inductance calculations.
+    The same alpha-side naming convention is used for iron core segments in [major_length_of_iron_core_segment](name:major_length_of_iron_core_segment)
+    and for individual conductor elements in major_length_of_coil_conductor_element.
+
+
+    Sign convention: Positive as a geometric side length in the poloidal $(R, Z)$
+    plane; this quantity is invariant under reversal of plasma current or toroidal
+    field direction.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:length_of_poloidal_field_coil
+  - name:radial_angle_of_poloidal_field_coil
+  - name:major_length_of_iron_core_segment
+  sources:
+  - id: dd:pf_active/coil/element/geometry/oblique/length_alpha
+    dd_path: pf_active/coil/element/geometry/oblique/length_alpha
+    status: attached
+  - id: dd:pf_active/coil/geometry/oblique/length_alpha
+    dd_path: pf_active/coil/geometry/oblique/length_alpha
+    status: composed
 - name: normal_coordinate_of_toroidal_field_coil
   kind: scalar
   status: draft
@@ -477,55 +528,6 @@
   - id: dd:pf_passive/loop/element/geometry/annulus/radius_outer
     dd_path: pf_passive/loop/element/geometry/annulus/radius_outer
     status: composed
-- name: outer_radius_of_poloidal_field_coil
-  kind: scalar
-  status: draft
-  description: Outer radius of the annular cross-section of a poloidal field coil
-    conductor element, defining the radial outer boundary of the conductor geometry.
-  documentation: 'The outer radius defines the outward radial extent of the annular
-    cross-section used to model a poloidal field coil conductor element. Together
-    with the [inner_radius_of_poloidal_field_coil](name:inner_radius_of_poloidal_field_coil)
-    and the coil center position in the poloidal $(R, Z)$ plane, it fully specifies
-    the annular geometry required for electromagnetic calculations such as mutual
-    inductance and Biot-Savart field evaluation.
-
-
-    The annular cross-sectional area $A$ is:
-
-
-    $$
-
-    A = \pi \left( r_\mathrm{out}^2 - r_\mathrm{in}^2 \right)
-
-    $$
-
-
-    where $r_\mathrm{out}$ is the outer radius and $r_\mathrm{in}$ is the [inner_radius_of_poloidal_field_coil](name:inner_radius_of_poloidal_field_coil).
-    This [area_of_poloidal_field_coil](name:area_of_poloidal_field_coil) enters directly
-    into current density and inductance calculations.
-
-
-    For PF coil conductors in medium-to-large fusion devices, outer radii range from
-    a few centimeters to approximately 0.3-0.5 m, depending on the conductor bundle
-    size and design current.
-
-
-    Sign convention: Positive when the outer boundary lies at a greater radial distance
-    from the annulus center than the inner boundary, as required for a physically
-    valid annular cross-section.'
-  unit: m
-  physics_domain: magnetic_field_systems
-  links: []
-  sources:
-  - id: dd:pf_active/coil/element/geometry/annulus/radius_outer
-    dd_path: pf_active/coil/element/geometry/annulus/radius_outer
-    status: attached
-  - id: dd:pf_active/coil/geometry/annulus/radius_outer
-    dd_path: pf_active/coil/geometry/annulus/radius_outer
-    status: attached
-  - id: dd:pf_plasma/element/geometry/annulus/radius_outer
-    dd_path: pf_plasma/element/geometry/annulus/radius_outer
-    status: attached
 - name: radial_angle_of_poloidal_field_coil
   kind: scalar
   status: draft
@@ -618,6 +620,111 @@
   - id: dd:pf_active/radial_force/force
     dd_path: pf_active/radial_force/force
     status: composed
+- name: radius_of_poloidal_field_coil
+  kind: scalar
+  status: draft
+  description: Non-negative curvature radius of one arc-of-circle segment used to
+    approximate the cross-sectional contour of a poloidal field coil. The contour
+    lies in a poloidal plane of the right-handed cylindrical (R, phi, Z) frame, where
+    R is major radius and Z is vertical height.
+  documentation: 'Radius of a poloidal-field-coil arc is the non-negative circle radius
+    of a single circular segment of the coil cross-sectional contour, taken in a poloidal
+    plane of the right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is major
+    radius and $Z$ is vertical height. The conductor or winding-pack boundary is approximated
+    by connected circular arcs, and this quantity sets the local radius of curvature
+    of one such arc.
+
+
+    For a circular contour segment, the curvature radius $\rho$ (in m) is the inverse
+    magnitude of the planar curvature $\kappa$ (in m$^{-1}$) of the boundary curve
+    in the $(R, Z)$ cross-section:
+
+
+    $$
+
+    \rho = \frac{1}{|\kappa|}
+
+    $$
+
+
+    where a finite physical arc has $\rho > 0$, and as $\rho$ grows the segment approaches
+    a straight line ($\kappa \to 0$). Each arc is anchored by a start point in the
+    poloidal plane: its major-radius coordinate is given by [major_radius_of_poloidal_field_coil](name:major_radius_of_poloidal_field_coil)
+    and its vertical coordinate by [height_of_poloidal_field_coil](name:height_of_poloidal_field_coil);
+    both together with $\rho$ are needed to locate and shape one arc, with the end
+    of each arc coinciding with the start of the next.
+
+
+    The value is determined from the designed circular-arc contour, from CAD geometry,
+    or by fitting circular arcs to surveyed boundary points. Small radii represent
+    tightly rounded corners and compact winding-pack features, while larger radii
+    represent gently curved coil sides; the magnitude scales with coil aperture, winding-pack
+    dimensions, and mechanical-clearance requirements. An analogous arc-of-circle
+    convention applies to iron core segment boundaries via [radius_of_iron_core_segment](name:radius_of_iron_core_segment).'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:major_radius_of_poloidal_field_coil
+  - name:radial_outline_of_poloidal_field_coil
+  - name:inner_radius_of_poloidal_field_coil
+  - name:outer_radius_of_poloidal_field_coil
+  sources:
+  - id: dd:pf_active/coil/element/geometry/arcs_of_circle/curvature_radii
+    dd_path: pf_active/coil/element/geometry/arcs_of_circle/curvature_radii
+    status: composed
+- name: outer_radius_of_poloidal_field_coil
+  kind: scalar
+  status: draft
+  description: Outer radius of the annular cross-section of a poloidal field coil
+    conductor element, defining the radial outer boundary of the conductor geometry.
+  documentation: 'The outer radius defines the outward radial extent of the annular
+    cross-section used to model a poloidal field coil conductor element. Together
+    with the [inner_radius_of_poloidal_field_coil](name:inner_radius_of_poloidal_field_coil)
+    and the coil center position in the poloidal $(R, Z)$ plane, it fully specifies
+    the annular geometry required for electromagnetic calculations such as mutual
+    inductance and Biot-Savart field evaluation.
+
+
+    The annular cross-sectional area $A$ is:
+
+
+    $$
+
+    A = \pi \left( r_\mathrm{out}^2 - r_\mathrm{in}^2 \right)
+
+    $$
+
+
+    where $r_\mathrm{out}$ is the outer radius and $r_\mathrm{in}$ is the [inner_radius_of_poloidal_field_coil](name:inner_radius_of_poloidal_field_coil).
+    This [area_of_poloidal_field_coil](name:area_of_poloidal_field_coil) enters directly
+    into current density and inductance calculations.
+
+
+    For PF coil conductors in medium-to-large fusion devices, outer radii range from
+    a few centimeters to approximately 0.3-0.5 m, depending on the conductor bundle
+    size and design current.
+
+
+    Sign convention: Positive when the outer boundary lies at a greater radial distance
+    from the annulus center than the inner boundary, as required for a physically
+    valid annular cross-section.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links: []
+  arguments:
+  - name: radius_of_poloidal_field_coil
+    operator: outer
+    operator_kind: qualifier
+  sources:
+  - id: dd:pf_active/coil/element/geometry/annulus/radius_outer
+    dd_path: pf_active/coil/element/geometry/annulus/radius_outer
+    status: attached
+  - id: dd:pf_active/coil/geometry/annulus/radius_outer
+    dd_path: pf_active/coil/geometry/annulus/radius_outer
+    status: attached
+  - id: dd:pf_plasma/element/geometry/annulus/radius_outer
+    dd_path: pf_plasma/element/geometry/annulus/radius_outer
+    status: attached
 - name: resistance_of_correction_coil
   kind: scalar
   status: draft
