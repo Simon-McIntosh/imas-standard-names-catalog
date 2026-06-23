@@ -1,6 +1,6 @@
 # Domain: radiation_measurement_diagnostics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 61
+# Entries: 74
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -103,6 +103,103 @@
   sources:
   - id: dd:spectrometer_x_ray_crystal/channel/crystal/x1_width
     dd_path: spectrometer_x_ray_crystal/channel/crystal/x1_width
+    status: composed
+- name: bremsstrahlung_power
+  kind: scalar
+  status: draft
+  description: Total electromagnetic power radiated by the plasma via bremsstrahlung,
+    the continuum emission arising from electron deceleration in the Coulomb fields
+    of plasma ions.
+  documentation: 'Bremsstrahlung (braking radiation) is continuum electromagnetic
+    emission produced when free electrons are decelerated in the Coulomb fields of
+    ions; this quantity is the plasma-volume-integrated total radiated power from
+    that process, representing a global energy loss term in the plasma power balance.
+
+
+    The total bremsstrahlung power is defined by:
+
+
+    $$
+
+    P_\text{brem} = C_\text{brem} \int n_e^2(\mathbf{r})\, Z_\text{eff}(\mathbf{r})\,
+    T_e^{1/2}(\mathbf{r})\, dV
+
+    $$
+
+
+    where $n_e$ is the electron number density in m$^{-3}$, $Z_\text{eff}$ is the
+    mean effective ion charge, $T_e$ is the electron temperature in eV, and $C_\text{brem}
+    \approx 5.34 \times 10^{-37}$ W m$^3$ eV$^{-1/2}$ is the free-free emission coefficient.
+    The strong $n_e^2$ and $Z_\text{eff}$ dependence means impurity content significantly
+    amplifies bremsstrahlung losses.
+
+
+    The global bremsstrahlung power is inferred from broadband bolometric measurements
+    or by volumetrically integrating $n_e$, $T_e$, and $Z_\text{eff}$ profiles derived
+    from Thomson scattering and spectroscopy. The local spectral counterpart [bremsstrahlung
+    spectral radiance] additionally enables $Z_\text{eff}$ inference from visible
+    continuum emission.
+
+
+    Together with [power due to line radiation](name:power_due_to_line_radiation)
+    from bound-bound atomic transitions and [power due to synchrotron radiation](name:power_due_to_synchrotron_radiation)
+    from relativistic electron gyration, bremsstrahlung emission is one of the principal
+    radiative power loss channels. In present-generation tokamaks, total bremsstrahlung
+    losses range from approximately 0.5-10 MW; in high-density, high-$Z_\text{eff}$
+    burning-plasma scenarios, losses can reach several tens of MW.'
+  unit: W
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:power_due_to_line_radiation
+  - name:power_due_to_synchrotron_radiation
+  sources:
+  - id: dd:summary/global_quantities/power_bremsstrahlung/value
+    dd_path: summary/global_quantities/power_bremsstrahlung/value
+    status: composed
+- name: brightness_of_soft_xray_detector
+  kind: scalar
+  status: draft
+  description: Photon radiance of soft X-ray emission received on a detector channel,
+    integrated over the detector's energy acceptance band.
+  documentation: 'Soft X-ray (SXR) brightness is the number of soft-X-ray photons
+    arriving at a detector channel per unit area, per unit time, and per unit solid
+    angle, integrated over the instrument''s energy acceptance band. The emission
+    originates from free-free (bremsstrahlung), free-bound (recombination), and bound-bound
+    (line radiation) contributions from electrons and impurity ions in the sub-keV
+    to few-keV photon energy range.
+
+
+    The quantity is defined by the energy-band integral of the differential photon
+    radiance:
+
+
+    $$
+
+    B = \int_{E_1}^{E_2} \frac{d^4 N}{dA \, dt \, d\Omega \, dE} \, dE
+
+    $$
+
+
+    where $E_1$ and $E_2$ are the lower and upper energy limits of the detector''s
+    acceptance band, $N$ is the photon count, $A$ is the detector active area, $t$
+    is time, and $\Omega$ is the solid angle subtended by the detection geometry.
+
+
+    SXR detectors are arranged in multi-channel arrays covering the plasma cross-section
+    with fan-beam line-of-sight geometries. Individual channel signals are combined
+    via tomographic inversion to reconstruct the local emissivity, enabling plasma
+    tomography, detection of MHD modes such as sawteeth and neoclassical tearing modes,
+    and tracking of impurity transport. The companion power-radiance quantity [spectral_radiance_of_soft_xray_detector](name:spectral_radiance_of_soft_xray_detector)
+    weights each photon by its energy rather than counting it. For the analogous photon-count
+    brightness in the hard X-ray regime, see [hard_xray_brightness](name:hard_xray_brightness).'
+  unit: m^-2.s^-1.sr^-1
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:spectral_radiance_of_soft_xray_detector
+  - name:hard_xray_brightness
+  sources:
+  - id: dd:soft_x_rays/channel/intensity
+    dd_path: soft_x_rays/channel/intensity
     status: composed
 - name: brightness_of_visible_camera
   kind: scalar
@@ -350,6 +447,69 @@
   - name:wavelength_of_detector_pixel
   - name:lower_bound_energy_of_detector_pixel
   - name:upper_bound_energy_of_detector_pixel
+- name: extent_of_detector_pixel
+  kind: scalar
+  status: draft
+  description: Physical linear span of a detector pixel footprint along a specified
+    direction in the detector plane. It supports pixel-index to physical-position
+    calibration, but is distinct from optical resolution and from pixel pitch when
+    inactive gaps or non-square pixels are present.
+  documentation: 'Extent of a detector pixel is the linear span of one pixel footprint
+    along a chosen detector-plane direction. The footprint may represent the active
+    sensitive area for photon collection or the effective pixel cell used in a geometric
+    calibration; it should not be confused with the center-to-center pitch unless
+    neighboring pixels tile the detector plane without appreciable inactive gaps.
+    For rectangular pixels, the horizontal and vertical extents are separate quantities;
+    for square pixels they are equal.
+
+
+    The extent along one local detector-plane axis is defined by the coordinate bounds
+    of the pixel footprint:
+
+
+    $$
+
+    d_a = a_+ - a_-
+
+    $$
+
+
+    where $a \in \{u,v\}$ selects a coordinate of the local detector-plane frame $(\hat{u},\hat{v})$
+    with coordinates $(u,v)$, $a_-$ and $a_+$ are the lower and upper footprint boundaries
+    in meters, and the pixel center on that axis is $a_c=(a_-+a_+)/2$.
+
+
+    Values are obtained from sensor design data, detector metrology, or calibration
+    images of a target with known spacing. For index-to-position mappings, the origin
+    and the center-versus-edge convention must be specified independently: if $u_0$
+    is the lower edge of pixel $i=0$ in the local detector-plane frame $(\hat{u},\hat{v})$
+    and $p_u$ is the pitch, the center of pixel $i$ lies at $u_0+(i+1/2)p_u$; $p_u=d_u$
+    only for contiguous pixels with negligible gaps, with $u_0$, $p_u$, and $d_u$
+    expressed in meters.
+
+
+    Typical values are $5 \times 10^{-6}$-$2 \times 10^{-4}$ m. Infrared focal-plane
+    sensors commonly use $1 \times 10^{-5}$-$5 \times 10^{-5}$ m pixel extents, while
+    x-ray cameras and crystal-spectrometer detectors often use $1 \times 10^{-5}$-$1
+    \times 10^{-4}$ m depending on sensor technology and required sampling.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:wavelength_of_detector_pixel
+  - name:extent_of_soft_xray_detector
+  sources:
+  - id: dd:camera_ir/channel/camera/pixel_size
+    dd_path: camera_ir/channel/camera/pixel_size
+    status: attached
+  - id: dd:camera_x_rays/camera/pixel_dimensions
+    dd_path: camera_x_rays/camera/pixel_dimensions
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/camera/pixel_dimensions
+    dd_path: spectrometer_x_ray_crystal/camera/pixel_dimensions
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/camera/pixel_dimensions
+    dd_path: spectrometer_x_ray_crystal/channel/camera/pixel_dimensions
+    status: attached
 - name: filter_window_width
   kind: scalar
   status: draft
@@ -403,6 +563,42 @@
   sources:
   - id: dd:spectrometer_x_ray_crystal/channel/filter_window/x1_width
     dd_path: spectrometer_x_ray_crystal/channel/filter_window/x1_width
+    status: composed
+- name: hard_xray_brightness
+  kind: scalar
+  status: draft
+  description: Photon radiance of hard X-ray emission incident on a diagnostic channel,
+    giving the photon flux per unit detector area and per unit solid angle, integrated
+    over the channel energy band.
+  documentation: "Hard X-ray brightness is the photon radiance of bremsstrahlung emission\
+    \ arriving at a diagnostic channel, quantifying the photon arrival rate per unit\
+    \ detector area and per unit solid angle. In tokamak plasmas, hard X-ray emission\
+    \ above a few tens of keV is generated predominantly by non-thermal bremsstrahlung\
+    \ from suprathermal electrons colliding with bulk plasma ions and impurity ions;\
+    \ the channel brightness therefore constrains the suprathermal electron energy\
+    \ distribution.\n\nThe photon radiance is defined as:\n\n$$\nL_\\gamma = \\frac{d^2\
+    \ \\dot{N}_\\gamma}{dA \\, d\\Omega}\n$$\n\nwhere $\\dot{N}_\\gamma$ is the photon\
+    \ arrival rate at the detector surface element $dA$, and $d\\Omega$ is the solid\
+    \ angle element subtended at the source. The power-equivalent counterpart of this\
+    \ photon radiance is given by [spectral_radiance_of_hard_xray_detector](name:spectral_radiance_of_hard_xray_detector),\
+    \ which relates to $L_\\gamma$ via $L_P = \\langle h\\nu \\rangle L_\\gamma$,\
+    \ where $\\langle h\\nu \\rangle$ is the mean photon energy in the detection band.\n\
+    \nHard X-ray diagnostic channels employ collimated scintillator or semiconductor\
+    \ detectors with defined energy bandpass filters. The brightness is obtained by\
+    \ dividing the measured photon count rate by the detector \xE9tendue (product\
+    \ of area and solid angle), and absolute calibration across multiple energy bands\
+    \ enables reconstruction of the suprathermal electron spectrum through bremsstrahlung\
+    \ inversion. The analogous photon-radiance quantity for the soft X-ray regime\
+    \ is [brightness_of_soft_xray_detector](name:brightness_of_soft_xray_detector),\
+    \ and the total integrated power over the channel acceptance is captured by hard_xray_power."
+  unit: m^-2.s^-1.sr^-1
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:spectral_radiance_of_hard_xray_detector
+  - name:brightness_of_soft_xray_detector
+  sources:
+  - id: dd:hard_x_rays/channel/radiance
+    dd_path: hard_x_rays/channel/radiance
     status: composed
 - name: hard_xray_outer_width
   kind: scalar
@@ -695,6 +891,57 @@
   - id: dd:spectrometer_x_ray_crystal/channel/camera/pixel_position/r
     dd_path: spectrometer_x_ray_crystal/channel/camera/pixel_position/r
     status: attached
+- name: neon_fraction
+  kind: scalar
+  status: draft
+  description: Neon fraction is the ratio of the volume-averaged total neon particle
+    density, summed over all ionization states, to the volume-averaged electron density.
+    It is dimensionless and represents the plasma-wide neon concentration relative
+    to electrons.
+  documentation: 'Neon fraction is a dimensionless impurity concentration measuring
+    how much neon is present in the plasma relative to electrons. The neon density
+    includes neutral and ionized neon populations summed over all charge states before
+    the plasma-volume average is formed.
+
+
+    The volume-averaged neon fraction is defined by
+
+
+    $$
+
+    f_{\mathrm{Ne}} = \frac{\left\langle \sum_{q=0}^{10} n_{\mathrm{Ne}^{q+}} \right\rangle_V}{\langle
+    n_e \rangle_V}
+
+    $$
+
+
+    where $n_{\mathrm{Ne}^{q+}}$ is the number density of neon in charge state $q$
+    in m^-3, $n_e$ is the electron density in m^-3, and $\langle \cdot \rangle_V =
+    V^{-1}\int_V (\cdot)\,dV$ denotes a plasma-volume average over volume $V$. The
+    numerator is the [volume-averaged neon density](name:volume_averaged_neon_density),
+    and the denominator is the volume-averaged electron density.
+
+
+    In practice, neon fraction is inferred from plasma composition analysis using
+    impurity spectroscopy, radiation measurements, charge-state balance modeling,
+    and electron-density information. It should be interpreted as a global composition
+    measure, not as a local impurity abundance at a particular radius or viewing chord.
+
+
+    Typical values are much less than unity. Background neon levels in plasmas without
+    deliberate neon injection are often below $10^{-4}$-$10^{-3}$, while neon-seeded
+    radiating plasmas can reach about $10^{-3}$-$10^{-2}$ depending on fueling, confinement,
+    and exhaust conditions.'
+  unit: '1'
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:volume_averaged_neon_density
+  - name:nitrogen_fraction
+  - name:ratio_of_volume_averaged_oxygen_ion_density_to_volume_averaged_electron_density
+  sources:
+  - id: dd:summary/composition/neon/value
+    dd_path: summary/composition/neon/value
+    status: composed
 - name: neutron_energy
   kind: scalar
   status: draft
@@ -1238,6 +1485,40 @@
   - id: dd:spectrometer_x_ray_crystal/channel/filter_window/radius
     dd_path: spectrometer_x_ray_crystal/channel/filter_window/radius
     status: composed
+- name: reference_calibration_wavelength_of_spectrometer_channel
+  kind: scalar
+  status: draft
+  description: Zero-pixel wavelength intercept of the linear pixel-to-wavelength dispersion
+    mapping used to calibrate a spectrometer channel.
+  documentation: "This parameter defines the wavelength assigned to pixel index zero\
+    \ in the linear dispersion model for a spectrometer channel. The pixel-to-wavelength\
+    \ mapping takes the form:\n\n$$\n\\lambda(k) = k \\cdot g + \\lambda_0\n$$\n\n\
+    where $\\lambda(k)$ is the wavelength at pixel $k$, $g$ is the dispersion gain\
+    \ (wavelength increment per pixel), and $\\lambda_0$ is this reference calibration\
+    \ wavelength \u2014 the zero-pixel intercept. Together with the gain, $\\lambda_0$\
+    \ fully specifies the linear wavelength axis, enabling conversion of raw detector\
+    \ pixel indices to physical wavelengths.\n\nThe offset is determined during spectrometer\
+    \ wavelength calibration by fitting the pixel positions of precisely known emission\
+    \ lines to the linear dispersion model; the intercept $\\lambda_0$ is extracted\
+    \ from the resulting least-squares fit. This procedure applies to both UV and\
+    \ visible grating spectrometers used in plasma spectroscopy diagnostics.\n\nTypical\
+    \ values lie in the range $1 \\times 10^{-7}$ to $8 \\times 10^{-7}$ m, spanning\
+    \ the UV-to-visible operational range of fusion spectroscopy systems. This intercept\
+    \ is the complement to the dispersion gain encoded in [calibration_wavelength_of_spectrometer_channel](name:calibration_wavelength_of_spectrometer_channel);\
+    \ together they constitute the complete linear wavelength calibration. Absolute\
+    \ photon spectral radiance is subsequently obtained using the [spectral_calibration_factor_of_spectrometer](name:spectral_calibration_factor_of_spectrometer)."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:calibration_wavelength_of_spectrometer_channel
+  - name:spectral_calibration_factor_of_spectrometer
+  sources:
+  - id: dd:spectrometer_uv/channel/wavelength_calibration/offset
+    dd_path: spectrometer_uv/channel/wavelength_calibration/offset
+    status: attached
+  - id: dd:spectrometer_visible/channel/grating_spectrometer/wavelength_calibration/offset
+    dd_path: spectrometer_visible/channel/grating_spectrometer/wavelength_calibration/offset
+    status: attached
 - name: reference_wavelength_of_spectrometer_channel
   kind: scalar
   status: draft
@@ -1446,6 +1727,73 @@
   - id: dd:spectrometer_visible/channel/grating_spectrometer/radiance_calibration
     dd_path: spectrometer_visible/channel/grating_spectrometer/radiance_calibration
     status: attached
+- name: spectral_radiance_of_hard_xray_detector
+  kind: scalar
+  status: draft
+  description: Power radiance of hard X-ray emission received on a detector channel,
+    equal to detected power per unit detector area per unit solid angle, resolved
+    over one or more photon energy acceptance bands.
+  documentation: "The spectral radiance of a hard X-ray detector channel is the detected\
+    \ radiative power normalized by the product of detector area and acceptance solid\
+    \ angle (the \xE9tendue), integrated within each photon energy band of the channel.\
+    \ Hard X-ray emission in fusion plasmas is generated predominantly by bremsstrahlung\
+    \ from suprathermal electrons and runaway electron populations, making this quantity\
+    \ a key diagnostic for characterizing the high-energy tail of the electron distribution.\n\
+    \nThe channel brightness $B$ is defined as:\n\n$$\nB = \\frac{P}{A \\cdot \\Omega}\n\
+    $$\n\nwhere $P$ is the radiative power collected by the channel, $A$ is the effective\
+    \ detector area, and $\\Omega$ is the solid angle subtended by the collection\
+    \ optics; their product $A \\cdot \\Omega$ is the \xE9tendue.\n\nUnlike [hard_xray_brightness](name:hard_xray_brightness),\
+    \ which expresses photon flux per unit area and solid angle, this quantity is\
+    \ a power-based radiance, directly mirroring [spectral_radiance_of_soft_xray_detector](name:spectral_radiance_of_soft_xray_detector)\
+    \ for the hard X-ray energy range. Multi-channel measurements along varied lines\
+    \ of sight enable tomographic inversion to recover the spatially resolved hard\
+    \ X-ray emissivity profile, from which the energy distribution and confinement\
+    \ properties of suprathermal electron populations can be inferred."
+  unit: W.m^-2.sr^-1
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:hard_xray_brightness
+  - name:spectral_radiance_of_soft_xray_detector
+  sources:
+  - id: dd:hard_x_rays/channel/brightness
+    dd_path: hard_x_rays/channel/brightness
+    status: composed
+- name: spectral_radiance_of_soft_xray_detector
+  kind: scalar
+  status: draft
+  description: Power radiance of soft X-ray emission incident on a detector channel,
+    defined as detected power per unit area per unit solid angle and integrated over
+    the detector energy band.
+  documentation: "Soft X-ray spectral radiance is the detected electromagnetic power\
+    \ from plasma emission per unit detector area per unit solid angle, integrated\
+    \ over one or more energy bands defined by the detector channel's filter or spectral\
+    \ response. It quantifies the power flux delivered along a specific line of sight\
+    \ through the plasma and is distinct from photon radiance; the companion quantity\
+    \ [brightness_of_soft_xray_detector](name:brightness_of_soft_xray_detector) expresses\
+    \ the same measurement in photons per second rather than in power units.\n\nThe\
+    \ defining relation is:\n\n$$\nL = \\frac{d^2 P}{dA \\, d\\Omega}\n$$\n\nwhere\
+    \ $P$ is the detected power, $dA$ is the active detector area element, and $d\\\
+    Omega$ is the solid-angle element subtended by the field of view; integration\
+    \ over the detector energy passband is implicit in this band-integrated form.\n\
+    \nSoft X-ray power radiance is measured with semiconductor photodiodes placed\
+    \ behind metallic foil filters that select an effective energy passband, commonly\
+    \ in the range 0.1\u201310 keV. Fan arrays of such channels enable tomographic\
+    \ inversion to recover the volumetric soft X-ray emissivity profile, supporting\
+    \ impurity transport studies, MHD mode tracking, and sawtooth monitoring. Multiplying\
+    \ by the detector \xE9tendue (area times solid angle) recovers the total channel\
+    \ power given by [power_of_soft_xray_detector](name:power_of_soft_xray_detector).\
+    \ The hard X-ray power radiance analog following the same spatial radiance definition\
+    \ at higher photon energies is [spectral_radiance_of_hard_xray_detector](name:spectral_radiance_of_hard_xray_detector)."
+  unit: W.m^-2.sr^-1
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:brightness_of_soft_xray_detector
+  - name:power_of_soft_xray_detector
+  - name:spectral_radiance_of_hard_xray_detector
+  sources:
+  - id: dd:soft_x_rays/channel/brightness
+    dd_path: soft_x_rays/channel/brightness
+    status: composed
 - name: spectral_refractive_index_of_optical_element
   kind: scalar
   status: draft
@@ -1758,6 +2106,59 @@
   - id: dd:spectrometer_x_ray_crystal/channel/filter_window/surface
     dd_path: spectrometer_x_ray_crystal/channel/filter_window/surface
     status: attached
+- name: surface_roughness_of_optical_element
+  kind: scalar
+  status: draft
+  description: Dimensionless surface roughness parameter of an optical element that
+    represents how microscopic surface texture changes reflection from specular to
+    diffuse. A value of 0 corresponds to perfectly specular reflection, while a value
+    of 1 corresponds to perfectly diffuse reflection.
+  documentation: 'Surface roughness of an optical element is a dimensionless parameter,
+    denoted here by $r_s$, that characterizes the scattering effect of microscopic
+    surface texture on reflected radiation. It is bounded by $0 \le r_s \le 1$, with
+    $r_s = 0$ representing an ideal specular surface and $r_s = 1$ representing an
+    ideal diffuse surface. The parameter describes optical scattering behavior rather
+    than macroscopic element shape, which is characterized separately by quantities
+    such as [front surface curvature] and [back surface curvature](name:back_surface_curvature_of_optical_element).
+
+
+    There is no universal governing equation for $r_s$ because its numerical value
+    depends on the bidirectional reflectance distribution function or radiation-transport
+    model in which it is used. In a specific model, $r_s$ may be derived from measured
+    surface parameters such as RMS height variation $\sigma_h$ in meters, surface
+    correlation length $\ell_c$ in meters, optical wavelength $\lambda$ in meters,
+    and incidence angle $\alpha$ in radians. The mapping from those physical inputs
+    to the bounded interval $[0,1]$ must be defined by the chosen optical scattering
+    model.
+
+
+    The parameter is determined from surface metrology, angle-resolved scatter measurements,
+    calibration measurements, or manufacturer specifications for mirrors, windows,
+    lenses, filters, and diffuser elements. In diagnostic optical modeling it controls
+    how much reflected power remains in the specular direction and how much is redistributed
+    into a broader angular distribution.
+
+
+    Typical values span the full dimensionless interval 0-1. Polished diagnostic optics
+    are usually assigned values close to 0, intentionally diffusing or strongly degraded
+    surfaces values close to 1, and partially scattering surfaces intermediate values.
+    Numerical thresholds for "polished," "degraded," or "diffuse" behavior are model
+    dependent and should be interpreted consistently with the reflectance model being
+    used.'
+  unit: '1'
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:back_surface_curvature_of_optical_element
+  sources:
+  - id: dd:camera_ir/optical_element/material_properties/roughness
+    dd_path: camera_ir/optical_element/material_properties/roughness
+    status: attached
+  - id: dd:camera_visible/channel/optical_element/material_properties/roughness
+    dd_path: camera_visible/channel/optical_element/material_properties/roughness
+    status: attached
+  - id: dd:spectrometer_visible/channel/optical_element/material_properties/roughness
+    dd_path: spectrometer_visible/channel/optical_element/material_properties/roughness
+    status: attached
 - name: thickness_of_bragg_crystal
   kind: scalar
   status: draft
@@ -1855,6 +2256,60 @@
   - id: dd:spectrometer_x_ray_crystal/filter_window/thickness
     dd_path: spectrometer_x_ray_crystal/filter_window/thickness
     status: attached
+- name: toroidal_angle_of_bragg_crystal
+  kind: scalar
+  status: draft
+  description: Angular span subtended by a Bragg diffracting crystal in the toroidal
+    direction of the right-handed cylindrical (R, phi, Z) frame. It defines the horizontal
+    acceptance angle over which the crystal can intercept X-ray radiation for Bragg
+    diffraction.
+  documentation: 'The toroidal angle of a Bragg crystal is the angular extent of the
+    crystal projection in the toroidal direction of the right-handed cylindrical $(R,
+    \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and $Z$
+    is vertical height. It describes the horizontal acceptance arc over which a curved
+    or cylindrical diffracting crystal can intercept X-ray radiation for Bragg diffraction.
+
+
+    The span is obtained from the crystal-edge toroidal coordinates in the same right-handed
+    cylindrical $(R, \phi, Z)$ frame on a continuous angular branch:
+
+
+    $$
+
+    \Delta\phi_\mathrm{crystal} = \phi_{\max}^{\mathrm{unwrapped}} - \phi_{\min}^{\mathrm{unwrapped}}
+
+    $$
+
+
+    where $\phi_{\min}^{\mathrm{unwrapped}}$ and $\phi_{\max}^{\mathrm{unwrapped}}$
+    are the lower and upper toroidal edge angles in radians after placing both edges
+    on the same continuous branch, with $\Delta\phi_\mathrm{crystal} \ge 0$. If the
+    physical crystal crosses the $2\pi$ branch cut in $\phi$, one edge angle is shifted
+    by an integer multiple of $2\pi$ before evaluating the difference.
+
+
+    During design or calibration, this quantity is computed from the known crystal
+    edge locations, from the crystal arc length and [toroidal_curvature_of_bragg_crystal](name:toroidal_curvature_of_bragg_crystal),
+    or from metrology of the mounted crystal. Together with [radial_coordinate_of_bragg_crystal](name:radial_coordinate_of_bragg_crystal),
+    [radius_of_bragg_crystal](name:radius_of_bragg_crystal), and [vertical_curvature_of_bragg_crystal](name:vertical_curvature_of_bragg_crystal),
+    it helps determine the ray directions accepted by the crystal aperture and the
+    range of Bragg incidence angles sampled at once.
+
+
+    Typical values are set by crystal size, curvature, and spectrometer layout; the
+    definition itself only requires a non-negative span not exceeding a full turn.
+    For finite curved-crystal X-ray spectrometers, representative engineering values
+    are often about 0.001-0.1 rad, with high-resolution narrow-aperture designs generally
+    toward the lower end.'
+  unit: rad
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:radius_of_bragg_crystal
+  - name:vertical_curvature_of_bragg_crystal
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/crystal/angular_span_horizontal
+    dd_path: spectrometer_x_ray_crystal/crystal/angular_span_horizontal
+    status: composed
 - name: total_plasma_radiated_power
   kind: scalar
   status: draft
@@ -1971,6 +2426,59 @@
     status: attached
   - id: dd:spectrometer_x_ray_crystal/energy_bound_upper
     dd_path: spectrometer_x_ray_crystal/energy_bound_upper
+    status: composed
+- name: upper_bound_wavelength_of_camera
+  kind: scalar
+  status: draft
+  description: Long-wavelength (red-side) cutoff of the spectral sensitivity band
+    of a visible camera detector channel, above which photons fall outside the detector
+    response.
+  documentation: 'The upper bound wavelength is the long-wavelength edge of the spectral
+    acceptance band of a visible camera detector channel. Photons with wavelengths
+    exceeding this value lie outside the detector''s sensitivity range and do not
+    contribute to the measured signal. Together with the lower-wavelength cutoff,
+    it defines the complete bandpass window within which photon flux from the plasma
+    is integrated.
+
+
+    The effective spectral bandwidth of the detection channel is
+
+
+    $$
+
+    \Delta\lambda = \lambda_{\mathrm{upper}} - \lambda_{\mathrm{lower}}
+
+    $$
+
+
+    where $\lambda_{\mathrm{lower}}$ is the short-wavelength (blue-side) cutoff. The
+    [calibration factor of the visible camera] converts counts integrated over this
+    window to absolute photon radiance.
+
+
+    The spectral cutoff is governed by the photodetector material''s quantum efficiency
+    rolloff and any bandpass interference filters placed in the optical collection
+    path. Narrow-band filtered channels constrain the upper bound to within a few
+    nanometers above the center of a target plasma emission line, while broadband
+    unfiltered channels are bounded by the sensor''s intrinsic material response.
+
+
+    Typical upper bound values for silicon-based sensors range from approximately
+    $6 \times 10^{-7}$ to $1.1 \times 10^{-6}$ m; channels targeting D-alpha (approximately
+    $6.56 \times 10^{-7}$ m) or He-I (approximately $5.87 \times 10^{-7}$ m) emission
+    use narrow bandpass filters with upper cutoffs placed a few nanometers above the
+    respective line centers.
+
+
+    Sign convention: Positive when the wavelength corresponds to a physically realizable
+    electromagnetic wave, as all electromagnetic wavelengths are intrinsically positive-valued
+    lengths.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links: []
+  sources:
+  - id: dd:camera_visible/channel/detector/wavelength_upper
+    dd_path: camera_visible/channel/detector/wavelength_upper
     status: composed
 - name: upper_photon_energy
   kind: scalar
@@ -2248,6 +2756,43 @@
   - id: dd:spectrometer_x_ray_crystal/z_frames
     dd_path: spectrometer_x_ray_crystal/z_frames
     status: attached
+- name: vertical_coordinate_of_soft_xray_detector
+  kind: scalar
+  status: draft
+  description: Vertical (Z) coordinate of the geometric center of a soft X-ray detector
+    in the right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'The vertical coordinate $Z$ specifies the height of the geometric
+    center of a soft X-ray detector in the right-handed cylindrical $(R, \phi, Z)$
+    frame, where $R$ is the major radius, $\phi$ is the toroidal angle, and $Z$ increases
+    upward along the machine symmetry axis with $Z = 0$ at the machine midplane.
+
+
+    Together with the corresponding major-radius position, this coordinate fully determines
+    the poloidal location of the detector center, which is required for computing
+    line-of-sight geometry and for mapping chord-integrated soft X-ray signals onto
+    the poloidal cross-section. The coordinate is obtained from engineering survey
+    or CAD documentation of the diagnostic hardware rather than from in-situ plasma
+    measurements.
+
+
+    Detectors distributed at varying $Z$ heights across one or more poloidal viewing
+    fans enable Abel inversion or tomographic reconstruction of the soft X-ray emissivity
+    distribution. The analogous vertical position coordinates for other diagnostic
+    components follow the same geometric convention, as in [vertical_coordinate_of_bolometer](name:vertical_coordinate_of_bolometer)
+    and [vertical_coordinate_of_diagnostic_aperture](name:vertical_coordinate_of_diagnostic_aperture).
+
+
+    Sign convention: Positive when the detector center is located above the machine
+    midplane in the direction of increasing $Z$.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:vertical_coordinate_of_bolometer
+  - name:vertical_coordinate_of_diagnostic_aperture
+  sources:
+  - id: dd:soft_x_rays/channel/detector/centre/z
+    dd_path: soft_x_rays/channel/detector/centre/z
+    status: composed
 - name: vertical_front_surface_radius_of_optical_element
   kind: scalar
   status: draft
@@ -2810,6 +3355,48 @@
   sources:
   - id: dd:soft_x_rays/channel/detector/outline/x1
     dd_path: soft_x_rays/channel/detector/outline/x1
+    status: composed
+- name: x2_coordinate_of_bragg_crystal
+  kind: scalar
+  status: draft
+  description: Signed coordinate along the X2 axis of a Bragg-crystal outline vertex
+    in the crystal-local Cartesian (X1, X2) frame, parameterizing the cross-sectional
+    boundary of the crystal element in an X-ray crystal spectrometer.
+  documentation: 'The X2 coordinate labels each vertex of the Bragg crystal''s cross-sectional
+    outline in the crystal-local Cartesian (X1, X2) plane, where X1 and X2 span the
+    nominal crystal aperture surface and the X2 axis is the second transverse direction.
+    A sequence of such vertices, paired with the corresponding [x1_coordinate_of_bragg_crystal](name:x1_coordinate_of_bragg_crystal)
+    values, fully parameterizes the closed irregular boundary of the crystal element
+    used for Bragg diffraction in an X-ray crystal spectrometer channel.
+
+
+    The outline geometry defines the active diffracting area and enters into calculations
+    of the solid angle subtended by the crystal from the X-ray source, directly influencing
+    photon collection efficiency. For rectangular crystals, the full width along the
+    X1 axis is also captured by [bragg_crystal_width](name:bragg_crystal_width), while
+    the angular acceptance from the source is characterized by [angular_width_of_bragg_crystal](name:angular_width_of_bragg_crystal).
+
+
+    Crystal outline coordinates are specified from engineering drawings or coordinate
+    metrology of the spectrometer assembly and represent fixed hardware geometry.
+    The same (X1, X2) local-frame convention is applied consistently across spectrometer
+    components, as in [x2_coordinate_of_diagnostic_aperture](name:x2_coordinate_of_diagnostic_aperture)
+    and [x2_coordinate_of_hard_xray_detector](name:x2_coordinate_of_hard_xray_detector).
+
+
+    Sign convention: Positive when the vertex lies in the positive X2 direction of
+    the crystal-local Cartesian (X1, X2) frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:x1_coordinate_of_bragg_crystal
+  - name:bragg_crystal_width
+  - name:angular_width_of_bragg_crystal
+  - name:x2_coordinate_of_diagnostic_aperture
+  - name:x2_coordinate_of_hard_xray_detector
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/crystal/outline/x2
+    dd_path: spectrometer_x_ray_crystal/channel/crystal/outline/x2
     status: composed
 - name: x2_coordinate_of_diagnostic_aperture
   kind: scalar

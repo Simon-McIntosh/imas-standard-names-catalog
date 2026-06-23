@@ -1,6 +1,6 @@
 # Domain: plasma_wall_interactions
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 46
+# Entries: 48
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -1573,6 +1573,51 @@
   - id: dd:summary/local/limiter/power_flux_peak/value
     dd_path: summary/local/limiter/power_flux_peak/value
     status: composed
+- name: plasma_power_at_wall_due_to_recombination
+  kind: scalar
+  status: draft
+  description: Total power deposited on plasma-facing wall surfaces by recombination
+    of plasma ions, constituting the ion-channel contribution to the overall recombination
+    wall heat load integrated over all plasma-facing surfaces.
+  documentation: 'When plasma ions arrive at a plasma-facing wall surface, they undergo
+    surface recombination, releasing energy equal to their ionization potential plus
+    any residual kinetic energy carried to the surface. This quantity integrates that
+    energy deposition rate over all plasma-facing wall surfaces and represents the
+    plasma-ion species channel within the parent quantity [power_at_wall_due_to_recombination](name:power_at_wall_due_to_recombination),
+    which also includes neutral-particle contributions.
+
+
+    The deposited power is related to the local incident ion flux density by:
+
+
+    $$
+
+    P_\mathrm{rec} = \int_A \Gamma_\mathrm{ion}(\mathbf{r}) \, E_\mathrm{rec} \, dA
+
+    $$
+
+
+    where $\Gamma_\mathrm{ion}$ is the local ion particle flux density at the surface
+    in m$^{-2}$ s$^{-1}$, $E_\mathrm{rec}$ is the mean energy released per recombination
+    event (sum of ionization potential and residual kinetic energy, in J), and the
+    integral extends over the total wetted plasma-facing area $A$.
+
+
+    This quantity excludes energy deposited by recombination of neutral particles
+    into molecules at the surface, which is captured separately by [neutral_power_at_wall_due_to_recombination](name:neutral_power_at_wall_due_to_recombination).
+    The analogous quantity resolved at divertor strike surfaces is [plasma_power_at_divertor_target_due_to_recombination](name:plasma_power_at_divertor_target_due_to_recombination).
+    It is estimated from edge plasma transport models constrained by incident ion-flux
+    and particle-balance measurements at the boundary.'
+  unit: W
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:power_at_wall_due_to_recombination
+  - name:neutral_power_at_wall_due_to_recombination
+  - name:plasma_power_at_divertor_target_due_to_recombination
+  sources:
+  - id: dd:wall/global_quantities/power_recombination_plasma
+    dd_path: wall/global_quantities/power_recombination_plasma
+    status: composed
 - name: power_density_at_wall
   kind: scalar
   status: draft
@@ -1608,6 +1653,72 @@
   sources:
   - id: dd:wall/description_ggd/ggd/power_density/values
     dd_path: wall/description_ggd/ggd/power_density/values
+    status: composed
+- name: radial_total_current_density_at_wall
+  kind: scalar
+  status: draft
+  description: Signed flux-coordinate radial component of the total electric current
+    density evaluated at the plasma-facing wall. The radial direction is the outward
+    normal to local magnetic flux surfaces, not generally the major-radius direction
+    in the right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'Radial total current density at the wall is the component of the
+    net electric current-density vector along the outward radial direction of a local
+    flux-coordinate system $(\rho,\theta,\phi)$, evaluated at the plasma-facing material
+    surface. It includes all current-carrying contributions represented in the total
+    current density, such as charged-particle and conductive currents. This flux-coordinate
+    radial component is generally distinct from the major-radius projection in the
+    right-handed cylindrical $(R,\phi,Z)$ frame, where $R$ is major radius and $Z$
+    is vertical height.
+
+
+    A local definition is obtained by projecting the total current-density vector
+    onto the outward normal to surfaces of constant radial flux coordinate:
+
+
+    $$
+
+    j_{\rho,\mathrm{tot}}^{\mathrm{wall}} = \left. \mathbf{j}_{\mathrm{tot}} \cdot
+    \frac{\nabla \rho}{|\nabla \rho|} \right|_{\mathrm{wall}}
+
+    $$
+
+
+    where $\mathbf{j}_{\mathrm{tot}}$ is the total current-density vector in A.m^-2,
+    $\rho$ is a dimensionless flux-surface radial coordinate increasing outward from
+    the magnetic axis toward the edge, and $\nabla\rho/|\nabla\rho|$ is the corresponding
+    outward unit normal. If the material wall is not itself a magnetic flux surface,
+    the direction is taken from the local flux-coordinate mapping at the wall location
+    and is not the geometric normal to the wall surface.
+
+
+    In practice this quantity is computed in edge, scrape-off-layer, sheath, and plasma-wall
+    interaction models by summing the relevant current contributions and projecting
+    the result onto the local flux-coordinate radial direction. It may also be constrained
+    experimentally by wall current monitors, Langmuir probes, biased electrodes, and
+    magnetic measurements interpreted with a sheath and geometry model.
+
+
+    Typical absolute magnitudes are strongly scenario dependent. Floating or nearly
+    ambipolar plasma-facing surfaces may have net values near 0-10^2 A.m^-2, biased
+    surfaces or RF sheath regions can reach 10^3-10^5 A.m^-2, and short transient
+    events such as disruptions or localized halo-current contact can produce larger
+    localized values.
+
+
+    Sign convention: Positive when the total current density is directed outward along
+    increasing $\rho$ in the flux-coordinate system $(\rho,\theta,\phi)$, from the
+    confined plasma toward the plasma-facing wall.'
+  unit: A.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:radial_total_current_density
+  - name:radial_current_density_due_to_parallel_viscosity
+  - name:radial_current_density_due_to_perpendicular_viscosity
+  - name:radial_current_density_due_to_heat_viscosity
+  - name:radial_current_density_due_to_ion_neutral_friction
+  sources:
+  - id: dd:wall/description_ggd/ggd/j_total/r
+    dd_path: wall/description_ggd/ggd/j_total/r
     status: composed
 - name: radiated_power_at_wall
   kind: scalar

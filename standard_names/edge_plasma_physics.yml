@@ -1,6 +1,6 @@
 # Domain: edge_plasma_physics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 103
+# Entries: 113
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -539,6 +539,66 @@
   - id: dd:summary/local/pedestal/n_i/deuterium/value
     dd_path: summary/local/pedestal/n_i/deuterium/value
     status: composed
+- name: deuterium_density_at_plasma_boundary
+  kind: scalar
+  status: draft
+  description: Number density of deuterium ions at the plasma boundary (separatrix),
+    the last closed magnetic flux surface separating confined plasma from the open-field-line
+    scrape-off layer.
+  documentation: 'Deuterium density at the plasma boundary is the number of deuterium
+    ions per unit volume evaluated on the separatrix, the last closed magnetic flux
+    surface. It is a species-resolved ion density, distinct from electron density
+    and total ion density, and excludes neutral deuterium atoms and molecules. The
+    quantity denotes a separatrix boundary value rather than a divertor target or
+    strike-point density; if a flux-surface average is specified, it is the average
+    of this local separatrix density around the last closed flux surface.
+
+
+    The particle density is the differential deuterium-ion count per volume:
+
+
+    $$
+
+    n_D = \frac{dN_D}{dV}
+
+    $$
+
+
+    where $n_D$ is the deuterium ion density in $\mathrm{m^{-3}}$, $dN_D$ is the number
+    of deuterium ions in the differential volume $dV$, and the value is evaluated
+    at the separatrix. In a fully ionized deuterium-dominated edge plasma, quasineutrality
+    often gives $n_e \simeq n_D + \sum_z Z_z n_z$; when impurity and other fuel-ion
+    fractions are small, $n_D \simeq n_e$.
+
+
+    In practice this quantity is inferred by combining diagnostics that measure edge
+    density and species content with an equilibrium estimate of the separatrix location.
+    Thomson scattering can provide the nearby electron density, charge-exchange spectroscopy
+    and passive spectroscopy can constrain ion species fractions, and Langmuir-probe
+    measurements at material surfaces may inform the estimate through edge transport
+    modeling rather than representing the separatrix value directly.
+
+
+    Typical separatrix deuterium ion densities in tokamak plasmas are about $0.1-2
+    \times 10^{19}\ \mathrm{m^{-3}}$ in low-density or L-mode operation and $0.5-5
+    \times 10^{19}\ \mathrm{m^{-3}}$ in many H-mode plasmas. High-fueling or detached-boundary
+    conditions can approach $1 \times 10^{20}\ \mathrm{m^{-3}}$, depending on plasma
+    size, isotope mix, recycling, and confinement regime.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:deuterium_density_at_divertor_target
+  - name:deuterium_density_at_magnetic_axis
+  - name:hydrogen_density_at_plasma_boundary
+  - name:tritium_density_at_plasma_boundary
+  - name:density_at_plasma_boundary
+  sources:
+  - id: dd:summary/local/separatrix/n_i/deuterium/value
+    dd_path: summary/local/separatrix/n_i/deuterium/value
+    status: composed
+  - id: dd:summary/local/separatrix_average/n_i/deuterium/value
+    dd_path: summary/local/separatrix_average/n_i/deuterium/value
+    status: composed
 - name: deuterium_tritium_density_at_pedestal
   kind: scalar
   status: draft
@@ -926,6 +986,98 @@
   - id: dd:summary/scrape_off_layer/heat_flux_e_decay_length/value
     dd_path: summary/scrape_off_layer/heat_flux_e_decay_length/value
     status: composed
+- name: electron_pressure_at_plasma_boundary
+  kind: scalar
+  status: draft
+  description: Electron thermal pressure evaluated at the plasma boundary (separatrix),
+    where the magnetically confined plasma meets the open-field-line scrape-off layer.
+  documentation: "The electron pressure at the plasma boundary quantifies the isotropic\
+    \ thermodynamic pressure of the electron population at the last closed flux surface\
+    \ (separatrix), the outermost surface bounding the region of nested, closed magnetic\
+    \ flux and separating confined plasma from the scrape-off layer.\n\nThe defining\
+    \ relation is the ideal-gas equation of state:\n\n$$\np_e = n_e k_B T_e\n$$\n\n\
+    where $n_e$ is the electron number density and $k_B T_e$ is the electron thermal\
+    \ energy per particle. The boundary value is obtained by evaluating this product\
+    \ at the separatrix. The companion [electron_density_at_plasma_boundary](name:electron_density_at_plasma_boundary)\
+    \ provides one factor of this product from independent profile measurements; together\
+    \ they constrain the electron temperature at the boundary.\n\nThis boundary pressure\
+    \ is inferred from electron density and temperature profiles measured across the\
+    \ pedestal region \u2014 typically by Thomson scattering or electron cyclotron\
+    \ emission \u2014 using linear or hyperbolic-tangent functional fits evaluated\
+    \ at the inferred separatrix location. It serves as an essential boundary condition\
+    \ for edge transport and scrape-off layer models, as well as a global summary\
+    \ scalar characterizing the pedestal\u2013SOL interface alongside the parent [pressure_at_plasma_boundary](name:pressure_at_plasma_boundary).\n\
+    \nTypical values in H-mode tokamak discharges range from tens to a few hundred\
+    \ pascals at the separatrix, substantially lower than the pedestal-top electron\
+    \ pressure, which can reach several kilopascals in reactor-relevant conditions.\n\
+    \nSign convention: Positive when the electron population has nonzero temperature\
+    \ and density; as a scalar thermodynamic pressure, this quantity does not change\
+    \ sign under reversal of magnetic field direction or plasma current direction."
+  unit: Pa
+  physics_domain: edge_plasma_physics
+  links:
+  - name:electron_density_at_plasma_boundary
+  - name:pressure_at_plasma_boundary
+  sources:
+  - id: dd:summary/pedestal_fits/linear/pressure_electron/separatrix/value
+    dd_path: summary/pedestal_fits/linear/pressure_electron/separatrix/value
+    status: composed
+  - id: dd:summary/pedestal_fits/mtanh/pressure_electron/separatrix/value
+    dd_path: summary/pedestal_fits/mtanh/pressure_electron/separatrix/value
+    status: composed
+- name: electron_pressure_over_scrape_off_layer
+  kind: scalar
+  status: draft
+  description: Electron pressure associated with the scrape-off-layer baseline of
+    an H-mode pedestal fit. It is the offset level outside the last closed flux surface
+    against which the pedestal rise is measured.
+  documentation: 'Electron pressure over the scrape-off layer is the scalar electron
+    pressure assigned to the low-pressure baseline of an H-mode pedestal fit. It is
+    the asymptotic value approached outside the last closed flux surface and provides
+    the reference level for the pedestal rise toward electron_pressure_at_pedestal
+    and electron_pressure_at_pedestal_top. It is the electron contribution to the
+    more general [pressure_over_scrape_off_layer](name:pressure_over_scrape_off_layer).
+
+
+    The baseline is commonly obtained as the constant offset in a modified-tanh representation
+    of the electron-pressure variation across the pedestal:
+
+
+    $$
+
+    p_e(\rho) = p_{\mathrm{SOL}} + \frac{p_{\mathrm{ped}} - p_{\mathrm{SOL}}}{2}\left[1
+    - \tanh\!\left(\frac{\rho-\rho_{\mathrm{ped}}}{\Delta/2}\right)\right]
+
+    $$
+
+
+    where $p_e(\rho)$ is the electron pressure, $p_{\mathrm{SOL}}$ is this scrape-off-layer
+    offset, $p_{\mathrm{ped}}$ is the pedestal-side pressure level, $\rho$ is an outward-increasing
+    flux-surface label such as $\rho_{\psi_N}=\sqrt{\psi_N}$ in flux coordinates $(\rho_{\psi_N},\theta,\phi)$,
+    $\rho_{\mathrm{ped}}$ is the center of the transition, and $\Delta/2$ is the half-width
+    parameter of the steep-gradient region.
+
+
+    In practice, the value is inferred by forming electron pressure from electron
+    density and temperature measurements, then fitting the radial dependence over
+    a region spanning the pedestal and the near scrape-off layer. When $\rho_{\psi_N}$
+    is used, $\rho_{\psi_N}=1$ denotes the last closed flux surface and larger values
+    lie in the scrape-off layer; related fitted fall-off behavior may be summarized
+    by electron_decay_length_over_scrape_off_layer.
+
+
+    Typical fitted offsets in H-mode edge analyzes are about 10-1000 Pa, with cold
+    or low-density scrape-off layers near the lower end and high-density, high-power
+    plasmas reaching higher values. They are normally well below electron_pressure_at_pedestal_top,
+    often a few percent to a few tens of percent of that value.'
+  unit: Pa
+  physics_domain: edge_plasma_physics
+  links:
+  - name:pressure_over_scrape_off_layer
+  sources:
+  - id: dd:summary/pedestal_fits/linear/pressure_electron/offset/value
+    dd_path: summary/pedestal_fits/linear/pressure_electron/offset/value
+    status: composed
 - name: electron_temperature_at_pedestal
   kind: scalar
   status: draft
@@ -1250,6 +1402,57 @@
   - id: dd:summary/pedestal_fits/mtanh/n_e/d_dpsi_norm/value
     dd_path: summary/pedestal_fits/mtanh/n_e/d_dpsi_norm/value
     status: attached
+- name: helium_3_density_at_pedestal
+  kind: scalar
+  status: draft
+  description: Number density of helium-3 ions at the H-mode pedestal top, where the
+    steep edge transport barrier joins the flatter confined-plasma density region.
+  documentation: 'Helium-3 density at the pedestal is the local number density of
+    ions of the stable mass-3 helium isotope evaluated at the pedestal top. The pedestal
+    top is the inner edge of the steep-gradient edge transport barrier, so this quantity
+    characterizes the helium-3 content entering the confined plasma from the edge
+    region.
+
+
+    The local pedestal value may be defined by the particle-number density of helium-3
+    ions in a small volume centered on the pedestal-top location:
+
+
+    $$
+
+    n_{^3\mathrm{He},\mathrm{ped}} = \left.\frac{dN_{^3\mathrm{He}}}{dV}\right|_{\mathrm{ped}}
+
+    $$
+
+
+    where $N_{^3\mathrm{He}}$ is the number of helium-3 ions in volume $V$, and the
+    subscript $\mathrm{ped}$ denotes evaluation at the pedestal top.
+
+
+    In practice it is obtained from an edge or pedestal density reconstruction combined
+    with an estimate of the helium-3 isotope fraction. That fraction may come from
+    fuel accounting, isotope-sensitive spectroscopy or neutral analysis where available,
+    and transport or particle-balance modeling; the result is usually interpreted
+    together with quasineutrality and the densities of the main ion species.
+
+
+    Typical values are highly scenario dependent. In plasmas without intentional helium-3
+    fueling, the pedestal helium-3 density is usually a trace component, often below
+    routine quantification or below about $10^{16}$-$10^{18}$ m^-3. In helium-3 minority
+    or fueled scenarios, a pedestal isotope fraction of about 0.1-10% of an ion pedestal
+    density near $10^{19}$-$10^{20}$ m^-3 corresponds to roughly $10^{16}$-$10^{19}$
+    m^-3.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:density_at_pedestal
+  - name:helium_3_density_at_internal_transport_barrier
+  - name:helium_3_density_at_plasma_boundary
+  - name:helium_3_density_at_divertor_target
+  sources:
+  - id: dd:summary/local/pedestal/n_i/helium_3/value
+    dd_path: summary/local/pedestal/n_i/helium_3/value
+    status: composed
 - name: helium_3_density_at_plasma_boundary
   kind: scalar
   status: draft
@@ -2667,6 +2870,60 @@
   sources:
   - id: dd:edge_transport/model/ggd/momentum/d_radial/values
     dd_path: edge_transport/model/ggd/momentum/d_radial/values
+    status: composed
+- name: radiated_power_over_scrape_off_layer
+  kind: scalar
+  status: draft
+  description: Total electromagnetic power radiated from the open field-line scrape-off
+    layer plasma by all species and emission channels combined.
+  documentation: 'The radiated power over the scrape-off layer is the total electromagnetic
+    power emitted by plasma occupying the open field-line region between the magnetic
+    separatrix and the first wall or divertor structures. Contributions arise from
+    line radiation of impurity ions (both intrinsic and deliberately seeded species
+    such as argon or neon), hydrogen isotope resonance emission, bremsstrahlung, and
+    radiative recombination, integrated over the full SOL volume.
+
+
+    The total SOL radiated power is the volume integral of the local emissivity:
+
+
+    $$
+
+    P_\mathrm{rad,SOL} = \int_\mathrm{SOL} \varepsilon_\mathrm{rad}(\mathbf{r}) \,
+    dV
+
+    $$
+
+
+    where $\varepsilon_\mathrm{rad} = n_e \sum_z n_z L_z(T_e, n_e)$, with $n_e$ the
+    electron number density, $n_z$ the density of radiating species $z$, and $L_z$
+    the temperature- and density-dependent cooling function for species $z$.
+
+
+    It is measured via resistive or photodiode bolometer arrays, with the spatial
+    distribution recovered by tomographic inversion. Alternatively, it is inferred
+    from global power balance by subtracting the conducted and convected power reaching
+    the divertor targets from the total power crossing the separatrix given by total_lost_power_at_plasma_boundary.
+
+
+    A high SOL radiated power fraction $f_\mathrm{rad} = P_\mathrm{rad,SOL} / P_\mathrm{SOL}$
+    is the primary control target in reactor-relevant divertor detachment scenarios,
+    as it disperses the power load before it reaches solid surfaces. The residual
+    non-radiated heat governs the radial heat-flux profiles characterized by the [electron_heat_decay_length_over_scrape_off_layer](name:electron_heat_decay_length_over_scrape_off_layer)
+    and [ion_heat_decay_length_over_scrape_off_layer](name:ion_heat_decay_length_over_scrape_off_layer).
+    This quantity is the radiated sub-component of [power_over_scrape_off_layer](name:power_over_scrape_off_layer).'
+  unit: W
+  physics_domain: edge_plasma_physics
+  links:
+  - name:electron_heat_decay_length_over_scrape_off_layer
+  - name:ion_heat_decay_length_over_scrape_off_layer
+  - name:power_over_scrape_off_layer
+  sources:
+  - id: dd:summary/global_quantities/power_radiated_outside_lcfs/value
+    dd_path: summary/global_quantities/power_radiated_outside_lcfs/value
+    status: attached
+  - id: dd:summary/scrape_off_layer/power_radiated/value
+    dd_path: summary/scrape_off_layer/power_radiated/value
     status: composed
 - name: safety_factor_at_pedestal
   kind: scalar
@@ -4144,6 +4401,71 @@
   - id: dd:summary/local/pedestal/momentum_tor/value
     dd_path: summary/local/pedestal/momentum_tor/value
     status: attached
+- name: toroidal_total_plasma_momentum_at_plasma_boundary
+  kind: scalar
+  status: draft
+  description: Surface integral of the toroidal component of plasma linear momentum
+    at the last closed flux surface in the right-handed cylindrical (R, phi, Z) frame,
+    summed over all ion species and electrons. It is a signed total linear momentum,
+    not toroidal angular momentum.
+  documentation: 'The total toroidal plasma momentum at the plasma boundary is the
+    toroidal component of plasma linear momentum assigned to the separatrix or last
+    closed flux surface, summed over all ion species and electrons. The toroidal component
+    is taken along $\hat{\phi}$ in the right-handed cylindrical $(R, \phi, Z)$ frame,
+    where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height.
+    This is not toroidal angular momentum; no factor of $R$ multiplies the toroidal
+    velocity.
+
+
+    For a surface-integrated boundary value, the defining linear-momentum form is
+
+
+    $$
+
+    P_{\phi,b} = \int_{S_b} \sum_s \Sigma_s(\mathbf{x})\,u_{\phi,s}(\mathbf{x})\,dA
+
+    $$
+
+
+    where $S_b$ is the boundary flux surface, $dA$ is the area element on $S_b$ in
+    m^2, $s$ labels plasma species, $\Sigma_s$ is the species mass per unit boundary-surface
+    area in kg m^-2, and $u_{\phi,s}$ is the toroidal component of species flow velocity
+    in m s^-1. If the value is derived from volume fields, $\Sigma_s$ represents the
+    mass density $m_s n_s$ integrated through the boundary shell normal to $S_b$,
+    with $m_s$ in kg and $n_s$ in m^-3.
+
+
+    In analysis, this quantity is computed from edge species densities, composition,
+    toroidal flow velocities, and the geometry of the boundary flux surface. It is
+    the boundary counterpart of the radial quantity [toroidal_total_plasma_momentum](name:toroidal_total_plasma_momentum),
+    while [toroidal_flux_surface_average_total_plasma_momentum_at_plasma_boundary](name:toroidal_flux_surface_average_total_plasma_momentum_at_plasma_boundary)
+    gives the corresponding flux-surface average rather than the surface-integrated
+    total. Rotation measurements such as charge-exchange or Doppler spectroscopy are
+    typically combined with density and impurity-content estimates to infer the ion
+    contribution; the electron contribution is usually much smaller because of the
+    electron mass.
+
+
+    Typical absolute values for separatrix-associated boundary integrals are often
+    about 10^-6-10^-2 kg.m.s^-1 in medium-size tokamak edge analyzes, but the value
+    can be near zero for balanced rotation and can be larger in strongly torque-driven
+    or larger plasmas. The magnitude scales with edge density, ion mass, toroidal
+    flow speed, boundary surface area, and the thickness or surface measure used to
+    assign mass to the boundary surface.
+
+
+    Sign convention: Positive when the net toroidal plasma linear momentum points
+    in the direction of increasing toroidal angle $\phi$ in the right-handed cylindrical
+    $(R, \phi, Z)$ frame.'
+  unit: kg.m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:toroidal_total_plasma_momentum
+  - name:toroidal_plasma_momentum_at_magnetic_axis
+  sources:
+  - id: dd:summary/local/separatrix/momentum_tor/value
+    dd_path: summary/local/separatrix/momentum_tor/value
+    status: composed
 - name: toroidal_tritium_velocity_at_plasma_boundary
   kind: scalar
   status: draft
@@ -4375,6 +4697,56 @@
     status: composed
   - id: dd:summary/local/separatrix_average/velocity_tor/xenon/value
     dd_path: summary/local/separatrix_average/velocity_tor/xenon/value
+    status: composed
+- name: total_ion_density_at_plasma_boundary
+  kind: scalar
+  status: draft
+  description: Unweighted sum of number densities of all charged ion species evaluated
+    locally at the plasma boundary or last closed flux surface. Neutral particles
+    are excluded, and each ion population contributes by particle density rather than
+    by charge.
+  documentation: 'Total ion density at the plasma boundary is the local particle density
+    obtained by summing the number densities of all charged ion species at the last
+    closed flux surface. The sum is unweighted: each ion contributes one particle
+    to the total regardless of charge state, while neutral atoms and molecules are
+    excluded. This is a local boundary quantity, not a flux-surface average unless
+    averaging is stated explicitly.
+
+
+    The total ion density at the plasma boundary is defined by the species sum
+
+
+    $$
+
+    n_{i,\mathrm{tot},b} = \sum_s n_{i,s,b}
+
+    $$
+
+
+    where $n_{i,\mathrm{tot},b}$ is the total ion density at the boundary in $\mathrm{m}^{-3}$,
+    $n_{i,s,b}$ is the number density of charged ion species $s$ at the boundary in
+    $\mathrm{m}^{-3}$, and the sum runs over all charged ion species or charge-state-resolved
+    ion populations included in the plasma composition.
+
+
+    In practice this quantity is obtained from edge diagnostic interpretation or from
+    boundary values in transport and equilibrium-coupled edge modeling. Electron density
+    and quasi-neutrality can constrain the charge-weighted ion sum, but they do not
+    by themselves define this unweighted total unless the ion composition and charge
+    states are also known.
+
+
+    Typical values at the last closed flux surface in tokamak plasmas are about $1
+    \times 10^{18}-1 \times 10^{20}\ \mathrm{m}^{-3}$, depending on fueling, confinement
+    regime, plasma current, and edge transport conditions.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:total_ion_density_at_pedestal
+  - name:total_ion_density_at_limiter
+  sources:
+  - id: dd:summary/local/separatrix/n_i_total/value
+    dd_path: summary/local/separatrix/n_i_total/value
     status: composed
 - name: tritium_density_at_pedestal
   kind: scalar
@@ -5181,6 +5553,46 @@
   - id: dd:edge_transport/model/ggd/neutral/state/particles/d_pol/values
     dd_path: edge_transport/model/ggd/neutral/state/particles/d_pol/values
     status: composed
+- name: poloidal_total_current_density
+  kind: scalar
+  status: draft
+  description: Signed projection of the total plasma current density vector onto the
+    poloidal direction, summing all current contributions including ohmic, bootstrap,
+    and externally driven currents.
+  documentation: "The poloidal total current density is the scalar component of the\
+    \ net current density vector $\\mathbf{j}_\\mathrm{total}$ resolved along the\
+    \ poloidal direction at each point in the edge plasma, integrating contributions\
+    \ from all current-carrying mechanisms \u2014 ohmic induction, bootstrap drive,\
+    \ neoclassical effects, and any externally applied current drive.\n\nThe defining\
+    \ relation is:\n\n$$\nj_\\theta = \\mathbf{j}_\\mathrm{total} \\cdot \\hat{\\\
+    theta}\n$$\n\nwhere $\\mathbf{j}_\\mathrm{total}$ is the total current density\
+    \ vector and $\\hat{\\theta}$ is the unit vector tangent to the flux surface in\
+    \ the poloidal direction within the $(R, Z)$ plane of the right-handed cylindrical\
+    \ $(R, \\phi, Z)$ frame.\n\nCombined with [toroidal_total_current_density](name:toroidal_current_density)\
+    \ and [radial_total_current_density](name:radial_total_current_density), this\
+    \ component completes the directional decomposition of [total_current_density](name:total_current_density).\
+    \ The closely related [poloidal_current_density](name:poloidal_current_density)\
+    \ represents the same physical projection; the present name makes the all-contributions\
+    \ character of the sum explicit. The neoclassical [poloidal_pfirsch_schlueter_current_density](name:poloidal_pfirsch_schlueter_current_density)\
+    \ is a physically important subset arising from pressure-gradient-driven return\
+    \ currents in toroidal geometry.\n\nThis quantity is evaluated from magnetohydrodynamic\
+    \ equilibrium reconstruction or self-consistent kinetic edge-plasma transport\
+    \ simulations, and is resolved on a spatially explicit grid covering complex edge\
+    \ geometries including the scrape-off layer and divertor region.\n\nSign convention:\
+    \ Positive when the current flows in the direction of increasing poloidal angle\
+    \ $\\theta$ in the $(R, Z)$ plane."
+  unit: A.m^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:toroidal_current_density
+  - name:radial_total_current_density
+  - name:total_current_density
+  - name:poloidal_current_density
+  - name:poloidal_pfirsch_schlueter_current_density
+  sources:
+  - id: dd:edge_profiles/ggd/j_total/poloidal
+    dd_path: edge_profiles/ggd/j_total/poloidal
+    status: composed
 - name: radial_current_density_due_to_viscosity
   kind: scalar
   status: draft
@@ -5718,3 +6130,128 @@
   - id: dd:edge_transport/model/ggd/ion/momentum/d/toroidal
     dd_path: edge_transport/model/ggd/ion/momentum/d/toroidal
     status: composed
+- name: vertical_current_density_due_to_ion_neutral_friction
+  kind: scalar
+  status: draft
+  description: Vertical (Z-direction) component of the electric current density driven
+    by frictional momentum exchange between plasma ions and background neutral particles
+    in the edge or divertor plasma.
+  documentation: 'The vertical component of [current_density_due_to_ion_neutral_friction](name:current_density_due_to_ion_neutral_friction)
+    is the projection of the ion-neutral friction current density vector onto the
+    $\hat{Z}$ axis of the right-handed cylindrical $(R, \phi, Z)$ frame, where $Z$
+    is the coordinate perpendicular to the tokamak midplane. In partially ionized
+    edge and divertor plasmas, collisions between the ion fluid and background neutrals
+    produce a frictional force that drives charge flow in all spatial directions,
+    including the vertical.
+
+
+    The component is defined as
+
+
+    $$
+
+    j_Z^{\rm in} = \mathbf{j}_{\rm in} \cdot \hat{Z}
+
+    $$
+
+
+    where $\mathbf{j}_{\rm in}$ is the full ion-neutral friction current density vector,
+    arising from momentum exchange between the ion fluid and neutrals at a rate governed
+    by the ion-neutral collision frequency $\nu_{in}$, and $\hat{Z}$ is the vertical
+    unit vector.
+
+
+    This component is obtained from edge and divertor plasma transport simulations
+    that resolve neutral fluid dynamics in the scrape-off layer and divertor volume.
+    The vertical direction gains significance where recycled neutrals stream vertically
+    from plasma-facing surfaces, making the vertical ion-neutral coupling non-negligible.
+    Together with the [radial_current_density_due_to_ion_neutral_friction](name:radial_current_density_due_to_ion_neutral_friction),
+    [poloidal_current_density_due_to_ion_neutral_friction](name:poloidal_current_density_due_to_ion_neutral_friction),
+    and [toroidal_current_density_due_to_ion_neutral_friction](name:toroidal_current_density_due_to_ion_neutral_friction)
+    siblings, it fully specifies the ion-neutral friction current density vector in
+    the right-handed cylindrical $(R, \phi, Z)$ frame.
+
+
+    Sign convention: Positive when the ion-neutral friction current density flows
+    in the $+Z$ direction, toward increasing vertical height in the right-handed cylindrical
+    $(R, \phi, Z)$ frame.'
+  unit: A.m^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:current_density_due_to_ion_neutral_friction
+  - name:radial_current_density_due_to_ion_neutral_friction
+  - name:poloidal_current_density_due_to_ion_neutral_friction
+  - name:toroidal_current_density_due_to_ion_neutral_friction
+  sources:
+  - id: dd:edge_profiles/ggd/j_ion_neutral_friction/z
+    dd_path: edge_profiles/ggd/j_ion_neutral_friction/z
+    status: attached
+  - id: dd:plasma_profiles/ggd/j_ion_neutral_friction/z
+    dd_path: plasma_profiles/ggd/j_ion_neutral_friction/z
+    status: composed
+- name: vertical_total_current_density
+  kind: scalar
+  status: draft
+  description: Vertical total current density is the Z component of the total electric
+    current density vector in the right-handed cylindrical (R, phi, Z) frame. It is
+    the net conventional charge flux per unit area in the vertical direction after
+    summing all resolved species and transport contributions.
+  documentation: 'The vertical total current density is the component along the vertical
+    basis direction of the total electric current density vector in the right-handed
+    cylindrical $(R, \phi, Z)$ frame. It represents the net conventional positive
+    charge flux per unit area carried vertically after all contributing species and
+    current-driving mechanisms are summed, so cancelations can make the total smaller
+    than individual partial contributions.
+
+
+    The component is defined by projecting the total current density vector onto the
+    vertical unit vector:
+
+
+    $$
+
+    j_{Z,\mathrm{tot}} = \mathbf{j}_{\mathrm{tot}} \cdot \hat{Z}
+
+    $$
+
+
+    where $\mathbf{j}_{\mathrm{tot}}$ and $j_{Z,\mathrm{tot}}$ are in A m^-2, and
+    $\hat{Z}$ is the dimensionless unit vector in the vertical direction of the right-handed
+    cylindrical $(R, \phi, Z)$ frame. For particle flows, a species contribution has
+    the form $q_s n_s \mathbf{u}_s$, where $q_s$ is charge, $n_s$ is number density,
+    and $\mathbf{u}_s$ is flow velocity, yielding A m^-2.
+
+
+    In practice this quantity is usually inferred from modeling rather than measured
+    directly. Edge-plasma and MHD descriptions compute it by summing resolved vertical
+    contributions from particle motion, pressure-gradient, collisional-friction, inertial,
+    neutral-friction, anomalous, and other transport terms; examples of related partial
+    terms include [vertical_current_density_due_to_ion_neutral_friction](name:vertical_current_density_due_to_ion_neutral_friction)
+    and [vertical_anomalous_current_density](name:vertical_anomalous_current_density).
+    Magnetic-field constraints may use the full Maxwell-Ampere relation including
+    displacement current; the simpler magnetoquasistatic curl-to-current estimate
+    is an approximation valid when displacement current is negligible.
+
+
+    Typical edge and scrape-off-layer values of $|j_{Z,\mathrm{tot}}|$ are often 1-10^4
+    A m^-2, with localized sheath-connected structures, steep-gradient regions, or
+    strong transient events reaching 10^4-10^5 A m^-2. Values near zero are also common
+    where upward and downward partial currents nearly cancel.
+
+
+    Sign convention: Positive when the total conventional current density points in
+    the $+Z$ direction of the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: A.m^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:vertical_inertial_current_density
+  - name:vertical_current_density_due_to_perpendicular_viscosity
+  - name:vertical_current_density_due_to_heat_viscosity
+  - name:vertical_current_density
+  sources:
+  - id: dd:edge_profiles/ggd/j_total/z
+    dd_path: edge_profiles/ggd/j_total/z
+    status: composed
+  - id: dd:mhd/ggd/j_z/values
+    dd_path: mhd/ggd/j_z/values
+    status: attached

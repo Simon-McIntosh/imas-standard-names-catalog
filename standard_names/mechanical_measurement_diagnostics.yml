@@ -1,6 +1,6 @@
 # Domain: mechanical_measurement_diagnostics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 16
+# Entries: 19
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -277,6 +277,45 @@
     status: composed
   - id: dd:langmuir_probes/reciprocating/plunge/t_e
     dd_path: langmuir_probes/reciprocating/plunge/t_e
+    status: attached
+- name: electrostatic_potential_at_midplane
+  kind: scalar
+  status: draft
+  description: Electrostatic potential of the plasma evaluated at the equatorial midplane,
+    providing the local plasma potential reference in the boundary plasma and scrape-off
+    layer.
+  documentation: "The electrostatic potential $V_p$ at the midplane is the local electric\
+    \ potential of the unperturbed plasma, setting the reference against which sheath\
+    \ voltages, probe biases, and radial electric fields are measured in the boundary\
+    \ region. It is distinct from the [floating electrostatic potential](name:floating_electrostatic_potential),\
+    \ which is the potential at which a probe draws zero net current; the two differ\
+    \ by a sheath correction proportional to the local electron temperature.\n\nThe\
+    \ plasma\u2013floating potential difference follows:\n\n$$\n\\Delta V = V_p -\
+    \ V_f \\approx \\frac{k_B T_e}{e}\\,\\Lambda\n$$\n\nwhere $k_B T_e / e$ is the\
+    \ electron temperature expressed as a voltage, and $\\Lambda = \\tfrac{1}{2}\\\
+    ln(m_i / 2\\pi m_e)$ is a dimensionless sheath factor of order 2\u20133 for hydrogen-isotope\
+    \ plasmas ($m_i$ is the ion mass and $m_e$ the electron mass).\n\nIn practice,\
+    \ $V_p$ at the midplane is inferred from Langmuir probe I\u2013V characteristics\
+    \ collected during radial plunges through the scrape-off layer; it is identified\
+    \ at the knee of the electron-saturation branch or estimated by adding the sheath\
+    \ correction to the floating potential using the co-located [electron_temperature_at_midplane](name:electron_temperature_at_midplane).\
+    \ The `midplane` locus is unqualified, but in diverted tokamak configurations\
+    \ the probe traverse most commonly samples the outboard equatorial plane.\n\n\
+    Typical SOL values range from a few to approximately 50 V above machine ground,\
+    \ consistently positive with respect to the [electrostatic_potential_at_wall](name:electrostatic_potential_at_wall)\
+    \ due to the ambipolar sheath constraint."
+  unit: V
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:floating_electrostatic_potential
+  - name:electron_temperature_at_midplane
+  - name:electrostatic_potential_at_wall
+  sources:
+  - id: dd:langmuir_probes/reciprocating/plunge/potential_plasma
+    dd_path: langmuir_probes/reciprocating/plunge/potential_plasma
+    status: composed
+  - id: dd:langmuir_probes/reciprocating/plunge/v_plasma
+    dd_path: langmuir_probes/reciprocating/plunge/v_plasma
     status: attached
 - name: ion_current_of_mass_spectrometer_channel
   kind: scalar
@@ -693,6 +732,120 @@
   sources:
   - id: dd:camera_ir/channel/camera/field_of_view_vertical
     dd_path: camera_ir/channel/camera/field_of_view_vertical
+    status: composed
+- name: voltage_of_mass_spectrometer
+  kind: scalar
+  status: draft
+  description: Detector bias voltage of a mass spectrometer is the potential difference
+    applied between the detector electrode or electron-multiplying stage and its bias
+    reference, setting collection efficiency or gain for ion-current measurement.
+    It is a device-level setting; voltage_of_mass_spectrometer_channel denotes a channel-specific
+    detector bias.
+  documentation: 'The detector bias voltage of a mass spectrometer is the electrical
+    potential difference applied by the detector bias circuit to the detector electrode
+    or electron-multiplying detector stage. It sets the electric-field conditions
+    that affect ion collection efficiency and detector gain for converting mass-selected
+    ions into a measured current or pulse signal. This is a device-level detector
+    setting, distinct from the channel-specific [voltage_of_mass_spectrometer_channel](name:voltage_of_mass_spectrometer_channel).
+
+
+    With a specified bias reference node, the detector bias voltage is defined as
+    the detector bias-node potential relative to that reference:
+
+
+    $$
+
+    V_\mathrm{det} = \Phi_\mathrm{det} - \Phi_\mathrm{ref}
+
+    $$
+
+
+    where $\Phi_\mathrm{det}$ is the electric potential of the detector electrode
+    or detector-stage bias node, and $\Phi_\mathrm{ref}$ is the potential of the reference
+    node chosen by the detector bias circuit, such as the supply return, detector
+    housing, or another designated electrode.
+
+
+    The value is normally set and monitored by the detector high-voltage or bias supply
+    and is interpreted together with detector calibration, gain setting, and measured
+    [ion_current_of_mass_spectrometer_channel](name:ion_current_of_mass_spectrometer_channel).
+    In operation it is chosen to provide adequate sensitivity for the expected ion
+    flux while avoiding detector overloading or operation outside the rated bias range.
+
+
+    Representative setpoints are strongly instrument- and detector-dependent: an unbiased
+    or disabled detector may be near 0 V, while high-voltage electron-multiplying
+    detector stages commonly use hundreds of volts to a few kilovolts. The allowable
+    range should be interpreted from the detector and power-supply ratings rather
+    than from a universal physical limit.
+
+
+    Sign convention: Positive when the detector electrode or detector-stage bias node
+    is at a higher electric potential than the bias reference node.'
+  unit: V
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:voltage_of_mass_spectrometer_channel
+  - name:ion_current_of_mass_spectrometer_channel
+  sources:
+  - id: dd:spectrometer_mass/detector_voltage
+    dd_path: spectrometer_mass/detector_voltage
+    status: composed
+- name: voltage_of_mass_spectrometer_channel
+  kind: scalar
+  status: draft
+  description: Signed potential difference applied between the electron-multiplying
+    detector stage of a single mass spectrometer channel and its electronics reference.
+    It sets the channel-specific gain for converting collected ion current into an
+    electrical signal.
+  documentation: 'Voltage of a mass spectrometer channel is the signed detector-bias
+    potential difference applied to the electron-multiplying detector element associated
+    with one mass-discriminated channel. It controls the secondary-electron multiplication
+    gain and therefore the sensitivity of that channel to collected ions. This per-channel
+    quantity is distinct from [voltage_of_mass_spectrometer](name:voltage_of_mass_spectrometer),
+    which denotes an instrument-level detector bias.
+
+
+    The signed channel bias is the detector-electrode potential relative to the channel
+    reference node:
+
+
+    $$
+
+    V_\mathrm{ch} = \Phi_{\mathrm{det},\mathrm{ch}} - \Phi_{\mathrm{ref},\mathrm{ch}}
+
+    $$
+
+
+    where $V_\mathrm{ch}$ is the reported channel voltage, $\Phi_{\mathrm{det},\mathrm{ch}}$
+    is the electric potential of the biased detector electrode, and $\Phi_{\mathrm{ref},\mathrm{ch}}$
+    is the potential of the electronics reference or return electrode for the same
+    channel.
+
+
+    In practice the value is set by a high-voltage supply or bias module and may be
+    monitored through calibrated voltage dividers or supply readbacks. Channel-specific
+    bias adjustment is used to equalize detector response, extend dynamic range, or
+    protect the detector from saturation while the resulting signal is reported as
+    [ion_current_of_mass_spectrometer_channel](name:ion_current_of_mass_spectrometer_channel).
+
+
+    Typical absolute bias magnitudes for electron-multiplying mass spectrometer detectors
+    are 100-3000 V, depending on detector type, gain setting, ion current level, and
+    protection limits.
+
+
+    Sign convention: Positive when the detector-bias electrode of the channel is at
+    a higher electric potential than the channel''s electronics reference or return
+    electrode.'
+  unit: V
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:ion_current_of_mass_spectrometer_channel
+  - name:voltage_of_mass_spectrometer
+  sources:
+  - id: dd:spectrometer_mass/channel/photomultiplier_voltage
+    dd_path: spectrometer_mass/channel/photomultiplier_voltage
     status: composed
 - name: x_coordinate_of_sensor_attachment_point
   kind: scalar

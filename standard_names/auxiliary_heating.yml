@@ -1,6 +1,6 @@
 # Domain: auxiliary_heating
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 75
+# Entries: 81
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -343,6 +343,64 @@
   - name:thermal_electron_power_at_inside_flux_surface
   - name:total_electron_power
   - name:total_plasma_radiated_power
+- name: fast_electron_energy
+  kind: scalar
+  status: draft
+  description: Volume-integrated kinetic energy stored in the fast, suprathermal electron
+    population, evaluated from the fast-electron energy density or distribution function
+    over the plasma volume. It excludes the bulk thermal electron energy and is an
+    energy content, not a power or power density.
+  documentation: 'Fast electron energy is the total kinetic energy contained in electrons
+    assigned to the suprathermal population rather than to the bulk thermal electron
+    component. It represents stored energy in the non-thermal electron tail produced
+    by wave heating, current drive, or other acceleration mechanisms.
+
+
+    A common definition is the volume integral of the fast-electron kinetic energy
+    density:
+
+
+    $$
+
+    W_{\mathrm{fast},e} = \int_V \mathcal{E}_{\mathrm{fast},e}(\mathbf{x})\,dV = \int_V
+    \int_{\Omega_{\mathrm{fast}}} (\gamma - 1)m_e c^2 f_e(\mathbf{x},\mathbf{v})\,d^3v\,dV
+
+    $$
+
+
+    where $W_{\mathrm{fast},e}$ is the fast electron energy, $\mathcal{E}_{\mathrm{fast},e}$
+    is the fast-electron kinetic energy density in J m$^{-3}$, $f_e$ is the electron
+    distribution function, $\Omega_{\mathrm{fast}}$ is the velocity-space region or
+    distribution-function component identified as suprathermal, $m_e$ is the electron
+    mass, $c$ is the speed of light, and $\gamma$ is the relativistic factor. In the
+    nonrelativistic limit the kinetic energy factor reduces to $m_e v^2/2$.
+
+
+    In practice this quantity is computed by integrating a modeled or reconstructed
+    fast-electron distribution over velocity space and plasma volume. Constraints
+    may come from kinetic wave-particle calculations and from diagnostics sensitive
+    to non-thermal electrons, such as hard x-ray bremsstrahlung, electron cyclotron
+    emission, or synchrotron radiation. It is distinct from fast-electron power density:
+    integrating a power density over volume gives power, while stored energy follows
+    from the accumulated kinetic energy content and changes according to power balance
+    and loss processes.
+
+
+    The value is non-negative and is zero when no fast-electron population is present.
+    Typical global values range from about 10^2-10^6 J in auxiliary-heated tokamak
+    plasmas, depending on injected power, current-drive efficiency, tail confinement,
+    and the energy threshold or model separation used to identify the suprathermal
+    population.'
+  unit: J
+  physics_domain: auxiliary_heating
+  links:
+  - name:fast_electron_power
+  - name:fast_electron_power_density
+  - name:perpendicular_fast_particle_energy
+  sources:
+  - id: dd:summary/heating_current_drive/lh/energy_fast/value
+    dd_path: summary/heating_current_drive/lh/energy_fast/value
+    status: composed
 - name: fast_electron_power_at_inside_flux_surface
   kind: scalar
   status: draft
@@ -929,6 +987,58 @@
   sources:
   - id: dd:ic_antennas/antenna/module/strap/geometry/oblique/length
     dd_path: ic_antennas/antenna/module/strap/geometry/oblique/length
+    status: composed
+- name: major_radius_of_launching_position
+  kind: scalar
+  status: draft
+  description: Major-radius coordinate of a launching position, equal to the perpendicular
+    distance from the toroidal symmetry axis in the right-handed cylindrical (R, phi,
+    Z) frame.
+  documentation: 'The major radius of a launching position is the $R$ coordinate of
+    the point from which an auxiliary heating or injection system launches waves,
+    particles, or material. In the right-handed cylindrical $(R, \phi, Z)$ frame,
+    $R$ is the perpendicular distance from the toroidal symmetry axis, $\phi$ is the
+    toroidal angle, and $Z$ is vertical height.
+
+
+    When horizontal Cartesian coordinates of the same point are known, the major radius
+    is defined by the radial distance in the plane perpendicular to the symmetry axis:
+
+
+    $$
+
+    R = \sqrt{x^2 + y^2}
+
+    $$
+
+
+    where $x$ and $y$ are horizontal coordinates in meters in a right-handed Cartesian
+    $(x, y, z)$ frame with $z$ vertical, and $R$ is the major radius in meters.
+
+
+    In practice this quantity is obtained from the geometric position of the launcher
+    aperture, beam origin, or injection exit point. It specifies only the spatial
+    source location; launch direction, beam width, steering angle, and divergence
+    are separate quantities.
+
+
+    Practical values are set by the device size and port geometry and are generally
+    comparable to the major radius of the surrounding toroidal device. No universal
+    numerical range is part of the definition.'
+  unit: m
+  physics_domain: auxiliary_heating
+  links:
+  - name:major_radius_of_pellet_path_point
+  - name:major_radius_of_poloidal_magnetic_field_probe
+  sources:
+  - id: dd:ec_launchers/beam/launching_position/r
+    dd_path: ec_launchers/beam/launching_position/r
+    status: composed
+  - id: dd:ec_launchers/launcher/launching_position/r
+    dd_path: ec_launchers/launcher/launching_position/r
+    status: attached
+  - id: dd:gas_injection/pipe/exit_position/r
+    dd_path: gas_injection/pipe/exit_position/r
     status: composed
 - name: maximum_angle_of_electron_cyclotron_launcher_mirror
   kind: scalar
@@ -1528,6 +1638,56 @@
   - id: dd:ec_launchers/mirror/geometry/centre/r
     dd_path: ec_launchers/mirror/geometry/centre/r
     status: attached
+- name: radial_coordinate_of_lower_hybrid_antenna_row
+  kind: scalar
+  status: draft
+  description: Radial coordinate of the geometric reference point of a lower hybrid
+    antenna row in the right-handed cylindrical (R, phi, Z) frame. R is the major
+    radius measured from the machine symmetry axis; this is not a local distance from
+    the antenna mouth.
+  documentation: 'The radial coordinate of a lower hybrid antenna row is the major-radius
+    coordinate $R$ of the row''s geometric reference point in the right-handed cylindrical
+    $(R, \phi, Z)$ frame. Here $R$ is distance from the machine symmetry axis, $\phi$
+    is the toroidal angle increasing counter-clockwise when viewed from above, and
+    $Z$ is vertical height. This coordinate locates the antenna row in the device
+    geometry and is distinct from any local coordinate normal to the antenna mouth
+    or from the electron density at the launching position.
+
+
+    If the same point is expressed in a right-handed Cartesian $(x, y, z)$ frame with
+    $z=Z$ and origin on the machine symmetry axis, its major radius is
+
+
+    $$
+
+    R = \sqrt{x^2 + y^2}
+
+    $$
+
+
+    where $x$ and $y$ are the horizontal Cartesian coordinates of the row reference
+    point.
+
+
+    The coordinate is usually determined from mechanical design data, installation
+    survey, metrology, or geometric reconstruction of the launcher position. The chosen
+    row reference point should be a reproducible physical point, such as the center
+    of the row aperture or another documented launcher reference point, so that radial
+    and vertical row coordinates describe the same physical location.
+
+
+    Typical values are of order the device major radius: about 1-4 m in medium-size
+    tokamaks and about 4-9 m in large tokamaks, with lower hybrid launchers commonly
+    mounted near the low-field-side boundary.'
+  unit: m
+  physics_domain: auxiliary_heating
+  links:
+  - name:absorbed_power_of_lower_hybrid_antenna
+  - name:current_due_to_lower_hybrid_current_drive
+  sources:
+  - id: dd:lh_antennas/antenna/distance_to_antenna
+    dd_path: lh_antennas/antenna/distance_to_antenna
+    status: composed
 - name: radial_normalized_wave_vector_of_beam_tracing_beam
   kind: scalar
   status: draft
@@ -1655,6 +1815,39 @@
   sources:
   - id: dd:lh_antennas/antenna/power_reflected
     dd_path: lh_antennas/antenna/power_reflected
+    status: composed
+- name: resistance_of_ion_cyclotron_heating_antenna
+  kind: scalar
+  status: draft
+  description: Resistive component of the RF loading impedance of an ion cyclotron
+    heating antenna module, setting how much power is transferred from the transmission
+    line into the plasma.
+  documentation: "The coupling resistance $R_c$ is the real part of the complex RF\
+    \ loading impedance $Z = R_c + jX$ presented by the antenna module to the transmission\
+    \ line, where $X$ is the antenna reactance. It captures both the radiation resistance\
+    \ \u2014 power radiated into plasma ion cyclotron waves \u2014 and ohmic losses\
+    \ in the antenna conductors themselves.\n\nThe RF power $P$ launched from the\
+    \ antenna into the plasma is given by:\n\n$$\nP = \\frac{1}{2} R_c \\, |I_0|^2\n\
+    $$\n\nwhere $I_0$ is the peak current amplitude on the antenna strap. This relation\
+    \ makes $R_c$ the central efficiency parameter linking the [antenna current amplitude]\
+    \ to the coupled RF power.\n\nThe coupling resistance is determined from transmission-line\
+    \ measurements at the antenna port by extracting the real part of the load impedance\
+    \ from the complex reflection coefficient or from simultaneous forward and reflected\
+    \ power and phase measurements. Its value increases with plasma density and decreasing\
+    \ antenna\u2013plasma gap, and depends on the [operating frequency](name:frequency_of_ion_cyclotron_heating_antenna)\
+    \ and strap geometry.\n\nIn tokamak ICRH systems, values range from approximately\
+    \ 0.5 to 10 ohm depending on plasma conditions, scrape-off layer density, and\
+    \ antenna proximity. Together with the [capacitance_of_ion_cyclotron_heating_antenna](name:capacitance_of_ion_cyclotron_heating_antenna),\
+    \ it determines the reactive matching condition of the antenna circuit and sets\
+    \ the effective loaded quality factor."
+  unit: ohm
+  physics_domain: auxiliary_heating
+  links:
+  - name:frequency_of_ion_cyclotron_heating_antenna
+  - name:capacitance_of_ion_cyclotron_heating_antenna
+  sources:
+  - id: dd:ic_antennas/antenna/module/coupling_resistance
+    dd_path: ic_antennas/antenna/module/coupling_resistance
     status: composed
 - name: thermal_electron_power_at_inside_flux_surface
   kind: scalar
@@ -1885,6 +2078,135 @@
     status: composed
   - id: dd:summary/heating_current_drive/ec/angle_tor/value
     dd_path: summary/heating_current_drive/ec/angle_tor/value
+    status: attached
+- name: toroidal_angle_of_launching_position
+  kind: scalar
+  status: draft
+  description: "Toroidal angle of the physical point from which a heating wave or\
+    \ particle beam is launched, measured in the right-handed cylindrical (R, \u03C6\
+    , Z) frame."
+  documentation: 'The toroidal angle of a launching position is the azimuthal coordinate
+    of the launch point around the toroidal symmetry axis. It is defined in the right-handed
+    cylindrical $(R, \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal
+    angle, and $Z$ is vertical height.
+
+
+    For a launch point with horizontal Cartesian coordinates $(x_\mathrm{launch},
+    y_\mathrm{launch})$ in a right-handed Cartesian $(\hat{x}, \hat{y}, \hat{z})$
+    frame with $\hat{z}=\hat{Z}$, the coordinate can be written as:
+
+
+    $$
+
+    \phi_\mathrm{launch} = \operatorname{atan2}(y_\mathrm{launch}, x_\mathrm{launch})
+    \bmod 2\pi
+
+    $$
+
+
+    where the $x$ axis defines the $\phi=0$ direction and $\operatorname{atan2}$ selects
+    the correct quadrant.
+
+
+    In practice, this angle is determined from the surveyed or modeled geometry of
+    the launcher reference point, such as the aperture, antenna phase center, or beam-origin
+    point. It specifies the toroidal location of the source point; separate direction
+    angles or wave-vector components describe the launch orientation.
+
+
+    Typical values span the full toroidal range, most commonly reported as 0-6.283
+    rad. Fixed launchers usually have values set by port locations, while movable
+    or multiple launch systems may provide several discrete toroidal positions.
+
+
+    Sign convention: Positive when angular displacement from the $\phi=0$ direction
+    is in the direction of increasing toroidal angle $\phi$, counter-clockwise when
+    viewed from above $+\hat{Z}$.'
+  unit: rad
+  physics_domain: auxiliary_heating
+  links:
+  - name:toroidal_angle_of_measurement_position
+  - name:toroidal_angle_of_electron_cyclotron_beam
+  sources:
+  - id: dd:ec_launchers/beam/launching_position/phi
+    dd_path: ec_launchers/beam/launching_position/phi
+    status: attached
+  - id: dd:ec_launchers/launcher/launching_position/phi
+    dd_path: ec_launchers/launcher/launching_position/phi
+    status: attached
+- name: toroidal_current_due_to_wave_driven_current_drive
+  kind: scalar
+  status: draft
+  description: Wave-driven toroidal plasma current enclosed by a magnetic flux surface.
+  documentation: 'Toroidal current due to wave-driven current drive is the non-inductive
+    toroidal plasma current produced when coherent electromagnetic waves create an
+    asymmetric charged-particle distribution through wave-particle interaction. For
+    a chosen magnetic flux surface, it is the total driven current in the toroidal
+    direction crossing a poloidal cut and enclosed by that surface; at the plasma
+    boundary it corresponds to the global wave-driven toroidal current.
+
+
+    In the right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is major radius,
+    $\phi$ is the toroidal angle increasing counter-clockwise when viewed from above
+    $+\hat{Z}$, and $Z$ is vertical height, the enclosed current at a flux surface
+    labeled by poloidal magnetic flux $\psi$ is defined by integrating the toroidal
+    component of the wave-driven current density over the enclosed poloidal area:
+
+
+    $$
+
+    I_{\phi}^{\mathrm{wave}}(\psi) = \int_{A(\psi)} j_{\phi}^{\mathrm{wave}}(R,Z)\,
+    dR\, dZ
+
+    $$
+
+
+    where $A(\psi)$ is the region of the poloidal cross-section inside the $\psi=\mathrm{constant}$
+    contour at fixed $\phi$, $j_{\phi}^{\mathrm{wave}}$ is the toroidal wave-driven
+    current density in $\mathrm{A\,m^{-2}}$, and $dR\,dZ$ is the poloidal area element.
+    Here $\psi$ is the poloidal magnetic flux in Wb. If the boundary of $A(\psi)$
+    is parameterized using flux coordinates $(\psi, \theta, \phi)$, the poloidal angle
+    $\theta$ increases counter-clockwise from the outboard midplane around the magnetic
+    axis in the $(R,Z)$ cross-section drawn with increasing $R$ to the right and increasing
+    $Z$ upward.
+
+
+    The value is obtained by determining the wave-driven current density from wave
+    absorption and kinetic response, projecting the driven current onto $\hat{\phi}$
+    of the right-handed cylindrical $(R, \phi, Z)$ frame, and integrating over the
+    equilibrium flux surface. In experiments it is usually constrained indirectly
+    from changes in total plasma current, loop voltage, magnetic equilibrium, and
+    diagnostics sensitive to the current distribution, with inductive current and
+    other non-inductive sources treated separately.
+
+
+    Typical absolute magnitudes are $1 \times 10^{3}-1 \times 10^{6}$ A in magnetically
+    confined plasmas using radio-frequency current drive; small control actuators
+    may drive $1 \times 10^{3}-1 \times 10^{5}$ A, while high-power scenarios can
+    approach or exceed $1 \times 10^{6}$ A. The magnitude depends on launched wave
+    power, resonance location, plasma density and temperature, magnetic geometry,
+    and current-drive efficiency.
+
+
+    Sign convention: Positive when the driven toroidal current flows in the direction
+    of increasing toroidal angle $\phi$ in the right-handed cylindrical $(R, \phi,
+    Z)$ frame.'
+  unit: A
+  physics_domain: auxiliary_heating
+  links:
+  - name:per_toroidal_mode_current_due_to_wave_driven_current_drive
+  sources:
+  - id: dd:waves/coherent_wave/global_quantities/current_phi
+    dd_path: waves/coherent_wave/global_quantities/current_phi
+    status: composed
+  - id: dd:waves/coherent_wave/global_quantities/current_tor
+    dd_path: waves/coherent_wave/global_quantities/current_tor
+    status: attached
+  - id: dd:waves/coherent_wave/profiles_1d/current_phi_inside
+    dd_path: waves/coherent_wave/profiles_1d/current_phi_inside
+    status: composed
+  - id: dd:waves/coherent_wave/profiles_1d/current_tor_inside
+    dd_path: waves/coherent_wave/profiles_1d/current_tor_inside
     status: attached
 - name: total_absorbed_power_of_lower_hybrid_antenna
   kind: scalar

@@ -1,6 +1,6 @@
 # Domain: plant_systems
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 56
+# Entries: 63
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -482,6 +482,58 @@
   - id: dd:summary/gas_injection_accumulated/hydrogen/value
     dd_path: summary/gas_injection_accumulated/hydrogen/value
     status: composed
+- name: accumulated_hydrogen_prefill_count
+  kind: scalar
+  status: draft
+  description: Cumulative count of hydrogen atoms introduced by gas injection during
+    the plasma prefill phase prior to breakdown, expressed as an equivalent-electron
+    count with one count per hydrogen atom.
+  documentation: 'The prefill phase occurs before plasma breakdown, during which hydrogen
+    gas is introduced into the vacuum vessel to establish the initial neutral density
+    required for plasma initiation. This quantity accumulates the total hydrogen gas
+    inventory across the entire prefill phase, with each hydrogen atom contributing
+    one unit to the count, consistent with hydrogen''s atomic number $Z_H = 1$.
+
+
+    The equivalent-electron convention expresses multi-species gas inventories on
+    a common dimensionless scale by weighting each injected atom''s contribution by
+    its atomic number $Z$:
+
+
+    $$
+
+    N_{\rm eq} = Z \cdot N_{\rm atoms}
+
+    $$
+
+
+    where $N_{\rm atoms}$ is the total number of injected atoms over the prefill interval.
+    For hydrogen ($Z_H = 1$), the equivalent-electron count equals the raw atom count.
+    This convention enables direct comparison across prefill species: for example,
+    [accumulated helium-4 prefill count](name:accumulated_helium_4_count_due_to_gas_injection)
+    weights each helium-4 atom by $Z = 2$, while [accumulated lithium prefill count](name:accumulated_lithium_prefill_count_due_to_gas_injection)
+    uses $Z = 3$.
+
+
+    The quantity is inferred from upstream pressure sensors and calibrated valve conductance
+    integrated over the prefill interval, or from mass-flow controllers. The post-breakdown
+    hydrogen inventory is tracked separately by [accumulated hydrogen count due to
+    gas injection](name:accumulated_hydrogen_count_due_to_gas_injection), which resets
+    at plasma breakdown.
+
+
+    Sign convention: Positive when hydrogen gas flows into the vacuum vessel during
+    the prefill phase, incrementing the accumulated atom count.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_helium_4_count_due_to_gas_injection
+  - name:accumulated_lithium_prefill_count_due_to_gas_injection
+  - name:accumulated_hydrogen_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_prefill/hydrogen/value
+    dd_path: summary/gas_injection_prefill/hydrogen/value
+    status: composed
 - name: accumulated_krypton_count
   kind: scalar
   status: draft
@@ -791,6 +843,54 @@
   sources:
   - id: dd:summary/gas_injection_accumulated/nitrogen/value
     dd_path: summary/gas_injection_accumulated/nitrogen/value
+    status: composed
+- name: accumulated_oxygen_count_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Cumulative post-breakdown oxygen delivered by gas injection, expressed
+    as an equivalent-electron count. Each oxygen atom contributes 8 counts, so the
+    value is 8 times the injected oxygen atom inventory.
+  documentation: 'The accumulated oxygen count due to gas injection is the cumulative
+    amount of oxygen introduced after plasma breakdown, expressed in equivalent electrons
+    rather than oxygen atoms. It provides a charge-normalized impurity inventory:
+    one oxygen atom contributes 8 counts because the atomic number of oxygen is 8.
+
+
+    The equivalent-electron count $N_\mathrm{eq}$ is defined from the injected oxygen
+    atom inventory $N_\mathrm{O}$ by:
+
+
+    $$
+
+    N_\mathrm{eq} = Z_\mathrm{O} N_\mathrm{O}
+
+    $$
+
+
+    where $Z_\mathrm{O}=8$ is the atomic number of oxygen and $N_\mathrm{O}$ is the
+    cumulative number of oxygen atoms injected after plasma breakdown.
+
+
+    In practice, the quantity is computed from calibrated gas-injection flow rates
+    integrated over time, with molecular composition accounted for when oxygen is
+    injected as $\mathrm{O}_2$ or in another oxygen-bearing gas. The accumulation
+    starts from zero at breakdown and increases as additional oxygen is delivered;
+    it excludes oxygen present in the prefill inventory. The simpler [oxygen_count](name:accumulated_oxygen_count_due_to_gas_injection)
+    denotes an oxygen gas count in the same equivalent-electron representation, while
+    [accumulated_oxygen_prefill_count_due_to_gas_injection](name:accumulated_oxygen_prefill_count_due_to_gas_injection)
+    refers to the corresponding pre-breakdown contribution.
+
+
+    Typical accumulated values range from about $10^{18}-10^{22}$ equivalent-electron
+    counts for small impurity puffs to stronger radiative seeding phases, with larger
+    values possible in long pulses or large devices.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_oxygen_prefill_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_accumulated/oxygen/value
+    dd_path: summary/gas_injection_accumulated/oxygen/value
     status: composed
 - name: accumulated_oxygen_prefill_count_due_to_gas_injection
   kind: scalar
@@ -1407,6 +1507,67 @@
   - id: dd:summary/gas_injection_rates/beryllium/value
     dd_path: summary/gas_injection_rates/beryllium/value
     status: composed
+- name: core_atomic_count_of_pellet
+  kind: scalar
+  status: draft
+  description: Total number of atomic nuclei in the innermost core layer of a composite
+    pellet, counted regardless of molecular bonding, phase, or species. For a core-outer
+    partition, it complements the outer atomic count so their sum gives the whole-pellet
+    atomic inventory.
+  documentation: 'Core atomic count is the total number of atomic nuclei contained
+    in the innermost core material of a composite pellet. It is an inventory, not
+    a density: molecular bonding, phase, and ionization state do not change the count.
+    In a two-region pellet decomposition it complements the [outer atomic count](name:outer_atomic_count_of_pellet);
+    with additional regions, the whole-pellet inventory is the sum over all regions.
+
+
+    The general definition is the volume integral of total atomic-nuclei number density
+    over the core volume:
+
+
+    $$
+
+    N_\mathrm{core} = \int_{V_\mathrm{core}} n_\mathrm{atom}(\mathbf{x})\,dV = \int_{V_\mathrm{core}}
+    \sum_s n_s(\mathbf{x})\,dV
+
+    $$
+
+
+    where $N_\mathrm{core}$ is the dimensionless count, $V_\mathrm{core}$ is the physical
+    volume occupied by the core, $n_\mathrm{atom}$ is the total atomic-nuclei number
+    density in m^-3, and $n_s$ is the number density in m^-3 of atomic species or
+    isotope $s$. The species sum must be performed for mixtures; for example, deuterium
+    and tritium nuclei in a mixed hydrogenic core are counted separately, and each
+    molecule contributes one count per atomic nucleus. For a spatially uniform total
+    atomic density the expression reduces to $N_\mathrm{core}=n_\mathrm{atom}V_\mathrm{core}$,
+    but that product is valid only after all species contributions have been included.
+
+
+    In practice, the count is computed from the core geometry and material composition
+    using solid, liquid, or cryogenic number densities, with corrections for porosity,
+    voids, temperature, or graded composition when relevant. It can also be inferred
+    from the measured core mass and isotopic or elemental fractions by converting
+    mass to numbers of nuclei using molar masses and stoichiometric coefficients.
+
+
+    Typical values for fusion fueling or disruption-mitigation pellets are about 10^19-10^23
+    counted atomic nuclei in the core layer. Small tracer or dopant cores may contain
+    10^16-10^19 nuclei, while millimeter-scale hydrogenic cores commonly contain 10^20-10^22
+    nuclei.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:atomic_count_of_pellet
+  - name:outer_atomic_count_of_pellet
+  - name:core_density_of_pellet
+  arguments:
+  - name: atomic_count_of_pellet
+    operator: core
+    operator_kind: qualifier
+  sources:
+  - id: dd:spi/injector/pellet/core/atoms_n
+    dd_path: spi/injector/pellet/core/atoms_n
+    status: composed
 - name: core_density_of_pellet
   kind: scalar
   status: draft
@@ -1888,6 +2049,55 @@
   - id: dd:summary/gas_injection_prefill/helium_4/value
     dd_path: summary/gas_injection_prefill/helium_4/value
     status: composed
+- name: helium_4_source_rate_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Instantaneous rate of helium-4 atom delivery into the plasma vessel
+    by gas injection, where each He-4 atom with atomic number Z = 2 contributes two
+    equivalent electrons to particle inventory accounting.
+  documentation: 'The helium-4 source rate due to gas injection quantifies the instantaneous
+    number of $^4$He atoms introduced per unit time into the plasma vessel through
+    externally controlled gas injection valves. Helium-4, comprising two protons and
+    two neutrons, is used in fusion devices for plasma heating studies, alpha-particle
+    ash simulation, and wall conditioning scenarios.
+
+
+    The source rate $\dot{N}_{\mathrm{He4}}$ is the time derivative of the cumulative
+    helium-4 atom count tracked by [accumulated_helium_4_count_due_to_gas_injection](name:accumulated_helium_4_count_due_to_gas_injection):
+
+
+    $$
+
+    \dot{N}_{\mathrm{He4}} = \frac{d N_{\mathrm{He4}}}{dt}
+
+    $$
+
+
+    where $N_{\mathrm{He4}}$ is the total helium-4 atom count since plasma breakdown.
+    For electron-equivalent particle accounting, the contribution to the total inventory
+    rate is $Z\,\dot{N}_{\mathrm{He4}} = 2\dot{N}_{\mathrm{He4}}$, reflecting helium''s
+    atomic number. This species-resolved rate is one component of the total [source_rate_due_to_gas_injection](name:source_rate_due_to_gas_injection)
+    summed over all injected species, and is directly analogous to [helium_3_source_rate_due_to_gas_injection](name:helium_3_source_rate_due_to_gas_injection)
+    for the lighter helium isotope.
+
+
+    The rate is determined from calibrated mass-flow controllers or conductance-based
+    gas metering on the injection lines. Typical values range from $10^{20}$ to $10^{22}$
+    s$^{-1}$ for seeding and fueling applications in present-day tokamaks.
+
+
+    Sign convention: Positive when helium-4 gas is actively flowing into the plasma
+    vessel, increasing the helium-4 atom inventory.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_helium_4_count_due_to_gas_injection
+  - name:source_rate_due_to_gas_injection
+  - name:helium_3_source_rate_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_rates/helium_4/value
+    dd_path: summary/gas_injection_rates/helium_4/value
+    status: composed
 - name: krypton_prefill_count
   kind: scalar
   status: draft
@@ -2202,6 +2412,63 @@
   - id: dd:balance_of_plant/power_plant/power_electric_generated
     dd_path: balance_of_plant/power_plant/power_electric_generated
     status: attached
+- name: outer_atomic_count_of_pellet
+  kind: scalar
+  status: draft
+  description: Total number of atoms contained in the outer shell layer of a composite
+    pellet. It counts atomic nuclei in that layer independent of molecular binding
+    and complements the inner-core inventory in the whole-pellet atom count.
+  documentation: 'Outer atomic count of a pellet is the total inventory of atomic
+    nuclei contained in the pellet''s outer shell layer. It is an unnormalized count:
+    molecules, compounds, or mixtures are converted to their constituent atoms before
+    summation, so one D$_2$ molecule contributes two atoms. Together with the [core
+    atomic count of a pellet](name:core_atomic_count_of_pellet), it contributes to
+    the total [atomic count of a pellet](name:atomic_count_of_pellet) and may be used
+    to form a [normalized atomic count of a pellet](name:normalized_atomic_count_of_pellet).
+
+
+    For a shell volume $V_\mathrm{outer}$ with local atomic number density $n_\mathrm{atom}$,
+    the count is
+
+
+    $$
+
+    N_\mathrm{outer} = \int_{V_\mathrm{outer}} n_\mathrm{atom}(\mathbf{x})\, dV
+
+    $$
+
+
+    where $N_\mathrm{outer}$ is the outer-shell atom count, $n_\mathrm{atom}$ is the
+    total number density of atoms after accounting for molecular stoichiometry and
+    species composition, and $\mathbf{x}$ labels position within the shell material.
+
+
+    In practice, the count is computed from the shell geometry, material density,
+    isotopic or elemental composition, and molecular formula of the pellet material.
+    For multi-species shells, each component contributes according to its molar or
+    atomic fraction; for example, molecular deuterium is counted by atoms rather than
+    by molecules. The related [density of pellet](name:core_density_of_pellet) helps
+    determine the number density used in the inventory calculation.
+
+
+    Typical values range from about $10^{18}$-$10^{21}$ atoms for small fueling or
+    tracer shell payloads and about $10^{21}$-$10^{23}$ atoms for large mitigation
+    pellets, depending on pellet size, shell thickness, material density, and composition.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:core_atomic_count_of_pellet
+  - name:atomic_count_of_pellet
+  - name:normalized_atomic_count_of_pellet
+  - name:core_density_of_pellet
+  arguments:
+  - name: atomic_count_of_pellet
+    operator: outer
+    operator_kind: qualifier
+  sources:
+  - id: dd:spi/injector/pellet/shell/atoms_n
+    dd_path: spi/injector/pellet/shell/atoms_n
+    status: composed
 - name: oxygen_source_rate
   kind: scalar
   status: draft
@@ -2474,6 +2741,45 @@
   - id: dd:spi/injector/velocity_mass_centre_fragments_r
     dd_path: spi/injector/velocity_mass_centre_fragments_r
     status: attached
+- name: silane_prefill_count
+  kind: scalar
+  status: draft
+  description: Accumulated equivalent-electron count of silane (SiH4) gas injected
+    during the prefill phase before plasma breakdown, where each SiH4 molecule contributes
+    18 equivalent electrons.
+  documentation: "The silane prefill count is the dimensionless total of silane (SiH4)\
+    \ gas introduced into the plasma vessel during the prefill phase \u2014 before\
+    \ plasma breakdown \u2014 expressed using the equivalent-electron convention in\
+    \ which each atom contributes a weight equal to its atomic number.\n\nEach SiH4\
+    \ molecule contributes 18 equivalent electrons: 14 from the silicon nucleus ($Z_\\\
+    mathrm{Si} = 14$) and 1 from each of the four hydrogen atoms ($Z_\\mathrm{H} =\
+    \ 1$):\n\n$$\nC_{\\mathrm{SiH_4}} = Z_\\mathrm{Si} + 4\\,Z_\\mathrm{H} = 14 +\
+    \ 4 = 18\n$$\n\nwhere $N_\\mathrm{mol}$ is the number of SiH4 molecules injected\
+    \ before breakdown, giving a total prefill count of $18\\,N_\\mathrm{mol}$.\n\n\
+    The prefill phase precedes plasma ignition and is used to condition the vessel\
+    \ or establish a neutral-gas background. The accumulated count records all injection\
+    \ events within that window, giving a species-resolved inventory of silicon and\
+    \ hydrogen introduced before breakdown. The corresponding post-breakdown tally\
+    \ is provided by [accumulated_silane_count](name:accumulated_silane_count), and\
+    \ the instantaneous injection rate is tracked by [silane_source_rate](name:silane_source_rate).\
+    \ Analogous prefill counts for other species include [accumulated_hydrogen_prefill_count](name:accumulated_hydrogen_prefill_count)\
+    \ and [nitrogen_prefill_count](name:nitrogen_prefill_count).\n\nSign convention:\
+    \ Positive when silane gas is injected into the vessel during the prefill phase."
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_silane_count
+  - name:silane_source_rate
+  - name:accumulated_hydrogen_prefill_count
+  - name:nitrogen_prefill_count
+  arguments:
+  - name: accumulated_lithium_prefill_count_due_to_gas_injection
+    operator: silane
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/gas_injection_prefill/silane/value
+    dd_path: summary/gas_injection_prefill/silane/value
+    status: composed
 - name: silane_source_rate
   kind: scalar
   status: draft
@@ -2720,6 +3026,46 @@
   sources:
   - id: dd:summary/gas_injection_prefill/tritium/value
     dd_path: summary/gas_injection_prefill/tritium/value
+    status: composed
+- name: vertical_coordinate_of_shattering_position
+  kind: scalar
+  status: draft
+  description: Vertical coordinate of the point where a pellet is shattered in a shattered
+    pellet injection system, measured along the machine symmetry axis.
+  documentation: 'In a shattered pellet injection (SPI) system, a solid pellet is
+    fractured into fragments at a prescribed shattering position before the debris
+    enters the plasma. The vertical coordinate $Z$ identifies the height of this shattering
+    event in the right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is the major
+    radius and $Z$ increases upward along the machine symmetry axis.
+
+
+    Together with the radial companion [major_radius_of_pellet_path_point](name:major_radius_of_pellet_path_point),
+    this $Z$ coordinate fully specifies the poloidal location of fragment formation,
+    directly influencing the spatial distribution of the ablating pellet cloud and
+    the resulting material deposition profile in the plasma. The [vertical_coordinate_of_pellet](name:vertical_coordinate_of_pellet_path_point)
+    gives the instantaneous $Z$ position of the intact pellet along its trajectory
+    before impact.
+
+
+    The shattering position is a fixed geometric property of the injector assembly,
+    set by the guide tube termination and barrel exit geometry; it is determined by
+    mechanical survey of the injection system relative to the machine coordinate origin.
+    Typical $Z$ values range from approximately $-2$ m to $+2$ m in medium-sized tokamaks,
+    depending on the injection port location and whether the system targets midplane,
+    upper, or lower regions of the vessel.
+
+
+    Sign convention: Positive when the shattering position lies above the machine
+    equatorial plane, in the direction of increasing $Z$ in the right-handed cylindrical
+    $(R, \phi, Z)$ frame.'
+  unit: m
+  physics_domain: plant_systems
+  links:
+  - name:major_radius_of_pellet_path_point
+  - name:vertical_coordinate_of_pellet_path_point
+  sources:
+  - id: dd:spi/injector/shattering_position/z
+    dd_path: spi/injector/shattering_position/z
     status: composed
 - name: vertical_velocity_of_pellet
   kind: scalar

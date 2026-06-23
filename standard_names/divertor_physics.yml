@@ -1,6 +1,6 @@
 # Domain: divertor_physics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 34
+# Entries: 37
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -1353,6 +1353,62 @@
   - id: dd:divertors/divertor/power_radiated
     dd_path: divertors/divertor/power_radiated
     status: composed
+- name: radial_length_of_divertor_target
+  kind: scalar
+  status: draft
+  description: Non-negative span of a divertor target's plasma-facing surface projected
+    onto the major-radius R direction in the right-handed cylindrical (R, phi, Z)
+    frame.
+  documentation: 'Radial length of a divertor target is the non-negative geometric
+    span of the target''s plasma-facing surface after projection onto the major-radius
+    coordinate $R$ in the right-handed cylindrical $(R, \phi, Z)$ frame. It characterizes
+    the target dimension in major radius, not the wetted length along the inclined
+    target surface or a distance along magnetic-field lines.
+
+
+    If $S_t$ denotes the plasma-facing target surface, the projected radial length
+    is
+
+
+    $$
+
+    L_R = \max_{\mathbf{x} \in S_t} R(\mathbf{x}) - \min_{\mathbf{x} \in S_t} R(\mathbf{x})
+
+    $$
+
+
+    where $R(\mathbf{x})$ is the major-radius coordinate of point $\mathbf{x}$ in
+    the right-handed cylindrical $(R, \phi, Z)$ frame. The result is a span $\Delta
+    R$, so it is independent of whether the target contour is traversed from inner
+    to outer radius or the reverse.
+
+
+    In practice, $L_R$ is obtained from the divertor target contour or surface geometry
+    by selecting the plasma-facing part of the target and taking the difference between
+    the largest and smallest $R$ values. For comparison with strike-point quantities,
+    the relevant object is the target major-radius interval $[R_{\min}, R_{\max}]$:
+    [major_inner_radius_of_strike_point](name:major_inner_radius_of_strike_point)
+    and [major_outer_radius_of_strike_point](name:major_outer_radius_of_strike_point)
+    are coordinates of strike points in the right-handed cylindrical $(R, \phi, Z)$
+    frame, so they can be tested for lying on or near this interval but are not lengths
+    to be compared directly with $L_R$.
+
+
+    Typical radial spans are 0.02-0.2 m for small or narrow target tiles, 0.1-0.5
+    m for medium-size tokamak divertor targets, and up to about 1 m in large or strongly
+    extended divertor geometries. The value depends on target inclination, cassette
+    design, baffling, and whether the full plasma-facing target or only an active
+    wetted segment is being characterized.'
+  unit: m
+  physics_domain: divertor_physics
+  links:
+  - name:vertical_length_of_divertor_target
+  - name:major_inner_radius_of_strike_point
+  - name:major_outer_radius_of_strike_point
+  sources:
+  - id: dd:divertors/divertor/target/extension_r
+    dd_path: divertors/divertor/target/extension_r
+    status: composed
 - name: surface_area_of_divertor_tile
   kind: scalar
   status: draft
@@ -1557,6 +1613,54 @@
   - id: dd:summary/boundary/strike_point_outer_z/value
     dd_path: summary/boundary/strike_point_outer_z/value
     status: composed
+- name: vertical_length_of_divertor_target
+  kind: scalar
+  status: draft
+  description: Non-negative vertical projection of the divertor target surface in
+    the right-handed cylindrical (R, phi, Z) frame, equal to the difference between
+    the largest and smallest Z coordinate on the target.
+  documentation: 'Vertical length of a divertor target is the non-negative geometric
+    extent of the target surface projected onto the vertical $Z$ direction in the
+    right-handed cylindrical $(R, \phi, Z)$ frame. It is a projected height, not the
+    arc length along a tilted or curved target surface.
+
+
+    For a target surface $S_\mathrm{t}$ with vertical coordinate $Z(\mathbf{x})$,
+    the projected vertical length is defined by the range of $Z$ over that surface:
+
+
+    $$
+
+    L_Z = \max_{\mathbf{x} \in S_\mathrm{t}} Z(\mathbf{x}) - \min_{\mathbf{x} \in
+    S_\mathrm{t}} Z(\mathbf{x})
+
+    $$
+
+
+    where $\mathbf{x}$ denotes points on the plasma-facing target surface and $Z$
+    is vertical height in the right-handed cylindrical $(R, \phi, Z)$ frame. If the
+    target is represented only by two bounding endpoints and the intervening surface
+    is monotonic in $Z$, this reduces to $L_Z = |Z_2 - Z_1|$.
+
+
+    In practice, this quantity is computed from the surveyed or designed divertor
+    target geometry by identifying the operational target surface and taking the maximum
+    and minimum vertical coordinates over its bounded extent. It is used to characterize
+    how much vertical space the target occupies independently of its radial projection
+    or its surface length.
+
+
+    Typical values range from about 0.05-1 m for compact to medium divertor targets,
+    and can be larger in large devices or vertically extended divertor configurations.'
+  unit: m
+  physics_domain: divertor_physics
+  links:
+  - name:radial_length_of_divertor_target
+  - name:vertical_coordinate_of_divertor_target
+  sources:
+  - id: dd:divertors/divertor/target/extension_z
+    dd_path: divertors/divertor/target/extension_z
+    status: composed
 - name: vertical_outline_of_divertor_tile
   kind: scalar
   status: draft
@@ -1594,6 +1698,49 @@
   sources:
   - id: dd:divertors/divertor/target/tile/surface_outline/z
     dd_path: divertors/divertor/target/tile/surface_outline/z
+    status: composed
+- name: peak_power_density_at_wall
+  kind: scalar
+  status: draft
+  description: Spatial maximum of the power flux density deposited across all plasma-facing
+    wall surfaces, representing the most severe local thermal load on any wall component
+    of the device.
+  documentation: "The peak power density at the wall is the spatial maximum of the\
+    \ total incident power flux density over all plasma-facing wall surfaces \u2014\
+    \ encompassing first-wall panels, divertor targets, and limiter tiles \u2014 taken\
+    \ as a single global extremum. As the device-level worst-case thermal load, it\
+    \ sets the primary engineering design limit for plasma-facing component materials\
+    \ and machine protection systems.\n\nThe defining relation is the spatial extremum\
+    \ of the local surface power flux density $q(\\mathbf{s})$:\n\n$$\nq_\\mathrm{peak}\
+    \ = \\max_{\\mathbf{s} \\in \\mathcal{W}} q(\\mathbf{s})\n$$\n\nwhere $\\mathbf{s}$\
+    \ denotes position on the full plasma-facing surface set $\\mathcal{W}$ and $q$\
+    \ is the local heat flux in W m$^{-2}$. Location-specific equivalents \u2014 [peak_power_density_at_divertor_target](name:peak_power_density_at_divertor_target),\
+    \ [peak_power_density_at_first_wall](name:peak_power_density_at_first_wall), and\
+    \ [peak_power_density_at_limiter](name:peak_power_density_at_limiter) \u2014 maximize\
+    \ over their respective sub-surfaces; the more general peak_power_density covers\
+    \ the same concept without a locus qualifier.\n\nInfrared thermography is the\
+    \ primary diagnostic for spatially resolved surface heat flux measurement; the\
+    \ local power flux density is reconstructed from the measured surface temperature\
+    \ transient via the surface heat conduction equation, with emissivity calibration\
+    \ accounting for material surface properties. Embedded thermocouples and calorimetric\
+    \ tiles provide complementary point-wise constraints.\n\nSteady-state peak values\
+    \ range from 0.1\u20131 MW m$^{-2}$ on main-chamber first-wall panels and 5\u2013\
+    20 MW m$^{-2}$ at attached divertor strike zones; transient events such as edge-localized\
+    \ modes and disruptions can drive local peak loading far above these steady-state\
+    \ values."
+  unit: W.m^-2
+  physics_domain: divertor_physics
+  links:
+  - name:peak_power_density_at_divertor_target
+  - name:peak_power_density_at_first_wall
+  - name:peak_power_density_at_limiter
+  arguments:
+  - name: power_density_at_wall
+    operator: peak
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/local/divertor_plate/power_flux_peak/value
+    dd_path: summary/local/divertor_plate/power_flux_peak/value
     status: composed
 - name: power_at_divertor_target_due_to_conduction
   kind: scalar
