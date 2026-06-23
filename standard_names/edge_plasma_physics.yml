@@ -1,6 +1,6 @@
 # Domain: edge_plasma_physics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 113
+# Entries: 124
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -835,6 +835,64 @@
     status: composed
   - id: dd:summary/local/separatrix_average/zeff/value
     dd_path: summary/local/separatrix_average/zeff/value
+    status: composed
+- name: electron_density_at_launching_position
+  kind: scalar
+  status: draft
+  description: Electron number density in the edge plasma immediately adjacent to
+    a wave launcher aperture or waveguide mouth.
+  documentation: 'Electron density at the launching position is the local number density
+    of free electrons in the plasma that a launched electromagnetic wave first encounters.
+    The launching position denotes the small plasma volume immediately in front of
+    the launcher face, grill, or waveguide mouth, typically in the scrape-off-layer
+    or limiter-shadow region. It is the electron-specific form of [density_at_launching_position](name:density_at_launching_position);
+    unlike a total particle density, it counts free electrons only, and in a quasineutral
+    plasma is approximately balanced by the charge-weighted ion density rather than
+    by neutral density.
+
+
+    A key wave-coupling scale set by this density is the electron plasma angular frequency:
+
+
+    $$
+
+    \omega_{pe} = \left(\frac{n_e e^2}{\varepsilon_0 m_e}\right)^{1/2}
+
+    $$
+
+
+    where $n_e$ is the electron density in m$^{-3}$, $e$ is the elementary charge
+    in coulombs, $\varepsilon_0$ is the vacuum permittivity in F m$^{-1}$, $m_e$ is
+    the electron mass in kg, and $\omega_{pe}$ is in rad s$^{-1}$. For lower-hybrid
+    coupling estimates, $n_e$ also enters the approximate cold-plasma accessibility
+    condition $n_\parallel^2 \ge 1 + \omega_{pe}^2/\omega_{ce}^2$, where $n_\parallel$
+    is the dimensionless parallel refractive index, $\omega_{ce}=eB/m_e$ is the electron
+    cyclotron angular frequency in rad s$^{-1}$ for magnetic-field magnitude $B$ in
+    tesla, and launched-wave angular frequencies are in rad s$^{-1}$ or equivalently
+    $f=\omega/(2\pi)$ in Hz.
+
+
+    In practice this density is measured or inferred from edge diagnostics viewing
+    the launcher vicinity, such as Langmuir probes, microwave reflectometry, interferometry,
+    or analysis of wave coupling behavior. The reported value should represent the
+    plasma immediately outside the launching structure, not a core density or a distant
+    separatrix value; comparisons with electron_density_at_separatrix and [electron_density_at_limiter](name:electron_density_at_limiter)
+    help distinguish launcher-local conditions from other edge reference locations.
+
+
+    Typical values near wave launchers in tokamak edge plasmas are about $10^{17}$-$10^{19}$
+    m$^{-3}$, with lower-hybrid launcher coupling often sensitive in the $10^{17}$-$10^{18}$
+    m$^{-3}$ range. The value can vary strongly with gas puffing, recycling from plasma-facing
+    components, launcher-plasma gap, magnetic geometry near the edge, and transient
+    edge events.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:density_at_launching_position
+  - name:electron_density_at_limiter
+  sources:
+  - id: dd:lh_antennas/antenna/n_e
+    dd_path: lh_antennas/antenna/n_e
     status: composed
 - name: electron_density_at_plasma_boundary
   kind: scalar
@@ -1795,6 +1853,43 @@
   sources:
   - id: dd:summary/local/pedestal/n_i/iron/value
     dd_path: summary/local/pedestal/n_i/iron/value
+    status: composed
+- name: iron_density_at_plasma_boundary
+  kind: scalar
+  status: draft
+  description: Number density of iron impurity ions summed over all ionization stages,
+    evaluated at the last closed flux surface separating the magnetically confined
+    plasma from the scrape-off layer.
+  documentation: "Iron (atomic number $Z = 26$) is a metallic impurity that can enter\
+    \ the plasma from iron-containing plasma-facing components or structural materials.\
+    \ At the plasma boundary \u2014 the last closed flux surface between the confined\
+    \ core and the open-field-line scrape-off layer \u2014 this density characterizes\
+    \ the iron impurity concentration at the innermost edge of the scrape-off layer\
+    \ and serves as a boundary condition for edge impurity transport modeling.\n\n\
+    Unless a specific charge state is stated, the density sums over all ionization\
+    \ stages:\n\n$$\nn_\\mathrm{Fe} = \\sum_{q=1}^{26} n_{\\mathrm{Fe}^{q+}}\n$$\n\
+    \nwhere $n_{\\mathrm{Fe}^{q+}}$ is the partial number density of iron ions in\
+    \ charge state $q^+$.\n\nThe boundary iron density can be inferred from VUV or\
+    \ soft X-ray spectroscopy of iron line emission or from impurity transport simulations\
+    \ constrained by edge diagnostics. Elevated concentrations at the plasma boundary\
+    \ signal strong metallic impurity sourcing from plasma-facing components and can\
+    \ lead to significant radiative cooling and hydrogenic fuel dilution. The species-agnostic\
+    \ parent concept is defined by [density_at_plasma_boundary](name:density_at_plasma_boundary);\
+    \ the iron impurity distribution inside the separatrix is further characterized\
+    \ at the pedestal by [iron_density_at_pedestal](name:iron_density_at_pedestal)\
+    \ and at the divertor plate by [iron_density_at_divertor_target](name:iron_density_at_divertor_target).\
+    \ The analogous boundary density for another seeded impurity species is given\
+    \ by [nitrogen_density_at_plasma_boundary](name:nitrogen_density_at_plasma_boundary)."
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:density_at_plasma_boundary
+  - name:iron_density_at_pedestal
+  - name:iron_density_at_divertor_target
+  - name:nitrogen_density_at_plasma_boundary
+  sources:
+  - id: dd:summary/local/separatrix/n_i/iron/value
+    dd_path: summary/local/separatrix/n_i/iron/value
     status: composed
 - name: lithium_density_at_pedestal
   kind: scalar
@@ -4698,6 +4793,117 @@
   - id: dd:summary/local/separatrix_average/velocity_tor/xenon/value
     dd_path: summary/local/separatrix_average/velocity_tor/xenon/value
     status: composed
+- name: total_ion_decay_length_over_scrape_off_layer
+  kind: scalar
+  status: draft
+  description: Radial e-folding length of the total ion number density in the scrape-off
+    layer, defined as the inverse magnitude of its logarithmic gradient evaluated
+    perpendicular to flux surfaces. The total ion density is the sum over all ion
+    species and charge states, so this scale length is intrinsically non-negative.
+  documentation: 'Total ion decay length over the scrape-off layer is the characteristic
+    distance over which the total ion number density falls by a factor of $e$ moving
+    outward across the open-field-line region beyond the last closed flux surface.
+    The total ion number density is the sum of densities over all ion species and
+    charge states, so this quantity describes how rapidly the combined ion population
+    connected to open magnetic field lines decays toward the wall.
+
+
+    The decay length is defined as the inverse magnitude of the logarithmic gradient
+    of the total ion density along the local outward distance perpendicular to flux
+    surfaces:
+
+
+    $$
+
+    \lambda_{n_i,\mathrm{tot}} = \left| \frac{d}{d r_\perp} \ln n_{i,\mathrm{tot}}
+    \right|^{-1}
+
+    $$
+
+
+    where $r_\perp$ is the local distance measured perpendicular to the flux surfaces,
+    increasing outward from the last closed flux surface toward the wall (in meters),
+    and $n_{i,\mathrm{tot}}$ is the total ion number density (in $\mathrm{m^{-3}}$).
+    The total ion density is $n_{i,\mathrm{tot}} = \sum_a \sum_Z n_{a,Z}$, where $n_{a,Z}$
+    is the density of ion species $a$ in charge state $Z$. Taking the magnitude makes
+    the scale length non-negative regardless of the chosen sign of the radial coordinate.
+
+
+    In practice this quantity is obtained by reconstructing the total ion density
+    across the scrape-off layer from charge-resolved ion measurements, edge plasma
+    modeling, or quasineutrality and composition assumptions, then evaluating the
+    local logarithmic gradient or fitting an exponential fall-off over a specified
+    radial interval. A fitted value represents an effective decay length over that
+    interval rather than a strictly local derivative.
+
+
+    Representative scrape-off-layer ion density decay lengths in tokamak edge analyzes
+    are commonly of order $0.001\text{--}0.05\ \mathrm{m}$, with the value depending
+    on plasma current, connection length, collisionality, recycling, detachment state,
+    and the radial interval used for evaluation.'
+  unit: m
+  physics_domain: edge_plasma_physics
+  links:
+  - name:ion_heat_decay_length_over_scrape_off_layer
+  sources:
+  - id: dd:summary/scrape_off_layer/n_i_total_decay_length/value
+    dd_path: summary/scrape_off_layer/n_i_total_decay_length/value
+    status: composed
+- name: total_ion_density_at_pedestal
+  kind: scalar
+  status: draft
+  description: Total ion number density summed over all ion species and charge states,
+    evaluated at the H-mode pedestal top.
+  documentation: 'The total ion density at the pedestal is the combined number density
+    of all ion species and charge states in the H-mode edge transport barrier, the
+    steep-gradient region where pressure, temperature, and density rise sharply inward
+    from the scrape-off layer toward the confined core.
+
+
+    The quantity is defined as:
+
+
+    $$
+
+    n_{i,\text{tot}} = \sum_{s} n_s
+
+    $$
+
+
+    where $n_s$ is the number density of ion species $s$, summed over all its charge
+    states, in m$^{-3}$. In a pure deuterium plasma this reduces to the electron density;
+    in impurity-seeded discharges, $n_{i,\text{tot}}$ differs from $n_e$ according
+    to the quasineutrality relation $n_e = \sum_s Z_s n_s$, where $Z_s$ is the charge
+    number of species $s$.
+
+
+    The pedestal ion density is inferred from charge-exchange recombination spectroscopy,
+    Thomson scattering, or reflectometry, frequently combined with the quasineutrality
+    constraint to partition contributions among individual species. It is a key parameter
+    governing pedestal stability and ELM onset.
+
+
+    Typical values in H-mode discharges range from $1 \times 10^{19}$ to $2 \times
+    10^{20}$ m$^{-3}$, depending on machine size, fueling rate, and impurity content.
+    Species-resolved contributions are captured by [deuterium_density_at_pedestal](name:deuterium_density_at_pedestal)
+    and [carbon_density_at_pedestal](name:carbon_density_at_pedestal), while the radial
+    context is provided by [total_ion_density_at_plasma_boundary](name:total_ion_density_at_plasma_boundary)
+    and [total_ion_density_at_magnetic_axis](name:total_ion_density_at_magnetic_axis).
+
+
+    Sign convention: Positive when the total ion number density corresponds to a physically
+    present, net positive ion population per unit volume.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:deuterium_density_at_pedestal
+  - name:carbon_density_at_pedestal
+  - name:total_ion_density_at_plasma_boundary
+  - name:total_ion_density_at_magnetic_axis
+  sources:
+  - id: dd:summary/local/pedestal/n_i_total/value
+    dd_path: summary/local/pedestal/n_i_total/value
+    status: composed
 - name: total_ion_density_at_plasma_boundary
   kind: scalar
   status: draft
@@ -4847,6 +5053,50 @@
   - id: dd:summary/local/separatrix/n_i/tritium/value
     dd_path: summary/local/separatrix/n_i/tritium/value
     status: composed
+- name: volume_averaged_neutral_species_density
+  kind: scalar
+  status: draft
+  description: Volume average of the number density of neutral particles over the
+    plasma volume enclosed by the last closed flux surface.
+  documentation: 'The volume-averaged neutral species density quantifies the mean
+    number density of neutral atoms and molecules within the plasma volume bounded
+    by the last closed flux surface (LCFS). Neutrals arise from edge recycling at
+    plasma-facing walls, gas injection, and charge-exchange reactions, and their inventory
+    affects ionization balance, fueling efficiency, and momentum exchange between
+    the plasma and neutral background.
+
+
+    The volume average is defined as:
+
+
+    $$
+
+    \langle n_0 \rangle = \frac{1}{V} \int_V n_0(\mathbf{r}) \, dV
+
+    $$
+
+
+    where $n_0(\mathbf{r})$ is the local neutral number density at position $\mathbf{r}$
+    and $V$ is the volume enclosed by the LCFS.
+
+
+    This global scalar condenses the spatially resolved [neutral_species_density](name:neutral_species_density)
+    profile into a single quantity well suited for particle balance analysis and for
+    monitoring the neutral inventory during plasma initiation and ramp-up. It is typically
+    estimated from spectroscopic line emission or neutral pressure gage measurements
+    combined with ionization balance modeling. As the neutral counterpart to [volume_averaged_total_ion_density](name:volume_averaged_total_ion_density),
+    it contributes to total particle inventory alongside the ion and electron populations
+    described by [total_electron_ion_neutral_particle_number_density](name:total_electron_ion_neutral_particle_number_density).'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:neutral_species_density
+  - name:volume_averaged_total_ion_density
+  - name:total_electron_ion_neutral_particle_number_density
+  sources:
+  - id: dd:plasma_initiation/global_quantities/neutral/density_volume_average
+    dd_path: plasma_initiation/global_quantities/neutral/density_volume_average
+    status: composed
 - name: xenon_density_at_pedestal
   kind: scalar
   status: draft
@@ -4942,6 +5192,114 @@
     status: composed
   - id: dd:summary/local/separatrix_average/n_i/xenon/value
     dd_path: summary/local/separatrix_average/n_i/xenon/value
+    status: composed
+- name: bulk_plasma_velocity_due_to_diamagnetic_drift_magnitude
+  kind: scalar
+  status: draft
+  description: Scalar magnitude of the bulk plasma velocity component associated with
+    diamagnetic drift. It represents the speed of the pressure-gradient-driven drift
+    of the bulk fluid perpendicular to the magnetic field, independent of the drift
+    direction.
+  documentation: 'Bulk plasma velocity due to diamagnetic drift magnitude is the norm
+    of the bulk-fluid velocity component associated with diamagnetic drift. Diamagnetic
+    drift is a fluid drift caused by pressure gradients perpendicular to the magnetic
+    field; for a bulk plasma quantity, the contributing species flows must be combined
+    rather than treated as a single-species test-particle drift. The magnitude discards
+    the orientation of the corresponding vector quantity bulk_plasma_velocity_due_to_diamagnetic_drift.
+
+
+    In a multi-species fluid description, the mass-weighted bulk diamagnetic speed
+    may be written as:
+
+
+    $$
+
+    v_{\mathrm{dia,bulk}} = \left|\frac{\sum_s m_s\,\mathbf{B}\times\nabla p_s /(q_s
+    B^2)}{\sum_s m_s n_s}\right|
+
+    $$
+
+
+    where the sum is over species $s$, $m_s$ is species mass in kg, $q_s$ is species
+    charge in C, $n_s$ is density in m$^{-3}$, $p_s$ is pressure in Pa, $\mathbf{B}$
+    is the magnetic field in T, $B=|\mathbf{B}|$, and $v_{\mathrm{dia,bulk}}$ is in
+    m.s$^{-1}$. This expression shows that ion and electron diamagnetic contributions
+    have opposite charge dependence and that the bulk result depends on the chosen
+    fluid averaging.
+
+
+    In practice this quantity is computed from the diamagnetic component of a fluid
+    momentum decomposition, or from pressure-gradient, density, species-composition,
+    and magnetic-field information. It is usually inferred from reconstructed or modeled
+    edge plasma states rather than measured directly as an isolated velocity component.
+
+
+    Typical edge-plasma values are often 10$^2$-10$^4$ m.s$^{-1}$, with the largest
+    values occurring where pressure gradients are steep and the magnetic field or
+    density is relatively low. Weaker-gradient regions can have values below this
+    range.'
+  unit: m.s^-1
+  physics_domain: edge_plasma_physics
+  links: []
+  sources:
+  - id: dd:edge_transport/model/ggd/momentum/v/diamagnetic
+    dd_path: edge_transport/model/ggd/momentum/v/diamagnetic
+    status: composed
+- name: flux_surface_averaged_total_ion_density
+  kind: scalar
+  status: draft
+  description: Flux-surface average of the aggregate ion number density, formed by
+    summing the number densities of all charged ion species and charge states without
+    charge weighting. Neutral atoms and molecules are excluded, so it represents ion
+    particle density rather than charge density.
+  documentation: 'Flux-surface-averaged total ion density is the magnetic-surface
+    mean of the local aggregate ion number density. The local aggregate is an unweighted
+    particle-density sum over all charged ion species and ionization states; neutral
+    atoms and molecules are excluded, and no multiplication by charge state is applied.
+
+
+    For a magnetic flux surface labeled by poloidal magnetic flux $\psi$, the flux-surface
+    average can be written as
+
+
+    $$
+
+    \langle n_{i,\mathrm{tot}} \rangle_\psi = \frac{\int_{\psi=\mathrm{const}} \left(\sum_{\alpha}\sum_{z\ge
+    1} n_{\alpha z}\right)\, dS/|\nabla\psi|}{\int_{\psi=\mathrm{const}} dS/|\nabla\psi|}
+
+    $$
+
+
+    where $\psi$ is in Wb, $dS$ is a surface-area element in m^2, $|\nabla\psi|$ is
+    in Wb m^-1, $n_{\alpha z}$ is the number density in m^-3 of ion species $\alpha$
+    in charged ionization state $z$, and the sums include only charged states with
+    $z \ge 1$. The factor $dS/|\nabla\psi|$ gives the volume weighting of a thin shell
+    between neighboring flux surfaces, and the resulting average has units m^-3.
+
+
+    In practice this quantity is obtained by combining an equilibrium geometry with
+    local or modeled ion composition, summing the charged ion particle densities on
+    each flux surface before averaging. Electron density and quasineutrality constrain
+    a charge-weighted ion sum, so composition information is needed to recover the
+    unweighted total ion particle density; neutral-density contributions are not included.
+
+
+    Typical edge-plasma values in magnetic-confinement devices are about $10^{18}-10^{20}$
+    m^-3, depending on fueling, confinement regime, impurity content, and radial location
+    relative to the confined edge and boundary region.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:total_ion_density
+  - name:flux_surface_averaged_boron_density
+  - name:flux_surface_averaged_deuterium_tritium_density
+  arguments:
+  - name: total_ion_density
+    operator: flux_surface_averaged
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/local/separatrix_average/n_i_total/value
+    dd_path: summary/local/separatrix_average/n_i_total/value
     status: composed
 - name: gradient_of_electron_pressure
   kind: scalar
@@ -5058,6 +5416,120 @@
   sources:
   - id: dd:edge_profiles/ggd/j_diamagnetic/parallel
     dd_path: edge_profiles/ggd/j_diamagnetic/parallel
+    status: composed
+- name: parallel_energy_diffusivity
+  kind: scalar
+  status: draft
+  description: Field-line-aligned effective diffusivity in a Fick-law closure for
+    neutral thermal-energy transport. It multiplies the parallel gradient of neutral
+    energy density to give the diffusive neutral energy flux along magnetic field
+    lines.
+  documentation: 'Parallel energy diffusivity is the component of an effective neutral
+    thermal-energy diffusivity tensor aligned with the local magnetic field. It represents
+    unresolved collisional, kinetic, or turbulent processes that spread neutral thermal
+    energy along field lines in edge plasmas.
+
+
+    The diffusive closure for the parallel neutral thermal-energy flux is
+
+
+    $$
+
+    q_{E,\parallel} = -D^E_\parallel \, \nabla_\parallel u_n
+
+    $$
+
+
+    where $q_{E,\parallel}$ is the parallel diffusive thermal-energy flux density,
+    $D^E_\parallel$ is this diffusivity, $u_n$ is the neutral thermal energy density,
+    and $\nabla_\parallel = \hat{b}\cdot\nabla$ is the derivative along the magnetic-field
+    unit vector $\hat{b}$. The minus sign fixes the Fick-law flux convention: for
+    positive $D^E_\parallel$, energy flows from larger to smaller $u_n$ along the
+    chosen field-line direction. If the closure is instead written using neutral temperature,
+    the temperature must be treated as an energy per particle, or an explicit conversion
+    factor such as $k_B$ must be included for temperature in kelvin.
+
+
+    This coefficient is usually not measured directly. It is inferred from neutral
+    transport modeling, collisional mean-free-path estimates, kinetic or fluid closures,
+    and comparison with observables such as neutral pressure, spectroscopic emission,
+    ionization patterns, and energy loading of plasma-facing surfaces.
+
+
+    Typical effective values in edge-plasma applications span about 0.1-10^4 m^2.s^-1.
+    Cold, highly collisional divertor neutrals often use values near 0.1-10 m^2.s^-1,
+    while weakly collisional atoms or molecules with long mean free paths can require
+    10^2-10^4 m^2.s^-1.'
+  unit: m^2.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:effective_neutral_energy_diffusivity
+  - name:radial_neutral_energy_diffusion_coefficient
+  - name:parallel_neutral_species_particle_diffusivity
+  sources:
+  - id: dd:edge_transport/model/ggd/neutral/energy/d_parallel/values
+    dd_path: edge_transport/model/ggd/neutral/energy/d_parallel/values
+    status: composed
+- name: parallel_ion_charge_state_diffusivity
+  kind: scalar
+  status: draft
+  description: Parallel ion charge-state diffusivity is the Fickian coefficient relating
+    the density gradient of a specified ion charge state to its diffusive particle
+    flux along magnetic field lines. A positive value drives particle flux down the
+    field-aligned density gradient.
+  documentation: 'Parallel ion charge-state diffusivity is the effective particle
+    diffusion coefficient along magnetic field lines for ions in a specified charge
+    state. It describes only the diffusive part of charge-state-resolved parallel
+    transport, distinct from separately modeled advection, sources, ionization, recombination,
+    or force-driven terms.
+
+
+    The diffusive contribution to the associated parallel particle flux is defined
+    by Fick''s law along the magnetic field:
+
+
+    $$
+
+    \Gamma_{\parallel,z}^{\mathrm{diff}} = -D_{\parallel,z}\,\nabla_{\parallel} n_z
+
+    $$
+
+
+    where $z$ labels the ion charge state, $\Gamma_{\parallel,z}^{\mathrm{diff}}$
+    is the diffusive part of the [parallel ion state particle flux](name:parallel_ion_state_particle_flux)
+    in m^-2.s^-1, $D_{\parallel,z}$ is the parallel ion charge-state diffusivity in
+    m^2.s^-1, $n_z$ is the ion charge-state density in m^-3, and $\nabla_{\parallel}=\hat{b}\cdot\nabla$
+    is the derivative along the unit magnetic-field direction $\hat{b}=\mathbf{B}/|\mathbf{B}|$.
+    With positive $D_{\parallel,z}$, the diffusive flux is opposite to a positive
+    field-aligned density gradient.
+
+
+    In practice this coefficient is prescribed by a transport closure or inferred
+    by comparing density gradients with estimates of the field-aligned particle flux
+    in charge-state-resolved edge plasma modeling. It is an effective coefficient:
+    any physics not represented explicitly in the flux equation is included only insofar
+    as it changes the multiplier of the parallel density-gradient term.
+
+
+    Typical values are highly model dependent. Edge-plasma applications commonly use
+    values from 1-10^5 m^2.s^-1, often much larger than perpendicular diffusivities,
+    while 0 m^2.s^-1 represents the absence of an explicit Fickian parallel diffusion
+    term for that charge state.'
+  unit: m^2.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:radial_ion_state_diffusivity
+  - name:parallel_energy_diffusivity
+  - name:parallel_neutral_species_particle_diffusivity
+  arguments:
+  - name: radial_ion_state_diffusion_coefficient
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - id: dd:edge_transport/model/ggd/ion/state/particles/d_parallel/values
+    dd_path: edge_transport/model/ggd/ion/state/particles/d_parallel/values
     status: composed
 - name: parallel_ion_state_convection_velocity
   kind: scalar
@@ -5184,6 +5656,69 @@
   sources:
   - id: dd:edge_sources/source/ggd/ion/state/momentum/parallel
     dd_path: edge_sources/source/ggd/ion/state/momentum/parallel
+    status: composed
+- name: parallel_ion_state_particle_flux
+  kind: scalar
+  status: draft
+  description: Signed field-parallel particle flux density for a single ion charge
+    state. It is the total charge-state particle flux density projected onto the local
+    magnetic-field direction, giving the net number of ions crossing a unit area per
+    unit time along the field.
+  documentation: 'Parallel ion state particle flux is the signed particle flux density
+    of a specified ion charge state projected onto the local magnetic-field direction.
+    It quantifies net transport of that charge-state population along magnetic field
+    lines, including any convective, diffusive, drift, or source-driven contributions
+    included in the total particle flux density.
+
+
+    The defining projection is
+
+
+    $$
+
+    \Gamma_{\parallel,i,k} = \boldsymbol{\Gamma}_{i,k} \cdot \hat{\boldsymbol{b}}
+
+    $$
+
+
+    where $\boldsymbol{\Gamma}_{i,k}$ is the total particle flux density of ion species
+    $i$ in charge state $k$ in m^-2.s^-1, and $\hat{\boldsymbol{b}} = \boldsymbol{B}/|\boldsymbol{B}|$
+    is the unit vector along the local magnetic field. For a purely convective contribution,
+    $\boldsymbol{\Gamma}_{i,k} = n_{i,k}\boldsymbol{v}_{i,k}$, so the field-parallel
+    part is $n_{i,k} v_{\parallel,i,k}$, where $n_{i,k}$ is the charge-state density
+    in m^-3 and $v_{\parallel,i,k}$ is the field-parallel velocity in m.s^-1.
+
+
+    In edge plasma analysis, this quantity is usually obtained from transport or kinetic
+    calculations by projecting the charge-state-resolved particle flux onto $\hat{\boldsymbol{b}}$.
+    Experimentally, it may be inferred indirectly from combinations of density, flow,
+    spectroscopy, probe measurements, and magnetic geometry, with charge-state separation
+    provided by atomic physics modeling or charge-state-resolved diagnostics.
+
+
+    Typical absolute values in the scrape-off layer and divertor range from 10^20-10^24
+    m^-2.s^-1, with the largest values near sheath entrances and high-recycling divertor
+    regions. Weakly populated charge states, detached conditions, or near-stagnation
+    regions can have much smaller values, and the signed flux may pass through zero
+    where the field-parallel flow reverses.
+
+
+    Sign convention: Positive when the charge-state particle flux is directed along
+    the local magnetic field $\boldsymbol{B}$.'
+  unit: m^-2.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:ion_state_particle_flux
+  - name:parallel_ion_state_energy_flux
+  arguments:
+  - name: ion_state_particle_flux
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - id: dd:edge_transport/model/ggd/ion/state/particles/flux_parallel/values
+    dd_path: edge_transport/model/ggd/ion/state/particles/flux_parallel/values
     status: composed
 - name: parallel_total_ion_energy_convection_velocity
   kind: scalar
@@ -5939,6 +6474,70 @@
   sources:
   - id: dd:edge_transport/model/ggd/ion/state/momentum/d_radial/values
     dd_path: edge_transport/model/ggd/ion/state/momentum/d_radial/values
+    status: composed
+- name: radial_ion_state_particle_flux
+  kind: scalar
+  status: draft
+  description: Radial component of the particle flux for ions in a specified ionization
+    charge state. It is the signed rate at which those ions cross a unit area per
+    unit time in the outward radial direction.
+  documentation: 'Radial ion state particle flux is the radial component of the particle
+    flux for ions of a given species and ionization charge state. It measures cross-field
+    particle transport through a surface normal to the radial direction, with the
+    radial direction taken locally outward from the confined plasma toward the scrape-off
+    layer and plasma-facing surfaces. The analogous poloidal component is [poloidal_ion_charge_state_particle_flux](name:poloidal_ion_charge_state_particle_flux).
+
+
+    A general kinetic definition is the first velocity moment of the charge-state-resolved
+    distribution function projected onto the radial direction:
+
+
+    $$
+
+    \Gamma_{i,q,r} = \int v_r f_{i,q}(\mathbf{x}, \mathbf{v}, t)\, d^3v
+
+    $$
+
+
+    where $\Gamma_{i,q,r}$ is the radial particle flux in m^-2.s^-1, $i$ labels the
+    ion species, $q$ labels the ionization charge state, $v_r$ is the radial velocity
+    component in m.s^-1, $f_{i,q}$ is the distribution function in s^3.m^-6, and $d^3v$
+    is the velocity-space volume element in m^3.s^-3.
+
+
+    In practice this quantity is inferred from particle balance, probe measurements,
+    spectroscopy combined with ionization-recombination modeling, or edge transport
+    calculations. Fluid closures often decompose the same total flux into convective,
+    diffusive, pinch, collisional, and turbulent-correlation contributions, but the
+    quantity denotes their net radial particle transport for the selected ion charge
+    state.
+
+
+    Typical values are strongly regime- and species-dependent and can be close to
+    zero where inward and outward contributions balance. Representative edge and scrape-off-layer
+    charge-state-resolved radial fluxes span about 10^16-10^22 m^-2.s^-1, with trace
+    impurity charge states generally toward the lower end and abundant main-ion states
+    toward the higher end.
+
+
+    Sign convention: Positive when directed outward from the confined plasma toward
+    the scrape-off layer and plasma-facing surfaces.'
+  unit: m^-2.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:ion_state_particle_flux
+  - name:radial_ion_state_diffusivity
+  - name:radial_ion_convection_velocity
+  - name:radial_ion_momentum_flux_over_edge_region
+  arguments:
+  - name: ion_state_particle_flux
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
+  sources:
+  - id: dd:edge_transport/model/ggd/ion/state/particles/flux_radial/values
+    dd_path: edge_transport/model/ggd/ion/state/particles/flux_radial/values
     status: composed
 - name: ratio_of_vertical_vorticity_to_major_radius
   kind: scalar

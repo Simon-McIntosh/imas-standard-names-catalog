@@ -1,6 +1,6 @@
 # Domain: radiation_measurement_diagnostics
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 74
+# Entries: 79
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -725,6 +725,56 @@
   - id: dd:spectrometer_x_ray_crystal/channel/reflector/x2_width
     dd_path: spectrometer_x_ray_crystal/channel/reflector/x2_width
     status: composed
+- name: hot_neutral_fraction
+  kind: scalar
+  status: draft
+  description: Fraction of charge-exchange-born hot neutral atoms in the total neutral
+    population of a hydrogen isotope, assuming a two-component hot-plus-cold neutral
+    partition. It is the hot neutral density divided by the sum of hot and cold neutral
+    densities.
+  documentation: 'Hot neutral fraction is the dimensionless abundance of fast neutral
+    atoms produced mainly by charge exchange relative to all neutral atoms of the
+    same hydrogen isotope in a two-component neutral model. The complementary population
+    is the cold neutral component, so the modeled total neutral density is the sum
+    of hot and cold neutral densities.
+
+
+    The defining ratio is:
+
+
+    $$
+
+    f_\mathrm{hot} = \frac{n_\mathrm{hot}}{n_\mathrm{hot} + n_\mathrm{cold}}
+
+    $$
+
+
+    where $n_\mathrm{hot}$ and $n_\mathrm{cold}$ are the hot and cold neutral number
+    densities in $m^{-3}$ for the same isotope and physical region.
+
+
+    In visible spectroscopy, hot and cold neutral contributions may be inferred from
+    line-shape components, such as Doppler-broadened charge-exchange emission and
+    colder recycling or fueling emission. The measured component intensities are not
+    density fractions by themselves; converting them to $f_\mathrm{hot}$ requires
+    an emissivity or collisional-radiative model that accounts for excitation, charge
+    exchange, ionization, neutral velocity distributions, instrument response, and
+    line-of-sight integration.
+
+
+    By definition $0 \le f_\mathrm{hot} \le 1$. Values near 0 indicate a cold-neutral-dominated
+    population, while values near 1 indicate a hot-neutral-dominated population; the
+    realized value is strongly dependent on plasma conditions, neutral sources, charge-exchange
+    rates, and the observation region.'
+  unit: '1'
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:cold_neutral_fraction
+  - name:neutral_fraction
+  sources:
+  - id: dd:spectrometer_visible/channel/isotope_ratios/isotope/hot_neutrals_fraction
+    dd_path: spectrometer_visible/channel/isotope_ratios/isotope/hot_neutrals_fraction
+    status: composed
 - name: lower_bound_energy_of_detector_pixel
   kind: scalar
   status: draft
@@ -838,6 +888,70 @@
     status: attached
   - id: dd:soft_x_rays/channel/energy_band/lower_bound
     dd_path: soft_x_rays/channel/energy_band/lower_bound
+    status: attached
+- name: lower_wavelength_of_filter
+  kind: scalar
+  status: draft
+  description: Short-wavelength (high-photon-energy) edge of the transmission passband
+    of a diagnostic filter or filter window. Radiation at shorter wavelengths than
+    this nominal cutoff is attenuated below the specified transmission criterion.
+  documentation: 'The lower wavelength of a filter, denoted $\lambda_{\min}$, is the
+    nominal short-wavelength edge of the filter or filter-window transmission passband.
+    It is expressed in meters and corresponds to the highest photon energies intended
+    to be transmitted by the filter; photons with $\lambda < \lambda_{\min}$ are attenuated
+    below the applicable transmission criterion.
+
+
+    Photon energy is inversely related to wavelength:
+
+
+    $$
+
+    E_\gamma = \frac{hc}{\lambda}
+
+    $$
+
+
+    where $E_\gamma$ is photon energy, $h$ is Planck''s constant, $c$ is the speed
+    of light, and $\lambda$ is photon wavelength. A smaller $\lambda_{\min}$ therefore
+    means that higher-energy photons are included in the nominal transmitted band.
+
+
+    In practice, $\lambda_{\min}$ is determined from a calibrated or manufacturer-specified
+    spectral transmission curve $T(\lambda)$. The cutoff should correspond to an explicit
+    attenuation or transmission threshold, such as the shortest wavelength at which
+    $T(\lambda)$ rises above a chosen fraction of the in-band or peak transmission.
+    Together with [upper_wavelength_of_filter](name:upper_wavelength_of_filter), this
+    quantity gives the nominal wavelength interval of the filter, but the detailed
+    wavelength-dependent response is described by quantities such as [spectral_absorptivity_of_filter](name:spectral_absorptivity_of_filter).
+
+
+    Typical values depend strongly on the diagnostic spectral range: visible continuum
+    filters often have lower wavelengths of about $3 \times 10^{-7}$-$8 \times 10^{-7}$
+    m, soft-X-ray filter windows about $10^{-10}$-$10^{-8}$ m, and hard-X-ray filter
+    windows about $10^{-12}$-$10^{-10}$ m.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:upper_wavelength_of_filter
+  - name:wavelength_of_filter
+  - name:spectral_absorptivity_of_filter
+  - name:thickness_of_filter
+  sources:
+  - id: dd:bremsstrahlung_visible/channel/filter/wavelength_lower
+    dd_path: bremsstrahlung_visible/channel/filter/wavelength_lower
+    status: attached
+  - id: dd:camera_x_rays/filter_window/wavelength_lower
+    dd_path: camera_x_rays/filter_window/wavelength_lower
+    status: attached
+  - id: dd:hard_x_rays/channel/filter_window/wavelength_lower
+    dd_path: hard_x_rays/channel/filter_window/wavelength_lower
+    status: attached
+  - id: dd:soft_x_rays/channel/filter_window/wavelength_lower
+    dd_path: soft_x_rays/channel/filter_window/wavelength_lower
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/wavelength_lower
+    dd_path: spectrometer_x_ray_crystal/channel/filter_window/wavelength_lower
     status: attached
 - name: major_radius_of_detector_pixel
   kind: scalar
@@ -1092,6 +1206,115 @@
   sources:
   - id: dd:spectrometer_x_ray_crystal/channel/reflector/x1_width
     dd_path: spectrometer_x_ray_crystal/channel/reflector/x1_width
+    status: composed
+- name: power_density_due_to_radiation
+  kind: scalar
+  status: draft
+  description: Volumetric rate at which plasma thermal energy is converted into emitted
+    electromagnetic radiation. It represents a local radiative loss term per unit
+    volume in plasma power balance.
+  documentation: 'Power density due to radiation is the local rate per unit volume
+    at which plasma thermal energy is converted into emitted electromagnetic radiation.
+    It includes continuum emission, line radiation, recombination radiation, and radiation
+    from intrinsic or injected impurities. It is the same physical loss density commonly
+    denoted [radiative_power_density](name:power_density_due_to_radiation), while
+    this name emphasizes its role as one term in plasma power balance alongside processes
+    such as power_density_due_to_conduction.
+
+
+    The quantity is defined from a radiated power element by:
+
+
+    $$
+
+    p_\mathrm{rad} = \frac{dP_\mathrm{rad}}{dV}
+
+    $$
+
+
+    where $p_\mathrm{rad}$ is the local radiative power density, $dP_\mathrm{rad}$
+    is the photon power emitted from the volume element $dV$, and the resulting unit
+    is W m$^{-3}$.
+
+
+    Experimentally it is inferred from bolometer signals, filtered cameras, spectroscopy,
+    or tomographic reconstructions by converting measured photon brightness into local
+    emissivity. In modeling and power-balance analysis it is often estimated with
+    atomic cooling functions; for an optically thin plasma a common local form is
+    $p_\mathrm{rad} \approx n_e \sum_z n_z L_z(T_e,n_e,\ldots)$, where $n_e$ is electron
+    density in m$^{-3}$, $n_z$ is the density of radiating species or charge state
+    $z$ in m$^{-3}$, $T_e$ is electron temperature, and $L_z$ has units W m$^3$.
+
+
+    Typical values span many orders of magnitude: hot-core bremsstrahlung and light-impurity
+    emission are often 10^3-10^6 W m^-3, while radiating edge regions, impurity-seeded
+    plasmas, or disruption-mitigation scenarios can reach 10^5-10^8 W m^-3 locally.
+    Exact values depend strongly on density, temperature, impurity concentration,
+    charge-state distribution, and optical thickness.
+
+
+    Sign convention: Positive when radiative emission removes energy from the plasma.'
+  unit: W.m^-3
+  physics_domain: radiation_measurement_diagnostics
+  links: []
+  sources:
+  - id: dd:disruption/profiles_1d/power_density_radiative_losses
+    dd_path: disruption/profiles_1d/power_density_radiative_losses
+    status: composed
+- name: power_density_of_soft_xray_detector
+  kind: scalar
+  status: draft
+  description: Radiative power density from plasma soft X-ray emission received per
+    unit active detector surface area, integrated over photon-energy bands transmitted
+    by filters and windows and weighted by the detector spectral response.
+  documentation: 'Power density of a soft X-ray detector is the radiant power from
+    plasma soft X-ray emission received per unit active detector surface area. The
+    received power is limited to the photon-energy band or bands passed by the filter/window
+    assembly and by the detector spectral response, so it is a band- and response-weighted
+    irradiance rather than an intrinsic plasma emissivity.
+
+
+    The area-normalized received power is defined by
+
+
+    $$
+
+    q_\mathrm{SXR} = \frac{P_\mathrm{SXR}}{A_\mathrm{act}}
+
+    $$
+
+
+    where $q_\mathrm{SXR}$ is the detector power density in W m$^{-2}$, $P_\mathrm{SXR}$
+    is the response-weighted soft X-ray power in W accepted by the detector, and $A_\mathrm{act}$
+    is the active detector surface area in m$^2$. The energy integration implicit
+    in $P_\mathrm{SXR}$ includes the selected photon-energy band, filter and window
+    transmission, and detector spectral responsivity.
+
+
+    In practice this quantity is inferred from calibrated detector current, voltage,
+    or count-rate signals after accounting for dark offsets, electronic gain, active
+    area, and spectral responsivity. It is the active-area normalization of [power_of_soft_xray_detector](name:power_of_soft_xray_detector).
+    Relations to [spectral_radiance_of_soft_xray_detector](name:spectral_radiance_of_soft_xray_detector)
+    or [brightness_of_soft_xray_detector](name:brightness_of_soft_xray_detector) additionally
+    require viewing geometry, etendue or solid angle, spectral transmission, and photon-energy
+    weighting; solid-angle normalization alone is not sufficient. The incident direction
+    is into the active detector surface from the plasma-facing side, and outward emission
+    or reflection from the detector is not part of the received-power density.
+
+
+    Typical magnitudes vary strongly with aperture, filter thickness, line of sight,
+    plasma temperature, and impurity content. Heavily filtered or edge-dominated channels
+    may measure about 10^-6-10^-3 W m^-2, while core-viewing channels in hot tokamak
+    plasmas commonly lie around 10^-3-10^1 W m^-2; intense transient events can approach
+    10^2 W m^-2 before detector saturation or attenuation limits are reached.'
+  unit: W.m^-2
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:power_of_soft_xray_detector
+  - name:brightness_of_soft_xray_detector
+  sources:
+  - id: dd:soft_x_rays/channel/power_density
+    dd_path: soft_x_rays/channel/power_density
     status: composed
 - name: radiance_at_spectral_line
   kind: scalar
@@ -2255,6 +2478,53 @@
     status: composed
   - id: dd:spectrometer_x_ray_crystal/filter_window/thickness
     dd_path: spectrometer_x_ray_crystal/filter_window/thickness
+    status: attached
+- name: thickness_of_optical_element
+  kind: scalar
+  status: draft
+  description: Physical thickness of an optical element is the perpendicular separation
+    between its opposing optical surfaces. It is a non-negative geometric length of
+    the element, normally defined along the element normal or another stated thickness
+    reference.
+  documentation: 'The thickness of an optical element is the physical distance between
+    its two opposing optical surfaces, measured perpendicular to the reference surface
+    or along the specified element normal. It is a non-negative geometric length of
+    the component itself, independent of the direction in which light is propagated.
+    For curved, wedged, or nonparallel elements, the value corresponds to the stated
+    thickness convention, such as center thickness, edge thickness, or local normal
+    separation.
+
+
+    Thickness is obtained from mechanical design, metrology, or optical modeling.
+    Common measurements include calipers or micrometers for accessible plane-parallel
+    elements, coordinate measurement or profilometry for curved or wedged optics,
+    and interferometry or ellipsometry for thin films. In optical calculations for
+    a homogeneous element at normal incidence, $\mathrm{OPL}=n d$, where $\mathrm{OPL}$
+    is optical path length in meters, $d$ is thickness in meters, and $n$ is the dimensionless
+    refractive index at the relevant wavelength; more general calculations also require
+    surface curvatures, wedge, aperture, coatings, roughness, and refractive-index
+    dispersion.
+
+
+    Representative order-of-magnitude values depend strongly on the component type:
+    coatings and very thin filters may be about 10^-8-10^-5 m, filter plates and small
+    windows about 10^-4-10^-2 m, and robust protective windows or large optical elements
+    can be thicker. The appropriate value is set by material strength, absorption
+    length, thermal loading, wavelength range, and optical design.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:back_surface_curvature_of_optical_element
+  - name:surface_roughness_of_optical_element
+  sources:
+  - id: dd:camera_ir/optical_element/thickness
+    dd_path: camera_ir/optical_element/thickness
+    status: attached
+  - id: dd:camera_visible/channel/optical_element/thickness
+    dd_path: camera_visible/channel/optical_element/thickness
+    status: attached
+  - id: dd:spectrometer_visible/channel/optical_element/thickness
+    dd_path: spectrometer_visible/channel/optical_element/thickness
     status: attached
 - name: toroidal_angle_of_bragg_crystal
   kind: scalar

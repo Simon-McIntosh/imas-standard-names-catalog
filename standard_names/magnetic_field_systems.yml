@@ -1,6 +1,6 @@
 # Domain: magnetic_field_systems
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 71
+# Entries: 74
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -324,6 +324,182 @@
   sources:
   - id: dd:tf/coils_n
     dd_path: tf/coils_n
+    status: composed
+- name: current_of_correction_coil
+  kind: scalar
+  status: draft
+  description: Electrical current driven through a non-axisymmetric correction coil.
+    It is a signed circuit quantity whose waveform sets the amplitude and phase of
+    the coil magnetic perturbation.
+  documentation: 'Current of a correction coil is the signed electric current driven
+    through an active non-axisymmetric coil. It is a commanded circuit quantity, distinct
+    from [current_of_passive_loop](name:current_of_passive_loop), which is induced
+    by electromagnetic coupling rather than directly driven.
+
+
+    In a lumped single-coil circuit model, the current is related to the applied coil
+    voltage by:
+
+
+    $$
+
+    V(t) = R I(t) + L \frac{dI}{dt}
+
+    $$
+
+
+    where $I(t)$ is the correction-coil current in amperes, $V(t)$ is the applied
+    [voltage_of_correction_coil](name:voltage_of_correction_coil) in volts, $R$ is
+    the [resistance_of_correction_coil](name:resistance_of_correction_coil) in ohms,
+    and $L$ is the coil self-inductance in henries. Detailed circuit models may also
+    include mutual inductance, eddy-current coupling, and plasma response terms.
+
+
+    In practice, $I(t)$ is set by the coil power supply and measured with calibrated
+    current transducers such as Rogowski coils, DC current transformers, or Hall sensors.
+    Together with the coil winding geometry, it determines the amplitude and phase
+    of the imposed non-axisymmetric magnetic perturbation; the analogous active axisymmetric
+    coil quantity is [current_of_poloidal_field_coil](name:current_of_poloidal_field_coil).
+
+
+    Typical values range from 10-10^4 A, depending on coil size, number of turns,
+    cooling, and operating scenario. Small trim or error-field correction coils may
+    operate below 100 A, while resonant magnetic perturbation coil systems commonly
+    use 10^3-10^4 A per powered circuit.
+
+
+    Sign convention: Positive when charge flows through the coil in the defined winding
+    direction from its reference start terminal to its reference end terminal.'
+  unit: A
+  physics_domain: magnetic_field_systems
+  links:
+  - name:voltage_of_correction_coil
+  - name:resistance_of_correction_coil
+  sources:
+  - id: dd:coils_non_axisymmetric/coil/conductor/current
+    dd_path: coils_non_axisymmetric/coil/conductor/current
+    status: attached
+  - id: dd:coils_non_axisymmetric/coil/current
+    dd_path: coils_non_axisymmetric/coil/current
+    status: composed
+- name: current_of_passive_loop
+  kind: scalar
+  status: draft
+  description: Electric current induced in a passive axisymmetric conducting loop
+    by time-varying magnetic flux linked from the plasma, active coils, and neighboring
+    conducting structures.
+  documentation: 'Current of a passive loop is the toroidal electric current that
+    flows in an electrically conducting, axisymmetric loop without an applied power
+    supply. It is an eddy current driven by time-varying magnetic flux linked by the
+    loop, including contributions from the plasma, active poloidal-field coils, and
+    other conducting structures.
+
+
+    For a lumped passive circuit $k$, Faraday''s law and Ohm''s law give
+
+
+    $$
+
+    R_k I_k + \frac{d}{dt}\left(L_k I_k + \sum_{j \ne k} M^{pp}_{kj} I_j + \sum_a
+    M^{pa}_{ka} I_a + \Psi^{\mathrm{plasma}}_k\right) = 0
+
+    $$
+
+
+    where $I_k$, $I_j$, and $I_a$ are currents in A, $R_k$ is the [resistance_of_passive_loop](name:resistance_of_passive_loop)
+    in $\Omega$, $L_k$ is the loop self-inductance in H, $M^{pp}_{kj}$ and $M^{pa}_{ka}$
+    are mutual inductances in H to other passive loops and active coils, and $\Psi^{\mathrm{plasma}}_k$
+    is the plasma-linked magnetic flux in Wb. The resistive drop $R_k I_k$ and the
+    inductive electromotive force are the circuit terms associated with the voltage_of_passive_loop;
+    with no applied source, their closed-loop sum is zero.
+
+
+    Passive-loop current is measured with Rogowski coils encircling the conductor
+    or inferred from magnetic sensor data constrained by a coupled circuit model.
+    In modeling, it is solved together with plasma and active-coil currents using
+    geometry-dependent inductances and conductor properties such as [resistivity_of_passive_structure](name:resistivity_of_passive_structure);
+    finite resistance dissipates the eddy current over a decay time $\tau = L_k/R_k$,
+    while mutual coupling determines how strongly the loop opposes changes in linked
+    flux.
+
+
+    Representative magnitudes are 1-10^4 A for small loops and routine coil transients;
+    10^4-10^5 A can occur in low-resistance vessel, shell, or stabilizing-loop circuits
+    during rapid plasma-current changes or disruptions. Decay times range from milliseconds
+    for thin components to hundreds of milliseconds for massive high-conductivity
+    structures.
+
+
+    Sign convention: Positive when the loop current flows in the $+\hat{\phi}$ direction,
+    i.e. increasing toroidal angle $\phi$, in the right-handed cylindrical $(R, \phi,
+    Z)$ frame with $R$ major radius and $Z$ vertical height.'
+  unit: A
+  physics_domain: magnetic_field_systems
+  links:
+  - name:resistance_of_passive_loop
+  - name:resistivity_of_passive_structure
+  sources:
+  - id: dd:pf_passive/loop/current
+    dd_path: pf_passive/loop/current
+    status: composed
+- name: current_of_toroidal_field_coil
+  kind: scalar
+  status: draft
+  description: Signed conventional current carried by a toroidal-field coil winding.
+  documentation: 'Current of a toroidal-field coil is the signed conventional electric
+    current carried by one toroidal-field coil winding or conductor path. It is an
+    individual coil-circuit current; the magnetic effect of a coil set is determined
+    by the signed ampere-turns obtained from all coil currents and turn counts.
+
+
+    For an ideal toroidal winding, the vacuum toroidal magnetic field at reference
+    major radius $R_0$ is approximated by Ampere''s law:
+
+
+    $$
+
+    B_\phi(R_0) \simeq \frac{\mu_0}{2\pi R_0}\sum_j N_j I_j
+
+    $$
+
+
+    where $B_\phi$ is the toroidal component of magnetic field in the right-handed
+    cylindrical $(R, \phi, Z)$ frame, $\mu_0$ is the vacuum permeability, $N_j$ is
+    the number of turns in coil $j$, $I_j$ is the current of that coil winding, and
+    the sum is the total linked ampere-turns. Detailed vacuum-field calculations use
+    the actual coil geometry through Biot-Savart integration or equivalent magnetic
+    modeling rather than this idealized estimate.
+
+
+    The current is measured with power-supply and coil-circuit instrumentation such
+    as DC current transducers, Rogowski coils, Hall sensors, or calibrated shunts.
+    Series-connected toroidal-field coils usually share one current, whereas independently
+    supplied coil modules can carry distinct signed currents; circuit modeling combines
+    this quantity with coil voltage, resistance, and inductance.
+
+
+    Typical coil currents are 1,000-20,000 A in small or medium resistive systems,
+    10,000-50,000 A in large resistive systems, and 10,000-80,000 A in superconducting
+    toroidal-field circuits. The relevant magnetic scale is often the product of current
+    and turn count, so designs trade current against number of turns for a required
+    toroidal field.
+
+
+    Sign convention: Positive when conventional current in the winding is oriented
+    so that its contribution to the toroidal magnetic field points in the direction
+    of increasing toroidal angle $\phi$ in the right-handed cylindrical $(R, \phi,
+    Z)$ frame.'
+  unit: A
+  physics_domain: magnetic_field_systems
+  links:
+  - name:voltage_of_toroidal_field_coil
+  - name:current_of_poloidal_field_coil
+  sources:
+  - id: dd:tf/coil/conductor/current
+    dd_path: tf/coil/conductor/current
+    status: composed
+  - id: dd:tf/coil/current
+    dd_path: tf/coil/current
     status: composed
 - name: fast_neutron_flux_of_correction_coil
   kind: scalar

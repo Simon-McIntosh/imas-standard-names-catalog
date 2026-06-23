@@ -1,9 +1,67 @@
 # Domain: turbulence
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 31
+# Entries: 36
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: normalized_collisionality
+  kind: scalar
+  status: draft
+  description: Dimensionless ratio of an interspecies collision frequency to the characteristic
+    streaming, transit, or bounce frequency used by a gyrokinetic model. It measures
+    the relative strength of collisional relaxation compared with collisionless motion
+    along magnetic-field trajectories.
+  documentation: 'Normalized collisionality is a dimensionless measure of how rapidly
+    two particle species are collisionally scattered relative to a characteristic
+    collisionless motion frequency. The reference frequency is model dependent: it
+    may represent thermal streaming, transit motion, or trapped-particle bounce motion,
+    so the numerical value must be interpreted together with that normalization choice.
+
+
+    A common generic definition is
+
+
+    $$
+
+    \nu^*_{ij} = \frac{\nu_{ij}}{\omega_\mathrm{ref}}
+
+    $$
+
+
+    where $\nu_{ij}$ is the collision frequency between species $i$ and $j$ in s$^{-1}$,
+    and $\omega_\mathrm{ref}$ is the chosen reference frequency in s$^{-1}$. For a
+    thermal-transit choice, $\omega_\mathrm{ref}$ is often of order $v_{\mathrm{th},s}/(qR)$,
+    where $v_{\mathrm{th},s}$ is the thermal speed in m s$^{-1}$, $q$ is the dimensionless
+    safety factor, and $R$ is the major radius in meters in the right-handed cylindrical
+    $(R, \phi, Z)$ frame. If the species temperature $T_s$ is used to compute $v_{\mathrm{th},s}$,
+    $T_s$ is an energy in joules in SI formulas, or $eT_s$ when $T_s$ is specified
+    in eV.
+
+
+    In practice, $\nu_{ij}$ is computed from local density, temperature, charge state,
+    particle masses, and the Coulomb logarithm, while $\omega_\mathrm{ref}$ is computed
+    from the equilibrium geometry and species thermal speed. This quantity sets the
+    strength of collision operators in gyrokinetic modeling and should not be assumed
+    to use the same bounce-frequency denominator as [normalized_electron_collisionality](name:normalized_electron_collisionality),
+    which is commonly used for neoclassical regime classification.
+
+
+    Typical core-turbulence values are about $10^{-4}$-$10^{-1}$ for hot, weakly collisional
+    plasmas. Cooler edge, pedestal, or high-density conditions can give values of
+    $0.1$-$10$, where collisional relaxation becomes comparable to or faster than
+    the reference collisionless motion.'
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:normalized_particle_mass
+  - name:normalized_particle_charge
+  sources:
+  - id: dd:gyrokinetics/collisions/collisionality_norm
+    dd_path: gyrokinetics/collisions/collisionality_norm
+    status: composed
+  - id: dd:gyrokinetics_local/collisions/collisionality_norm
+    dd_path: gyrokinetics_local/collisions/collisionality_norm
+    status: attached
 - name: normalized_debye_length
   kind: scalar
   status: draft
@@ -473,6 +531,63 @@
   - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/pressure_perpendicular_gyroav
     dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/pressure_perpendicular_gyroav
     status: composed
+- name: normalized_perturbed_density_imaginary_part
+  kind: complex
+  status: draft
+  description: "Imaginary component of the complex, dimensionless zeroth velocity-space\
+    \ moment of the perturbed gyrocenter distribution function for a gyrokinetic eigenmode,\
+    \ expressed in the mode\u2019s rotating frame. Together with the corresponding\
+    \ real component, it gives the normalized density response phase relative to the\
+    \ chosen eigenmode reference."
+  documentation: 'This quantity is the imaginary part of the normalized perturbed
+    density moment for a gyrokinetic eigenmode. It represents the quadrature component
+    of the dimensionless zeroth velocity-space moment of the perturbed gyrocenter
+    distribution function in the frame rotating with the eigenmode phase.
+
+
+    The complex normalized density moment may be written as
+
+
+    $$
+
+    \delta n_{\mathrm{norm}}^{\mathrm{rot}} = \frac{1}{n_0}\int \delta f_g^{\mathrm{rot}}\,d^3v
+    = \delta n_R^{\mathrm{rot}} + i\,\delta n_I^{\mathrm{rot}}
+
+    $$
+
+
+    where $\delta f_g^{\mathrm{rot}}$ is the perturbed gyrocenter distribution function
+    in the rotating frame, $d^3v$ is the velocity-space volume element, $n_0$ is the
+    reference equilibrium density used for normalization, $\delta n_R^{\mathrm{rot}}$
+    is the real part, and $\delta n_I^{\mathrm{rot}}$ is this quantity. No gyroaveraging
+    kernel is implied by this name; gyroaveraged density moments are distinct quantities.
+
+
+    It is computed from the complex eigenfunction returned by a gyrokinetic linear
+    calculation by integrating the perturbed distribution over velocity space and
+    dividing by the chosen reference density. The absolute split between real and
+    imaginary parts depends on the global eigenmode phase reference: multiplying the
+    eigenfunction by $e^{i\alpha}$ rotates $\delta n_R^{\mathrm{rot}}$ and $\delta
+    n_I^{\mathrm{rot}}$ into one another. Therefore the value should be interpreted
+    relative to the same phase convention used for the other eigenmode fields, such
+    as fixing a selected reference component to be real.
+
+
+    There is no universal physical range because linear eigenfunctions may be scaled
+    arbitrarily. With an eigenvector normalization such as unit maximum amplitude,
+    reported dimensionless values commonly lie between -1 and 1, but larger or smaller
+    values can occur under different normalizations or for species and regions with
+    weak reference response.'
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:normalized_perturbed_density
+  - name:normalized_perturbed_electrostatic_potential_imaginary_part
+  - name:normalized_perturbed_gyroaveraged_density_real_part
+  sources:
+  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_rotating_frame/density_imaginary
+    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_rotating_frame/density_imaginary
+    status: composed
 - name: normalized_perturbed_electrostatic_potential_amplitude
   kind: scalar
   status: draft
@@ -640,6 +755,55 @@
   sources:
   - id: dd:gyrokinetics/wavevector/eigenmode/phi_potential_perturbed_norm_real
     dd_path: gyrokinetics/wavevector/eigenmode/phi_potential_perturbed_norm_real
+    status: composed
+- name: normalized_shearing_rate_due_to_e_cross_b_drift
+  kind: scalar
+  status: draft
+  description: Dimensionless radial shear of the toroidal E cross B drift velocity,
+    normalized by a reference speed and length scale. It gives the E cross B shearing
+    rate relative to the reference gyrokinetic frequency.
+  documentation: "Normalized shearing rate due to E\xD7B drift is the radial gradient\
+    \ of the toroidal component of the E\xD7B drift velocity expressed relative to\
+    \ a reference gyrokinetic frequency. It measures how rapidly neighboring flux\
+    \ surfaces advect past one another by E\xD7B motion; the magnitude gives the normalized\
+    \ shear rate and the sign gives the orientation of that radial shear.\n\nUsing\
+    \ normalized minor radius $\\rho$ with $r=L_\\mathrm{ref}\\rho$, the dimensionless\
+    \ shearing rate can be written as:\n\n$$\n\\hat{\\omega}_{E\\times B} = \\frac{\\\
+    omega_{E\\times B}}{\\omega_\\mathrm{ref}} = \\frac{L_\\mathrm{ref}}{c_\\mathrm{ref}}\\\
+    frac{\\partial u_{\\phi,E\\times B}}{\\partial r} = \\frac{\\partial u_{\\phi,E\\\
+    times B,N}}{\\partial \\rho}\n$$\n\nwhere $\\omega_{E\\times B}$ is the dimensional\
+    \ shearing rate in s$^{-1}$, $\\omega_\\mathrm{ref}=c_\\mathrm{ref}/L_\\mathrm{ref}$\
+    \ is the reference gyrokinetic frequency in s$^{-1}$, $c_\\mathrm{ref}$ is a reference\
+    \ speed in m s$^{-1}$, $L_\\mathrm{ref}$ and $r$ are lengths in m, $u_{\\phi,E\\\
+    times B}$ is the toroidal component of the E\xD7B drift velocity in the right-handed\
+    \ cylindrical $(R,\\phi,Z)$ frame in m s$^{-1}$, and $u_{\\phi,E\\times B,N}=u_{\\\
+    phi,E\\times B}/c_\\mathrm{ref}$ is dimensionless. The final form is the normalized-minor-radius\
+    \ derivative of the normalized toroidal E\xD7B velocity.\n\nIn practice this quantity\
+    \ is computed from the radial variation of the equilibrium E\xD7B drift, often\
+    \ through the radial electric field and magnetic geometry, followed by differentiation\
+    \ with respect to $\\rho$. A spatially uniform toroidal E\xD7B drift gives zero\
+    \ shearing rate; only radial variation of that drift contributes.\n\nRepresentative\
+    \ dimensionless values are commonly in the range -5 to 5. Values with absolute\
+    \ magnitude near 1 correspond to shear comparable to the reference gyrokinetic\
+    \ frequency, while values close to 0 indicate weak E\xD7B shear in the chosen\
+    \ normalization.\n\nSign convention: Positive when the toroidal E\xD7B drift velocity\
+    \ component in the direction of increasing toroidal angle $\\phi$ in the right-handed\
+    \ cylindrical $(R,\\phi,Z)$ frame increases with increasing normalized minor radius\
+    \ $\\rho$."
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:shearing_rate_due_to_e_cross_b_drift
+  - name:derivative_with_respect_to_normalized_minor_radius_of_toroidal_normalized_gyrokinetic_velocity_due_to_e_cross_b_drift
+  - name:electron_temperature_at_outboard_midplane
+  - name:electron_density_at_outboard_midplane
+  - name:linear_growth_rate_of_gyrokinetic_eigenmode
+  sources:
+  - id: dd:gyrokinetics/species_all/shearing_rate_norm
+    dd_path: gyrokinetics/species_all/shearing_rate_norm
+    status: attached
+  - id: dd:gyrokinetics_local/species_all/shearing_rate_norm
+    dd_path: gyrokinetics_local/species_all/shearing_rate_norm
     status: composed
 - name: normalized_turbulent_particle_flux_due_to_e_cross_b_drift
   kind: scalar
@@ -1654,6 +1818,68 @@
   - id: dd:gyrokinetics/wavevector/eigenmode/a_field_parallel_perturbed_norm_real
     dd_path: gyrokinetics/wavevector/eigenmode/a_field_parallel_perturbed_norm_real
     status: composed
+- name: parallel_normalized_wave_vector
+  kind: scalar
+  status: draft
+  description: Dimensionless parallel component of a gyrokinetic wave vector, formed
+    by multiplying the component along the local magnetic field by a reference gyroradius.
+    It characterizes the fluctuation scale along the field line and is typically much
+    smaller than perpendicular normalized components.
+  documentation: 'The parallel normalized wave vector is the component of a fluctuation
+    wave vector along the local magnetic-field direction, scaled by a reference gyroradius.
+    It describes the inverse parallel length scale of a gyrokinetic mode or turbulent
+    fluctuation relative to the gyroradius used for normalization.
+
+
+    The normalized component is defined by projecting the wave vector onto the magnetic-field
+    unit vector and multiplying by the reference gyroradius:
+
+
+    $$
+
+    k_{\parallel,\mathrm{norm}} = k_\parallel \rho_\mathrm{ref} = \left(\mathbf{k}\cdot\hat{\mathbf{b}}\right)\rho_\mathrm{ref}
+
+    $$
+
+
+    where $\mathbf{k}$ is the fluctuation wave vector, $\hat{\mathbf{b}}=\mathbf{B}/|\mathbf{B}|$
+    is the unit vector along the local magnetic field, $k_\parallel$ is the parallel
+    wavenumber, and $\rho_\mathrm{ref}$ is the reference gyroradius, often written
+    inline as $v_{\mathrm{th,ref}}/\Omega_\mathrm{ref}$.
+
+
+    In gyrokinetic analysis, this quantity is computed from the phase variation of
+    a mode or turbulent fluctuation along the equilibrium magnetic field. In local
+    field-line treatments it is associated with variation along the extended field-line
+    coordinate, while in global calculations it is obtained by projecting the full
+    wave vector onto $\hat{\mathbf{b}}$.
+
+
+    Gyrokinetic turbulence is usually strongly anisotropic, with $|k_\parallel \rho_\mathrm{ref}|
+    \ll |k_\perp \rho_\mathrm{ref}|$. Representative absolute values for core ion-scale
+    tokamak microturbulence are about $10^{-4}$-$10^{-2}$, with larger values possible
+    for shorter connection lengths, high-frequency waves, or cases using a different
+    reference gyroradius.
+
+
+    Sign convention: Positive when the wave-vector projection onto the local magnetic-field
+    direction is positive, $\mathbf{k}\cdot\hat{\mathbf{b}}>0$.'
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:normalized_wave_vector
+  - name:linear_growth_rate_of_gyrokinetic_eigenmode
+  - name:frequency_of_gyrokinetic_eigenmode
+  sources:
+  - id: dd:gyrokinetics/wavevector/binormal_component_norm
+    dd_path: gyrokinetics/wavevector/binormal_component_norm
+    status: attached
+  - id: dd:gyrokinetics_local/linear/wavevector/binormal_wavevector_norm
+    dd_path: gyrokinetics_local/linear/wavevector/binormal_wavevector_norm
+    status: attached
+  - id: dd:gyrokinetics_local/non_linear/binormal_wavevector_norm
+    dd_path: gyrokinetics_local/non_linear/binormal_wavevector_norm
+    status: attached
 - name: perpendicular_normalized_gyroaveraged_perturbed_heat_flux
   kind: scalar
   status: draft
@@ -2122,6 +2348,56 @@
   sources:
   - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_1/pressure_perpendicular
     dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_1/pressure_perpendicular
+    status: composed
+- name: normalized_particle_density
+  kind: scalar
+  status: draft
+  description: Dimensionless ratio of a particle species number density to a chosen
+    reference number density.
+  documentation: 'Normalized particle density is the number density of a specified
+    particle species divided by a reference number density used to nondimensionalize
+    the system. It preserves the relative abundance of each species while removing
+    the physical density unit.
+
+
+    The defining ratio is:
+
+
+    $$
+
+    n_{s,\mathrm{norm}} = \frac{n_s}{n_\mathrm{ref}}
+
+    $$
+
+
+    where $n_s$ is the particle number density of species $s$ in m$^{-3}$ and $n_\mathrm{ref}$
+    is the reference number density in m$^{-3}$; the result is dimensionless.
+
+
+    In gyrokinetic and turbulence calculations, $n_s$ is usually taken from the equilibrium
+    or background density at the simulated location, while $n_\mathrm{ref}$ is a common
+    normalization density shared by all species. With a common reference density,
+    the set of normalized densities provides the charge-weighted equilibrium density
+    balance, such as inline $\sum_s Z_s n_{s,\mathrm{norm}} = 0$ for signed charge
+    number $Z_s$ when all relevant species are included. This balance is a normalization
+    and background quasineutrality condition, not the complete gyrokinetic quasineutrality
+    relation for fluctuations and fields.
+
+
+    Physically allowed values are non-negative, with no fixed upper bound. Typical
+    values are 0.1-3 for bulk electrons and main ions when the reference density is
+    close to the plasma density, 10$^{-6}$-10$^{-2}$ for trace impurities, and 10$^{-3}$-1
+    for minority or non-trace impurity species depending on composition and normalization
+    choice.'
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:particle_density
+  - name:electron_density_at_outboard_midplane
+  - name:ratio_of_particle_number_density_to_reference_number_density
+  sources:
+  - id: dd:gyrokinetics/species/density_norm
+    dd_path: gyrokinetics/species/density_norm
     status: composed
 - name: radial_derivative_of_elongation_of_flux_surface
   kind: scalar

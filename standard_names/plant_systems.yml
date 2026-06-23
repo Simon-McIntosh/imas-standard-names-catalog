@@ -1,6 +1,6 @@
 # Domain: plant_systems
 # Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 63
+# Entries: 68
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -1413,6 +1413,61 @@
   - id: dd:summary/gas_injection_prefill/ammonia/value
     dd_path: summary/gas_injection_prefill/ammonia/value
     status: composed
+- name: argon_prefill_count
+  kind: scalar
+  status: draft
+  description: Accumulated number of argon atoms injected as gas during the prefill
+    phase before plasma breakdown, represented as an equivalent-electron count with
+    18 count units per argon atom. The quantity is dimensionless and refers to introduced
+    gas, not the retained, ionized, or pumped inventory.
+  documentation: 'Argon prefill count is the accumulated amount of argon introduced
+    as gas before plasma breakdown, represented in equivalent-electron counting units.
+    This is a dimensionless convention in which one neutral argon atom contributes
+    18 count units, equal to the atomic number of argon.
+
+
+    The conversion from physical atom count to equivalent-electron count is
+
+
+    $$
+
+    N_{\mathrm{Ar,eq}} = 18\,N_{\mathrm{Ar}}
+
+    $$
+
+
+    where $N_{\mathrm{Ar}}$ is the number of argon atoms injected during the prefill
+    phase and $N_{\mathrm{Ar,eq}}$ is the corresponding dimensionless equivalent-electron
+    count.
+
+
+    In practice this quantity is computed from calibrated gas-valve throughput, pressure-volume
+    inventory, or other gas-accounting measurements integrated over the pre-breakdown
+    prefill interval. It describes the source amount introduced into the vessel and
+    does not correct for subsequent pumping, ionization, charge state evolution, wall
+    retention, recycling, or the amount remaining in the plasma after breakdown.
+
+
+    Typical argon prefill values in medium-size experiments are about $10^{18}$-$10^{21}$
+    equivalent-electron count units, corresponding to approximately $6 \times 10^{16}$-$6
+    \times 10^{19}$ argon atoms. Larger radiative or disruption-mitigation gas injections
+    may extend above this range, depending on vessel volume, valve throughput, and
+    operating scenario.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_argon_count
+  - name:nitrogen_prefill_count
+  - name:accumulated_xenon_prefill_count
+  - name:accumulated_lithium_prefill_count_due_to_gas_injection
+  arguments:
+  - name: accumulated_lithium_prefill_count_due_to_gas_injection
+    operator: argon
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/gas_injection_prefill/argon/value
+    dd_path: summary/gas_injection_prefill/argon/value
+    status: composed
 - name: atomic_count_of_pellet
   kind: scalar
   status: draft
@@ -2167,6 +2222,54 @@
   - id: dd:summary/gas_injection_prefill/krypton/value
     dd_path: summary/gas_injection_prefill/krypton/value
     status: composed
+- name: length_of_pellet
+  kind: scalar
+  status: draft
+  description: Axial length of the intact cylindrical pellet before injection or shattering,
+    measured end to end along the pellet symmetry axis.
+  documentation: 'Pellet length is the end-to-end axial extent of an intact cylindrical
+    pellet before injection or shattering. It specifies the pellet geometry together
+    with the pellet diameter and is independent of the later fragment distribution
+    produced during shattering.
+
+
+    For an ideal right circular cylindrical pellet, the geometric volume is related
+    to length and diameter by:
+
+
+    $$
+
+    V = \frac{\pi}{4} d^2 L
+
+    $$
+
+
+    where $V$ is the initial pellet volume in m$^3$, $d$ is the pellet diameter in
+    m, and $L$ is the pellet length in m. This volume characterizes the initial geometry;
+    the delivered material inventory also depends on pellet density, composition,
+    shape fidelity, and losses or changes during injection, shattering, ablation,
+    and transport.
+
+
+    In practice, pellet length is determined from the fabrication or injector geometry
+    and may be checked by mechanical, optical, or cryogenic metrology before launch.
+    It is used with diameter to estimate initial pellet volume and, when combined
+    with material density and isotopic or impurity composition, the initial mass and
+    particle content.
+
+
+    Typical lengths for cryogenic pellets used in shattered pellet injection are about
+    0.003-0.05 m, depending on injector bore, pellet material, and disruption-mitigation
+    requirements.'
+  unit: m
+  physics_domain: plant_systems
+  links:
+  - name:diameter_of_pellet
+  - name:normalized_atomic_count_of_pellet
+  sources:
+  - id: dd:spi/injector/pellet/length
+    dd_path: spi/injector/pellet/length
+    status: composed
 - name: major_radius_of_pellet_path_point
   kind: scalar
   status: draft
@@ -2412,6 +2515,63 @@
   - id: dd:balance_of_plant/power_plant/power_electric_generated
     dd_path: balance_of_plant/power_plant/power_electric_generated
     status: attached
+- name: nitrogen_prefill_count
+  kind: scalar
+  status: draft
+  description: Nitrogen prefill count is the accumulated amount of nitrogen injected
+    during the plasma prefill phase, expressed as a dimensionless equivalent-electron
+    count. Each nitrogen atom contributes 7 count units; molecular nitrogen N2 contributes
+    14 through its two constituent nitrogen atoms.
+  documentation: 'Nitrogen prefill count quantifies the externally injected nitrogen
+    delivered during the plasma prefill interval, expressed in equivalent-electron
+    count units. The quantity counts nitrogen nuclei, not gas molecules: molecular
+    nitrogen contributes through its two constituent nitrogen atoms.
+
+
+    Using the equivalent-electron convention, the count is
+
+
+    $$
+
+    C_\mathrm{N} = Z_\mathrm{N} N_\mathrm{N}
+
+    $$
+
+
+    where $C_\mathrm{N}$ is the nitrogen prefill count in dimensionless count units,
+    $N_\mathrm{N}$ is the dimensionless number of nitrogen atoms injected, and $Z_\mathrm{N}=7$
+    is the dimensionless atomic number of nitrogen. For molecular nitrogen, $N_\mathrm{N}=2N_{\mathrm{N}_2}$,
+    so each $\mathrm{N}_2$ molecule contributes 14 count units.
+
+
+    In practice, this quantity is computed from the calibrated nitrogen throughput
+    during the prefill time window, using mass-flow-controller data, valve conductance
+    calibrations, or reservoir pressure-drop measurements. It includes only externally
+    commanded nitrogen injection during prefill, typically before breakdown or before
+    the explicitly defined end of the prefill interval; it excludes nitrogen from
+    wall recycling, desorption, neutral beams, pellets, and gas injection occurring
+    after the prefill phase.
+
+
+    Typical trace nitrogen prefill values are about $10^{17}$-$10^{21}$ dimensionless
+    count units, while large devices or deliberately nitrogen-rich prefill scenarios
+    can reach $10^{21}$-$10^{23}$. As a scale reference, a $1\,\mathrm{Pa\,m^3}$ dose
+    of $\mathrm{N}_2$ at 300 K contains about $2.4\times10^{20}$ molecules and corresponds
+    to about $3.4\times10^{21}$ nitrogen prefill count units.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:ammonia_prefill_count
+  - name:accumulated_hydrogen_prefill_count
+  - name:accumulated_nitrogen_count
+  arguments:
+  - name: accumulated_lithium_prefill_count_due_to_gas_injection
+    operator: nitrogen
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/gas_injection_prefill/nitrogen/value
+    dd_path: summary/gas_injection_prefill/nitrogen/value
+    status: composed
 - name: outer_atomic_count_of_pellet
   kind: scalar
   status: draft
@@ -2681,6 +2841,60 @@
   sources:
   - id: dd:summary/gas_injection_prefill/propane/value
     dd_path: summary/gas_injection_prefill/propane/value
+    status: composed
+- name: propane_source_rate
+  kind: scalar
+  status: draft
+  description: Instantaneous propane (C3H8) injection source rate into the plasma
+    vessel, expressed as equivalent electrons per second rather than as molecule or
+    atom counts.
+  documentation: 'Propane source rate is the rate at which neutral propane, $\mathrm{C_3H_8}$,
+    is supplied to the plasma vessel using the electron-equivalent gas-source convention.
+    It counts the number of bound electrons carried by the injected neutral molecules
+    per unit time, so one propane molecule contributes 26 equivalent electrons.
+
+
+    The electron-equivalent rate is related to the molecular propane throughput by:
+
+
+    $$
+
+    \dot{N}_e^{(\mathrm{C_3H_8})} = 26\,\dot{N}_{\mathrm{C_3H_8}}
+
+    $$
+
+
+    where $\dot{N}_{\mathrm{C_3H_8}}$ is the molecular injection rate and $26 = 3\times6
+    + 8\times1$ is the total nuclear charge, or neutral-electron count, of one propane
+    molecule. This convention differs from a molecular rate, which would be smaller
+    by a factor of 26, and from an atom-counting rate, which would count 11 neutral
+    atoms per molecule rather than their electron inventory.
+
+
+    In practice the rate is computed from calibrated gas throughput measurements,
+    valve flow models, reservoir pressure and temperature evolution, or mass-flow-controller
+    signals, with conversion from molecular flow to electron-equivalent flow using
+    the factor above. The electron-equivalent convention allows direct comparison
+    with other gas source rates such as hydrogenic fueling and impurity-gas injection.
+
+
+    Typical propane injection rates are strongly scenario-dependent. Trace or diagnostic
+    puffs are commonly of order $10^{19}-10^{21}\ \mathrm{s^{-1}}$ in electron-equivalent
+    units, while larger short impurity or wall-conditioning injections can reach $10^{22}-10^{23}\
+    \mathrm{s^{-1}}$.
+
+
+    Sign convention: Positive when propane is injected into the plasma vessel.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:ammonia_source_rate
+  - name:nitrogen_source_rate
+  - name:oxygen_source_rate
+  - name:neon_source_rate
+  sources:
+  - id: dd:summary/gas_injection_rates/propane/value
+    dd_path: summary/gas_injection_rates/propane/value
     status: composed
 - name: radial_velocity_of_pellet
   kind: scalar
@@ -3027,6 +3241,56 @@
   - id: dd:summary/gas_injection_prefill/tritium/value
     dd_path: summary/gas_injection_prefill/tritium/value
     status: composed
+- name: vertical_coordinate_of_pellet_path_point
+  kind: scalar
+  status: draft
+  description: Vertical Z coordinate of a point on a pellet injection trajectory in
+    the right-handed cylindrical (R, phi, Z) frame, measured relative to the tokamak
+    equatorial plane.
+  documentation: 'The vertical coordinate of a pellet path point is the $Z$ position
+    of a specified point on a pellet injection trajectory. In the right-handed cylindrical
+    $(R,\phi,Z)$ frame, $R$ is major radius in meters, $\phi$ is toroidal angle in
+    radians increasing counter-clockwise when viewed from above $+\hat{Z}$, and $Z$
+    is vertical height in meters measured relative to the tokamak equatorial plane.
+    Together with the [major radius](name:major_radius_of_pellet_path_point) and [toroidal
+    angle], it specifies the spatial location of the path point.
+
+
+    Values are usually obtained from injector and guide-tube geometry, alignment surveys,
+    trajectory modeling, or reconstruction of the pellet path when direct position
+    observations are available. The coordinate describes the geometry of the path
+    point and does not by itself specify pellet speed, mass, fragmentation, ablation
+    rate, or time of flight.
+
+
+    For paths crossing the confined plasma, $Z$ is commonly within -1 to 1 m in medium-sized
+    tokamaks and can span about -3 to 3 m in large tokamaks. Points near injectors
+    or external launch structures can lie farther from the equatorial plane, depending
+    on the device geometry.
+
+
+    Sign convention: Positive when the path point lies above the tokamak equatorial
+    plane in the $+\hat{Z}$ direction.'
+  unit: m
+  physics_domain: plant_systems
+  links:
+  - name:major_radius_of_pellet_path_point
+  sources:
+  - id: dd:pellets/time_slice/pellet/path_geometry/first_point/z
+    dd_path: pellets/time_slice/pellet/path_geometry/first_point/z
+    status: attached
+  - id: dd:pellets/time_slice/pellet/path_geometry/second_point/z
+    dd_path: pellets/time_slice/pellet/path_geometry/second_point/z
+    status: attached
+  - id: dd:pellets/time_slice/pellet/path_profiles/position/z
+    dd_path: pellets/time_slice/pellet/path_profiles/position/z
+    status: composed
+  - id: dd:spi/injector/fragment/position/z
+    dd_path: spi/injector/fragment/position/z
+    status: attached
+  - id: dd:spi/injector/pellet/position/z
+    dd_path: spi/injector/pellet/position/z
+    status: attached
 - name: vertical_coordinate_of_shattering_position
   kind: scalar
   status: draft
