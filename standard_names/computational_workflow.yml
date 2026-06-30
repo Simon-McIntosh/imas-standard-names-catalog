@@ -1,9 +1,48 @@
 # Domain: computational_workflow
-# Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 1
+# Catalog sha: b8d10395a003efc46be6fc45a94b1f9308d6a87b
+# Entries: 3
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: gyrocenter_frequency
+  kind: vector
+  status: draft
+  description: Angular velocity vector of a charged-particle gyrocenter orbit in a
+    magnetized plasma, with toroidal and poloidal components giving the rates of gyrocenter
+    advance in their respective angular coordinates.
+  documentation: 'The gyrocenter frequency vector characterizes how rapidly a charged
+    particle''s guiding center advances angularly in the confining magnetic geometry,
+    after averaging over the fast cyclotron gyration to isolate the slower drift and
+    bounce or transit dynamics relevant to transport and stability.
+
+
+    The vector decomposes into two principal angular components. The [toroidal gyrocenter
+    frequency](name:toroidal_gyrocenter_frequency) $\dot{\phi}_{gc} = d\phi_{gc}/dt$
+    is the rate of change of the gyrocenter toroidal angle $\phi$ in the right-handed
+    cylindrical $(R, \phi, Z)$ frame, where $R$ is the major radius and $Z$ is the
+    vertical height. The [poloidal gyrocenter frequency](name:poloidal_gyrocenter_frequency)
+    $\dot{\theta}_{gc} = d\theta_{gc}/dt$ is the rate of advance in poloidal angle
+    $\theta$ as measured in flux coordinates $(\rho, \theta, \phi)$, where $\rho$
+    is a radial flux-surface label. The two components have qualitatively different
+    characters: passing particles circulate continuously in the poloidal direction,
+    while trapped particles bounce and primarily precess toroidally.
+
+
+    These frequencies are computed in gyrokinetic codes from the guiding-center orbit
+    equations derived from the gyrocenter Hamiltonian, and may be averaged over the
+    particle distribution function to yield population-representative angular velocities.
+    They enter directly into the calculation of resonance conditions for wave-particle
+    interactions and neoclassical transport coefficients.
+
+
+    Sign convention: Positive toroidal component when the gyrocenter advances in the
+    direction of increasing toroidal angle $\phi$; positive poloidal component when
+    the gyrocenter advances in the direction of increasing poloidal angle $\theta$.'
+  unit: rad.s^-1
+  physics_domain: computational_workflow
+  links:
+  - name:toroidal_gyrocenter_frequency
+  - name:poloidal_gyrocenter_frequency
 - name: poloidal_gyrocenter_frequency
   kind: scalar
   status: draft
@@ -55,7 +94,81 @@
   links:
   - name:toroidal_gyrocenter_frequency
   - name:gyrocenter_frequency
+  arguments:
+  - name: gyrocenter_frequency
+    operator: component
+    operator_kind: projection
+    axis: poloidal
+    shape: component
   sources:
   - id: dd:distributions/distribution/ggd/orbit_frequency_pol/values
     dd_path: distributions/distribution/ggd/orbit_frequency_pol/values
+    status: composed
+- name: toroidal_gyrocenter_frequency
+  kind: scalar
+  status: draft
+  description: Toroidal gyrocenter frequency is the toroidal component of a charged
+    particle gyrocenter orbit angular frequency. It is the rate of change, or population-averaged
+    rate of change, of toroidal angle phi in the right-handed cylindrical (R, phi,
+    Z) frame.
+  documentation: 'Toroidal gyrocenter frequency is the toroidal component of the angular
+    frequency of a charged particle gyrocenter trajectory after the rapid cyclotron
+    motion has been averaged out. It describes how quickly the gyrocenter advances
+    or precesses around the torus in the right-handed cylindrical $(R, \phi, Z)$ frame,
+    where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height.
+    For trapped particles it is commonly interpreted as a toroidal precession frequency;
+    for passing particles it represents the average toroidal advance rate along the
+    orbit.
+
+
+    For a population of gyrocenters, the distribution-weighted toroidal gyrocenter
+    frequency is
+
+
+    $$
+
+    \omega_\phi = \left\langle \dot{\phi}_{\mathrm{gc}} \right\rangle_f = \frac{\int
+    f(\mathbf{Z})\,\dot{\phi}_{\mathrm{gc}}(\mathbf{Z})\,d\Gamma}{\int f(\mathbf{Z})\,d\Gamma}
+
+    $$
+
+
+    where $f$ is the gyrocenter distribution function, $\mathbf{Z}$ denotes gyrocenter
+    phase-space coordinates, $d\Gamma$ is the phase-space volume element, and $\dot{\phi}_{\mathrm{gc}}
+    = d\phi/dt$ is the toroidal angular velocity along a gyrocenter trajectory, with
+    $\phi$ in radians and $t$ in seconds.
+
+
+    In practice, $\dot{\phi}_{\mathrm{gc}}$ is obtained from the gyrocenter equations
+    of motion using the magnetic geometry, electric field, particle species, charge,
+    energy, pitch, and position. Orbit-following or gyrokinetic calculations may average
+    this rate over bounce, transit, ensemble, or distribution weights depending on
+    the physical population being represented. Together with [poloidal_gyrocenter_frequency](name:poloidal_gyrocenter_frequency),
+    it gives the angular-frequency components associated with the gyrocenter orbit;
+    the combined vector quantity is [gyrocenter_frequency](name:gyrocenter_frequency).
+
+
+    Typical magnitudes span about $10^3-10^6$ rad.s^-1 for thermal-ion gyrocenters
+    in medium-size tokamaks, with trapped-particle toroidal precession often in the
+    $10^3-10^5$ rad.s^-1 range. Passing energetic ions and electrons can have larger
+    toroidal advance rates, reaching $10^6-10^8$ rad.s^-1 depending on energy and
+    magnetic-field strength.
+
+
+    Sign convention: Positive when the gyrocenter advances in the direction of increasing
+    toroidal angle $\phi$ in the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: rad.s^-1
+  physics_domain: computational_workflow
+  links:
+  - name:poloidal_gyrocenter_frequency
+  - name:gyrocenter_frequency
+  arguments:
+  - name: gyrocenter_frequency
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:distributions/distribution/ggd/orbit_frequency_tor/values
+    dd_path: distributions/distribution/ggd/orbit_frequency_tor/values
     status: composed

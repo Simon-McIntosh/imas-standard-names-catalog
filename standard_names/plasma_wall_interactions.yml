@@ -1,9 +1,46 @@
 # Domain: plasma_wall_interactions
-# Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 53
+# Catalog sha: b8d10395a003efc46be6fc45a94b1f9308d6a87b
+# Entries: 86
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: density_at_limiter
+  kind: scalar
+  status: draft
+  description: Local particle number density of any plasma species evaluated in the
+    boundary plasma immediately adjacent to the plasma-facing limiter surface, on
+    the plasma side of the magnetic presheath or sheath entrance.
+  documentation: "Number density of a specified plasma species \u2014 electrons, fuel\
+    \ ions, or impurity ions \u2014 evaluated at the plasma-limiter interface on the\
+    \ plasma side of the magnetic presheath or sheath entrance. The limiter terminates\
+    \ open magnetic field lines in the scrape-off layer (SOL), and this boundary density\
+    \ sets the particle source for both the confining plasma and for wall-material\
+    \ interactions including sputtering, recycling, and impurity release.\n\nThe macroscopic\
+    \ number density is related to the velocity distribution function $f_s$ of species\
+    \ $s$ by:\n\n$$\nn_s = \\int f_s(\\mathbf{v}) \\, d^3v\n$$\n\nwhere the integral\
+    \ is taken over all velocities at the evaluation point immediately adjacent to\
+    \ the limiter.\n\nQuasineutrality at the sheath entrance couples the [electron_density_at_limiter](name:electron_density_at_limiter)\
+    \ to the charge-weighted sum of ion densities, $n_e \\approx \\sum_s Z_s n_s$,\
+    \ where $Z_s$ is the ion charge number of species $s$. The charge-state-summed\
+    \ ion total is given by [total_ion_density_at_limiter](name:total_ion_density_at_limiter),\
+    \ while impurity species such as [carbon_density_at_limiter](name:carbon_density_at_limiter)\
+    \ and [oxygen_density_at_limiter](name:oxygen_density_at_limiter) contribute to\
+    \ the local effective charge. The analogous family at divertor target surfaces\
+    \ is [density_at_divertor_target](name:density_at_divertor_target).\n\nThis density\
+    \ is measured by Langmuir probes embedded in or flush-mounted near the limiter,\
+    \ or inferred from edge spectroscopy combined with ionization balance modeling.\
+    \ Typical boundary plasma densities at limiter surfaces span $10^{17}$\u2013$10^{20}$\
+    \ m$^{-3}$ depending on species, heating power, and plasma configuration.\n\n\
+    Sign convention: Positive when the local plasma contains particles of the specified\
+    \ species at the evaluation point adjacent to the limiter."
+  unit: m^-3
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:electron_density_at_limiter
+  - name:total_ion_density_at_limiter
+  - name:carbon_density_at_limiter
+  - name:oxygen_density_at_limiter
+  - name:density_at_divertor_target
 - name: argon_density_at_limiter
   kind: scalar
   status: draft
@@ -54,6 +91,10 @@
   - name:argon_density_at_plasma_boundary
   - name:argon_density_at_pedestal
   - name:neon_density_at_limiter
+  arguments:
+  - name: density_at_limiter
+    operator: argon
+    operator_kind: qualifier
   sources:
   - id: dd:summary/local/limiter/n_i/argon/value
     dd_path: summary/local/limiter/n_i/argon/value
@@ -105,6 +146,10 @@
   - name:density_at_limiter
   - name:beryllium_density_at_plasma_boundary
   - name:beryllium_density_at_divertor_target
+  arguments:
+  - name: density_at_limiter
+    operator: beryllium
+    operator_kind: qualifier
   sources:
   - id: dd:summary/local/limiter/n_i/beryllium/value
     dd_path: summary/local/limiter/n_i/beryllium/value
@@ -159,6 +204,10 @@
   - name:boron_density_at_pedestal
   - name:boron_density_at_divertor_target
   - name:boron_density_at_plasma_boundary
+  arguments:
+  - name: density_at_limiter
+    operator: boron
+    operator_kind: qualifier
   sources:
   - id: dd:summary/local/limiter/n_i/boron/value
     dd_path: summary/local/limiter/n_i/boron/value
@@ -209,6 +258,10 @@
   - name:xenon_density_at_limiter
   - name:carbon_density_at_plasma_boundary
   - name:carbon_density_at_pedestal
+  arguments:
+  - name: density_at_limiter
+    operator: carbon
+    operator_kind: qualifier
   sources:
   - id: dd:summary/local/limiter/n_i/carbon/value
     dd_path: summary/local/limiter/n_i/carbon/value
@@ -266,6 +319,10 @@
   - name:deuterium_density_at_pedestal
   - name:deuterium_density_at_plasma_boundary
   - name:electron_density_at_limiter
+  arguments:
+  - name: density_at_limiter
+    operator: deuterium
+    operator_kind: qualifier
   sources:
   - id: dd:summary/local/limiter/n_i/deuterium/value
     dd_path: summary/local/limiter/n_i/deuterium/value
@@ -321,6 +378,10 @@
   - name:density_at_limiter
   - name:deuterium_tritium_density_at_plasma_boundary
   - name:deuterium_tritium_density_at_pedestal
+  arguments:
+  - name: density_at_limiter
+    operator: deuterium_tritium
+    operator_kind: qualifier
   sources:
   - id: dd:summary/local/limiter/n_i/deuterium_tritium/value
     dd_path: summary/local/limiter/n_i/deuterium_tritium/value
@@ -377,60 +438,316 @@
   - id: dd:summary/local/limiter/zeff/value
     dd_path: summary/local/limiter/zeff/value
     status: composed
-- name: electron_particle_flux_at_wall
+- name: electron_density_at_limiter
   kind: scalar
   status: draft
-  description: Incident electron particle flux density at a plasma-facing wall, equal
-    to the number of electrons arriving from the plasma side per unit wall area per
-    unit time.
-  documentation: 'Electron particle flux at a wall is the one-way incident number
-    flux density of electrons crossing from the plasma into a material surface. It
-    counts arriving electrons per unit wall area and per unit time; electrons emitted,
-    reflected, or backscattered from the surface are not included.
+  description: Electron number density in the plasma immediately adjacent to a limiter
+    surface, evaluated on the plasma side near the magnetic presheath or sheath entrance.
+    It characterizes scrape-off-layer plasma contacting the limiter, not the separatrix
+    density at the confined-plasma boundary.
+  documentation: 'Electron density at a limiter is the local number of free electrons
+    per unit volume in the plasma immediately upstream of a limiter material surface.
+    It describes the scrape-off-layer or edge plasma that intersects the limiter and
+    helps determine local sheath behavior, recycling, and particle fluxes. It is distinct
+    from electron density at the plasma boundary, which refers to the separatrix between
+    confined plasma and the scrape-off layer.
 
 
-    For a wall point $\mathbf r_w$, the incident flux is the velocity-space moment
-    over particles moving into the wall:
+    The local electron number density is defined by the electron population contained
+    in a small volume element:
 
 
     $$
 
-    \Gamma_e^\mathrm{inc}(\mathbf r_w) = \int_{\mathbf v \cdot \hat{\mathbf n}_w >
-    0} (\mathbf v \cdot \hat{\mathbf n}_w)\, f_e(\mathbf r_w,\mathbf v)\, d^3v
+    n_e = \frac{dN_e}{dV}
 
     $$
 
 
-    where $\hat{\mathbf n}_w$ is the dimensionless unit normal pointing from the plasma
-    into the wall material, $\mathbf v$ is electron velocity in m.s^-1, and $f_e$
-    is the electron velocity distribution with units m^-3 (m.s^-1)^-3. The result
-    has units m^-2.s^-1 and is a one-way arrival flux, not the signed normal component
-    of the electron fluid particle flux.
+    where $n_e$ is the electron density, $N_e$ is the dimensionless number of electrons,
+    and $V$ is volume in m$^3$.
 
 
-    For a finite wall region $A$, the associated total incident electron arrival rate
-    is $\dot N_e^\mathrm{inc}(A)=\int_A \Gamma_e^\mathrm{inc}(\mathbf r_w)\,dA$, where
-    $dA$ is a surface element in m^2 and $\dot N_e^\mathrm{inc}$ has units s^-1; this
-    is the area-integrated quantity related to electron_source_rate_at_wall. In practice
-    the flux is estimated from sheath or edge-plasma modeling, kinetic simulations,
-    probe current measurements, retarding-field or surface diagnostics, and particle-balance
-    analysis, with corrections for local sheath potential, magnetic incidence angle,
-    and emitted-electron contributions when those affect the inferred incident population.
+    In practice this quantity may be obtained from limiter or edge Langmuir-probe
+    analysis, from spectroscopic or microwave diagnostics with suitable spatial localization,
+    or from edge plasma modeling constrained by measurements. If inferred from ion-saturation
+    current or sheath-transmission relations, the result depends on assumptions about
+    sheath physics, electron temperature, ion species, magnetic incidence angle, and
+    probe geometry; such relations are diagnostic models and are not the definition
+    of the density.
 
 
-    Typical time-averaged values range from 10^20-10^23 m^-2.s^-1 on main-chamber
-    plasma-facing surfaces and 10^22-10^24 m^-2.s^-1 in attached divertor strike-point
-    regions. Detached, shadowed, or remote wall areas can be orders of magnitude lower,
-    while transient events can briefly exceed steady-state levels.'
-  unit: m^-2.s^-1
+    Physically valid values satisfy $n_e \ge 0$. Typical limiter-adjacent scrape-off-layer
+    densities are about $10^{17}$-$10^{20}$ m$^{-3}$, with lower values in tenuous
+    far-SOL conditions and higher values near strong plasma-wall contact, high fueling,
+    or detached or highly recycling edge conditions.'
+  unit: m^-3
   physics_domain: plasma_wall_interactions
-  links: []
+  links:
+  - name:density_at_limiter
+  - name:electron_density_at_plasma_boundary
+  - name:electron_temperature_at_limiter
+  arguments:
+  - name: density_at_limiter
+    operator: electron
+    operator_kind: qualifier
   sources:
-  - id: dd:wall/description_ggd/ggd/particle_fluxes/electrons/emitted/values
-    dd_path: wall/description_ggd/ggd/particle_fluxes/electrons/emitted/values
+  - id: dd:summary/local/limiter/n_e/value
+    dd_path: summary/local/limiter/n_e/value
     status: composed
-  - id: dd:wall/description_ggd/ggd/particle_fluxes/electrons/incident/values
-    dd_path: wall/description_ggd/ggd/particle_fluxes/electrons/incident/values
+- name: electron_source_rate_due_to_surface_emission
+  kind: scalar
+  status: draft
+  description: Rate at which material released from plasma-facing surfaces by recycling,
+    outgassing, and physical or chemical sputtering supplies electrons to the plasma
+    after ionization, summed over all emitting surfaces and weighted by the number
+    of electrons each released species contributes. It is the electron-equivalent
+    surface-emission source and is non-negative by construction.
+  documentation: 'Electron source rate due to surface emission is the wall-emission
+    contribution to the global electron particle balance: the number of electron-equivalent
+    particles supplied to the plasma per unit time by material released from plasma-facing
+    surfaces. Surface emission collects all release channels \fed by plasma-surface
+    interaction, including recycling (prompt return of incident plasma ions as neutrals),
+    outgassing (delayed release of retained fuel from the wall bulk), and physical
+    and chemical sputtering of wall material. Each emitted atom, molecule, or impurity
+    is weighted by the number of electrons it contributes once ionized, so the quantity
+    is an all-species, all-surface electron source. It is the electron-specific form
+    of source_rate_due_to_surface_emission and one component of [total_electron_source_rate](name:total_electron_source_rate);
+    the corresponding electron loss to the wall is the separate incident channel total_incident_electron_particle_flux_at_wall.
+
+
+    The global rate is obtained by integrating the emitted particle flux density over
+    all plasma-facing surface area, with each released species weighted by its electron
+    yield on full ionization:
+
+
+    $$
+
+    S_e = \int_{A_\mathrm{pf}} \sum_{s} Z_s \, \Gamma_{s}^{\mathrm{emit}}(\mathbf{x})
+    \, dA
+
+    $$
+
+
+    where $A_\mathrm{pf}$ is the total plasma-facing surface area, $\Gamma_{s}^{\mathrm{emit}}$
+    is the emitted particle flux density of released species $s$ (atoms, molecules,
+    or impurity species) in $\mathrm{m^{-2}\,s^{-1}}$, $Z_s$ is the number of electrons
+    that species $s$ liberates when fully ionized in the plasma, $\mathbf{x}$ labels
+    position on the surface, and $S_e$ is in $\mathrm{s^{-1}}$. The species sum aggregates
+    fuel and impurity contributions; for pure hydrogenic recycling $Z_s$ reduces to
+    the number of nuclei per emitted neutral.
+
+
+    In practice the rate is inferred from particle-balance analysis combining plasma
+    density evolution with fueling and pumping data, from neutral pressure and spectroscopy
+    measurements, from wall outgassing and recycling-coefficient estimates, and from
+    edge-plasma or neutral-transport modeling. The calculation should include material
+    emitted from all limiters, divertor targets, first-wall panels, and other plasma-facing
+    components that returns toward the plasma.
+
+
+    Typical magnitudes are strongly scenario dependent, often ranging from roughly
+    $10^{20}$ to $10^{24}\,\mathrm{s^{-1}}$ and increasing with plasma density, recycling
+    fraction, and impurity production. The value approaches zero when surfaces are
+    not releasing material into the plasma and is largest under high-recycling divertor
+    conditions in large, strongly fueled discharges.'
+  unit: s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:total_electron_source_rate
+  sources:
+  - id: dd:wall/global_quantities/electrons/particle_flux_from_wall
+    dd_path: wall/global_quantities/electrons/particle_flux_from_wall
+    status: composed
+- name: electron_temperature_at_limiter
+  kind: scalar
+  status: draft
+  description: Local electron temperature at the plasma-wall interface on the plasma-facing
+    side of a limiter, where open scrape-off-layer field lines terminate on material
+    surfaces.
+  documentation: 'Electron temperature at the limiter is the local temperature of
+    the electron population on the plasma-facing side of a limiter surface, at the
+    plasma-wall interface where open scrape-off-layer magnetic field lines intersect
+    material structures. It characterizes the electron thermal energy available for
+    sheath formation, recycling, and plasma-surface interaction, and is not the temperature
+    of the solid limiter.
+
+
+    For an isotropic Maxwellian, or a scalar moment-equivalent electron distribution,
+    the value expressed in electronvolts is related to the random kinetic energy per
+    electron by:
+
+
+    $$
+
+    T_e = \frac{2}{3e}\left\langle \frac{1}{2} m_e |\mathbf{v}-\mathbf{u}_e|^2 \right\rangle
+
+    $$
+
+
+    where $m_e$ is the electron mass in kg, $\mathbf{v}$ is the electron velocity
+    in $m\,s^{-1}$, $\mathbf{u}_e$ is the local mean electron flow velocity in $m\,s^{-1}$,
+    angle brackets denote an average over the local electron velocity distribution
+    at the limiter-side plasma, and $e$ is the elementary-charge energy conversion
+    factor in $J\,eV^{-1}$. The kinetic-energy moment is in joules, so division by
+    $e$ gives $T_e$ in eV; for non-Maxwellian distributions the reported scalar value
+    is an effective or moment temperature.
+
+
+    In experiments, this quantity is commonly inferred from Langmuir-probe current-voltage
+    characteristics at or near the limiter surface, local edge spectroscopy, Thomson
+    scattering where spatial access is available, or scrape-off-layer modeling constrained
+    by edge and wall measurements. Probe and sheath interpretations usually assume
+    a quasineutral sheath-edge plasma, a specified electron energy distribution, and
+    corrections for magnetic-field incidence angle, collisionality, secondary electron
+    emission, and surface conditions. When combined with [electron density at the
+    limiter](name:electron_density_at_limiter), derived quantities must convert eV
+    to joules; for example, the electron pressure estimate $p_e = e n_e T_e$ uses
+    $n_e$ in $m^{-3}$, $T_e$ in eV, $e$ in $J\,eV^{-1}$, and gives $p_e$ in Pa. Sheath
+    heat-flux or sound-speed estimates additionally require explicit assumptions for
+    ion mass, charge state, ion temperature, sheath transmission coefficients, and
+    the electron distribution.
+
+
+    Typical limiter-side electron temperatures are 1-5 eV in cold, strongly recycling
+    edge plasmas, 5-50 eV in many attached limiter scrape-off-layer conditions, and
+    50-200 eV in hot near-limiter or transient high-power phases. The appropriate
+    value can vary strongly over a few millimeters near the material surface because
+    of parallel heat conduction, recycling neutrals, sheath physics, and impurity
+    radiation.'
+  unit: eV
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:electron_temperature_at_divertor_target
+  - name:electron_temperature_at_wall
+  - name:ion_average_temperature_at_limiter
+  sources:
+  - id: dd:summary/local/limiter/t_e/value
+    dd_path: summary/local/limiter/t_e/value
+    status: composed
+- name: energy_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Total energy flux density incident on a plasma-facing wall surface,
+    equal to the sum of contributing particle, photon, and electromagnetic power fluxes
+    per unit area.
+  documentation: 'Energy flux at the wall is the local power per unit area delivered
+    to a plasma-facing surface by plasma, neutral, radiative, and electromagnetic
+    processes. It represents the aggregate wall heat-loading density; integrating
+    it over a surface gives the corresponding [plasma_deposited_power_at_wall](name:plasma_deposited_power_at_wall),
+    while its maximum over a surface is related to [peak_power_density_at_wall](name:peak_power_density_at_wall).
+
+
+    The total wall energy flux density is the area density of deposited power and
+    may be decomposed into resolved physical channels:
+
+
+    $$
+
+    q_\mathrm{wall}(\mathbf{x}) = \frac{dP_\mathrm{wall}}{dA}(\mathbf{x}) = \sum_{c
+    \in \mathcal{C}} q_c(\mathbf{x})
+
+    $$
+
+
+    where $q_\mathrm{wall}$ is the total energy flux density at wall position $\mathbf{x}$,
+    $P_\mathrm{wall}$ is the power crossing into a surface element of area $dA$, and
+    $q_c$ is the contribution from channel $c$, such as charged particles, neutral
+    atoms, photons, recombination energy, or inductive electromagnetic heating.
+
+
+    In practice this quantity is estimated from edge-plasma and wall-interaction modeling,
+    from heat-transfer inversion of infrared thermography, calorimetry, thermocouples,
+    or embedded sensors, and from diagnostic constraints on radiated and particle
+    power. Care is needed to distinguish local surface loading from area-integrated
+    power and from material temperature response, which also depends on thermal properties,
+    geometry, and exposure time.
+
+
+    Typical values range from 10^2-10^5 W m^-2 on weakly loaded main-chamber wall
+    regions, 10^5-10^7 W m^-2 on limiter or divertor target regions during sustained
+    plasma contact, and can exceed 10^7 W m^-2 for short transient events.
+
+
+    Sign convention: Positive when net energy crosses the plasma-facing surface from
+    the plasma side into the wall material.'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:ion_kinetic_energy_flux_at_wall
+  - name:energy_flux_at_wall_due_to_recombination
+  - name:energy_flux_at_wall_due_to_radiation
+  - name:energy_flux_at_wall_due_to_eddy_current
+  - name:electron_energy_flux_at_wall
+- name: electron_energy_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Kinetic energy flux density carried by electrons emitted from a plasma-facing
+    wall surface into the adjacent plasma or vacuum region. It quantifies the surface-emitted
+    component of electron energy transport, arising from secondary, backscattered,
+    thermionic, or photo-emission processes, and is distinct from the incident electron
+    power arriving at the wall from the plasma.
+  documentation: 'Electron energy flux at the wall is the kinetic energy flux density
+    transported away from a plasma-facing material surface by the emitted electron
+    population. Emitted electrons originate from secondary electron emission, backscattering,
+    thermionic emission, or photoemission, and this quantity captures the energy these
+    electrons carry across the surface into the adjacent plasma or vacuum region.
+
+
+    For an emitted electron velocity distribution at the surface, the flux density
+    is the first kinetic-energy moment of the outgoing electrons:
+
+
+    $$
+
+    q_{e,\mathrm{emit}} = \int_{\mathbf{v}\cdot\hat{\mathbf{n}}_w>0} \tfrac{1}{2}
+    m_e v^2 \, (\mathbf{v}\cdot\hat{\mathbf{n}}_w) \, f_{e,\mathrm{emit}}(\mathbf{v})
+    \, d^3v = \Gamma_{e,\mathrm{emit}} \, \langle E_k \rangle_\Gamma
+
+    $$
+
+
+    where $m_e$ is the electron mass, $v$ is the electron speed, $\hat{\mathbf{n}}_w$
+    is the unit surface normal pointing from the material into the plasma-facing region,
+    and $f_{e,\mathrm{emit}}$ is the emitted electron velocity distribution function
+    (units $\mathrm{s^3\,m^{-6}}$, i.e. number density per unit velocity-space volume).
+    $\Gamma_{e,\mathrm{emit}}$ is the outward emitted electron particle flux density
+    in $\mathrm{m^{-2}\,s^{-1}}$, and $\langle E_k \rangle_\Gamma$ is the flux-weighted
+    mean kinetic energy per emitted electron; if expressed in eV it must be multiplied
+    by the elementary charge to obtain joules.
+
+
+    This quantity is obtained from surface-emission models, sheath or kinetic plasma-wall
+    calculations, or from diagnostics that infer the emitted electron current together
+    with the emitted-electron energy spectrum. The flux-weighted mean energy weights
+    each electron by its normal velocity component, so electrons crossing the surface
+    more nearly along the normal contribute more strongly than electrons with the
+    same energy moving nearly tangentially. The emitted flux enters the surface energy
+    balance as a cooling term for the wall, partially offsetting the incident electron
+    and ion energy loads.
+
+
+    Typical magnitudes are strongly model-dependent, governed by the emission yield,
+    the emitted-electron energy spectrum, the surface temperature and material, and
+    the local sheath potential. The value is generally a fraction of the incident
+    electron energy flux and rises sharply when strong secondary or thermionic emission
+    is active on hot, intensely loaded divertor surfaces.
+
+
+    Sign convention: Positive when the emitted electron kinetic energy flows across
+    the wall surface along the outward normal $\hat{\mathbf{n}}_w$, from the material
+    into the plasma-facing region.'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:total_incident_electron_particle_flux_at_wall
+  arguments:
+  - name: energy_flux_at_wall
+    operator: electron
+    operator_kind: qualifier
+  sources:
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/kinetic/electrons/emitted/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/electrons/emitted/values
     status: composed
 - name: energy_flux_at_wall_due_to_eddy_current
   kind: scalar
@@ -504,6 +821,299 @@
   - id: dd:wall/description_ggd/ggd/energy_fluxes/recombination/ion/incident/values
     dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/ion/incident/values
     status: composed
+- name: energy_flux_at_wall_due_to_radiation
+  kind: scalar
+  status: draft
+  description: Incident radiative energy flux density at a plasma-facing wall is the
+    photon power crossing onto the material surface per unit area. It counts arriving
+    radiation before absorption, reflection, or re-emission, so it is not by itself
+    the net heat deposited in the wall.
+  documentation: 'Energy flux at wall due to radiation is the local incident photon
+    power per unit wall area arriving at a plasma-facing material surface. It includes
+    radiative transport from plasma emission processes such as line radiation, bremsstrahlung,
+    and synchrotron emission, but excludes the subsequent material response. It is
+    a radiative contribution to [energy_flux_at_wall](name:energy_flux_at_wall_due_to_eddy_current);
+    its wall-integrated counterpart is related to radiated_power_at_wall, and its
+    largest local value contributes to [peak_power_density_at_wall](name:peak_power_density_at_wall).
+
+
+    The incident radiative flux density can be written as an integral of incoming
+    spectral radiance over frequency and solid angle:
+
+
+    $$
+
+    q_\mathrm{rad}(\mathbf{x}) = \int_0^\infty \int_{\hat{s}\cdot\hat{n}<0} I_\nu(\mathbf{x},\hat{s})\,[-\hat{s}\cdot\hat{n}]\,d\Omega\,d\nu
+
+    $$
+
+
+    where $q_\mathrm{rad}$ is this quantity in W m^-2, $\mathbf{x}$ is a point on
+    the wall, $I_\nu$ is the incoming spectral radiance in W m^-2 sr^-1 Hz^-1, $\hat{s}$
+    is the photon propagation direction, $\hat{n}$ is the unit normal pointing from
+    the wall material into the plasma-facing vacuum, $d\Omega$ is a solid-angle element
+    in steradians, and $d\nu$ is a frequency interval in hertz. The factor $[-\hat{s}\cdot\hat{n}]$
+    is the projected-area cosine for rays crossing from the plasma-facing side into
+    the material.
+
+
+    In practice this quantity is computed from radiation-transport or view-factor
+    calculations using plasma emissivity, wall geometry, opacity, and shadowing. Measurements
+    such as bolometry can constrain the total radiated power, but the local incident
+    wall distribution depends on the assumed radiation source distribution and geometric
+    transport model. Net absorbed or deposited radiative heat flux additionally requires
+    material optical properties and emitted or reflected radiation terms.
+
+
+    Typical magnitudes are strongly scenario dependent. Area-averaged incident radiative
+    wall loads in tokamak wall-load studies are often assessed on scales of 10^3-10^5
+    W m^-2, while localized divertor or first-wall peaks in high-power radiating scenarios
+    may reach 10^5-10^6 W m^-2; these ranges are representative engineering scales
+    rather than universal limits.
+
+
+    Sign convention: Positive when photon energy crosses the wall surface from the
+    plasma-facing vacuum side into the material.'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:energy_flux_at_wall_due_to_eddy_current
+  - name:peak_power_density_at_wall
+  sources:
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/radiation/emitted/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/radiation/emitted/values
+    status: composed
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/radiation/incident/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/radiation/incident/values
+    status: composed
+- name: energy_flux_due_to_recombination
+  kind: scalar
+  status: draft
+  description: Recombination-originated surface flux linking energy-resolved particle
+    or event fluxes to energy-weighted wall deposition. With unit m^-2 s^-1 it denotes
+    a specified energy, state, or channel flux count; weighting by deposited energy
+    gives the aggregate wall energy flux.
+  documentation: 'Energy flux due to recombination is the surface-normal transport
+    associated with particles or recombination events produced by electron-ion, molecular,
+    or surface-assisted recombination near a plasma-facing material. As a derived
+    parent, it covers both energy-resolved flux-count forms such as [neutral_state_energy_flux_due_to_recombination](name:neutral_state_energy_flux_due_to_recombination)
+    and energy-weighted aggregate wall-deposition forms such as [energy_flux_at_wall_due_to_recombination](name:energy_flux_at_wall_due_to_recombination).
+    The m^-2 s^-1 unit represents the energy-resolved or channel-resolved flux-count
+    convention; an aggregate energy flux is obtained by weighting those counts by
+    deposited energy per particle or event.
+
+
+    The connection between the flux-count representation and the aggregate deposited
+    energy flux can be written as
+
+
+    $$
+
+    q_{\mathrm{rec}} = \sum_a \langle \epsilon_{\mathrm{dep},a} \rangle\,\Gamma_{\mathrm{rec},a}
+
+    $$
+
+
+    where $a$ labels recombination channels, particle species, charge states, quantum
+    states, or energy bins; $\Gamma_{\mathrm{rec},a}$ is the recombination-produced
+    particle or event flux density for that component; $\langle \epsilon_{\mathrm{dep},a}
+    \rangle$ is the mean energy deposited at the surface per particle or event; and
+    $q_{\mathrm{rec}}$ is the corresponding aggregate wall energy flux.
+
+
+    In practice this quantity is evaluated from recombination rates, recycling and
+    surface-recombination yields, neutral transport, state-resolved population kinetics,
+    and sheath or surface energy-deposition models. It can be constrained by combinations
+    of calorimetry, spectroscopy of recombination radiation, neutral pressure measurements,
+    particle-balance analysis, and near-wall charged-particle flux diagnostics. The
+    associated particle source is described by related names such as [neutral_particle_flux_at_wall_due_to_recombination](name:neutral_particle_flux_at_wall_due_to_recombination).
+
+
+    Typical energy-resolved or channel-resolved recombination flux densities in scrape-off-layer
+    and divertor conditions are about 1e18-1e23 m^-2 s^-1, with the largest values
+    on strongly recycling or detached divertor surfaces. For deposited energies of
+    about 1-100 eV per particle or event, these fluxes correspond to aggregate wall
+    energy fluxes of roughly 0.1 W m^-2 to 1 MW m^-2.
+
+
+    Sign convention: Positive when recombination-produced particles or events transport
+    energy toward the plasma-facing material surface.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:energy_flux_at_wall_due_to_recombination
+  - name:neutral_state_energy_flux_due_to_recombination
+  - name:neutral_particle_flux_at_wall_due_to_recombination
+- name: energy_flux_at_wall_due_to_recombination
+  kind: scalar
+  status: draft
+  description: Aggregate energy flux density deposited on a plasma-facing wall by
+    recombination processes, summed over all incident particle species, charge states,
+    and recombination channels.
+  documentation: 'Recombination energy flux at the wall is the power per unit wall
+    area deposited by plasma particles undergoing neutralization or electron-ion recombination
+    at or near a plasma-facing surface, accumulated across all ion species, charge
+    states, and recombination pathways. When a multiply-charged ion captures successive
+    electrons and recombines, each step releases ionization potential energy plus
+    residual kinetic energy; this aggregate quantity collects those contributions
+    into a single heat-load density at the material surface.
+
+
+    The total recombination heat flux density is the sum over all contributing species
+    and charge states:
+
+
+    $$
+
+    q_\mathrm{rec} = \sum_{s,\,z} \Gamma_{s,z}(w)\,E_\mathrm{rec}(s,z)
+
+    $$
+
+
+    where $\Gamma_{s,z}(w)$ is the particle flux density incident on the wall for
+    species $s$ in charge state $z$, and $E_\mathrm{rec}(s,z)$ is the energy released
+    per recombination event, including ionization potential and kinetic energy contributions.
+
+
+    The aggregate can be decomposed into species- and charge-state-resolved contributions.
+    Neutral recombination products leaving the surface are tracked by [neutral_energy_flux_at_wall_due_to_recombination](name:neutral_energy_flux_at_wall_due_to_recombination)
+    and [neutral_particle_flux_at_wall_due_to_recombination](name:neutral_particle_flux_at_wall_due_to_recombination).
+    The complementary radiative contribution to wall heat loading is captured by [energy_flux_at_wall_due_to_radiation](name:energy_flux_at_wall_due_to_radiation),
+    and the total deposited surface power integrated over the full wall area appears
+    in deposited_power_at_wall.'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_energy_flux_at_wall_due_to_recombination
+  - name:neutral_particle_flux_at_wall_due_to_recombination
+  - name:energy_flux_at_wall_due_to_radiation
+  arguments:
+  - name: energy_flux_due_to_recombination
+    operator: wall
+    operator_kind: locus
+- name: helium_3_density_at_limiter
+  kind: scalar
+  status: draft
+  description: Number density of helium-3 ions in the boundary plasma immediately
+    adjacent to a plasma-facing limiter surface.
+  documentation: 'Helium-3 density at a limiter is the number of ionized helium-3
+    nuclei per unit volume in the boundary plasma immediately adjacent to a plasma-facing
+    limiter surface. It quantifies the local minority-isotope ion population participating
+    in recycling, fueling balance, sheath physics, and plasma-wall interactions at
+    the limiter.
+
+
+    For a helium-3 ion distribution function, the density is the zeroth velocity moment
+    evaluated at a limiter-adjacent plasma location:
+
+
+    $$
+
+    n_{{}^3\mathrm{He}}(\mathbf{x}_\ell) = \int f_{{}^3\mathrm{He}}(\mathbf{x}_\ell,
+    \mathbf{v})\, d^3v
+
+    $$
+
+
+    where $\mathbf{x}_\ell$ denotes a point in the plasma immediately next to the
+    limiter surface, $\mathbf{v}$ is ion velocity in m s$^{-1}$, $d^3v$ has units
+    m$^3$ s$^{-3}$, and $f_{{}^3\mathrm{He}}$ has units m$^{-6}$ s$^3$, giving $n_{{}^3\mathrm{He}}$
+    in m$^{-3}$.
+
+
+    In practice this quantity is usually estimated from edge-plasma analysis and boundary
+    modeling rather than measured as a direct local ion density at the material surface.
+    Estimates may combine local plasma density and temperature, ionization and recombination
+    balance, limiter recycling sources, isotope-resolved fueling or exhaust information,
+    and diagnostic constraints such as helium line emission when available.
+
+
+    Typical trace-minority helium-3 densities near a limiter can span roughly 10$^{16}$-10$^{18}$
+    m$^{-3}$, depending strongly on helium-3 fueling rate, confinement, ionization
+    state, scrape-off-layer transport, and recycling at the limiter. Values can be
+    substantially different in dedicated helium-3 operation or in plasmas with weak
+    local helium-3 sources.'
+  unit: m^-3
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:density_at_limiter
+  - name:helium_3_density_at_pedestal
+  - name:helium_3_density_at_magnetic_axis
+  arguments:
+  - name: density_at_limiter
+    operator: helium_3
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/local/limiter/n_i/helium_3/value
+    dd_path: summary/local/limiter/n_i/helium_3/value
+    status: composed
+- name: helium_4_density_at_limiter
+  kind: scalar
+  status: draft
+  description: Number density of helium-4 ions in the boundary plasma immediately
+    outside a limiter surface, evaluated on the plasma side of the sheath or presheath.
+  documentation: 'Helium-4 density at a limiter is the local number density of helium-4
+    ions in the boundary plasma immediately outside the limiter material surface.
+    The value is evaluated on the plasma side of the sheath or presheath at the limiter
+    contact region, not inside the solid material or in neutral gas retained at the
+    surface.
+
+
+    For a point on the limiter surface, the kinetic definition is the velocity-space
+    integral of the helium-4 ion distribution taken as a plasma-side surface limit:
+
+
+    $$
+
+    n_{\mathrm{He4,lim}}(\mathbf{x}_w) = \lim_{\ell \to 0^+} \int_{\mathbb{R}^3} f_{\mathrm{He4}}(\mathbf{x}_w
+    + \ell \hat{\mathbf{n}}_p, \mathbf{v}) \, d^3v
+
+    $$
+
+
+    where $f_{\mathrm{He4}}$ is the velocity distribution function for helium-4 ions,
+    summed over charge states if they are not resolved separately, $\mathbf{x}_w$
+    is a point on the limiter surface, and $n_{\mathrm{He4,lim}}$ has units $\mathrm{m}^{-3}$.
+    The local right-handed surface basis is $(\hat{\mathbf{t}}_1,\hat{\mathbf{t}}_2,\hat{\mathbf{n}}_p)$
+    with $\hat{\mathbf{t}}_1 \times \hat{\mathbf{t}}_2 = \hat{\mathbf{n}}_p$; $\hat{\mathbf{n}}_p$
+    points from the material into the plasma and $\ell$ is distance along that normal.
+
+
+    This quantity is the helium-4 isotope contribution to the local ion population
+    at the limiter. In a quasineutral boundary plasma, [electron_density_at_limiter](name:electron_density_at_limiter)
+    is balanced to leading order by the charge-weighted sum of ion densities, so helium-4
+    contributes $Z n_{\mathrm{He4,lim}}$ for a single dominant charge state $Z$, or
+    $\sum_Z Z n_{\mathrm{He4,lim}}^{(Z)}$ when multiple helium charge states coexist.
+    The unweighted isotope density contributes to [total_ion_density_at_limiter](name:total_ion_density_at_limiter)
+    and to [density_at_limiter](name:density_at_limiter).
+
+
+    The value is usually inferred rather than directly counted. General methods include
+    localized or line-integrated helium line-emission spectroscopy interpreted with
+    collisional-radiative modeling, probe-constrained boundary-plasma analysis, particle-balance
+    estimates using helium sources and recycling, and boundary-plasma modeling constrained
+    by electron density and temperature measurements.
+
+
+    Typical values are about $10^{16}-10^{19}\ \mathrm{m}^{-3}$ when helium-4 is a
+    trace, minority, or fusion-ash species near a limiter. In helium-fueled or strongly
+    recycling plasmas, the value can become a substantial fraction of the local total
+    ion density, whose boundary values are commonly $10^{17}-10^{20}\ \mathrm{m}^{-3}$.'
+  unit: m^-3
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:density_at_limiter
+  - name:helium_4_density_at_plasma_boundary
+  - name:helium_4_density_at_divertor_target
+  - name:helium_4_density_at_pedestal
+  arguments:
+  - name: density_at_limiter
+    operator: helium_4
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/local/limiter/n_i/helium_4/value
+    dd_path: summary/local/limiter/n_i/helium_4/value
+    status: composed
 - name: hydrogen_density_at_limiter
   kind: scalar
   status: draft
@@ -548,6 +1158,10 @@
   - name:hydrogen_density_at_pedestal
   - name:hydrogen_density_at_plasma_boundary
   - name:nitrogen_density_at_limiter
+  arguments:
+  - name: density_at_limiter
+    operator: hydrogen
+    operator_kind: qualifier
   sources:
   - id: dd:summary/local/limiter/n_i/hydrogen/value
     dd_path: summary/local/limiter/n_i/hydrogen/value
@@ -599,66 +1213,6 @@
   - id: dd:summary/local/limiter/t_i_average/value
     dd_path: summary/local/limiter/t_i_average/value
     status: composed
-- name: ion_kinetic_energy_flux_at_wall
-  kind: scalar
-  status: draft
-  description: Incident kinetic energy flux per unit wall area carried by plasma ions,
-    summed over ion species and charge states, as they strike the plasma-facing wall.
-  documentation: 'Ion kinetic energy flux at the wall is the incident component of
-    kinetic power carried by ions crossing a plasma-facing material surface per unit
-    area. It includes the translational kinetic energy of ions at impact, summed over
-    all ion species and charge states, and is the ionic contribution to the total
-    [kinetic_energy_flux_at_wall](name:kinetic_energy_flux_at_wall). It excludes ion
-    potential energy, radiation, and energy transported by particles emitted or reflected
-    from the wall.
-
-
-    For a kinetic ion distribution evaluated at a wall point, the local incident flux
-    can be written as:
-
-
-    $$
-
-    Q_{i,\mathrm{kin}}^{\mathrm{inc}}(\mathbf{x}_w) = \sum_{s,z} \int_{\mathbf{v}\cdot\hat{\mathbf{n}}_w
-    < 0} \frac{1}{2} m_s |\mathbf{v}|^2 |\mathbf{v}\cdot\hat{\mathbf{n}}_w| f_{s,z}(\mathbf{x}_w,\mathbf{v})\,d^3v
-
-    $$
-
-
-    where $Q_{i,\mathrm{kin}}^{\mathrm{inc}}$ is in W m^-2, $\mathbf{x}_w$ is the
-    wall-surface position in meters, $s$ labels ion species, $z$ labels charge state,
-    $m_s$ is the ion mass in kg, $\mathbf{v}$ is ion velocity in m s^-1, $\hat{\mathbf{n}}_w$
-    is the unit normal directed from the wall material into the plasma, and $f_{s,z}$
-    is the ion distribution function in m^-3 (m s^-1)^-3. The integration domain selects
-    ions moving toward the wall.
-
-
-    In practice this quantity is estimated from ion particle fluxes and impact energies
-    using boundary plasma diagnostics, sheath or edge-plasma modeling, kinetic simulations,
-    or wall heat-flux measurements combined with a decomposition of the total heat
-    load. Separating the ion kinetic contribution from electron heat flux, neutral
-    heat flux, potential-energy terms, radiation, and emitted-particle losses generally
-    requires model assumptions.
-
-
-    Typical magnitudes are strongly dependent on wall location and plasma regime.
-    Main-chamber surfaces may receive values from about 10^2-10^5 W m^-2, while divertor
-    or limiter strike regions in attached or partially detached operation can reach
-    about 10^5-10^7 W m^-2; short transient events can be substantially larger.
-
-
-    Sign convention: Positive when the wall-normal ion kinetic energy flux is directed
-    from the plasma into the wall material.'
-  unit: W.m^-2
-  physics_domain: plasma_wall_interactions
-  links:
-  - name:kinetic_energy_flux_at_wall
-  - name:electron_kinetic_energy_flux_at_wall
-  - name:ion_kinetic_energy_flux_at_wall_due_to_surface_emission
-  sources:
-  - id: dd:wall/description_ggd/ggd/energy_fluxes/kinetic/ion/incident/values
-    dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/ion/incident/values
-    status: composed
 - name: ion_kinetic_energy_flux_at_wall_due_to_surface_emission
   kind: scalar
   status: draft
@@ -693,53 +1247,6 @@
   sources:
   - id: dd:wall/description_ggd/ggd/energy_fluxes/kinetic/ion/emitted/values
     dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/ion/emitted/values
-    status: composed
-- name: ion_particle_flux_at_wall
-  kind: scalar
-  status: draft
-  description: Aggregate incident particle flux of ions, summed over all charge states,
-    arriving at the plasma-facing wall surface.
-  documentation: 'The ion particle flux at the wall is the aggregate rate at which
-    ions from the plasma impinge on a unit area of plasma-facing material, summed
-    over all ion charge states. As the ion-species component of the total [particle_flux_at_wall](name:particle_flux_at_wall),
-    it does not include contributions from neutral particles (see [neutral_particle_flux_at_wall](name:neutral_particle_flux_at_wall))
-    or electrons.
-
-
-    In fluid plasma models, the incident flux $\Gamma_i^{\rm wall}$ at a wall surface
-    element with inward surface normal $\hat{n}$ is:
-
-
-    $$
-
-    \Gamma_i^{\rm wall} = \sum_z n_{i,z} \, \mathbf{u}_{i,z} \cdot \hat{n}
-
-    $$
-
-
-    where $n_{i,z}$ is the number density of ions in charge state $z$ and $\mathbf{u}_{i,z}$
-    is the corresponding bulk ion flow velocity, with the summation running over all
-    charge states $z$. The charge-state-resolved analog is given by [ion_state_particle_flux_at_wall](name:ion_state_particle_flux_at_wall).
-
-
-    This flux is computed as a surface boundary output of edge plasma fluid simulations
-    or estimated from experimental ion saturation current density measurements via
-    the Bohm sheath criterion. Together with [ion_kinetic_energy_flux_at_wall](name:ion_kinetic_energy_flux_at_wall),
-    it characterizes the particle and energy loading on plasma-facing components and
-    serves as a key input to sputtering yield and fuel-retention models.'
-  unit: m^-2.s^-1
-  physics_domain: plasma_wall_interactions
-  links:
-  - name:particle_flux_at_wall
-  - name:neutral_particle_flux_at_wall
-  - name:ion_state_particle_flux_at_wall
-  - name:ion_kinetic_energy_flux_at_wall
-  sources:
-  - id: dd:wall/description_ggd/ggd/particle_fluxes/ion/emitted/values
-    dd_path: wall/description_ggd/ggd/particle_fluxes/ion/emitted/values
-    status: composed
-  - id: dd:wall/description_ggd/ggd/particle_fluxes/ion/incident/values
-    dd_path: wall/description_ggd/ggd/particle_fluxes/ion/incident/values
     status: composed
 - name: ion_state_energy_flux_at_wall_due_to_recombination
   kind: scalar
@@ -800,63 +1307,16 @@
   - name:energy_flux_at_wall_due_to_recombination
   - name:ion_energy_flux_at_wall_due_to_recombination
   - name:ion_state_kinetic_energy_flux_at_wall
+  arguments:
+  - name: energy_flux_at_wall_due_to_recombination
+    operator: ion_state
+    operator_kind: qualifier
   sources:
   - id: dd:wall/description_ggd/ggd/energy_fluxes/recombination/ion/state/emitted/values
     dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/ion/state/emitted/values
     status: composed
   - id: dd:wall/description_ggd/ggd/energy_fluxes/recombination/ion/state/incident/values
     dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/ion/state/incident/values
-    status: composed
-- name: ion_state_particle_flux_at_wall
-  kind: scalar
-  status: draft
-  description: Incident particle flux of ions in a specific charge state at the plasma-facing
-    wall surface.
-  documentation: 'Ions bombarding plasma-facing surfaces arrive in a range of charge
-    states whose individual contributions govern sputtering thresholds, energy deposition,
-    and fuel recycling. This quantity gives the local incident particle flux from
-    ions in a single specified charge state $z$, the charge-state-resolved building
-    block of the total ion bombardment.
-
-
-    The incident flux from ions in charge state $z$ is:
-
-
-    $$
-
-    \Gamma_{\mathrm{ion},z} = n_{\mathrm{ion},z} \, v_{\perp,z}
-
-    $$
-
-
-    where $n_{\mathrm{ion},z}$ is the local number density of ions in charge state
-    $z$ (m$^{-3}$) and $v_{\perp,z}$ is their mean velocity component directed toward
-    the wall surface (m s$^{-1}$).
-
-
-    Summing over all charge states recovers [ion_particle_flux_at_wall](name:ion_particle_flux_at_wall);
-    including all particle species (neutrals, electrons) gives [particle_flux_at_wall](name:particle_flux_at_wall).
-    The structurally analogous quantity for neutral particles resolved by quantum
-    state is [neutral_state_particle_flux_at_wall](name:neutral_state_particle_flux_at_wall).
-    Charge-state resolution is essential for computing state-dependent sputtering
-    yields and surface chemistry reactions in plasma-wall interaction models.
-
-
-    Typical incident ion fluxes in tokamak boundary plasmas range from $10^{19}$ to
-    $10^{22}$ m$^{-2}$ s$^{-1}$, with peak values near divertor strike points on plasma-facing
-    components.'
-  unit: m^-2.s^-1
-  physics_domain: plasma_wall_interactions
-  links:
-  - name:ion_particle_flux_at_wall
-  - name:particle_flux_at_wall
-  - name:neutral_state_particle_flux_at_wall
-  sources:
-  - id: dd:wall/description_ggd/ggd/particle_fluxes/ion/state/emitted/values
-    dd_path: wall/description_ggd/ggd/particle_fluxes/ion/state/emitted/values
-    status: composed
-  - id: dd:wall/description_ggd/ggd/particle_fluxes/ion/state/incident/values
-    dd_path: wall/description_ggd/ggd/particle_fluxes/ion/state/incident/values
     status: composed
 - name: iron_density_at_limiter
   kind: scalar
@@ -903,9 +1363,203 @@
   - name:iron_density_at_pedestal
   - name:volume_averaged_iron_density
   - name:iron_density_at_magnetic_axis
+  arguments:
+  - name: density_at_limiter
+    operator: iron
+    operator_kind: qualifier
   sources:
   - id: dd:summary/local/limiter/n_i/iron/value
     dd_path: summary/local/limiter/n_i/iron/value
+    status: composed
+- name: kinetic_energy_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Surface power density carried by the translational kinetic energy of
+    a specified population of plasma particles reaching a plasma-facing material surface.
+    The population may be an aggregate of all incident charged particles or a restricted
+    group such as ions.
+  documentation: 'Kinetic energy flux at the wall is the rate per unit wall area at
+    which translational particle energy, including thermal and directed motion, is
+    delivered to a plasma-facing material surface. It excludes non-kinetic contributions
+    such as recombination or other potential-energy release. The same physical moment
+    may be evaluated for all incident charged particles, as in [incident kinetic energy
+    flux at the wall](name:incident_kinetic_energy_flux_at_wall), or for a restricted
+    carrier population such as ions, as in [ion kinetic energy flux at the wall](name:ion_kinetic_energy_flux_at_wall).
+
+
+    For a chosen carrier population $\mathcal{P}$, the kinetic energy flux can be
+    written as the incoming half-space moment of the velocity distribution at the
+    surface:
+
+
+    $$
+
+    q_{\mathrm{kin}}(\mathcal{P}) = \sum_{a \in \mathcal{P}} \int_{\mathbf{v}\cdot\hat{\mathbf{n}}_{\mathrm{in}}
+    > 0} \frac{1}{2} m_a v^2\,(\mathbf{v}\cdot\hat{\mathbf{n}}_{\mathrm{in}})\, f_a(\mathbf{v})\,
+    d^3v
+
+    $$
+
+
+    where $a$ labels particle species or charge states included in $\mathcal{P}$,
+    $m_a$ is particle mass, $\mathbf{v}$ is particle velocity, $f_a$ is the velocity
+    distribution adjacent to the wall, and $\hat{\mathbf{n}}_{\mathrm{in}}$ is the
+    local direction from the plasma-facing side into the material surface. The result
+    is a surface power density in W/m^2. For a one-sided Maxwellian without drift,
+    this moment gives the familiar scaling $q_{\mathrm{kin}} \simeq 2 k_B T\,\Gamma$,
+    where $T$ is the species temperature and $\Gamma$ is the incident [particle flux
+    at the wall](name:particle_flux_at_wall).
+
+
+    Kinetic energy flux at wall surfaces is estimated from scrape-off-layer and sheath
+    modeling, kinetic or fluid boundary calculations, and measurements constraining
+    particle fluxes and particle energies. Langmuir probes, retarding-field analyzers,
+    infrared thermography, and calorimetry can help infer the kinetic component, although
+    separating it from the total [energy flux at the wall](name:energy_flux_at_wall_due_to_eddy_current)
+    requires assumptions about species composition, sheath acceleration, and non-kinetic
+    channels such as [power at the wall due to recombination](name:power_at_wall_due_to_recombination).
+
+
+    Typical magnitudes depend strongly on the selected carrier population and plasma
+    regime: first-wall or weak scrape-off-layer loading may be 10^3-10^5 W/m^2, while
+    divertor target values commonly reach 10^5-10^8 W/m^2 near strike points in high-power
+    operation. A restricted component, such as the ion contribution alone, is generally
+    no larger than the corresponding all-included incident kinetic energy flux.
+
+
+    Sign convention: Positive when the kinetic-energy transport is directed from the
+    plasma-facing side into the material surface.'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:incident_kinetic_energy_flux_at_wall
+  - name:ion_kinetic_energy_flux_at_wall
+  - name:particle_flux_at_wall
+  - name:energy_flux_at_wall_due_to_eddy_current
+  - name:power_at_wall_due_to_recombination
+  arguments:
+  - name: energy_flux_at_wall
+    operator: kinetic
+    operator_kind: qualifier
+- name: incident_kinetic_energy_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Power per unit wall area delivered by the kinetic energy of plasma
+    particles arriving at a plasma-facing surface from the plasma side, aggregated
+    over all carrier species including electrons and ion charge states.
+  documentation: 'The incident kinetic energy flux at the wall quantifies the rate
+    at which particle kinetic energy is transported from the plasma to a plasma-facing
+    material surface per unit local wall area. Unlike outward-directed surface components
+    such as [electron_energy_flux_at_wall](name:electron_energy_flux_at_wall), which
+    arises from secondary or thermionic emission directed away from the surface, this
+    quantity captures only the plasma-side incoming contribution, covering both random
+    thermal and directed kinetic energy of particles crossing the magnetic pre-sheath
+    and sheath.
+
+
+    The species-resolved contribution from carrier $s$ is:
+
+
+    $$
+
+    q_s^{\rm kin} = \int_{v_\perp > 0} \tfrac{1}{2} m_s v^2 \, f_s(\mathbf{v}) \,
+    v_\perp \, d^3v
+
+    $$
+
+
+    where $m_s$ is the particle mass, $v$ is the total speed, $v_\perp$ is the velocity
+    component normal to the wall surface directed toward it, and $f_s(\mathbf{v})$
+    is the particle velocity distribution function. Summing over all incident species
+    yields the total incident kinetic power density.
+
+
+    The electron contribution is modulated by the sheath potential barrier, which
+    reflects low-energy electrons back toward the plasma until ambipolarity is satisfied;
+    the ion contribution includes kinetic energy acquired through pre-sheath acceleration
+    to at least the Bohm velocity. Species-resolved components are given by [electron_incident_kinetic_energy_flux_at_wall](name:electron_incident_kinetic_energy_flux_at_wall)
+    and [ion_state_incident_kinetic_energy_flux_at_wall](name:ion_state_incident_kinetic_energy_flux_at_wall).
+    For a broader energy budget that additionally includes potential energy released
+    upon surface neutralization, see [kinetic_energy_flux_at_wall](name:kinetic_energy_flux_at_wall).
+
+
+    Typical incident kinetic energy flux on divertor targets and limiters ranges from
+    $10^4$ to $10^7$ W m$^{-2}$, depending on local edge plasma temperature and density
+    at the sheath entrance.'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:electron_energy_flux_at_wall
+  - name:electron_incident_kinetic_energy_flux_at_wall
+  - name:ion_state_incident_kinetic_energy_flux_at_wall
+  - name:kinetic_energy_flux_at_wall
+  arguments:
+  - name: kinetic_energy_flux_at_wall
+    operator: incident
+    operator_kind: qualifier
+- name: ion_kinetic_energy_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Incident kinetic energy flux per unit wall area carried by plasma ions,
+    summed over ion species and charge states, as they strike the plasma-facing wall.
+  documentation: 'Ion kinetic energy flux at the wall is the incident component of
+    kinetic power carried by ions crossing a plasma-facing material surface per unit
+    area. It includes the translational kinetic energy of ions at impact, summed over
+    all ion species and charge states, and is the ionic contribution to the total
+    [kinetic_energy_flux_at_wall](name:kinetic_energy_flux_at_wall). It excludes ion
+    potential energy, radiation, and energy transported by particles emitted or reflected
+    from the wall.
+
+
+    For a kinetic ion distribution evaluated at a wall point, the local incident flux
+    can be written as:
+
+
+    $$
+
+    Q_{i,\mathrm{kin}}^{\mathrm{inc}}(\mathbf{x}_w) = \sum_{s,z} \int_{\mathbf{v}\cdot\hat{\mathbf{n}}_w
+    < 0} \frac{1}{2} m_s |\mathbf{v}|^2 |\mathbf{v}\cdot\hat{\mathbf{n}}_w| f_{s,z}(\mathbf{x}_w,\mathbf{v})\,d^3v
+
+    $$
+
+
+    where $Q_{i,\mathrm{kin}}^{\mathrm{inc}}$ is in W m^-2, $\mathbf{x}_w$ is the
+    wall-surface position in meters, $s$ labels ion species, $z$ labels charge state,
+    $m_s$ is the ion mass in kg, $\mathbf{v}$ is ion velocity in m s^-1, $\hat{\mathbf{n}}_w$
+    is the unit normal directed from the wall material into the plasma, and $f_{s,z}$
+    is the ion distribution function in m^-3 (m s^-1)^-3. The integration domain selects
+    ions moving toward the wall.
+
+
+    In practice this quantity is estimated from ion particle fluxes and impact energies
+    using boundary plasma diagnostics, sheath or edge-plasma modeling, kinetic simulations,
+    or wall heat-flux measurements combined with a decomposition of the total heat
+    load. Separating the ion kinetic contribution from electron heat flux, neutral
+    heat flux, potential-energy terms, radiation, and emitted-particle losses generally
+    requires model assumptions.
+
+
+    Typical magnitudes are strongly dependent on wall location and plasma regime.
+    Main-chamber surfaces may receive values from about 10^2-10^5 W m^-2, while divertor
+    or limiter strike regions in attached or partially detached operation can reach
+    about 10^5-10^7 W m^-2; short transient events can be substantially larger.
+
+
+    Sign convention: Positive when the wall-normal ion kinetic energy flux is directed
+    from the plasma into the wall material.'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:kinetic_energy_flux_at_wall
+  - name:electron_kinetic_energy_flux_at_wall
+  - name:ion_kinetic_energy_flux_at_wall_due_to_surface_emission
+  arguments:
+  - name: kinetic_energy_flux_at_wall
+    operator: ion
+    operator_kind: qualifier
+  sources:
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/kinetic/ion/incident/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/ion/incident/values
     status: composed
 - name: krypton_density_at_limiter
   kind: scalar
@@ -954,6 +1608,10 @@
   - name:krypton_density_at_divertor_target
   - name:krypton_density_at_magnetic_axis
   - name:volume_averaged_krypton_density
+  arguments:
+  - name: density_at_limiter
+    operator: krypton
+    operator_kind: qualifier
   sources:
   - id: dd:summary/local/limiter/n_i/krypton/value
     dd_path: summary/local/limiter/n_i/krypton/value
@@ -1003,10 +1661,95 @@
   - name:lithium_density_at_pedestal
   - name:lithium_density_at_divertor_target
   - name:line_averaged_lithium_density
+  arguments:
+  - name: density_at_limiter
+    operator: lithium
+    operator_kind: qualifier
   sources:
   - id: dd:summary/local/limiter/n_i/lithium/value
     dd_path: summary/local/limiter/n_i/lithium/value
     status: composed
+- name: mass_of_wall_material
+  kind: scalar
+  status: draft
+  description: Mass of one atom of the element constituting a plasma-facing wall material,
+    used in plasma-material interaction modeling to determine sputtering yields, nuclear
+    stopping cross sections, and ion implantation ranges.
+  documentation: "The atomic mass of a wall material element is the mass of a single\
+    \ neutral atom of that element, with $1\\,\\text{u} = 1/12$ the mass of a $^{12}\\\
+    text{C}$ atom. For pure elemental plasma-facing materials \u2014 tungsten ($A\
+    \ \\approx 184\\,\\text{u}$), beryllium ($A \\approx 9\\,\\text{u}$), carbon ($A\
+    \ \\approx 12\\,\\text{u}$), and iron ($A \\approx 56\\,\\text{u}$) \u2014 the\
+    \ value equals the standard atomic weight of the element.\n\nIn plasma-material\
+    \ interaction modeling, $A_\\mathrm{wall}$ appears in sputtering yield formulae\
+    \ through the mass ratio $M_1 / M_2$ between the incident plasma ion of mass $M_1$\
+    \ and the target wall atom of mass $M_2 = A_\\mathrm{wall}\\,\\text{u}$, governing\
+    \ both the kinematic energy transfer factor and nuclear stopping cross sections.\
+    \ Erosion rates and ion implantation ranges at plasma-facing surfaces \u2014 including\
+    \ limiters and divertor targets \u2014 are sensitive functions of $A_\\mathrm{wall}$\
+    \ through standard sputtering threshold and yield models.\n\nThe atomic mass is\
+    \ a fixed nuclear property obtained from established atomic data tables and is\
+    \ independent of plasma conditions. The specific elemental value for a configured\
+    \ wall is provided by [atomic_mass_of_wall_material](name:atomic_mass_of_wall_material)."
+  unit: u
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:atomic_mass_of_wall_material
+  sources:
+  - id: derived:mass_of_wall_material
+    status: composed
+- name: atomic_mass_of_wall_material
+  kind: scalar
+  status: draft
+  description: Atomic mass of the element or isotope constituting the plasma-facing
+    wall material, expressed in unified atomic mass units referenced to one-twelfth
+    the mass of a carbon-12 atom.
+  documentation: 'The atomic mass of a wall material element is the ratio of the mean
+    atomic mass of that element (or of a specific isotope) to the unified atomic mass
+    unit $u$, where $u \approx 1.66054 \times 10^{-27}$ kg. This quantity enters sputtering
+    yield models, particle momentum transfer calculations, and impurity transport
+    equations in the boundary plasma at plasma-wall interfaces.
+
+
+    The defining relation is:
+
+
+    $$
+
+    A = \frac{m_{\mathrm{atom}}}{u}
+
+    $$
+
+
+    where $m_{\mathrm{atom}}$ is the mass of the atom or isotope of interest and $u$
+    is the unified atomic mass unit.
+
+
+    Values are tabulated in standard nuclear data libraries for pure elemental materials;
+    for alloys or composite wall materials the relevant constituent element or isotope
+    must be identified separately in associated metadata, since a single scalar value
+    cannot represent a mixture without additional weighting. Typical values for common
+    plasma-facing materials span approximately 9 for beryllium (a first-wall candidate),
+    12 for carbon, 56 for iron structural alloys, and 184 for tungsten used as divertor
+    armor.
+
+
+    The companion quantity [nuclear_mass](name:atomic_mass_of_wall_material) provides
+    a closely equivalent representation for the same wall-material context. The general
+    species-agnostic form [atomic_mass](name:atomic_mass) applies to any atomic species,
+    while [ion_atomic_mass](name:ion_atomic_mass) and [neutral_species_atomic_mass](name:neutral_species_atomic_mass)
+    specialize this concept to charged and neutral plasma species in the boundary
+    region, respectively.'
+  unit: u
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:atomic_mass
+  - name:ion_atomic_mass
+  - name:neutral_species_atomic_mass
+  arguments:
+  - name: mass_of_wall_material
+    operator: atomic
+    operator_kind: qualifier
 - name: neon_density_at_limiter
   kind: scalar
   status: draft
@@ -1054,6 +1797,10 @@
   - name:xenon_density_at_limiter
   - name:argon_density_at_limiter
   - name:nitrogen_density_at_limiter
+  arguments:
+  - name: density_at_limiter
+    operator: neon
+    operator_kind: qualifier
   sources:
   - id: dd:summary/local/limiter/n_i/neon/value
     dd_path: summary/local/limiter/n_i/neon/value
@@ -1123,7 +1870,7 @@
   - name:neutral_state_particle_flux_at_wall
   - name:energy_flux_at_wall_due_to_eddy_current
   arguments:
-  - name: energy_flux_at_wall_due_to_eddy_current
+  - name: energy_flux_at_wall
     operator: neutral
     operator_kind: qualifier
   sources:
@@ -1191,126 +1938,13 @@
   - name:ion_energy_flux_at_wall_due_to_recombination
   - name:neutral_particle_flux_at_wall_due_to_recombination
   - name:neutral_state_energy_flux_due_to_recombination
+  arguments:
+  - name: energy_flux_at_wall_due_to_recombination
+    operator: neutral
+    operator_kind: qualifier
   sources:
   - id: dd:wall/description_ggd/ggd/energy_fluxes/recombination/neutral/incident/values
     dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/neutral/incident/values
-    status: composed
-- name: neutral_particle_flux_at_wall
-  kind: scalar
-  status: draft
-  description: Incident flux of neutral particles (atoms and molecules) arriving at
-    the plasma-facing wall per unit area per unit time, summed over all quantum states
-    of the neutral species.
-  documentation: 'The neutral particle flux at the wall is the local rate per unit
-    area at which neutral atoms and molecules impinge on plasma-facing material from
-    the plasma-boundary region. It is the total neutral contribution to [particle_flux_at_wall](name:particle_flux_at_wall),
-    summed over all quantum states of the neutral species. Neutrals reaching the wall
-    arrive primarily through charge-exchange reactions and recombination in the scrape-off
-    layer, gas injection, and desorption from the surface.
-
-
-    The incident neutral flux density is defined by integrating the wall-directed
-    component of the neutral velocity distribution:
-
-
-    $$
-
-    \Gamma_n = \int_{v_\perp > 0} v_\perp \, f_n(\mathbf{v}) \, d^3v
-
-    $$
-
-
-    where $v_\perp$ is the velocity component directed toward the wall surface and
-    $f_n(\mathbf{v})$ is the neutral particle velocity distribution function.
-
-
-    This flux is a primary driver of fuel recycling, hydrogenic implantation, and
-    physical sputtering of plasma-facing components. The quantum-state-resolved analog
-    [neutral_state_particle_flux_at_wall](name:neutral_state_particle_flux_at_wall)
-    decomposes this total by individual electronic excitation state, while [neutral_energy_flux_at_wall](name:neutral_energy_flux_at_wall)
-    gives the associated kinetic energy carried by the same neutral population. The
-    species counterparts [ion_particle_flux_at_wall](name:ion_particle_flux_at_wall)
-    and [electron_particle_flux_at_wall](name:electron_particle_flux_at_wall) complete
-    the particle-species decomposition of the total wall loading.'
-  unit: m^-2.s^-1
-  physics_domain: plasma_wall_interactions
-  links:
-  - name:particle_flux_at_wall
-  - name:neutral_state_particle_flux_at_wall
-  - name:neutral_energy_flux_at_wall
-  - name:ion_particle_flux_at_wall
-  - name:electron_particle_flux_at_wall
-  sources:
-  - id: dd:wall/description_ggd/ggd/energy_fluxes/kinetic/neutral/emitted/values
-    dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/neutral/emitted/values
-    status: composed
-  - id: dd:wall/description_ggd/ggd/particle_fluxes/neutral/emitted/values
-    dd_path: wall/description_ggd/ggd/particle_fluxes/neutral/emitted/values
-    status: attached
-  - id: dd:wall/description_ggd/ggd/particle_fluxes/neutral/incident/values
-    dd_path: wall/description_ggd/ggd/particle_fluxes/neutral/incident/values
-    status: composed
-- name: neutral_particle_flux_at_wall_due_to_recombination
-  kind: scalar
-  status: draft
-  description: Neutral particle flux density emitted from a plasma-facing wall by
-    recombination or neutralization of incident plasma ions at the surface, summed
-    over all neutral species and internal states. It counts outgoing neutral particles
-    per unit wall area and time.
-  documentation: 'Neutral particle flux at a wall due to recombination is the emitted
-    particle-number flux density of neutral atoms or molecules produced when incident
-    plasma ions are neutralized at a plasma-facing material surface. It is aggregated
-    over all neutral product species and internal states and excludes neutral emission
-    from other wall processes unless they are part of the recombination or neutralization
-    channel.
-
-
-    The aggregate recombination emission flux is the sum of the state-resolved recombination
-    fluxes:
-
-
-    $$
-
-    \Gamma_{n,\mathrm{rec}} = \sum_{s,q} \Gamma_{n,s,q}^{\mathrm{rec}}
-
-    $$
-
-
-    where $\Gamma_{n,\mathrm{rec}}$ and $\Gamma_{n,s,q}^{\mathrm{rec}}$ have units
-    of m^-2 s^-1, $s$ indexes neutral product species, and $q$ indexes internal states
-    such as electronic, vibrational, or rotational states. The state-resolved terms
-    correspond to [neutral_state_particle_flux_at_wall_due_to_recombination](name:neutral_state_particle_flux_at_wall_due_to_recombination),
-    while the more general state-resolved wall flux convention is represented by [neutral_state_particle_flux_at_wall](name:neutral_state_particle_flux_at_wall).
-
-
-    In modeling, this flux is obtained from the incident ion flux to each wall surface
-    element together with recombination, neutralization, recycling, and product-branching
-    probabilities for the material and plasma conditions. For an individual incoming
-    ion channel, the emitted neutral contribution is commonly proportional to the
-    incident ion flux multiplied by the probability that the ion is neutralized and
-    leaves the surface as a specified neutral product; summing over product branches
-    gives the aggregate. Experimentally it is usually inferred indirectly from edge
-    neutral diagnostics, spectroscopy, pressure measurements, and plasma-wall interaction
-    modeling rather than measured as a direct surface particle counter.
-
-
-    Representative values span many orders of magnitude: main-chamber wall values
-    may be about 10^18-10^22 m^-2 s^-1, while divertor or limiter regions with strong
-    recycling can reach about 10^21-10^24 m^-2 s^-1. The total neutral particle flux
-    from all wall emission mechanisms is described by [neutral_particle_flux_at_wall](name:neutral_particle_flux_at_wall),
-    and the related energy-weighted neutral wall flux is described by [neutral_energy_flux_at_wall](name:neutral_energy_flux_at_wall).
-
-
-    Sign convention: Positive when neutral particles cross the plasma-facing surface
-    from the material into the plasma.'
-  unit: m^-2.s^-1
-  physics_domain: plasma_wall_interactions
-  links:
-  - name:neutral_state_particle_flux_at_wall_due_to_recombination
-  - name:neutral_particle_flux_at_wall
-  sources:
-  - id: dd:wall/description_ggd/ggd/energy_fluxes/recombination/neutral/emitted/values
-    dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/neutral/emitted/values
     status: composed
 - name: neutral_state_energy_flux_at_wall
   kind: scalar
@@ -1374,7 +2008,7 @@
   - name:neutral_energy_flux_at_wall
   - name:neutral_state_energy_flux_due_to_recombination
   arguments:
-  - name: energy_flux_at_wall_due_to_eddy_current
+  - name: energy_flux_at_wall
     operator: neutral_state
     operator_kind: qualifier
   sources:
@@ -1436,9 +2070,387 @@
   - name:neutral_state_energy_flux_at_wall
   - name:neutral_state_particle_flux_at_wall_due_to_recombination
   - name:ion_state_energy_flux_at_wall_due_to_recombination
+  arguments:
+  - name: energy_flux_due_to_recombination
+    operator: neutral_state
+    operator_kind: qualifier
   sources:
   - id: dd:wall/description_ggd/ggd/energy_fluxes/recombination/neutral/state/incident/values
     dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/neutral/state/incident/values
+    status: composed
+- name: nitrogen_density_at_limiter
+  kind: scalar
+  status: draft
+  description: Number density of ionized nitrogen in the boundary plasma immediately
+    adjacent to a limiter. It represents the local nitrogen impurity ion population,
+    normally summed over ion charge states.
+  documentation: 'Ionized nitrogen density at a limiter is the local number of nitrogen
+    impurity ions per unit volume in the boundary plasma immediately adjacent to a
+    limiter surface. Unless a charge-state-specific quantity is named, it denotes
+    the sum over all ionized nitrogen charge states $N^{q+}$ with $q=1,\ldots,7$ and
+    excludes neutral nitrogen atoms or molecules.
+
+
+    The charge-state-summed density is the zeroth velocity-space moment of the nitrogen
+    ion distribution functions:
+
+
+    $$
+
+    n_N^{\mathrm{ion}} = \sum_{q=1}^{7} n_{N^{q+}} = \sum_{q=1}^{7} \int f_{N^{q+}}(\mathbf{v})
+    \, d^3v
+
+    $$
+
+
+    where $n_N^{\mathrm{ion}}$ is the total ionized nitrogen number density in m^-3,
+    $n_{N^{q+}}$ is the number density of charge state $q$ in m^-3, $f_{N^{q+}}(\mathbf{v})$
+    is the velocity-space distribution function with units s^3 m^-6, and $d^3v$ is
+    the velocity-space volume element with units m^3 s^-3.
+
+
+    In experiments, this quantity is typically inferred from impurity spectroscopy
+    together with atomic data, local electron density and temperature constraints,
+    and edge plasma modeling. In simulations or reconstructions that resolve nitrogen
+    charge states, the limiter value is obtained by summing the local ionized charge-state
+    densities adjacent to the limiter; neutral nitrogen is treated separately.
+
+
+    Typical summed ionized nitrogen densities near limiters are about $10^{14}$-$10^{17}$
+    m^-3 for trace or weakly seeded nitrogen and can reach $10^{17}$-$10^{19}$ m^-3
+    during strong nitrogen seeding or local nitrogen release. The value depends on
+    the limiter source rate, ionization balance, recombination, and transport along
+    the boundary plasma.'
+  unit: m^-3
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:nitrogen_density_at_pedestal
+  - name:nitrogen_density_at_plasma_boundary
+  - name:nitrogen_density_at_magnetic_axis
+  - name:argon_density_at_limiter
+  - name:neon_density_at_limiter
+  - name:density_at_limiter
+  arguments:
+  - name: density_at_limiter
+    operator: nitrogen
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/local/limiter/n_i/nitrogen/value
+    dd_path: summary/local/limiter/n_i/nitrogen/value
+    status: composed
+- name: oxygen_density_at_limiter
+  kind: scalar
+  status: draft
+  description: Charge-state-summed number density of ionized oxygen impurity immediately
+    adjacent to a limiter surface at the plasma-wall interface.
+  documentation: 'Oxygen density at a limiter is the local number density of ionized
+    oxygen impurity in the plasma immediately adjacent to the limiter surface. It
+    is species-specific and charge-state-summed, so it represents oxygen ions only,
+    not neutral oxygen or electrons.
+
+
+    For oxygen ion charge states from singly ionized to fully stripped, the charge-state-summed
+    limiter density is defined as:
+
+
+    $$
+
+    n_{\mathrm{O,lim}} = \sum_{q=1}^{8} n_{\mathrm{O}^{q+},\mathrm{lim}}
+
+    $$
+
+
+    where $n_{\mathrm{O,lim}}$ and each charge-state density $n_{\mathrm{O}^{q+},\mathrm{lim}}$
+    are number densities in m^-3, $q$ is the dimensionless ion charge state, and the
+    upper limit 8 is the nuclear charge of oxygen. The neutral state $q=0$ is excluded.
+
+
+    In practice, this quantity is estimated from oxygen spectral line emission together
+    with collisional-radiative or ionization-balance modeling, or from edge plasma
+    and impurity-transport calculations constrained by local plasma conditions and
+    wall-interaction source terms. It is the limiter-local counterpart of [oxygen_density_at_plasma_boundary](name:oxygen_density_at_plasma_boundary)
+    and is interpreted alongside limiter plasma quantities such as [electron_density_at_limiter](name:electron_density_at_limiter).
+
+
+    Typical limiter-adjacent oxygen ion densities are strongly device- and scenario-dependent
+    and are usually trace impurity values relative to the local electron density.
+    Representative order-of-magnitude values can range from 10^14-10^18 m^-3 in clean
+    or moderately conditioned edge plasmas, with larger transient values possible
+    during enhanced oxygen influx or strong plasma-wall interaction.'
+  unit: m^-3
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:density_at_limiter
+  - name:neon_density_at_limiter
+  - name:nitrogen_density_at_limiter
+  - name:carbon_density_at_limiter
+  - name:xenon_density_at_limiter
+  arguments:
+  - name: density_at_limiter
+    operator: oxygen
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/local/limiter/n_i/oxygen/value
+    dd_path: summary/local/limiter/n_i/oxygen/value
+    status: composed
+- name: particle_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Number of particles arriving at a plasma-facing wall surface per unit
+    area per unit time from the plasma side, serving as the parent concept for species-resolved
+    wall particle fluxes covering electrons, ions of any charge state, and neutral
+    atoms or molecules.
+  documentation: "Particle flux at the wall is the number rate per unit area at which\
+    \ plasma-side particles \u2014 electrons, ions of any charge state, or neutral\
+    \ atoms and molecules \u2014 impinge on a plasma-facing boundary surface. It is\
+    \ the most general form of the wall particle-flux concept, abstracting over the\
+    \ species identity of the arriving particles.\n\nFor a particle species $s$ with\
+    \ velocity distribution function $f_s(\\mathbf{v})$, the incident flux is\n\n\
+    $$\n\\Gamma_s = \\int_{\\mathbf{v}\\cdot\\hat{n} < 0} f_s(\\mathbf{v})\\,|\\mathbf{v}\\\
+    cdot\\hat{n}|\\,d^3v\n$$\n\nwhere $\\hat{n}$ is the inward-pointing wall-normal\
+    \ unit vector and the integral extends over particle velocities directed toward\
+    \ the surface. The total wall particle flux is obtained by summing $\\Gamma_s$\
+    \ over all contributing species.\n\nSpecies-resolved refinements include [electron_particle_flux_at_wall](name:electron_particle_flux_at_wall)\
+    \ for the electron channel, [ion_particle_flux_at_wall](name:ion_particle_flux_at_wall)\
+    \ for ions aggregated over all charge states, and [neutral_particle_flux_at_wall](name:neutral_particle_flux_at_wall)\
+    \ for neutral atoms and molecules summed over quantum states. The particle flux\
+    \ at the wall drives key plasma-material interaction processes including physical\
+    \ sputtering, chemical erosion, fuel retention, and recycling, and is closely\
+    \ coupled to the kinetic energy delivered to the surface, described by [incident_kinetic_energy_flux_at_wall](name:incident_kinetic_energy_flux_at_wall).\n\
+    \nIn scrape-off-layer plasmas the ion component to a divertor target spans roughly\
+    \ $10^{21}$\u2013$10^{24}$ m$^{-2}$ s$^{-1}$ depending on plasma density, confinement\
+    \ mode, and divertor geometry; electron fluxes are comparable in magnitude at\
+    \ the sheath edge where quasi-neutrality is maintained."
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:electron_particle_flux_at_wall
+  - name:ion_particle_flux_at_wall
+  - name:neutral_particle_flux_at_wall
+  - name:incident_kinetic_energy_flux_at_wall
+- name: electron_particle_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Incident electron particle flux density at a plasma-facing wall, equal
+    to the number of electrons arriving from the plasma side per unit wall area per
+    unit time.
+  documentation: 'Electron particle flux at a wall is the one-way incident number
+    flux density of electrons crossing from the plasma into a material surface. It
+    counts arriving electrons per unit wall area and per unit time; electrons emitted,
+    reflected, or backscattered from the surface are not included.
+
+
+    For a wall point $\mathbf r_w$, the incident flux is the velocity-space moment
+    over particles moving into the wall:
+
+
+    $$
+
+    \Gamma_e^\mathrm{inc}(\mathbf r_w) = \int_{\mathbf v \cdot \hat{\mathbf n}_w >
+    0} (\mathbf v \cdot \hat{\mathbf n}_w)\, f_e(\mathbf r_w,\mathbf v)\, d^3v
+
+    $$
+
+
+    where $\hat{\mathbf n}_w$ is the dimensionless unit normal pointing from the plasma
+    into the wall material, $\mathbf v$ is electron velocity in m.s^-1, and $f_e$
+    is the electron velocity distribution with units m^-3 (m.s^-1)^-3. The result
+    has units m^-2.s^-1 and is a one-way arrival flux, not the signed normal component
+    of the electron fluid particle flux.
+
+
+    For a finite wall region $A$, the associated total incident electron arrival rate
+    is $\dot N_e^\mathrm{inc}(A)=\int_A \Gamma_e^\mathrm{inc}(\mathbf r_w)\,dA$, where
+    $dA$ is a surface element in m^2 and $\dot N_e^\mathrm{inc}$ has units s^-1; this
+    is the area-integrated quantity related to electron_source_rate_at_wall. In practice
+    the flux is estimated from sheath or edge-plasma modeling, kinetic simulations,
+    probe current measurements, retarding-field or surface diagnostics, and particle-balance
+    analysis, with corrections for local sheath potential, magnetic incidence angle,
+    and emitted-electron contributions when those affect the inferred incident population.
+
+
+    Typical time-averaged values range from 10^20-10^23 m^-2.s^-1 on main-chamber
+    plasma-facing surfaces and 10^22-10^24 m^-2.s^-1 in attached divertor strike-point
+    regions. Detached, shadowed, or remote wall areas can be orders of magnitude lower,
+    while transient events can briefly exceed steady-state levels.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links: []
+  arguments:
+  - name: particle_flux_at_wall
+    operator: electron
+    operator_kind: qualifier
+  sources:
+  - id: dd:wall/description_ggd/ggd/particle_fluxes/electrons/emitted/values
+    dd_path: wall/description_ggd/ggd/particle_fluxes/electrons/emitted/values
+    status: composed
+  - id: dd:wall/description_ggd/ggd/particle_fluxes/electrons/incident/values
+    dd_path: wall/description_ggd/ggd/particle_fluxes/electrons/incident/values
+    status: composed
+- name: ion_particle_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Aggregate incident particle flux of ions, summed over all charge states,
+    arriving at the plasma-facing wall surface.
+  documentation: 'The ion particle flux at the wall is the aggregate rate at which
+    ions from the plasma impinge on a unit area of plasma-facing material, summed
+    over all ion charge states. As the ion-species component of the total [particle_flux_at_wall](name:particle_flux_at_wall),
+    it does not include contributions from neutral particles (see [neutral_particle_flux_at_wall](name:neutral_particle_flux_at_wall))
+    or electrons.
+
+
+    In fluid plasma models, the incident flux $\Gamma_i^{\rm wall}$ at a wall surface
+    element with inward surface normal $\hat{n}$ is:
+
+
+    $$
+
+    \Gamma_i^{\rm wall} = \sum_z n_{i,z} \, \mathbf{u}_{i,z} \cdot \hat{n}
+
+    $$
+
+
+    where $n_{i,z}$ is the number density of ions in charge state $z$ and $\mathbf{u}_{i,z}$
+    is the corresponding bulk ion flow velocity, with the summation running over all
+    charge states $z$. The charge-state-resolved analog is given by [ion_state_particle_flux_at_wall](name:ion_state_particle_flux_at_wall).
+
+
+    This flux is computed as a surface boundary output of edge plasma fluid simulations
+    or estimated from experimental ion saturation current density measurements via
+    the Bohm sheath criterion. Together with [ion_kinetic_energy_flux_at_wall](name:ion_kinetic_energy_flux_at_wall),
+    it characterizes the particle and energy loading on plasma-facing components and
+    serves as a key input to sputtering yield and fuel-retention models.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:particle_flux_at_wall
+  - name:neutral_particle_flux_at_wall
+  - name:ion_state_particle_flux_at_wall
+  - name:ion_kinetic_energy_flux_at_wall
+  arguments:
+  - name: particle_flux_at_wall
+    operator: ion
+    operator_kind: qualifier
+  sources:
+  - id: dd:wall/description_ggd/ggd/particle_fluxes/ion/emitted/values
+    dd_path: wall/description_ggd/ggd/particle_fluxes/ion/emitted/values
+    status: composed
+  - id: dd:wall/description_ggd/ggd/particle_fluxes/ion/incident/values
+    dd_path: wall/description_ggd/ggd/particle_fluxes/ion/incident/values
+    status: composed
+- name: ion_state_particle_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Incident particle flux of ions in a specific charge state at the plasma-facing
+    wall surface.
+  documentation: 'Ions bombarding plasma-facing surfaces arrive in a range of charge
+    states whose individual contributions govern sputtering thresholds, energy deposition,
+    and fuel recycling. This quantity gives the local incident particle flux from
+    ions in a single specified charge state $z$, the charge-state-resolved building
+    block of the total ion bombardment.
+
+
+    The incident flux from ions in charge state $z$ is:
+
+
+    $$
+
+    \Gamma_{\mathrm{ion},z} = n_{\mathrm{ion},z} \, v_{\perp,z}
+
+    $$
+
+
+    where $n_{\mathrm{ion},z}$ is the local number density of ions in charge state
+    $z$ (m$^{-3}$) and $v_{\perp,z}$ is their mean velocity component directed toward
+    the wall surface (m s$^{-1}$).
+
+
+    Summing over all charge states recovers [ion_particle_flux_at_wall](name:ion_particle_flux_at_wall);
+    including all particle species (neutrals, electrons) gives [particle_flux_at_wall](name:particle_flux_at_wall).
+    The structurally analogous quantity for neutral particles resolved by quantum
+    state is [neutral_state_particle_flux_at_wall](name:neutral_state_particle_flux_at_wall).
+    Charge-state resolution is essential for computing state-dependent sputtering
+    yields and surface chemistry reactions in plasma-wall interaction models.
+
+
+    Typical incident ion fluxes in tokamak boundary plasmas range from $10^{19}$ to
+    $10^{22}$ m$^{-2}$ s$^{-1}$, with peak values near divertor strike points on plasma-facing
+    components.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:ion_particle_flux_at_wall
+  - name:particle_flux_at_wall
+  - name:neutral_state_particle_flux_at_wall
+  arguments:
+  - name: particle_flux_at_wall
+    operator: ion_state
+    operator_kind: qualifier
+  sources:
+  - id: dd:wall/description_ggd/ggd/particle_fluxes/ion/state/emitted/values
+    dd_path: wall/description_ggd/ggd/particle_fluxes/ion/state/emitted/values
+    status: composed
+  - id: dd:wall/description_ggd/ggd/particle_fluxes/ion/state/incident/values
+    dd_path: wall/description_ggd/ggd/particle_fluxes/ion/state/incident/values
+    status: composed
+- name: neutral_particle_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Incident flux of neutral particles (atoms and molecules) arriving at
+    the plasma-facing wall per unit area per unit time, summed over all quantum states
+    of the neutral species.
+  documentation: 'The neutral particle flux at the wall is the local rate per unit
+    area at which neutral atoms and molecules impinge on plasma-facing material from
+    the plasma-boundary region. It is the total neutral contribution to [particle_flux_at_wall](name:particle_flux_at_wall),
+    summed over all quantum states of the neutral species. Neutrals reaching the wall
+    arrive primarily through charge-exchange reactions and recombination in the scrape-off
+    layer, gas injection, and desorption from the surface.
+
+
+    The incident neutral flux density is defined by integrating the wall-directed
+    component of the neutral velocity distribution:
+
+
+    $$
+
+    \Gamma_n = \int_{v_\perp > 0} v_\perp \, f_n(\mathbf{v}) \, d^3v
+
+    $$
+
+
+    where $v_\perp$ is the velocity component directed toward the wall surface and
+    $f_n(\mathbf{v})$ is the neutral particle velocity distribution function.
+
+
+    This flux is a primary driver of fuel recycling, hydrogenic implantation, and
+    physical sputtering of plasma-facing components. The quantum-state-resolved analog
+    [neutral_state_particle_flux_at_wall](name:neutral_state_particle_flux_at_wall)
+    decomposes this total by individual electronic excitation state, while [neutral_energy_flux_at_wall](name:neutral_energy_flux_at_wall)
+    gives the associated kinetic energy carried by the same neutral population. The
+    species counterparts [ion_particle_flux_at_wall](name:ion_particle_flux_at_wall)
+    and [electron_particle_flux_at_wall](name:electron_particle_flux_at_wall) complete
+    the particle-species decomposition of the total wall loading.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:particle_flux_at_wall
+  - name:neutral_state_particle_flux_at_wall
+  - name:neutral_energy_flux_at_wall
+  - name:ion_particle_flux_at_wall
+  - name:electron_particle_flux_at_wall
+  arguments:
+  - name: particle_flux_at_wall
+    operator: neutral
+    operator_kind: qualifier
+  sources:
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/kinetic/neutral/emitted/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/neutral/emitted/values
+    status: composed
+  - id: dd:wall/description_ggd/ggd/particle_fluxes/neutral/emitted/values
+    dd_path: wall/description_ggd/ggd/particle_fluxes/neutral/emitted/values
+    status: attached
+  - id: dd:wall/description_ggd/ggd/particle_fluxes/neutral/incident/values
+    dd_path: wall/description_ggd/ggd/particle_fluxes/neutral/incident/values
     status: composed
 - name: neutral_state_particle_flux_at_wall
   kind: scalar
@@ -1471,6 +2483,10 @@
   - name:neutral_particle_flux_at_wall
   - name:particle_flux_at_wall
   - name:neutral_state_energy_flux_at_wall
+  arguments:
+  - name: particle_flux_at_wall
+    operator: neutral_state
+    operator_kind: qualifier
   sources:
   - id: dd:wall/description_ggd/ggd/energy_fluxes/kinetic/neutral/state/emitted/values
     dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/neutral/state/emitted/values
@@ -1480,6 +2496,178 @@
     status: attached
   - id: dd:wall/description_ggd/ggd/particle_fluxes/neutral/state/incident/values
     dd_path: wall/description_ggd/ggd/particle_fluxes/neutral/state/incident/values
+    status: composed
+- name: particle_flux_due_to_recombination
+  kind: scalar
+  status: draft
+  description: Particle number flux generated by recombination of incident ions into
+    neutral particles, summed over relevant ion species, charge states, and neutral
+    product states. It is the parent concept for geometry-specific recombination flux
+    densities, such as emission from plasma-facing surfaces.
+  documentation: 'Particle flux due to recombination is the rate at which neutral
+    particles are produced and carried across a specified interface after ions recombine
+    with electrons or surface-bound electrons. This parent quantity abstracts over
+    more specific forms; for example, [particle_flux_at_wall_due_to_recombination](name:particle_flux_at_wall_due_to_recombination)
+    is the outgoing neutral-particle flux density from a plasma-facing wall. When
+    unresolved, the total includes all contributing ion species, charge states, and
+    neutral product states.
+
+
+    For surface recombination flux-density forms, a common particle-balance representation
+    is:
+
+
+    $$
+
+    \Gamma_\mathrm{rec} = \sum_{s,z,\alpha} Y_{s,z,\alpha}\,\Gamma_{\mathrm{ion},s,z}
+
+    $$
+
+
+    where $\Gamma_\mathrm{rec}$ is the recombination-produced particle flux density,
+    $\Gamma_{\mathrm{ion},s,z}$ is the incident ion flux density for species $s$ and
+    charge state $z$, $\alpha$ labels the neutral product state, and $Y_{s,z,\alpha}$
+    is the effective recombination and re-emission yield. For an area-normalized flux
+    density, the SI unit is m^-2 s^-1.
+
+
+    This quantity is estimated from incident ion fluxes, recycling or recombination
+    yields, edge particle balance, neutral transport modeling, and diagnostics sensitive
+    to recycling emission near material surfaces. Spectroscopic measurements, ion-saturation-current
+    measurements, and inferred neutral source strengths are commonly combined to separate
+    recombination-driven neutral production from other particle sources.
+
+
+    Typical wall recombination flux densities in magnetically confined plasmas are
+    about 10^20-10^24 m^-2 s^-1. Main-chamber wall values often lie near 10^20-10^22
+    m^-2 s^-1, while divertor or limiter regions with strong recycling can reach 10^22-10^24
+    m^-2 s^-1.
+
+
+    Sign convention: Positive when recombined neutral particles leave the recombining
+    surface, such as a plasma-facing wall, and enter the adjacent plasma or gas.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_state_particle_flux_at_wall_due_to_recombination
+  - name:neutral_particle_flux_at_wall_due_to_recombination
+  - name:energy_flux_at_wall_due_to_recombination
+  sources:
+  - id: derived:particle_flux_due_to_recombination
+    status: composed
+- name: particle_flux_at_wall_due_to_recombination
+  kind: scalar
+  status: draft
+  description: Outgoing neutral-particle number flux per unit plasma-facing wall area
+    emitted when incident plasma ions recombine at the surface, summed over all ion
+    species, charge states, and neutral product states.
+  documentation: 'Particle flux at the wall due to recombination quantifies the rate
+    at which neutral particles are emitted from a plasma-facing surface per unit area
+    as a result of incident plasma ions recombining or neutralizing at the material
+    boundary. The flux is summed over all incident ion species, ion charge states,
+    and neutral product quantum states, making it the total species-integrated surface
+    recombination source for neutrals returning to the plasma.
+
+
+    The total recombination neutral flux $\Gamma_\text{rec}$ at wall location $\mathbf{x}_w$
+    is the sum of all state-resolved emission rates:
+
+
+    $$
+
+    \Gamma_\text{rec}(\mathbf{x}_w) = \sum_{s,\,q,\,k} \Gamma_{s,q \to k}(\mathbf{x}_w)
+
+    $$
+
+
+    where $\Gamma_{s,q \to k}$ is the emitted neutral flux per unit wall area for
+    neutral product in quantum state $k$ arising from ion species $s$ in charge state
+    $q$ recombining at the surface.
+
+
+    In plasma-facing component modeling, this flux is estimated by applying surface
+    neutralization probabilities to incident ion fluxes computed by edge plasma transport
+    codes, or by Monte Carlo neutral transport simulations that track individual recombination
+    events at the surface. The state-resolved counterpart [neutral_state_particle_flux_at_wall_due_to_recombination](name:neutral_state_particle_flux_at_wall_due_to_recombination)
+    disaggregates the total by neutral product species and quantum state; summing
+    over all states and species recovers the quantity represented here, which is also
+    reported as [neutral_particle_flux_at_wall_due_to_recombination](name:neutral_particle_flux_at_wall_due_to_recombination).
+    The energy deposited by the same recombination events is captured by [energy_flux_at_wall_due_to_recombination](name:energy_flux_at_wall_due_to_recombination).'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_state_particle_flux_at_wall_due_to_recombination
+  - name:neutral_particle_flux_at_wall_due_to_recombination
+  - name:energy_flux_at_wall_due_to_recombination
+  arguments:
+  - name: particle_flux_due_to_recombination
+    operator: wall
+    operator_kind: locus
+- name: neutral_particle_flux_at_wall_due_to_recombination
+  kind: scalar
+  status: draft
+  description: Neutral particle flux density emitted from a plasma-facing wall by
+    recombination or neutralization of incident plasma ions at the surface, summed
+    over all neutral species and internal states. It counts outgoing neutral particles
+    per unit wall area and time.
+  documentation: 'Neutral particle flux at a wall due to recombination is the emitted
+    particle-number flux density of neutral atoms or molecules produced when incident
+    plasma ions are neutralized at a plasma-facing material surface. It is aggregated
+    over all neutral product species and internal states and excludes neutral emission
+    from other wall processes unless they are part of the recombination or neutralization
+    channel.
+
+
+    The aggregate recombination emission flux is the sum of the state-resolved recombination
+    fluxes:
+
+
+    $$
+
+    \Gamma_{n,\mathrm{rec}} = \sum_{s,q} \Gamma_{n,s,q}^{\mathrm{rec}}
+
+    $$
+
+
+    where $\Gamma_{n,\mathrm{rec}}$ and $\Gamma_{n,s,q}^{\mathrm{rec}}$ have units
+    of m^-2 s^-1, $s$ indexes neutral product species, and $q$ indexes internal states
+    such as electronic, vibrational, or rotational states. The state-resolved terms
+    correspond to [neutral_state_particle_flux_at_wall_due_to_recombination](name:neutral_state_particle_flux_at_wall_due_to_recombination),
+    while the more general state-resolved wall flux convention is represented by [neutral_state_particle_flux_at_wall](name:neutral_state_particle_flux_at_wall).
+
+
+    In modeling, this flux is obtained from the incident ion flux to each wall surface
+    element together with recombination, neutralization, recycling, and product-branching
+    probabilities for the material and plasma conditions. For an individual incoming
+    ion channel, the emitted neutral contribution is commonly proportional to the
+    incident ion flux multiplied by the probability that the ion is neutralized and
+    leaves the surface as a specified neutral product; summing over product branches
+    gives the aggregate. Experimentally it is usually inferred indirectly from edge
+    neutral diagnostics, spectroscopy, pressure measurements, and plasma-wall interaction
+    modeling rather than measured as a direct surface particle counter.
+
+
+    Representative values span many orders of magnitude: main-chamber wall values
+    may be about 10^18-10^22 m^-2 s^-1, while divertor or limiter regions with strong
+    recycling can reach about 10^21-10^24 m^-2 s^-1. The total neutral particle flux
+    from all wall emission mechanisms is described by [neutral_particle_flux_at_wall](name:neutral_particle_flux_at_wall),
+    and the related energy-weighted neutral wall flux is described by [neutral_energy_flux_at_wall](name:neutral_energy_flux_at_wall).
+
+
+    Sign convention: Positive when neutral particles cross the plasma-facing surface
+    from the material into the plasma.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_state_particle_flux_at_wall_due_to_recombination
+  - name:neutral_particle_flux_at_wall
+  arguments:
+  - name: particle_flux_at_wall_due_to_recombination
+    operator: neutral
+    operator_kind: qualifier
+  sources:
+  - id: dd:wall/description_ggd/ggd/energy_fluxes/recombination/neutral/emitted/values
+    dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/neutral/emitted/values
     status: composed
 - name: neutral_state_particle_flux_at_wall_due_to_recombination
   kind: scalar
@@ -1538,116 +2726,13 @@
   - name:neutral_particle_flux_at_wall_due_to_recombination
   - name:neutral_state_particle_flux_at_wall
   - name:neutral_state_energy_flux_due_to_recombination
+  arguments:
+  - name: particle_flux_at_wall_due_to_recombination
+    operator: neutral_state
+    operator_kind: qualifier
   sources:
   - id: dd:wall/description_ggd/ggd/energy_fluxes/recombination/neutral/state/emitted/values
     dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/neutral/state/emitted/values
-    status: composed
-- name: nitrogen_density_at_limiter
-  kind: scalar
-  status: draft
-  description: Number density of ionized nitrogen in the boundary plasma immediately
-    adjacent to a limiter. It represents the local nitrogen impurity ion population,
-    normally summed over ion charge states.
-  documentation: 'Ionized nitrogen density at a limiter is the local number of nitrogen
-    impurity ions per unit volume in the boundary plasma immediately adjacent to a
-    limiter surface. Unless a charge-state-specific quantity is named, it denotes
-    the sum over all ionized nitrogen charge states $N^{q+}$ with $q=1,\ldots,7$ and
-    excludes neutral nitrogen atoms or molecules.
-
-
-    The charge-state-summed density is the zeroth velocity-space moment of the nitrogen
-    ion distribution functions:
-
-
-    $$
-
-    n_N^{\mathrm{ion}} = \sum_{q=1}^{7} n_{N^{q+}} = \sum_{q=1}^{7} \int f_{N^{q+}}(\mathbf{v})
-    \, d^3v
-
-    $$
-
-
-    where $n_N^{\mathrm{ion}}$ is the total ionized nitrogen number density in m^-3,
-    $n_{N^{q+}}$ is the number density of charge state $q$ in m^-3, $f_{N^{q+}}(\mathbf{v})$
-    is the velocity-space distribution function with units s^3 m^-6, and $d^3v$ is
-    the velocity-space volume element with units m^3 s^-3.
-
-
-    In experiments, this quantity is typically inferred from impurity spectroscopy
-    together with atomic data, local electron density and temperature constraints,
-    and edge plasma modeling. In simulations or reconstructions that resolve nitrogen
-    charge states, the limiter value is obtained by summing the local ionized charge-state
-    densities adjacent to the limiter; neutral nitrogen is treated separately.
-
-
-    Typical summed ionized nitrogen densities near limiters are about $10^{14}$-$10^{17}$
-    m^-3 for trace or weakly seeded nitrogen and can reach $10^{17}$-$10^{19}$ m^-3
-    during strong nitrogen seeding or local nitrogen release. The value depends on
-    the limiter source rate, ionization balance, recombination, and transport along
-    the boundary plasma.'
-  unit: m^-3
-  physics_domain: plasma_wall_interactions
-  links:
-  - name:nitrogen_density_at_pedestal
-  - name:nitrogen_density_at_plasma_boundary
-  - name:nitrogen_density_at_magnetic_axis
-  - name:argon_density_at_limiter
-  - name:neon_density_at_limiter
-  - name:density_at_limiter
-  sources:
-  - id: dd:summary/local/limiter/n_i/nitrogen/value
-    dd_path: summary/local/limiter/n_i/nitrogen/value
-    status: composed
-- name: oxygen_density_at_limiter
-  kind: scalar
-  status: draft
-  description: Charge-state-summed number density of ionized oxygen impurity immediately
-    adjacent to a limiter surface at the plasma-wall interface.
-  documentation: 'Oxygen density at a limiter is the local number density of ionized
-    oxygen impurity in the plasma immediately adjacent to the limiter surface. It
-    is species-specific and charge-state-summed, so it represents oxygen ions only,
-    not neutral oxygen or electrons.
-
-
-    For oxygen ion charge states from singly ionized to fully stripped, the charge-state-summed
-    limiter density is defined as:
-
-
-    $$
-
-    n_{\mathrm{O,lim}} = \sum_{q=1}^{8} n_{\mathrm{O}^{q+},\mathrm{lim}}
-
-    $$
-
-
-    where $n_{\mathrm{O,lim}}$ and each charge-state density $n_{\mathrm{O}^{q+},\mathrm{lim}}$
-    are number densities in m^-3, $q$ is the dimensionless ion charge state, and the
-    upper limit 8 is the nuclear charge of oxygen. The neutral state $q=0$ is excluded.
-
-
-    In practice, this quantity is estimated from oxygen spectral line emission together
-    with collisional-radiative or ionization-balance modeling, or from edge plasma
-    and impurity-transport calculations constrained by local plasma conditions and
-    wall-interaction source terms. It is the limiter-local counterpart of [oxygen_density_at_plasma_boundary](name:oxygen_density_at_plasma_boundary)
-    and is interpreted alongside limiter plasma quantities such as [electron_density_at_limiter](name:electron_density_at_limiter).
-
-
-    Typical limiter-adjacent oxygen ion densities are strongly device- and scenario-dependent
-    and are usually trace impurity values relative to the local electron density.
-    Representative order-of-magnitude values can range from 10^14-10^18 m^-3 in clean
-    or moderately conditioned edge plasmas, with larger transient values possible
-    during enhanced oxygen influx or strong plasma-wall interaction.'
-  unit: m^-3
-  physics_domain: plasma_wall_interactions
-  links:
-  - name:density_at_limiter
-  - name:neon_density_at_limiter
-  - name:nitrogen_density_at_limiter
-  - name:carbon_density_at_limiter
-  - name:xenon_density_at_limiter
-  sources:
-  - id: dd:summary/local/limiter/n_i/oxygen/value
-    dd_path: summary/local/limiter/n_i/oxygen/value
     status: composed
 - name: peak_power_density_at_first_wall
   kind: scalar
@@ -1758,51 +2843,62 @@
   - id: dd:summary/local/limiter/power_flux_peak/value
     dd_path: summary/local/limiter/power_flux_peak/value
     status: composed
-- name: plasma_power_at_wall_due_to_recombination
+- name: plasma_deposited_power_at_wall
   kind: scalar
   status: draft
-  description: Total power deposited on plasma-facing wall surfaces by recombination
-    of plasma ions, constituting the ion-channel contribution to the overall recombination
-    wall heat load integrated over all plasma-facing surfaces.
-  documentation: 'When plasma ions arrive at a plasma-facing wall surface, they undergo
-    surface recombination, releasing energy equal to their ionization potential plus
-    any residual kinetic energy carried to the surface. This quantity integrates that
-    energy deposition rate over all plasma-facing wall surfaces and represents the
-    plasma-ion species channel within the parent quantity [power_at_wall_due_to_recombination](name:power_at_wall_due_to_recombination),
-    which also includes neutral-particle contributions.
+  description: Total power from the plasma deposited on plasma-facing wall surfaces.
+    It is the surface integral of the plasma-to-wall energy flux and is positive for
+    energy transfer into the wall.
+  documentation: 'Plasma deposited power at the wall is the total rate at which energy
+    from the plasma is delivered to plasma-facing wall surfaces, including first-wall
+    and divertor surfaces. It represents the global wall heat-load contribution associated
+    with plasma energy crossing the plasma-wall interface.
 
 
-    The deposited power is related to the local incident ion flux density by:
+    For a wall surface area $A_\mathrm{wall}$, the deposited power is defined from
+    the local plasma-to-wall energy flux density $q_{p\to w}$ as:
 
 
     $$
 
-    P_\mathrm{rec} = \int_A \Gamma_\mathrm{ion}(\mathbf{r}) \, E_\mathrm{rec} \, dA
+    P_{p\to w} = \int_{A_\mathrm{wall}} q_{p\to w}(\mathbf{x})\, dA
 
     $$
 
 
-    where $\Gamma_\mathrm{ion}$ is the local ion particle flux density at the surface
-    in m$^{-2}$ s$^{-1}$, $E_\mathrm{rec}$ is the mean energy released per recombination
-    event (sum of ionization potential and residual kinetic energy, in J), and the
-    integral extends over the total wetted plasma-facing area $A$.
+    where $q_{p\to w}$ is the total local energy flux density from the plasma into
+    the wall in W m$^{-2}$, $dA$ is a surface-area element, and the integral is over
+    the plasma-facing wall area.
 
 
-    This quantity excludes energy deposited by recombination of neutral particles
-    into molecules at the surface, which is captured separately by [neutral_power_at_wall_due_to_recombination](name:neutral_power_at_wall_due_to_recombination).
-    The analogous quantity resolved at divertor strike surfaces is [plasma_power_at_divertor_target_due_to_recombination](name:plasma_power_at_divertor_target_due_to_recombination).
-    It is estimated from edge plasma transport models constrained by incident ion-flux
-    and particle-balance measurements at the boundary.'
+    In practice this quantity is inferred from wall calorimetry, infrared thermography
+    combined with thermal modeling, embedded heat-flux sensors, bolometry and spectroscopy
+    constraints, and power-balance analysis. The local flux density may include conducted,
+    convected, radiative, and particle-associated energy contributions, but the standard
+    name denotes only their total deposited power, not a decomposition by channel.
+
+
+    Typical values range from about $10^5$-$10^7$ W in many present tokamak discharges,
+    with high-power experiments and reactor-scale scenarios reaching $10^7$-$10^8$
+    W or more depending on auxiliary heating, radiated-power fraction, confinement
+    regime, and divertor detachment.
+
+
+    Sign convention: Positive when energy is transferred from the plasma into the
+    wall surface.'
   unit: W
   physics_domain: plasma_wall_interactions
   links:
-  - name:power_at_wall_due_to_recombination
-  - name:neutral_power_at_wall_due_to_recombination
-  - name:plasma_power_at_divertor_target_due_to_recombination
+  - name:deposited_power_at_wall
+  - name:total_deposited_plasma_power_at_wall
+  - name:total_coolant_absorbed_thermal_power_at_wall
   sources:
-  - id: dd:wall/global_quantities/power_recombination_plasma
-    dd_path: wall/global_quantities/power_recombination_plasma
+  - id: dd:wall/global_quantities/power_from_plasma
+    dd_path: wall/global_quantities/power_from_plasma
     status: composed
+  - id: dd:wall/global_quantities/power_incident
+    dd_path: wall/global_quantities/power_incident
+    status: attached
 - name: power_density_at_wall
   kind: scalar
   status: draft
@@ -1905,60 +3001,83 @@
   - id: dd:wall/description_ggd/ggd/j_total/r
     dd_path: wall/description_ggd/ggd/j_total/r
     status: composed
-- name: radiated_power_at_wall
+- name: surface_area_of_optical_element
   kind: scalar
   status: draft
-  description: Net photon power deposited on plasma-facing first-wall surfaces by
-    radiation emitted from the plasma. It is the surface-integrated incident radiative
-    power intercepted by the wall minus the power carried away by reflected photons.
-  documentation: 'Radiated power at the wall is the net radiative heating power delivered
-    to plasma-facing first-wall surfaces by photons originating in the plasma. It
-    is the radiation-only contribution to the wall heat-load budget, distinct from
-    conductive, convective, neutral-particle, and charge-exchange energy channels,
-    and it complements the total wall load described by thermal_power_at_wall.
+  description: Total geometric surface area of the optically active surface or surfaces
+    of an optical element. It is the actual surface area of the material region that
+    can interact with radiation, not the projected aperture area.
+  documentation: 'Surface area of an optical element is the total geometric area of
+    the surface portions that are optically active, such as a coated mirror face,
+    crystal face, polarizer face, or fiber-bundle end face. If more than one surface
+    of the element is active, the areas of those surfaces are included; inactive supports,
+    edges, backs, or masked regions are excluded unless they are part of the active
+    optical surface.
 
 
-    The net deposited radiative power is defined by the incident photon power on the
-    wall minus the reflected photon power:
+    For an active surface region $S$, the area is defined by the surface integral:
 
 
     $$
 
-    P_\mathrm{rad,wall} = P_\mathrm{inc} - P_\mathrm{ref} = (1 - \mathcal{R}_\mathrm{eff})
-    P_\mathrm{inc}
+    A = \int_S dA
 
     $$
 
 
-    where $P_\mathrm{inc}$ is the photon power incident on all relevant first-wall
-    surfaces, $P_\mathrm{ref}$ is the photon power reflected from those surfaces,
-    and $\mathcal{R}_\mathrm{eff}$ is an effective wall reflectivity averaged over
-    surface material, spectrum, angle of incidence, and illuminated area.
+    where $A$ is the surface area in m^2, $S$ is the union of the active surface patches,
+    and $dA$ is the differential surface-area element in m^2.
 
 
-    This quantity is usually estimated from bolometric measurements of plasma radiation
-    combined with geometric view-factor or ray-tracing calculations that determine
-    how much photon power reaches the first wall. It may also be inferred from infrared
-    thermography or surface calorimetry when the radiative component can be separated
-    from other heat-load channels. It is related to [radiated_power_at_inside_flux_surface](name:total_plasma_radiated_power),
-    but represents only the photon power that escapes the plasma region and is absorbed
-    at the wall; the analogous divertor-target radiation load is [power_at_divertor_target_due_to_radiation](name:power_at_divertor_target_due_to_radiation).
+    The value is normally obtained from the element geometry, mechanical drawings,
+    metrology, or optical design models. For a flat rectangular or circular face it
+    is the actual face area; for a curved mirror, lens, or crystal it is the integrated
+    curved-surface area. This quantity differs from projected aperture area, which
+    is the area of the element projected onto a plane normal to a chosen viewing direction
+    and can be smaller than the actual surface area for tilted or curved surfaces.
 
 
-    Typical values range from $10^3$-$10^5$ W in small experiments to $10^6$-$10^8$
-    W in large tokamaks during high-density, impurity-seeded, or detached-plasma operation.
-    The value increases with total plasma radiation, wall view factor, and wall absorptivity,
-    and decreases when a larger fraction of photons is intercepted by divertor targets
-    or reflected by plasma-facing materials.'
-  unit: W
+    Surface area is non-negative, with physical range $A \ge 0$. Typical optical diagnostic
+    elements range from about $1 \times 10^{-8}$-$1 \times 10^{-4}$ m^2 for individual
+    fiber cores or small fiber-bundle faces, $1 \times 10^{-6}$-$1 \times 10^{-2}$
+    m^2 for filters, polarizers, crystals, and small mirrors, and up to $10^{-1}$
+    m^2 for large collection mirrors or window-like elements.'
+  unit: m^2
   physics_domain: plasma_wall_interactions
   links:
-  - name:total_plasma_radiated_power
-  - name:power_at_divertor_target_due_to_radiation
+  - name:surface_area_of_filter
+  - name:area_of_optical_element
   sources:
-  - id: dd:wall/global_quantities/power_radiated
-    dd_path: wall/global_quantities/power_radiated
-    status: composed
+  - id: dd:camera_ir/fibre_bundle/geometry/surface
+    dd_path: camera_ir/fibre_bundle/geometry/surface
+    status: attached
+  - id: dd:camera_ir/optical_element/geometry/surface
+    dd_path: camera_ir/optical_element/geometry/surface
+    status: attached
+  - id: dd:camera_visible/channel/fibre_bundle/geometry/surface
+    dd_path: camera_visible/channel/fibre_bundle/geometry/surface
+    status: attached
+  - id: dd:camera_visible/channel/optical_element/geometry/surface
+    dd_path: camera_visible/channel/optical_element/geometry/surface
+    status: attached
+  - id: dd:ec_launchers/mirror/geometry/surface
+    dd_path: ec_launchers/mirror/geometry/surface
+    status: attached
+  - id: dd:neutron_diagnostic/detector/geometry/surface
+    dd_path: neutron_diagnostic/detector/geometry/surface
+    status: attached
+  - id: dd:spectrometer_visible/channel/fibre_bundle/geometry/surface
+    dd_path: spectrometer_visible/channel/fibre_bundle/geometry/surface
+    status: attached
+  - id: dd:spectrometer_visible/channel/optical_element/geometry/surface
+    dd_path: spectrometer_visible/channel/optical_element/geometry/surface
+    status: attached
+  - id: dd:spectrometer_visible/channel/polarizer/surface
+    dd_path: spectrometer_visible/channel/polarizer/surface
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/crystal/surface
+    dd_path: spectrometer_x_ray_crystal/channel/crystal/surface
+    status: attached
 - name: surface_emissivity
   kind: scalar
   status: draft
@@ -2209,6 +3328,51 @@
   - id: dd:wall/global_quantities/current_tor
     dd_path: wall/global_quantities/current_tor
     status: attached
+- name: total_electron_incident_particle_flux_at_wall
+  kind: scalar
+  status: draft
+  description: Surface-integrated rate at which electrons from the confined plasma
+    arrive at all plasma-facing wall surfaces, obtained by integrating the local incident
+    electron particle flux density over the full exposed wall area.
+  documentation: 'The total incident electron particle flux at the wall is the global
+    rate at which electrons from the confined plasma reach all plasma-facing material
+    surfaces. It represents the primary electron particle sink in the global plasma
+    particle balance, governing recycling, fueling efficiency, and wall particle loading.
+
+
+    The quantity is defined as:
+
+
+    $$
+
+    \Phi_e = \oint_{\text{wall}} \Gamma_e \, dA
+
+    $$
+
+
+    where $\Gamma_e$ is the local incident electron particle flux density and the
+    surface integral spans all plasma-exposed wall area $A$. This integral is the
+    global counterpart of the local flux density given by [electron_particle_flux_at_wall](name:electron_particle_flux_at_wall).
+
+
+    In the plasma particle balance, this flux accounts for electrons leaving the confined
+    plasma toward the wall via parallel transport along open field lines in the scrape-off
+    layer. The complementary electron source returned to the plasma from the wall,
+    including recycling and secondary emission, is described by [electron_source_rate_due_to_surface_emission](name:electron_source_rate_due_to_surface_emission).
+    This quantity is computed from edge transport simulations resolving the scrape-off
+    layer particle balance or from global particle balance diagnostics combining neutral
+    fueling rates, pumping fluxes, and plasma density evolution. The analogous globally
+    integrated energy load on the wall is given by [plasma_deposited_power_at_wall](name:plasma_deposited_power_at_wall).'
+  unit: s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:electron_particle_flux_at_wall
+  - name:electron_source_rate_due_to_surface_emission
+  - name:plasma_deposited_power_at_wall
+  sources:
+  - id: dd:wall/global_quantities/electrons/particle_flux_from_plasma
+    dd_path: wall/global_quantities/electrons/particle_flux_from_plasma
+    status: composed
 - name: total_ion_density_at_limiter
   kind: scalar
   status: draft
@@ -2238,9 +3402,8 @@
     density to electron density diagnostics at the boundary.
 
 
-    This quantity is the aggregate form of [ion_density_at_limiter](name:ion_density_at_limiter),
-    which resolves the same density by individual species. It is closely related to
-    [total_ion_density_at_plasma_boundary](name:total_ion_density_at_plasma_boundary),
+    This quantity is the aggregate form of ion_density_at_limiter, which resolves
+    the same density by individual species. It is closely related to [total_ion_density_at_plasma_boundary](name:total_ion_density_at_plasma_boundary),
     which evaluates the equivalent species sum at the last closed flux surface, and
     to [total_ion_density_at_pedestal](name:total_ion_density_at_pedestal) for the
     pedestal region. It is typically inferred from Langmuir probe arrays mounted on
@@ -2253,12 +3416,233 @@
   unit: m^-3
   physics_domain: plasma_wall_interactions
   links:
-  - name:ion_density_at_limiter
   - name:total_ion_density_at_plasma_boundary
   - name:total_ion_density_at_pedestal
   sources:
   - id: dd:summary/local/limiter/n_i_total/value
     dd_path: summary/local/limiter/n_i_total/value
+    status: composed
+- name: total_neutral_particle_flux_at_wall_due_to_surface_emission
+  kind: scalar
+  status: draft
+  description: Total rate at which neutral atoms and molecules are emitted from plasma-facing
+    material surfaces into the adjacent plasma-facing region by surface processes
+    such as recycling of incident particles and outgassing, summed over the relevant
+    wall area.
+  documentation: 'Total neutral particle flux at the wall due to surface emission
+    is the globally counted rate at which neutral atoms or molecules leave plasma-facing
+    material surfaces and enter the adjacent plasma-facing region. It represents wall-related
+    neutral production dominated by recycling of incident plasma particles neutralized
+    at the surface and by thermally activated outgassing, accumulated over all participating
+    wall area.
+
+
+    The total emission rate is the surface integral of the local emitted neutral particle
+    flux density:
+
+
+    $$
+
+    \Gamma_{\mathrm{em}} = \int_{A_{\mathrm{wall}}} \gamma_{\mathrm{em}}(\mathbf{x})
+    \, dA
+
+    $$
+
+
+    where $\Gamma_{\mathrm{em}}$ is the total neutral emission rate in s^-1, $A_{\mathrm{wall}}$
+    is the plasma-facing wall area included in the sum, $\gamma_{\mathrm{em}}(\mathbf{x})$
+    is the local outward neutral particle flux density in m^-2 s^-1 at surface position
+    $\mathbf{x}$, and $dA$ is a surface area element.
+
+
+    This quantity is the neutral-species, wall-integrated counterpart of the local
+    emitted flux density carried by [neutral_particle_flux_at_wall](name:neutral_particle_flux_at_wall).
+    It is numerically equivalent to the global emission term [neutral_particle_source_rate_at_wall_due_to_surface_emission](name:total_neutral_particle_flux_at_wall_due_to_surface_emission),
+    which expresses the same surface-integrated neutral release as a plasma source
+    term, and it is the neutral-specific case of the species-general integrated rate
+    particle_flux_due_to_surface_emission.
+
+
+    In practice the quantity is computed by integrating local wall-emission estimates
+    from particle-balance analysis or plasma-wall interaction models. Experimental
+    constraints come indirectly from neutral pressure measurements, spectroscopic
+    neutral line emission, fueling and exhaust balance, and estimates of incident
+    particle fluxes combined with recycling yields.
+
+
+    Typical integrated rates range from 10^20-10^22 s^-1 in small or low-density plasmas
+    and from 10^22-10^24 s^-1 in medium and large tokamak discharges, with short recycling
+    or outgassing transients producing larger instantaneous rates.
+
+
+    Sign convention: Positive when neutral particles are emitted away from the material
+    wall surface into the plasma-facing region.'
+  unit: s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_particle_flux_at_wall
+  sources:
+  - id: dd:wall/global_quantities/neutral/particle_flux_from_wall
+    dd_path: wall/global_quantities/neutral/particle_flux_from_wall
+    status: composed
+- name: tritium_density_at_limiter
+  kind: scalar
+  status: draft
+  description: Number density of tritium ions in the plasma immediately adjacent to
+    a plasma-facing limiter surface.
+  documentation: 'Tritium density at a limiter is the local number density of tritium
+    ions $T^+$ in the scrape-off-layer plasma immediately adjacent to a plasma-facing
+    limiter surface. It is a species-resolved ion density, not a neutral tritium density,
+    surface inventory, or particle flux. As a number density it is a non-negative
+    scalar measured per unit volume.
+
+
+    The local density is the tritium-ion particle count per infinitesimal plasma volume
+    at the limiter-adjacent location:
+
+
+    $$
+
+    n_T = \frac{dN_T}{dV}
+
+    $$
+
+
+    where $dN_T$ is the number of tritium ions in the volume element $dV$, and $n_T$
+    has units of $\mathrm{m}^{-3}$. If an electron-normalized isotope fraction is
+    used, [tritium_fraction](name:ratio_of_tritium_density_to_electron_density) corresponds
+    to $n_T/n_e$, where $n_e$ is the electron density in $\mathrm{m}^{-3}$; it is
+    not a fraction of total ion density unless that convention is stated separately.
+
+
+    In practice this quantity is inferred from isotope-resolved edge spectroscopy,
+    neutral and ion source modeling, probe-constrained scrape-off-layer analysis,
+    or edge transport simulations. Its value reflects the local balance between parallel
+    transport along open field lines, ionization of recycled tritium neutrals, cross-field
+    transport, and ion loss to the material surface. It should not be assumed to have
+    a fixed ordering relative to [tritium_density_at_plasma_boundary](name:tritium_density_at_plasma_boundary),
+    [tritium_density_at_pedestal](name:tritium_density_at_pedestal), or [tritium_density_at_divertor_target](name:tritium_density_at_divertor_target),
+    because recycling strength, fueling mix, geometry, and plasma conditions can change
+    the local limiter-adjacent density.
+
+
+    Representative limiter scrape-off-layer tritium-ion densities can span roughly
+    $10^{17}-10^{20}\ \mathrm{m}^{-3}$ in deuterium-tritium operation, with the tritium
+    component set by both the local plasma density and the isotope composition. Values
+    may be much lower in low-tritium or trace-tritium plasmas and can vary strongly
+    over the limiter surface and during transient plasma-wall interaction events.'
+  unit: m^-3
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:ratio_of_tritium_density_to_electron_density
+  - name:tritium_density_at_plasma_boundary
+  - name:tritium_density_at_pedestal
+  - name:tritium_density_at_divertor_target
+  arguments:
+  - name: density_at_limiter
+    operator: tritium
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/local/limiter/n_i/tritium/value
+    dd_path: summary/local/limiter/n_i/tritium/value
+    status: composed
+- name: tungsten_density
+  kind: scalar
+  status: draft
+  description: Total number density of tungsten ions in the plasma, summed over all
+    ionization states from W$^{1+}$ through W$^{74+}$, excluding neutral tungsten
+    atoms.
+  documentation: "Tungsten density is the local number density of ionized tungsten\
+    \ in a plasma, aggregated across all charge states from W$^{1+}$ through W$^{74+}$,\
+    \ without including neutral tungsten atoms. Tungsten is introduced into the plasma\
+    \ primarily through sputtering and erosion of plasma-facing components; because\
+    \ of its high atomic number, even trace concentrations can increase radiative\
+    \ losses substantially and degrade energy confinement.\n\nThe total tungsten ion\
+    \ density is defined as:\n\n$$\nn_W = \\sum_{q=1}^{74} n_{W^{q+}}\n$$\n\nwhere\
+    \ $n_{W^{q+}}$ is the number density of tungsten ions in charge state $q$.\n\n\
+    At concentrations $n_W/n_e \\sim 10^{-5}$\u2013$10^{-4}$, partially ionized tungsten\
+    \ radiates copiously in the vacuum ultraviolet and soft X-ray ranges, driving\
+    \ hollow temperature profiles and degrading H-mode performance. The [ratio of\
+    \ tungsten density to electron density](name:ratio_of_tungsten_density_to_electron_density)\
+    \ is the standard dimensionless measure of tungsten contamination, while the [volume-averaged\
+    \ tungsten density](name:volume_averaged_tungsten_density) characterizes the total\
+    \ confined tungsten inventory. In experiments, $n_W$ is inferred from spectroscopic\
+    \ measurement of tungsten line emission \u2014 typically in the vacuum ultraviolet\
+    \ or soft X-ray spectral range \u2014 combined with atomic data for the charge-state\
+    \ distribution.\n\nSign convention: Positive when tungsten ions are present in\
+    \ the plasma region of interest."
+  unit: m^-3
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:ratio_of_tungsten_density_to_electron_density
+  - name:volume_averaged_tungsten_density
+  sources:
+  - id: dd:summary/line_average/n_i/tungsten/value
+    dd_path: summary/line_average/n_i/tungsten/value
+    status: composed
+- name: ratio_of_tungsten_density_to_electron_density
+  kind: scalar
+  status: draft
+  description: Dimensionless concentration ratio of tungsten ion number density to
+    electron number density in a plasma. The tungsten density is summed over ionized
+    tungsten charge states and excludes neutral tungsten atoms.
+  documentation: 'Ratio of tungsten density to electron density is a dimensionless
+    impurity concentration comparing the total number density of tungsten ions with
+    the free-electron number density. The tungsten density counts tungsten nuclei
+    in ionized charge states, summed over charge state, and excludes neutral tungsten
+    atoms. It is not charge weighted, so it is not the fraction of the electron population
+    supplied by tungsten ions.
+
+
+    The ratio is defined as:
+
+
+    $$
+
+    c_W = \frac{n_W}{n_e} = \frac{\sum_{z=1}^{74} n_{\mathrm{W}^{z+}}}{n_e}
+
+    $$
+
+
+    where $n_{\mathrm{W}^{z+}}$ is the number density of tungsten ions in charge state
+    $z$, $n_W$ is the total ionized tungsten number density, and $n_e$ is the free-electron
+    number density. The lower limit excludes neutral tungsten $\mathrm{W}^0$; if all
+    densities are expressed in the same number-density unit, the ratio has unit 1.
+    The quantity is meaningful where $n_e>0$ and is non-negative for physical number
+    densities.
+
+
+    In practice, $n_W$ is inferred from plasma composition analysis constrained by
+    tungsten radiation and charge-state information, while $n_e$ is obtained from
+    electron-density measurements or kinetic reconstructions. The numerator and denominator
+    should refer to the same plasma region or averaging operation when the ratio is
+    interpreted as a regional concentration.
+
+
+    Representative core-plasma values in tungsten-containing devices are often $10^{-6}$-$10^{-4}$.
+    Local values near strong tungsten sources or in colder boundary regions can be
+    higher, for example $10^{-4}$-$10^{-3}$, depending on source strength, ionization
+    balance, and plasma conditions.'
+  unit: '1'
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:tungsten_density_at_magnetic_axis
+  - name:tungsten_density_at_pedestal
+  - name:volume_averaged_tungsten_density
+  arguments:
+  - name: tungsten_density
+    operator: ratio
+    operator_kind: binary
+    role: a
+    separator: to
+  - name: electron_density
+    operator: ratio
+    operator_kind: binary
+    role: b
+    separator: to
+  sources:
+  - id: dd:summary/composition/tungsten/value
+    dd_path: summary/composition/tungsten/value
     status: composed
 - name: tungsten_density_at_limiter
   kind: scalar
@@ -2304,10 +3688,70 @@
   - name:density_at_limiter
   - name:tungsten_density_at_pedestal
   - name:tungsten_density_at_magnetic_axis
+  arguments:
+  - name: density_at_limiter
+    operator: tungsten
+    operator_kind: qualifier
   sources:
   - id: dd:summary/local/limiter/n_i/tungsten/value
     dd_path: summary/local/limiter/n_i/tungsten/value
     status: composed
+- name: vertical_coordinate_of_diagnostic_aperture
+  kind: scalar
+  status: draft
+  description: "Vertical Z coordinate of the geometric center of a diagnostic aperture\
+    \ in the right-handed cylindrical (R, \u03C6, Z) frame, where Z is vertical height."
+  documentation: 'The vertical coordinate of a diagnostic aperture is the $Z$ position
+    of the aperture''s geometric center in the right-handed cylindrical $(R, \phi,
+    Z)$ frame. Here $R$ is major radius measured from the machine symmetry axis, $\phi$
+    is the toroidal angle, and $Z$ is vertical height.
+
+
+    For a physical aperture such as a pinhole, collimator opening, or entrance slit,
+    the geometric center is the reference point used to define the diagnostic viewing
+    geometry. The coordinate is normally obtained from mechanical design data, metrology
+    surveys, or alignment calibrations, and may be updated when in-vessel components
+    move or are re-surveyed.
+
+
+    Typical values are set by the vertical size of the device and diagnostic installation
+    location, commonly ranging from -10-10 m in large fusion devices and from -3-3
+    m in smaller experiments.
+
+
+    Sign convention: Positive when the aperture center is displaced in the $+Z$ direction
+    of the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: m
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:major_radius_of_diagnostic_aperture
+  - name:vertical_coordinate_of_optical_element
+  - name:vertical_coordinate_of_filter_window
+  sources:
+  - id: dd:camera_ir/channel/camera/pinhole/z
+    dd_path: camera_ir/channel/camera/pinhole/z
+    status: composed
+  - id: dd:charge_exchange/aperture/centre/z
+    dd_path: charge_exchange/aperture/centre/z
+    status: attached
+  - id: dd:charge_exchange/channel/aperture/centre/z
+    dd_path: charge_exchange/channel/aperture/centre/z
+    status: attached
+  - id: dd:mse/channel/aperture/centre/z
+    dd_path: mse/channel/aperture/centre/z
+    status: composed
+  - id: dd:neutron_diagnostic/detectors/aperture/centre/z
+    dd_path: neutron_diagnostic/detectors/aperture/centre/z
+    status: attached
+  - id: dd:spectrometer_visible/channel/detector/centre/z
+    dd_path: spectrometer_visible/channel/detector/centre/z
+    status: composed
+  - id: dd:spectrometer_visible/channel/fibre_image/outline/z
+    dd_path: spectrometer_visible/channel/fibre_image/outline/z
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/aperture/centre/z
+    dd_path: spectrometer_x_ray_crystal/channel/aperture/centre/z
+    status: attached
 - name: vertical_coordinate_of_divertor_target
   kind: scalar
   status: draft
@@ -2473,6 +3917,108 @@
   - id: dd:camera_ir/channel/camera/pinhole/x
     dd_path: camera_ir/channel/camera/pinhole/x
     status: composed
+- name: x_coordinate_of_divertor_target
+  kind: scalar
+  status: draft
+  description: Cartesian x coordinate of the divertor target surface center in the
+    right-handed Cartesian (x, y, z) frame. The +x direction is the horizontal direction
+    corresponding to toroidal angle phi = 0, and z is vertical.
+  documentation: 'The x coordinate of a divertor target is the signed horizontal Cartesian
+    coordinate of the geometric center of the target surface, expressed relative to
+    an origin on the toroidal symmetry axis in the right-handed Cartesian $(\hat{x},
+    \hat{y}, \hat{z})$ basis. The $+\hat{x}$ direction is the horizontal reference
+    direction at toroidal angle $\phi=0$, and $\hat{z}$ is vertical. The coordinate
+    itself does not identify which physical target is meant; inner, outer, upper,
+    lower, or other target identity is specified by the associated divertor geometry
+    context.
+
+
+    Its relation to the right-handed cylindrical $(R, \phi, Z)$ frame is
+
+
+    $$
+
+    x = R \cos\phi
+
+    $$
+
+
+    where $R$ is the major radius measured from the toroidal symmetry axis, $\phi$
+    is the toroidal angle measured from the $+\hat{x}$ direction, and $Z$ is vertical
+    height with $z=Z$.
+
+
+    This coordinate is used with the corresponding y and vertical coordinates to locate
+    the divertor target surface center in three-dimensional space. It provides the
+    geometric reference point for describing target placement, plasma-wall interaction
+    geometry, and line-of-sight or incidence-angle relationships without implying
+    any particular method used to determine the geometry.
+
+
+    Typical magnitudes for divertor target surface centers are about 0.5-8 m in medium-size
+    to large tokamaks. Values near the $\phi=0$ reference direction are positive and
+    comparable to the local major radius, while targets at other toroidal angles can
+    have smaller or negative x coordinates.
+
+
+    Sign convention: Positive when the divertor-target surface center lies on the
+    $+\hat{x}$ side of the origin in the right-handed Cartesian $(\hat{x}, \hat{y},
+    \hat{z})$ frame.'
+  unit: m
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:y_coordinate_of_divertor_target
+  - name:vertical_coordinate_of_divertor_target
+  sources:
+  - id: dd:camera_ir/channel/target_surface_center/x
+    dd_path: camera_ir/channel/target_surface_center/x
+    status: composed
+- name: x_direction_unit_vector_of_camera
+  kind: scalar
+  status: draft
+  description: X-axis projection of the unit vector defining the image-up orientation
+    direction of a camera in the right-handed Cartesian (x, y, z) frame.
+  documentation: 'The X component of the camera''s image-up direction unit vector
+    specifies how much the camera''s vertical image axis aligns with the $\hat{x}$
+    direction of the right-handed Cartesian $(\hat{x}, \hat{y}, \hat{z})$ frame. The
+    image-up direction defines which way is "up" in the camera''s recorded field of
+    view and, together with the line-of-sight axis, fully characterizes the camera''s
+    rotational orientation in the machine frame.
+
+
+    The three Cartesian components $(u_x, u_y, u_z)$ of the image-up unit vector satisfy
+    the normalization constraint:
+
+
+    $$
+
+    u_x^2 + u_y^2 + u_z^2 = 1
+
+    $$
+
+
+    where $u_x$ is this quantity and $u_y$ is the [Y component](name:y_direction_unit_vector_of_camera).
+    Because the vector is a unit vector by construction, the magnitude of each component
+    is bounded between $-1$ and $+1$.
+
+
+    The components are established from the mechanical mounting geometry of the camera,
+    typically determined during installation surveys or geometric calibration against
+    surveyed reference targets. Knowing the image-up vector is essential for mapping
+    pixel coordinates in the camera image to spatial directions in the machine frame.
+
+
+    Sign convention: Positive when the camera''s image-up direction unit vector has
+    a component pointing in the $+\hat{x}$ direction of the right-handed Cartesian
+    $(\hat{x}, \hat{y}, \hat{z})$ frame.'
+  unit: '1'
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:y_direction_unit_vector_of_camera
+  sources:
+  - id: dd:camera_ir/channel/camera/up/x
+    dd_path: camera_ir/channel/camera/up/x
+    status: composed
 - name: xenon_density_at_limiter
   kind: scalar
   status: draft
@@ -2520,9 +4066,75 @@
   - name:xenon_density_at_plasma_boundary
   - name:density_at_limiter
   - name:neon_density_at_limiter
+  arguments:
+  - name: density_at_limiter
+    operator: xenon
+    operator_kind: qualifier
   sources:
   - id: dd:summary/local/limiter/n_i/xenon/value
     dd_path: summary/local/limiter/n_i/xenon/value
+    status: composed
+- name: y_coordinate_of_diagnostic_aperture
+  kind: scalar
+  status: draft
+  description: Y coordinate of the center of a diagnostic aperture in the camera right-handed
+    Cartesian (x, y, z) frame, measured from that frame's origin along its y axis.
+  documentation: 'The Y coordinate of a diagnostic aperture is the displacement of
+    the aperture center along the $\hat{\mathbf{y}}$ axis of the camera right-handed
+    Cartesian $(\hat{\mathbf{x}}, \hat{\mathbf{y}}, \hat{\mathbf{z}})$ frame. The
+    frame origin is the point assigned coordinates $(0,0,0)$ by the calibrated camera
+    geometry, so this coordinate is one component of the aperture-center position
+    relative to that same origin.
+
+
+    The camera-frame aperture position and its Y component are related by projection
+    onto the camera-frame basis:
+
+
+    $$
+
+    \mathbf{r}_{O_c\to\mathrm{ap}} = x_\mathrm{ap}\hat{\mathbf{x}} + y_\mathrm{ap}\hat{\mathbf{y}}
+    + z_\mathrm{ap}\hat{\mathbf{z}}, \qquad y_\mathrm{ap} = \mathbf{r}_{O_c\to\mathrm{ap}}\cdot\hat{\mathbf{y}}
+
+    $$
+
+
+    where $O_c$ is the camera-frame origin, $\mathbf{r}_{O_c\to\mathrm{ap}}$ is the
+    vector from that origin to the aperture center, $x_\mathrm{ap}$, $y_\mathrm{ap}$,
+    and $z_\mathrm{ap}$ are camera-frame Cartesian coordinates in meters, and the
+    basis vectors are dimensionless unit vectors. The camera-frame $z_\mathrm{ap}$
+    component is distinct from vertical height unless the camera right-handed Cartesian
+    $(\hat{\mathbf{x}}, \hat{\mathbf{y}}, \hat{\mathbf{z}})$ frame is explicitly aligned
+    with the right-handed cylindrical $(R,\phi,Z)$ frame, where $R$ is major radius
+    and $Z$ is vertical height.
+
+
+    This coordinate is determined from the calibrated geometry of the diagnostic aperture,
+    using mechanical design information, optical-bench survey, photogrammetry, or
+    in-vessel alignment measurements. Together with [x_coordinate_of_diagnostic_aperture](name:x_coordinate_of_diagnostic_aperture)
+    and the corresponding camera-frame $z$ component, it specifies the aperture-center
+    position in the camera right-handed Cartesian $(\hat{\mathbf{x}}, \hat{\mathbf{y}},
+    \hat{\mathbf{z}})$ frame; related geometric descriptions may instead use [major_radius_of_diagnostic_aperture](name:major_radius_of_diagnostic_aperture)
+    and [vertical_coordinate_of_diagnostic_aperture](name:vertical_coordinate_of_diagnostic_aperture)
+    in the right-handed cylindrical $(R,\phi,Z)$ frame.
+
+
+    Typical numerical values are installation-specific because they depend on the
+    chosen camera-frame origin and aperture mounting geometry. The coordinate is reported
+    in meters and is normally fixed for a calibrated aperture unless the diagnostic
+    is mechanically reconfigured or realigned.
+
+
+    Sign convention: Positive when the aperture center is displaced in the $+\hat{\mathbf{y}}$
+    direction from the origin of the camera right-handed Cartesian $(\hat{\mathbf{x}},
+    \hat{\mathbf{y}}, \hat{\mathbf{z}})$ frame.'
+  unit: m
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:x_coordinate_of_diagnostic_aperture
+  sources:
+  - id: dd:camera_ir/channel/camera/pinhole/y
+    dd_path: camera_ir/channel/camera/pinhole/y
     status: composed
 - name: y_coordinate_of_divertor_target
   kind: scalar
@@ -2674,6 +4286,67 @@
   - id: dd:wall/global_quantities/power_conducted
     dd_path: wall/global_quantities/power_conducted
     status: composed
+- name: power_at_wall_due_to_convection
+  kind: scalar
+  status: draft
+  description: Power deposited on plasma-facing wall and divertor surfaces by convective
+    particle energy flux from the scrape-off layer, including particle enthalpy and
+    directed kinetic energy carried into the material surface.
+  documentation: 'Convective power at the wall is the surface-integrated rate at which
+    plasma particles deposit energy on plasma-facing material surfaces by their motion
+    into the surface. It includes thermal enthalpy and directed kinetic energy carried
+    by particles from the scrape-off layer, and is distinct from conductive heat transport
+    without net particle flow, represented by [power_at_wall_due_to_conduction](name:power_at_wall_due_to_conduction).
+
+
+    The deposited convective power is defined as the integral of the incident normal
+    convective heat-flux density over the plasma-facing surface:
+
+
+    $$
+
+    P_\mathrm{conv} = \int_S q_{\mathrm{conv},\perp} \, dA, \qquad q_{\mathrm{conv},\perp}=\mathbf{q}_\mathrm{conv}\cdot\hat{n}_m
+
+    $$
+
+
+    where $S$ is the union of wall and divertor surfaces exposed to the plasma, $\mathbf{q}_\mathrm{conv}$
+    is the convective particle energy-flux vector, and $\hat{n}_m$ is the unit normal
+    directed from the plasma into the material. With this convention $q_{\mathrm{conv},\perp}$
+    is positive for power incident on the component, consistent with the local flux-density
+    quantity heat_flux_of_plasma_facing_component. In sheath-limited estimates, $q_{\mathrm{conv},\perp}\approx
+    \sum_s \gamma_s n_s T_s c_s$, where $n_s$ is the sheath-entrance number density
+    in m$^{-3}$, $T_s$ is the species temperature in joules per particle, $c_s$ is
+    the characteristic sound speed in m s$^{-1}$, and $\gamma_s$ is a dimensionless
+    sheath heat-transmission factor; if $T_s$ is supplied in eV it must be multiplied
+    by the elementary charge to give SI power density.
+
+
+    In practice this quantity is obtained from edge-plasma transport or kinetic modeling
+    with sheath boundary conditions, or inferred from integrated heat-load measurements
+    combined with power-balance constraints. It contributes to the total thermal_power_at_wall,
+    while [thermal_power_of_divertor](name:thermal_power_of_divertor) refers to the
+    corresponding thermal power deposited on divertor surfaces only.
+
+
+    Typical integrated values are strongly scenario dependent. In attached divertor
+    conditions they are commonly of order 0.01-1 MW in low-power experiments, 0.1-10
+    MW in medium and large tokamak plasmas, and can exceed 10 MW in high-power exhaust
+    scenarios before strong detachment or radiative dissipation reduces the particle
+    energy reaching material surfaces.'
+  unit: W
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:power_at_wall_due_to_conduction
+  - name:thermal_power_of_divertor
+  arguments:
+  - name: power_due_to_convection
+    operator: wall
+    operator_kind: locus
+  sources:
+  - id: dd:wall/global_quantities/power_convected
+    dd_path: wall/global_quantities/power_convected
+    status: composed
 - name: power_at_wall_due_to_ohmic_dissipation
   kind: scalar
   status: draft
@@ -2732,6 +4405,171 @@
   - id: dd:wall/global_quantities/power_currents
     dd_path: wall/global_quantities/power_currents
     status: composed
+- name: power_at_wall_due_to_recombination
+  kind: scalar
+  status: draft
+  description: Total power deposited on plasma-facing wall surfaces by all recombination
+    processes, encompassing both plasma-ion recombination and surface recombination
+    of incident neutral particles into molecules.
+  documentation: 'The total recombination power at the wall aggregates two distinct
+    heat-load channels: the plasma-ion channel, in which ions arriving at the surface
+    capture free electrons and release their recombination energy into the wall material,
+    and the neutral surface-recombination channel, in which incident hydrogen-isotope
+    atoms combine into diatomic molecules on the material surface and deposit the
+    molecular binding energy as heat.
+
+
+    This quantity is the wall-surface component of the broader [power due to recombination](name:power_due_to_recombination),
+    which encompasses volumetric recombination throughout the plasma volume. The two
+    contributing channels are resolved separately: [plasma_power_at_wall_due_to_recombination](name:plasma_power_at_wall_due_to_recombination)
+    carries the ion-channel contribution and [neutral_power_at_wall_due_to_recombination](name:neutral_power_at_wall_due_to_recombination)
+    carries the neutral surface-recombination contribution, their sum giving:
+
+
+    $$
+
+    P_{\mathrm{rec,wall}} = P_{\mathrm{rec,wall}}^{\mathrm{ion}} + P_{\mathrm{rec,wall}}^{\mathrm{neutral}}
+
+    $$
+
+
+    where $P_{\mathrm{rec,wall}}^{\mathrm{ion}}$ is the integrated plasma-ion recombination
+    power and $P_{\mathrm{rec,wall}}^{\mathrm{neutral}}$ is the neutral surface-recombination
+    power, both summed over all plasma-facing surfaces.
+
+
+    In edge plasma models, this quantity is evaluated from particle-balance calculations
+    coupled to surface-interaction models, with each channel weighted by the recombination
+    energy per event and the incident particle flux to the wall.'
+  unit: W
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:power_due_to_recombination
+  - name:plasma_power_at_wall_due_to_recombination
+  - name:neutral_power_at_wall_due_to_recombination
+  arguments:
+  - name: power_due_to_recombination
+    operator: wall
+    operator_kind: locus
+- name: neutral_power_at_wall_due_to_recombination
+  kind: scalar
+  status: draft
+  description: Power deposited on the plasma-facing wall by surface recombination
+    of incident neutral particles, predominantly hydrogen-isotope atoms that combine
+    into diatomic molecules and release their binding energy as heat in the wall material.
+    It is distinct from the recombination power associated with incident plasma ions.
+  documentation: 'Neutral recombination power at the wall is the rate at which binding
+    energy released by surface recombination of incident neutral particles is converted
+    into heat in plasma-facing wall material. For hydrogenic plasmas the dominant
+    channel is associative formation of H2, D2, T2, or mixed-isotope molecules from
+    two adsorbed atoms, releasing the molecular formation enthalpy into the solid.
+    This is the neutral-origin component of the total recombination wall power and
+    is separate from the recombination heat carried by incident plasma ions.
+
+
+    The deposited power is obtained by integrating the local heat release over the
+    plasma-facing surface:
+
+
+    $$
+
+    P_{\mathrm{rec},n} = \int_{A_{\mathrm{wall}}} \Gamma_{n}(\mathbf{x})\, E_{\mathrm{rec}}(\mathbf{x})\,
+    dA
+
+    $$
+
+
+    where $\Gamma_{n}$ is the local flux of incident neutral particles participating
+    in surface recombination, in m^-2 s^-1, and $E_{\mathrm{rec}}$ is the effective
+    heat deposited in the wall per participating particle, in J. If the molecular
+    formation enthalpy $\Delta H_{\mathrm{mol}}$ is quoted per molecule, about 4.5
+    eV for one hydrogen-isotope molecule formed from two atoms, then the heat deposited
+    per incident atom is approximately $\eta_{\mathrm{heat}}\,\Delta H_{\mathrm{mol}}/2$,
+    where $\eta_{\mathrm{heat}}$ is the fraction of released energy retained in the
+    solid rather than carried away by desorbed molecules.
+
+
+    In practice this quantity is estimated from modeled neutral fluxes to plasma-facing
+    surfaces, surface recombination probabilities, and the effective accommodation
+    of the released binding energy. It can be constrained by wall calorimetry, particle-balance
+    analysis, spectroscopy, and neutral-transport modeling. The effective heat fraction
+    depends on surface material, temperature, isotope, adsorbate coverage, and roughness.
+
+
+    Typical integrated values span roughly 10^2-10^5 W for main-chamber wall recycling
+    in medium-sized devices, with larger values possible under high-recycling conditions
+    and large neutral fluxes. This contribution is generally smaller than the total
+    neutral power deposited on the wall but is relevant to detailed plasma-wall interaction
+    power balances.
+
+
+    Sign convention: Positive when energy is deposited into the wall.'
+  unit: W
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:power_at_wall_due_to_recombination
+  - name:plasma_power_at_wall_due_to_recombination
+  - name:neutral_particle_flux_at_wall_due_to_recombination
+  arguments:
+  - name: power_at_wall_due_to_recombination
+    operator: neutral
+    operator_kind: qualifier
+  sources:
+  - id: dd:wall/global_quantities/power_neutrals
+    dd_path: wall/global_quantities/power_neutrals
+    status: composed
+  - id: dd:wall/global_quantities/power_recombination_neutrals
+    dd_path: wall/global_quantities/power_recombination_neutrals
+    status: composed
+- name: plasma_power_at_wall_due_to_recombination
+  kind: scalar
+  status: draft
+  description: Total power deposited on plasma-facing wall surfaces by recombination
+    of plasma ions, constituting the ion-channel contribution to the overall recombination
+    wall heat load integrated over all plasma-facing surfaces.
+  documentation: 'When plasma ions arrive at a plasma-facing wall surface, they undergo
+    surface recombination, releasing energy equal to their ionization potential plus
+    any residual kinetic energy carried to the surface. This quantity integrates that
+    energy deposition rate over all plasma-facing wall surfaces and represents the
+    plasma-ion species channel within the parent quantity [power_at_wall_due_to_recombination](name:power_at_wall_due_to_recombination),
+    which also includes neutral-particle contributions.
+
+
+    The deposited power is related to the local incident ion flux density by:
+
+
+    $$
+
+    P_\mathrm{rec} = \int_A \Gamma_\mathrm{ion}(\mathbf{r}) \, E_\mathrm{rec} \, dA
+
+    $$
+
+
+    where $\Gamma_\mathrm{ion}$ is the local ion particle flux density at the surface
+    in m$^{-2}$ s$^{-1}$, $E_\mathrm{rec}$ is the mean energy released per recombination
+    event (sum of ionization potential and residual kinetic energy, in J), and the
+    integral extends over the total wetted plasma-facing area $A$.
+
+
+    This quantity excludes energy deposited by recombination of neutral particles
+    into molecules at the surface, which is captured separately by [neutral_power_at_wall_due_to_recombination](name:neutral_power_at_wall_due_to_recombination).
+    The analogous quantity resolved at divertor strike surfaces is [plasma_power_at_divertor_target_due_to_recombination](name:plasma_power_at_divertor_target_due_to_recombination).
+    It is estimated from edge plasma transport models constrained by incident ion-flux
+    and particle-balance measurements at the boundary.'
+  unit: W
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:power_at_wall_due_to_recombination
+  - name:neutral_power_at_wall_due_to_recombination
+  - name:plasma_power_at_divertor_target_due_to_recombination
+  arguments:
+  - name: power_at_wall_due_to_recombination
+    operator: plasma
+    operator_kind: qualifier
+  sources:
+  - id: dd:wall/global_quantities/power_recombination_plasma
+    dd_path: wall/global_quantities/power_recombination_plasma
+    status: composed
 - name: ratio_of_beryllium_density_to_electron_density
   kind: scalar
   status: draft
@@ -2785,9 +4623,144 @@
   - name:electron_density
   - name:volume_averaged_beryllium_density
   - name:beryllium_density_at_plasma_boundary
+  arguments:
+  - name: beryllium_density
+    operator: ratio
+    operator_kind: binary
+    role: a
+    separator: to
+  - name: electron_density
+    operator: ratio
+    operator_kind: binary
+    role: b
+    separator: to
   sources:
   - id: dd:summary/composition/beryllium/value
     dd_path: summary/composition/beryllium/value
+    status: composed
+- name: ratio_of_carbon_density_to_electron_density
+  kind: scalar
+  status: draft
+  description: Ratio of total carbon number density, summed over neutral carbon and
+    all carbon charge states, to electron number density.
+  documentation: 'The ratio of carbon density to electron density is a dimensionless
+    impurity fraction expressing the abundance of carbon relative to the electron
+    population. The carbon density is the total number density of carbon nuclei, including
+    neutral carbon atoms and all ionized charge states from singly ionized to fully
+    stripped carbon.
+
+
+    The ratio is defined by normalizing the summed carbon density to the electron
+    density:
+
+
+    $$
+
+    f_C = \frac{n_C}{n_e}, \qquad n_C = \sum_{q=0}^{6} n_{\mathrm{C},q}
+
+    $$
+
+
+    where $f_C$ is the carbon fraction, $n_e$ is the electron number density in m$^{-3}$,
+    $n_C$ is the total carbon number density in m$^{-3}$, $n_{\mathrm{C},0}$ is neutral
+    atomic carbon, and $n_{\mathrm{C},q}$ for $q=1,\ldots,6$ are carbon ions with
+    charge state $q+$.
+
+
+    In practice, $n_C$ may be inferred from spectroscopic measurements, charge-exchange
+    recombination spectroscopy, edge and divertor line emission, or collisional-radiative
+    modeling, often combined with an independently measured or reconstructed $n_e$.
+    The numerator may correspond conceptually to a [volume-averaged carbon density](name:volume_averaged_carbon_density),
+    a [line-averaged carbon density](name:line_averaged_carbon_density), or another
+    physically specified carbon density measure, but the defining ratio is always
+    formed with the corresponding electron density. Because neutral carbon contributes
+    to $n_C$ but not directly to quasineutrality or $Z_\mathrm{eff}$, the ionization-state
+    distribution matters when relating this fraction to charge-weighted impurity effects.
+    In an otherwise deuterium plasma with fully stripped carbon, quasineutrality gives
+    $Z_\mathrm{eff}=1+30 f_C$; partial ionization gives a smaller charge-weighted
+    contribution for the same total carbon density.
+
+
+    Typical core or volume-averaged carbon fractions are about $10^{-4}$-$10^{-2}$
+    in low-carbon wall conditions and about $10^{-2}$-$5\times10^{-2}$ in carbon-wall
+    or strong erosion conditions. Larger local values can occur near plasma-facing
+    carbon sources, in the scrape-off layer, or in detached divertor regions.'
+  unit: '1'
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:ratio_of_volume_averaged_krypton_number_density_to_maximum_electron_number_density
+  arguments:
+  - name: carbon_density
+    operator: ratio
+    operator_kind: binary
+    role: a
+    separator: to
+  - name: electron_density
+    operator: ratio
+    operator_kind: binary
+    role: b
+    separator: to
+  sources:
+  - id: dd:summary/composition/carbon/value
+    dd_path: summary/composition/carbon/value
+    status: composed
+- name: ratio_of_volume_averaged_boron_density_to_volume_averaged_electron_density
+  kind: scalar
+  status: draft
+  description: Dimensionless global boron impurity fraction equal to the volume-averaged
+    total boron number density divided by the volume-averaged electron number density.
+  documentation: 'This quantity is a global measure of boron content in a plasma,
+    expressed as the ratio of the volume-averaged total boron number density to the
+    volume-averaged electron number density. The boron density includes boron nuclei
+    in all ionization states represented in the plasma composition, so the ratio measures
+    elemental boron abundance relative to electrons rather than a single charge state.
+
+
+    For a plasma volume $V$, the ratio is defined by
+
+
+    $$
+
+    f_B = \frac{\langle n_B \rangle_V}{\langle n_e \rangle_V}, \qquad \langle n \rangle_V
+    = \frac{1}{V}\int_V n(\mathbf{x})\,dV
+
+    $$
+
+
+    where $n_B$ is the total boron number density, $n_e$ is the electron number density,
+    and both averaged densities have units of m$^{-3}$. The ratio $f_B$ is dimensionless.
+
+
+    The value is commonly inferred from plasma composition analysis by combining measurements
+    or modeling of impurity content with the electron density distribution used to
+    form the same volume average. It is useful for comparing the global level of boron
+    introduced by wall conditioning, erosion, or impurity transport independently
+    of the absolute plasma density.
+
+
+    Typical values are non-negative and usually much smaller than unity when boron
+    is a trace impurity. Values approaching unity would indicate that boron makes
+    a major contribution to the plasma particle inventory and charge balance rather
+    than acting as a minor impurity.'
+  unit: '1'
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:ratio_of_volume_averaged_oxygen_ion_density_to_volume_averaged_electron_density
+  - name:volume_averaged_boron_density
+  arguments:
+  - name: volume_averaged_boron_density
+    operator: ratio
+    operator_kind: binary
+    role: a
+    separator: to
+  - name: volume_averaged_electron_density
+    operator: ratio
+    operator_kind: binary
+    role: b
+    separator: to
+  sources:
+  - id: dd:summary/composition/boron/value
+    dd_path: summary/composition/boron/value
     status: composed
 - name: ratio_of_volume_averaged_oxygen_ion_density_to_volume_averaged_electron_density
   kind: scalar
@@ -2832,6 +4805,12 @@
   - name:volume_averaged_electron_density
   - name:volume_averaged_oxygen_density
   - name:line_averaged_oxygen_density
+  arguments:
+  - name: volume_averaged_electron_density
+    operator: ratio
+    operator_kind: binary
+    role: b
+    separator: to
   sources:
   - id: dd:summary/composition/oxygen/value
     dd_path: summary/composition/oxygen/value
@@ -2880,6 +4859,10 @@
   - name:wavelength_of_filter
   - name:spectral_width_of_filter
   - name:spectral_wavelength
+  arguments:
+  - name: wavelength_of_filter
+    operator: reference
+    operator_kind: qualifier
   sources:
   - id: dd:camera_ir/channel/camera/frame/filter/wavelength_central
     dd_path: camera_ir/channel/camera/frame/filter/wavelength_central

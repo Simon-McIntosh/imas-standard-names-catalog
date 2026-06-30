@@ -1,59 +1,64 @@
 # Domain: structural_components
-# Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 32
+# Catalog sha: b8d10395a003efc46be6fc45a94b1f9308d6a87b
+# Entries: 46
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: absorbed_radiated_power_of_breeder_blanket_module
+- name: area_of_first_wall
   kind: scalar
   status: draft
-  description: Net photon power absorbed by a breeding blanket module from incident
-    plasma radiation, equal to the incident radiated power on the module surface minus
-    the reflectivity-weighted reflected photon power.
-  documentation: 'Absorbed radiated power of a breeding blanket module is the net
-    photon power deposited in the module by plasma radiation after reflection at its
-    exposed surfaces. It is the radiative heat-load component of the module power
-    balance and excludes particle heat flux, conductive heat transfer from neighboring
-    structures, neutron nuclear heating, and internally generated power.
+  description: Area of first wall is the total surface area of the material surface
+    that forms the plasma-facing first wall, whether bare vessel surface or installed
+    wall armor. It is a scalar geometric area used as a reference for wall-integrated
+    heat, particle, and plasma-wall interaction quantities.
+  documentation: 'Area of first wall is the total area of the material surface classified
+    as the first wall on the plasma-facing side of the vessel or wall armor. It is
+    a true surface area, not a projected area, and is distinct from the area of the
+    last closed flux surface because it follows the engineered wall geometry rather
+    than a magnetic flux surface.
 
 
-    The absorbed power is defined from the incident photon power and the reflected
-    fraction:
+    For a first-wall surface $\mathcal{S}_\mathrm{fw}$, the area is defined by the
+    surface integral; for a surface axisymmetric about the $Z$ axis in the right-handed
+    cylindrical $(R, \phi, Z)$ frame, the same area can be reduced to an integral
+    over its poloidal generating curve:
 
 
     $$
 
-    P_{\mathrm{abs}} = P_{\mathrm{inc}} - P_{\mathrm{refl}} = \left(1 - \alpha_{\mathrm{eff}}\right)
-    P_{\mathrm{inc}}
+    A_\mathrm{fw} = \int_{\mathcal{S}_\mathrm{fw}} dA, \qquad A_\mathrm{fw} = 2\pi
+    \int_{\Gamma_\mathrm{fw}} R\, ds
 
     $$
 
 
-    where $P_{\mathrm{abs}}$, $P_{\mathrm{inc}}$, and $P_{\mathrm{refl}}$ are powers
-    in W, and $\alpha_{\mathrm{eff}}$ is an effective dimensionless radiative reflectivity
-    for the relevant surface, spectrum, incidence angles, and operating conditions.
-    The reflected power is therefore $P_{\mathrm{refl}} = \alpha_{\mathrm{eff}} P_{\mathrm{inc}}$.
+    where $A_\mathrm{fw}$ has unit m^2, $dA$ is the differential surface-area element
+    with unit m^2, $\Gamma_\mathrm{fw}$ is the poloidal curve that generates the axisymmetric
+    first-wall surface, $R$ is major radius in the right-handed cylindrical $(R, \phi,
+    Z)$ frame, and $ds$ is differential arc length along $\Gamma_\mathrm{fw}$.
 
 
-    In practice, this quantity is computed by combining plasma radiation measurements
-    or radiation-transport calculations with the module-facing geometry and surface
-    optical properties. It is conceptually analogous to [radiated_power_at_wall](name:radiated_power_at_wall),
-    but restricted to the portion of the wall represented by a breeding blanket module.
+    In practice, this area is computed from engineering geometry or a surface mesh
+    by summing the areas of all faces assigned to the first-wall boundary. Port openings
+    and cut-outs contribute no material area, while recessed panels, limiter faces,
+    baffles, or divertor-interface surfaces are included only when they are part of
+    the physical first-wall surface being characterized; the same component scope
+    should be used when normalizing wall quantities such as [plasma_deposited_power_at_wall](name:plasma_deposited_power_at_wall),
+    total_incident_electron_particle_flux_at_wall, or energy_flux_at_first_wall.
 
 
-    Typical values are strongly device-, module-, and scenario-dependent: they may
-    be near 0 W when no plasma radiation reaches the module, can be in the 10^3-10^6
-    W range for substantial module-facing radiative loads, and may be higher for large
-    blanket sectors in reactor-relevant designs.'
-  unit: W
+    Typical values are geometry-dependent: compact devices may have first-wall areas
+    of a few to a few tens of m^2, while large tokamaks and reactor-scale designs
+    may have tens to hundreds of m^2. For axisymmetric designs, the scaling is roughly
+    set by the product of toroidal circumference and poloidal wall perimeter, with
+    local armor shaping and penetrations modifying the exact value.'
+  unit: m^2
   physics_domain: structural_components
   links:
-  - name:incident_radiated_power_of_breeder_blanket_module
-  - name:nuclear_heating_power_of_breeder_blanket_layer
-  - name:net_thermal_power_of_breeder_blanket_module
+  - name:plasma_deposited_power_at_wall
   sources:
-  - id: dd:breeding_blanket/module/time_slice/power_thermal_radiated
-    dd_path: breeding_blanket/module/time_slice/power_thermal_radiated
+  - id: dd:wall/first_wall_surface_area
+    dd_path: wall/first_wall_surface_area
     status: composed
 - name: coolant_pressure_at_cooling_circuit_inlet
   kind: scalar
@@ -112,104 +117,67 @@
   - id: dd:breeding_blanket/module/cooling/time_slice/pressure_inlet
     dd_path: breeding_blanket/module/cooling/time_slice/pressure_inlet
     status: composed
-- name: incident_power_of_breeder_blanket_module
+- name: coolant_volume_of_breeder_blanket
   kind: scalar
   status: draft
-  description: Power carried by fusion-born neutrons crossing into a single breeder
-    blanket module. This is an incident surface load, not the energy deposited or
-    multiplied inside the module.
-  documentation: 'Incident power of a breeder blanket module is the rate at which
-    kinetic energy of fusion-born neutrons enters one module across the surfaces exposed
-    to the external neutron field. It is a non-negative incoming surface load, distinct
-    from volumetric nuclear heating, tritium production, or neutron multiplication
-    inside the module.
+  description: Total volume occupied by lead-lithium (PbLi) coolant/breeder inside
+    the whole breeder blanket. It is a geometric inventory quantity, distinct from
+    a per-module volume and excluding external coolant loops or non-coolant materials.
+  documentation: 'Coolant volume of a breeder blanket is the total geometric volume
+    occupied by the lead-lithium (PbLi) eutectic inside the whole blanket. Here PbLi
+    is the coolant/breeder material being counted, not merely an example liquid metal.
+    The quantity excludes solid structural material, purge gas, vacuum gaps, external
+    coolant loops, tanks, and heat exchangers; a module-specific value would refer
+    to one blanket module, whereas this whole-blanket value is the sum over all blanket
+    modules or sectors.
 
 
-    The incident power $P_\mathrm{inc}$ is defined by integrating the incoming neutron
-    energy current over the relevant module surface:
+    The volume is the integral over the PbLi domain inside the breeder blanket:
 
 
     $$
 
-    P_\mathrm{inc} = \int_S \int_0^\infty E\, j_n^-(E,\mathbf{r})\, dE\, dA
+    V_\mathrm{cool} = \int_{\Omega_\mathrm{PbLi} \cap \Omega_\mathrm{blanket}} dV
 
     $$
 
 
-    where $S$ is the module surface receiving the external fusion-neutron field, $E$
-    is neutron kinetic energy in joules, $j_n^-(E,\mathbf{r})$ is the differential
-    inward neutron current density at surface position $\mathbf{r}$ with units $m^{-2}\,s^{-1}\,J^{-1}$,
-    $dE$ is an energy interval in joules, and $dA$ is a surface element in square
-    meters. The inward-current notation includes only neutrons crossing into the module
-    from outside; secondary neutrons generated after entry contribute to related neutron-power
-    quantities rather than to this incident term.
+    where $V_\mathrm{cool}$ is the coolant volume in m^3, $\Omega_\mathrm{PbLi}$ is
+    the region occupied by PbLi, $\Omega_\mathrm{blanket}$ is the whole breeder-blanket
+    domain, and $dV$ is a differential volume element in m^3.
 
 
-    In practice, this quantity is evaluated from the energy- and angle-dependent neutron
-    field at the module boundary, constrained by the fusion neutron source strength,
-    module area and solid angle, gaps, and attenuation or shadowing by intervening
-    structures. It provides a boundary load for breeding and heating analyzes; [total_neutron_power_of_breeder_blanket_module](name:nuclear_heating_power_of_breeder_blanket_module)
-    describes neutron power after interactions and multiplication within the module,
-    while [power_of_breeder_blanket_module](name:power_of_breeder_blanket_module)
-    represents the broader module power balance.
+    In design studies this volume is usually computed from engineering geometry by
+    summing the PbLi-filled channels, manifolds, and breeder zones that lie within
+    the blanket boundary. In operation it may be checked indirectly from fill level,
+    drain volume, or mass inventory measurements together with the PbLi density at
+    the relevant temperature.
 
 
-    Representative per-module values in reactor-scale deuterium-tritium blanket systems
-    are typically $10^5-10^7$ W, with smaller test modules or heavily shadowed regions
-    below $10^5$ W. Values scale mainly with total fusion neutron source strength,
-    exposed area, geometric coverage, and shielding by nearby components.'
-  unit: W
+    The volume enters liquid-metal inventory estimates through $M_\mathrm{PbLi} =
+    \rho_\mathrm{PbLi} V_\mathrm{cool}$ and residence-time estimates through $\tau
+    \approx V_\mathrm{cool}/\dot{V} = \rho_\mathrm{PbLi} V_\mathrm{cool}/\dot{m}$,
+    where $\rho_\mathrm{PbLi}$ is density, $\dot{V}$ is volumetric flow rate, and
+    $\dot{m}$ is mass flow rate. For heat-removal sizing it is used together with
+    flow distribution, allowable temperature rise, pressure drop, material limits,
+    and [nuclear_heating_power_of_breeder_blanket](name:nuclear_heating_power_of_breeder_blanket);
+    it does not by itself determine mass flow rate or net thermal power, and blanket
+    nuclear heating can include energy deposited in structural components as well
+    as in coolant or breeder regions.
+
+
+    Typical values for reactor-scale liquid-metal breeder blankets are about 10-200
+    m^3 for the full blanket. Individual sectors, cassettes, or test blanket modules
+    can contain much smaller volumes, commonly 0.01-10 m^3, and should not be confused
+    with the whole-blanket total unless explicitly summed over the complete blanket.'
+  unit: m^3
   physics_domain: structural_components
   links:
-  - name:nuclear_heating_power_of_breeder_blanket_module
-  - name:power_of_breeder_blanket_module
+  - name:nuclear_heating_power_of_breeder_blanket
+  - name:net_thermal_power_of_breeder_blanket_module
   sources:
-  - id: dd:breeding_blanket/module/time_slice/power_incident_neutron
-    dd_path: breeding_blanket/module/time_slice/power_incident_neutron
-    status: composed
-- name: incident_radiated_power_of_breeder_blanket_module
-  kind: scalar
-  status: draft
-  description: Total electromagnetic radiative power from the plasma arriving at the
-    outer surface of a breeding blanket module, including bremsstrahlung and line
-    radiation contributions, before accounting for surface reflection losses.
-  documentation: 'The incident radiated power of a breeding blanket module is the
-    total electromagnetic power from the surrounding plasma that arrives at the module''s
-    outer surface, integrated over that surface per unit time. Plasma radiation sources
-    contributing to this load include bremsstrahlung from electron-ion Coulomb collisions,
-    impurity line radiation, and synchrotron emission, all transported across the
-    scrape-off layer to the first-wall and blanket boundary.
-
-
-    The incident radiative load is defined as:
-
-
-    $$
-
-    P_\mathrm{inc,rad} = \int_S \mathbf{q}_\mathrm{rad} \cdot \hat{n} \, dA
-
-    $$
-
-
-    where $\mathbf{q}_\mathrm{rad}$ is the local incident radiative heat-flux vector,
-    $\hat{n}$ is the inward surface unit normal, and the integral extends over the
-    total module surface area $A$.
-
-
-    This quantity represents the gross radiative power before surface reflection;
-    the net thermally retained fraction is captured by [absorbed_radiated_power_of_breeder_blanket_module](name:absorbed_radiated_power_of_breeder_blanket_module),
-    which subtracts the reflected component. Together with nuclear heating quantified
-    by [total_neutron_power_of_breeder_blanket_module](name:nuclear_heating_power_of_breeder_blanket_module),
-    this term enters the full surface thermal balance of the blanket and is a key
-    input for coolant circuit design and blanket lifetime assessment.'
-  unit: W
-  physics_domain: structural_components
-  links:
-  - name:absorbed_radiated_power_of_breeder_blanket_module
-  - name:nuclear_heating_power_of_breeder_blanket_module
-  sources:
-  - id: dd:breeding_blanket/module/time_slice/power_incident_radiated
-    dd_path: breeding_blanket/module/time_slice/power_incident_radiated
+  - id: dd:breeding_blanket/pb_li_volume
+    dd_path: breeding_blanket/pb_li_volume
     status: composed
 - name: net_thermal_power_of_breeder_blanket_module
   kind: scalar
@@ -354,6 +322,66 @@
   sources:
   - id: dd:breeding_blanket/module/time_slice/wall_flux_max
     dd_path: breeding_blanket/module/time_slice/wall_flux_max
+    status: composed
+- name: nuclear_heating_power_of_breeder_blanket
+  kind: scalar
+  status: draft
+  description: Total nuclear heating power deposited in the breeder blanket by neutron
+    and photon interactions, integrated over all blanket modules and constituent materials.
+    It represents volumetric nuclear energy deposition and excludes separate plasma-facing
+    surface heat loads.
+  documentation: 'Nuclear heating power of the breeder blanket is the total rate at
+    which fusion neutrons and secondary photons deposit energy inside the blanket
+    volume. It includes volumetric energy deposition in breeder, multiplier, coolant,
+    structural, and other internal materials, and excludes plasma radiation, charged-particle,
+    neutral-particle, and other surface heat loads treated as boundary heating.
+
+
+    The blanket total is obtained by integrating the local nuclear heating power density
+    over the blanket volume:
+
+
+    $$
+
+    P_{\mathrm{nuc,blanket}} = \int_{V_{\mathrm{blanket}}} q_{\mathrm{nuc}}(\mathbf{r})
+    \, dV
+
+    $$
+
+
+    where $P_{\mathrm{nuc,blanket}}$ is the integrated blanket nuclear heating power,
+    $V_{\mathrm{blanket}}$ is the volume occupied by the breeder blanket, $q_{\mathrm{nuc}}(\mathbf{r})$
+    is the local volumetric nuclear heating power density in W m$^{-3}$, and $dV$
+    is a volume element.
+
+
+    In practice this quantity is computed with coupled neutron-photon transport calculations
+    using the fusion neutron source, material compositions, geometry, and nuclear
+    reaction data. The same total can be partitioned into module contributions such
+    as [nuclear_heating_power_of_breeder_blanket_module](name:nuclear_heating_power_of_breeder_blanket_module)
+    or material-layer contributions such as [nuclear_heating_power_of_breeder_blanket_layer](name:nuclear_heating_power_of_breeder_blanket_layer);
+    heating in associated shielding regions is described separately by [nuclear_heating_power_of_breeder_blanket_shield](name:nuclear_heating_power_of_breeder_blanket_shield).
+    The spatial distribution underlying the integral is represented by [nuclear_power_density_of_breeder_blanket_module](name:nuclear_power_density_of_breeder_blanket_module).
+    Results may be checked against integral neutronics benchmarks, activation measurements,
+    photon-heating detectors, or calorimetric measurements where available.
+
+
+    For reactor-scale D-T blankets with fusion power near $2 \times 10^9$ W, representative
+    blanket nuclear heating powers are about $1.2$-$1.6 \times 10^9$ W. The value
+    scales with neutron source strength, blanket coverage, material composition, and
+    neutron energy multiplication, which is often in the range $1.1$-$1.3$ for power-producing
+    blanket concepts; partial test blankets or lower-power sources can be orders of
+    magnitude smaller.'
+  unit: W
+  physics_domain: structural_components
+  links:
+  - name:nuclear_heating_power_of_breeder_blanket_module
+  - name:nuclear_heating_power_of_breeder_blanket_layer
+  - name:nuclear_heating_power_of_breeder_blanket_shield
+  - name:nuclear_power_density_of_breeder_blanket_module
+  sources:
+  - id: dd:breeding_blanket/time_slice/power_nuclear_blanket
+    dd_path: breeding_blanket/time_slice/power_nuclear_blanket
     status: composed
 - name: nuclear_heating_power_of_breeder_blanket_layer
   kind: scalar
@@ -504,6 +532,127 @@
   - id: dd:breeding_blanket/time_slice/power_nuclear_shields
     dd_path: breeding_blanket/time_slice/power_nuclear_shields
     status: composed
+- name: nuclear_power_density_of_breeder_blanket_layer
+  kind: scalar
+  status: draft
+  description: Volumetric nuclear heating power density deposited in a single breeder
+    blanket layer by neutron and gamma interactions. It is local heat generation per
+    unit material volume, distinct from volume-integrated blanket power.
+  documentation: 'Nuclear power density of a breeder blanket layer is the local volumetric
+    rate at which energy from neutron and gamma interactions is deposited as heat
+    in the layer material. It is a material heat-source density for a particular layer,
+    not the total power generated by that layer or by the blanket.
+
+
+    The local definition is the differential nuclear heating power per material volume:
+
+
+    $$
+
+    q''''''_\mathrm{nuc}(\mathbf{r}) = \frac{dP_\mathrm{nuc}}{dV}
+
+    $$
+
+
+    where $q''''''_\mathrm{nuc}$ is the nuclear power density in W m$^{-3}$, $dP_\mathrm{nuc}$
+    is the incremental nuclear heating power in W deposited in the material volume
+    element $dV$ in m$^3$, and $\mathbf{r}$ denotes position in the layer. The corresponding
+    total layer heating power, [nuclear_heating_power_of_breeder_blanket_layer](name:nuclear_heating_power_of_breeder_blanket_layer),
+    is obtained by integrating $q''''''_\mathrm{nuc}$ over the layer volume; summing
+    layer and component contributions gives [nuclear_heating_power_of_breeder_blanket](name:nuclear_heating_power_of_breeder_blanket).
+
+
+    In practice, this quantity is computed from neutronics transport and energy-deposition
+    calculations using the fusion neutron source, blanket geometry, and material composition.
+    Contributions include recoil energy from neutron scattering, charged-particle
+    energy from nuclear reactions such as lithium breeding reactions, capture energy,
+    and absorption or scattering of secondary gamma radiation. Because the density
+    is fundamentally local, any single layer value should be interpreted with its
+    separately specified spatial sampling or averaging region; if a volume average
+    over a region of volume $V$ is intended, $\bar{q}''''''_\mathrm{nuc}=P_\mathrm{nuc}/V$
+    applies as an averaging relation, not as the local definition.
+
+
+    Typical values in fusion breeder blanket materials are about 10^5-10^7 W m^-3,
+    depending on neutron wall loading, material composition, depth in the blanket,
+    and local shielding. High-heating regions can reach several 10^7 W m^-3, while
+    well-shielded or rear regions may be below 10^5 W m^-3.'
+  unit: W.m^-3
+  physics_domain: structural_components
+  links:
+  - name:nuclear_power_density_of_breeder_blanket_module
+  - name:nuclear_heating_power_of_breeder_blanket
+  sources:
+  - id: dd:breeding_blanket/module/layer/time_slice/midplane_power_density_nuclear
+    dd_path: breeding_blanket/module/layer/time_slice/midplane_power_density_nuclear
+    status: composed
+- name: nuclear_power_density_of_breeder_blanket_module
+  kind: scalar
+  status: draft
+  description: Local volumetric nuclear heating power density in a breeder blanket
+    module from neutron and photon interactions in blanket materials. It is evaluated
+    on the module midplane as a representative pointwise power deposition rate, not
+    as a volume-averaged module power.
+  documentation: 'Nuclear power density of a breeder blanket module is the local rate
+    at which nuclear radiation deposits recoverable heat per unit volume in the module
+    materials. It includes energy transferred by neutron scattering, absorption, charged-particle
+    production, recoil nuclei, photon production, and photon absorption. For this
+    module-level quantity, the local value is specified on the module midplane, fixing
+    a representative poloidal location; it is not a volume average and not the total
+    module heating power.
+
+
+    For a material point on the module midplane, the nuclear heating power density
+    can be written as an energy-integrated transport response:
+
+
+    $$
+
+    q_\mathrm{nuc}(\mathbf{r}) = \sum_c \int_0^\infty \Phi_c(\mathbf{r}, E)\,\kappa_c(\mathbf{r},
+    E)\,dE
+
+    $$
+
+
+    where $q_\mathrm{nuc}$ is the volumetric heating rate, $\mathbf{r}$ is the material
+    point, $E$ is particle energy, $\Phi_c$ is the differential scalar flux for particle
+    class $c$, and $\kappa_c$ is the corresponding macroscopic heating or kerma coefficient
+    for the local material mixture. The sum includes neutron and photon contributions
+    that deposit energy locally or through secondary radiation.
+
+
+    In practice, this quantity is computed with coupled neutron-photon transport calculations
+    using evaluated nuclear data and a material model of the blanket module. Midplane
+    values are sampled at material locations across the module build and are used
+    as volumetric heat-source terms for thermal-hydraulic, thermo-mechanical, and
+    structural integrity assessments. Experimental validation can use calorimetry,
+    activation measurements, dosimetry, and heat-balance data in blanket mock-ups
+    or irradiation experiments.
+
+
+    The module-level density represents the local heating in the material mixture
+    or homogenized region used for the module model. A layer-specific density, such
+    as [nuclear_power_density_of_breeder_blanket_layer](name:nuclear_power_density_of_breeder_blanket_layer),
+    restricts the same physical quantity to an individual functional layer such as
+    first wall, breeder, multiplier, structural, or shield material. Integrating the
+    local density over the module volume gives the total [nuclear_heating_power_of_breeder_blanket_module](name:nuclear_heating_power_of_breeder_blanket_module).
+
+
+    In D-T blanket concepts driven by 14.1 MeV fusion neutrons, representative nuclear
+    power densities near the plasma-facing side are commonly of order 1-20 MW m^-3,
+    with 5-15 MW m^-3 typical for high-load first-wall or breeder regions. Values
+    deeper in the blanket generally decrease with neutron attenuation, photon transport,
+    material composition, and local neutron multiplication, and may be lower by factors
+    of several to more than an order of magnitude.'
+  unit: W.m^-3
+  physics_domain: structural_components
+  links:
+  - name:nuclear_heating_power_of_breeder_blanket_module
+  - name:nuclear_power_density_of_breeder_blanket_layer
+  sources:
+  - id: dd:breeding_blanket/module/time_slice/midplane_power_density_nuclear
+    dd_path: breeding_blanket/module/time_slice/midplane_power_density_nuclear
+    status: composed
 - name: nuclear_power_density_of_limiter_tile
   kind: scalar
   status: draft
@@ -549,6 +698,312 @@
   sources:
   - id: dd:wall/description_2d/limiter/unit/midplane_power_density_nuclear
     dd_path: wall/description_2d/limiter/unit/midplane_power_density_nuclear
+    status: composed
+- name: nuclear_power_of_limiter_tile
+  kind: scalar
+  status: draft
+  description: Total rate at which nuclear heating deposits energy throughout the
+    material of a limiter tile. The heating arises from elastic and inelastic scattering
+    and capture of neutrons together with absorption of primary and secondary gamma
+    radiation, and it is the volume integral of the local nuclear-heating power density
+    over the tile material, not a representative midplane value.
+  documentation: 'Nuclear power of a limiter tile is the total rate at which neutron
+    and gamma radiation deposit energy within the bulk material of the tile. The neutron
+    contribution comes from elastic and inelastic scattering and from radiative capture
+    reactions, while the gamma contribution comes from absorption of both primary
+    fusion gammas and secondary gammas produced by neutron capture and inelastic scattering
+    inside the tile. This bulk volumetric heating is distinct from the plasma-facing
+    surface heat flux delivered by charged particles and from conducted thermal power.
+
+
+    The deposited power is the volume integral of the spatial nuclear-heating power
+    density over the material volume of the tile:
+
+
+    $$
+
+    P_\mathrm{nuc} = \int_{V_\mathrm{tile}} q_\mathrm{nuc}(\mathbf{x}) \, dV
+
+    $$
+
+
+    where $P_\mathrm{nuc}$ is the tile nuclear power, $V_\mathrm{tile}$ is the material
+    volume of the limiter tile, $q_\mathrm{nuc}(\mathbf{x})$ is the local nuclear-heating
+    power density in W m$^{-3}$, and $\mathbf{x}$ denotes position within the tile.
+
+
+    In practice $q_\mathrm{nuc}$ is obtained from coupled neutron and photon transport
+    calculations using the plasma neutron source, the component geometry, and the
+    material composition, accounting for neutron scattering, capture, secondary-gamma
+    production, attenuation, self-shielding, and streaming. Direct measurement of
+    the total deposited nuclear power is uncommon; validation may rely on activation
+    foils, calorimetry, temperature response, or dedicated nuclear-heating sensors.
+
+
+    Do not infer this quantity by directly integrating [nuclear_power_density_of_limiter_tile](name:nuclear_power_density_of_limiter_tile)
+    unless an external model has explicitly converted that representative scalar into
+    a true spatial heating field. That related quantity denotes a midplane or representative
+    nuclear power density for the tile, whereas the total power depends on the full
+    nonuniform deposition pattern caused by attenuation, streaming, self-shielding,
+    and material layering.
+
+
+    Illustrative magnitudes range from well below 1 W in low-neutron-yield or small
+    experimental plasmas to roughly 10^2-10^5 W for large limiter tiles in high-neutron-yield
+    deuterium-tritium operation, scaling with neutron wall loading, exposure geometry,
+    tile volume, material composition, and shielding; these ranges are indicative
+    rather than authoritative.'
+  unit: W
+  physics_domain: structural_components
+  links:
+  - name:nuclear_power_density_of_limiter_tile
+  - name:nuclear_heating_power_of_breeder_blanket_layer
+  sources:
+  - id: dd:wall/description_2d/limiter/unit/power_nuclear
+    dd_path: wall/description_2d/limiter/unit/power_nuclear
+    status: composed
+- name: power_of_breeder_blanket_module
+  kind: scalar
+  status: draft
+  description: Power quantity associated with a single breeder blanket module, abstracting
+    over incident neutron surface loads, volumetric nuclear energy deposition, plasma
+    radiation, and total thermal output as distinct energy-budget components.
+  documentation: 'A breeder blanket module participates in multiple distinct energy-exchange
+    pathways between the fusion plasma and the blanket structure. The principal power
+    channels resolved at the module level include the neutron surface load characterized
+    by [incident_power_of_breeder_blanket_module](name:incident_power_of_breeder_blanket_module),
+    the volumetric nuclear energy deposited inside the module through scattering and
+    capture reactions described by neutron_power_of_breeder_blanket_module, and the
+    electromagnetic photon flux from plasma bremsstrahlung and line radiation quantified
+    by [radiated_power_of_breeder_blanket_module](name:radiated_power_of_breeder_blanket_module).
+
+
+    The total power delivered to the module coolant combines these channels:
+
+
+    $$
+
+    P_\mathrm{module} = P_n + P_\mathrm{rad,abs} + P_\mathrm{aux}
+
+    $$
+
+
+    where $P_n$ is the deposited neutron power, $P_\mathrm{rad,abs}$ is the absorbed
+    fraction of incident plasma radiation after surface reflection, and $P_\mathrm{aux}$
+    covers auxiliary heating contributions; nuclear multiplication reactions in the
+    tritium-breeding material can amplify $P_n$ above the incident neutron surface
+    load.
+
+
+    Module-level power quantities are computed from neutronics transport simulations
+    for nuclear deposition channels, coupled with plasma radiation models for photon
+    loads, and validated against calorimetric measurements of coolant enthalpy rise,
+    the latter captured by [net_thermal_power_of_breeder_blanket_module](name:net_thermal_power_of_breeder_blanket_module).
+    The blanket-wide integral summed over all modules is given by [nuclear_heating_power_of_breeder_blanket](name:nuclear_heating_power_of_breeder_blanket).'
+  unit: W
+  physics_domain: structural_components
+  links:
+  - name:incident_power_of_breeder_blanket_module
+  - name:radiated_power_of_breeder_blanket_module
+  - name:net_thermal_power_of_breeder_blanket_module
+  - name:nuclear_heating_power_of_breeder_blanket
+  sources:
+  - id: derived:power_of_breeder_blanket_module
+    status: composed
+- name: incident_power_of_breeder_blanket_module
+  kind: scalar
+  status: draft
+  description: Power carried by fusion-born neutrons crossing into a single breeder
+    blanket module. This is an incident surface load, not the energy deposited or
+    multiplied inside the module.
+  documentation: 'Incident power of a breeder blanket module is the rate at which
+    kinetic energy of fusion-born neutrons enters one module across the surfaces exposed
+    to the external neutron field. It is a non-negative incoming surface load, distinct
+    from volumetric nuclear heating, tritium production, or neutron multiplication
+    inside the module.
+
+
+    The incident power $P_\mathrm{inc}$ is defined by integrating the incoming neutron
+    energy current over the relevant module surface:
+
+
+    $$
+
+    P_\mathrm{inc} = \int_S \int_0^\infty E\, j_n^-(E,\mathbf{r})\, dE\, dA
+
+    $$
+
+
+    where $S$ is the module surface receiving the external fusion-neutron field, $E$
+    is neutron kinetic energy in joules, $j_n^-(E,\mathbf{r})$ is the differential
+    inward neutron current density at surface position $\mathbf{r}$ with units $m^{-2}\,s^{-1}\,J^{-1}$,
+    $dE$ is an energy interval in joules, and $dA$ is a surface element in square
+    meters. The inward-current notation includes only neutrons crossing into the module
+    from outside; secondary neutrons generated after entry contribute to related neutron-power
+    quantities rather than to this incident term.
+
+
+    In practice, this quantity is evaluated from the energy- and angle-dependent neutron
+    field at the module boundary, constrained by the fusion neutron source strength,
+    module area and solid angle, gaps, and attenuation or shadowing by intervening
+    structures. It provides a boundary load for breeding and heating analyzes; [total_neutron_power_of_breeder_blanket_module](name:nuclear_heating_power_of_breeder_blanket_module)
+    describes neutron power after interactions and multiplication within the module,
+    while [power_of_breeder_blanket_module](name:power_of_breeder_blanket_module)
+    represents the broader module power balance.
+
+
+    Representative per-module values in reactor-scale deuterium-tritium blanket systems
+    are typically $10^5-10^7$ W, with smaller test modules or heavily shadowed regions
+    below $10^5$ W. Values scale mainly with total fusion neutron source strength,
+    exposed area, geometric coverage, and shielding by nearby components.'
+  unit: W
+  physics_domain: structural_components
+  links:
+  - name:nuclear_heating_power_of_breeder_blanket_module
+  - name:power_of_breeder_blanket_module
+  arguments:
+  - name: power_of_breeder_blanket_module
+    operator: incident
+    operator_kind: qualifier
+  sources:
+  - id: dd:breeding_blanket/module/time_slice/power_incident_neutron
+    dd_path: breeding_blanket/module/time_slice/power_incident_neutron
+    status: composed
+- name: radiated_power_of_breeder_blanket_module
+  kind: scalar
+  status: draft
+  description: "Electromagnetic radiative power from plasma photon emission \u2014\
+    \ bremsstrahlung and line radiation \u2014 associated with a single breeding blanket\
+    \ module, encompassing both incident and surface-absorbed components."
+  documentation: "The radiated power of a breeding blanket module quantifies the photon\
+    \ power originating from plasma electromagnetic emission \u2014 chiefly bremsstrahlung\
+    \ continuum and atomic line radiation \u2014 that arrives at and interacts with\
+    \ the module's plasma-facing surface. It serves as the parent abstraction for\
+    \ two physically distinct sub-quantities: the total incident flux crossing the\
+    \ outer surface before any reflection, represented by [incident_radiated_power_of_breeder_blanket_module](name:incident_radiated_power_of_breeder_blanket_module),\
+    \ and the net power retained by the module after surface reflection losses, represented\
+    \ by [absorbed_radiated_power_of_breeder_blanket_module](name:absorbed_radiated_power_of_breeder_blanket_module).\n\
+    \nThe relationship between incident and absorbed power is:\n\n$$\nP_\\text{abs}\
+    \ = (1 - \\mathcal{R})\\, P_\\text{inc}\n$$\n\nwhere $P_\\text{inc}$ is the incident\
+    \ radiative power, $\\mathcal{R}$ is the effective hemispherical surface reflectance\
+    \ averaged over the incident photon spectrum, and $P_\\text{abs}$ is the absorbed\
+    \ radiated power.\n\nIn reactor design, $P_\\text{inc}$ is derived from view-factor\
+    \ integration of the total plasma radiated power over the module surface, while\
+    \ $P_\\text{abs}$ is obtained by applying a reflectance correction to that incident\
+    \ value. The absorbed component contributes to the total thermal duty of the module\
+    \ alongside neutron volumetric heating, both of which feed into [net_thermal_power_of_breeder_blanket_module](name:net_thermal_power_of_breeder_blanket_module).\
+    \ The non-nuclear radiation fraction for the whole breeding blanket is assessed\
+    \ via [thermal_power_of_breeder_blanket](name:thermal_power_of_breeder_blanket)."
+  unit: W
+  physics_domain: structural_components
+  links:
+  - name:incident_radiated_power_of_breeder_blanket_module
+  - name:absorbed_radiated_power_of_breeder_blanket_module
+  - name:net_thermal_power_of_breeder_blanket_module
+  - name:thermal_power_of_breeder_blanket
+  arguments:
+  - name: power_of_breeder_blanket_module
+    operator: radiated
+    operator_kind: qualifier
+- name: absorbed_radiated_power_of_breeder_blanket_module
+  kind: scalar
+  status: draft
+  description: Net photon power absorbed by a breeding blanket module from incident
+    plasma radiation, equal to the incident radiated power on the module surface minus
+    the reflectivity-weighted reflected photon power.
+  documentation: 'Absorbed radiated power of a breeding blanket module is the net
+    photon power deposited in the module by plasma radiation after reflection at its
+    exposed surfaces. It is the radiative heat-load component of the module power
+    balance and excludes particle heat flux, conductive heat transfer from neighboring
+    structures, neutron nuclear heating, and internally generated power.
+
+
+    The absorbed power is defined from the incident photon power and the reflected
+    fraction:
+
+
+    $$
+
+    P_{\mathrm{abs}} = P_{\mathrm{inc}} - P_{\mathrm{refl}} = \left(1 - \alpha_{\mathrm{eff}}\right)
+    P_{\mathrm{inc}}
+
+    $$
+
+
+    where $P_{\mathrm{abs}}$, $P_{\mathrm{inc}}$, and $P_{\mathrm{refl}}$ are powers
+    in W, and $\alpha_{\mathrm{eff}}$ is an effective dimensionless radiative reflectivity
+    for the relevant surface, spectrum, incidence angles, and operating conditions.
+    The reflected power is therefore $P_{\mathrm{refl}} = \alpha_{\mathrm{eff}} P_{\mathrm{inc}}$.
+
+
+    In practice, this quantity is computed by combining plasma radiation measurements
+    or radiation-transport calculations with the module-facing geometry and surface
+    optical properties. It is conceptually analogous to radiated_power_at_wall, but
+    restricted to the portion of the wall represented by a breeding blanket module.
+
+
+    Typical values are strongly device-, module-, and scenario-dependent: they may
+    be near 0 W when no plasma radiation reaches the module, can be in the 10^3-10^6
+    W range for substantial module-facing radiative loads, and may be higher for large
+    blanket sectors in reactor-relevant designs.'
+  unit: W
+  physics_domain: structural_components
+  links: []
+  arguments:
+  - name: radiated_power_of_breeder_blanket_module
+    operator: absorbed
+    operator_kind: qualifier
+  sources:
+  - id: dd:breeding_blanket/module/time_slice/power_thermal_radiated
+    dd_path: breeding_blanket/module/time_slice/power_thermal_radiated
+    status: composed
+- name: incident_radiated_power_of_breeder_blanket_module
+  kind: scalar
+  status: draft
+  description: Total electromagnetic radiative power from the plasma arriving at the
+    outer surface of a breeding blanket module, including bremsstrahlung and line
+    radiation contributions, before accounting for surface reflection losses.
+  documentation: 'The incident radiated power of a breeding blanket module is the
+    total electromagnetic power from the surrounding plasma that arrives at the module''s
+    outer surface, integrated over that surface per unit time. Plasma radiation sources
+    contributing to this load include bremsstrahlung from electron-ion Coulomb collisions,
+    impurity line radiation, and synchrotron emission, all transported across the
+    scrape-off layer to the first-wall and blanket boundary.
+
+
+    The incident radiative load is defined as:
+
+
+    $$
+
+    P_\mathrm{inc,rad} = \int_S \mathbf{q}_\mathrm{rad} \cdot \hat{n} \, dA
+
+    $$
+
+
+    where $\mathbf{q}_\mathrm{rad}$ is the local incident radiative heat-flux vector,
+    $\hat{n}$ is the inward surface unit normal, and the integral extends over the
+    total module surface area $A$.
+
+
+    This quantity represents the gross radiative power before surface reflection;
+    the net thermally retained fraction is captured by [absorbed_radiated_power_of_breeder_blanket_module](name:absorbed_radiated_power_of_breeder_blanket_module),
+    which subtracts the reflected component. Together with nuclear heating quantified
+    by [total_neutron_power_of_breeder_blanket_module](name:nuclear_heating_power_of_breeder_blanket_module),
+    this term enters the full surface thermal balance of the blanket and is a key
+    input for coolant circuit design and blanket lifetime assessment.'
+  unit: W
+  physics_domain: structural_components
+  links:
+  - name:absorbed_radiated_power_of_breeder_blanket_module
+  - name:nuclear_heating_power_of_breeder_blanket_module
+  arguments:
+  - name: radiated_power_of_breeder_blanket_module
+    operator: incident
+    operator_kind: qualifier
+  sources:
+  - id: dd:breeding_blanket/module/time_slice/power_incident_radiated
+    dd_path: breeding_blanket/module/time_slice/power_incident_radiated
     status: composed
 - name: resistance_of_cryostat
   kind: scalar
@@ -1157,6 +1612,67 @@
   - id: dd:cryostat/description_2d/thermal_shield/unit/element/midplane_thickness
     dd_path: cryostat/description_2d/thermal_shield/unit/element/midplane_thickness
     status: attached
+- name: thickness_of_plasma_facing_component
+  kind: scalar
+  status: draft
+  description: Physical depth of a plasma-facing component from its plasma-exposed
+    front surface to its rear structural interface, measured along the local outward-to-inward
+    surface normal. For nonuniform or curved components, the value is local or nominal
+    at the specified evaluation station and is not a minimum, maximum, or average
+    unless explicitly identified as such.
+  documentation: 'Thickness of a plasma-facing component is the geometric depth of
+    the material stack between the plasma-exposed front surface and the rear structural
+    interface. It is evaluated along the local surface normal of the exposed surface,
+    using the same local surface point framing as surface quantities such as [surface_temperature](name:surface_temperature)
+    and incident heat-flux quantities.
+
+
+    For a local evaluation point $\mathbf{x}_f$ on the plasma-exposed surface, the
+    thickness $t$ is the normal projection of the displacement to the corresponding
+    rear interface point $\mathbf{x}_r$:
+
+
+    $$
+
+    t = \left| (\mathbf{x}_r - \mathbf{x}_f) \cdot \hat{\mathbf{n}} \right|
+
+    $$
+
+
+    where $\hat{\mathbf{n}}$ is the unit normal used to trace from the exposed front
+    face toward the rear interface, and $\mathbf{x}_f$ and $\mathbf{x}_r$ are position
+    vectors in meters. The absolute value gives the physical depth; the quantity itself
+    is non-negative.
+
+
+    For curved or nonuniform components, a single reported thickness requires an evaluation
+    convention. It may be a local value at a specified point, a nominal value at a
+    reference station such as the midplane, or a deliberately labeled derived value
+    such as a minimum, maximum, or area-weighted average. Without such a qualifier,
+    the quantity should be interpreted as the local or nominal normal depth for the
+    specified component, not as a global extremum or average over the full plasma-facing
+    surface.
+
+
+    Thickness is usually determined from engineering geometry, metrology, or inspection
+    of the component and can be updated after erosion, deposition, machining, or replacement.
+    It is used with local heat-flux and surface-temperature quantities, such as [maximum_incident_heat_flux_of_plasma_facing_component](name:maximum_incident_heat_flux_of_plasma_facing_component),
+    to assess thermal response, remaining material margin, and structural support.
+
+
+    Typical values are highly design-dependent. Thin coatings or sacrificial layers
+    may be about 0.0001-0.005 m, replaceable armor tiles or limiter elements commonly
+    fall in the 0.005-0.1 m range, and complete load-bearing plasma-facing modules
+    can be thicker when the rear structural interface is included.'
+  unit: m
+  physics_domain: structural_components
+  links:
+  - name:maximum_incident_heat_flux_of_plasma_facing_component
+  - name:area_of_first_wall
+  sources:
+  - id: dd:wall/description_2d/limiter/unit/midplane_thickness
+    dd_path: wall/description_2d/limiter/unit/midplane_thickness
+    status: composed
 - name: thickness_of_vacuum_vessel
   kind: scalar
   status: draft
@@ -1212,6 +1728,132 @@
   - id: dd:wall/description_2d/vessel/unit/element/midplane_thickness
     dd_path: wall/description_2d/vessel/unit/element/midplane_thickness
     status: attached
+- name: toroidal_current_of_cryostat
+  kind: scalar
+  status: draft
+  description: Toroidal current in a conducting cryostat element is the net current
+    component along the toroidal direction in the right-handed cylindrical (R, phi,
+    Z) frame. It represents eddy or halo current induced by time-varying magnetic
+    flux during plasma operation or transients.
+  documentation: 'Toroidal current of a cryostat is the lumped net electric current
+    carried by a conducting cryostat component in the toroidal direction of the right-handed
+    cylindrical $(R,\phi,Z)$ frame, where $R$ is major radius, $\phi$ is toroidal
+    angle, and $Z$ is vertical height. It represents the toroidal component of an
+    induced current distribution driven mainly by changing magnetic flux linked with
+    the conducting path; direct halo-current collection can also contribute during
+    plasma contact events.
+
+
+    A single coupled element is commonly modeled by a lumped induction balance:
+
+
+    $$
+
+    R_i I_{\phi,i} + L_i \frac{d I_{\phi,i}}{dt} = -\frac{d}{dt}\left(\Phi_{\mathrm{ext},i}
+    + \sum_k M_{ik} I_k\right)
+
+    $$
+
+
+    where $I_{\phi,i}$ is the toroidal current in amperes, $R_i$ is the element resistance
+    in ohms, $L_i$ is the self-inductance in henries, $\Phi_{\mathrm{ext},i}$ is externally
+    applied linked magnetic flux in webers, $M_{ik}$ is mutual inductance in henries
+    to source current $I_k$ in amperes, and each term has units of volts. The minus
+    sign expresses Lenz''s law: the induced current acts to oppose the change in linked
+    flux.
+
+
+    These currents are usually computed rather than measured directly. They are obtained
+    from electromagnetic induction calculations using conducting-structure finite-element
+    models or coupled filament/circuit networks constrained by coil, plasma-current,
+    magnetic-probe, flux-loop, and voltage information. The same lumped-current physics
+    underlies [current_of_passive_loop](name:current_of_passive_loop), and the resulting
+    current is used to estimate Joule heating and electromagnetic loads from interaction
+    with the local magnetic field.
+
+
+    In steady phases with slowly varying flux, the value can be close to 0 A. During
+    current ramping, vertical-displacement events, or disruptions, local cryostat-element
+    currents commonly span $10^2$-$10^5$ A; large low-resistance structures can reach
+    $10^5$-$10^6$ A for short times. Values depend strongly on resistance, inductive
+    coupling, pulse time scale, and electrical continuity of the structure.
+
+
+    Sign convention: Positive when the current flows in the direction of increasing
+    toroidal angle $\phi$ in the right-handed cylindrical $(R,\phi,Z)$ frame (counter-clockwise
+    when viewed from the $+\hat{Z}$ side).'
+  unit: A
+  physics_domain: structural_components
+  links:
+  - name:resistance_of_cryostat
+  - name:current_of_passive_loop
+  sources:
+  - id: dd:cryostat/description_2d/cryostat/unit/element/j_phi
+    dd_path: cryostat/description_2d/cryostat/unit/element/j_phi
+    status: attached
+  - id: dd:cryostat/description_2d/cryostat/unit/element/j_tor
+    dd_path: cryostat/description_2d/cryostat/unit/element/j_tor
+    status: attached
+  - id: dd:cryostat/description_2d/thermal_shield/unit/element/j_phi
+    dd_path: cryostat/description_2d/thermal_shield/unit/element/j_phi
+    status: composed
+  - id: dd:cryostat/description_2d/thermal_shield/unit/element/j_tor
+    dd_path: cryostat/description_2d/thermal_shield/unit/element/j_tor
+    status: attached
+- name: tritium_breeding_ratio
+  kind: scalar
+  status: draft
+  description: Global tritium breeding ratio is the total number of tritium atoms
+    produced in the breeding blanket per incident fusion neutron used for blanket
+    normalization. It is a dimensionless figure of merit for tritium self-sufficiency
+    in a deuterium-tritium fusion reactor.
+  documentation: 'Tritium breeding ratio is the global yield of tritium from all breeding
+    regions of a blanket, normalized to the common incident fusion-neutron count used
+    for the blanket neutronics calculation. It quantifies how effectively neutron
+    multiplication, moderation, and lithium breeding reactions convert fusion neutrons
+    into replacement tritium fuel.
+
+
+    The global ratio is defined as
+
+
+    $$
+
+    \mathrm{TBR} = \frac{N_T}{N_{n,\mathrm{inc}}}
+
+    $$
+
+
+    where $N_T$ is the total number of tritium atoms produced in the breeding blanket
+    over the normalization interval, and $N_{n,\mathrm{inc}}$ is the number of incident
+    fusion neutrons used as the shared denominator for blanket normalization. The
+    denominator is not the number of neutrons absorbed in the blanket; using the same
+    incident-neutron denominator for all blanket regions makes module contributions
+    additive, so the global value is the sum of compatible module ratios such as [tritium_breeding_ratio_of_breeder_blanket_module](name:tritium_breeding_ratio_of_breeder_blanket_module).
+
+
+    Tritium is mainly produced by neutron reactions with lithium, especially $^6\mathrm{Li}(n,\alpha)T$
+    and $^7\mathrm{Li}(n,n''\alpha)T$, with the balance affected by neutron multipliers,
+    structural absorption, coolant absorption, leakage, and geometric coverage. The
+    quantity is normally evaluated with neutron-transport and activation calculations
+    using the fusion-neutron source spectrum and the detailed blanket material composition
+    and geometry; experimental validation uses nuclear measurements and integral mock-up
+    tests rather than direct full-power tritium inventory closure.
+
+
+    Typical reactor design targets are about 1.05-1.20 to allow margin for radioactive
+    decay, processing losses, extraction efficiency, unavailable breeding volume,
+    nuclear-data uncertainty, and operational reserve. Values below 1 indicate that
+    the blanket does not replace all tritium consumed by deuterium-tritium fusion
+    under the same neutron normalization.'
+  unit: '1'
+  physics_domain: structural_components
+  links:
+  - name:tritium_breeding_ratio_of_breeder_blanket_module
+  sources:
+  - id: dd:breeding_blanket/time_slice/tritium_breeding_ratio
+    dd_path: breeding_blanket/time_slice/tritium_breeding_ratio
+    status: composed
 - name: tritium_breeding_ratio_of_breeder_blanket_module
   kind: scalar
   status: draft
@@ -1373,6 +2015,58 @@
   - id: dd:wall/description_2d/limiter/unit/outline/z
     dd_path: wall/description_2d/limiter/unit/outline/z
     status: composed
+- name: vertical_outline_of_vacuum_vessel
+  kind: scalar
+  status: draft
+  description: Vertical Z coordinate of a vacuum-vessel element outline point in the
+    right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'The vertical outline of a vacuum vessel is the $Z$ coordinate of
+    a point on the geometric boundary of a vacuum-vessel element in a poloidal cross-section.
+    Coordinates are expressed in the right-handed cylindrical $(R,\phi,Z)$ frame,
+    where $R$ is major radius and $Z$ is vertical height.
+
+
+    For an element represented by an ordered boundary with $N$ vertices, the poloidal
+    outline is the indexed sequence
+
+
+    $$
+
+    \Gamma = \bigl((R_1,Z_1),(R_2,Z_2),\ldots,(R_N,Z_N)\bigr)
+
+    $$
+
+
+    where $Z_i$ is the vertical outline coordinate named here, $R_i$ is the corresponding
+    radial outline coordinate, and both $R_i$ and $Z_i$ are measured in meters. Successive
+    vertices define neighboring boundary points; for a closed polygonal outline, vertex
+    $N$ connects back to vertex $1$, and repeating the first vertex as the final point
+    is geometrically redundant.
+
+
+    The outline is usually determined from mechanical design geometry, as-built metrology,
+    or an engineering approximation to the vessel boundary. Together with the corresponding
+    radial coordinate, $Z_i$ defines the material boundary used for geometric clearance,
+    wall-intersection, and plasma-facing structure calculations.
+
+
+    No universal numerical range is implied: admissible values are bounded by the
+    vertical extent of the specific vessel geometry. The coordinate may be negative,
+    zero, or positive depending on the point position relative to the origin in the
+    right-handed cylindrical $(R,\phi,Z)$ frame.
+
+
+    Sign convention: Positive when the outline point lies above the origin in the
+    $+\hat{Z}$ direction of the right-handed cylindrical $(R,\phi,Z)$ frame.'
+  unit: m
+  physics_domain: structural_components
+  links:
+  - name:vertical_outline_of_divertor_tile
+  - name:vertical_coordinate_of_geometric_axis
+  sources:
+  - id: dd:wall/description_2d/vessel/unit/element/outline/z
+    dd_path: wall/description_2d/vessel/unit/element/outline/z
+    status: composed
 - name: vertical_outline_of_wall_material
   kind: scalar
   status: draft
@@ -1405,37 +2099,56 @@
   - id: dd:wall/description_2d/mobile/unit/outline/z
     dd_path: wall/description_2d/mobile/unit/outline/z
     status: composed
-- name: y_coordinate_of_ferritic_element_centroid
+- name: volume_of_first_wall
   kind: scalar
   status: draft
-  description: Y coordinate of the geometric centroid of a ferritic element in the
-    right-handed Cartesian (x, y, z) frame, where z coincides with the vertical axis
-    Z.
-  documentation: "Ferritic elements are passive structural components \u2014 typically\
-    \ magnetizable steel inserts \u2014 placed in tokamaks to reduce toroidal field\
-    \ ripple arising from the discrete set of toroidal field coils. The geometric\
-    \ centroid of such an element is its volume-averaged position, and this quantity\
-    \ gives the centroid's coordinate along the $y$-axis of the right-handed Cartesian\
-    \ $(x, y, z)$ frame, where $z = Z$ is the vertical axis and $x = R\\cos\\phi$,\
-    \ $y = R\\sin\\phi$ relate to the cylindrical $(R, \\phi, Z)$ coordinates ($R$\
-    \ = major radius, $\\phi$ = toroidal angle).\n\nThe centroid $y$ coordinate is\
-    \ defined as\n\n$$\n\\bar{y} = \\frac{1}{V} \\int_V y \\, dV\n$$\n\nwhere $V$\
-    \ is the total volume of the ferritic element and $y$ is the Cartesian coordinate\
-    \ of each volume element.\n\nThis coordinate is determined from engineering drawings\
-    \ or three-dimensional geometric models of the device. Together with [x_coordinate_of_ferritic_element_centroid](name:x_coordinate_of_ferritic_element_centroid)\
-    \ and [vertical_coordinate_of_ferritic_element](name:vertical_coordinate_of_ferritic_element_centroid),\
-    \ it fully specifies the three-dimensional centroid location in Cartesian space.\n\
-    \nSign convention: Positive when the centroid lies in the half-space $y > 0$,\
-    \ corresponding to toroidal angles $\\phi \\in (0, \\pi)$ in the cylindrical $(R,\
-    \ \\phi, Z)$ frame."
-  unit: m
+  description: Total volume enclosed by the first wall contour, equal to the interior
+    of the vacuum vessel bounded by its innermost plasma-facing surface.
+  documentation: 'The volume of the first wall is the total interior volume of the
+    vacuum vessel bounded by the innermost plasma-facing surface. It defines the geometric
+    space available to the confined plasma, the scrape-off layer, and the neutral
+    gas inventory, and serves as the primary reference quantity for global particle
+    balance and fueling calculations.
+
+
+    For an axisymmetric device, $V_{\rm FW}$ is obtained by integrating over the interior
+    cross-section in the right-handed cylindrical $(R, \phi, Z)$ frame:
+
+
+    $$
+
+    V_{\rm FW} = 2\pi \iint_{A} R \, dR \, dZ
+
+    $$
+
+
+    where $A$ is the poloidal cross-sectional area enclosed by the first wall contour,
+    $R$ is the major radius in meters, and $Z$ is the vertical height in meters. Non-axisymmetric
+    features such as ports and recesses require full three-dimensional surface integration
+    to be correctly included.
+
+
+    The enclosed volume is derived from the engineering geometry of the first wall,
+    obtained from design drawings and vessel surveys conducted during device commissioning.
+
+
+    This quantity is always larger than the [volume enclosed by the plasma boundary](name:volume_of_flux_surface),
+    which is limited to the last closed flux surface; the excess volume is occupied
+    by the edge region and scrape-off layer. The complementary surface measure of
+    the same structure is the [area of the first wall](name:area_of_first_wall).
+
+
+    Sign convention: Positive when the integration domain is the interior region bounded
+    by the first wall surface, with the surface normal directed outward from the enclosed
+    volume.'
+  unit: m^3
   physics_domain: structural_components
   links:
-  - name:x_coordinate_of_ferritic_element_centroid
-  - name:vertical_coordinate_of_ferritic_element_centroid
+  - name:volume_of_flux_surface
+  - name:area_of_first_wall
   sources:
-  - id: dd:ferritic/object/centroid/y
-    dd_path: ferritic/object/centroid/y
+  - id: dd:wall/first_wall_enclosed_volume
+    dd_path: wall/first_wall_enclosed_volume
     status: composed
 - name: volumetric_force
   kind: vector
@@ -1453,22 +2166,21 @@
     \ is decomposed into cylindrical components [radial_volumetric_force](name:radial_volumetric_force),\
     \ [toroidal_volumetric_force](name:toroidal_volumetric_force), and [vertical_volumetric_force](name:vertical_volumetric_force)\
     \ in the right-handed $(R, \\phi, Z)$ frame. Integrating over the volume of a\
-    \ structural element recovers the total [force](name:force) acting on that element.\n\
-    \nThis quantity is used in magnetomechanical and structural integrity analyzes\
-    \ of plasma-facing components, breeding blanket modules, and coil structures,\
-    \ particularly during disruption events when rapidly changing currents induce\
-    \ large transient body forces on conducting structures.\n\nSign convention: Positive\
-    \ when the force component points in the $+\\hat{R}$ direction (outward from the\
-    \ symmetry axis), in the $+\\hat{\\phi}$ direction (direction of increasing toroidal\
-    \ angle), or in the $+\\hat{Z}$ direction (upward) in the right-handed cylindrical\
-    \ $(R, \\phi, Z)$ frame."
+    \ structural element recovers the total force acting on that element.\n\nThis\
+    \ quantity is used in magnetomechanical and structural integrity analyzes of plasma-facing\
+    \ components, breeding blanket modules, and coil structures, particularly during\
+    \ disruption events when rapidly changing currents induce large transient body\
+    \ forces on conducting structures.\n\nSign convention: Positive when the force\
+    \ component points in the $+\\hat{R}$ direction (outward from the symmetry axis),\
+    \ in the $+\\hat{\\phi}$ direction (direction of increasing toroidal angle), or\
+    \ in the $+\\hat{Z}$ direction (upward) in the right-handed cylindrical $(R, \\\
+    phi, Z)$ frame."
   unit: N.m^-3
   physics_domain: structural_components
   links:
   - name:radial_volumetric_force
   - name:toroidal_volumetric_force
   - name:vertical_volumetric_force
-  - name:force
 - name: radial_volumetric_force
   kind: scalar
   status: draft
@@ -1629,4 +2341,87 @@
   sources:
   - id: dd:wall/description_ggd/ggd/em_force_density/z
     dd_path: wall/description_ggd/ggd/em_force_density/z
+    status: composed
+- name: volumetric_fraction_of_breeder_blanket_layer
+  kind: scalar
+  status: draft
+  description: Dimensionless ratio of a constituent material's volume to the total
+    bulk volume of a breeder blanket layer. It specifies the homogenized layer composition
+    used for effective material properties, neutron transport, tritium breeding, and
+    thermal-hydraulic calculations.
+  documentation: 'Volumetric fraction of a breeder blanket layer is the dimensionless
+    share of the layer''s bulk volume occupied by one constituent material or phase.
+    It is a homogenized composition descriptor for composite blanket layers containing
+    breeder material, neutron multiplier, structural alloy, coolant, purge gas, gaps,
+    or other constituents.
+
+
+    The defining relation for constituent $i$ is:
+
+
+    $$
+
+    f_i = \frac{V_i}{V_\mathrm{layer}}
+
+    $$
+
+
+    where $f_i$ is the volumetric fraction, $V_i$ is the constituent volume in m^3,
+    and $V_\mathrm{layer}$ is the total bulk layer volume in m^3 over the homogenization
+    region. For an exhaustive, non-overlapping partition of the layer, $0 \le f_i
+    \le 1$ and $\sum_i f_i = 1$; if voids, coolant, or gas regions are represented
+    separately, they are included as their own fractions.
+
+
+    Values are computed from engineering geometry, unit-cell packing models, CAD volumes,
+    or bill-of-materials information, and may be checked indirectly against measured
+    mass, density, thermal response, or nuclear performance. This quantity is the
+    blanket-layer analog of [ratio of volume to volume of passive structure] and is
+    distinct from packing factor or porosity: packing factor usually combines selected
+    solid occupied fractions, while porosity is the void or fluid-accessible fraction.
+
+
+    Typical individual fractions are 0.3-0.7 for packed ceramic breeder or neutron-multiplier
+    material, 0.05-0.3 for structural alloy, and 0.05-0.3 for coolant, purge-gas,
+    or void regions. Fully dense homogeneous sublayers can have a dominant constituent
+    fraction close to 1, while coatings, liners, or minor interlayers may have fractions
+    of 0.001-0.05.'
+  unit: '1'
+  physics_domain: structural_components
+  links: []
+  sources:
+  - id: dd:breeding_blanket/module/layer/material_volume_fraction
+    dd_path: breeding_blanket/module/layer/material_volume_fraction
+    status: composed
+- name: y_coordinate_of_ferritic_element_centroid
+  kind: scalar
+  status: draft
+  description: Y coordinate of the geometric centroid of a ferritic element in the
+    right-handed Cartesian (x, y, z) frame, where z coincides with the vertical axis
+    Z.
+  documentation: "Ferritic elements are passive structural components \u2014 typically\
+    \ magnetizable steel inserts \u2014 placed in tokamaks to reduce toroidal field\
+    \ ripple arising from the discrete set of toroidal field coils. The geometric\
+    \ centroid of such an element is its volume-averaged position, and this quantity\
+    \ gives the centroid's coordinate along the $y$-axis of the right-handed Cartesian\
+    \ $(x, y, z)$ frame, where $z = Z$ is the vertical axis and $x = R\\cos\\phi$,\
+    \ $y = R\\sin\\phi$ relate to the cylindrical $(R, \\phi, Z)$ coordinates ($R$\
+    \ = major radius, $\\phi$ = toroidal angle).\n\nThe centroid $y$ coordinate is\
+    \ defined as\n\n$$\n\\bar{y} = \\frac{1}{V} \\int_V y \\, dV\n$$\n\nwhere $V$\
+    \ is the total volume of the ferritic element and $y$ is the Cartesian coordinate\
+    \ of each volume element.\n\nThis coordinate is determined from engineering drawings\
+    \ or three-dimensional geometric models of the device. Together with [x_coordinate_of_ferritic_element_centroid](name:x_coordinate_of_ferritic_element_centroid)\
+    \ and [vertical_coordinate_of_ferritic_element](name:vertical_coordinate_of_ferritic_element_centroid),\
+    \ it fully specifies the three-dimensional centroid location in Cartesian space.\n\
+    \nSign convention: Positive when the centroid lies in the half-space $y > 0$,\
+    \ corresponding to toroidal angles $\\phi \\in (0, \\pi)$ in the cylindrical $(R,\
+    \ \\phi, Z)$ frame."
+  unit: m
+  physics_domain: structural_components
+  links:
+  - name:x_coordinate_of_ferritic_element_centroid
+  - name:vertical_coordinate_of_ferritic_element_centroid
+  sources:
+  - id: dd:ferritic/object/centroid/y
+    dd_path: ferritic/object/centroid/y
     status: composed

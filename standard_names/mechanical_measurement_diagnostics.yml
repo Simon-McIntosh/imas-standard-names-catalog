@@ -1,9 +1,39 @@
 # Domain: mechanical_measurement_diagnostics
-# Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 20
+# Catalog sha: b8d10395a003efc46be6fc45a94b1f9308d6a87b
+# Entries: 39
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: area_of_langmuir_probe
+  kind: scalar
+  status: draft
+  description: Total geometric surface area of a Langmuir probe collector, characterizing
+    the probe's physical extent independent of plasma exposure fraction or magnetic-field
+    projection.
+  documentation: "The area of a Langmuir probe is the total geometric surface area\
+    \ of the probe collector, representing its full physical size as a fixed hardware\
+    \ property independent of local plasma conditions or magnetic-field geometry.\
+    \ It is the parent area concept from which two operationally distinct sub-areas\
+    \ are derived: the [wetted area](name:wetted_area_of_langmuir_probe), which captures\
+    \ only the portion of the collector surface directly exposed to plasma, and the\
+    \ [effective collection area](name:effective_area_of_langmuir_probe), which is\
+    \ the projection onto the plane perpendicular to the local magnetic field that\
+    \ governs ion collection in a magnetized sheath.\n\nFor probes oriented at a grazing\
+    \ angle to the magnetic field \u2014 quantified by the [field-aligned incident\
+    \ angle] \u2014 the effective collection area can be substantially smaller than\
+    \ the total geometric area. Conflating the two when normalizing the [ion saturation\
+    \ current](name:ion_saturated_current) to obtain the [ion saturation current density](name:ion_saturated_current_density)\
+    \ introduces systematic errors in the inferred plasma density and particle flux\
+    \ at the probe surface.\n\nProbe areas are treated as fixed diagnostic geometry\
+    \ parameters, determined from engineering drawings or direct measurement of the\
+    \ fabricated collector prior to installation."
+  unit: m^2
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:wetted_area_of_langmuir_probe
+  - name:effective_area_of_langmuir_probe
+  - name:ion_saturated_current
+  - name:ion_saturated_current_density
 - name: coolant_temperature_at_inlet
   kind: scalar
   status: draft
@@ -109,6 +139,90 @@
   - id: dd:calorimetry/group/component/temperature_out
     dd_path: calorimetry/group/component/temperature_out
     status: composed
+- name: direction_unit_vector
+  kind: vector
+  status: draft
+  description: Dimensionless unit vector specifying the spatial orientation of a diagnostic
+    sensor or hardware device, with projections resolved along the axes of a specified
+    right-handed coordinate frame.
+  documentation: "A direction unit vector of magnitude one encodes the pointing direction\
+    \ of a diagnostic sensor or hardware device \u2014 for instance the measurement\
+    \ axis, surface normal, or optical line-of-sight \u2014 decomposed into projections\
+    \ along coordinate axes. It is the minimal geometric descriptor of orientation,\
+    \ carrying no magnitude information.\n\nThe defining constraint is:\n\n$$\n\\\
+    hat{d} \\cdot \\hat{d} = d_x^2 + d_y^2 + d_z^2 = 1\n$$\n\nwhere $d_x$, $d_y$,\
+    \ $d_z$ are the axis projections of the unit vector. The [x_direction_unit_vector](name:x_direction_unit_vector)\
+    \ and its $y$-axis companion resolve the vector in the right-handed Cartesian\
+    \ $(x, y, z)$ frame, while [vertical_direction_unit_vector](name:vertical_direction_unit_vector)\
+    \ provides the projection onto $\\hat{Z}$ in the right-handed cylindrical $(R,\
+    \ \\phi, Z)$ frame.\n\nComponent values are obtained from engineering drawings,\
+    \ mechanical alignment surveys, or photogrammetric measurements performed during\
+    \ device installation and calibration. Each component lies in the interval $[-1,\
+    \ 1]$ by construction, with the three projections summing in quadrature to unity.\n\
+    \nSign convention: Positive when the component points in the positive direction\
+    \ of the corresponding coordinate axis."
+  unit: '1'
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:x_direction_unit_vector
+  - name:vertical_direction_unit_vector
+  sources:
+  - id: derived:direction_unit_vector
+    status: composed
+- name: displacement_of_passive_structure
+  kind: scalar
+  status: draft
+  description: Signed linear displacement of a selected point or surface on a passive
+    structural component relative to a reference configuration, projected along a
+    specified measurement direction.
+  documentation: 'Displacement of a passive structure is the scalar change in position
+    of a specified material point, attachment point, or target surface on a passive
+    structural component. It is the component of the local vector displacement along
+    a chosen measurement direction, and is a passive-structure-specific use of the
+    generic [displacement](name:displacement_of_passive_structure) concept.
+
+
+    The signed projected displacement is defined by
+
+
+    $$
+
+    u(t) = \left[\mathbf{r}(t) - \mathbf{r}_0\right] \cdot \hat{\mathbf{e}}_u
+
+    $$
+
+
+    where $u(t)$ is the scalar displacement in m, $\mathbf{r}(t)$ is the current position
+    vector of the selected point or surface reference point in m, $\mathbf{r}_0$ is
+    its reference-configuration position vector in m, $t$ is time in s, and $\hat{\mathbf{e}}_u$
+    is a dimensionless unit vector in the chosen positive measurement direction.
+
+
+    In practice the quantity is obtained from displacement, proximity, or length measurements
+    tied to a calibrated reference state. For a sensor viewing a surface, the reported
+    value represents the change of the measured target position along the sensor direction
+    after applying the reference offset and sign calibration; it should not be interpreted
+    as the displacement of an entire component unless that reduction has been explicitly
+    defined.
+
+
+    Typical magnitudes are expressed in meters and are strongly dependent on component
+    stiffness, support conditions, electromagnetic loading, thermal expansion, and
+    the selected measurement point. No device-independent numerical range is intrinsic
+    to the quantity; interpretation should be made relative to the component clearance,
+    deformation limit, and measurement resolution.
+
+
+    Sign convention: Positive when the selected point or surface moves in the chosen
+    positive measurement direction $\hat{\mathbf{e}}_u$ relative to the reference
+    configuration.'
+  unit: m
+  physics_domain: mechanical_measurement_diagnostics
+  links: []
+  sources:
+  - id: dd:operational_instrumentation/sensor/length
+    dd_path: operational_instrumentation/sensor/length
+    status: composed
 - name: effective_area_of_langmuir_probe
   kind: scalar
   status: draft
@@ -157,6 +271,10 @@
   physics_domain: mechanical_measurement_diagnostics
   links:
   - name:parallel_ion_current_density
+  arguments:
+  - name: area_of_langmuir_probe
+    operator: effective
+    operator_kind: qualifier
   sources:
   - id: dd:langmuir_probes/embedded/surface_area_effective
     dd_path: langmuir_probes/embedded/surface_area_effective
@@ -218,66 +336,6 @@
   - id: dd:langmuir_probes/reciprocating/plunge/t_e_average
     dd_path: langmuir_probes/reciprocating/plunge/t_e_average
     status: composed
-- name: electron_temperature_at_midplane
-  kind: scalar
-  status: draft
-  description: Local electron temperature at the outboard, low-field-side midplane
-    in the scrape-off-layer plasma. It is the thermodynamic electron energy scale
-    there, distinct from a flux-surface average or a field-line average.
-  documentation: 'Electron temperature at the midplane is the local electron temperature
-    at the outboard, low-field-side intersection of the plasma midplane with the scrape-off
-    layer. It characterizes the thermal spread of the electron velocity distribution
-    at that location, rather than a [flux-surface-averaged electron temperature](name:flux_surface_averaged_electron_temperature)
-    or a field-line average such as [electron average temperature at midplane](name:electron_average_temperature_at_midplane).
-
-
-    In the right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is major radius,
-    $\phi$ is toroidal angle, and $Z$ is vertical height, the local evaluation can
-    be written as:
-
-
-    $$
-
-    T_{e,\mathrm{mid}} = T_e(R_{\mathrm{OMP}}, \phi_0, Z_{\mathrm{mid}})
-
-    $$
-
-
-    where $T_e$ is the local electron temperature, $R_{\mathrm{OMP}}$ is the major
-    radius of the outboard midplane point in the scrape-off layer, $\phi_0$ is the
-    toroidal angle of that point, and $Z_{\mathrm{mid}}$ is the vertical height of
-    the plasma midplane. Expressed in eV, $T_e$ is the electron thermal energy scale;
-    for a Maxwellian distribution, the mean random thermal kinetic energy per electron
-    is $\langle E_e\rangle = 3T_e/2$ when both are expressed as energies.
-
-
-    It is commonly inferred from local edge measurements such as Langmuir-probe current-voltage
-    characteristics, with interpretation depending on sheath physics, plasma potential,
-    secondary emission, magnetization, and non-Maxwellian effects. Local sampling
-    makes this quantity sensitive to radial position relative to the separatrix, turbulent
-    fluctuations, and toroidal or poloidal asymmetries; separate measures such as
-    [thermal electron decay length over the scrape-off layer](name:thermal_electron_decay_length_over_scrape_off_layer)
-    describe radial falloff rather than this single local value.
-
-
-    Typical values in tokamak scrape-off layers are 5-100 eV near the outboard midplane,
-    with lower values common farther from the separatrix and higher values possible
-    close to the separatrix in strongly heated plasmas. The value is governed by parallel
-    heat conduction, sheath heat transmission, cross-field transport, ionization and
-    radiation losses, and upstream power flow.'
-  unit: eV
-  physics_domain: mechanical_measurement_diagnostics
-  links:
-  - name:electron_average_temperature_at_midplane
-  - name:electron_temperature_at_wall
-  - name:thermal_electron_decay_length_over_scrape_off_layer
-  sources:
-  - id: dd:langmuir_probes/reciprocating/plunge/collector/t_e
-    dd_path: langmuir_probes/reciprocating/plunge/collector/t_e
-    status: composed
-  - id: dd:langmuir_probes/reciprocating/plunge/t_e
-    dd_path: langmuir_probes/reciprocating/plunge/t_e
-    status: attached
 - name: electrostatic_potential_at_midplane
   kind: scalar
   status: draft
@@ -317,6 +375,141 @@
   - id: dd:langmuir_probes/reciprocating/plunge/v_plasma
     dd_path: langmuir_probes/reciprocating/plunge/v_plasma
     status: attached
+- name: electrostatic_potential_at_wall
+  kind: scalar
+  status: draft
+  description: Local plasma electrostatic potential immediately adjacent to a plasma-facing
+    wall, relative to the chosen electrical reference. It is distinct from the material
+    wall voltage, floating potential, and any applied wall bias.
+  documentation: 'Electrostatic potential at wall is the voltage-valued scalar potential
+    of the quasineutral plasma just outside the sheath adjacent to a plasma-facing
+    surface. It is the plasma-side reference for sheath potential drops and near-wall
+    electric fields, not the electrical potential of the solid wall material itself.
+
+
+    In the electrostatic approximation, the electric field is related to the scalar
+    potential by
+
+
+    $$
+
+    \mathbf{E} = -\nabla \Phi
+
+    $$
+
+
+    where $\Phi$ is the electrostatic potential in volts and $\mathbf{E}$ is the electric
+    field in volts per meter. Only potential differences are physically meaningful;
+    changing the electrical reference shifts $\Phi$ by a constant without changing
+    $\mathbf{E}$.
+
+
+    In practice this quantity is commonly inferred from a near-wall Langmuir-probe
+    current-voltage characteristic, sheath analysis, or an edge-plasma reconstruction
+    tied to a specified electrical reference. It differs from [floating electrostatic
+    potential](name:floating_electrostatic_potential), which is the potential of an
+    electrically isolated probe or surface when the net collected current is zero,
+    and from [electrostatic potential at midplane](name:electrostatic_potential_at_midplane),
+    which refers to the local plasma potential at a different position. A grounded
+    or biased wall can have a material voltage that differs from the adjacent plasma
+    potential by the sheath voltage drop.
+
+
+    Typical values are strongly reference- and regime-dependent. In many low-temperature
+    boundary-plasma measurements relative to a grounded vessel, values are of order
+    a few volts to several tens of volts, with larger offsets possible near biased
+    components, strong emission, or hotter edge conditions.
+
+
+    Sign convention: Positive when the local plasma potential at the wall is above
+    the chosen electrical reference potential.'
+  unit: V
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:floating_electrostatic_potential
+  - name:electrostatic_potential_at_midplane
+  - name:electron_temperature_at_wall
+  - name:ion_saturated_current_density
+  sources:
+  - id: dd:langmuir_probes/embedded/potential_plasma
+    dd_path: langmuir_probes/embedded/potential_plasma
+    status: composed
+  - id: dd:langmuir_probes/embedded/v_plasma
+    dd_path: langmuir_probes/embedded/v_plasma
+    status: attached
+- name: floating_electrostatic_potential
+  kind: scalar
+  status: draft
+  description: Electrostatic potential acquired by an electrically isolated probe
+    or surface when the net plasma current to it is zero.
+  documentation: 'Floating electrostatic potential is the potential acquired by an
+    electrically isolated material surface in contact with a plasma when the total
+    collected current vanishes. It is usually displaced from the local plasma potential
+    by a sheath drop governed mainly by electron temperature, ion mass, collecting
+    geometry, and surface emission.
+
+
+    The defining condition for the floating potential $V_f$ is zero net current to
+    the surface:
+
+
+    $$
+
+    I_\mathrm{i}(V_f) + I_\mathrm{e}(V_f) = 0
+
+    $$
+
+
+    where $I_\mathrm{i}$ is the ion current and $I_\mathrm{e}$ is the electron current
+    collected by the surface at potential $V_f$. For a Maxwellian plasma with ions
+    collected near ion saturation, $V_f$ is commonly below the plasma potential $V_p$
+    by a few electron-temperature volts; equivalently, $V_p - V_f$ is often about
+    $2.5-4$ times $T_e$ when $T_e$ is expressed in eV, with the coefficient depending
+    on ion species, effective collection area, magnetic-field incidence, and secondary-electron
+    emission.
+
+
+    Floating potential is measured directly with a high-impedance connection to an
+    isolated Langmuir-probe electrode or inferred from the zero-current crossing of
+    a probe current-voltage characteristic. Interpretation requires care because RF
+    pickup, sheath expansion, temperature fluctuations, surface condition, and emitted
+    electrons can shift the measured value relative to the local plasma potential.
+
+
+    Typical values relative to grounded conducting structures are often -80 to -5
+    V in limiter and scrape-off-layer edge conditions, while divertor, strongly biased,
+    or RF-perturbed regions can reach about -200 to +50 V. The range is not universal
+    because the value follows both the local plasma potential and the electron-temperature-dependent
+    sheath drop.
+
+
+    Sign convention: Positive when the floating surface potential is above the chosen
+    electrical reference potential.'
+  unit: V
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:ion_saturated_current
+  - name:fluctuating_electrostatic_potential
+  - name:electrostatic_potential_at_wall
+  sources:
+  - id: dd:langmuir_probes/embedded/potential_floating
+    dd_path: langmuir_probes/embedded/potential_floating
+    status: attached
+  - id: dd:langmuir_probes/embedded/v_floating
+    dd_path: langmuir_probes/embedded/v_floating
+    status: attached
+  - id: dd:langmuir_probes/probe/potential_floating
+    dd_path: langmuir_probes/probe/potential_floating
+    status: composed
+  - id: dd:langmuir_probes/reciprocating/plunge/collector/v_floating
+    dd_path: langmuir_probes/reciprocating/plunge/collector/v_floating
+    status: attached
+  - id: dd:langmuir_probes/reciprocating/plunge/potential_floating
+    dd_path: langmuir_probes/reciprocating/plunge/potential_floating
+    status: attached
+  - id: dd:langmuir_probes/reciprocating/plunge/v_floating
+    dd_path: langmuir_probes/reciprocating/plunge/v_floating
+    status: attached
 - name: ion_current_of_mass_spectrometer_channel
   kind: scalar
   status: draft
@@ -355,6 +548,133 @@
   - id: dd:spectrometer_mass/residual_spectrum/current
     dd_path: spectrometer_mass/residual_spectrum/current
     status: attached
+- name: ion_field_line_average_temperature_over_scrape_off_layer
+  kind: scalar
+  status: draft
+  description: Ion temperature averaged from upstream to downstream along an open
+    magnetic field line in the scrape-off layer, between the upstream midplane region
+    and a downstream divertor target. It represents the mean bulk-ion thermal state
+    of the scrape-off-layer ion population over the open-field-line connection.
+  documentation: 'Field-line-average ion temperature over the scrape-off layer is
+    the mean bulk-ion temperature evaluated along a single open magnetic field line
+    that connects the upstream midplane region to a downstream divertor target. It
+    characterizes the thermal state of the dominant thermal ion population along the
+    open-field-line connection length, complementing the analogous midplane-referenced
+    quantity ion_average_temperature_at_midplane, which is likewise defined as an
+    upstream-to-downstream field-line average. For a multi-species plasma it refers
+    to the bulk (main) thermal ion species unless a specific ion is otherwise indicated.
+
+
+    The parallel arclength-weighted average is defined as:
+
+
+    $$
+
+    \langle T_i \rangle_{\parallel} = \frac{1}{L_{\parallel}} \int_{\ell_u}^{\ell_t}
+    T_i(\ell)\, d\ell
+
+    $$
+
+
+    where $\ell$ is the arclength coordinate along the magnetic field line in meters,
+    $T_i(\ell)$ is the local ion temperature in eV, $\ell_u$ and $\ell_t$ mark the
+    upstream and target endpoints, and $L_{\parallel}$ is the connection length between
+    them in meters. The resulting average is expressed in eV.
+
+
+    In practice the quantity is inferred from scrape-off-layer measurements that associate
+    ion-temperature information with the field line connecting the upstream and downstream
+    locations, for example from a reciprocating probe traversing the scrape-off layer
+    during a plunge. The exact averaging procedure depends on the available measurements
+    and modeling assumptions, but the intended quantity is the upstream-to-downstream
+    ion temperature average along that field line.
+
+
+    Being a temperature, this quantity is non-negative. Reported scrape-off-layer
+    ion temperatures span a broad range depending on plasma regime, radial location
+    in the scrape-off layer, and proximity to the divertor targets or the upstream
+    region.'
+  unit: eV
+  physics_domain: mechanical_measurement_diagnostics
+  links: []
+  sources:
+  - id: dd:langmuir_probes/reciprocating/plunge/t_i_average
+    dd_path: langmuir_probes/reciprocating/plunge/t_i_average
+    status: composed
+- name: ion_saturated_current
+  kind: scalar
+  status: draft
+  description: Ion saturated current is the limiting conventional current carried
+    by positive ions collected by a Langmuir probe biased sufficiently negative to
+    make electron collection negligible.
+  documentation: 'Ion saturated current is the ion-collection plateau of a Langmuir-probe
+    current-voltage characteristic at sufficiently negative probe bias. In this regime
+    electrons are repelled, positive ions enter the sheath at approximately the Bohm
+    speed, and the current is mainly controlled by the sheath-edge density, ion sound
+    speed, and effective ion-collection area.
+
+
+    For a singly charged plasma in the ideal ion-saturation limit, the collected current
+    is commonly modeled as:
+
+
+    $$
+
+    I_{\mathrm{sat},i} = e\,n_{e,\mathrm{se}}\,c_s\,A_{\mathrm{eff}}
+
+    $$
+
+
+    where $I_{\mathrm{sat},i}$ is the ion saturated current in A, $e$ is the elementary
+    charge in C, $n_{e,\mathrm{se}}$ is the sheath-edge electron density in m^-3,
+    $c_s$ is the ion sound speed at the sheath edge in m s^-1, and $A_{\mathrm{eff}}$
+    is the [effective collection area of the probe](name:effective_area_of_langmuir_probe)
+    in m^2. The effective area is the projected ion-collection area relative to the
+    local magnetic field and probe geometry; the simple form assumes a quasineutral
+    presheath, Bohm ion entry, negligible residual electron collection, and negligible
+    secondary electron emission, with sheath expansion or other collection effects
+    absorbed into $A_{\mathrm{eff}}$ or a collection coefficient.
+
+
+    In practice, the current is obtained either from a fixed negative-bias measurement
+    or from the ion-saturation branch of a swept Langmuir-probe characteristic. It
+    is used to infer local edge or scrape-off-layer plasma density when $c_s$ and
+    $A_{\mathrm{eff}}$ are known or modeled. The area-normalized quantity is the [ion_saturated_current_density](name:ion_saturated_current_density).
+
+
+    The expected scale follows from the collection relation: for $n_{e,\mathrm{se}}
+    = 10^{18}-10^{20}$ m^-3, $c_s = 10^4-10^5$ m s^-1, and $A_{\mathrm{eff}} = 10^{-7}-10^{-5}$
+    m^2, millimeter-scale probe collectors give currents of roughly $10^{-5}-1$ A.
+    Values vary strongly with plasma density, electron temperature, magnetic-field
+    incidence angle, probe size, and surface condition.
+
+
+    Sign convention: Positive when conventional current associated with collected
+    positive ions flows from the plasma into the probe collector.'
+  unit: A
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:effective_area_of_langmuir_probe
+  - name:ion_saturated_current_density
+  sources:
+  - id: dd:langmuir_probes/embedded/ion_saturation_current
+    dd_path: langmuir_probes/embedded/ion_saturation_current
+    status: attached
+  - id: dd:langmuir_probes/embedded/saturation_current_ion
+    dd_path: langmuir_probes/embedded/saturation_current_ion
+    status: attached
+  - id: dd:langmuir_probes/probe/saturation_current_ion
+    dd_path: langmuir_probes/probe/saturation_current_ion
+    status: attached
+  - id: dd:langmuir_probes/reciprocating/plunge/collector/ion_saturation_current
+    dd_path: langmuir_probes/reciprocating/plunge/collector/ion_saturation_current
+    status: attached
+  - id: dd:langmuir_probes/reciprocating/plunge/ion_saturation_current
+    dd_path: langmuir_probes/reciprocating/plunge/ion_saturation_current
+    status: attached
+  - id: dd:langmuir_probes/reciprocating/plunge/saturation_current_ion
+    dd_path: langmuir_probes/reciprocating/plunge/saturation_current_ion
+    status: composed
 - name: ion_saturated_current_density
   kind: scalar
   status: draft
@@ -456,6 +776,134 @@
     status: attached
   - id: dd:langmuir_probes/reciprocating/plunge/collector/j_i_sigma
     dd_path: langmuir_probes/reciprocating/plunge/collector/j_i_sigma
+    status: composed
+- name: neutral_pressure
+  kind: scalar
+  status: draft
+  description: Kinetic pressure exerted by the neutral particle population in a tokamak
+    plasma, arising from the second velocity moment of the neutral distribution function.
+  documentation: 'Neutral pressure is the kinetic stress exerted by neutral particles
+    in the plasma, defined as the scalar pressure derived from the second velocity
+    moment of the neutral distribution function summed over all internal quantum states
+    of the neutral species. It encompasses contributions from the [thermal neutral
+    population](name:thermal_neutral_pressure), which exerts isotropic pressure from
+    random thermal motion about the mean flow, and the [fast (suprathermal) neutral
+    population](name:fast_neutral_pressure), generated primarily by charge-exchange
+    reactions or beam-plasma interactions, which exhibits a gyrotropic pressure tensor
+    with distinct parallel and perpendicular components relative to the local magnetic
+    field. The sum of both contributions is expressed by [total_neutral_pressure](name:total_neutral_pressure).
+
+
+    The scalar neutral pressure is related to the neutral distribution function $f_n(\mathbf{v})$
+    by:
+
+
+    $$
+
+    p_n = \frac{m_n}{3} \int f_n(\mathbf{v})\,|\mathbf{v} - \mathbf{u}_n|^2\, d^3v
+
+    $$
+
+
+    where $m_n$ is the neutral particle mass and $\mathbf{u}_n$ is the mean neutral
+    flow velocity. For the thermal neutral component this expression is exact as the
+    isotropic pressure; for fast neutrals it represents one-third of the trace of
+    the full gyrotropic pressure tensor.
+
+
+    Neutral pressure is measured by barometry gages distributed over the vacuum vessel
+    walls, providing local neutral gas inventory data relevant to plasma fueling,
+    recycling, and neutral transport modeling. It may also be inferred from charge-exchange
+    spectroscopy or computed by neutral transport codes solving the Boltzmann equation
+    for the neutral species. A species-discriminated counterpart is given by [neutral_pressure_of_mass_spectrometer_channel](name:neutral_pressure_of_mass_spectrometer_channel).
+
+
+    Typical values in tokamak divertors range from $10^{-4}$ Pa to several Pa during
+    attached operation, rising toward tens of Pa near strike points under high-recycling
+    or detached conditions.
+
+
+    Sign convention: Positive for any neutral particle ensemble with a finite second
+    velocity moment about the mean flow velocity.'
+  unit: Pa
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:thermal_neutral_pressure
+  - name:fast_neutral_pressure
+  - name:total_neutral_pressure
+  - name:neutral_pressure_of_mass_spectrometer_channel
+  sources:
+  - id: dd:barometry/gauge/pressure
+    dd_path: barometry/gauge/pressure
+    status: composed
+  - id: derived:neutral_pressure
+    status: composed
+- name: neutral_pressure_of_mass_spectrometer_channel
+  kind: scalar
+  status: draft
+  description: Calibrated neutral pressure equivalent assigned to one mass-discriminated
+    mass-spectrometer channel. It is a channel-resolved pressure contribution inferred
+    from detected ions, not necessarily the partial pressure of a unique neutral species.
+  documentation: 'Neutral pressure of a mass spectrometer channel is the calibrated
+    partial-pressure equivalent associated with neutrals whose ionization products
+    contribute to a selected mass-to-charge channel. Because ionization can produce
+    fragments and because different isotopologues, charge states, or isobaric species
+    can overlap in mass, the value is best interpreted as a channel-resolved neutral
+    pressure contribution unless the calibration model resolves a unique species.
+
+
+    A linear response model is commonly used to express the calibration and cross-sensitivity
+    between neutral components and measured ion currents:
+
+
+    $$
+
+    I_j = \sum_k R_{jk}\,p_k
+
+    $$
+
+
+    where $I_j$ is the measured ion current in detector channel $j$ in A, $p_k$ is
+    the calibrated neutral pressure equivalent for component or channel $k$ in Pa,
+    and $R_{jk}$ is the response matrix in A Pa$^{-1}$. The reported quantity is one
+    component $p_k$ obtained from a calibrated inverse or regularized inverse of this
+    response relation; when cross-sensitivities are negligible this reduces to the
+    scalar calibration $p_k = C_k I_k$, with $C_k$ in Pa A$^{-1}$ after background
+    subtraction.
+
+
+    In practice the quantity is inferred with a residual-gas or mass spectrometer
+    by ionizing sampled neutrals, separating ions by mass-to-charge ratio, and applying
+    calibrated sensitivities for the ionizer, analyzer, detector gain, fragmentation
+    pattern, and sampling line. A physically meaningful calibrated pressure is non-negative
+    and valid only within the calibration domain, including the gas mixture assumptions,
+    mass resolution, linear detector response, pressure range, and operating settings
+    used to determine the response matrix. Negative numerical estimates can occur
+    after offset subtraction or noisy matrix inversion; these should be interpreted
+    as below-quantification or invalid estimates, not as negative neutral pressure.
+
+
+    The sum of calibrated, non-overlapping channel contributions estimates the corresponding
+    [total neutral pressure](name:total_neutral_pressure) only when the channel set
+    spans the neutral mixture and cross-sensitivities or unresolved overlaps have
+    been treated consistently. If fragments, isobars, or isotopologues are not deconvolved,
+    a channel pressure is a calibrated pressure equivalent for that channel rather
+    than an additive thermodynamic partial pressure of a single species.
+
+
+    Typical values are strongly dependent on sampling location and operating state.
+    Calibrated channel pressures in fusion vacuum and exhaust measurements can span
+    many decades, from about $10^{-8}$ Pa in clean high-vacuum residual-gas conditions
+    to $10^{-1}$-$10^1$ Pa in exhaust-line, fueling, or pumping transients; values
+    outside these illustrative ranges can be valid when covered by calibration.'
+  unit: Pa
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:pressure_of_mass_spectrometer_channel
+  - name:ion_current_of_mass_spectrometer_channel
+  sources:
+  - id: dd:spectrometer_mass/channel/pressure_partial
+    dd_path: spectrometer_mass/channel/pressure_partial
     status: composed
 - name: parallel_heat_flux
   kind: scalar
@@ -640,6 +1088,347 @@
   - id: dd:langmuir_probes/embedded/j_i_parallel_sigma
     dd_path: langmuir_probes/embedded/j_i_parallel_sigma
     status: composed
+- name: temperature_at_midplane
+  kind: scalar
+  status: draft
+  description: Thermodynamic plasma temperature referenced to the outboard, low-field-side
+    midplane of the scrape-off layer. This parent concept covers local species temperatures
+    and spatial field-line averages anchored at that upstream midplane crossing.
+  documentation: 'Temperature at midplane is the thermodynamic energy scale of a plasma
+    population associated with the upstream outboard, low-field-side midplane in the
+    scrape-off layer. As a parent concept, it includes species-specific local values
+    such as [electron_temperature_at_midplane](name:electron_temperature_at_midplane)
+    and [ion_temperature_at_midplane](name:ion_temperature_at_midplane), as well as
+    spatial averages along open magnetic field lines such as average_temperature_at_midplane.
+    It does not by itself specify an electron, ion, impurity, or species-combined
+    temperature unless a more specific quantity states that choice.
+
+
+    For a local plasma population $a$ represented by a scalar pressure relation, the
+    temperature expressed in electronvolts is related to pressure by:
+
+
+    $$
+
+    p_a = e\, n_a\, T_a
+
+    $$
+
+
+    where $p_a$ is scalar pressure in Pa, $n_a$ is number density in m^-3, $T_a$ is
+    the population temperature in eV, $e$ is the elementary-charge conversion factor
+    from eV to joules, and the subscript $a$ labels the plasma population. A field-line-averaged
+    midplane temperature is formed by averaging the corresponding local temperature
+    along an open magnetic field line segment that starts at the upstream outboard
+    midplane crossing and extends toward a divertor target, with the spatial weighting
+    defined by the more specific quantity.
+
+
+    Local midplane temperatures are measured with diagnostics sensitive to the relevant
+    plasma population, such as Thomson scattering or Langmuir-probe current-voltage
+    characteristics for electrons and charge-exchange spectroscopy or retarding-field
+    analysis for ions. Field-line averages are computed by sampling or integrating
+    the local temperature along reconstructed open magnetic field lines in scrape-off-layer
+    transport analysis.
+
+
+    Typical scrape-off-layer midplane temperatures in tokamak plasmas range from 1-20
+    eV in the far scrape-off layer to 10-150 eV near the separatrix. Ion temperatures
+    are often comparable to or several times higher than electron temperatures, and
+    field-line averages between the midplane and a divertor target commonly fall within
+    the same order of magnitude but depend strongly on parallel transport and detachment
+    state.'
+  unit: eV
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:electron_temperature_at_midplane
+  - name:ion_temperature_at_midplane
+- name: electron_temperature_at_midplane
+  kind: scalar
+  status: draft
+  description: Local electron temperature at the outboard, low-field-side midplane
+    in the scrape-off-layer plasma. It is the thermodynamic electron energy scale
+    there, distinct from a flux-surface average or a field-line average.
+  documentation: 'Electron temperature at the midplane is the local electron temperature
+    at the outboard, low-field-side intersection of the plasma midplane with the scrape-off
+    layer. It characterizes the thermal spread of the electron velocity distribution
+    at that location, rather than a [flux-surface-averaged electron temperature](name:flux_surface_averaged_electron_temperature)
+    or a field-line average such as [electron average temperature at midplane](name:electron_average_temperature_at_midplane).
+
+
+    In the right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is major radius,
+    $\phi$ is toroidal angle, and $Z$ is vertical height, the local evaluation can
+    be written as:
+
+
+    $$
+
+    T_{e,\mathrm{mid}} = T_e(R_{\mathrm{OMP}}, \phi_0, Z_{\mathrm{mid}})
+
+    $$
+
+
+    where $T_e$ is the local electron temperature, $R_{\mathrm{OMP}}$ is the major
+    radius of the outboard midplane point in the scrape-off layer, $\phi_0$ is the
+    toroidal angle of that point, and $Z_{\mathrm{mid}}$ is the vertical height of
+    the plasma midplane. Expressed in eV, $T_e$ is the electron thermal energy scale;
+    for a Maxwellian distribution, the mean random thermal kinetic energy per electron
+    is $\langle E_e\rangle = 3T_e/2$ when both are expressed as energies.
+
+
+    It is commonly inferred from local edge measurements such as Langmuir-probe current-voltage
+    characteristics, with interpretation depending on sheath physics, plasma potential,
+    secondary emission, magnetization, and non-Maxwellian effects. Local sampling
+    makes this quantity sensitive to radial position relative to the separatrix, turbulent
+    fluctuations, and toroidal or poloidal asymmetries; separate measures such as
+    [thermal electron decay length over the scrape-off layer](name:thermal_electron_decay_length_over_scrape_off_layer)
+    describe radial falloff rather than this single local value.
+
+
+    Typical values in tokamak scrape-off layers are 5-100 eV near the outboard midplane,
+    with lower values common farther from the separatrix and higher values possible
+    close to the separatrix in strongly heated plasmas. The value is governed by parallel
+    heat conduction, sheath heat transmission, cross-field transport, ionization and
+    radiation losses, and upstream power flow.'
+  unit: eV
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:electron_average_temperature_at_midplane
+  - name:electron_temperature_at_wall
+  - name:thermal_electron_decay_length_over_scrape_off_layer
+  arguments:
+  - name: temperature_at_midplane
+    operator: electron
+    operator_kind: qualifier
+  sources:
+  - id: dd:langmuir_probes/reciprocating/plunge/collector/t_e
+    dd_path: langmuir_probes/reciprocating/plunge/collector/t_e
+    status: composed
+  - id: dd:langmuir_probes/reciprocating/plunge/t_e
+    dd_path: langmuir_probes/reciprocating/plunge/t_e
+    status: attached
+- name: ion_temperature_at_midplane
+  kind: scalar
+  status: draft
+  description: Local ion temperature at the outboard, low-field-side midplane of the
+    scrape-off-layer plasma. It represents the ion thermal energy at that point, not
+    a flux-surface or midplane-averaged value.
+  documentation: 'Local ion temperature at the midplane is the thermal spread of the
+    ion velocity distribution evaluated at the outboard, low-field-side crossing of
+    the scrape-off-layer plasma. In the right-handed cylindrical $(R, \phi, Z)$ frame,
+    where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height,
+    it is a point quantity near the $Z$ position of the magnetic axis, distinct from
+    the averaged comparator [ion_average_temperature_at_midplane](name:ion_field_line_average_temperature_over_scrape_off_layer).
+
+
+    For a single ion species $s$, the numerical temperature reported in electronvolts
+    is related to the second central moment of the ion distribution function by:
+
+
+    $$
+
+    T_{i,s}^{\mathrm{eV}}(\mathbf{x}_m) = \frac{m_s}{3 e\, n_s(\mathbf{x}_m)} \int
+    |\mathbf{v}-\mathbf{u}_s(\mathbf{x}_m)|^2 f_s(\mathbf{x}_m,\mathbf{v})\, d^3v
+
+    $$
+
+
+    where $\mathbf{x}_m$ is the local midplane position, $m_s$ is the ion mass, $e$
+    is the elementary charge, $n_s$ is the ion density, $\mathbf{u}_s$ is the mean
+    ion flow velocity, and $f_s$ is normalized so that its velocity integral gives
+    $n_s$. For unresolved mixtures, the unqualified ion temperature denotes an effective
+    bulk-ion value, normally the density-weighted species average $\sum_s n_s T_{i,s}/\sum_s
+    n_s$; species-specific temperatures require an explicit species qualifier.
+
+
+    At the outboard midplane in the scrape-off layer, this quantity is commonly inferred
+    from local electrostatic probe measurements, including reciprocating probe plunges,
+    or from edge diagnostic analysis constrained by sheath and kinetic models. Because
+    the measurement samples the plasma at the collector or viewing location, it should
+    be interpreted as a local boundary-plasma value rather than as a flux-surface
+    average.
+
+
+    Representative local scrape-off-layer midplane ion temperatures are typically
+    5-100 eV, with values of a few eV to 20 eV in cooler far-scrape-off-layer or detached
+    conditions and 20-100 eV closer to the separatrix in attached, higher-power conditions.
+    Core and pedestal ion temperatures can be much larger and should not be inferred
+    from this local boundary quantity.'
+  unit: eV
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:ion_field_line_average_temperature_over_scrape_off_layer
+  arguments:
+  - name: temperature_at_midplane
+    operator: ion
+    operator_kind: qualifier
+  sources:
+  - id: dd:langmuir_probes/reciprocating/plunge/collector/t_i
+    dd_path: langmuir_probes/reciprocating/plunge/collector/t_i
+    status: attached
+  - id: dd:langmuir_probes/reciprocating/plunge/t_i
+    dd_path: langmuir_probes/reciprocating/plunge/t_i
+    status: composed
+- name: temperature_at_sensor_attachment_point
+  kind: scalar
+  status: draft
+  description: Thermodynamic temperature of the material at the point where a monitoring
+    sensor is mechanically attached to a structural component. It is a calibrated
+    absolute temperature of the attachment region, not the sensor's raw electrical
+    response.
+  documentation: 'Temperature at a sensor attachment point is the local thermodynamic
+    temperature of the structural material at the mechanical contact or bonding location
+    of a monitoring sensor. It represents the material state at that attachment region
+    on the Kelvin scale, distinct from a temperature difference or from the uncalibrated
+    electrical signal produced by the sensor.
+
+
+    For a sufficiently small attachment region, the quantity is the material temperature
+    field evaluated at the attachment location:
+
+
+    $$
+
+    T_\mathrm{attach}(t) = T_\mathrm{mat}(\mathbf{x}_a,t)
+
+    $$
+
+
+    where $T_\mathrm{attach}$ is the attachment-point temperature, $T_\mathrm{mat}$
+    is the thermodynamic temperature field in the component material, $\mathbf{x}_a$
+    is the position of the sensor attachment point, and $t$ is time.
+
+
+    In practice this temperature is obtained from a calibrated sensor in thermal contact
+    with the component, such as a thermocouple, resistance thermometer, or similar
+    contact temperature monitor. The calibration converts the measured electrical
+    response, together with any reference-junction or lead corrections, into an absolute
+    temperature estimate for the attachment region; the raw voltage-type signal is
+    a related but different quantity, for example [voltage_of_temperature_sensor](name:voltage_of_temperature_sensor).
+    Nearby coolant temperatures such as [coolant_temperature_at_inlet](name:coolant_temperature_at_inlet)
+    and [coolant_temperature_at_outlet](name:coolant_temperature_at_outlet) may influence
+    the local value but do not define it.
+
+
+    Representative values for room-temperature structural monitoring are about 290-320
+    K before strong local heating or cooling. Operational values are component-, attachment-,
+    and sensor-specific, so allowable ranges should be determined from the material,
+    thermal environment, and sensor calibration rather than inferred from the standard
+    name alone.'
+  unit: K
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:coolant_temperature_at_inlet
+  - name:coolant_temperature_at_outlet
+  - name:voltage_of_temperature_sensor
+  - name:temperature_of_neutron_detector
+  sources:
+  - id: dd:operational_instrumentation/sensor/temperature
+    dd_path: operational_instrumentation/sensor/temperature
+    status: composed
+- name: temperature_at_wall
+  kind: scalar
+  status: draft
+  description: Representative kinetic temperature of the boundary plasma immediately
+    adjacent to a plasma-facing wall surface, encompassing both electron and ion populations
+    and distinct from the solid wall material temperature.
+  documentation: "The plasma temperature at the wall characterizes the thermal energy\
+    \ scale of the boundary plasma in the thin layer immediately in front of plasma-facing\
+    \ components. It forms the thermal boundary condition for plasma-wall interaction\
+    \ models governing sheath formation, particle recycling, and surface heat loading.\
+    \ The separate contributions from electrons and ions are resolved by [electron_temperature_at_wall](name:electron_temperature_at_wall)\
+    \ and [ion_temperature_at_wall](name:ion_temperature_at_wall), the latter representing\
+    \ a density-weighted average over all ion species and charge states when no species\
+    \ is specified.\n\nThe local electron and ion temperatures jointly determine the\
+    \ sheath potential $\\phi_s$ at the wall, with the directed ion energy at the\
+    \ sheath edge approximated as $E_i \\approx 2 k_B T_e + k_B T_i + e\\phi_s$, where\
+    \ $k_B$ is the Boltzmann constant, $T_e$ is the electron temperature, $T_i$ is\
+    \ the ion temperature, and $e$ is the elementary charge.\n\nThe wall-adjacent\
+    \ plasma temperature is inferred from wall-embedded or near-wall Langmuir probes,\
+    \ retarding field analyzers, or from scrape-off-layer transport models constrained\
+    \ by measured particle and energy fluxes such as [plasma_deposited_power_at_wall](name:plasma_deposited_power_at_wall).\n\
+    \nTypical boundary plasma temperatures range from approximately $10^4$ to $10^6$\
+    \ K (1\u2013100 eV) in tokamak devices, with higher values in the main scrape-off\
+    \ layer and lower values near divertor targets and limiter surfaces."
+  unit: K
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:electron_temperature_at_wall
+  - name:ion_temperature_at_wall
+  - name:plasma_deposited_power_at_wall
+  sources:
+  - id: dd:wall/description_ggd/ggd/temperature/values
+    dd_path: wall/description_ggd/ggd/temperature/values
+    status: composed
+  - id: dd:wall/global_quantities/temperature
+    dd_path: wall/global_quantities/temperature
+    status: composed
+- name: electron_temperature_at_wall
+  kind: scalar
+  status: draft
+  description: Kinetic temperature of electrons in the plasma immediately adjacent
+    to a plasma-facing wall surface, distinct from the material temperature of the
+    solid wall. It represents the local electron thermal energy scale on the plasma
+    side of the sheath.
+  documentation: 'Electron temperature at the wall is the scalar kinetic temperature
+    of electrons in the boundary plasma on the plasma side of a plasma-facing material
+    surface. It describes the local random electron energy spread immediately adjacent
+    to the wall and is distinct from the solid material temperature. As a second central
+    moment of a velocity distribution, it is non-negative and equals zero only for
+    an electron population with no thermal spread.
+
+
+    For a local electron distribution, the kinetic definition is the second central
+    moment of velocity about the mean flow:
+
+
+    $$
+
+    \mathcal{T}_e = \frac{m_e}{3 n_e}\int |\mathbf{v}-\mathbf{u}_e|^2 f_e(\mathbf{v})\,d^3v
+
+    $$
+
+
+    where $\mathcal{T}_e$ is the scalar electron thermal energy in joules, $m_e$ is
+    the electron mass in kg, $n_e=\int f_e(\mathbf{v})\,d^3v$ is the electron density
+    in m^-3, $\mathbf{v}$ and $\mathbf{u}_e$ are particle and mean electron velocities
+    in m s^-1, and $f_e$ is normalized so that its velocity integral gives $n_e$ (units
+    m^-6 s^3 when velocity is in m s^-1). The value in eV is $T_e=\mathcal{T}_e/E_\mathrm{eV}$,
+    with $E_\mathrm{eV}=1.602176634\times10^{-19}\ \mathrm{J}$.
+
+
+    In practice this quantity is inferred at plasma-facing surfaces from diagnostics
+    and models sensitive to the near-wall electron distribution. Flush or embedded
+    Langmuir probes estimate it from the electron retarding portion of a swept current-voltage
+    characteristic, while analysis may use single- or multi-temperature effective
+    fits when the distribution is not well represented by one Maxwellian. It can also
+    be supplied by edge or sheath calculations that evaluate the local distribution
+    function at the wall.
+
+
+    Representative values are strongly regime dependent: detached or highly cooled
+    divertor plasmas are often around 0.5-5 eV, attached divertor and limiter conditions
+    commonly a few to several tens of eV, and hotter low-density boundary plasmas
+    can approach 100 eV. This quantity is the electron counterpart of [ion_temperature_at_wall](name:ion_temperature_at_wall)
+    and helps interpret total_incident_electron_particle_flux_at_wall and [electron_incident_kinetic_energy_flux_at_wall](name:electron_incident_kinetic_energy_flux_at_wall);
+    it should not be confused with upstream [electron_temperature_at_midplane](name:electron_temperature_at_midplane).'
+  unit: eV
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:ion_temperature_at_wall
+  - name:electron_incident_kinetic_energy_flux_at_wall
+  - name:electron_temperature_at_midplane
+  arguments:
+  - name: temperature_at_wall
+    operator: electron
+    operator_kind: qualifier
+  sources:
+  - id: dd:langmuir_probes/embedded/multi_temperature_fits/t_e
+    dd_path: langmuir_probes/embedded/multi_temperature_fits/t_e
+    status: composed
+  - id: dd:langmuir_probes/embedded/t_e
+    dd_path: langmuir_probes/embedded/t_e
+    status: attached
 - name: thermal_energy_of_plant_component_port
   kind: scalar
   status: draft
@@ -684,6 +1473,76 @@
   sources:
   - id: dd:calorimetry/group/component/energy_cumulated
     dd_path: calorimetry/group/component/energy_cumulated
+    status: composed
+- name: thermal_power_of_plant_component_port
+  kind: scalar
+  status: draft
+  description: Thermal power transfer rate at a plant component port, obtained from
+    the coolant enthalpy change along the associated flow path. It is positive when
+    the coolant removes heat from the component, so the coolant enthalpy increases
+    from inlet to outlet.
+  documentation: 'Thermal power of a plant component port is the instantaneous rate
+    of thermal energy transfer between a component and the coolant circuit connected
+    through that port. It represents the port contribution to the component heat balance:
+    positive values correspond to heat extraction by the coolant, while negative values
+    correspond to heat delivered from the coolant to the component.
+
+
+    For a port $p$, the enthalpy-balance definition is
+
+
+    $$
+
+    P_{\mathrm{th},p} = \dot{m}_p\left(h_{\mathrm{out},p}-h_{\mathrm{in},p}\right)
+    \simeq \dot{m}_p c_{p,\mathrm{f}}\left(T_{\mathrm{out},p}-T_{\mathrm{in},p}\right)
+
+    $$
+
+
+    where $P_{\mathrm{th},p}$ is the port thermal power in W, $\dot{m}_p$ is the non-negative
+    coolant mass-flow magnitude in kg s$^{-1}$ along the associated inlet-to-outlet
+    path, $h_{\mathrm{in},p}$ and $h_{\mathrm{out},p}$ are coolant specific enthalpies
+    in J kg$^{-1}$, $T_{\mathrm{in},p}$ and $T_{\mathrm{out},p}$ are the corresponding
+    inlet and outlet coolant temperatures, and $c_{p,\mathrm{f}}$ is the coolant specific
+    heat capacity in J kg$^{-1}$ K$^{-1}$ when the constant-property temperature form
+    is adequate. If a signed [coolant flow](name:coolant_flow_of_plant_component_port)
+    is used, its positive direction defines the inlet-to-outlet path for evaluating
+    the [inlet](name:coolant_temperature_at_inlet) and [outlet](name:coolant_temperature_at_outlet)
+    temperatures or enthalpies.
+
+
+    In practice this quantity is computed calorimetrically from synchronized coolant
+    flow, temperature, pressure, and fluid-property data. The full enthalpy form is
+    preferred for compressible fluids, strong property variation, boiling, condensation,
+    or mixtures; the $c_p\Delta T$ approximation is appropriate for single-phase coolant
+    over a limited temperature range. Time integration gives the corresponding thermal
+    energy transferred through the port.
+
+
+    Typical magnitudes are strongly component dependent: values may be near 0 W when
+    there is little flow or little temperature rise, kW scale for small actively cooled
+    plant services, and MW scale for major heat-extraction ports. The sign and magnitude
+    should be interpreted together with the associated coolant-flow direction and
+    inlet/outlet temperature measurements.
+
+
+    Sign convention: Positive when the coolant enthalpy increases along the associated
+    inlet-to-outlet flow path, corresponding to heat removed from the component by
+    the coolant.'
+  unit: W
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:coolant_temperature_at_outlet
+  - name:coolant_temperature_at_inlet
+  - name:thermal_energy_of_plant_component_port
+  - name:total_thermal_power_at_outlet
+  - name:net_thermal_power_of_breeder_blanket_module
+  sources:
+  - id: dd:balance_of_plant/power_plant/system/component/port/power_thermal
+    dd_path: balance_of_plant/power_plant/system/component/port/power_thermal
+    status: attached
+  - id: dd:calorimetry/group/component/power
+    dd_path: calorimetry/group/component/power
     status: composed
 - name: vertical_angle_of_camera
   kind: scalar
@@ -733,6 +1592,59 @@
   - id: dd:camera_ir/channel/camera/field_of_view_vertical
     dd_path: camera_ir/channel/camera/field_of_view_vertical
     status: composed
+- name: vertical_coordinate_of_sensor_attachment_point
+  kind: scalar
+  status: draft
+  description: Vertical Z coordinate of the mechanical interface where a sensor attaches
+    to its support, measured in the right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'The vertical coordinate of a sensor attachment point locates the
+    mechanical interface between a sensor and its support along the $Z$ direction
+    of the right-handed cylindrical $(R, \phi, Z)$ frame. It identifies the height
+    of the attachment point relative to the chosen machine origin, commonly the machine
+    midplane.
+
+
+    The coordinate is the projection of the attachment-point position onto the vertical
+    basis direction:
+
+
+    $$
+
+    Z_\mathrm{attach} = \mathbf{r}_\mathrm{attach} \cdot \hat{Z}
+
+    $$
+
+
+    where $\mathbf{r}_\mathrm{attach}$ is the position vector of the attachment point
+    relative to the coordinate origin and $\hat{Z}$ is the vertical unit vector of
+    the right-handed cylindrical $(R, \phi, Z)$ frame. This $Z$ coordinate is the
+    vertical component; it should not be confused with the horizontal Cartesian $y$
+    coordinate in the right-handed Cartesian $(\hat{x}, \hat{y}, \hat{z})$ frame,
+    where $\hat{z}=\hat{Z}$.
+
+
+    This quantity is determined from mechanical design information, CAD geometry,
+    alignment surveys, or installation metrology. Together with the horizontal attachment-point
+    coordinates, it fixes the spatial location of the sensor mounting interface for
+    geometry registration and interpretation of diagnostic signals.
+
+
+    Representative values span the vertical extent of diagnostic mounts, typically
+    about $-5$-$5$ m for medium-size devices and potentially beyond $\pm 10$ m for
+    large devices, depending on the chosen origin and vessel size.
+
+
+    Sign convention: Positive when the attachment point lies above the machine midplane
+    in the $+Z$ direction of the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: m
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:x_coordinate_of_sensor_attachment_point
+  - name:y_coordinate_of_sensor_attachment_point
+  sources:
+  - id: dd:operational_instrumentation/sensor/attachement_points/z
+    dd_path: operational_instrumentation/sensor/attachement_points/z
+    status: composed
 - name: vertical_direction_unit_vector
   kind: scalar
   status: draft
@@ -762,6 +1674,12 @@
   links:
   - name:x_direction_unit_vector
   - name:direction_unit_vector
+  arguments:
+  - name: direction_unit_vector
+    operator: component
+    operator_kind: projection
+    axis: vertical
+    shape: coordinate
   sources:
   - id: dd:camera_ir/channel/camera/direction/z
     dd_path: camera_ir/channel/camera/direction/z
@@ -907,6 +1825,114 @@
   - id: dd:spectrometer_mass/channel/photomultiplier_voltage
     dd_path: spectrometer_mass/channel/photomultiplier_voltage
     status: composed
+- name: wetted_area_of_langmuir_probe
+  kind: scalar
+  status: draft
+  description: Total geometric surface area of a Langmuir probe collector that is
+    directly exposed to plasma and able to collect charged particles.
+  documentation: 'The wetted area of a Langmuir probe is the geometric surface area
+    of the conductive collector that is in direct contact with plasma. It excludes
+    insulated supports, covered or recessed portions, and any nominal collector surface
+    that is not accessible to plasma particle collection. It is a true surface area,
+    distinct from a magnetic-field-projected collection area.
+
+
+    For the plasma-exposed collector surface $S_w$, the wetted area is the surface
+    integral of the local area element:
+
+
+    $$
+
+    A_w = \int_{S_w} dS
+
+    $$
+
+
+    where $A_w$ is the wetted area in m$^2$, $S_w$ is the plasma-contacting part of
+    the collector surface, and $dS$ is a differential surface area element in m$^2$.
+
+
+    In practice, $A_w$ is computed from the as-built collector geometry after accounting
+    for masks, insulation, recess depth, and mounting features that prevent direct
+    plasma exposure. It is the area used to normalize the measured [ion_saturated_current](name:ion_saturated_current),
+    commonly through the inline relation $j_{\mathrm{sat}} = I_{\mathrm{sat}}/A_w$,
+    where $I_{\mathrm{sat}}$ is the ion-saturated current in A and $j_{\mathrm{sat}}$
+    is the ion-saturated current density in A m$^{-2}$. The [area_of_langmuir_probe](name:wetted_area_of_langmuir_probe)
+    refers to the nominal probe area, while the [effective_area_of_langmuir_probe](name:effective_area_of_langmuir_probe)
+    further accounts for projection relative to the local magnetic-field direction.
+
+
+    Typical values for individual Langmuir probe collectors are of order $10^{-6}$-$10^{-4}$
+    m$^2$, set mainly by collector diameter, exposed length, and whether the probe
+    is a small protruding pin or an extended flush-mounted electrode.'
+  unit: m^2
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:ion_saturated_current
+  - name:effective_area_of_langmuir_probe
+  arguments:
+  - name: area_of_langmuir_probe
+    operator: wetted
+    operator_kind: qualifier
+  sources:
+  - id: dd:langmuir_probes/embedded/surface_area
+    dd_path: langmuir_probes/embedded/surface_area
+    status: composed
+  - id: dd:langmuir_probes/reciprocating/surface_area
+    dd_path: langmuir_probes/reciprocating/surface_area
+    status: attached
+- name: x_angle_of_camera
+  kind: scalar
+  status: draft
+  description: Total angular span of a camera field of view along the detector-plane
+    x direction. It is a non-negative angle describing lateral coverage in the camera
+    projection, independent of the scene being imaged.
+  documentation: 'The x angle of a camera is the total angular separation covered
+    by the field of view along the horizontal axis of the detector plane''s local
+    $(x,y)$ coordinates. It is the horizontal analog of the vertical field-of-view
+    angle and describes the angular coverage of viewing directions rather than the
+    physical size of an imaged object.
+
+
+    For an ideal rectilinear or pinhole imaging model with negligible distortion,
+    the angle is related to detector width and focal length by:
+
+
+    $$
+
+    \theta_x = 2 \arctan\left(\frac{w_x}{2 f}\right)
+
+    $$
+
+
+    where $\theta_x$ is the horizontal field-of-view angle in radians, $w_x$ is the
+    active detector width along the local $x$ direction, and $f$ is the effective
+    focal length in the same length unit as $w_x$. This relation assumes central rectilinear
+    projection; fisheye, telecentric, anamorphic, cropped, or strongly distorted optical
+    systems require the appropriate calibrated projection model instead.
+
+
+    In practice, the value is obtained from optical design data, geometric calibration,
+    or ray tracing as the angular separation between the chief rays reaching the two
+    horizontal limits of the usable detector area. Together with the vertical field-of-view
+    angle it gives a compact summary of coverage, but the full angular mapping also
+    depends on quantities such as principal point, pixel pitch, focal lengths in each
+    detector direction, distortion coefficients, and any projection-model convention.
+
+
+    Physically meaningful values are non-negative angular extents. A finite non-wrapping
+    angular span satisfies $0 \le \theta_x \le 2\pi$ rad, while ordinary rectilinear
+    cameras require $0 < \theta_x < \pi$ rad. Typical diagnostic camera values are
+    about 0.05-1.5 rad, with narrow-view optics near the lower end and wide-angle
+    optics near the upper end.'
+  unit: rad
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:vertical_angle_of_camera
+  sources:
+  - id: dd:camera_ir/channel/camera/field_of_view_horizontal
+    dd_path: camera_ir/channel/camera/field_of_view_horizontal
+    status: composed
 - name: x_coordinate_of_sensor_attachment_point
   kind: scalar
   status: draft
@@ -993,6 +2019,12 @@
   - name:direction_unit_vector
   - name:y_direction_unit_vector_of_strain_gauge_sensor
   - name:vertical_direction_unit_vector
+  arguments:
+  - name: direction_unit_vector
+    operator: component
+    operator_kind: projection
+    axis: x
+    shape: coordinate
   sources:
   - id: dd:camera_ir/channel/camera/direction/x
     dd_path: camera_ir/channel/camera/direction/x
@@ -1050,3 +2082,76 @@
   - id: dd:operational_instrumentation/sensor/attachement_points/y
     dd_path: operational_instrumentation/sensor/attachement_points/y
     status: composed
+- name: y_direction_unit_vector_of_strain_gauge_sensor
+  kind: scalar
+  status: draft
+  description: Y component of the unit vector defining the orientation of a strain
+    gage sensor, resolved in the right-handed Cartesian (x, y, z) frame.
+  documentation: 'The y direction unit-vector component of a strain gage sensor is
+    the projection of the sensor''s oriented measurement axis onto the $\hat{y}$ basis
+    direction of the right-handed Cartesian $(\hat{x}, \hat{y}, \hat{z})$ frame. It
+    describes orientation only; it is not a strain value and does not by itself transform
+    a scalar strain reading into a vector deformation.
+
+
+    For a sensor direction unit vector $\hat{u}$, the component is defined by the
+    projection onto $\hat{y}$:
+
+
+    $$
+
+    u_y = \hat{u} \cdot \hat{y}
+
+    $$
+
+
+    where $u_y$ is the y component, $\hat{u}$ is the unit vector along the strain
+    gage measurement direction, and $\hat{y}$ is the y-axis unit basis vector in the
+    right-handed Cartesian $(\hat{x}, \hat{y}, \hat{z})$ frame.
+
+
+    In practice, this component is obtained from the sensor installation geometry,
+    calibration survey, or mechanical design model. Together with the corresponding
+    x and z components, it specifies the axis along which the strain gage is sensitive,
+    enabling comparison of sensor orientation with structural geometry and applied-load
+    directions.
+
+
+    Typical values lie between -1 and 1. A value of 1 means the sensor direction is
+    aligned with $+\hat{y}$, 0 means it has no y component, and -1 means it is aligned
+    with $-\hat{y}$.
+
+
+    Sign convention: Positive when the strain gage sensor direction has a component
+    along the $+\hat{y}$ axis of the right-handed Cartesian $(\hat{x}, \hat{y}, \hat{z})$
+    basis.'
+  unit: '1'
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:y_direction_unit_vector_of_camera
+  - name:y_coordinate_of_sensor_attachment_point
+  sources:
+  - id: dd:camera_ir/channel/camera/direction/y
+    dd_path: camera_ir/channel/camera/direction/y
+    status: attached
+  - id: dd:ec_launchers/mirror/movement/direction/y
+    dd_path: ec_launchers/mirror/movement/direction/y
+    status: attached
+  - id: dd:operational_instrumentation/sensor/direction/y
+    dd_path: operational_instrumentation/sensor/direction/y
+    status: attached
+  - id: dd:operational_instrumentation/sensor/direction_second/y
+    dd_path: operational_instrumentation/sensor/direction_second/y
+    status: composed
+  - id: dd:spi/injector/injection_direction/y
+    dd_path: spi/injector/injection_direction/y
+    status: attached
+  - id: dd:spi/injector/shatter_cone/direction/y
+    dd_path: spi/injector/shatter_cone/direction/y
+    status: attached
+  - id: dd:spi/injector/shatter_cone/unit_vector_major/y
+    dd_path: spi/injector/shatter_cone/unit_vector_major/y
+    status: attached
+  - id: dd:spi/injector/shatter_cone/unit_vector_minor/y
+    dd_path: spi/injector/shatter_cone/unit_vector_minor/y
+    status: attached

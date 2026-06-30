@@ -1,6 +1,6 @@
 # Domain: plant_systems
-# Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 68
+# Catalog sha: b8d10395a003efc46be6fc45a94b1f9308d6a87b
+# Entries: 115
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -137,8 +137,7 @@
     $\dot{N}_{\mathrm{Ar}}$ is the argon atom injection rate in atoms per second,
     $t$ is time in seconds, and $t_{\mathrm{bd}}$ is the plasma-breakdown time in
     seconds. Argon introduced before breakdown belongs to the prefill contribution
-    represented by [argon_count](name:argon_count), not to this accumulated post-breakdown
-    quantity.
+    represented by argon_count, not to this accumulated post-breakdown quantity.
 
 
     In practice, the injection rate is obtained from calibrated gas-valve systems,
@@ -159,9 +158,9 @@
   unit: '1'
   physics_domain: plant_systems
   links:
-  - name:argon_count
-  - name:accumulated_xenon_count
   - name:accumulated_neon_count
+  - name:accumulated_xenon_count
+  - name:accumulated_total_particle_count_due_to_gas_injection
   sources:
   - id: dd:summary/gas_injection_accumulated/argon/value
     dd_path: summary/gas_injection_accumulated/argon/value
@@ -213,6 +212,72 @@
   sources:
   - id: dd:summary/gas_injection_accumulated/carbon/value
     dd_path: summary/gas_injection_accumulated/carbon/value
+    status: composed
+- name: accumulated_deuterated_methane_count_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: 'Cumulative deuterated methane (CD4) admitted by gas injection after
+    plasma breakdown, expressed as an equivalent-electron count. Each CD4 molecule
+    contributes 10 equivalent electrons: 6 from carbon and 1 from each of the four
+    deuterium atoms.'
+  documentation: 'Accumulated deuterated methane count due to gas injection is the
+    time-integrated dose of neutral deuterated methane, $\mathrm{CD}_4$, admitted
+    into the plasma vessel after plasma breakdown, expressed as a dimensionless equivalent-electron
+    count. The factor of 10 comes from the electron content of a neutral $\mathrm{CD}_4$
+    molecule: 6 electrons from the carbon atom (atomic number $Z = 6$) and 1 from
+    each of the four deuterium atoms (atomic number $Z = 1$). Gas present in the vessel
+    before breakdown, such as prefill gas, is excluded unless it is actively injected
+    during the post-breakdown interval.
+
+
+    The accumulated equivalent-electron count is defined by integrating the molecular
+    injection rate from the breakdown time $t_\mathrm{bd}$ to time $t$:
+
+
+    $$
+
+    N_{\mathrm{CD}_4,e}(t) = 10 \int_{t_\mathrm{bd}}^{t} \dot{N}_{\mathrm{CD}_4}(t'')
+    \, dt''
+
+    $$
+
+
+    where $N_{\mathrm{CD}_4,e}$ is the accumulated equivalent-electron count, $t_\mathrm{bd}$
+    is the plasma-breakdown time, and $\dot{N}_{\mathrm{CD}_4}$ is the neutral $\mathrm{CD}_4$
+    molecular injection rate in molecules per second. By construction the quantity
+    is non-decreasing in time and resets to zero at each new plasma breakdown, so
+    it tracks the running total over a single discharge. It is the time-accumulated
+    form of deuterated_methane_count_due_to_gas_injection.
+
+
+    In practice this quantity is inferred from calibrated gas-injection diagnostics
+    such as valve flow calibrations, reservoir pressure and temperature evolution
+    (PVT), commanded valve-opening histories, or downstream mass-flow measurements.
+    The measured molecular dose is converted to equivalent electrons by multiplying
+    the number of injected $\mathrm{CD}_4$ molecules by 10. The equivalent-electron
+    convention enables direct comparison and summation across injected species, with
+    the carbon contribution feeding [accumulated_carbon_count_due_to_gas_injection](name:accumulated_carbon_count_due_to_gas_injection),
+    the deuterium contribution feeding [deuterium_count_due_to_gas_injection](name:deuterium_count_due_to_gas_injection),
+    and the molecule contributing to [accumulated_total_particle_count_due_to_gas_injection](name:accumulated_total_particle_count_due_to_gas_injection).
+
+
+    Molecular injection rates for gas-injection valves typically span $10^{18}$-$10^{21}$
+    molecules per second during active puffing. Integrated over a discharge, accumulated
+    values range from about $10^{18}$-$10^{21}$ equivalent electrons for small diagnostic
+    or impurity-seeding puffs, rising to $10^{21}$-$10^{23}$ equivalent electrons
+    for larger cumulative doses.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_carbon_count_due_to_gas_injection
+  - name:deuterium_count_due_to_gas_injection
+  - name:accumulated_total_particle_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_accumulated/beryllium/value
+    dd_path: summary/gas_injection_accumulated/beryllium/value
+    status: composed
+  - id: dd:summary/gas_injection_accumulated/methane_deuterated/value
+    dd_path: summary/gas_injection_accumulated/methane_deuterated/value
     status: composed
 - name: accumulated_ethane_count
   kind: scalar
@@ -420,7 +485,7 @@
     \ as an equivalent-electron count. Unlike the phase-restricted quantity [accumulated_helium_4_prefill_count_due_to_gas_injection](name:accumulated_helium_4_count_due_to_gas_injection),\
     \ this quantity accumulates contributions from all injection phases \u2014 prefill,\
     \ flat-top fueling, and ramp-down \u2014 and represents the total helium-4 gas\
-    \ throughput for the entire pulse, making it the discharge-level integral of [helium_4_count_due_to_gas_injection](name:helium_4_count_due_to_gas_injection).\n\
+    \ throughput for the entire pulse, making it the discharge-level integral of helium_4_count_due_to_gas_injection.\n\
     \nThe cumulative count is defined as:\n\n$$\nN_\\text{acc}(t) = \\int_{t_0}^{t}\
     \ \\dot{N}_{\\mathrm{He}_4}(t') \\, dt'\n$$\n\nwhere $\\dot{N}_{\\mathrm{He}_4}$\
     \ is the instantaneous equivalent-electron injection rate and $t_0$ marks plasma\
@@ -437,7 +502,6 @@
   unit: '1'
   physics_domain: plant_systems
   links:
-  - name:helium_4_count_due_to_gas_injection
   - name:accumulated_hydrogen_count_due_to_gas_injection
   - name:accumulated_argon_count
   sources:
@@ -591,8 +655,8 @@
     using the lithium atomic number 3. It excludes lithium present before breakdown
     or introduced by other sources unless those sources are part of the gas-injection
     flow being integrated. The corresponding accumulated lithium atom count, comparable
-    to [lithium_count](name:lithium_count) when that quantity represents an inventory
-    or prefill amount, is one third of this value.
+    to lithium_count when that quantity represents an inventory or prefill amount,
+    is one third of this value.
 
 
     The accumulated equivalent-electron count at time $t$ is defined by integrating
@@ -627,10 +691,7 @@
     corresponding to $3 \times 10^{19}-3 \times 10^{21}$ equivalent electrons.'
   unit: '1'
   physics_domain: plant_systems
-  links:
-  - name:accumulated_neon_count
-  - name:accumulated_argon_count
-  - name:accumulated_helium_4_count_due_to_gas_injection
+  links: []
   sources:
   - id: dd:summary/gas_injection_accumulated/lithium/value
     dd_path: summary/gas_injection_accumulated/lithium/value
@@ -774,17 +835,16 @@
     \ from calibrated gas valve flow measurements integrated temporally throughout\
     \ the discharge. It is particularly relevant in impurity seeding and disruption\
     \ mitigation experiments where the cumulative neon dose governs radiated power\
-    \ fractions and pedestal stability.\n\nThe parent [neon_count](name:neon_count)\
-    \ provides phase-specific or instantaneous counts; [neon_prefill_count](name:neon_prefill_count)\
-    \ covers the pre-breakdown injection phase exclusively. Analogous accumulated\
-    \ quantities for other injected species include [accumulated_helium_4_count_due_to_gas_injection](name:accumulated_helium_4_count_due_to_gas_injection)\
+    \ fractions and pedestal stability.\n\nThe parent neon_count provides phase-specific\
+    \ or instantaneous counts; [neon_prefill_count](name:neon_prefill_count) covers\
+    \ the pre-breakdown injection phase exclusively. Analogous accumulated quantities\
+    \ for other injected species include [accumulated_helium_4_count_due_to_gas_injection](name:accumulated_helium_4_count_due_to_gas_injection)\
     \ and [accumulated_carbon_count_due_to_gas_injection](name:accumulated_carbon_count_due_to_gas_injection).\n\
     \nSign convention: Positive when neon gas is injected, so the accumulated count\
     \ increases monotonically from zero at plasma breakdown."
   unit: '1'
   physics_domain: plant_systems
   links:
-  - name:neon_count
   - name:neon_prefill_count
   - name:accumulated_helium_4_count_due_to_gas_injection
   - name:accumulated_carbon_count_due_to_gas_injection
@@ -921,20 +981,124 @@
 
     The count is inferred from calibrated gas injection valve records integrated over
     the prefill interval, from the start of the prefill phase through plasma breakdown.
-    It is the accumulated component of [oxygen_prefill_count_due_to_gas_injection](name:oxygen_prefill_count_due_to_gas_injection)
-    and follows the same equivalent-electron convention applied to helium-3 in [accumulated_helium_3_prefill_count_due_to_gas_injection](name:accumulated_helium_3_prefill_count_due_to_gas_injection)
+    It is the accumulated component of oxygen_prefill_count_due_to_gas_injection and
+    follows the same equivalent-electron convention applied to helium-3 in [accumulated_helium_3_prefill_count_due_to_gas_injection](name:accumulated_helium_3_prefill_count_due_to_gas_injection)
     and to lithium in [accumulated_lithium_prefill_count_due_to_gas_injection](name:accumulated_lithium_prefill_count_due_to_gas_injection).
     Post-breakdown oxygen injection is tracked separately by [oxygen_count](name:accumulated_oxygen_count_due_to_gas_injection).'
   unit: '1'
   physics_domain: plant_systems
   links:
-  - name:oxygen_prefill_count_due_to_gas_injection
   - name:accumulated_helium_3_prefill_count_due_to_gas_injection
   - name:accumulated_lithium_prefill_count_due_to_gas_injection
   - name:accumulated_oxygen_count_due_to_gas_injection
   sources:
   - id: dd:summary/gas_injection_prefill/oxygen/value
     dd_path: summary/gas_injection_prefill/oxygen/value
+    status: composed
+- name: accumulated_particle_count_at_pellet_path_due_to_pellet_injection
+  kind: scalar
+  status: draft
+  description: Cumulative number of particles ablated from an injected pellet between
+    the pellet-path entry point and a specified position along its trajectory. It
+    is a nondecreasing count representing the integrated release of pellet material
+    along the path.
+  documentation: 'Accumulated particle count at a pellet path is the total number
+    of pellet-material particles released by ablation from the path entry point up
+    to a specified position on the trajectory. It starts near zero at entry and increases
+    as material is released, reaching the ablated inventory for that pellet at the
+    stopping point or final tracked position.
+
+
+    The path coordinate $s$ is arc length measured in meters from the pellet-path
+    entry point, with $s=0$ at entry and increasing in the direction of pellet motion.
+    The accumulated count is the line integral of the particle-count gradient along
+    the path:
+
+
+    $$
+
+    N_\mathrm{abl}(s) = \int_0^s \Gamma_N(s'') \, ds''
+
+    $$
+
+
+    where $N_\mathrm{abl}$ is the dimensionless particle count, $\Gamma_N=dN_\mathrm{abl}/ds$
+    is the number of ablated particles per unit path length with unit m^-1, and $s''$
+    is arc length in meters. If an ablation model provides a time rate $\dot{N}$ in
+    s^-1, the corresponding path gradient is $\Gamma_N=\dot{N}/v_\mathrm{pel}$ for
+    pellet speed $v_\mathrm{pel}$ in m s^-1.
+
+
+    In practice, this quantity is obtained by tracking the pellet trajectory and integrating
+    a local ablation source that depends on pellet composition, size, speed, and local
+    plasma conditions such as temperature and density. It can also be constrained
+    experimentally using combinations of fast imaging, spectroscopy, interferometry,
+    and particle inventory balance. The closely related [accumulated_particle_count_of_pellet_path](name:accumulated_particle_count_at_pellet_path_due_to_pellet_injection)
+    denotes the same cumulative-count concept for the pellet path.
+
+
+    Typical final accumulated counts range from about $10^{17}$-$10^{20}$ particles
+    for small diagnostic or shallow fueling pellets, $10^{20}$-$10^{22}$ particles
+    for routine fueling pellets, and up to about $10^{23}$ particles for large or
+    shattered pellets used for rapid fueling or mitigation.'
+  unit: '1'
+  physics_domain: plant_systems
+  links: []
+  sources:
+  - id: dd:pellets/time_slice/pellet/path_profiles/ablated_particles
+    dd_path: pellets/time_slice/pellet/path_profiles/ablated_particles
+    status: composed
+- name: accumulated_particle_gas_count_at_inlet_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Cumulative count of neutral gas particles delivered through a specified
+    gas injection inlet since plasma breakdown. It resets for each new breakdown event
+    and increases as calibrated gas throughput is injected.
+  documentation: 'This quantity is the accumulated number of neutral gas particles
+    delivered through one gas injection inlet during a discharge, counted from the
+    plasma breakdown event. It is a dimensionless particle count: the unit is 1 because
+    it counts particles rather than measuring a dimensional amount. The value resets
+    at each new breakdown event and is normally nondecreasing while gas is injected
+    through that inlet.
+
+
+    The accumulated inlet count is the time integral of the instantaneous particle
+    delivery rate through the same inlet:
+
+
+    $$
+
+    N_\mathrm{inlet}(t) = \int_{t_\mathrm{bd}}^{t} \dot{N}_\mathrm{inlet}(t'') \,
+    dt''
+
+    $$
+
+
+    where $N_\mathrm{inlet}(t)$ is the accumulated particle count, $t_\mathrm{bd}$
+    is the breakdown time, and $\dot{N}_\mathrm{inlet}$ is the instantaneous neutral-particle
+    delivery rate through the inlet.
+
+
+    In practice, the count is computed from gas-valve commands, calibrated valve flow
+    curves, plenum or upstream pressure measurements, gas species, temperature assumptions,
+    and conductance models that convert throughput to particle rate. Summing corresponding
+    inlet quantities gives location-group totals such as lower, upper, or midplane
+    gas injection totals, and summing over all gas injection inlets gives the total
+    accumulated gas particle count for the discharge.
+
+
+    Typical accumulated values for a single inlet are about $10^{19}$-$10^{23}$ particles
+    per discharge, depending on pulse length, valve size, gas species, fueling scenario,
+    and whether the inlet is used for small prefill/puffing corrections or sustained
+    density control.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_total_upper_gas_particle_count_at_inlet_due_to_gas_injection
+  - name:accumulated_total_gas_count_at_midplane_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_accumulated/bottom/value
+    dd_path: summary/gas_injection_accumulated/bottom/value
     status: composed
 - name: accumulated_propane_count
   kind: scalar
@@ -1061,15 +1225,13 @@
     \ valves.\n\nThe count is derived from gas injection valve diagnostics \u2014\
     \ flow meters or pressure gages calibrated in particles per unit time \u2014 integrated\
     \ from plasma breakdown. This midplane-specific total complements the spatially\
-    \ resolved siblings [accumulated_total_lower_gas_particle_count_due_to_gas_injection](name:accumulated_gas_particle_count_at_inlet_due_to_gas_injection)\
-    \ and [accumulated_total_upper_gas_particle_count_at_inlet_due_to_gas_injection](name:accumulated_total_upper_gas_particle_count_at_inlet_due_to_gas_injection),\
+    \ resolved siblings accumulated_total_lower_gas_particle_count_due_to_gas_injection\
+    \ and accumulated_total_upper_gas_particle_count_at_inlet_due_to_gas_injection,\
     \ which distinguish upper and lower valve groups. For the machine-wide total across\
     \ all injection positions, see [accumulated_total_particle_count_due_to_gas_injection](name:accumulated_total_particle_count_due_to_gas_injection)."
   unit: '1'
   physics_domain: plant_systems
   links:
-  - name:accumulated_gas_particle_count_at_inlet_due_to_gas_injection
-  - name:accumulated_total_upper_gas_particle_count_at_inlet_due_to_gas_injection
   - name:accumulated_total_particle_count_due_to_gas_injection
   sources:
   - id: dd:summary/gas_injection_accumulated/midplane/value
@@ -1118,7 +1280,7 @@
     applying the species weights before summing. It uses the same equivalent-electron
     normalization as [accumulated_total_gas_count](name:accumulated_total_particle_count_due_to_gas_injection),
     while specifically identifying the contribution from gas injection. If injector
-    groups are reported separately, [accumulated_total_lower_gas_particle_count_due_to_gas_injection](name:accumulated_gas_particle_count_at_inlet_due_to_gas_injection)
+    groups are reported separately, accumulated_total_lower_gas_particle_count_due_to_gas_injection
     and accumulated_total_upper_gas_particle_count_due_to_gas_injection are partial
     sums whose total equals the vessel-wide value when the partition covers all gas
     injectors.
@@ -1132,14 +1294,56 @@
     electrons.'
   unit: '1'
   physics_domain: plant_systems
-  links:
-  - name:accumulated_gas_particle_count_at_inlet_due_to_gas_injection
+  links: []
   sources:
   - id: dd:summary/gas_injection_accumulated/total/value
     dd_path: summary/gas_injection_accumulated/total/value
     status: attached
   - id: dd:summary/gas_injection_prefill/total/value
     dd_path: summary/gas_injection_prefill/total/value
+    status: composed
+- name: accumulated_total_particle_upper_gas_count_at_inlet_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Cumulative total count of gas particles delivered through upper gas
+    injection valves since plasma breakdown.
+  documentation: 'The accumulated total upper gas particle count records the running
+    sum of all gas particles passing through upper injection inlets from the moment
+    of plasma breakdown. "Upper" designates valves positioned near the top of the
+    vacuum chamber, in contrast to the midplane and lower poloidal injection locations
+    tracked by [accumulated_total_gas_count_at_midplane_due_to_gas_injection](name:accumulated_total_gas_count_at_midplane_due_to_gas_injection)
+    and accumulated_total_lower_gas_particle_count_due_to_gas_injection, respectively.
+
+
+    The cumulative count $N_\text{upper}(t)$ is defined as:
+
+
+    $$
+
+    N_\text{upper}(t) = \int_{t_0}^{t} \dot{N}_\text{upper}(t'') \, dt''
+
+    $$
+
+
+    where $\dot{N}_\text{upper}$ (particles per second) is the instantaneous total
+    particle throughput through all upper inlets combined and $t_0$ is the plasma
+    breakdown time.
+
+
+    In practice, the count is inferred from calibrated gas valve signals or flow measurements
+    by converting volumetric flow at known pressure and temperature to a particle
+    number via the ideal gas law. This quantity is the time-accumulated counterpart
+    to the parent total_upper_gas_particle_count_at_inlet_due_to_gas_injection and
+    is used together with the midplane and lower equivalents to characterize the poloidal
+    distribution of total gas inventory, which governs poloidal asymmetries in fueling
+    efficiency, impurity seeding, and disruption mitigation.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_total_gas_count_at_midplane_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_accumulated/top/value
+    dd_path: summary/gas_injection_accumulated/top/value
     status: composed
 - name: accumulated_tritium_count_due_to_gas_injection
   kind: scalar
@@ -1158,14 +1362,13 @@
     \ breakdown. The equivalent-electron convention provides a species-independent\
     \ basis for comparing injected particle inventories \u2014 for higher-$Z$ species\
     \ such as argon ($Z = 18$), the multiplier is correspondingly larger.\n\nThis\
-    \ is the time-integrated form of [tritium_count_due_to_gas_injection](name:tritium_count_due_to_gas_injection),\
-    \ accumulating monotonically as gas is puffed after breakdown. Tritium introduced\
-    \ before breakdown is tracked separately as [tritium_prefill_count](name:tritium_prefill_count).\
+    \ is the time-integrated form of tritium_count_due_to_gas_injection, accumulating\
+    \ monotonically as gas is puffed after breakdown. Tritium introduced before breakdown\
+    \ is tracked separately as [tritium_prefill_count](name:tritium_prefill_count).\
     \ The deuterium analog in the same equivalent-electron framework is [deuterium_count_due_to_gas_injection](name:deuterium_count_due_to_gas_injection)."
   unit: '1'
   physics_domain: plant_systems
   links:
-  - name:tritium_count_due_to_gas_injection
   - name:tritium_prefill_count
   - name:deuterium_count_due_to_gas_injection
   sources:
@@ -1305,10 +1508,6 @@
   - name:ammonia_prefill_count
   - name:accumulated_ammonia_deuterated_count
   - name:accumulated_xenon_prefill_count
-  arguments:
-  - name: accumulated_lithium_prefill_count_due_to_gas_injection
-    operator: ammonia_deuterated
-    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/ammonia_deuterated/value
     dd_path: summary/gas_injection_prefill/ammonia_deuterated/value
@@ -1405,10 +1604,6 @@
   - name:nitrogen_prefill_count
   - name:ethylene_prefill_count
   - name:accumulated_ammonia_count
-  arguments:
-  - name: accumulated_lithium_prefill_count_due_to_gas_injection
-    operator: ammonia
-    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/ammonia/value
     dd_path: summary/gas_injection_prefill/ammonia/value
@@ -1460,44 +1655,10 @@
   - name:nitrogen_prefill_count
   - name:accumulated_xenon_prefill_count
   - name:accumulated_lithium_prefill_count_due_to_gas_injection
-  arguments:
-  - name: accumulated_lithium_prefill_count_due_to_gas_injection
-    operator: argon
-    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/argon/value
     dd_path: summary/gas_injection_prefill/argon/value
     status: composed
-- name: atomic_count_of_pellet
-  kind: scalar
-  status: draft
-  description: Total number of individual atoms in a pellet, with each atom counted
-    once regardless of whether the propellant material is monatomic, diatomic, or
-    molecular in form.
-  documentation: "The atomic count of a pellet is the total discrete number of atoms\
-    \ present throughout the entire pellet body, tallied individually without regard\
-    \ to the molecular or bonding state of the constituent propellant material. A\
-    \ diatomic fuel such as D$_2$ (frozen deuterium) contributes two atoms per molecule;\
-    \ monatomic species contribute one atom per particle. This whole-pellet total\
-    \ differs from spatially resolved counterparts such as [outer_atomic_count_of_pellet](name:outer_atomic_count_of_pellet),\
-    \ and extends the general atom-counting convention of [count_of_pellet](name:count_of_pellet).\n\
-    \nThe atomic count $N_\\mathrm{at}$ relates to the number of propellant molecules\
-    \ $N_\\mathrm{mol}$ by:\n\n$$\nN_\\mathrm{at} = \\nu \\, N_\\mathrm{mol}\n$$\n\
-    \nwhere $\\nu$ is the number of atoms per molecule of the propellant species (for\
-    \ example, $\\nu = 2$ for D$_2$ or DT, and $\\nu = 1$ for a monatomic noble gas).\n\
-    \nThe count is determined from the pellet geometry combined with the atomic number\
-    \ density of the solid propellant at cryogenic storage temperature, or from pellet\
-    \ mass measured immediately before injection. Fueling and disruption-mitigation\
-    \ pellets for large tokamaks contain on the order of $10^{21}$\u2013$10^{23}$\
-    \ atoms. The [normalized_atomic_count_of_pellet](name:normalized_atomic_count_of_pellet)\
-    \ expresses this total scaled against a reference count for nondimensional comparison\
-    \ across pellet types or injection scenarios."
-  unit: '1'
-  physics_domain: plant_systems
-  links:
-  - name:outer_atomic_count_of_pellet
-  - name:count_of_pellet
-  - name:normalized_atomic_count_of_pellet
 - name: beryllium_source_rate
   kind: scalar
   status: draft
@@ -1562,6 +1723,275 @@
   - id: dd:summary/gas_injection_rates/beryllium/value
     dd_path: summary/gas_injection_rates/beryllium/value
     status: composed
+- name: carbon_prefill_count_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Number of carbon atoms injected as gas during the plasma prefill phase,
+    expressed in equivalent electrons using six count units per carbon atom.
+  documentation: 'Carbon prefill count due to gas injection is the dimensionless equivalent-electron
+    inventory assigned to carbon atoms delivered by gas injection before plasma breakdown.
+    It is a counting convention: each carbon atom contributes six count units because
+    carbon has atomic number 6, independent of whether or when the atom is actually
+    ionized.
+
+
+    The prefill equivalent-electron count is defined from the carbon atom flux delivered
+    during the prefill interval:
+
+
+    $$
+
+    N_{\mathrm{C,prefill}} = 6 \int_{t_{\mathrm{start}}}^{t_{\mathrm{bd}}} \Phi_{\mathrm{C}}(t)\,dt
+    = 6\,N_{\mathrm{C,prefill}}^{\mathrm{atoms}}
+
+    $$
+
+
+    where $N_{\mathrm{C,prefill}}$ is the carbon prefill equivalent-electron count
+    in dimensionless count units, $\Phi_{\mathrm{C}}(t)$ is the carbon atom flow rate
+    in atoms per second, $t_{\mathrm{start}}$ is the start of the prefill gas delivery
+    interval, $t_{\mathrm{bd}}$ is the plasma-breakdown time, and $N_{\mathrm{C,prefill}}^{\mathrm{atoms}}$
+    is the number of carbon atoms delivered in the same interval, also as a dimensionless
+    count.
+
+
+    In practice this quantity is inferred from calibrated gas-injection valve commands,
+    pressure-rise measurements, gas-line conductance models, or mass-flow diagnostics,
+    converted from injected carbon-bearing gas molecules to carbon atoms and then
+    multiplied by the six-count-per-carbon-atom convention. It is the carbon contribution
+    to the total prefill_count_due_to_gas_injection and is closely related to [carbon_initial_count_due_to_gas_injection](name:carbon_prefill_count_due_to_gas_injection),
+    which represents the same initial carbon inventory convention. Carbon injected
+    after plasma breakdown belongs to the post-breakdown counterpart [accumulated_carbon_count_due_to_gas_injection](name:accumulated_carbon_count_due_to_gas_injection),
+    not to this prefill count.
+
+
+    Typical values depend strongly on vessel volume, wall conditioning, gas species,
+    and fueling strategy. Equivalent-electron counts may be negligible when no carbon-bearing
+    prefill gas is used, while intentional carbon-bearing prefill can produce about
+    10^18-10^22 count units in medium-sized magnetic-confinement devices.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_carbon_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_prefill/carbon/value
+    dd_path: summary/gas_injection_prefill/carbon/value
+    status: composed
+- name: coolant_pressure
+  kind: scalar
+  status: draft
+  description: Absolute static pressure of the coolant working fluid at a component
+    port, characterizing the mechanical load and thermodynamic state of the fluid
+    interface between connected plant-system components.
+  documentation: 'Coolant pressure is the absolute static pressure of the coolant
+    working fluid at a component port or fluid interface. It is an isotropic scalar
+    measure of the normal compressive loading exerted by the fluid, excluding dynamic
+    pressure associated with bulk flow velocity.
+
+
+    The mechanical definition of static pressure is the normal force per unit area
+    in the infinitesimal limit:
+
+
+    $$
+
+    p = \lim_{\Delta A \to 0} \frac{\Delta F_n}{\Delta A}
+
+    $$
+
+
+    where $p$ is the absolute pressure in Pa, $\Delta F_n$ is the compressive normal
+    force in N exerted by the fluid on a surface element, and $\Delta A$ is the surface
+    area in m$^2$.
+
+
+    Coolant pressure is measured with calibrated absolute or gage pressure transducers,
+    with gage readings converted to absolute pressure by adding the local reference
+    pressure. In thermal-hydraulic calculations it is combined with [coolant temperature](name:coolant_temperature)
+    and [coolant flow] through an equation of state or property table; for a single-phase
+    control volume in local thermodynamic equilibrium it enters the enthalpy relation
+    $h = u + p/\rho$, where $h$ and $u$ are specific enthalpy and internal energy
+    in J kg$^{-1}$ and $\rho$ is density in kg m$^{-3}$. Location-specific boundary
+    conditions include [coolant pressure at the cooling circuit inlet](name:coolant_pressure_at_cooling_circuit_inlet),
+    often interpreted together with [coolant temperature at inlet](name:coolant_temperature_at_inlet)
+    and [coolant temperature at outlet](name:coolant_temperature_at_outlet).
+
+
+    Typical absolute pressures span about $10^5$-$10^6$ Pa for near-atmospheric auxiliary
+    water or gas circuits, $10^6$-$10^7$ Pa for many pressurized gas coolant loops,
+    and $10^7$-$2 \times 10^7$ Pa for high-pressure water coolant circuits. The applicable
+    range depends on coolant species, phase margin, pump head, heat-exchanger design,
+    and component pressure limits.'
+  unit: Pa
+  physics_domain: plant_systems
+  links:
+  - name:coolant_temperature
+  - name:coolant_pressure_at_cooling_circuit_inlet
+  - name:coolant_temperature_at_inlet
+  - name:coolant_temperature_at_outlet
+  sources:
+  - id: dd:balance_of_plant/power_plant/system/component/port/pressure
+    dd_path: balance_of_plant/power_plant/system/component/port/pressure
+    status: composed
+- name: coolant_temperature
+  kind: scalar
+  status: draft
+  description: Absolute thermodynamic temperature of the coolant or working fluid
+    at an inlet or outlet port of a balance-of-plant power conversion component. It
+    characterizes the fluid thermal state at that connection point for heat-balance
+    and cycle-performance calculations.
+  documentation: 'Coolant temperature is the absolute thermodynamic temperature of
+    the working fluid at a component connection point in a plant power-conversion
+    or heat-transport system. It is a local state variable of the fluid stream and
+    may refer to either an inlet or an outlet port unless a more specific standard
+    name identifies the locus.
+
+
+    For a steady single-phase stream with approximately constant heat capacity, the
+    temperature change across a component is related to transferred thermal power
+    by the calorimetric balance:
+
+
+    $$
+
+    \dot{Q} = \dot{m} c_p \left(T_\mathrm{out} - T_\mathrm{in}\right)
+
+    $$
+
+
+    where $\dot{Q}$ is the thermal power transferred to the fluid, $\dot{m}$ is the
+    coolant mass flow rate, $c_p$ is the specific heat capacity at constant pressure,
+    and $T_\mathrm{in}$ and $T_\mathrm{out}$ are the inlet and outlet coolant temperatures.
+
+
+    In practice, coolant temperature is measured with temperature sensors such as
+    resistance thermometers, thermocouples, or process transmitters installed in the
+    fluid stream or thermowell near the port. It is used together with coolant pressure
+    and flow to determine fluid enthalpy, heat removal, component efficiency, and
+    thermodynamic cycle state points. For outlet-specific quantities, use [coolant_temperature_at_outlet](name:coolant_temperature_at_outlet).
+
+
+    Typical values are about 293-363 K for low-temperature water cooling circuits,
+    about 553-613 K for pressurized-water heat-transfer loops, and about 523-823 K
+    for helium or other high-temperature gas coolant systems. The applicable range
+    depends strongly on coolant type, pressure, component function, and operating
+    regime.'
+  unit: K
+  physics_domain: plant_systems
+  links:
+  - name:coolant_temperature_at_outlet
+  - name:coolant_flow
+  - name:coolant_pressure
+  - name:total_coolant_absorbed_thermal_power_at_wall
+  sources:
+  - id: dd:balance_of_plant/power_plant/system/component/port/temperature
+    dd_path: balance_of_plant/power_plant/system/component/port/temperature
+    status: composed
+- name: core_density_of_pellet
+  kind: scalar
+  status: draft
+  description: Number density of a constituent atomic species in the inner core layer
+    of a pellet used by a shattered-pellet injector.
+  documentation: 'Core density of pellet is the number density of a specified atomic
+    species within the pellet''s inner core layer. It represents how many atoms of
+    that species are present per unit volume of the core material and is non-negative
+    by physical definition.
+
+
+    The density is defined by the species population in the core divided by the core
+    volume:
+
+
+    $$
+
+    n_{s,\mathrm{core}} = \frac{N_{s,\mathrm{core}}}{V_\mathrm{core}}
+
+    $$
+
+
+    where $n_{s,\mathrm{core}}$ is the core species number density in m$^{-3}$, $N_{s,\mathrm{core}}$
+    is the number of atoms of species $s$ in the core and is dimensionless, and $V_\mathrm{core}$
+    is the core volume in m$^3$.
+
+
+    In practice this quantity is obtained from the specified pellet composition and
+    core geometry, or equivalently from the total core species inventory normalized
+    by the core volume. It is species-resolved: different atomic constituents of the
+    same core can have different values.
+
+
+    No device-independent typical numerical range is implied by the standard name
+    alone; values depend on the chosen pellet material, mixture, and core volume.'
+  unit: m^-3
+  physics_domain: plant_systems
+  links:
+  - name:density_of_pellet
+  - name:core_atomic_count_of_pellet
+  - name:outer_atomic_count_of_pellet
+  sources:
+  - id: dd:pellets/time_slice/pellet/species/density
+    dd_path: pellets/time_slice/pellet/species/density
+    status: composed
+  - id: dd:spi/injector/pellet/core/species/density
+    dd_path: spi/injector/pellet/core/species/density
+    status: composed
+- name: count_of_pellet
+  kind: scalar
+  status: draft
+  description: Total discrete particle inventory of a pellet, encompassing both the
+    individual atom count of the pellet material and the propellant gas-molecule count
+    carried with the pellet.
+  documentation: The count of a pellet captures the total discrete particle inventory
+    attributable to one injected pellet, abstracting over both its solid material
+    constituents and its gas-phase payload. The [atomic count](name:atomic_count_of_pellet)
+    tallies every individual atom present in the pellet, counting each atom once regardless
+    of whether the propellant material is monatomic, diatomic, or molecular in form.
+    The [gas count] enumerates the propellant gas molecules carried with the pellet,
+    representing the gas-phase component of the overall particle inventory. Together
+    these two child quantities partition the total pellet particle inventory and are
+    applied in pellet fueling efficiency analysis, particle balance accounting, and
+    ablation modeling for pellet injection systems.
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:atomic_count_of_pellet
+  sources:
+  - id: derived:count_of_pellet
+    status: composed
+- name: atomic_count_of_pellet
+  kind: scalar
+  status: draft
+  description: Total number of individual atoms in a pellet, with each atom counted
+    once regardless of whether the propellant material is monatomic, diatomic, or
+    molecular in form.
+  documentation: "The atomic count of a pellet is the total discrete number of atoms\
+    \ present throughout the entire pellet body, tallied individually without regard\
+    \ to the molecular or bonding state of the constituent propellant material. A\
+    \ diatomic fuel such as D$_2$ (frozen deuterium) contributes two atoms per molecule;\
+    \ monatomic species contribute one atom per particle. This whole-pellet total\
+    \ differs from spatially resolved counterparts such as [outer_atomic_count_of_pellet](name:outer_atomic_count_of_pellet),\
+    \ and extends the general atom-counting convention of [count_of_pellet](name:count_of_pellet).\n\
+    \nThe atomic count $N_\\mathrm{at}$ relates to the number of propellant molecules\
+    \ $N_\\mathrm{mol}$ by:\n\n$$\nN_\\mathrm{at} = \\nu \\, N_\\mathrm{mol}\n$$\n\
+    \nwhere $\\nu$ is the number of atoms per molecule of the propellant species (for\
+    \ example, $\\nu = 2$ for D$_2$ or DT, and $\\nu = 1$ for a monatomic noble gas).\n\
+    \nThe count is determined from the pellet geometry combined with the atomic number\
+    \ density of the solid propellant at cryogenic storage temperature, or from pellet\
+    \ mass measured immediately before injection. Fueling and disruption-mitigation\
+    \ pellets for large tokamaks contain on the order of $10^{21}$\u2013$10^{23}$\
+    \ atoms. The [normalized_atomic_count_of_pellet](name:normalized_atomic_count_of_pellet)\
+    \ expresses this total scaled against a reference count for nondimensional comparison\
+    \ across pellet types or injection scenarios."
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:outer_atomic_count_of_pellet
+  - name:count_of_pellet
+  - name:normalized_atomic_count_of_pellet
+  arguments:
+  - name: count_of_pellet
+    operator: atomic
+    operator_kind: qualifier
 - name: core_atomic_count_of_pellet
   kind: scalar
   status: draft
@@ -1623,54 +2053,59 @@
   - id: dd:spi/injector/pellet/core/atoms_n
     dd_path: spi/injector/pellet/core/atoms_n
     status: composed
-- name: core_density_of_pellet
+- name: density_of_pellet
   kind: scalar
   status: draft
-  description: Number density of a constituent atomic species in the inner core layer
-    of a pellet used by a shattered-pellet injector.
-  documentation: 'Core density of pellet is the number density of a specified atomic
-    species within the pellet''s inner core layer. It represents how many atoms of
-    that species are present per unit volume of the core material and is non-negative
-    by physical definition.
+  description: Number density of atoms of a specified species in the condensed pellet
+    material. For layered, mixed, or fragmented pellets, it denotes the species atom
+    count per material volume for the relevant material region or its volume average,
+    not the density of gas molecules.
+  documentation: 'Density of pellet is the number of atoms, or nuclei, of a specified
+    chemical species per unit volume of condensed pellet material. For molecular pellet
+    materials such as $\mathrm{D}_2$, this is an atom-count density: the deuterium
+    density counts deuterium atoms, not $\mathrm{D}_2$ molecules. In layered, mixed,
+    or fragmented material it may represent the local species density in a material
+    region or a volume-averaged species density over the selected condensed-material
+    volume.
 
 
-    The density is defined by the species population in the core divided by the core
-    volume:
+    For a uniform material, or for a volume average over a specified condensed-material
+    volume, the relation to the species atom inventory is
 
 
     $$
 
-    n_{s,\mathrm{core}} = \frac{N_{s,\mathrm{core}}}{V_\mathrm{core}}
+    n_a = \frac{N_a}{V}
 
     $$
 
 
-    where $n_{s,\mathrm{core}}$ is the core species number density in m$^{-3}$, $N_{s,\mathrm{core}}$
-    is the number of atoms of species $s$ in the core and is dimensionless, and $V_\mathrm{core}$
-    is the core volume in m$^3$.
+    where $n_a$ is the species atom density, $N_a$ is the number of atoms of species
+    $a$ as a dimensionless count, and $V$ is the condensed-material volume in $\mathrm{m^3}$.
+    If inferred from mass density, the relation $n_a = \rho_{m,a} N_A / M_a$ uses
+    the species partial mass density $\rho_{m,a}$, or the total mass density only
+    for a pure species, with molar mass $M_a$ and Avogadro constant $N_A$.
 
 
-    In practice this quantity is obtained from the specified pellet composition and
-    core geometry, or equivalently from the total core species inventory normalized
-    by the core volume. It is species-resolved: different atomic constituents of the
-    same core can have different values.
+    In practice this quantity is obtained from pellet composition, mass, dimensions,
+    phase, and material equation-of-state data, or from imaging and reconstruction
+    of the occupied condensed volume after layering or fragmentation. For fragmented
+    pellets, the relevant volume is the material volume of the fragments; voids between
+    separated pieces are not included unless an envelope-averaged density is explicitly
+    intended.
 
 
-    No device-independent typical numerical range is implied by the standard name
-    alone; values depend on the chosen pellet material, mixture, and core volume.'
+    Typical atom-count densities for cryogenic hydrogen-isotope, noble-gas, or impurity
+    pellets are about $10^{28}$-$10^{29}\ \mathrm{m^{-3}}$. Partial species densities
+    in mixtures or porous material are reduced according to stoichiometry, composition
+    fraction, and porosity.'
   unit: m^-3
   physics_domain: plant_systems
   links:
-  - name:density_of_pellet
+  - name:core_density_of_pellet
+  - name:core_atomic_number_density_of_pellet
   - name:core_atomic_count_of_pellet
-  - name:outer_atomic_count_of_pellet
-  sources:
-  - id: dd:pellets/time_slice/pellet/species/density
-    dd_path: pellets/time_slice/pellet/species/density
-    status: composed
-  - id: dd:spi/injector/pellet/core/species/density
-    dd_path: spi/injector/pellet/core/species/density
-    status: composed
+  - name:normalized_atomic_count_of_pellet
 - name: deuterium_count_due_to_gas_injection
   kind: scalar
   status: draft
@@ -1777,71 +2212,98 @@
   - name:accumulated_hydrogen_prefill_count
   - name:accumulated_xenon_prefill_count
   - name:deuterium_count_due_to_gas_injection
-  arguments:
-  - name: accumulated_lithium_prefill_count_due_to_gas_injection
-    operator: deuterium
-    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/deuterium/value
     dd_path: summary/gas_injection_prefill/deuterium/value
     status: composed
-- name: electron_source_rate_due_to_injection
+- name: efficiency_of_plant_system
   kind: scalar
   status: draft
-  description: Instantaneous electron-equivalent source rate supplied by plasma injection
-    systems. It is the sum over injected atomic species of nuclear charge number times
-    the atomic injection rate, representing the electron inventory that the injected
-    material can contribute after ionization.
-  documentation: 'Electron source rate due to injection is the electron-equivalent
-    particle rate delivered to the plasma or vessel by fueling or material injection
-    systems. It counts the number of electrons per second associated with the injected
-    atoms after ionization, and is used for particle inventory and density-control
-    accounting rather than as a local ionization-rate density.
+  description: Dimensionless ratio quantifying how effectively a plant system converts
+    input power or energy into a specified useful output, abstracting over thermal
+    and net efficiency definitions.
+  documentation: "The efficiency of a plant system is a dimensionless performance\
+    \ metric expressing the fraction of input power or energy that the plant converts\
+    \ into a specified useful output. The exact physical scope depends on the efficiency\
+    \ type applied: [thermal efficiency](name:thermal_efficiency_of_plant_system)\
+    \ characterizes heat-to-work conversion across all thermodynamic conversion stages,\
+    \ while [net efficiency](name:net_efficiency_of_plant_system) accounts for the\
+    \ signed ratio of exported electrical power to total plant electrical consumption\
+    \ including recirculating power.\n\nThe general defining relation takes the form:\n\
+    \n$$\n\\eta = \\frac{W_\\text{out}}{W_\\text{in}}\n$$\n\nwhere $W_\\text{out}$\
+    \ is the useful output (work, exported electrical power, or heat converted to\
+    \ work) and $W_\\text{in}$ is the total input power or energy over the same operating\
+    \ interval.\n\nEfficiency is evaluated from calorimetric heat-flow surveys, electrical\
+    \ generation meters, and auxiliary power consumption measurements across all plant\
+    \ subsystems. For fusion facilities, thermal conversion efficiencies in steam-cycle\
+    \ plants lie in the range 30\u201345%, and net electrical efficiencies are further\
+    \ reduced by recirculating power fractions for heating, current drive, and cooling\
+    \ systems.\n\nSign convention: Positive when the plant system delivers net useful\
+    \ output, so that $W_\\text{out} > 0$."
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:thermal_efficiency_of_plant_system
+  - name:net_efficiency_of_plant_system
+- name: electron_source_rate_at_pellet_path_due_to_pellet_injection
+  kind: scalar
+  status: draft
+  description: Electron-equivalent source rate at a specified position along an injected
+    pellet trajectory, produced by ablation and ionization of pellet material. It
+    is charge-weighted by the number of free electrons ultimately contributed and
+    is a non-negative path-position rate in s^-1, not a source per meter.
+  documentation: 'The electron source rate at a pellet path position is the local,
+    charge-weighted electron-equivalent production rate caused by ablation and ionization
+    of injected pellet material. It is the path-resolved counterpart of the total
+    [electron_source_rate_due_to_injection](name:electron_source_rate_due_to_injection)
+    and differs from electron_density_of_pellet_path, which describes local electron
+    concentration rather than production rate.
 
 
-    For a mixture of injected atomic species, the rate is defined by
+    For distance $ell$ along the pellet trajectory and time $t$, the electron-equivalent
+    source rate can be written as a charge-weighted sum over ablated pellet constituents:
 
 
     $$
 
-    \dot{N}_{e,\mathrm{inj}} = \sum_s Z_s\,\dot{N}_{s,\mathrm{inj}}
+    S_e(\ell,t) = \sum_a Z_a^\mathrm{eff}(\ell,t)\,\dot{N}_a(\ell,t)
 
     $$
 
 
-    where $\dot{N}_{e,\mathrm{inj}}$ is the electron-equivalent injection rate, $s$
-    indexes the injected atomic species, $Z_s$ is the nuclear charge number of species
-    $s$, and $\dot{N}_{s,\mathrm{inj}}$ is its atomic injection rate. Molecular flows
-    are converted to atomic rates before applying the sum; for example, each injected
-    $\mathrm{D}_2$ molecule contributes two deuterium atoms and therefore two electron
-    equivalents after complete ionization.
+    where $S_e$ is the electron source rate at that path position in s^-1, $\ell$
+    is distance along the pellet trajectory in meters, $t$ is time in seconds, $\dot{N}_a$
+    is the ablation or ionization rate of constituent $a$ at that same position in
+    s^-1, and $Z_a^\mathrm{eff}$ is the dimensionless number of free electrons ultimately
+    contributed per ablated constituent. For fully ionized deuterium or tritium atoms,
+    $Z_a^\mathrm{eff}=1$; mixtures, impurities, molecules, or partially ionized material
+    use the appropriate effective charge weighting.
 
 
-    In practice this quantity is computed from calibrated gas-valve throughput, pellet
-    or compact-toroid particle content, or other injector flow measurements combined
-    with the specified species composition. It may represent a single injector, a
-    subsystem, or the total injected electron-equivalent rate, depending on the physical
-    scope being described.
+    In practice this quantity is computed from pellet ablation and ionization models
+    using the pellet trajectory, speed, size, composition, and local plasma conditions,
+    and may be constrained by fast imaging, line radiation, microwave or interferometric
+    measurements, and post-injection density evolution. Its unit s^-1 denotes a rate
+    at a path position, not a line source per meter; an event-integrated contribution
+    over a small path segment is obtained by combining the rate with the pellet transit
+    time through that segment, for example $S_e\,\Delta \ell / v_p$ when the pellet
+    speed is $v_p$.
 
 
-    Typical values span about $10^{19}$-$10^{23}$ s$^{-1}$ for ordinary gas fueling
-    valves in present-day tokamaks. Short high-throughput events such as massive gas
-    injection or pellet injection can reach about $10^{22}$-$10^{25}$ s$^{-1}$ for
-    brief intervals.'
+    The value is non-negative and is zero where no pellet material is being ablated
+    or ionized. For cryogenic hydrogen-isotope fueling pellets, active-path values
+    commonly span about 10^21-10^25 s^-1, with small pacing pellets or weak edge ablation
+    below this range and large or high-Z pellets reaching about 10^25-10^27 s^-1.
+    Magnitudes depend strongly on pellet size, speed, material, plasma density, and
+    plasma temperature.'
   unit: s^-1
   physics_domain: plant_systems
   links:
-  - name:source_rate_due_to_injection
-  - name:krypton_source_rate_due_to_gas_injection
-  - name:hydrogen_source_rate_due_to_gas_injection
-  - name:accumulated_argon_count
+  - name:electron_source_rate_due_to_injection
   sources:
-  - id: dd:gas_injection/pipe/valve/electron_rate
-    dd_path: gas_injection/pipe/valve/electron_rate
+  - id: dd:pellets/time_slice/pellet/path_profiles/ablation_rate
+    dd_path: pellets/time_slice/pellet/path_profiles/ablation_rate
     status: composed
-  - id: dd:gas_injection/valve/electron_rate
-    dd_path: gas_injection/valve/electron_rate
-    status: attached
 - name: ethane_prefill_count
   kind: scalar
   status: draft
@@ -1888,14 +2350,98 @@
   - name:accumulated_ethane_count
   - name:ethylene_prefill_count
   - name:propane_prefill_count
-  arguments:
-  - name: accumulated_lithium_prefill_count_due_to_gas_injection
-    operator: ethane
-    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/ethane/value
     dd_path: summary/gas_injection_prefill/ethane/value
     status: composed
+- name: ethane_source_rate
+  kind: scalar
+  status: draft
+  description: Instantaneous ethane gas injection rate delivered to the plasma vessel,
+    expressed as the equivalent number of bound electrons carried by the neutral C2H6
+    molecules per second. For ethane, each molecule contributes 18 equivalent electrons.
+  documentation: 'Ethane source rate is the instantaneous neutral-gas delivery rate
+    of ethane to the plasma vessel expressed as an equivalent-electron rate. The equivalent-electron
+    convention weights each injected $\mathrm{C_2H_6}$ molecule by the total number
+    of bound electrons in the neutral molecule, so that different molecular gas feeds
+    can be compared on a common particle-count basis.
+
+
+    For ethane, the conversion from molecular injection rate to equivalent-electron
+    source rate is
+
+
+    $$
+
+    \Gamma_{e,\mathrm{eq}} = 18\,\Gamma_{\mathrm{C_2H_6}}
+
+    $$
+
+
+    where $\Gamma_{\mathrm{C_2H_6}}$ is the injected ethane molecule rate and the
+    factor 18 comes from two carbon atoms with 6 electrons each plus six hydrogen
+    atoms with 1 electron each.
+
+
+    In practice, the molecular injection rate is inferred from calibrated gas-valve
+    flow measurements, pressure-drop measurements, or mass-flow-controller signals,
+    then converted to the equivalent-electron rate using the molecular stoichiometry.
+    The value represents gas supplied by the injection system, not the fraction that
+    is ionized, dissociated, retained, or pumped after entering the vessel.
+
+
+    Typical values depend strongly on valve calibration, pulse duration, and experimental
+    purpose. Small diagnostic or conditioning puffs may correspond to about $10^{19}$-$10^{21}$
+    s$^{-1}$ in equivalent electrons, while larger fueling or seeding pulses can reach
+    $10^{21}$-$10^{23}$ s$^{-1}$ for short intervals.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_ethane_count
+  - name:silane_source_rate
+  - name:carbon_source_rate_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_rates/ethane/value
+    dd_path: summary/gas_injection_rates/ethane/value
+    status: composed
+- name: ethylene_count
+  kind: scalar
+  status: draft
+  description: Cumulative ethylene (C2H4) gas injection since plasma breakdown, expressed
+    as an equivalent-electron count where each ethylene molecule contributes 16 equivalent
+    electrons.
+  documentation: 'Cumulative ethylene (C2H4) delivered by gas injection since plasma
+    breakdown, expressed as a dimensionless equivalent-electron count. Each neutral
+    ethylene molecule contributes 16 equivalent electrons, reflecting two carbon atoms
+    at atomic number $Z = 6$ and four hydrogen atoms at $Z = 1$.
+
+
+    The equivalent-electron count $N_\mathrm{eq}$ for an injected number of ethylene
+    molecules $N_\mathrm{mol}$ is:
+
+
+    $$
+
+    N_\mathrm{eq} = 16 \, N_\mathrm{mol}
+
+    $$
+
+
+    where the factor $16 = 2 \times 6 + 4 \times 1$ is the total bound-electron inventory
+    of a neutral C$_2$H$_4$ molecule. The count accumulates from the moment of plasma
+    breakdown and resets between discharges, providing a measure of the total electron
+    inventory introduced via ethylene injection. It complements hydrocarbon siblings
+    such as [accumulated_ethane_count](name:accumulated_ethane_count) and contributes
+    to the cross-species total captured by [accumulated_total_particle_count_due_to_gas_injection](name:accumulated_total_particle_count_due_to_gas_injection)
+
+
+    Sign convention: Positive when ethylene gas has been injected into the vessel
+    since plasma breakdown.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_ethane_count
+  - name:accumulated_total_particle_count_due_to_gas_injection
 - name: ethylene_prefill_count
   kind: scalar
   status: draft
@@ -1950,13 +2496,57 @@
   - name:accumulated_helium_4_count_due_to_gas_injection
   - name:accumulated_lithium_prefill_count_due_to_gas_injection
   - name:carbon_prefill_count_due_to_gas_injection
-  arguments:
-  - name: accumulated_lithium_prefill_count_due_to_gas_injection
-    operator: ethylene
-    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/ethylene/value
     dd_path: summary/gas_injection_prefill/ethylene/value
+    status: composed
+- name: ethylene_source_rate
+  kind: scalar
+  status: draft
+  description: Instantaneous injection rate of ethylene (C2H4) gas into the plasma
+    vessel, expressed as equivalent electrons per second with each molecule counted
+    as 16 equivalent electrons.
+  documentation: 'Ethylene (C2H4) is a two-carbon, four-hydrogen molecule used as
+    a gaseous source of both carbon and hydrogen in plasma fueling and wall-conditioning
+    experiments. The source rate is the instantaneous equivalent-electron delivery
+    rate to the plasma vessel, where each molecule is assigned 16 equivalent electrons
+    based on the total atomic electron inventory of the molecular formula.
+
+
+    The equivalent-electron rate $\dot{N}_\mathrm{eq}$ relates to the molecular injection
+    rate $\dot{N}_\mathrm{C_2H_4}$ by
+
+
+    $$
+
+    \dot{N}_\mathrm{eq} = 16\,\dot{N}_\mathrm{C_2H_4}
+
+    $$
+
+
+    where the factor $16 = 2Z_\mathrm{C} + 4Z_\mathrm{H}$, with $Z_\mathrm{C} = 6$
+    the carbon atomic number and $Z_\mathrm{H} = 1$ the hydrogen atomic number.
+
+
+    The injection rate is inferred from valve conductance calibrations and upstream
+    pressure measurements. Its time-integral gives the [accumulated ethylene count](name:accumulated_ethylene_count),
+    which tracks the total equivalent-electron inventory delivered since plasma breakdown.
+    Related molecular and atomic injection rates include [silane_source_rate](name:silane_source_rate)
+    for SiH4 and [hydrogen_source_rate_due_to_gas_injection](name:hydrogen_source_rate_due_to_gas_injection)
+    for atomic hydrogen delivery.
+
+
+    Sign convention: Positive when ethylene gas flows from the injection system into
+    the plasma vessel.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_ethylene_count
+  - name:silane_source_rate
+  - name:hydrogen_source_rate_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_rates/ethylene/value
+    dd_path: summary/gas_injection_rates/ethylene/value
     status: composed
 - name: gas_flow
   kind: scalar
@@ -2006,153 +2596,6 @@
   - id: dd:gas_pumping/duct/flow_rate
     dd_path: gas_pumping/duct/flow_rate
     status: attached
-- name: helium_3_source_rate_due_to_gas_injection
-  kind: scalar
-  status: draft
-  description: Instantaneous rate of helium-3 atom delivery into the plasma vessel
-    by gas injection, where each He-3 atom counts as two equivalent electrons due
-    to its atomic number Z = 2.
-  documentation: 'The helium-3 source rate due to gas injection is the instantaneous
-    equivalent-electron count rate for helium-3 ($^3$He, $Z = 2$) delivered by external
-    gas injection systems into the plasma vessel. In the equivalent-electron counting
-    convention, each injected helium-3 atom contributes 2 count units to the rate,
-    so the reported value equals twice the physical atom delivery rate.
-
-
-    The equivalent-electron rate $\dot{N}_{\text{He-3}}$ is the time derivative of
-    the cumulative helium-3 inventory:
-
-
-    $$
-
-    \dot{N}_{\text{He-3}} = \frac{d N_{\text{He-3}}}{dt}
-
-    $$
-
-
-    where $N_{\text{He-3}}$ is the [accumulated helium-3 count since plasma breakdown](name:accumulated_helium_3_count_due_to_gas_injection).
-
-
-    The injection rate is inferred from calibrated gas feed diagnostics such as piezoelectric
-    or solenoid valves with integrated flow metering. Helium-3 is employed for minority-species
-    ion cyclotron heating, specialized fueling experiments, and impurity studies requiring
-    a light noble gas. The analogous hydrogen rate is [hydrogen_source_rate_due_to_gas_injection](name:hydrogen_source_rate_due_to_gas_injection),
-    and the species-summed total across all injected gasses is given by [source_rate_due_to_gas_injection](name:source_rate_due_to_gas_injection).
-
-
-    Sign convention: Positive when helium-3 gas is being delivered into the plasma
-    vessel.'
-  unit: s^-1
-  physics_domain: plant_systems
-  links:
-  - name:accumulated_helium_3_count_due_to_gas_injection
-  - name:hydrogen_source_rate_due_to_gas_injection
-  - name:source_rate_due_to_gas_injection
-  sources:
-  - id: dd:summary/gas_injection_rates/helium_3/value
-    dd_path: summary/gas_injection_rates/helium_3/value
-    status: composed
-- name: helium_4_prefill_count_due_to_gas_injection
-  kind: scalar
-  status: draft
-  description: Total neutral helium-4 gas injected during the prefill phase, expressed
-    as an equivalent-electron count with two electrons per helium-4 atom.
-  documentation: 'Helium-4 prefill count due to gas injection is the total equivalent-electron
-    inventory supplied by externally injected neutral helium-4 during the prefill
-    phase. Each helium-4 atom contributes two electron equivalents for complete ionization,
-    so this is a gas-inventory bookkeeping count rather than a count of free electrons
-    before breakdown.
-
-
-    The total over the selected prefill interval is obtained by integrating the neutral
-    helium-4 atom injection rate and multiplying by the helium electron yield:
-
-
-    $$
-
-    N_{\mathrm{e,eq}}^{{}^{4}\mathrm{He}} = 2 \int_{t_\mathrm{start}}^{t_\mathrm{end}}
-    \Gamma_{{}^{4}\mathrm{He}}(t)\,dt
-
-    $$
-
-
-    where $\Gamma_{{}^{4}\mathrm{He}}$ is the neutral helium-4 atom injection rate
-    in atoms s$^{-1}$, $t_\mathrm{start}$ is the start of helium-4 prefill gas admission,
-    and $t_\mathrm{end}$ is the evaluation endpoint of the prefill interval, commonly
-    just before plasma breakdown. The related [accumulated_helium_4_prefill_count_due_to_gas_injection](name:accumulated_helium_4_count_due_to_gas_injection)
-    is the same integral retained as a function of its upper time limit; evaluating
-    it at $t_\mathrm{end}$ gives this total.
-
-
-    In practice, the count is inferred from calibrated helium-4 gas throughput, isotopic
-    mixture fraction, valve-flow calibration, or an equivalent gas balance over the
-    prefill interval. Only the injected helium-4 component is included; helium-3,
-    other gas species, wall-released or recycled neutrals, and postbreakdown fueling
-    are excluded. A helium-4 atom count, as opposed to this equivalent-electron count,
-    is smaller by a factor of 2.
-
-
-    Typical values range from $10^{18}$-$10^{22}$ equivalent electrons in small and
-    medium devices and from $10^{22}$-$10^{24}$ equivalent electrons in large tokamak
-    prefill scenarios, depending on vessel volume, target neutral pressure, gas temperature,
-    and prefill duration.'
-  unit: '1'
-  physics_domain: plant_systems
-  links:
-  - name:accumulated_helium_4_count_due_to_gas_injection
-  sources:
-  - id: dd:summary/gas_injection_prefill/helium_4/value
-    dd_path: summary/gas_injection_prefill/helium_4/value
-    status: composed
-- name: helium_4_source_rate_due_to_gas_injection
-  kind: scalar
-  status: draft
-  description: Instantaneous rate of helium-4 atom delivery into the plasma vessel
-    by gas injection, where each He-4 atom with atomic number Z = 2 contributes two
-    equivalent electrons to particle inventory accounting.
-  documentation: 'The helium-4 source rate due to gas injection quantifies the instantaneous
-    number of $^4$He atoms introduced per unit time into the plasma vessel through
-    externally controlled gas injection valves. Helium-4, comprising two protons and
-    two neutrons, is used in fusion devices for plasma heating studies, alpha-particle
-    ash simulation, and wall conditioning scenarios.
-
-
-    The source rate $\dot{N}_{\mathrm{He4}}$ is the time derivative of the cumulative
-    helium-4 atom count tracked by [accumulated_helium_4_count_due_to_gas_injection](name:accumulated_helium_4_count_due_to_gas_injection):
-
-
-    $$
-
-    \dot{N}_{\mathrm{He4}} = \frac{d N_{\mathrm{He4}}}{dt}
-
-    $$
-
-
-    where $N_{\mathrm{He4}}$ is the total helium-4 atom count since plasma breakdown.
-    For electron-equivalent particle accounting, the contribution to the total inventory
-    rate is $Z\,\dot{N}_{\mathrm{He4}} = 2\dot{N}_{\mathrm{He4}}$, reflecting helium''s
-    atomic number. This species-resolved rate is one component of the total [source_rate_due_to_gas_injection](name:source_rate_due_to_gas_injection)
-    summed over all injected species, and is directly analogous to [helium_3_source_rate_due_to_gas_injection](name:helium_3_source_rate_due_to_gas_injection)
-    for the lighter helium isotope.
-
-
-    The rate is determined from calibrated mass-flow controllers or conductance-based
-    gas metering on the injection lines. Typical values range from $10^{20}$ to $10^{22}$
-    s$^{-1}$ for seeding and fueling applications in present-day tokamaks.
-
-
-    Sign convention: Positive when helium-4 gas is actively flowing into the plasma
-    vessel, increasing the helium-4 atom inventory.'
-  unit: s^-1
-  physics_domain: plant_systems
-  links:
-  - name:accumulated_helium_4_count_due_to_gas_injection
-  - name:source_rate_due_to_gas_injection
-  - name:helium_3_source_rate_due_to_gas_injection
-  sources:
-  - id: dd:summary/gas_injection_rates/helium_4/value
-    dd_path: summary/gas_injection_rates/helium_4/value
-    status: composed
 - name: krypton_prefill_count
   kind: scalar
   status: draft
@@ -2214,10 +2657,6 @@
   - name:accumulated_helium_4_count_due_to_gas_injection
   - name:carbon_prefill_count_due_to_gas_injection
   - name:accumulated_krypton_count
-  arguments:
-  - name: accumulated_lithium_prefill_count_due_to_gas_injection
-    operator: krypton
-    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/krypton/value
     dd_path: summary/gas_injection_prefill/krypton/value
@@ -2366,6 +2805,277 @@
   - id: dd:gas_injection/valve/flow_rate_max
     dd_path: gas_injection/valve/flow_rate_max
     status: composed
+- name: methane_carbon_13_prefill_count
+  kind: scalar
+  status: draft
+  description: Equivalent-electron count of carbon-13-labeled methane injected during
+    the prefill phase before plasma breakdown.
+  documentation: 'Methane-carbon-13 prefill count is the total amount of $^{13}\mathrm{CH}_4$
+    introduced before plasma breakdown, expressed as an equivalent-electron count.
+    Each neutral $^{13}\mathrm{CH}_4$ molecule contributes 10 equivalent electrons:
+    6 from the carbon-13 atom and 4 from the hydrogen atoms.
+
+
+    The equivalent-electron count is obtained from the accumulated molecular amount
+    over the prefill interval:
+
+
+    $$
+
+    N_{e,\mathrm{eq}}^{^{13}\mathrm{CH}_4,\mathrm{prefill}} = 10\,N_{^{13}\mathrm{CH}_4,\mathrm{prefill}}
+    = 10\int_{t_0}^{t_\mathrm{bd}} \dot{N}_{^{13}\mathrm{CH}_4}(t)\,dt
+
+    $$
+
+
+    where $N_{e,\mathrm{eq}}^{^{13}\mathrm{CH}_4,\mathrm{prefill}}$ is the equivalent-electron
+    count with unit 1, $N_{^{13}\mathrm{CH}_4,\mathrm{prefill}}$ is the accumulated
+    molecular count with unit 1, $\dot{N}_{^{13}\mathrm{CH}_4}$ is the molecular injection
+    rate, $t_0$ is the start of the prefill interval, and $t_\mathrm{bd}$ is the plasma-breakdown
+    time.
+
+
+    In practice this quantity is computed from calibrated gas-valve throughput, reservoir
+    pressure drop, or mass-flow measurements integrated over the prefill interval
+    and then multiplied by the factor 10. It is used to compare isotopically labeled
+    methane fueling or wall-conditioning doses on the same equivalent-electron basis
+    as other prefill gasses.
+
+
+    Typical values range from 0 to $10^{23}$ in small and medium devices, depending
+    on vessel volume, requested prefill pressure, gas species mix, and the fraction
+    of methane that is carbon-13 labeled.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_methane_carbon_13_count_due_to_gas_injection
+  - name:accumulated_hydrogen_prefill_count
+  - name:accumulated_helium_4_count_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_prefill/methane/value
+    dd_path: summary/gas_injection_prefill/methane/value
+    status: attached
+  - id: dd:summary/gas_injection_prefill/methane_carbon_13/value
+    dd_path: summary/gas_injection_prefill/methane_carbon_13/value
+    status: composed
+- name: methane_carbon_13_source_rate
+  kind: scalar
+  status: draft
+  description: Instantaneous injection rate of carbon-13-labeled methane (13CH4) into
+    the plasma vessel, expressed as an equivalent-electron rate where each molecule
+    contributes 10 equivalent electrons.
+  documentation: 'Carbon-13-labeled methane (13CH4) is deployed as a controlled tracer
+    gas for erosion and carbon transport studies in fusion devices, because the stable
+    13C isotope can be discriminated spectroscopically from the naturally occurring
+    12C background. The equivalent-electron weighting assigns a factor of 10 to each
+    injected 13CH4 molecule, reflecting the total electron count of the neutral species:
+    atomic number $Z = 6$ for carbon plus $Z = 1$ for each of the four hydrogen atoms.
+
+
+    The instantaneous equivalent-electron source rate $\dot{S}$ accumulates over time
+    to give the total equivalent-electron inventory:
+
+
+    $$
+
+    N(t) = \int_0^t \dot{S}(t'') \, dt''
+
+    $$
+
+
+    where $N(t)$ is the cumulative equivalent-electron count tracked by [accumulated
+    13CH4 injection](name:accumulated_methane_carbon_13_count_due_to_gas_injection).
+
+
+    The rate is inferred from upstream reservoir pressure and valve conductance measurements.
+    For comprehensive carbon gas accounting, this quantity complements [carbon_rate_due_to_gas_injection](name:carbon_source_rate_due_to_gas_injection),
+    which sums contributions from all carbon-bearing gas species.
+
+
+    Sign convention: Positive when 13CH4 gas flows from the injection system into
+    the plasma vessel.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_methane_carbon_13_count_due_to_gas_injection
+  - name:carbon_source_rate_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_rates/methane_carbon_13/value
+    dd_path: summary/gas_injection_rates/methane_carbon_13/value
+    status: composed
+- name: methane_source_rate
+  kind: scalar
+  status: draft
+  description: Instantaneous molecular source rate of methane (CH4) delivered to the
+    plasma vessel by gas injection systems, expressed as CH4 molecules per second.
+    It is not an electron-equivalent rate; under complete ionization, one methane
+    molecule corresponds to ten electron-equivalent particles.
+  documentation: 'Methane source rate is the instantaneous number of CH4 molecules
+    introduced into the plasma vessel per unit time by gas injection. It is a molecular
+    flow rate: one count corresponds to one methane molecule entering the vessel,
+    independent of later dissociation, ionization, pumping, recycling, or wall retention.
+
+
+    For a cumulative methane molecule count $N_{\mathrm{CH}_4}(t)$, the rate $S_{\mathrm{CH}_4}(t)$
+    is defined by:
+
+
+    $$
+
+    S_{\mathrm{CH}_4}(t) = \frac{dN_{\mathrm{CH}_4}(t)}{dt}
+
+    $$
+
+
+    where $t$ is time in seconds and $N_{\mathrm{CH}_4}(t)$ is the cumulative number
+    of methane molecules delivered over the chosen accounting interval. Integrating
+    $S_{\mathrm{CH}_4}$ between two times gives the number of methane molecules delivered
+    during that interval, not necessarily a retained inventory in the plasma.
+
+
+    Each methane molecule contains one carbon atom and four hydrogen atoms. If the
+    delivered methane is converted to constituent atom rates, the associated carbon
+    atom rate is $S_C = S_{\mathrm{CH}_4}$ and the associated hydrogen atom rate is
+    $S_H = 4S_{\mathrm{CH}_4}$, linking this quantity to [carbon_rate_due_to_gas_injection](name:carbon_source_rate_due_to_gas_injection)
+    and [hydrogen_source_rate_due_to_gas_injection](name:hydrogen_source_rate_due_to_gas_injection).
+    If an electron-equivalent source rate is required using atomic numbers, complete
+    ionization gives $S_{e,\mathrm{eq}} = (Z_C + 4Z_H)S_{\mathrm{CH}_4} = 10S_{\mathrm{CH}_4}$
+    with $Z_C=6$ and $Z_H=1$; that is a derived convention, not the methane molecular
+    rate itself.
+
+
+    In practice this rate is computed from calibrated gas-injection throughput, valve
+    timing, reservoir pressure and temperature, mass-flow-controller calibration,
+    and gas composition. A pressure-volume throughput can be converted to a molecular
+    rate using the ideal-gas relation with the local gas temperature; corrections
+    may be needed for line conductance, valve response, calibration-gas differences,
+    and back-pressure near the injection point.
+
+
+    Typical methane puff rates in fusion experiments are about $10^{17}$-$10^{21}$
+    s^-1. Short diagnostic tracer puffs often lie near the lower end of this range,
+    while stronger impurity-seeding, wall-conditioning, or disruption-mitigation-related
+    injections can approach $10^{21}$-$10^{22}$ s^-1 depending on the injector and
+    pulse duration.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:carbon_source_rate_due_to_gas_injection
+  - name:hydrogen_source_rate_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_rates/methane/value
+    dd_path: summary/gas_injection_rates/methane/value
+    status: composed
+- name: minimum_gas_flow
+  kind: scalar
+  status: draft
+  description: Minimum gas flow is the smallest pressure-volume gas throughput that
+    a gas injection valve can reliably deliver. It is the lower bound of the controllable
+    flow range.
+  documentation: 'Minimum gas flow is the lower reliable operating limit of the pressure-volume
+    throughput delivered by a gas injection valve. It is a static hardware capability
+    that bounds the same physical quantity represented by [gas_flow](name:gas_flow),
+    while [maximum_gas_flow](name:maximum_gas_flow) gives the corresponding upper
+    limit.
+
+
+    The underlying pressure-volume gas throughput is defined by
+
+
+    $$
+
+    Q = p\,\dot{V}
+
+    $$
+
+
+    where $Q$ is the gas throughput in $\mathrm{Pa\,m^3\,s^{-1}}$, $p$ is the gas
+    pressure in $\mathrm{Pa}$, and $\dot{V}$ is the volumetric flow rate in $\mathrm{m^3\,s^{-1}}$.
+    The minimum gas flow is the calibrated lower reliable value of $Q$ for the valve,
+    not a particle source rate; for an ideal gas, an approximate molecular source
+    rate is $\dot{N}=Q/(k_B T_g)$, where $T_g$ is the gas temperature and $k_B$ is
+    Boltzmann''s constant.
+
+
+    In practice this limit is obtained from factory qualification, bench calibration,
+    or in-system flow calibration by identifying the smallest command or valve opening
+    that gives reproducible throughput within the required tolerance. It is used in
+    fueling, wall-conditioning, density-control, and disruption-mitigation gas systems
+    to determine the smallest controllable gas puff and, together with the maximum
+    flow, the valve turndown ratio.
+
+
+    Typical minimum reliable flows range from about $10^{-4}$-$10^{-1}\ \mathrm{Pa\,m^3\,s^{-1}}$
+    for fine metering or leak valves, $10^{-2}$-$10^{1}\ \mathrm{Pa\,m^3\,s^{-1}}$
+    for general fueling valves, and can be higher for large fast-injection or disruption-mitigation
+    valves. The applicable value is strongly dependent on valve design, gas species,
+    upstream pressure, pulse duration, and calibration tolerance.'
+  unit: Pa.m^3.s^-1
+  physics_domain: plant_systems
+  links:
+  - name:gas_flow
+  - name:maximum_gas_flow
+  arguments:
+  - name: gas_flow
+    operator: minimum
+    operator_kind: qualifier
+  sources:
+  - id: dd:gas_injection/pipe/valve/flow_rate_min
+    dd_path: gas_injection/pipe/valve/flow_rate_min
+    status: attached
+  - id: dd:gas_injection/valve/flow_rate_min
+    dd_path: gas_injection/valve/flow_rate_min
+    status: composed
+- name: molecular_neutral_species_flow_at_outlet
+  kind: scalar
+  status: draft
+  description: Throughput of a molecular neutral species at a gas pumping duct outlet,
+    equal to the volumetric pumping speed at the outlet multiplied by the outlet partial
+    pressure of that species.
+  documentation: 'Molecular neutral species flow at an outlet is the pressure-weighted
+    gas throughput of one molecular neutral species crossing the outlet of a pumping
+    duct. It represents the exhaust rate in vacuum-engineering units and is specific
+    to the species partial pressure, not the total gas pressure when multiple species
+    are present.
+
+
+    The outlet throughput is defined by the product of local pumping speed and species
+    partial pressure at the outlet:
+
+
+    $$
+
+    Q_{s,\mathrm{out}} = S_{\mathrm{out}}\,p_{s,\mathrm{out}}
+
+    $$
+
+
+    where $Q_{s,\mathrm{out}}$ is the molecular neutral species throughput, $S_{\mathrm{out}}$
+    is the volumetric pumping speed at the duct outlet, and $p_{s,\mathrm{out}}$ is
+    the outlet partial pressure of species $s$.
+
+
+    In practice this quantity is inferred from calibrated pumping speed, conductance
+    modeling, and pressure or residual-gas measurements near the duct outlet. For
+    an ideal gas at temperature $T$, the corresponding particle flow is $\dot{N}_s
+    = Q_{s,\mathrm{out}}/(k_B T)$ and the molar flow is $\dot{n}_s = Q_{s,\mathrm{out}}/(R
+    T)$.
+
+
+    Typical values range from about 0.01-100 Pa m^3 s^-1 for individual molecular
+    species in fusion-vacuum pumping systems, with larger transient or high-throughput
+    exhaust cases reaching 100-1000 Pa m^3 s^-1.
+
+
+    Sign convention: Positive when the molecular neutral species is extracted through
+    the duct outlet in the pumping direction away from the vessel.'
+  unit: Pa.m^3.s^-1
+  physics_domain: plant_systems
+  links: []
+  sources:
+  - id: dd:gas_pumping/duct/species/flow_rate
+    dd_path: gas_pumping/duct/species/flow_rate
+    status: composed
 - name: neon_prefill_count
   kind: scalar
   status: draft
@@ -2416,10 +3126,6 @@
   - name:deuterium_prefill_count
   - name:tritium_prefill_count
   - name:accumulated_neon_count
-  arguments:
-  - name: accumulated_lithium_prefill_count_due_to_gas_injection
-    operator: neon
-    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/neon/value
     dd_path: summary/gas_injection_prefill/neon/value
@@ -2455,66 +3161,122 @@
   - id: dd:summary/gas_injection_rates/neon/value
     dd_path: summary/gas_injection_rates/neon/value
     status: composed
-- name: net_power_of_plant_system
+- name: net_absorbed_power_of_plant_system
   kind: scalar
   status: draft
-  description: Net electrical power of a plant system, equal to generated electrical
-    power minus internal operational electrical consumption within the same system
-    boundary.
-  documentation: 'Net electrical power of a plant system is the algebraic electrical
-    power delivered by that system after subtracting the electrical power it consumes
-    for its own operation. It indicates whether the chosen system boundary is a net
-    source or net sink of electricity at a given operating condition.
+  description: Net electrical power absorbed by a plant system, defined as the system's
+    electrical consumption minus electrical power generated locally within the same
+    system boundary.
+  documentation: 'Net absorbed electrical power is the net electrical import of a
+    plant system across its defined electrical boundary. It is positive for an overall
+    electrical load and negative for a system that produces more electrical power
+    locally than it consumes internally.
 
 
-    For a defined plant-system boundary, the net power is
+    The defining balance is:
 
 
     $$
 
-    P_\mathrm{net} = P_\mathrm{elec,gen} - P_\mathrm{elec,cons}
+    P_{\mathrm{net,abs}} = P_{\mathrm{consumed}} - P_{\mathrm{local,gen}}
 
     $$
 
 
-    where $P_\mathrm{net}$, $P_\mathrm{elec,gen}$, and $P_\mathrm{elec,cons}$ are
-    electrical powers in W evaluated over the same time interval. $P_\mathrm{elec,gen}$
-    is the electrical power produced within the boundary, such as generator-terminal
-    or power-conversion output, and $P_\mathrm{elec,cons}$ is the operational electrical
-    power drawn by equipment inside the same boundary.
+    where $P_{\mathrm{consumed}}$ is the total electrical power used by equipment
+    within the system boundary and $P_{\mathrm{local,gen}}$ is the electrical power
+    generated within that same boundary.
 
 
-    In practice, this quantity is computed from electrical metering or plant power-accounting
-    models by summing generation feeds and subtracting allocated internal loads such
-    as pumps, compressors, cryogenic equipment, control systems, power-conversion
-    auxiliaries, and other parasitic consumers. The system boundary must be applied
-    consistently: loads outside the boundary are excluded, while recirculating power
-    and auxiliary loads inside the boundary are included. During startup, shutdown,
-    standby, or operation of systems without local generation, the net power can be
-    negative.
+    In practice this quantity is obtained from electrical metering, plant power-balance
+    calculations, or supervisory control estimates at the system boundary. It differs
+    conceptually from a net electrical output quantity: this name represents net import
+    required to operate the system, while net output represents export available from
+    the system under its own accounting definition.
 
 
-    Typical values depend strongly on the boundary. Purely consuming plant systems
-    are often about -1e3 to -1e8 W, large balance-of-plant or power-conversion systems
-    can range from near 0 W to 1e9 W, and whole-plant net electrical output for power-plant-scale
-    devices is commonly of order 1e8-2e9 W. Values near 0 W indicate that internal
-    electrical consumption nearly balances local electrical generation.
+    Typical values for individual plant systems range from $10^3$-$10^8$ W, depending
+    on the size and operating state of loads such as pumps, cryogenic equipment, power
+    supplies, auxiliaries, and control systems. Large pulsed or high-power subsystems
+    may transiently approach $10^8$-$10^9$ W, while a locally generating subsystem
+    can have a negative value.
 
 
-    Sign convention: Positive when the system exports electrical power across its
-    boundary after subtracting internal operational consumption.'
+    Sign convention: Positive when the plant system absorbs electrical power across
+    its electrical boundary, so total electrical consumption exceeds electrical power
+    generated locally within the same system boundary.'
   unit: W
   physics_domain: plant_systems
   links:
-  - name:total_thermal_power_at_inlet
-  - name:power_of_plant_system
+  - name:net_power_of_plant_system
+  - name:total_power_of_plant_system
   sources:
-  - id: dd:balance_of_plant/power_electricity_net
-    dd_path: balance_of_plant/power_electricity_net
-    status: attached
-  - id: dd:balance_of_plant/power_plant/power_electric_generated
-    dd_path: balance_of_plant/power_plant/power_electric_generated
-    status: attached
+  - id: dd:balance_of_plant/power_electric_plant_operation/system/power
+    dd_path: balance_of_plant/power_electric_plant_operation/system/power
+    status: composed
+- name: net_efficiency_of_plant_system
+  kind: scalar
+  status: draft
+  description: Net efficiency of a plant system is the dimensionless ratio of signed
+    net electrical power exported by the plant to the total electrical power consumed
+    by plant subsystems over the same operating interval.
+  documentation: 'Net efficiency of a plant system characterizes plant-level electrical
+    gain by comparing signed net electrical export with the electrical power consumed
+    by plant subsystems inside the chosen accounting boundary. It is a dimensionless
+    ratio, so the numerator and denominator should refer to the same operating interval
+    and accounting boundary.
+
+
+    The net plant efficiency is defined from signed net electrical power and plant
+    electrical consumption:
+
+
+    $$
+
+    \eta_{\mathrm{net,plant}} = \frac{P_{\mathrm{net}}}{P_{\mathrm{plant}}}
+
+    $$
+
+
+    where $P_{\mathrm{net}}$ is the [net electrical power of the plant system](name:net_power_of_plant_system)
+    in W and $P_{\mathrm{plant}}$ is the [electrical power consumed by the plant system](name:net_absorbed_power_of_plant_system)
+    in W. The denominator is the positive sum of included internal electrical loads,
+    commonly represented inline as $P_{\mathrm{plant}} = \sum_i P_{\mathrm{cons},i}$
+    over plant subsystems such as heating and current drive, cryogenic cooling, pumping,
+    control systems, and other auxiliaries as applicable.
+
+
+    The quantity is computed from plant-level electrical accounting, using time-averaged
+    powers or interval-integrated energies divided over the same duration. Unlike
+    [thermal efficiency of a plant system](name:thermal_efficiency_of_plant_system),
+    which relates electrical generation to thermal input, net efficiency includes
+    the effect of recirculating electrical loads and therefore measures net electrical
+    gain relative to internal electrical consumption.
+
+
+    Representative values are negative during net-importing intervals, 0 at net electrical
+    break-even, between 0 and 1 when net export is positive but smaller than internal
+    consumption, and greater than 1 when net export exceeds internal consumption.
+    No universal numerical range applies because the value depends on the plant boundary,
+    operating phase, auxiliary loads, and averaging interval.
+
+
+    Sign convention: Positive when signed net electrical power is exported from the
+    plant to an external electrical network or load.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:net_power_of_plant_system
+  - name:net_absorbed_power_of_plant_system
+  - name:thermal_efficiency_of_plant_system
+  arguments:
+  - name: efficiency_of_plant_system
+    operator: net
+    operator_kind: qualifier
+  sources:
+  - id: dd:balance_of_plant/gain_plant
+    dd_path: balance_of_plant/gain_plant
+    status: composed
 - name: nitrogen_prefill_count
   kind: scalar
   status: draft
@@ -2564,13 +3326,120 @@
   - name:ammonia_prefill_count
   - name:accumulated_hydrogen_prefill_count
   - name:accumulated_nitrogen_count
-  arguments:
-  - name: accumulated_lithium_prefill_count_due_to_gas_injection
-    operator: nitrogen
-    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/nitrogen/value
     dd_path: summary/gas_injection_prefill/nitrogen/value
+    status: composed
+- name: nitrogen_source_rate
+  kind: scalar
+  status: draft
+  description: Instantaneous neutral nitrogen gas injection rate into the plasma vessel,
+    reported as an electron-equivalent particle rate. For molecular nitrogen N2, the
+    value is 14 times the molecular flow rate because each molecule contains 14 electrons.
+  documentation: 'Nitrogen source rate is the rate at which neutral nitrogen gas is
+    introduced into the plasma vessel, expressed as an electron-equivalent particle
+    rate. The convention is molecular nitrogen, so each injected N2 molecule contributes
+    the equivalent of 14 electrons before any dissociation or ionization processes
+    are considered.
+
+
+    The electron-equivalent rate is related to the molecular nitrogen flow rate by:
+
+
+    $$
+
+    S_{\mathrm{N},e} = 14\,\dot{N}_{\mathrm{N}_2}
+
+    $$
+
+
+    where $S_{\mathrm{N},e}$ is the nitrogen source rate in electron-equivalent s^-1
+    and $\dot{N}_{\mathrm{N}_2}$ is the molecular N2 flow rate in molecules s^-1.
+    Equivalently, a quoted electron-equivalent rate may be converted back to molecular
+    flow as $\dot{N}_{\mathrm{N}_2}=S_{\mathrm{N},e}/14$.
+
+
+    In practice this quantity is inferred from calibrated gas-delivery measurements
+    such as mass-flow calibration, valve conductance calibration, pressure-rise measurements,
+    or gas-balance calculations. It represents the neutral gas admitted through the
+    vessel boundary, not the subsequent local ionization, radiation, or impurity transport
+    response inside the plasma.
+
+
+    Typical nitrogen injection rates used for impurity seeding are about 10^18-10^22
+    s^-1 in electron-equivalent units, with 0 s^-1 corresponding to no nitrogen injection
+    and larger transient rates possible in large devices or short gas puffs. Physically
+    valid values are finite and non-negative; if a molecular N2 flow is reported instead,
+    its numerical value is smaller by a factor of 14.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_nitrogen_count
+  - name:neon_source_rate
+  - name:oxygen_source_rate
+  - name:ammonia_source_rate
+  sources:
+  - id: dd:summary/gas_injection_rates/nitrogen/value
+    dd_path: summary/gas_injection_rates/nitrogen/value
+    status: composed
+- name: normalized_atomic_count_of_pellet
+  kind: scalar
+  status: draft
+  description: 'Dimensionless pellet propellant-gas atom inventory equal to the physical
+    number of atoms divided by 10^20. It counts atoms, not gas entities: a diatomic
+    molecule contributes two atoms and a monatomic atom contributes one.'
+  documentation: 'Normalized atomic count of a pellet is the total number of atoms
+    in the pellet gas load expressed in units of $10^{20}$ atoms. It is an atom inventory
+    rather than a molecule inventory, so molecular species are converted to their
+    constituent atoms before summing.
+
+
+    For a mixture of gas species or molecular forms, the normalized atomic count is
+
+
+    $$
+
+    N_{\mathrm{atom},n} = \frac{N_{\mathrm{atom}}}{10^{20}} = \frac{1}{10^{20}} \sum_s
+    A_s N_s
+
+    $$
+
+
+    where $N_{\mathrm{atom},n}$ is dimensionless, $N_{\mathrm{atom}}$ is the physical
+    atom count, $N_s$ is the count of gas entities of species or molecular form $s$,
+    and $A_s$ is the atomicity in atoms per entity. The denominator represents $10^{20}$
+    atoms, so $N_{\mathrm{atom},n}=1$ corresponds to $10^{20}$ atoms.
+
+
+    In practice this quantity is computed from the gas amount, pellet composition,
+    injection calibration, or pressure-volume-temperature estimates using an appropriate
+    equation of state. For molecular gasses, the measured molecule count is multiplied
+    by atomicity before normalization; for mixtures, all components are summed after
+    this conversion.
+
+
+    The physical range is $0 \le N_{\mathrm{atom},n} < \infty$. A value of 0 indicates
+    no atoms in the counted gas load, and values greater than 1 are allowed because
+    the normalization is a scale factor, not a fraction or probability. Device-independent
+    numerical ranges are not implied because pellet inventories depend strongly on
+    pellet size, species, and injection scenario.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:atomic_count_of_pellet
+  arguments:
+  - name: atomic_count_of_pellet
+    operator: normalized
+    operator_kind: qualifier
+  sources:
+  - id: dd:pellets/time_slice/pellet/propellant_gas/molecules_n
+    dd_path: pellets/time_slice/pellet/propellant_gas/molecules_n
+    status: composed
+  - id: dd:spi/injector/fragmentation_gas/atoms_n
+    dd_path: spi/injector/fragmentation_gas/atoms_n
+    status: attached
+  - id: dd:spi/injector/propellant_gas/atoms_n
+    dd_path: spi/injector/propellant_gas/atoms_n
     status: composed
 - name: outer_atomic_count_of_pellet
   kind: scalar
@@ -2686,6 +3555,60 @@
   - id: dd:summary/gas_injection_rates/oxygen/value
     dd_path: summary/gas_injection_rates/oxygen/value
     status: composed
+- name: poloidal_magnetic_flux_at_pellet_path
+  kind: scalar
+  status: draft
+  description: Poloidal magnetic flux evaluated at a point on a pellet injection path.
+    It provides the flux-surface label used to relate pellet ablation or deposition
+    to the magnetic equilibrium.
+  documentation: 'At a pellet injection path point, poloidal magnetic flux is the
+    value of the equilibrium poloidal-flux function at the pellet position. It identifies
+    the magnetic flux surface intersected by the pellet and relates local ablation,
+    ionization, and deposited material to the surrounding equilibrium geometry.
+
+
+    Using a path coordinate $\ell$ along the pellet trajectory in the right-handed
+    cylindrical $(R,\phi,Z)$ frame, where $R$ is major radius, $\phi$ is toroidal
+    angle, and $Z$ is vertical height, the value along the trajectory is
+
+
+    $$
+
+    \psi_{\mathrm{pellet}}(\ell) = \psi\!\left(R(\ell), Z(\ell)\right)
+
+    $$
+
+
+    where $\psi(R,Z)$ is the equilibrium poloidal magnetic flux function and $\psi_{\mathrm{pellet}}$
+    has unit Wb. For an axisymmetric equilibrium, $\psi$ is independent of $\phi$;
+    $\phi(\ell)$, represented by toroidal_angle_of_along_pellet_path, locates the
+    same path point toroidally.
+
+
+    In practice this quantity is computed by combining a reconstructed magnetic equilibrium
+    with the pellet trajectory inferred from injector geometry, timing, and observations
+    of pellet emission or ablation. Interpolation of $\psi(R,Z)$ to the trajectory
+    point converts ablation versus distance or time into a flux-surface coordinate
+    for deposition analysis.
+
+
+    Typical values are comparable to equilibrium poloidal flux values: the difference
+    between the magnetic-axis value and the plasma-boundary value is often 0.1-10
+    Wb in tokamaks, and may be larger in high-current devices. Along a pellet path,
+    the values usually span only the portion of this interval traversed before complete
+    ablation or exit from the confined plasma.
+
+
+    Sign convention: Positive when the magnetic field crossing a horizontal disk centered
+    on the toroidal symmetry axis has positive net flux in the $+\hat{Z}$ direction
+    of the right-handed cylindrical $(R,\phi,Z)$ frame.'
+  unit: Wb
+  physics_domain: plant_systems
+  links: []
+  sources:
+  - id: dd:pellets/time_slice/pellet/path_profiles/psi
+    dd_path: pellets/time_slice/pellet/path_profiles/psi
+    status: composed
 - name: power_of_plant_subsystem
   kind: scalar
   status: draft
@@ -2740,6 +3663,187 @@
   - id: dd:balance_of_plant/power_electric_plant_operation/system/subsystem/power
     dd_path: balance_of_plant/power_electric_plant_operation/system/subsystem/power
     status: composed
+- name: power_of_plant_system
+  kind: scalar
+  status: draft
+  description: Real electrical power drawn by an individual plant system during operation,
+    evaluated at the system electrical boundary. It is a load-oriented demand quantity;
+    net plant-system power uses generated minus consumed accounting.
+  documentation: 'Power of a plant system is the real electrical power crossing the
+    electrical boundary of one plant system, with consumption represented as draw
+    from the plant electrical supply. It describes electrical demand at a system level,
+    not thermal power, apparent power, reactive power, or accumulated energy.
+
+
+    For boundary accounting with a load-positive convention, the system power is defined
+    as consumed real electrical power minus generated real electrical power within
+    the same system boundary:
+
+
+    $$
+
+    P_\mathrm{system} = P_\mathrm{consumed} - P_\mathrm{generated} = \sum_{j=1}^{N}
+    P_{\mathrm{subsystem},j}
+
+    $$
+
+
+    where $P_\mathrm{system}$ is this plant-system power, $P_\mathrm{consumed}$ is
+    the real electrical power imported by loads in the system, $P_\mathrm{generated}$
+    is the real electrical power exported by generators belonging to the system, and
+    $P_{\mathrm{subsystem},j}$ are [power_of_plant_subsystem](name:power_of_plant_subsystem)
+    values using the same sign convention for the $N$ included subsystems. Internal
+    electrical transfers between subsystems cancel in the system total. The corresponding
+    [net_power_of_plant_system](name:net_power_of_plant_system) follows generated-minus-consumed
+    accounting, so for the same boundary and scope $P_\mathrm{net}=P_\mathrm{generated}-P_\mathrm{consumed}=-P_\mathrm{system}$.
+
+
+    In practice, this quantity is obtained from electrical metering, power-converter
+    telemetry, or a sum of subsystem feeder powers over a consistently defined system
+    boundary. For AC supplies it is the real power from phase-wise voltage-current
+    measurements averaged over the electrical cycle; for DC supplies it is the signed
+    voltage-current product. Summing $P_\mathrm{system}$ over a selected set of consuming
+    systems gives that set''s load-positive electrical demand only; plant net electric
+    output requires generated and consumed terms to be combined with consistent accounting
+    boundaries.
+
+
+    Typical operating magnitudes are highly system dependent: instrumentation and
+    control systems may draw $10^0-10^4$ W, medium auxiliary systems $10^4-10^6$ W,
+    and large pumps, compressors, power supplies, or power-conversion systems $10^6-10^8$
+    W. Values can be near zero in standby or off states, and may become negative for
+    a system exporting more electrical power than it consumes.
+
+
+    Sign convention: Positive when real electrical power flows from the plant electrical
+    supply into the plant system across the system boundary.'
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:absorbed_power_of_plant_system
+  - name:net_power_of_plant_system
+  - name:total_power_of_plant_system
+  - name:power_of_plant_subsystem
+  - name:total_thermal_power_at_inlet
+- name: absorbed_power_of_plant_system
+  kind: scalar
+  status: draft
+  description: Real electrical power crossing a plant-system boundary into the plant
+    system. It is the absorbed, incoming component of the plant-system electrical
+    power balance, distinct from generated, returned, or net power.
+  documentation: 'Absorbed power of a plant system is the real electrical power delivered
+    across the plant-system boundary into that system. It specializes [power_of_plant_system](name:power_of_plant_system)
+    by selecting the incoming electrical boundary-power component before any combination
+    with generated, returned, or net power. It is not the same as internal consumption
+    or dissipation, because storage, conversion, and later export can occur inside
+    the boundary.
+
+
+    The instantaneous absorbed electrical power is the time derivative of the cumulative
+    incoming electrical energy:
+
+
+    $$
+
+    P_\mathrm{abs}(t) = \frac{dE_{\mathrm{elec,in}}(t)}{dt}
+
+    $$
+
+
+    where $P_\mathrm{abs}$ is absorbed power in W, $E_{\mathrm{elec,in}}$ is cumulative
+    electrical energy delivered into the plant system in J, and $t$ is time in s.
+
+
+    In practice, absorbed power is obtained from electrical metering at the supply
+    connections of the plant system. Terminal voltages and currents are combined as
+    real power, summed over all relevant feeds, and averaged over an AC cycle or power-electronics
+    switching interval when needed. Reactive power is excluded, and electrical power
+    flowing out of the system boundary belongs to generated, returned, or net-power
+    accounting rather than to positive absorbed power.
+
+
+    Typical values range from 1-10^3 W for small control or instrumentation plant
+    systems, 10^3-10^6 W for pumps and auxiliary services, and 10^6-10^8 W for major
+    heating, cryogenic, pulsed-power, or magnet-support plant systems; short transients
+    in large facilities can approach 10^9 W.
+
+
+    Sign convention: Positive when real electrical power crosses the plant-system
+    boundary into the plant system from an external electrical connection.'
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:power_of_plant_subsystem
+  - name:total_power_of_plant_system
+  - name:power_of_plant_system
+  arguments:
+  - name: power_of_plant_system
+    operator: absorbed
+    operator_kind: qualifier
+- name: net_power_of_plant_system
+  kind: scalar
+  status: draft
+  description: Net electrical power of a plant system, equal to generated electrical
+    power minus internal operational electrical consumption within the same system
+    boundary.
+  documentation: 'Net electrical power of a plant system is the algebraic electrical
+    power delivered by that system after subtracting the electrical power it consumes
+    for its own operation. It indicates whether the chosen system boundary is a net
+    source or net sink of electricity at a given operating condition.
+
+
+    For a defined plant-system boundary, the net power is
+
+
+    $$
+
+    P_\mathrm{net} = P_\mathrm{elec,gen} - P_\mathrm{elec,cons}
+
+    $$
+
+
+    where $P_\mathrm{net}$, $P_\mathrm{elec,gen}$, and $P_\mathrm{elec,cons}$ are
+    electrical powers in W evaluated over the same time interval. $P_\mathrm{elec,gen}$
+    is the electrical power produced within the boundary, such as generator-terminal
+    or power-conversion output, and $P_\mathrm{elec,cons}$ is the operational electrical
+    power drawn by equipment inside the same boundary.
+
+
+    In practice, this quantity is computed from electrical metering or plant power-accounting
+    models by summing generation feeds and subtracting allocated internal loads such
+    as pumps, compressors, cryogenic equipment, control systems, power-conversion
+    auxiliaries, and other parasitic consumers. The system boundary must be applied
+    consistently: loads outside the boundary are excluded, while recirculating power
+    and auxiliary loads inside the boundary are included. During startup, shutdown,
+    standby, or operation of systems without local generation, the net power can be
+    negative.
+
+
+    Typical values depend strongly on the boundary. Purely consuming plant systems
+    are often about -1e3 to -1e8 W, large balance-of-plant or power-conversion systems
+    can range from near 0 W to 1e9 W, and whole-plant net electrical output for power-plant-scale
+    devices is commonly of order 1e8-2e9 W. Values near 0 W indicate that internal
+    electrical consumption nearly balances local electrical generation.
+
+
+    Sign convention: Positive when the system exports electrical power across its
+    boundary after subtracting internal operational consumption.'
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:total_thermal_power_at_inlet
+  - name:power_of_plant_system
+  arguments:
+  - name: power_of_plant_system
+    operator: net
+    operator_kind: qualifier
+  sources:
+  - id: dd:balance_of_plant/power_electricity_net
+    dd_path: balance_of_plant/power_electricity_net
+    status: attached
+  - id: dd:balance_of_plant/power_plant/power_electric_generated
+    dd_path: balance_of_plant/power_plant/power_electric_generated
+    status: attached
 - name: prefill_gas_pressure
   kind: scalar
   status: draft
@@ -2788,6 +3892,56 @@
   - id: dd:plasma_initiation/b_field_lines/pressure
     dd_path: plasma_initiation/b_field_lines/pressure
     status: composed
+- name: pressure_of_lower_hybrid_antenna
+  kind: scalar
+  status: draft
+  description: Gas pressure inside the vacuum tank of a lower hybrid antenna.
+  documentation: 'Gas pressure of a lower hybrid antenna is the scalar pressure of
+    residual neutral gas in the antenna vacuum tank or waveguide enclosure. It characterizes
+    the local vacuum state relevant to RF voltage holdoff, antenna conditioning, and
+    operational safety.
+
+
+    For a uniform gas inventory, pressure is related to the amount of gas by the ideal-gas
+    relation:
+
+
+    $$
+
+    pV = N k_B T
+
+    $$
+
+
+    where $p$ is gas pressure in Pa, $V$ is tank volume in m$^3$, $N$ is the number
+    of neutral molecules, $k_B$ is the Boltzmann constant in J K$^{-1}$, and $T$ is
+    gas temperature in K.
+
+
+    The pressure is normally inferred from vacuum instrumentation connected to the
+    antenna tank or nearby pumping manifold. The indicated value can depend on gage
+    calibration, gas composition, and conductance between the measurement point and
+    the enclosed antenna volume. Operating limits and interlock thresholds are device
+    dependent and are set by the antenna design, RF conditioning state, and local
+    protection strategy.
+
+
+    Representative lower-hybrid antenna vacuum-tank pressures during prepared RF operation
+    are commonly in the high-vacuum range, about $10^{-6}$-$10^{-3}$ Pa. Higher values
+    may occur during conditioning, outgassing, leaks, or abnormal vacuum events.
+
+
+    The analogous antenna-vacuum quantity for ion-cyclotron systems is [gas_pressure_of_ion_cyclotron_heating_antenna](name:gas_pressure_of_ion_cyclotron_heating_antenna).'
+  unit: Pa
+  physics_domain: plant_systems
+  links:
+  - name:launched_power_of_lower_hybrid_antenna
+  - name:reflected_power_of_lower_hybrid_antenna
+  - name:gas_pressure_of_ion_cyclotron_heating_antenna
+  sources:
+  - id: dd:lh_antennas/antenna/pressure_tank
+    dd_path: lh_antennas/antenna/pressure_tank
+    status: composed
 - name: propane_prefill_count
   kind: scalar
   status: draft
@@ -2834,10 +3988,6 @@
   physics_domain: plant_systems
   links:
   - name:accumulated_lithium_prefill_count_due_to_gas_injection
-  arguments:
-  - name: accumulated_lithium_prefill_count_due_to_gas_injection
-    operator: propane
-    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/propane/value
     dd_path: summary/gas_injection_prefill/propane/value
@@ -2955,6 +4105,108 @@
   - id: dd:spi/injector/velocity_mass_centre_fragments_r
     dd_path: spi/injector/velocity_mass_centre_fragments_r
     status: attached
+- name: shattered_pellet_fragment_density
+  kind: scalar
+  status: draft
+  description: Number density of a specified atomic species within an individual fragment
+    produced by a shattered pellet injector.
+  documentation: 'Shattered pellet fragment density is the species-resolved number
+    of atoms of a given species per unit physical volume of a single condensed fragment.
+    It describes the material composition of the fragment before substantial ablation
+    or expansion, and differs from the density of the ablated gas or plasma formed
+    later.
+
+
+    For species $s$ in a fragment of volume $V_f$, the density is defined by
+
+
+    $$
+
+    n_s = \frac{N_s}{V_f}
+
+    $$
+
+
+    where $n_s$ is the number density of species $s$, $N_s$ is the number of atoms
+    of that species in the fragment, and $V_f$ is the physical fragment volume.
+
+
+    In practice, this quantity is usually inferred from the pellet material composition,
+    condensed-phase mass density, and the assigned or reconstructed fragment volume.
+    For mixed-material pellets, each species component is determined from the mixture
+    fraction; the sum over species gives the total atomic number density. Fragment-to-fragment
+    variation can arise from nonuniform composition, porosity, cracks, coatings, thermal
+    state, and partial vaporization during shattering.
+
+
+    Typical condensed hydrogen-isotope and noble-gas pellet materials have atomic
+    number densities of about $2 \times 10^{28}$-$8 \times 10^{28}$ m^-3. Pure deuterium,
+    tritium, or deuterium-tritium fragments are commonly a few $10^{28}$ m^-3, while
+    minority dopants or mixed-species components can be lower in proportion to their
+    atomic fraction.'
+  unit: m^-3
+  physics_domain: plant_systems
+  links:
+  - name:core_density_of_pellet
+  sources:
+  - id: dd:spi/injector/fragment/species/density
+    dd_path: spi/injector/fragment/species/density
+    status: composed
+- name: shattered_pellet_fragment_volume
+  kind: scalar
+  status: draft
+  description: Volume of a single solid fragment produced by shattered pellet injection.
+    It characterizes the fragment size distribution and contributes, together with
+    material density, shape, and plasma conditions, to fragment ablation and material
+    delivery.
+  documentation: 'Shattered pellet fragment volume is the physical volume occupied
+    by one solid piece formed when a cryogenic pellet is broken before injection into
+    the plasma. It is a geometric size measure for an individual fragment, not the
+    total volume of the fragment cloud, and is used to characterize the fragment size
+    distribution produced by the shattering process.
+
+
+    For a fragment represented by an equivalent sphere of diameter $d_
+
+    obreak\mathrm{eq}$, the fragment volume $V_f$ is
+
+
+    $$
+
+    V_f = \frac{\pi}{6} d_\mathrm{eq}^3
+
+    $$
+
+
+    where $V_f$ is the fragment volume in m$^3$ and $d_\mathrm{eq}$ is the diameter
+    in m of a sphere with the same volume. For irregular fragments, $d_\mathrm{eq}$
+    is a convenient size parameter rather than a statement that the fragment is spherical.
+
+
+    In practice, fragment volume may be estimated from calibrated images of the shattered
+    pellet plume, from assumed fragment-shape models, or from a mass estimate divided
+    by the solid material density. It is closely related to the parent [diameter_of_pellet](name:diameter_of_pellet)
+    and to material-density quantities such as [core_density_of_pellet](name:core_density_of_pellet).
+    Combined with fragment velocity and ablation modeling, it helps determine the
+    time-dependent material source represented by quantities such as [radial_velocity_of_pellet](name:radial_velocity_of_pellet)
+    and atomic_source_rate_of_pellet.
+
+
+    Representative fragment volumes in shattered-pellet studies are often in the approximate
+    range $10^{-12}$-$10^{-7}$ m$^3$, corresponding to sub-millimeter through several-millimeter
+    equivalent spherical diameters. The range depends strongly on pellet size, material,
+    shatter-tube geometry, and the fragment-size distribution assumed or measured
+    for a particular injector.'
+  unit: m^3
+  physics_domain: plant_systems
+  links:
+  - name:diameter_of_pellet
+  - name:core_density_of_pellet
+  - name:radial_velocity_of_pellet
+  sources:
+  - id: dd:spi/injector/fragment/volume
+    dd_path: spi/injector/fragment/volume
+    status: composed
 - name: silane_prefill_count
   kind: scalar
   status: draft
@@ -2986,10 +4238,6 @@
   - name:silane_source_rate
   - name:accumulated_hydrogen_prefill_count
   - name:nitrogen_prefill_count
-  arguments:
-  - name: accumulated_lithium_prefill_count_due_to_gas_injection
-    operator: silane
-    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/silane/value
     dd_path: summary/gas_injection_prefill/silane/value
@@ -3042,6 +4290,1037 @@
   - id: dd:summary/gas_injection_rates/silane/value
     dd_path: summary/gas_injection_rates/silane/value
     status: composed
+- name: source_rate_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Instantaneous equivalent-electron source rate delivered to the plasma
+    vessel by gas injection systems, where each injected atom contributes Z equivalent
+    electrons per second according to its atomic number.
+  documentation: 'The source rate due to gas injection characterizes the instantaneous
+    rate at which neutral gas is admitted to the plasma vessel by gas injection hardware,
+    expressed as an equivalent-electron count rate. Every injected atom of atomic
+    number $Z$ contributes $Z$ equivalent electrons per second to the total inventory
+    rate, providing a unified accounting framework across species of differing nuclear
+    charge.
+
+
+    The defining relation for a single injected species is:
+
+
+    $$
+
+    \dot{S} = Z \cdot \dot{N}_{\mathrm{atoms}}
+
+    $$
+
+
+    where $\dot{N}_{\mathrm{atoms}}$ is the raw atomic delivery rate in atoms per
+    second and $Z$ is the atomic number of the injected species. For simultaneous
+    multi-species injection, contributions are summed over all active species.
+
+
+    This rate is inferred from calibrated mass-flow controllers or upstream pressure-rise
+    measurements on the gas supply plumbing. It is the instantaneous time derivative
+    of the corresponding accumulated equivalent-electron inventories, such as [accumulated_argon_count](name:accumulated_argon_count)
+    or [accumulated_hydrogen_count_due_to_gas_injection](name:accumulated_hydrogen_count_due_to_gas_injection).
+    The nearest-peer quantity gas_particle_source_rate_over_vessel_due_to_gas_injection
+    provides the vessel-integrated analog expressed in raw gas-phase particles rather
+    than equivalent electrons.
+
+
+    Sign convention: Positive when gas is being delivered into the vessel at a nonzero
+    rate, increasing the equivalent-electron particle inventory.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_argon_count
+  - name:accumulated_hydrogen_count_due_to_gas_injection
+- name: argon_source_rate_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Instantaneous argon gas injection source rate expressed as equivalent
+    electrons per second; the actual argon atom injection rate is multiplied by 18,
+    the atomic number of argon.
+  documentation: 'Argon source rate due to gas injection is the instantaneous rate
+    at which neutral argon is supplied by a gas injection system, expressed in equivalent
+    electrons per second. The equivalent-electron convention weights each argon atom
+    by its atomic number, so one injected argon atom contributes 18 equivalent electrons
+    for bookkeeping of particle throughput and impurity fueling.
+
+
+    The equivalent-electron source rate is related to the physical argon atom injection
+    rate by:
+
+
+    $$
+
+    S_{\mathrm{Ar,eq}} = 18\,\frac{dN_{\mathrm{Ar}}}{dt}
+
+    $$
+
+
+    where $S_{\mathrm{Ar,eq}}$ is the argon source rate in equivalent electrons per
+    second, $N_{\mathrm{Ar}}$ is the number of injected argon atoms, and $dN_{\mathrm{Ar}}/dt$
+    is the atomic injection rate in atoms per second. The corresponding atomic rate
+    is therefore $S_{\mathrm{Ar,eq}}/18$.
+
+
+    In practice this quantity is inferred from calibrated gas-flow measurements, valve
+    commands combined with conductance models, reservoir pressure decay, or mass-flow
+    controller signals. It represents the delivered source from the injection hardware,
+    not the fraction that is ionized, confined, or retained in the plasma.
+
+
+    Typical impurity-seeding values are about $10^{20}$-$10^{23}$ s^-1 in equivalent-electron
+    units, depending on device size and seeding scenario. Short high-throughput argon
+    injection pulses used for rapid radiative cooling or disruption mitigation can
+    reach about $10^{24}$-$10^{26}$ s^-1 for brief intervals, while the value is zero
+    when no argon is being delivered.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_argon_count
+  - name:source_rate_due_to_gas_injection
+  - name:krypton_source_rate_due_to_gas_injection
+  - name:hydrogen_source_rate_due_to_gas_injection
+  arguments:
+  - name: source_rate_due_to_gas_injection
+    operator: argon
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/gas_injection_rates/argon/value
+    dd_path: summary/gas_injection_rates/argon/value
+    status: composed
+- name: carbon_source_rate_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Instantaneous electron-equivalent carbon source from gas injection.
+    Each injected carbon atom contributes six source counts, so this rate is six times
+    the raw carbon-atom delivery rate and is consistent with accumulated carbon source-count
+    accounting.
+  documentation: 'Carbon source rate due to gas injection is the instantaneous electron-equivalent
+    particle source associated with carbon introduced by gas injection. It uses full-ionization
+    electron-yield accounting: each carbon atom contributes six counts, independent
+    of its later charge-state evolution, so it differs from the raw carbon-atom delivery
+    rate.
+
+
+    Let $\Gamma_C^{\mathrm{atom}}$ denote the raw carbon-atom delivery rate and $N_C^{\mathrm{eq}}$
+    the accumulated electron-equivalent carbon count. The defining relation is:
+
+
+    $$
+
+    S_C = 6\,\Gamma_C^{\mathrm{atom}} = \frac{dN_C^{\mathrm{eq}}}{dt}
+
+    $$
+
+
+    where $S_C$ is the carbon source rate due to gas injection, the factor 6 is the
+    nuclear charge of carbon, and $N_C^{\mathrm{eq}}$ is counted in electron-equivalent
+    source counts. The raw rate $\Gamma_C^{\mathrm{atom}}$ corresponds to [carbon_rate_due_to_gas_injection](name:carbon_source_rate_due_to_gas_injection),
+    while the time integral of $S_C$ gives changes in [accumulated_carbon_count_due_to_gas_injection](name:accumulated_carbon_count_due_to_gas_injection)
+    in the same equivalent-count convention.
+
+
+    In practice, the raw carbon-atom rate is inferred from calibrated gas-flow measurements,
+    pressure-volume calibrations, or valve models together with the gas composition.
+    For molecular injections such as methane or carbon monoxide, the raw carbon-atom
+    rate counts the number of carbon atoms per molecule, then the source rate is obtained
+    by multiplying by six. Ionization timing, transport, and the instantaneous charge-state
+    distribution in the plasma do not change this bookkeeping factor.
+
+
+    Values are zero when no carbon-containing gas is injected. Diagnostic or trace
+    impurity puffs commonly give 10^17-10^20 s^-1 in electron-equivalent counts, while
+    stronger impurity dosing or conditioning pulses can reach 10^21-10^22 s^-1; the
+    corresponding raw carbon-atom delivery rate is smaller by a factor of six.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_carbon_count_due_to_gas_injection
+  arguments:
+  - name: source_rate_due_to_gas_injection
+    operator: carbon
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/gas_injection_rates/carbon/value
+    dd_path: summary/gas_injection_rates/carbon/value
+    status: composed
+- name: helium_3_source_rate_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Instantaneous rate of helium-3 atom delivery into the plasma vessel
+    by gas injection, where each He-3 atom counts as two equivalent electrons due
+    to its atomic number Z = 2.
+  documentation: 'The helium-3 source rate due to gas injection is the instantaneous
+    equivalent-electron count rate for helium-3 ($^3$He, $Z = 2$) delivered by external
+    gas injection systems into the plasma vessel. In the equivalent-electron counting
+    convention, each injected helium-3 atom contributes 2 count units to the rate,
+    so the reported value equals twice the physical atom delivery rate.
+
+
+    The equivalent-electron rate $\dot{N}_{\text{He-3}}$ is the time derivative of
+    the cumulative helium-3 inventory:
+
+
+    $$
+
+    \dot{N}_{\text{He-3}} = \frac{d N_{\text{He-3}}}{dt}
+
+    $$
+
+
+    where $N_{\text{He-3}}$ is the [accumulated helium-3 count since plasma breakdown](name:accumulated_helium_3_count_due_to_gas_injection).
+
+
+    The injection rate is inferred from calibrated gas feed diagnostics such as piezoelectric
+    or solenoid valves with integrated flow metering. Helium-3 is employed for minority-species
+    ion cyclotron heating, specialized fueling experiments, and impurity studies requiring
+    a light noble gas. The analogous hydrogen rate is [hydrogen_source_rate_due_to_gas_injection](name:hydrogen_source_rate_due_to_gas_injection),
+    and the species-summed total across all injected gasses is given by [source_rate_due_to_gas_injection](name:source_rate_due_to_gas_injection).
+
+
+    Sign convention: Positive when helium-3 gas is being delivered into the plasma
+    vessel.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_helium_3_count_due_to_gas_injection
+  - name:hydrogen_source_rate_due_to_gas_injection
+  - name:source_rate_due_to_gas_injection
+  arguments:
+  - name: source_rate_due_to_gas_injection
+    operator: helium_3
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/gas_injection_rates/helium_3/value
+    dd_path: summary/gas_injection_rates/helium_3/value
+    status: composed
+- name: helium_4_source_rate_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Instantaneous rate of helium-4 atom delivery into the plasma vessel
+    by gas injection, where each He-4 atom with atomic number Z = 2 contributes two
+    equivalent electrons to particle inventory accounting.
+  documentation: 'The helium-4 source rate due to gas injection quantifies the instantaneous
+    number of $^4$He atoms introduced per unit time into the plasma vessel through
+    externally controlled gas injection valves. Helium-4, comprising two protons and
+    two neutrons, is used in fusion devices for plasma heating studies, alpha-particle
+    ash simulation, and wall conditioning scenarios.
+
+
+    The source rate $\dot{N}_{\mathrm{He4}}$ is the time derivative of the cumulative
+    helium-4 atom count tracked by [accumulated_helium_4_count_due_to_gas_injection](name:accumulated_helium_4_count_due_to_gas_injection):
+
+
+    $$
+
+    \dot{N}_{\mathrm{He4}} = \frac{d N_{\mathrm{He4}}}{dt}
+
+    $$
+
+
+    where $N_{\mathrm{He4}}$ is the total helium-4 atom count since plasma breakdown.
+    For electron-equivalent particle accounting, the contribution to the total inventory
+    rate is $Z\,\dot{N}_{\mathrm{He4}} = 2\dot{N}_{\mathrm{He4}}$, reflecting helium''s
+    atomic number. This species-resolved rate is one component of the total [source_rate_due_to_gas_injection](name:source_rate_due_to_gas_injection)
+    summed over all injected species, and is directly analogous to [helium_3_source_rate_due_to_gas_injection](name:helium_3_source_rate_due_to_gas_injection)
+    for the lighter helium isotope.
+
+
+    The rate is determined from calibrated mass-flow controllers or conductance-based
+    gas metering on the injection lines. Typical values range from $10^{20}$ to $10^{22}$
+    s$^{-1}$ for seeding and fueling applications in present-day tokamaks.
+
+
+    Sign convention: Positive when helium-4 gas is actively flowing into the plasma
+    vessel, increasing the helium-4 atom inventory.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_helium_4_count_due_to_gas_injection
+  - name:source_rate_due_to_gas_injection
+  - name:helium_3_source_rate_due_to_gas_injection
+  arguments:
+  - name: source_rate_due_to_gas_injection
+    operator: helium_4
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/gas_injection_rates/helium_4/value
+    dd_path: summary/gas_injection_rates/helium_4/value
+    status: composed
+- name: hydrogen_source_rate_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Source rate of hydrogen atoms supplied into the plasma by gas injection.
+    Because hydrogen has unit atomic number, each injected hydrogen atom also counts
+    as one electron-equivalent particle per second.
+  documentation: 'The hydrogen source rate due to gas injection is the instantaneous
+    rate at which hydrogen atoms are supplied toward the plasma by a gas-injection
+    system. It is counted as hydrogen atoms per second; because neutral hydrogen has
+    atomic number $Z_\mathrm{H}=1$, the same numerical value is also the electron-equivalent
+    particle source rate before ionization.
+
+
+    The rate is the time derivative of the cumulative injected hydrogen count, with
+    molecular gas throughput converted by stoichiometry:
+
+
+    $$
+
+    S_{\mathrm{H,gas}} = \frac{dN_{\mathrm{H,gas}}}{dt} = \sum_k \nu_{\mathrm{H},k}\,\Phi_k
+
+    $$
+
+
+    where $S_{\mathrm{H,gas}}$ is the hydrogen source rate in s$^{-1}$, $N_{\mathrm{H,gas}}$
+    is the accumulated injected hydrogen atom count, $\Phi_k$ is the injected molecular
+    throughput of gas component $k$ in s$^{-1}$, and $\nu_{\mathrm{H},k}$ is the number
+    of hydrogen atoms in each molecule of component $k$. For example, one atomic H
+    particle gives $\nu_{\mathrm{H}}=1$, while one H$_2$ molecule gives $\nu_{\mathrm{H},\mathrm{H}_2}=2$
+    and therefore contributes two hydrogen atoms, or two electron-equivalent particles.
+
+
+    In practice this rate is obtained from calibrated gas valves, mass-flow controllers,
+    reservoir pressure-drop measurements, or line-throughput calibrations, followed
+    by conversion from molecular flow to atom rate. The quantity is the hydrogen-species
+    contribution to the total gas-injection source rate and is time-integrated to
+    obtain the accumulated injected hydrogen count.
+
+
+    Typical values range from about $10^{19}$-$10^{23}$ s$^{-1}$ in tokamak operation,
+    with lower values used for small puffs, wall conditioning, or edge-density control,
+    and higher values used for strong fueling in larger plasmas.
+
+
+    Sign convention: Positive when hydrogen gas is supplied from the gas-injection
+    system into the plasma vessel.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_hydrogen_count_due_to_gas_injection
+  - name:source_rate_due_to_gas_injection
+  - name:helium_3_source_rate_due_to_gas_injection
+  - name:krypton_source_rate_due_to_gas_injection
+  arguments:
+  - name: source_rate_due_to_gas_injection
+    operator: hydrogen
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/gas_injection_rates/hydrogen/value
+    dd_path: summary/gas_injection_rates/hydrogen/value
+    status: composed
+- name: krypton_source_rate_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Instantaneous krypton gas injection rate into the plasma vessel, expressed
+    in equivalent electrons per second. Each neutral krypton atom contributes 36 equivalent
+    electrons according to its nuclear charge.
+  documentation: 'Krypton source rate due to gas injection is the rate at which krypton
+    atoms are introduced into the plasma vessel by a gas injection system, expressed
+    with equivalent-electron weighting. This charge-weighted convention counts one
+    neutral krypton atom as 36 equivalent electrons, allowing krypton injection to
+    be compared with other particle sources in balance calculations.
+
+
+    The equivalent-electron krypton source rate is related to the physical krypton
+    atom injection rate by:
+
+
+    $$
+
+    S_{\mathrm{Kr}} = Z_{\mathrm{Kr}}\,\dot{N}_{\mathrm{Kr}} = 36\,\dot{N}_{\mathrm{Kr}}
+
+    $$
+
+
+    where $S_{\mathrm{Kr}}$ is the krypton source rate in equivalent electrons per
+    second, $\dot{N}_{\mathrm{Kr}}$ is the neutral krypton atom injection rate in
+    atoms per second, and $Z_{\mathrm{Kr}} = 36$ is the atomic number of krypton.
+
+
+    In practice this quantity is computed from calibrated gas-valve, piezo-valve,
+    or mass-flow-controller throughput using gas species, plenum pressure, temperature,
+    valve conductance, and timing response. The weighting is based on nuclear charge
+    and does not imply that the injected atoms are fully ionized at the injection
+    location.
+
+
+    Representative controlled krypton seeding rates are about $10^{18}$-$10^{21}$
+    s^-1 in equivalent-electron units, corresponding to roughly $3 \times 10^{16}$-$3
+    \times 10^{19}$ krypton atoms per second. Short high-throughput puffs may exceed
+    this range depending on the fueling hardware and experiment scenario.
+
+
+    Sign convention: Positive when krypton is injected into the plasma vessel.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_krypton_count
+  - name:source_rate_due_to_gas_injection
+  - name:xenon_source_rate
+  - name:hydrogen_source_rate_due_to_gas_injection
+  arguments:
+  - name: source_rate_due_to_gas_injection
+    operator: krypton
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/gas_injection_rates/krypton/value
+    dd_path: summary/gas_injection_rates/krypton/value
+    status: composed
+- name: lithium_source_rate_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Instantaneous lithium gas-injection source rate into the plasma vessel,
+    expressed as equivalent electrons per second. Because lithium has atomic number
+    3, one injected neutral lithium atom contributes three equivalent electrons.
+  documentation: 'Lithium source rate due to gas injection is the instantaneous rate
+    at which a lithium gas-feed source delivers lithium into the plasma vessel, expressed
+    using the equivalent-electron counting convention. It is the lithium-species contribution
+    to the total [source_rate_due_to_gas_injection](name:source_rate_due_to_gas_injection);
+    analogous species-resolved quantities include [hydrogen_source_rate_due_to_gas_injection](name:hydrogen_source_rate_due_to_gas_injection)
+    and [helium_3_source_rate_due_to_gas_injection](name:helium_3_source_rate_due_to_gas_injection).
+    Lithium gas injection may be used for wall conditioning, impurity control, or
+    plasma-facing-component surface treatment.
+
+
+    The equivalent-electron source rate is related to the atomic lithium flow rate
+    by the lithium atomic number:
+
+
+    $$
+
+    S_{\mathrm{Li,eq}} = Z_{\mathrm{Li}}\,\frac{dN_{\mathrm{Li,atoms}}}{dt}
+
+    $$
+
+
+    where $S_{\mathrm{Li,eq}}$ is the lithium equivalent-electron source rate in s$^{-1}$,
+    $Z_{\mathrm{Li}} = 3$ is the dimensionless atomic number of lithium, and $dN_{\mathrm{Li,atoms}}/dt$
+    is the neutral lithium atom delivery rate in atoms s$^{-1}$. The time integral
+    of $S_{\mathrm{Li,eq}}$ gives the accumulated equivalent-electron lithium delivery,
+    corresponding to [accumulated_lithium_count](name:accumulated_lithium_count) when
+    that cumulative quantity is used.
+
+
+    The rate is commonly inferred from calibrated gas-valve flow measurements, mass-flow
+    controllers, or the time evolution of plenum pressure and temperature upstream
+    of the injection valve. Converting an atomic or molecular lithium flow to this
+    quantity requires applying the equivalent-electron factor for the number of lithium
+    atoms delivered.
+
+
+    Typical lithium gas-injection source rates span about $10^{18}$-$10^{22}$ s$^{-1}$
+    in equivalent-electron units, depending on valve conductance, pulse duration,
+    conditioning scenario, and whether the injection is a small perturbative puff
+    or a stronger wall-treatment flow.
+
+
+    Sign convention: Positive when lithium gas flows into the plasma vessel.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:source_rate_due_to_gas_injection
+  - name:accumulated_lithium_count
+  arguments:
+  - name: source_rate_due_to_gas_injection
+    operator: lithium
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/gas_injection_rates/lithium/value
+    dd_path: summary/gas_injection_rates/lithium/value
+    status: composed
+- name: source_rate_due_to_injection
+  kind: scalar
+  status: draft
+  description: Instantaneous rate at which particles are supplied to the plasma by
+    active injection systems, equal to the time derivative of the cumulative injected
+    particle inventory across all injected species.
+  documentation: "The source rate due to injection quantifies the instantaneous particle\
+    \ supply from externally controlled injection hardware \u2014 gas valves, neutral\
+    \ beam injectors, pellet launchers \u2014 entering the plasma or vessel. It serves\
+    \ as the externally applied source term in the particle balance equation and abstracts\
+    \ over species-resolved formulations such as [deuterium_source_rate_due_to_injection](name:deuterium_source_rate_due_to_injection),\
+    \ which tallies atomic injection in atoms per second, and electron-equivalent\
+    \ formulations such as [electron_source_rate_due_to_injection](name:electron_source_rate_due_to_injection),\
+    \ which weights each injected species $s$ by its nuclear charge number $Z_s$ to\
+    \ represent the ionizable electron inventory it can contribute.\n\nThe rate is\
+    \ the time derivative of the cumulative injected count $N(t)$:\n\n$$\n\\dot{N}(t)\
+    \ = \\frac{dN}{dt}\n$$\n\nwhere $N$ represents either a raw atomic count or an\
+    \ electron-equivalent inventory depending on the specific formulation. It is inferred\
+    \ from calibrated gas valve throughput and flow-meter readings or from pellet\
+    \ injection timing corrected for delivery efficiency. Closely related quantities\
+    \ are particle_source_rate_over_vessel_due_to_gas_injection and source_rate_due_to_pellet_injection,\
+    \ which distinguish delivery mechanism. Typical values span $10^{20}$\u2013$10^{23}$\
+    \ s$^{-1}$ for gas injection in medium-to-large tokamaks.\n\nSign convention:\
+    \ Positive when particles flow from the injection system into the plasma vessel."
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:deuterium_source_rate_due_to_injection
+  - name:electron_source_rate_due_to_injection
+  sources:
+  - id: derived:source_rate_due_to_injection
+    status: composed
+- name: deuterium_source_rate_due_to_injection
+  kind: scalar
+  status: draft
+  description: 'Instantaneous rate at which deuterium is supplied to the plasma by
+    active injection systems. Deuterium is a Z=1 isotope, so the deuterium particle
+    rate is numerically equal to the equivalent-electron source rate: one delivered
+    deuterium nucleus counts as one.'
+  documentation: 'Deuterium source rate due to injection is the instantaneous number
+    of deuterium nuclei delivered per unit time by active fueling systems such as
+    gas valves or pellet injectors. It is a species-resolved particle source: molecular
+    deuterium is counted after dissociation, so one $\mathrm{D}_2$ molecule contributes
+    two deuterium nuclei. Because deuterium has charge number $Z=1$, this particle
+    count is also the equivalent-electron count that would result after full ionization.
+
+
+    The rate is the time derivative of the cumulative deuterium inventory delivered
+    by the included injection systems:
+
+
+    $$
+
+    S_D^{\mathrm{inj}}(t) = \frac{dN_D^{\mathrm{inj}}(t)}{dt}
+
+    $$
+
+
+    where $S_D^{\mathrm{inj}}$ is the deuterium injection source rate and $N_D^{\mathrm{inj}}$
+    is the cumulative number of injected deuterium nuclei, counted in equivalent-electron
+    units for this $Z=1$ isotope.
+
+
+    In practice the quantity is computed from calibrated gas throughput, valve timing,
+    reservoir conditions, pellet mass, pellet repetition rate, or other metered injector
+    information, with isotope fractions and molecular composition converted to deuterium
+    nuclei. It describes the material supplied by the injector, not the fraction that
+    is ionized, confined, recycled from surfaces, or retained by the plasma. A gas-only
+    cumulative count, such as [deuterium_count_due_to_gas_injection](name:deuterium_count_due_to_gas_injection),
+    is the integral of only the gas-injection subset and must not include pellet or
+    other non-gas contributions.
+
+
+    Typical time-averaged rates are about $10^{19}$-$10^{22}$ s^-1 for gas fueling
+    in medium and large magnetic-confinement devices. Pellet events can give short
+    apparent rates of about $10^{22}$-$10^{24}$ s^-1 when the pellet inventory is
+    divided by the delivery interval.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:source_rate_due_to_injection
+  - name:deuterium_count_due_to_gas_injection
+  - name:hydrogen_source_rate_due_to_gas_injection
+  - name:carbon_source_rate_due_to_gas_injection
+  arguments:
+  - name: source_rate_due_to_injection
+    operator: deuterium
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/gas_injection_rates/deuterium/value
+    dd_path: summary/gas_injection_rates/deuterium/value
+    status: composed
+- name: electron_source_rate_due_to_injection
+  kind: scalar
+  status: draft
+  description: Instantaneous electron-equivalent source rate supplied by plasma injection
+    systems. It is the sum over injected atomic species of nuclear charge number times
+    the atomic injection rate, representing the electron inventory that the injected
+    material can contribute after ionization.
+  documentation: 'Electron source rate due to injection is the electron-equivalent
+    particle rate delivered to the plasma or vessel by fueling or material injection
+    systems. It counts the number of electrons per second associated with the injected
+    atoms after ionization, and is used for particle inventory and density-control
+    accounting rather than as a local ionization-rate density.
+
+
+    For a mixture of injected atomic species, the rate is defined by
+
+
+    $$
+
+    \dot{N}_{e,\mathrm{inj}} = \sum_s Z_s\,\dot{N}_{s,\mathrm{inj}}
+
+    $$
+
+
+    where $\dot{N}_{e,\mathrm{inj}}$ is the electron-equivalent injection rate, $s$
+    indexes the injected atomic species, $Z_s$ is the nuclear charge number of species
+    $s$, and $\dot{N}_{s,\mathrm{inj}}$ is its atomic injection rate. Molecular flows
+    are converted to atomic rates before applying the sum; for example, each injected
+    $\mathrm{D}_2$ molecule contributes two deuterium atoms and therefore two electron
+    equivalents after complete ionization.
+
+
+    In practice this quantity is computed from calibrated gas-valve throughput, pellet
+    or compact-toroid particle content, or other injector flow measurements combined
+    with the specified species composition. It may represent a single injector, a
+    subsystem, or the total injected electron-equivalent rate, depending on the physical
+    scope being described.
+
+
+    Typical values span about $10^{19}$-$10^{23}$ s$^{-1}$ for ordinary gas fueling
+    valves in present-day tokamaks. Short high-throughput events such as massive gas
+    injection or pellet injection can reach about $10^{22}$-$10^{25}$ s$^{-1}$ for
+    brief intervals.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:source_rate_due_to_injection
+  - name:krypton_source_rate_due_to_gas_injection
+  - name:hydrogen_source_rate_due_to_gas_injection
+  - name:accumulated_argon_count
+  arguments:
+  - name: source_rate_due_to_injection
+    operator: electron
+    operator_kind: qualifier
+  sources:
+  - id: dd:gas_injection/pipe/valve/electron_rate
+    dd_path: gas_injection/pipe/valve/electron_rate
+    status: composed
+  - id: dd:gas_injection/valve/electron_rate
+    dd_path: gas_injection/valve/electron_rate
+    status: attached
+- name: thermal_efficiency_of_plant_system
+  kind: scalar
+  status: draft
+  description: Fraction of total thermal power supplied to the whole plant heat-conversion
+    system that becomes gross useful electrical output. Equivalently, one minus the
+    ratio of rejected thermal power to thermal power input, evaluated over the same
+    plant boundary and time interval.
+  documentation: 'Thermal efficiency of the plant system is the dimensionless fraction
+    of thermal power supplied to all plant heat-conversion stages that is converted
+    into gross useful electrical output. It is an aggregate plant-level heat-balance
+    quantity, not the efficiency of a single component or thermodynamic cycle.
+
+
+    The plant thermal efficiency is defined from the steady or time-averaged power
+    balance:
+
+
+    $$
+
+    \eta_{\mathrm{th,plant}} = \frac{P_{\mathrm{el,gross}}}{P_{\mathrm{th,in}}} =
+    1 - \frac{P_{\mathrm{th,reject}}}{P_{\mathrm{th,in}}}
+
+    $$
+
+
+    where $P_{\mathrm{th,in}}$ is the total positive thermal power supplied to the
+    heat-conversion system in W, $P_{\mathrm{th,reject}}$ is the total positive thermal
+    power rejected to heat sinks in W, and $P_{\mathrm{el,gross}}$ is the gross electrical
+    power generated in W before subtraction of plant auxiliary electrical consumption.
+    The definition is valid only for a consistent plant boundary and averaging interval
+    with $P_{\mathrm{th,in}} > 0$; for a closed steady-state heat balance without
+    unaccounted energy storage, $0 \le \eta_{\mathrm{th,plant}} \le 1$.
+
+
+    In practice, this efficiency is computed by summing thermal power flows across
+    the chosen plant boundary and through all thermal conversion stages. Thermal power
+    entering the conversion system is counted as heat input, while thermal power discharged
+    to condensers, coolers, exhaust streams, or the environment is counted as rejected
+    heat; signed component-port thermal powers must therefore be oriented consistently
+    before forming the aggregate sums.
+
+
+    Typical values are 0.25-0.45 for steam Rankine plant concepts, 0.35-0.50 for high-temperature
+    advanced cycles, and up to about 0.60 for idealized or highly optimized high-temperature
+    conversion systems. Values outside 0-1 usually indicate inconsistent boundaries,
+    transient energy storage, sign errors in heat-flow accounting, or that the quantity
+    is not being evaluated as a closed plant thermal balance.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:total_thermal_power_at_inlet
+  - name:total_thermal_power_at_outlet
+  - name:efficiency_of_plant_system
+  - name:net_efficiency_of_plant_system
+  arguments:
+  - name: efficiency_of_plant_system
+    operator: thermal
+    operator_kind: qualifier
+  sources:
+  - id: dd:balance_of_plant/power_plant/generator_conversion_efficiency
+    dd_path: balance_of_plant/power_plant/generator_conversion_efficiency
+    status: attached
+  - id: dd:balance_of_plant/thermal_efficiency_cycle
+    dd_path: balance_of_plant/thermal_efficiency_cycle
+    status: attached
+  - id: dd:balance_of_plant/thermal_efficiency_plant
+    dd_path: balance_of_plant/thermal_efficiency_plant
+    status: composed
+- name: thermal_power_of_breeder_blanket
+  kind: scalar
+  status: draft
+  description: Total non-nuclear thermal power deposited on the tritium breeding blanket,
+    integrated over the relevant blanket-facing area. It represents plasma-facing
+    heat loads and excludes volumetric neutron and gamma heating within the blanket
+    material.
+  documentation: 'Thermal power of the breeder blanket is the total rate at which
+    non-nuclear heat is deposited on or transferred into the tritium breeding blanket
+    from plasma-facing thermal loads. It is an integrated power over the relevant
+    blanket-facing area, not a heat flux density, and is distinct from volumetric
+    neutron and gamma heating represented by [nuclear_heating_power_of_breeder_blanket](name:nuclear_heating_power_of_breeder_blanket).
+
+
+    For a surface heat-load representation, the integrated thermal power is defined
+    by the area integral of the local non-nuclear heat flux entering the blanket:
+
+
+    $$
+
+    P_{\mathrm{th,bb}} = \int_{A_{\mathrm{bb}}} q_{\mathrm{th}} \, dA
+
+    $$
+
+
+    where $P_{\mathrm{th,bb}}$ is the integrated blanket thermal power in W, $A_{\mathrm{bb}}$
+    is the blanket-facing area in m^2, $q_{\mathrm{th}}$ is the local non-nuclear
+    heat flux density in W m^-2, and $dA$ is the surface element in m^2.
+
+
+    In plant energy accounting this quantity is usually obtained from thermal-load
+    modeling, radiation transport to plasma-facing surfaces, neutral and charged-particle
+    heat-transfer estimates when applicable, or calorimetric heat-balance measurements
+    in test modules. Radiative contributions may be related to [incident_radiated_power_of_breeder_blanket_module](name:incident_radiated_power_of_breeder_blanket_module),
+    while total and layer-resolved nuclear contributions should be treated separately
+    using [nuclear_heating_power_of_breeder_blanket](name:nuclear_heating_power_of_breeder_blanket)
+    and [nuclear_heating_power_of_breeder_blanket_layer](name:nuclear_heating_power_of_breeder_blanket_layer).
+
+
+    Typical integrated non-nuclear blanket thermal powers in reactor studies are of
+    order 10^6-10^8 W, depending on plasma radiation distribution, exposed blanket
+    area, divertor shielding, and first-wall or blanket module design. Volumetric
+    nuclear heating can be larger in power-producing blankets and should not be inferred
+    from this quantity alone.
+
+
+    Sign convention: Positive when thermal energy is deposited in the breeder blanket.'
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:nuclear_heating_power_of_breeder_blanket_layer
+  - name:thermal_power_of_divertor
+  sources:
+  - id: dd:balance_of_plant/power_plant/heat_load_breeder
+    dd_path: balance_of_plant/power_plant/heat_load_breeder
+    status: composed
+- name: toroidal_velocity_of_pellet
+  kind: scalar
+  status: draft
+  description: Toroidal component of the shattered-pellet center-of-mass velocity
+    in the right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'Toroidal velocity of a pellet is the component of its center-of-mass
+    velocity tangent to circles of constant $R$ and $Z$ in the right-handed cylindrical
+    $(R, \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and
+    $Z$ is vertical height. It describes motion around the torus rather than radial
+    motion in $R$ or vertical motion in $Z$.
+
+
+    It is defined by projecting the pellet center-of-mass velocity vector onto the
+    toroidal unit vector:
+
+
+    $$
+
+    v_\phi = \mathbf{v} \cdot \hat{\phi}
+
+    $$
+
+
+    where $\mathbf{v}$ is the pellet center-of-mass velocity vector in m.s^-1, $\hat{\phi}$
+    is the toroidal unit vector, and $v_\phi$ is the toroidal component in m.s^-1.
+
+
+    In practice, $v_\phi$ is specified from the intended pellet trajectory or inferred
+    from time-resolved center-of-mass positions by differentiating the toroidal position
+    and projecting the resulting velocity onto $\hat{\phi}$. For a shattered pellet,
+    the center of mass is the mass-weighted center of the represented pellet material
+    or fragment ensemble.
+
+
+    Representative absolute values are 0-500 m.s^-1 for many pellet-injection applications;
+    near-radial launches can have $|v_\phi|$ close to 0, while oblique launches can
+    have toroidal components of tens to several hundred m.s^-1.
+
+
+    Sign convention: Positive when the pellet center of mass moves in the direction
+    of increasing toroidal angle $\phi$ in the right-handed cylindrical $(R, \phi,
+    Z)$ frame.'
+  unit: m.s^-1
+  physics_domain: plant_systems
+  links:
+  - name:radial_velocity_of_pellet
+  - name:vertical_velocity_of_pellet
+  sources:
+  - id: dd:spi/injector/pellet/velocity_phi
+    dd_path: spi/injector/pellet/velocity_phi
+    status: composed
+  - id: dd:spi/injector/pellet/velocity_tor
+    dd_path: spi/injector/pellet/velocity_tor
+    status: attached
+  - id: dd:spi/injector/velocity_mass_centre_fragments_phi
+    dd_path: spi/injector/velocity_mass_centre_fragments_phi
+    status: attached
+  - id: dd:spi/injector/velocity_mass_centre_fragments_tor
+    dd_path: spi/injector/velocity_mass_centre_fragments_tor
+    status: attached
+- name: total_gas_source_rate_at_midplane_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Total gas injection rate from valves located near the equatorial midplane
+    of the vacuum vessel, expressed as the number of neutral gas particles supplied
+    per unit time. It is the midplane contribution to the overall gas source from
+    externally actuated injection valves.
+  documentation: 'The total gas source rate at midplane due to gas injection is the
+    instantaneous number of neutral gas particles delivered per unit time by all gas
+    injection valves located near the vessel equatorial midplane. It represents the
+    midplane valve contribution to the externally supplied gas source before subsequent
+    transport, ionization, recycling, or pumping processes modify the neutral population.
+
+
+    For the set of midplane injection valves, the total rate is the sum of the individual
+    valve particle throughputs:
+
+
+    $$
+
+    \dot{N}_{\mathrm{mid}}^{\mathrm{gas\,inj}} = \sum_{k \in \mathcal{M}_{\mathrm{mid}}}
+    \dot{N}_k
+
+    $$
+
+
+    where $\dot{N}_{\mathrm{mid}}^{\mathrm{gas\,inj}}$ is the total midplane gas injection
+    source rate, $\mathcal{M}_{\mathrm{mid}}$ is the set of valves assigned to the
+    midplane region, and $\dot{N}_k$ is the particle throughput of valve $k$ in s^-1.
+
+
+    In practice, each valve rate is obtained from calibrated gas throughput measurements
+    or inferred from valve conductance, opening command, gas species, upstream pressure,
+    downstream pressure, and gas temperature. Time integration of this rate gives
+    the corresponding accumulated injected particle count for the midplane valves,
+    while sums over upper, midplane, and lower valve groups give broader total gas
+    source rates.
+
+
+    Typical tokamak midplane gas injection rates are about 10^19-10^22 s^-1. Small
+    diagnostic puffs or edge perturbation pulses are often near 10^19-10^20 s^-1,
+    whereas routine fueling or strong feedback-controlled fueling can reach 10^21-10^22
+    s^-1.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:total_lower_gas_source_rate_of_vacuum_vessel_due_to_gas_injection
+  - name:accumulated_total_gas_count_at_midplane_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_rates/midplane/value
+    dd_path: summary/gas_injection_rates/midplane/value
+    status: composed
+- name: total_lower_gas_source_rate_of_vacuum_vessel_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Total particle injection rate from gas valves in the lower region of
+    the vacuum vessel.
+  documentation: 'The total lower gas source rate is the combined rate at which particles
+    are introduced into the vacuum vessel by gas injection valves located near the
+    lower wall or lower poloidal region. It represents the lower-region contribution
+    to externally supplied neutral fueling.
+
+
+    The rate is defined as the sum of the particle source rates from all lower-region
+    gas injection valves:
+
+
+    $$
+
+    \dot{N}_\mathrm{lower} = \sum_{i \in \mathrm{lower}} \dot{N}_i
+
+    $$
+
+
+    where $\dot{N}_\mathrm{lower}$ is the total lower gas source rate and $\dot{N}_i$
+    is the particle injection rate from the $i$-th lower-region valve, both in s$^{-1}$.
+
+
+    In practice, the individual valve rates are obtained by converting calibrated
+    gas throughput to particle rate using the injected gas species and molecular or
+    atomic content. The quantity is useful for comparing lower-region fueling with
+    midplane or upper-region fueling and for identifying poloidal asymmetries in neutral
+    particle sources. The corresponding time integral is the accumulated lower gas
+    particle count.
+
+
+    Typical values range from $10^{20}$-$10^{23}$ s$^{-1}$ in tokamak gas fueling,
+    depending on device size, injected species, valve configuration, and fueling scenario.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:total_gas_source_rate_at_midplane_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_rates/bottom/value
+    dd_path: summary/gas_injection_rates/bottom/value
+    status: composed
+- name: total_particle_prefill_lower_gas_count_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Total count of gas particles injected through all lower valves during
+    the prefill phase before plasma breakdown.
+  documentation: 'Total prefill lower gas particle count is the accumulated number
+    of neutral gas particles admitted through all lower valves before plasma breakdown.
+    It is a scalar particle inventory for the prefill gas source, not an area-normalized
+    particle flux.
+
+
+    The count is obtained by integrating the total lower-valve particle injection
+    rate over the prefill interval:
+
+
+    $$
+
+    N_{\mathrm{lower,prefill}} = \int_{t_{\mathrm{prefill,start}}}^{t_{\mathrm{breakdown}}}
+    \dot{N}_{\mathrm{lower}}(t)\,dt
+
+    $$
+
+
+    where $N_{\mathrm{lower,prefill}}$ is a dimensionless particle count with unit
+    1, $\dot{N}_{\mathrm{lower}}$ is the summed particle injection rate from all lower
+    valves in particles s$^{-1}$, and $t$ is time in seconds. The rate represents
+    flow into the vacuum vessel; pumping or removal flows are excluded rather than
+    treated as negative injection.
+
+
+    In practice this quantity is computed by summing calibrated valve throughputs
+    or gas-flow controller rates for all lower valves and integrating them from the
+    start of the prefill command to the breakdown time. Conversions from pressure-volume
+    throughput or mass flow use the gas species and thermodynamic calibration to obtain
+    a particle rate.
+
+
+    Typical prefill amounts range from about $10^{20}$-$10^{23}$ particles in small
+    to medium tokamaks and can reach $10^{24}$ particles in large devices or high-pressure
+    prefill scenarios. The value depends on vessel volume, target prefill pressure,
+    gas species, wall pumping, and the timing of the gas pulse relative to breakdown.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:prefill_lower_gas_particle_count_due_to_gas_injection
+  - name:total_lower_gas_source_rate_of_vacuum_vessel_due_to_gas_injection
+  - name:accumulated_gas_particle_count_at_inlet_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_prefill/bottom/value
+    dd_path: summary/gas_injection_prefill/bottom/value
+    status: composed
+- name: total_particle_source_rate_at_wall_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Total gas-puff particle source rate at the wall is the aggregate rate
+    at which wall gas-injection valves introduce particles, summed over all included
+    injection ports and species. It contributes to the global particle balance.
+  documentation: 'The total particle source rate at the wall due to gas injection
+    is the combined gas-puff influx from wall-mounted injection valves, expressed
+    as the number of injected particles per unit time. It is an external fueling source
+    for particle-balance calculations and represents the aggregate over the selected
+    wall ports and gas species.
+
+
+    If $\dot{N}_{s,v}^{\mathrm{gas}}(t)$ is the particle source rate from valve $v$
+    for species $s$, after any molecular throughput has been converted to the counted
+    particle basis, the total rate is
+
+
+    $$
+
+    \dot{N}_{\mathrm{tot,wall}}^{\mathrm{gas}}(t) = \sum_{s \in \mathcal{S}} \sum_{v
+    \in \mathcal{V}_{\mathrm{wall}}} \dot{N}_{s,v}^{\mathrm{gas}}(t)
+
+    $$
+
+
+    where $\mathcal{S}$ is the set of included particle species and $\mathcal{V}_{\mathrm{wall}}$
+    is the set of wall gas-injection valves. For molecular gasses, stoichiometric
+    factors are applied before summing when the balance is expressed in atomic, neutral-particle,
+    or electron-equivalent counts.
+
+
+    In practice this rate is obtained from calibrated valve commands, plenum pressure
+    and temperature, gas species, conductance models, or direct flow-meter measurements.
+    Its time integral over a fueling interval gives the corresponding accumulated
+    injected particle count, while the instantaneous per-source contribution is conceptually
+    related to a gas source rate at the wall.
+
+
+    Typical values range from 10^19-10^22 s^-1 for steady or moderately pulsed gas
+    puffing in small and medium tokamaks, and can reach 10^22-10^24 s^-1 during high-throughput
+    fueling transients or in larger devices. The rate is zero when no gas-injection
+    valves are open and can vary rapidly with valve timing and plenum conditions.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_hydrogen_count_due_to_gas_injection
+  - name:total_thermal_particle_source_rate
+  sources:
+  - id: dd:wall/global_quantities/electrons/gas_puff
+    dd_path: wall/global_quantities/electrons/gas_puff
+    status: composed
+  - id: dd:wall/global_quantities/neutral/gas_puff
+    dd_path: wall/global_quantities/neutral/gas_puff
+    status: attached
+- name: total_particle_upper_prefill_gas_count_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Cumulative number of gas particles injected through all upper gas inlets
+    during the prefill phase, from the start of prefill injection to plasma breakdown.
+    It aggregates the particle inventory supplied by top-of-chamber valve stations.
+  documentation: 'Total upper prefill gas particle count is the integrated number
+    of neutral gas particles delivered through gas inlets located in the upper region
+    of the vacuum chamber during the prefill phase. The prefill phase is the interval
+    before plasma breakdown in which gas injection establishes the initial neutral
+    inventory for discharge initiation.
+
+
+    For upper inlets indexed by $i$, the accumulated prefill particle count is
+
+
+    $$
+
+    N_{\mathrm{upper,prefill}} = \sum_{i \in \mathrm{upper}} \int_{t_{\mathrm{pf,start}}}^{t_{\mathrm{bd}}}
+    \dot{N}_i(t)\,dt
+
+    $$
+
+
+    where $\dot{N}_i(t)$ is the particle injection rate from upper inlet $i$, $t_{\mathrm{pf,start}}$
+    is the start time of prefill gas injection, and $t_{\mathrm{bd}}$ is the plasma
+    breakdown time. Together with corresponding lower and midplane contributions,
+    this quantity forms part of the total prefill gas budget.
+
+
+    In practice, the count is obtained by time-integrating calibrated valve throughput,
+    mass-flow-controller signals, or inferred gas flow from reservoir pressure and
+    temperature evolution. Conversion from gas throughput to particle count generally
+    uses the molecular species and the ideal-gas relation, so the same injected amount
+    in pressure-volume units corresponds to a species-dependent number of particles
+    or molecules.
+
+
+    Typical prefill inventories from upper gas inlets are about $10^{18}$-$10^{22}$
+    particles, depending on vessel size, requested prefill pressure, gas species,
+    valve conductance, and the fraction of the total prefill budget assigned to upper
+    inlets.'
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_gas_particle_count_at_inlet_due_to_gas_injection
+  - name:accumulated_total_gas_count_at_midplane_due_to_gas_injection
+  sources:
+  - id: dd:summary/gas_injection_prefill/top/value
+    dd_path: summary/gas_injection_prefill/top/value
+    status: composed
 - name: total_power_of_plant_system
   kind: scalar
   status: draft
@@ -3090,9 +5369,60 @@
   - name:power_of_plant_subsystem
   - name:net_power_of_plant_system
   - name:total_thermal_power_at_inlet
+  arguments:
+  - name: power_of_plant_system
+    operator: total
+    operator_kind: qualifier
   sources:
   - id: dd:balance_of_plant/power_electric_plant_operation/power_total
     dd_path: balance_of_plant/power_electric_plant_operation/power_total
+    status: composed
+- name: total_thermal_coolant_absorbed_power_at_wall
+  kind: scalar
+  status: draft
+  description: Total thermal power transferred from plasma-facing wall structures
+    to the active coolant circuits, integrating heat-load contributions from all cooled
+    plasma-facing surfaces including the first wall, divertor, and limiter tiles.
+  documentation: 'This quantity is the aggregate rate at which thermal energy is extracted
+    from plasma-facing wall structures by the active cooling circuits. It encompasses
+    heat deposited by plasma particle bombardment, charge-exchange neutrals, radiation,
+    and nuclear heating that is conducted through the wall material and subsequently
+    removed by the coolant, representing the primary thermal energy removal pathway
+    from the plasma-facing components.
+
+
+    In calorimetric practice, this power is inferred from the coolant enthalpy rise
+    across each cooling circuit:
+
+
+    $$
+
+    P_{\rm cool} = \sum_i \dot{m}_i \, c_{p,i} \, (T_{{\rm out},i} - T_{{\rm in},i})
+
+    $$
+
+
+    where $\dot{m}_i$ is the coolant mass flow rate through circuit $i$, $c_{p,i}$
+    is the specific heat capacity of the coolant fluid, and $T_{{\rm out},i}$ and
+    $T_{{\rm in},i}$ are the outlet and inlet temperatures of that circuit.
+
+
+    In steady-state operation, this value closely tracks the total plasma-origin heat
+    load described by [plasma_deposited_power_at_wall](name:plasma_deposited_power_at_wall),
+    with discrepancies arising from nuclear wall heating, eddy-current losses, and
+    transient thermal storage in wall structures. It is a key thermal-hydraulic parameter
+    for assessing plasma-facing component load limits and validating cooling system
+    performance against the incident heat load captured by [total_deposited_plasma_power_at_wall](name:total_deposited_plasma_power_at_wall).
+    Typical magnitudes range from a few to tens of megawatts in current research tokamaks
+    and are projected to reach several hundred megawatts in reactor-class devices.'
+  unit: W
+  physics_domain: plant_systems
+  links:
+  - name:plasma_deposited_power_at_wall
+  - name:total_deposited_plasma_power_at_wall
+  sources:
+  - id: dd:wall/global_quantities/power_to_cooling
+    dd_path: wall/global_quantities/power_to_cooling
     status: composed
 - name: total_thermal_power_at_inlet
   kind: scalar
@@ -3233,13 +5563,68 @@
   - name:neon_prefill_count
   - name:krypton_prefill_count
   - name:accumulated_lithium_prefill_count_due_to_gas_injection
-  arguments:
-  - name: accumulated_lithium_prefill_count_due_to_gas_injection
-    operator: tritium
-    operator_kind: qualifier
   sources:
   - id: dd:summary/gas_injection_prefill/tritium/value
     dd_path: summary/gas_injection_prefill/tritium/value
+    status: composed
+- name: tritium_source_rate_due_to_gas_injection
+  kind: scalar
+  status: draft
+  description: Instantaneous source rate of tritium atoms supplied to the plasma by
+    gas injection.
+  documentation: 'Tritium source rate due to gas injection is the instantaneous rate
+    at which neutral gas injection delivers tritium atoms, equivalently tritium nuclei
+    carried by injected neutrals, into the plasma particle source. It is the tritium-species
+    component of the gas-injection particle source and counts atoms rather than injected
+    molecules.
+
+
+    It is the time derivative of the accumulated tritium atom count delivered by gas
+    injection:
+
+
+    $$
+
+    S_T^{\mathrm{GI}}(t) = \frac{dN_T^{\mathrm{GI}}}{dt}
+
+    $$
+
+
+    where $S_T^{\mathrm{GI}}$ is the tritium source rate in s$^{-1}$, $N_T^{\mathrm{GI}}$
+    is the accumulated number of tritium atoms delivered by gas injection as a dimensionless
+    count, and $t$ is time in seconds. Conversely, the tritium atom count delivered
+    over any chosen time interval is the time integral of this rate over that interval.
+
+
+    In practice this rate is computed from calibrated gas throughput, valve actuation
+    history, reservoir pressure and temperature changes, or particle-balance estimates,
+    with corrections for delivery-line inventory and composition when needed. If the
+    metered quantity is a molecular flow, it must be converted to a tritium atom flow:
+    one $\mathrm{T}_2$ molecule contributes two tritium atoms, one $\mathrm{DT}$ or
+    $\mathrm{HT}$ molecule contributes one tritium atom, and mixtures are summed with
+    the corresponding stoichiometric weights.
+
+
+    No single device-independent range applies, because the value depends on machine
+    size, pulse scenario, tritium fraction, and whether tritium is used as a trace
+    species or main fuel. The rate is 0 s$^{-1}$ when tritium gas injection is disabled;
+    trace injections are often about $10^{17}$-$10^{20}$ s$^{-1}$, while main-fueling
+    gas injection in large deuterium-tritium plasmas can be about $10^{20}$-$10^{22}$
+    s$^{-1}$ or higher in reactor-scale systems.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:accumulated_tritium_count_due_to_gas_injection
+  - name:source_rate_due_to_gas_injection
+  - name:hydrogen_source_rate_due_to_gas_injection
+  - name:helium_3_source_rate_due_to_gas_injection
+  arguments:
+  - name: source_rate_due_to_gas_injection
+    operator: tritium
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/gas_injection_rates/tritium/value
+    dd_path: summary/gas_injection_rates/tritium/value
     status: composed
 - name: vertical_coordinate_of_pellet_path_point
   kind: scalar
@@ -3388,6 +5773,51 @@
   - id: dd:spi/injector/velocity_mass_centre_fragments_z
     dd_path: spi/injector/velocity_mass_centre_fragments_z
     status: attached
+- name: xenon_source_rate
+  kind: scalar
+  status: draft
+  description: Instantaneous injection rate of xenon gas into the plasma vessel, where
+    each xenon atom is counted as Z = 54 equivalent electrons.
+  documentation: 'The xenon source rate quantifies the instantaneous flux of xenon
+    gas delivered to the plasma vessel by gas injection systems. Xenon (atomic number
+    Z = 54) is a heavy noble gas used as a high-radiating impurity for plasma control,
+    impurity seeding, and disruption mitigation in fusion devices.
+
+
+    The equivalent-electron rate $\dot{N}_\mathrm{Xe}$ is obtained by weighting the
+    instantaneous atom injection rate by xenon''s atomic number:
+
+
+    $$
+
+    \dot{N}_\mathrm{Xe} = 54 \cdot \dot{n}_\mathrm{Xe}
+
+    $$
+
+
+    where $\dot{n}_\mathrm{Xe}$ is the xenon atom flux in atoms s$^{-1}$ and 54 is
+    the atomic number of xenon.
+
+
+    The injection rate is inferred from valve conductance and upstream gas pressure
+    measurements. Integrating over time yields the cumulative xenon inventory. The
+    [krypton_source_rate_due_to_gas_injection](name:krypton_source_rate_due_to_gas_injection)
+    follows the same equivalent-electron convention for the neighboring noble gas
+    krypton, while [electron_source_rate_due_to_injection](name:electron_source_rate_due_to_injection)
+    aggregates equivalent-electron contributions across all injected species.
+
+
+    Sign convention: Positive when xenon gas flows from the injection system into
+    the plasma vessel.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links:
+  - name:krypton_source_rate_due_to_gas_injection
+  - name:electron_source_rate_due_to_injection
+  sources:
+  - id: dd:summary/gas_injection_rates/xenon/value
+    dd_path: summary/gas_injection_rates/xenon/value
+    status: composed
 - name: thermal_power_of_divertor
   kind: scalar
   status: draft
@@ -3449,6 +5879,10 @@
   - name:power_of_divertor_due_to_fusion
   - name:power_at_divertor_target_due_to_conduction
   - name:power_at_divertor_target_due_to_convection
+  arguments:
+  - name: power_of_divertor
+    operator: thermal
+    operator_kind: qualifier
   sources:
   - id: dd:balance_of_plant/power_plant/heat_load_divertor
     dd_path: balance_of_plant/power_plant/heat_load_divertor

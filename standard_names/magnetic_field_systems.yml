@@ -1,6 +1,6 @@
 # Domain: magnetic_field_systems
-# Catalog sha: f0beac648ce2142b681294631520154cb95f206e
-# Entries: 74
+# Catalog sha: b8d10395a003efc46be6fc45a94b1f9308d6a87b
+# Entries: 94
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -63,6 +63,60 @@
   sources:
   - id: dd:iron_core/segment/geometry/oblique/alpha
     dd_path: iron_core/segment/geometry/oblique/alpha
+    status: composed
+- name: area_of_passive_loop
+  kind: scalar
+  status: draft
+  description: Area of the conducting cross-section of a passive conducting loop element,
+    measured in a plane perpendicular to the local current path; for an annular loop
+    cross-section it is the area between the inner and outer conductor boundaries.
+  documentation: 'Area of a passive loop is the cross-sectional area of solid conducting
+    material in a passive conducting loop element, evaluated in a plane normal to
+    the local current path. It is a geometric property of the conductor and is non-negative;
+    for fixed material properties and path length, a larger area reduces the electrical
+    resistance of a uniform conductor model.
+
+
+    For an annular passive-loop cross-section defined by an inner radius $r_i$ and
+    an outer radius $r_o$, the area is
+
+
+    $$
+
+    A = \pi\left(r_o^2 - r_i^2\right)
+
+    $$
+
+
+    where $A$ is the cross-sectional area in m$^2$, and $r_i$ and $r_o$ are the [inner](name:inner_radius_of_passive_loop)
+    and [outer](name:outer_radius_of_passive_loop) radii in m measured from the annulus
+    center to the conducting boundaries.
+
+
+    In practice, $A$ is computed from the engineering geometry of the passive conductor
+    cross-section. For non-annular or simplified sections it is the area of the bounded
+    conducting region normal to the current path; rectangular approximations use the
+    product of a geometric width and height, while other parameterizations may use
+    a thickness together with the relevant cross-section dimensions. In electromagnetic
+    circuit models, the relation $R = \rho \ell/A$ applies only for an idealized uniform
+    conductor of resistivity $\rho$ in $\Omega\,\mathrm{m}$, path length $\ell$ in
+    m, and uniform current distribution.
+
+
+    There is no device-independent typical numerical range for this quantity: values
+    depend on the size and category of the passive structure being represented. Physically
+    meaningful values are positive and should be consistent with the associated radii,
+    width, height, or thickness used to describe the same conductor cross-section.'
+  unit: m^2
+  physics_domain: magnetic_field_systems
+  links:
+  - name:inner_radius_of_passive_loop
+  - name:outer_radius_of_passive_loop
+  - name:area_of_poloidal_field_coil
+  - name:thickness_of_passive_loop
+  sources:
+  - id: dd:pf_passive/loop/element/area
+    dd_path: pf_passive/loop/element/area
     status: composed
 - name: area_of_poloidal_field_coil
   kind: scalar
@@ -578,6 +632,57 @@
   - id: dd:tf/coil/neutron_fast_flux_inboard
     dd_path: tf/coil/neutron_fast_flux_inboard
     status: composed
+- name: force_of_poloidal_field_coil
+  kind: scalar
+  status: draft
+  description: Signed electromagnetic force on an individual poloidal field coil,
+    formed from radial and vertical Lorentz force components, used to define structural
+    load limits and engineering bounds for coil system design.
+  documentation: 'The force on a poloidal field coil arises from the Lorentz interaction
+    between the energized coil conductors and the total magnetic field contributed
+    by the plasma current and all electromagnets in the device. It is a signed scalar
+    representing a projection or combination of force components resolved in the right-handed
+    cylindrical $(R, \phi, Z)$ frame, with radial contributions along $\hat{R}$ (increasing
+    major radius) and vertical contributions along $\hat{Z}$.
+
+
+    The net electromagnetic force along a given direction is obtained by integrating
+    the Lorentz body force over the conductor volume:
+
+
+    $$
+
+    F = \int_V (\mathbf{J} \times \mathbf{B}) \cdot \hat{n} \, dV
+
+    $$
+
+
+    where $\mathbf{J}$ is the current density in the conductor, $\mathbf{B}$ is the
+    total magnetic field, and $\hat{n}$ is the unit vector of the projection direction.
+    This force scalar underlies the engineering bounds expressed by [maximum_force_of_poloidal_field_coil](name:maximum_force_of_poloidal_field_coil)
+    and [minimum_force_of_poloidal_field_coil](name:minimum_force_of_poloidal_field_coil),
+    which set the upper and lower structural limits used in coil system design and
+    scenario optimization. For spatially resolved component forces, see [radial_force_of_poloidal_field_coil](name:radial_force_of_poloidal_field_coil)
+    and [vertical_force_of_poloidal_field_coil](name:vertical_force_of_poloidal_field_coil);
+    for the global coil-system resultants, see [radial_force](name:radial_force) and
+    vertical_force.
+
+
+    Sign convention: Positive when the vertical force component is directed upward
+    along $+Z$ and the radial force component is directed outward along increasing
+    major radius $R$.'
+  unit: N
+  physics_domain: magnetic_field_systems
+  links:
+  - name:maximum_force_of_poloidal_field_coil
+  - name:minimum_force_of_poloidal_field_coil
+  - name:radial_force_of_poloidal_field_coil
+  - name:vertical_force_of_poloidal_field_coil
+  - name:radial_force
+  sources:
+  - id: dd:pf_active/force_limits/force
+    dd_path: pf_active/force_limits/force
+    status: composed
 - name: height_of_correction_coil
   kind: scalar
   status: draft
@@ -830,9 +935,9 @@
     coil conductor, defining the bore size of the hollow conductor or winding pack.
   documentation: 'The inner radius defines the bore boundary of the annular cross-section
     used to model a correction coil conductor or winding pack. Together with the outer
-    radius given by [radius_of_correction_coil](name:radius_of_correction_coil), it
-    fully specifies the hollow circular geometry, with conductor material occupying
-    the annular region between $r_{\rm in}$ (this quantity) and $r_{\rm out}$.
+    radius given by radius_of_correction_coil, it fully specifies the hollow circular
+    geometry, with conductor material occupying the annular region between $r_{\rm
+    in}$ (this quantity) and $r_{\rm out}$.
 
 
     The cross-sectional area enclosed by the conductor annulus is
@@ -860,157 +965,63 @@
   unit: m
   physics_domain: magnetic_field_systems
   links:
-  - name:radius_of_correction_coil
   - name:area_of_correction_coil
   - name:inner_radius_of_poloidal_field_coil
   sources:
   - id: dd:coils_non_axisymmetric/coil/conductor/cross_section/radius_inner
     dd_path: coils_non_axisymmetric/coil/conductor/cross_section/radius_inner
-    status: attached
-- name: inner_radius_of_iron_core_segment
-  kind: scalar
-  status: draft
-  description: Inner radius of an iron-core segment is the non-negative distance from
-    the center or central axis of an annular cross-section to its inner ferromagnetic
-    boundary. It defines the hollow bore and must be smaller than the corresponding
-    outer radius.
-  documentation: 'The inner radius of an iron-core segment is the radius of the inner
-    boundary of an annular ferromagnetic cross-section. It identifies the boundary
-    between the hollow region and the iron material, and together with [outer_radius_of_iron_core_segment](name:outer_radius_of_iron_core_segment)
-    fixes the annular geometry of the segment.
-
-
-    For a circular annulus, the defining distance is
-
-
-    $$
-
-    r_\mathrm{inner} = \left|\mathbf{x}_\mathrm{inner} - \mathbf{x}_0\right|
-
-    $$
-
-
-    where $\mathbf{x}_0$ is the center of the annular cross-section, $\mathbf{x}_\mathrm{inner}$
-    is any point on the circular inner ferromagnetic boundary, and the resulting radius
-    is measured in meters. A physically valid annulus satisfies $0 \le r_\mathrm{inner}
-    < r_\mathrm{outer}$, where $r_\mathrm{outer}$ is the outer radius in meters; the
-    corresponding iron cross-sectional area is $A = \pi\left(r_\mathrm{outer}^2 -
-    r_\mathrm{inner}^2\right)$.
-
-
-    This radius is used when constructing geometric and electromagnetic representations
-    of iron-core segments. Increasing the inner radius reduces the flux-conducting
-    iron area for a fixed outer radius, thereby affecting magnetic reluctance, possible
-    saturation, and mass distribution. Non-annular segment cross-sections are more
-    naturally described by [width_of_iron_core_segment](name:width_of_iron_core_segment)
-    and [height_of_iron_core_segment](name:height_of_iron_core_segment).
-
-
-    Typical values are strongly device- and design-dependent. In tokamak iron-core
-    models they are usually engineering-scale lengths, from about 0.1-5 m, with compact
-    or local annular segments toward the lower end and large central-core or return-yoke
-    elements toward the upper end.'
-  unit: m
-  physics_domain: magnetic_field_systems
-  links: []
-  sources:
-  - id: dd:iron_core/segment/geometry/annulus/radius_inner
-    dd_path: iron_core/segment/geometry/annulus/radius_inner
     status: composed
-- name: inner_radius_of_passive_loop
+- name: length_of_iron_core_segment
   kind: scalar
   status: draft
-  description: Inner radius of the annular cross-section of a passive conducting loop
-    element. It is the distance from the annulus center to the inner conducting boundary
-    and, with the outer radius, sets the conductor thickness used in electromagnetic
-    and resistive calculations.
-  documentation: 'The inner radius of a passive loop is the radius of the hole or
-    excluded central region in an annular conductor cross-section. Together with the
-    [outer radius](name:outer_radius_of_passive_loop), it defines the conducting material
-    thickness of the loop element and affects its resistance, inductance, and eddy-current
-    response.
+  description: Non-negative Euclidean length of the beta-angle-inclined side of an
+    oblique parallelogram iron-core segment, measured in the poloidal R-Z plane of
+    the right-handed cylindrical (R, phi, Z) frame. The side is referenced to the
+    vertical Z direction; its inclination is set by the beta angle.
+  documentation: 'Length of an iron-core segment is the non-negative Euclidean size
+    of the beta-inclined side of an oblique parallelogram cross-section. The geometry
+    is interpreted in a poloidal cross-section of the right-handed cylindrical $(R,
+    \phi, Z)$ frame, with $R$ the major radius and $Z$ the vertical height. The beta
+    side is referenced to the $+Z$ vertical direction: the beta angle specifies the
+    inclination of that side in the $R$-$Z$ plane, toward increasing $R$ for a positive
+    beta angle.
 
 
-    For an ideal annular cross-section, the conducting area is related to the inner
-    and outer radii by:
+    For two vertices on the same beta-inclined side, the length is the Euclidean distance
+    between their coordinates in the poloidal cross-section:
 
 
     $$
 
-    A = \pi\left(r_\mathrm{outer}^2 - r_\mathrm{inner}^2\right)
+    L_\beta = \sqrt{(R_2 - R_1)^2 + (Z_2 - Z_1)^2}
 
     $$
 
 
-    where $A$ is the conducting cross-sectional area, $r_\mathrm{inner}$ is the inner
-    radius, and $r_\mathrm{outer}$ is the corresponding outer radius.
+    where $L_\beta$ is this side length, $(R_1, Z_1)$ and $(R_2, Z_2)$ are the endpoint
+    coordinates, $R$ is major radius, and $Z$ is vertical height. The endpoint ordering
+    does not affect $L_\beta$; the beta-angle convention selects which pair of opposite
+    sides of the parallelogram is being measured.
 
 
-    The value is determined from the mechanical geometry of the passive conducting
-    structure, such as a vacuum-vessel segment, stabilizing plate, shell, or other
-    closed conducting loop. It is used in reduced electromagnetic models to compute
-    the conductor area, resistance, mutual inductance, and induced eddy currents.
-    The closely related [inner radius of a passive structure](name:inner_radius_of_passive_loop)
-    describes the same geometric concept for passive conducting structures more generally.
+    The quantity is normally derived from the geometric specification of the iron
+    core, such as CAD vertices, mechanical drawings, or survey points. A complete
+    oblique-parallelogram parameterization requires this beta-side length together
+    with the complementary major length or other side length, the alpha and beta angle
+    conventions, and a position reference such as a center or corner; the length alone
+    does not determine the full cross-section.
 
 
-    Typical values range from 0.001-0.1 m for small annular conductor features and
-    from 0.01-1 m for large vessel or support-structure elements, depending on the
-    device scale and the level of geometric simplification.'
+    Typical values for magnetic-system iron-core segments range from 0.05-10 m. Small
+    shaping inserts or chamfer-like pieces can be below 0.5 m, while large transformer
+    limbs and yoke segments are commonly 1-10 m.'
   unit: m
   physics_domain: magnetic_field_systems
   links:
-  - name:outer_radius_of_passive_loop
-  sources:
-  - id: dd:pf_passive/loop/element/geometry/annulus/radius_inner
-    dd_path: pf_passive/loop/element/geometry/annulus/radius_inner
-    status: composed
-- name: inner_radius_of_toroidal_field_coil
-  kind: scalar
-  status: draft
-  description: Inner radius of the annular conductor cross-section of a toroidal field
-    coil. It is the non-negative distance from the annulus center to the bore-side
-    boundary of the conducting material.
-  documentation: 'The inner radius $r_\mathrm{inner}$ is the distance from the center
-    of an annular toroidal-field-coil conductor cross-section to the inner boundary
-    of the conducting material. It describes the radius of the central opening of
-    the annulus and is defined only for hollow, annular conductor cross-sections,
-    with $0 \le r_\mathrm{inner} < r_\mathrm{outer}$.
-
-
-    For an annular conductor, the conducting cross-sectional area is related to the
-    inner and outer radii by:
-
-
-    $$
-
-    A = \pi\left(r_\mathrm{outer}^2 - r_\mathrm{inner}^2\right)
-
-    $$
-
-
-    where $A$ is the conducting area, $r_\mathrm{inner}$ is the inner radius in meters,
-    and $r_\mathrm{outer}$ is the outer radius in meters. The paired quantity $r_\mathrm{outer}$
-    is represented by outer_radius_of_toroidal_field_coil.
-
-
-    This radius is specified from the mechanical design of the toroidal field coil
-    conductor or inferred from cross-section drawings and manufacturing data. Together
-    with the outer radius, it determines the amount of conducting material, the available
-    cooling or insulation space in the central opening, and derived engineering quantities
-    such as average current density.
-
-
-    Typical values range from 0 m for a solid conductor treated as the limiting case
-    to about 0.01-0.5 m for large annular conductors, depending on coil scale, conductor
-    technology, cooling-channel layout, and structural design.'
-  unit: m
-  physics_domain: magnetic_field_systems
-  links: []
-  sources:
-  - id: dd:tf/coil/conductor/cross_section/radius_inner
-    dd_path: tf/coil/conductor/cross_section/radius_inner
-    status: composed
+  - name:major_length_of_iron_core_segment
+  - name:alpha_angle_of_iron_core_segment
+  - name:height_of_iron_core_segment
+  - name:width_of_iron_core_segment
 - name: length_of_passive_structure
   kind: scalar
   status: draft
@@ -1230,66 +1241,6 @@
   - id: dd:tf/coil/conductor/elements/intermediate_points/r
     dd_path: tf/coil/conductor/elements/intermediate_points/r
     status: composed
-- name: major_radius_of_toroidal_field_coil
-  kind: scalar
-  status: draft
-  description: Major radius of a toroidal-field-coil conductor outline point is its
-    radial distance from the toroidal symmetry axis in the right-handed cylindrical
-    (R, phi, Z) frame. It is an absolute non-negative coordinate, not a local radial
-    offset.
-  documentation: 'Major radius of a toroidal-field-coil conductor outline point is
-    the absolute radial coordinate $R$ of that point, measured from the toroidal symmetry
-    axis. In the right-handed cylindrical $(R, \phi, Z)$ frame, $R$ is major radius,
-    $\phi$ is toroidal angle, and $Z$ is vertical height. This quantity describes
-    where the conductor outline lies radially and is distinct from a local construction
-    offset used to generate the outline.
-
-
-    For a point with horizontal Cartesian position $(x,y)$ in the right-handed Cartesian
-    $(x,y,z)$ frame with $z=Z$, the major radius is
-
-
-    $$
-
-    R = \sqrt{x^2 + y^2}
-
-    $$
-
-
-    where $R$ is the major radius in meters, and $x$ and $y$ are horizontal distances
-    in meters from the toroidal symmetry axis. By definition $R \ge 0$; negative values
-    are not physical. If an outline point is specified by a local radial offset $\Delta
-    R_i$ from a reference radius $R_\mathrm{ref}$, the absolute coordinate is $R_i
-    = R_\mathrm{ref} + \Delta R_i$, with $R_i$, $R_\mathrm{ref}$, and $\Delta R_i$
-    all in meters.
-
-
-    In practice, this coordinate is obtained from engineering geometry, survey data,
-    or electromagnetic-model geometry by transforming each conductor outline point
-    into the right-handed cylindrical $(R, \phi, Z)$ frame and reading its $R$ value.
-    It uses the same radial-coordinate concept as [major_radius_of_coil_conductor_element](name:major_radius_of_coil_conductor_element),
-    and is analogous to the poloidal-field-coil outline coordinate [radial_outline_of_poloidal_field_coil](name:radial_outline_of_poloidal_field_coil).
-    The transverse size of the toroidal-field-coil conductor is instead characterized
-    by quantities such as [width_of_toroidal_field_coil](name:width_of_toroidal_field_coil).
-
-
-    Typical values are set by the scale of the device rather than by a universal material
-    property. For tokamak toroidal-field-coil systems, major radii are commonly of
-    order 1-10 m, with compact devices below this range and reactor-scale designs
-    above it; variations between nearby outline points are usually much smaller than
-    the absolute major radius.'
-  unit: m
-  physics_domain: magnetic_field_systems
-  links:
-  - name:radius_of_toroidal_field_coil
-  - name:area_of_toroidal_field_coil
-  - name:binormal_coordinate_of_toroidal_field_coil
-  - name:width_of_toroidal_field_coil
-  - name:major_radius_of_poloidal_field_coil
-  sources:
-  - id: dd:tf/coil/conductor/cross_section/delta_r
-    dd_path: tf/coil/conductor/cross_section/delta_r
-    status: composed
 - name: maximum_force_of_poloidal_field_coil
   kind: scalar
   status: draft
@@ -1351,6 +1302,10 @@
   - name:minimum_force_of_poloidal_field_coil
   - name:radial_total_maximum_force_of_poloidal_field_coil
   - name:vertical_maximum_force
+  arguments:
+  - name: force_of_poloidal_field_coil
+    operator: maximum
+    operator_kind: qualifier
   sources:
   - id: dd:pf_active/force_limits/limit_max
     dd_path: pf_active/force_limits/limit_max
@@ -1419,6 +1374,10 @@
   - name:maximum_force_of_poloidal_field_coil
   - name:radial_total_minimum_force_of_poloidal_field_coil
   - name:vertical_minimum_force
+  arguments:
+  - name: force_of_poloidal_field_coil
+    operator: minimum
+    operator_kind: qualifier
   sources:
   - id: dd:pf_active/force_limits/limit_min
     dd_path: pf_active/force_limits/limit_min
@@ -1507,107 +1466,6 @@
   sources:
   - id: dd:tf/coil/conductor/cross_section/outline/normal
     dd_path: tf/coil/conductor/cross_section/outline/normal
-    status: composed
-- name: outer_radius_of_iron_core_segment
-  kind: scalar
-  status: draft
-  description: Non-negative radial distance from the toroidal symmetry axis to the
-    outer boundary of an annular iron-core segment. Together with the inner radius,
-    it fixes the radial extent of the hollow circular cross section.
-  documentation: 'The outer radius of an iron-core segment is the non-negative major-radius
-    distance from the toroidal symmetry axis to the outer boundary of an annular iron
-    region. It is expressed in the right-handed cylindrical $(R, \phi, Z)$ frame,
-    where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height.
-    Together with [inner_radius_of_iron_core_segment](name:inner_radius_of_iron_core_segment),
-    it defines the radial span of the annular segment used to represent the iron transformer
-    core.
-
-
-    For an ideal annular segment, the outer radius is the largest major-radius coordinate
-    occupied by the segment material:
-
-
-    $$
-
-    R_\mathrm{out} = \max_{\mathbf{x} \in \Omega_\mathrm{seg}} R(\mathbf{x})
-
-    $$
-
-
-    where $\Omega_\mathrm{seg}$ is the material region of the annular iron-core segment
-    and $R(\mathbf{x})$ is the major-radius coordinate of point $\mathbf{x}$. The
-    radial wall thickness is $R_\mathrm{out} - R_\mathrm{in}$, with $R_\mathrm{out}
-    > R_\mathrm{in} \ge 0$ for a physically valid hollow annulus.
-
-
-    This quantity is usually taken from engineering geometry, survey data, or a simplified
-    magnetic-circuit representation of the iron core. It determines the outer radial
-    reach of high-permeability material and therefore affects estimates of iron volume,
-    magnetic reluctance, flux linkage, and saturation in equilibrium or magnetic-field
-    modeling. For rectangular iron-core segment descriptions, related geometric extents
-    are [width_of_iron_core_segment](name:width_of_iron_core_segment) and [height_of_iron_core_segment](name:height_of_iron_core_segment).
-
-
-    Typical values range from about 1-5 m in small and medium tokamaks and about 5-15
-    m in large devices, depending on the size and placement of the transformer yoke.
-    The difference between outer and inner radii is commonly 0.1-2 m for annular iron-core
-    elements.'
-  unit: m
-  physics_domain: magnetic_field_systems
-  links:
-  - name:inner_radius_of_iron_core_segment
-  - name:width_of_iron_core_segment
-  - name:height_of_iron_core_segment
-  sources:
-  - id: dd:iron_core/segment/geometry/annulus/radius_outer
-    dd_path: iron_core/segment/geometry/annulus/radius_outer
-    status: skipped
-- name: outer_radius_of_passive_loop
-  kind: scalar
-  status: draft
-  description: Outer radius of the annular cross-section of a passive conducting loop
-    element, defining the outer radial boundary of the annulus geometry used in electromagnetic
-    modeling.
-  documentation: 'The outer radius defines the radial extent of the outer boundary
-    of the annular (hollow circular) cross-section of a passive conducting loop element,
-    such as a vacuum vessel segment or other passive toroidal conductor. Together
-    with [inner_radius_of_passive_loop](name:inner_radius_of_passive_loop), it fully
-    parameterizes the annular cross-section geometry used in electromagnetic circuit
-    models to compute eddy-current responses, self-inductances, and resistances.
-
-
-    The cross-sectional area of the annulus is:
-
-
-    $$
-
-    A = \pi \left( r_{\rm out}^2 - r_{\rm in}^2 \right)
-
-    $$
-
-
-    where $r_{\rm out}$ is the outer radius and $r_{\rm in}$ is the correspondent
-    [inner_radius_of_passive_loop](name:inner_radius_of_passive_loop), both in m.
-    This area enters directly into resistance and inductance estimates of the passive
-    loop element under the thin-shell approximation.
-
-
-    Geometry parameters are obtained from engineering drawings or CAD models of the
-    passive conductor assembly. Typical values range from a few centimeters for small
-    conducting ribs to approximately 0.5 m for large vacuum vessel sectors, depending
-    on device scale. The [outer_radius_of_poloidal_field_coil](name:outer_radius_of_poloidal_field_coil)
-    is the analogous quantity for active poloidal field coil conductors.
-
-
-    Sign convention: Positive when measured as a radial distance from the geometric
-    center of the annular cross-section outward to the conductor''s outer boundary.'
-  unit: m
-  physics_domain: magnetic_field_systems
-  links:
-  - name:outer_radius_of_poloidal_field_coil
-  sources:
-  - id: dd:pf_passive/loop/element/geometry/annulus/radius_outer
-    dd_path: pf_passive/loop/element/geometry/annulus/radius_outer
     status: composed
 - name: radial_angle_of_poloidal_field_coil
   kind: scalar
@@ -1808,6 +1666,38 @@
   sources:
   - id: dd:ferritic/object/time_slice/b_field_r
     dd_path: ferritic/object/time_slice/b_field_r
+    status: composed
+- name: radial_magnetization_of_ferritic_element
+  kind: scalar
+  status: draft
+  description: Radial component of the magnetization vector of a ferritic element,
+    projecting the local magnetic polarization along the major-radius direction in
+    the right-handed cylindrical (R, phi, Z) frame.
+  documentation: "Magnetization is the volumetric density of magnetic dipole moments\
+    \ within a material. For ferromagnetic structural components \u2014 such as ferritic\
+    \ inserts positioned within the tokamak vessel \u2014 the confinement magnetic\
+    \ field induces a local magnetization vector $\\mathbf{M}$ whose projection onto\
+    \ the outward major-radius direction defines the radial component $M_R$.\n\n$$\n\
+    M_R = \\mathbf{M} \\cdot \\hat{R}\n$$\n\nwhere $\\hat{R}$ is the unit vector pointing\
+    \ in the direction of increasing major radius $R$ in the right-handed cylindrical\
+    \ $(R, \\phi, Z)$ frame.\n\nThe magnetization state of ferritic elements is obtained\
+    \ from nonlinear electromagnetic models that couple the permeability of the ferritic\
+    \ material to the local applied magnetic field. Together with [toroidal_magnetization_of_ferritic_element](name:toroidal_magnetization_of_ferritic_element)\
+    \ and [vertical_magnetization_of_ferritic_element](name:vertical_magnetization_of_ferritic_element),\
+    \ this radial component fully characterizes the magnetization vector in the cylindrical\
+    \ $(R, \\phi, Z)$ frame. The field perturbations induced by the magnetized elements\
+    \ can be evaluated at each element's geometric center via quantities such as [radial_magnetic_field_at_ferritic_element_centroid](name:radial_magnetic_field_at_ferritic_element_centroid).\n\
+    \nSign convention: Positive when $M_R$ points in the direction of increasing major\
+    \ radius $R$, away from the toroidal symmetry axis."
+  unit: A.m^-2
+  physics_domain: magnetic_field_systems
+  links:
+  - name:toroidal_magnetization_of_ferritic_element
+  - name:vertical_magnetization_of_ferritic_element
+  - name:radial_magnetic_field_at_ferritic_element_centroid
+  sources:
+  - id: dd:ferritic/object/time_slice/magnetic_moment_r
+    dd_path: ferritic/object/time_slice/magnetic_moment_r
     status: composed
 - name: radial_minimum_force_of_poloidal_field_coil
   kind: scalar
@@ -2018,49 +1908,6 @@
   - id: dd:pf_active/radial_force/limit_max
     dd_path: pf_active/radial_force/limit_max
     status: composed
-- name: radial_vacuum_magnetic_vector_potential
-  kind: scalar
-  status: draft
-  description: Radial (R) component of the vacuum magnetic vector potential produced
-    by toroidal-field coil currents, evaluated in the right-handed cylindrical (R,
-    phi, Z) frame.
-  documentation: 'The radial component $A_R$ of the vacuum magnetic vector potential
-    is the projection of $\mathbf{A}_\mathrm{vac}$ onto the major-radius direction
-    $\hat{R}$ in the right-handed cylindrical $(R, \phi, Z)$ frame. It represents
-    the $R$-directed contribution of the vector field generated exclusively by toroidal-field
-    coil conductor currents in the absence of any plasma contribution, forming part
-    of the complete [vacuum magnetic vector potential](name:vacuum_magnetic_vector_potential)
-    vector $(A_R, A_\phi, A_Z)$.
-
-
-    The vacuum magnetic field is related to the vector potential by $\mathbf{B}_\mathrm{vac}
-    = \nabla \times \mathbf{A}_\mathrm{vac}$, so the poloidal field components follow
-    from the cylindrical curl of $(A_R, A_\phi, A_Z)$. Because only $\nabla \times
-    \mathbf{A}_\mathrm{vac}$ is gage-invariant, $A_R$ individually depends on the
-    chosen gage; the Coulomb gage $\nabla \cdot \mathbf{A} = 0$ is standard for static
-    TF coil computations.
-
-
-    This component is calculated numerically via Biot-Savart integration over the
-    TF coil conductor geometry and current distribution, and is used in equilibrium
-    reconstruction and MHD stability analysis on both structured and unstructured
-    spatial grids. The complementary vertical component is provided by [vertical_vacuum_magnetic_vector_potential](name:vertical_vacuum_magnetic_vector_potential),
-    while the analogous quantity incorporating full plasma and coil contributions
-    is [radial_magnetic_vector_potential](name:radial_magnetic_vector_potential).
-
-
-    Sign convention: Positive when $A_R$ points in the direction of increasing major
-    radius $R$.'
-  unit: T.m
-  physics_domain: magnetic_field_systems
-  links:
-  - name:vacuum_magnetic_vector_potential
-  - name:vertical_vacuum_magnetic_vector_potential
-  - name:radial_magnetic_vector_potential
-  sources:
-  - id: dd:tf/field_map/a_field_r/values
-    dd_path: tf/field_map/a_field_r/values
-    status: composed
 - name: radius_of_ferritic_element
   kind: scalar
   status: draft
@@ -2213,64 +2060,368 @@
   - id: dd:ferritic/object/axisymmetric/annulus/radius_outer
     dd_path: ferritic/object/axisymmetric/annulus/radius_outer
     status: composed
-- name: radius_of_passive_structure
+- name: radius_of_iron_core_segment
   kind: scalar
   status: draft
-  description: Curvature radius of each arc-of-circle segment approximating the cross-sectional
-    contour of a passive conducting structure element in a piecewise boundary representation.
-  documentation: 'The curvature radius parametrizes individual arc segments in the
-    piecewise arc-of-circle description of a passive conducting structure element''s
-    cross-sectional boundary in the poloidal plane of the right-handed cylindrical
-    $(R, \phi, Z)$ frame, where $R$ is the major radius and $Z$ is the vertical height.
-    The full cross-sectional contour is assembled from a sequence of such arcs sharing
-    consecutive endpoint vertices to form a closed boundary curve.
+  description: Non-negative curvature radius of an arc-of-circle segment representing
+    the boundary of an iron-core segment in a poloidal cross-section of the right-handed
+    cylindrical (R, phi, Z) frame.
+  documentation: 'Radius of an iron-core segment is the non-negative curvature radius
+    of a circular-arc element used to describe the segment boundary in a poloidal
+    cross-section. The cross-section is the $(R, Z)$ plane of the right-handed cylindrical
+    $(R, \phi, Z)$ frame, where $R$ is major radius and $Z$ is vertical height. The
+    radius specifies the size of the local circular arc, not its position, endpoint,
+    sweep angle, or traversal orientation.
 
 
-    Each arc is the locus of points at distance $\rho$ from the arc''s center of curvature
-    $(R_c, Z_c)$ in the poloidal plane:
+    For a circular arc, the radius $r$ is the reciprocal of the magnitude of the local
+    curvature $\kappa$:
 
 
     $$
 
-    \sqrt{(R - R_c)^2 + (Z - Z_c)^2} = \rho
+    r = \frac{1}{|\kappa|}
 
     $$
 
 
-    where $(R_c, Z_c)$ are in meters. Specifying the starting vertex coordinates and
-    $\rho$ for each successive arc fully determines the conductor cross-section shape;
-    the straight-line limit is approached as $\rho \to \infty$.
+    where $r$ is the curvature radius in m and $\kappa$ is the signed planar curvature
+    in m$^{-1}$. The absolute value makes the radius non-negative; the limiting case
+    $|\kappa| \to 0$ corresponds to an uncurved boundary element with $r \to \infty$.
 
 
-    This arc-of-circle convention is shared across conductor geometries in the machine:
-    [radius_of_poloidal_field_coil](name:radius_of_poloidal_field_coil) applies the
-    same representation to active coil elements, and [radius_of_iron_core_segment](name:radius_of_iron_core_segment)
-    applies it to transformer core cross-sections. For passive structures with annular
-    cross-sections, [inner_radius_of_passive_structure](name:inner_radius_of_passive_loop)
-    defines the bore radius, while [width_of_passive_structure](name:width_of_passive_structure)
-    and [height_of_passive_structure](name:height_of_passive_structure) characterize
-    rectangular cross-section geometries. Values typically range from centimeters
-    for tightly curved conductor corners to larger values for gently curving contour
-    segments.
+    In practice, this quantity is obtained from the geometric description of the iron-core
+    cross-section, for example from engineering drawings, computer-aided design boundaries,
+    or a fitted piecewise-circular representation of the contour. A complete arc also
+    requires geometric information beyond the radius, such as a start point in the
+    $(R, Z)$ plane and either an endpoint, a sweep angle, or an orientation convention
+    that fixes which part of the circle is used.
 
 
-    Sign convention: Positive when the arc center of curvature lies at a finite distance
-    from the boundary arc in the poloidal $(R, Z)$ plane; the curvature radius is
-    non-negative by geometric construction.'
+    Typical values are set by the scale and detailed shaping of the iron-core segment
+    rather than by a universal material property. They are non-negative lengths comparable
+    to the local geometric feature size of the represented boundary.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links: []
+  sources:
+  - id: dd:iron_core/segment/geometry/arcs_of_circle/curvature_radii
+    dd_path: iron_core/segment/geometry/arcs_of_circle/curvature_radii
+    status: attached
+- name: inner_radius_of_iron_core_segment
+  kind: scalar
+  status: draft
+  description: Inner radius of an iron-core segment is the non-negative distance from
+    the center or central axis of an annular cross-section to its inner ferromagnetic
+    boundary. It defines the hollow bore and must be smaller than the corresponding
+    outer radius.
+  documentation: 'The inner radius of an iron-core segment is the radius of the inner
+    boundary of an annular ferromagnetic cross-section. It identifies the boundary
+    between the hollow region and the iron material, and together with [outer_radius_of_iron_core_segment](name:outer_radius_of_iron_core_segment)
+    fixes the annular geometry of the segment.
+
+
+    For a circular annulus, the defining distance is
+
+
+    $$
+
+    r_\mathrm{inner} = \left|\mathbf{x}_\mathrm{inner} - \mathbf{x}_0\right|
+
+    $$
+
+
+    where $\mathbf{x}_0$ is the center of the annular cross-section, $\mathbf{x}_\mathrm{inner}$
+    is any point on the circular inner ferromagnetic boundary, and the resulting radius
+    is measured in meters. A physically valid annulus satisfies $0 \le r_\mathrm{inner}
+    < r_\mathrm{outer}$, where $r_\mathrm{outer}$ is the outer radius in meters; the
+    corresponding iron cross-sectional area is $A = \pi\left(r_\mathrm{outer}^2 -
+    r_\mathrm{inner}^2\right)$.
+
+
+    This radius is used when constructing geometric and electromagnetic representations
+    of iron-core segments. Increasing the inner radius reduces the flux-conducting
+    iron area for a fixed outer radius, thereby affecting magnetic reluctance, possible
+    saturation, and mass distribution. Non-annular segment cross-sections are more
+    naturally described by [width_of_iron_core_segment](name:width_of_iron_core_segment)
+    and [height_of_iron_core_segment](name:height_of_iron_core_segment).
+
+
+    Typical values are strongly device- and design-dependent. In tokamak iron-core
+    models they are usually engineering-scale lengths, from about 0.1-5 m, with compact
+    or local annular segments toward the lower end and large central-core or return-yoke
+    elements toward the upper end.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links: []
+  arguments:
+  - name: radius_of_iron_core_segment
+    operator: inner
+    operator_kind: qualifier
+  sources:
+  - id: dd:iron_core/segment/geometry/annulus/radius_inner
+    dd_path: iron_core/segment/geometry/annulus/radius_inner
+    status: composed
+- name: major_radius_of_iron_core_segment
+  kind: scalar
+  status: draft
+  description: Major radius coordinate of a point defining an iron core segment contour,
+    equal to its radial distance from the toroidal symmetry axis in the right-handed
+    cylindrical (R, phi, Z) frame.
+  documentation: 'Major radius of an iron core segment is the radial coordinate $R$
+    of a point used to define the segment cross-sectional contour. In the right-handed
+    cylindrical $(R, \phi, Z)$ frame, $R$ measures distance from the toroidal symmetry
+    axis and is paired with the vertical coordinate $Z$ to locate contour or circular-arc
+    defining points in the poloidal cross-section.
+
+
+    When the same point is expressed in a right-handed Cartesian $(\hat{x}, \hat{y},
+    \hat{z})$ basis with $\hat{z}$ vertical and the toroidal symmetry axis as the
+    $z$ axis, the major radius is
+
+
+    $$
+
+    R = \sqrt{x^2 + y^2}
+
+    $$
+
+
+    where $x$ and $y$ are horizontal Cartesian coordinates in meters, and $R$ is the
+    corresponding cylindrical radial coordinate in meters. In the right-handed cylindrical
+    $(R, \phi, Z)$ frame, $\phi$ is the toroidal angle in radians and $Z$ is vertical
+    height in meters.
+
+
+    The value is determined from the geometric definition of the ferromagnetic core
+    segment, for example from engineering drawings, survey data, or a geometry model.
+    For circular-arc descriptions it gives the radial coordinate of the arc-defining
+    point; for contour descriptions it gives the radial coordinate of the contour
+    point itself.
+
+
+    Typical values are device- and component-specific and lie within the radial extent
+    of the iron core, from its innermost to outermost modeled contour points. The
+    coordinate is non-negative and is reported in meters.'
   unit: m
   physics_domain: magnetic_field_systems
   links:
-  - name:radius_of_poloidal_field_coil
   - name:radius_of_iron_core_segment
+  - name:major_radius_of_poloidal_field_coil
+  - name:major_radius_of_ferritic_element
+  arguments:
+  - name: radius_of_iron_core_segment
+    operator: major
+    operator_kind: qualifier
+  sources:
+  - id: dd:iron_core/segment/geometry/arcs_of_circle/r
+    dd_path: iron_core/segment/geometry/arcs_of_circle/r
+    status: composed
+  - id: dd:iron_core/segment/geometry/outline/r
+    dd_path: iron_core/segment/geometry/outline/r
+    status: composed
+- name: outer_radius_of_iron_core_segment
+  kind: scalar
+  status: draft
+  description: Non-negative radial distance from the toroidal symmetry axis to the
+    outer boundary of an annular iron-core segment. Together with the inner radius,
+    it fixes the radial extent of the hollow circular cross section.
+  documentation: 'The outer radius of an iron-core segment is the non-negative major-radius
+    distance from the toroidal symmetry axis to the outer boundary of an annular iron
+    region. It is expressed in the right-handed cylindrical $(R, \phi, Z)$ frame,
+    where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height.
+    Together with [inner_radius_of_iron_core_segment](name:inner_radius_of_iron_core_segment),
+    it defines the radial span of the annular segment used to represent the iron transformer
+    core.
+
+
+    For an ideal annular segment, the outer radius is the largest major-radius coordinate
+    occupied by the segment material:
+
+
+    $$
+
+    R_\mathrm{out} = \max_{\mathbf{x} \in \Omega_\mathrm{seg}} R(\mathbf{x})
+
+    $$
+
+
+    where $\Omega_\mathrm{seg}$ is the material region of the annular iron-core segment
+    and $R(\mathbf{x})$ is the major-radius coordinate of point $\mathbf{x}$. The
+    radial wall thickness is $R_\mathrm{out} - R_\mathrm{in}$, with $R_\mathrm{out}
+    > R_\mathrm{in} \ge 0$ for a physically valid hollow annulus.
+
+
+    This quantity is usually taken from engineering geometry, survey data, or a simplified
+    magnetic-circuit representation of the iron core. It determines the outer radial
+    reach of high-permeability material and therefore affects estimates of iron volume,
+    magnetic reluctance, flux linkage, and saturation in equilibrium or magnetic-field
+    modeling. For rectangular iron-core segment descriptions, related geometric extents
+    are [width_of_iron_core_segment](name:width_of_iron_core_segment) and [height_of_iron_core_segment](name:height_of_iron_core_segment).
+
+
+    Typical values range from about 1-5 m in small and medium tokamaks and about 5-15
+    m in large devices, depending on the size and placement of the transformer yoke.
+    The difference between outer and inner radii is commonly 0.1-2 m for annular iron-core
+    elements.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:inner_radius_of_iron_core_segment
+  - name:width_of_iron_core_segment
+  - name:height_of_iron_core_segment
+  arguments:
+  - name: radius_of_iron_core_segment
+    operator: outer
+    operator_kind: qualifier
+  sources:
+  - id: dd:iron_core/segment/geometry/annulus/radius_outer
+    dd_path: iron_core/segment/geometry/annulus/radius_outer
+    status: skipped
+- name: radius_of_passive_loop
+  kind: scalar
+  status: draft
+  description: Radial dimension of the annular cross-section of a passive conducting
+    loop element, abstracting over the specific inner and outer conductor boundaries
+    used in electromagnetic and resistive circuit modeling.
+  documentation: 'A passive conducting loop element has a toroidal geometry with an
+    annular cross-section; the radial extent of this annulus is characterized by its
+    inner and outer boundaries. This parent quantity abstracts over both the [inner_radius_of_passive_loop](name:inner_radius_of_passive_loop),
+    the distance from the annulus center to the inner conducting surface, and the
+    [outer_radius_of_passive_loop](name:outer_radius_of_passive_loop), which defines
+    the outer radial boundary of the annulus.
+
+
+    The cross-sectional area used in resistance and inductance calculations follows
+    from
+
+
+    $$
+
+    A = \pi \left( r_\mathrm{outer}^2 - r_\mathrm{inner}^2 \right)
+
+    $$
+
+
+    where $r_\mathrm{outer}$ and $r_\mathrm{inner}$ are the outer and inner radii
+    in meters. The conductor wall thickness $\delta r = r_\mathrm{outer} - r_\mathrm{inner}$
+    and the [area_of_passive_loop](name:area_of_passive_loop) both derive directly
+    from these two boundary values.
+
+
+    Passive loop radii are taken from engineering design specifications or as-built
+    conductor surveys, and feed into electromagnetic circuit models for passive stabilization
+    and eddy-current analysis. In fusion devices, passive loop cross-sectional radii
+    range from a few millimeters for thin stabilizing shells to several centimeters
+    for heavier current-carrying elements.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
   - name:inner_radius_of_passive_loop
-  - name:width_of_passive_structure
-  - name:height_of_passive_structure
+  - name:outer_radius_of_passive_loop
+  - name:area_of_passive_loop
+- name: inner_radius_of_passive_loop
+  kind: scalar
+  status: draft
+  description: Inner radius of the annular cross-section of a passive conducting loop
+    element. It is the distance from the annulus center to the inner conducting boundary
+    and, with the outer radius, sets the conductor thickness used in electromagnetic
+    and resistive calculations.
+  documentation: 'The inner radius of a passive loop is the radius of the hole or
+    excluded central region in an annular conductor cross-section. Together with the
+    [outer radius](name:outer_radius_of_passive_loop), it defines the conducting material
+    thickness of the loop element and affects its resistance, inductance, and eddy-current
+    response.
+
+
+    For an ideal annular cross-section, the conducting area is related to the inner
+    and outer radii by:
+
+
+    $$
+
+    A = \pi\left(r_\mathrm{outer}^2 - r_\mathrm{inner}^2\right)
+
+    $$
+
+
+    where $A$ is the conducting cross-sectional area, $r_\mathrm{inner}$ is the inner
+    radius, and $r_\mathrm{outer}$ is the corresponding outer radius.
+
+
+    The value is determined from the mechanical geometry of the passive conducting
+    structure, such as a vacuum-vessel segment, stabilizing plate, shell, or other
+    closed conducting loop. It is used in reduced electromagnetic models to compute
+    the conductor area, resistance, mutual inductance, and induced eddy currents.
+    The closely related [inner radius of a passive structure](name:inner_radius_of_passive_loop)
+    describes the same geometric concept for passive conducting structures more generally.
+
+
+    Typical values range from 0.001-0.1 m for small annular conductor features and
+    from 0.01-1 m for large vessel or support-structure elements, depending on the
+    device scale and the level of geometric simplification.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:outer_radius_of_passive_loop
+  arguments:
+  - name: radius_of_passive_loop
+    operator: inner
+    operator_kind: qualifier
   sources:
   - id: dd:pf_passive/loop/element/geometry/annulus/radius_inner
     dd_path: pf_passive/loop/element/geometry/annulus/radius_inner
     status: composed
-  - id: dd:pf_passive/loop/element/geometry/arcs_of_circle/curvature_radii
-    dd_path: pf_passive/loop/element/geometry/arcs_of_circle/curvature_radii
+- name: outer_radius_of_passive_loop
+  kind: scalar
+  status: draft
+  description: Outer radius of the annular cross-section of a passive conducting loop
+    element, defining the outer radial boundary of the annulus geometry used in electromagnetic
+    modeling.
+  documentation: 'The outer radius defines the radial extent of the outer boundary
+    of the annular (hollow circular) cross-section of a passive conducting loop element,
+    such as a vacuum vessel segment or other passive toroidal conductor. Together
+    with [inner_radius_of_passive_loop](name:inner_radius_of_passive_loop), it fully
+    parameterizes the annular cross-section geometry used in electromagnetic circuit
+    models to compute eddy-current responses, self-inductances, and resistances.
+
+
+    The cross-sectional area of the annulus is:
+
+
+    $$
+
+    A = \pi \left( r_{\rm out}^2 - r_{\rm in}^2 \right)
+
+    $$
+
+
+    where $r_{\rm out}$ is the outer radius and $r_{\rm in}$ is the correspondent
+    [inner_radius_of_passive_loop](name:inner_radius_of_passive_loop), both in m.
+    This area enters directly into resistance and inductance estimates of the passive
+    loop element under the thin-shell approximation.
+
+
+    Geometry parameters are obtained from engineering drawings or CAD models of the
+    passive conductor assembly. Typical values range from a few centimeters for small
+    conducting ribs to approximately 0.5 m for large vacuum vessel sectors, depending
+    on device scale. The [outer_radius_of_poloidal_field_coil](name:outer_radius_of_poloidal_field_coil)
+    is the analogous quantity for active poloidal field coil conductors.
+
+
+    Sign convention: Positive when measured as a radial distance from the geometric
+    center of the annular cross-section outward to the conductor''s outer boundary.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:outer_radius_of_poloidal_field_coil
+  arguments:
+  - name: radius_of_passive_loop
+    operator: outer
+    operator_kind: qualifier
+  sources:
+  - id: dd:pf_passive/loop/element/geometry/annulus/radius_outer
+    dd_path: pf_passive/loop/element/geometry/annulus/radius_outer
     status: composed
 - name: radius_of_poloidal_field_coil
   kind: scalar
@@ -2486,6 +2637,152 @@
   - id: dd:pf_plasma/element/geometry/annulus/radius_outer
     dd_path: pf_plasma/element/geometry/annulus/radius_outer
     status: attached
+- name: radius_of_toroidal_field_coil
+  kind: scalar
+  status: draft
+  description: Generic radial dimension of a toroidal field coil, parameterizing either
+    the conductor's absolute major-radius position from the toroidal symmetry axis
+    or a local cross-sectional radius of the annular conductor.
+  documentation: "A radial distance associated with the geometry of a toroidal field\
+    \ coil, abstracting over both the macroscopic position of the coil within the\
+    \ machine and the local dimensions of the conductor cross-section. This parent\
+    \ quantity encompasses specializations that serve distinct geometric roles in\
+    \ electromagnetic modeling and structural analysis of the toroidal field system.\n\
+    \nThe child [major_radius_of_toroidal_field_coil](name:major_radius_of_toroidal_field_coil)\
+    \ gives the absolute $R$ coordinate of a conductor outline point in the right-handed\
+    \ cylindrical $(R, \\phi, Z)$ frame, measured from the toroidal symmetry axis;\
+    \ this position governs the $B_\\phi \\propto \\mu_0 N I / (2\\pi R)$ spatial\
+    \ variation of the toroidal magnetic field, where $N$ is the number of turns and\
+    \ $I$ is the coil current. The child [inner_radius_of_toroidal_field_coil](name:inner_radius_of_toroidal_field_coil)\
+    \ gives the bore-side boundary of the annular conductor cross-section \u2014 the\
+    \ non-negative distance from the annulus center to the inner edge of the conducting\
+    \ material \u2014 which sets the available winding window and governs current\
+    \ density estimates.\n\nThese radial measures are obtained from engineering drawings,\
+    \ metrology surveys, or finite-element structural models and enter equilibrium\
+    \ reconstruction, field mapping, and Lorentz-force calculations. Major-radius\
+    \ values for conductor outline points range from roughly 0.5 m on the inboard\
+    \ side to several meters on the outboard side depending on device scale; inner\
+    \ cross-sectional radii are of order centimeters to tens of centimeters depending\
+    \ on conductor design."
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:major_radius_of_toroidal_field_coil
+  - name:inner_radius_of_toroidal_field_coil
+- name: inner_radius_of_toroidal_field_coil
+  kind: scalar
+  status: draft
+  description: Inner radius of the annular conductor cross-section of a toroidal field
+    coil. It is the non-negative distance from the annulus center to the bore-side
+    boundary of the conducting material.
+  documentation: 'The inner radius $r_\mathrm{inner}$ is the distance from the center
+    of an annular toroidal-field-coil conductor cross-section to the inner boundary
+    of the conducting material. It describes the radius of the central opening of
+    the annulus and is defined only for hollow, annular conductor cross-sections,
+    with $0 \le r_\mathrm{inner} < r_\mathrm{outer}$.
+
+
+    For an annular conductor, the conducting cross-sectional area is related to the
+    inner and outer radii by:
+
+
+    $$
+
+    A = \pi\left(r_\mathrm{outer}^2 - r_\mathrm{inner}^2\right)
+
+    $$
+
+
+    where $A$ is the conducting area, $r_\mathrm{inner}$ is the inner radius in meters,
+    and $r_\mathrm{outer}$ is the outer radius in meters. The paired quantity $r_\mathrm{outer}$
+    is represented by outer_radius_of_toroidal_field_coil.
+
+
+    This radius is specified from the mechanical design of the toroidal field coil
+    conductor or inferred from cross-section drawings and manufacturing data. Together
+    with the outer radius, it determines the amount of conducting material, the available
+    cooling or insulation space in the central opening, and derived engineering quantities
+    such as average current density.
+
+
+    Typical values range from 0 m for a solid conductor treated as the limiting case
+    to about 0.01-0.5 m for large annular conductors, depending on coil scale, conductor
+    technology, cooling-channel layout, and structural design.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links: []
+  arguments:
+  - name: radius_of_toroidal_field_coil
+    operator: inner
+    operator_kind: qualifier
+  sources:
+  - id: dd:tf/coil/conductor/cross_section/radius_inner
+    dd_path: tf/coil/conductor/cross_section/radius_inner
+    status: composed
+- name: major_radius_of_toroidal_field_coil
+  kind: scalar
+  status: draft
+  description: Major radius of a toroidal-field-coil conductor outline point is its
+    radial distance from the toroidal symmetry axis in the right-handed cylindrical
+    (R, phi, Z) frame. It is an absolute non-negative coordinate, not a local radial
+    offset.
+  documentation: 'Major radius of a toroidal-field-coil conductor outline point is
+    the absolute radial coordinate $R$ of that point, measured from the toroidal symmetry
+    axis. In the right-handed cylindrical $(R, \phi, Z)$ frame, $R$ is major radius,
+    $\phi$ is toroidal angle, and $Z$ is vertical height. This quantity describes
+    where the conductor outline lies radially and is distinct from a local construction
+    offset used to generate the outline.
+
+
+    For a point with horizontal Cartesian position $(x,y)$ in the right-handed Cartesian
+    $(x,y,z)$ frame with $z=Z$, the major radius is
+
+
+    $$
+
+    R = \sqrt{x^2 + y^2}
+
+    $$
+
+
+    where $R$ is the major radius in meters, and $x$ and $y$ are horizontal distances
+    in meters from the toroidal symmetry axis. By definition $R \ge 0$; negative values
+    are not physical. If an outline point is specified by a local radial offset $\Delta
+    R_i$ from a reference radius $R_\mathrm{ref}$, the absolute coordinate is $R_i
+    = R_\mathrm{ref} + \Delta R_i$, with $R_i$, $R_\mathrm{ref}$, and $\Delta R_i$
+    all in meters.
+
+
+    In practice, this coordinate is obtained from engineering geometry, survey data,
+    or electromagnetic-model geometry by transforming each conductor outline point
+    into the right-handed cylindrical $(R, \phi, Z)$ frame and reading its $R$ value.
+    It uses the same radial-coordinate concept as [major_radius_of_coil_conductor_element](name:major_radius_of_coil_conductor_element),
+    and is analogous to the poloidal-field-coil outline coordinate [radial_outline_of_poloidal_field_coil](name:radial_outline_of_poloidal_field_coil).
+    The transverse size of the toroidal-field-coil conductor is instead characterized
+    by quantities such as [width_of_toroidal_field_coil](name:width_of_toroidal_field_coil).
+
+
+    Typical values are set by the scale of the device rather than by a universal material
+    property. For tokamak toroidal-field-coil systems, major radii are commonly of
+    order 1-10 m, with compact devices below this range and reactor-scale designs
+    above it; variations between nearby outline points are usually much smaller than
+    the absolute major radius.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:radius_of_toroidal_field_coil
+  - name:area_of_toroidal_field_coil
+  - name:binormal_coordinate_of_toroidal_field_coil
+  - name:width_of_toroidal_field_coil
+  - name:major_radius_of_poloidal_field_coil
+  arguments:
+  - name: radius_of_toroidal_field_coil
+    operator: major
+    operator_kind: qualifier
+  sources:
+  - id: dd:tf/coil/conductor/cross_section/delta_r
+    dd_path: tf/coil/conductor/cross_section/delta_r
+    status: composed
 - name: resistance_of_correction_coil
   kind: scalar
   status: draft
@@ -2703,6 +3000,130 @@
   - id: dd:tf/coil/resistance
     dd_path: tf/coil/resistance
     status: composed
+- name: resistivity_of_passive_structure
+  kind: scalar
+  status: draft
+  description: Intrinsic electrical resistivity of the material forming a passive
+    conducting structure. It is an effective isotropic, nonnegative scalar material
+    property that relates local current density to electric field, independent of
+    the conductor's geometry, and is distinct from the structure's total electrical
+    resistance.
+  documentation: 'Electrical resistivity of a passive conducting structure is the
+    intrinsic, effective isotropic scalar material property that relates current density
+    to electric field and quantifies how strongly the material opposes electrical
+    conduction. It applies to non-driven conductors such as vacuum-vessel shells,
+    passive stabilizing plates, blanket modules, and support structures, and unlike
+    the total resistance it does not depend on the conductor''s path length or cross-sectional
+    area. As a material property it is nonnegative.
+
+
+    The resistivity enters the local form of Ohm''s law relating electric field to
+    current density:
+
+
+    $$
+
+    \mathbf{E} = \rho \, \mathbf{J}
+
+    $$
+
+
+    where $\mathbf{E}$ is the electric field, $\mathbf{J}$ is the current density,
+    and $\rho$ is the resistivity in ohm meter. Its reciprocal is the electrical conductivity,
+    $\sigma = 1/\rho$. For a uniform circuit element of effective current-path length
+    $L$ and cross-sectional area $A$, the lumped resistance follows as $R = \rho L
+    / A$, the quantity that enters circuit models directly.
+
+
+    Resistivity is usually taken from material specifications, temperature-dependent
+    material databases, or direct electrical measurements such as four-terminal resistance
+    tests on representative samples. In passive-conductor models it is combined with
+    geometry to compute each element resistance, which sets the inductive eddy-current
+    decay time $\tau = L/R$ ($L$ being the element self-inductance) governing how
+    rapidly induced currents decay following a change in external flux linkage during
+    transient electromagnetic events.
+
+
+    Typical room-temperature values are about $1.7 \times 10^{-8}\,\Omega\,\mathrm{m}$
+    for high-conductivity copper, $2.5\text{-}5 \times 10^{-8}\,\Omega\,\mathrm{m}$
+    for copper alloys, $2.7 \times 10^{-8}\,\Omega\,\mathrm{m}$ for aluminum, and
+    $6\text{-}8 \times 10^{-7}\,\Omega\,\mathrm{m}$ for austenitic stainless steels.
+    Heating to several hundred degrees Celsius can raise copper resistivity by roughly
+    a factor of 2-3 and stainless-steel resistivity by about 20-50%, depending on
+    alloy and temperature history.'
+  unit: m.ohm
+  physics_domain: magnetic_field_systems
+  links:
+  - name:area_of_passive_loop
+  - name:current_of_passive_loop
+  - name:resistance_of_passive_loop
+  sources:
+  - id: dd:pf_passive/loop/resistivity
+    dd_path: pf_passive/loop/resistivity
+    status: composed
+- name: saturated_permeability_of_ferritic_element
+  kind: scalar
+  status: draft
+  description: Absolute tangent permeability assigned to the saturated high-field
+    branch of a ferritic element's nonlinear B-H characteristic. It is the finite-field
+    slope used after magnetization is mostly saturated, not the strict infinite-field
+    limit of the material.
+  documentation: 'Saturated permeability $\mu_\mathrm{sat}$ is the absolute scalar
+    permeability assigned to the high-field saturated branch of a ferritic material
+    model. It represents the residual slope of the nonlinear $B$-$H$ characteristic
+    after the magnetization has largely approached its saturation value. As a scalar,
+    it assumes an isotropic or isotropized material response for the ferritic element.
+
+
+    The saturated permeability is defined as the tangent slope of the saturated branch,
+    or in practice as the slope of a linear fit over the selected high-field interval:
+
+
+    $$
+
+    \mu_\mathrm{sat} = \left.\frac{dB}{dH}\right|_\mathrm{saturated\ branch} \approx
+    \frac{\Delta B}{\Delta H}
+
+    $$
+
+
+    where $B$ is magnetic flux density in tesla, $H$ is magnetic field strength in
+    A m$^{-1}$, and $\Delta B/\Delta H$ is evaluated only over the chosen saturated-field
+    interval. This is a tangent or fit-slope permeability, not the secant ratio $B/H$
+    unless a particular material model defines the fitted high-field line through
+    the origin. For an ideal fully saturated material with constant magnetization,
+    the collinear SI relation is $B=\mu_0(H+M_\mathrm{sat})$, so the limiting tangent
+    slope tends to $\mu_0$ while the offset $\mu_0 M_\mathrm{sat}$ remains.
+
+
+    The value is obtained from measured or specified $B$-$H$ curves by selecting the
+    branch beyond the knee of the magnetization curve and fitting its local slope.
+    It is used together with the general field-dependent permeability_of_ferritic_element
+    and B-H characteristic quantities such as magnetic_field_of_iron_core_segment
+    to model nonlinear ferritic inserts or steel structures. The resulting magnetization
+    may be resolved into components such as [radial_magnetization_of_ferritic_element](name:radial_magnetization_of_ferritic_element),
+    [toroidal_magnetization_of_ferritic_element](name:toroidal_magnetization_of_ferritic_element),
+    and [vertical_magnetization_of_ferritic_element](name:vertical_magnetization_of_ferritic_element)
+    in the right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is major radius,
+    $\phi$ is toroidal angle, and $Z$ is vertical height.
+
+
+    For soft ferromagnetic steels near saturation, $\mu_\mathrm{sat}/\mu_0$ commonly
+    ranges from 2-100 over a finite high-field fitting interval, corresponding to
+    about $2.5 \times 10^{-6}$-$1.3 \times 10^{-4}$ H m$^{-1}$. Values depend on alloy
+    composition, temperature, mechanical processing, magnetic history, and the selected
+    field interval; at sufficiently large field the ideal tangent limit approaches
+    $\mu_0 = 1.26 \times 10^{-6}$ H m$^{-1}$.'
+  unit: H.m^-1
+  physics_domain: magnetic_field_systems
+  links:
+  - name:radial_magnetization_of_ferritic_element
+  - name:toroidal_magnetization_of_ferritic_element
+  - name:vertical_magnetization_of_ferritic_element
+  sources:
+  - id: dd:ferritic/object/saturated_relative_permeability
+    dd_path: ferritic/object/saturated_relative_permeability
+    status: composed
 - name: temperature_of_poloidal_field_coil
   kind: scalar
   status: draft
@@ -2809,6 +3230,61 @@
   - id: dd:iron_core/segment/geometry/thick_line/thickness
     dd_path: iron_core/segment/geometry/thick_line/thickness
     status: composed
+- name: thickness_of_passive_loop
+  kind: scalar
+  status: draft
+  description: Non-negative perpendicular distance across a passive conducting loop
+    element in its poloidal cross-section, measured between the two parallel bounding
+    sides. It is the thickness dimension paired with loop cross-section length and
+    inclination to define the conductor geometry.
+  documentation: 'Thickness of a passive loop is the non-negative shortest distance
+    through the conducting material in a constant-$\phi$ cross-section of the right-handed
+    cylindrical $(R,\phi,Z)$ frame, where $R$ is major radius, $\phi$ is toroidal
+    angle, and $Z$ is vertical height. It is measured normal to the pair of parallel
+    bounding sides of an oblique trapezoidal, parallelogram, or thick-line rectangular
+    approximation, complementing the [length of the passive loop](name:major_length_of_conductor_cross_section)
+    and the cross-section inclination angle.
+
+
+    For two parallel bounding sides, the thickness $d$ is the perpendicular separation
+    between them:
+
+
+    $$
+
+    d = \left|\left(\mathbf{r}_b - \mathbf{r}_a\right) \cdot \hat{\mathbf{n}}_\perp\right|
+
+    $$
+
+
+    where $\mathbf{r}_a$ and $\mathbf{r}_b$ are any points on the two opposite sides
+    in the same cross-section, and $\hat{\mathbf{n}}_\perp$ is the unit vector normal
+    to those sides within that plane. The absolute value reflects that thickness is
+    a geometric size, not an oriented displacement.
+
+
+    In practice, $d$ is obtained from mechanical drawings, CAD geometry, surveys,
+    or simplified passive-structure models. Together with [length_of_passive_loop](name:major_length_of_conductor_cross_section)
+    and the inclination angle, it fixes the cross-section used to compute [area_of_passive_loop](name:area_of_passive_loop);
+    for rectangular and parallelogram approximations the area is $d$ times the complementary
+    base length, while for a trapezoid it is $d$ times the mean parallel-side length.
+
+
+    Typical values are 0.003-0.02 m for thin liners or vessel panels, 0.02-0.15 m
+    for passive stabilizing plates and shells, and up to about 0.3 m for massive passive
+    conductor blocks.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:major_length_of_conductor_cross_section
+  - name:area_of_passive_loop
+  sources:
+  - id: dd:pf_passive/loop/element/geometry/oblique/thickness
+    dd_path: pf_passive/loop/element/geometry/oblique/thickness
+    status: composed
+  - id: dd:pf_passive/loop/element/geometry/thick_line/thickness
+    dd_path: pf_passive/loop/element/geometry/thick_line/thickness
+    status: composed
 - name: thickness_of_poloidal_field_coil
   kind: scalar
   status: draft
@@ -2871,6 +3347,199 @@
   - id: dd:pf_active/coil/geometry/thick_line/thickness
     dd_path: pf_active/coil/geometry/thick_line/thickness
     status: composed
+- name: tilt_angle_of_passive_loop
+  kind: scalar
+  status: draft
+  description: Tilt angle of the directed reference axis for the oblique cross-section
+    of a passive conducting loop element. It is measured in the poloidal plane of
+    the right-handed cylindrical (R, phi, Z) frame, with zero along +R and positive
+    rotation from +R toward +Z.
+  documentation: 'The tilt angle of a passive conducting loop is the orientation of
+    the directed reference axis used to describe an oblique cross-section, such as
+    a parallelogram or trapezoid, in the poloidal plane. The reference axis is the
+    cross-section side or side-family direction associated with the oblique tilt parameter,
+    not the toroidal direction of the loop itself.
+
+
+    Let $\hat{e}_\beta$ be the unit vector along this directed cross-section reference
+    axis in the poloidal plane of the right-handed cylindrical $(R, \phi, Z)$ frame.
+    The tilt angle $\beta$ is defined by
+
+
+    $$
+
+    \beta = \operatorname{atan2}(\hat{e}_\beta \cdot \hat{Z},\, \hat{e}_\beta \cdot
+    \hat{R})
+
+    $$
+
+
+    where $\hat{R}$ is the outward major-radius basis vector and $\hat{Z}$ is the
+    vertical basis vector. Thus $\beta=0$ corresponds to a reference axis parallel
+    to $+R$, and the principal branch is usually taken as $-\pi < \beta \le \pi$;
+    angles differing by $2\pi$ describe the same directed orientation.
+
+
+    In practice the angle is obtained from engineering geometry, a CAD description,
+    or a reconstructed polygonal outline of the passive conductor cross-section. It
+    is distinct from the overall toroidal placement angle of a loop and from other
+    oblique-shape angles that may describe a second side inclination or another local
+    edge direction.
+
+
+    Typical values are near 0 rad for cross-section axes approximately radial, around
+    $\pm 1.57$ rad for nearly vertical axes, and commonly within about -0.8-0.8 rad
+    for mildly skewed passive-conductor elements.
+
+
+    Sign convention: Positive when the directed cross-section reference axis is rotated
+    counter-clockwise from the $+R$ direction toward the $+Z$ direction in the poloidal
+    plane of the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: rad
+  physics_domain: magnetic_field_systems
+  links:
+  - name:alpha_angle_of_iron_core_segment
+  - name:area_of_passive_loop
+  sources:
+  - id: dd:pf_passive/loop/element/geometry/oblique/beta
+    dd_path: pf_passive/loop/element/geometry/oblique/beta
+    status: composed
+- name: tilt_angle_of_plasma_filament
+  kind: scalar
+  status: draft
+  description: Tilt angle of a plasma filament is the signed inclination of the oblique
+    side of a parallelogram cross-section in a poloidal section of the right-handed
+    cylindrical (R, phi, Z) frame. It is measured counterclockwise from the upward
+    vertical +Z direction in an R-Z plot with R increasing to the right.
+  documentation: 'The tilt angle of a plasma filament is the signed geometric inclination
+    of the oblique side of a parallelogram cross-section used to represent an extended
+    filamentary plasma current element. The angle is defined in a poloidal cross-section
+    of the right-handed cylindrical $(R,\phi,Z)$ frame, where $R$ is major radius
+    and $Z$ is vertical height.
+
+
+    For a unit vector $\mathbf{u}=u_R\hat{R}+u_Z\hat{Z}$ along the oblique side in
+    that cross-section, the angle $\beta$ can be written as:
+
+
+    $$
+
+    \beta = \operatorname{atan2}(-u_R, u_Z)
+
+    $$
+
+
+    where $u_R$ and $u_Z$ are the radial and vertical components of the side direction.
+    This gives $\beta=0$ for an upward vertical side, $\beta=+\pi/2$ for a side pointing
+    toward decreasing $R$, and $\beta=-\pi/2$ for a side pointing toward increasing
+    $R$.
+
+
+    In practice, the tilt is obtained from the prescribed or reconstructed filament
+    geometry by fitting or selecting the oblique side vector of the parallelogram
+    cross-section in the $(R,Z)$ plane. Together with related geometric parameters
+    such as [length of plasma filament](name:thickness_of_plasma_filament), [tangential
+    length of plasma filament](name:thickness_of_plasma_filament), and [thickness
+    of plasma filament](name:thickness_of_plasma_filament), it fixes the shape and
+    orientation of the finite current element used in magnetic-field calculations.
+
+
+    Typical values are often kept within the principal interval $-\pi/2$ to $+\pi/2$
+    rad for non-overturned cross-sections. Nearly vertical filaments have values close
+    to $0$ rad, while strongly slanted cross-sections may approach magnitudes of about
+    $1.57$ rad.
+
+
+    Sign convention: Positive when the oblique side is rotated counterclockwise from
+    the upward vertical $+Z$ direction in an $(R,Z)$ plot of the right-handed cylindrical
+    $(R,\phi,Z)$ frame with $R$ increasing to the right.'
+  unit: rad
+  physics_domain: magnetic_field_systems
+  links:
+  - name:thickness_of_plasma_filament
+  sources:
+  - id: dd:pf_plasma/element/geometry/oblique/beta
+    dd_path: pf_plasma/element/geometry/oblique/beta
+    status: composed
+- name: toroidal_angle_of_coil_conductor_element
+  kind: scalar
+  status: draft
+  description: Toroidal angle of a coil conductor element in the right-handed cylindrical
+    (R, phi, Z) frame. It gives the element's azimuthal location about the machine
+    symmetry axis.
+  documentation: 'The toroidal angle of a coil conductor element is the azimuthal
+    coordinate of a geometric point on that element in the right-handed cylindrical
+    $(R,\phi,Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and $Z$
+    is vertical height. It locates the point around the toroidal symmetry axis relative
+    to the facility-defined $\phi=0$ radial half-plane. Because it is an angular coordinate,
+    values separated by a full turn represent the same physical direction.
+
+
+    Given Cartesian coordinates $(x,y,z)$ of the same point in the right-handed Cartesian
+    $(\hat{x},\hat{y},\hat{z})$ frame, with $\hat{z}=\hat{Z}$ and the $+\hat{x}$ direction
+    lying in the $\phi=0$ half-plane, the toroidal angle is defined by:
+
+
+    $$
+
+    \phi = \operatorname{atan2}(y,x)
+
+    $$
+
+
+    where $\operatorname{atan2}$ returns the signed angle from $+\hat{x}$ to the horizontal
+    projection of the point. In this definition the principal branch is $(-\pi,\pi]$;
+    an equivalent representative on $[0,2\pi)$ is obtained by adding $2\pi$ to negative
+    principal values.
+
+
+    In practice, this angle is computed from coil-design geometry, survey geometry,
+    or transformed Cartesian coordinates of points used to describe the conductor
+    element, such as endpoints, center points, or interpolation points. A common zero
+    reference and branch should be used consistently, and angles may be unwrapped
+    only to follow a continuous conductor without artificial jumps at the branch cut.
+    This absolute cylindrical coordinate is distinct from the [toroidal angle of a
+    conductor cross-section](name:toroidal_angle_of_toroidal_field_coil), which is
+    a relative orientation angle referenced to a local cross-section reference point
+    or direction.
+
+
+    Typical representative values span a full torus: -3.14-3.14 rad on the $(-\pi,\pi]$
+    branch, or 0-6.28 rad on the $[0,2\pi)$ branch. In devices with $N$ repeated coil
+    sectors, corresponding element locations are often separated by about $2\pi/N$
+    rad.
+
+
+    Sign convention: Positive when the radial direction from the toroidal symmetry
+    axis to the conductor-element point is rotated from the $\phi=0$ half-plane toward
+    increasing $\phi$ in the right-handed cylindrical $(R,\phi,Z)$ frame, counter-clockwise
+    when viewed from above $+\hat{Z}$.'
+  unit: rad
+  physics_domain: magnetic_field_systems
+  links:
+  - name:toroidal_angle_of_toroidal_field_coil
+  sources:
+  - id: dd:coils_non_axisymmetric/coil/conductor/elements/centres/phi
+    dd_path: coils_non_axisymmetric/coil/conductor/elements/centres/phi
+    status: attached
+  - id: dd:coils_non_axisymmetric/coil/conductor/elements/end_points/phi
+    dd_path: coils_non_axisymmetric/coil/conductor/elements/end_points/phi
+    status: attached
+  - id: dd:coils_non_axisymmetric/coil/conductor/elements/intermediate_points/phi
+    dd_path: coils_non_axisymmetric/coil/conductor/elements/intermediate_points/phi
+    status: attached
+  - id: dd:coils_non_axisymmetric/coil/conductor/elements/start_points/phi
+    dd_path: coils_non_axisymmetric/coil/conductor/elements/start_points/phi
+    status: attached
+  - id: dd:tf/coil/conductor/elements/centres/phi
+    dd_path: tf/coil/conductor/elements/centres/phi
+    status: attached
+  - id: dd:tf/coil/conductor/elements/intermediate_points/phi
+    dd_path: tf/coil/conductor/elements/intermediate_points/phi
+    status: attached
+  - id: dd:tf/coil/conductor/elements/start_points/phi
+    dd_path: tf/coil/conductor/elements/start_points/phi
+    status: attached
 - name: toroidal_angle_of_toroidal_field_coil
   kind: scalar
   status: draft
@@ -2974,6 +3643,44 @@
   - id: dd:ferritic/object/time_slice/b_field_tor
     dd_path: ferritic/object/time_slice/b_field_tor
     status: composed
+- name: toroidal_magnetization_of_ferritic_element
+  kind: scalar
+  status: draft
+  description: Toroidal projection of the ferromagnetic magnetization of a ferritic
+    structural element onto the direction of increasing toroidal angle.
+  documentation: "Ferritic structural elements in a tokamak \u2014 such as ferritic\
+    \ steel inserts, stiffening rings, and ferromagnetic vacuum vessel components\
+    \ \u2014 develop a magnetization vector $\\mathbf{M}$ in response to the ambient\
+    \ magnetic field and their magnetic history. The toroidal component $M_\\phi =\
+    \ \\mathbf{M} \\cdot \\hat{\\phi}$ captures the projection of this magnetization\
+    \ onto the toroidal unit vector $\\hat{\\phi}$ in the right-handed cylindrical\
+    \ $(R, \\phi, Z)$ frame, where $\\hat{\\phi}$ points in the direction of increasing\
+    \ toroidal angle $\\phi$.\n\nThe magnitude and sign of $M_\\phi$ depend on the\
+    \ relative permeability of the ferritic material, the local ambient toroidal field\
+    \ evaluated at the element centroid (see [toroidal_magnetic_field_at_ferritic_element_centroid](name:toroidal_magnetic_field_at_ferritic_element_centroid)),\
+    \ and the prior magnetization state of the component. Together with the [radial_magnetization_of_ferritic_element](name:radial_magnetization_of_ferritic_element)\
+    \ and [vertical_magnetization_of_ferritic_element](name:vertical_magnetization_of_ferritic_element)\
+    \ components, the toroidal magnetization fully characterizes the magnetic dipole\
+    \ source of each element used to compute stray-field perturbations to the equilibrium.\n\
+    \nThese three magnetization components are evaluated as part of electromagnetic\
+    \ forward models or equilibrium reconstruction workflows that account for non-axisymmetric\
+    \ field errors introduced by ferromagnetic in-vessel components. Accurate treatment\
+    \ of ferritic magnetization is essential for predicting field perturbations that\
+    \ affect plasma confinement and stability.\n\nSign convention: Positive when $M_\\\
+    phi$ points in the direction of increasing toroidal angle $\\phi$."
+  unit: A.m^-2
+  physics_domain: magnetic_field_systems
+  links:
+  - name:toroidal_magnetic_field_at_ferritic_element_centroid
+  - name:radial_magnetization_of_ferritic_element
+  - name:vertical_magnetization_of_ferritic_element
+  sources:
+  - id: dd:ferritic/object/time_slice/magnetic_moment_phi
+    dd_path: ferritic/object/time_slice/magnetic_moment_phi
+    status: composed
+  - id: dd:ferritic/object/time_slice/magnetic_moment_tor
+    dd_path: ferritic/object/time_slice/magnetic_moment_tor
+    status: attached
 - name: vertical_angle_of_poloidal_field_coil
   kind: scalar
   status: draft
@@ -3302,6 +4009,68 @@
   - id: dd:ferritic/object/time_slice/b_field_z
     dd_path: ferritic/object/time_slice/b_field_z
     status: composed
+- name: vertical_magnetization_of_ferritic_element
+  kind: scalar
+  status: draft
+  description: Vertical component of the magnetization assigned to a ferritic element,
+    resolved along Z in the right-handed cylindrical (R, phi, Z) frame. It follows
+    an element convention with unit A m^-2, distinct from ordinary bulk magnetization.
+  documentation: 'The vertical magnetization of a ferritic element is the $Z$ component
+    of the magnetization assigned to that element, resolved in the right-handed cylindrical
+    $(R, \phi, Z)$ frame. It represents the part of the ferritic material response
+    associated with vertical magnetic polarization when the element is magnetized
+    by the surrounding field. The quantity uses an element convention with dimensions
+    $A\,m^{-2}$, so it should not be interpreted as the ordinary bulk magnetization
+    component commonly denoted $M_Z$ with dimensions $A\,m^{-1}$.
+
+
+    If $\mathbf{M}^{\mathrm{elem}}$ denotes the magnetization vector assigned to the
+    ferritic element using this $A\,m^{-2}$ convention, the vertical component is
+    its projection onto the vertical basis direction:
+
+
+    $$
+
+    M_Z^{\mathrm{elem}} = \mathbf{M}^{\mathrm{elem}} \cdot \hat{Z}
+
+    $$
+
+
+    where $M_Z^{\mathrm{elem}}$ is the vertical component, $\mathbf{M}^{\mathrm{elem}}$
+    has components defined for the same element convention, and $\hat{Z}$ is the vertical
+    unit vector of the right-handed cylindrical $(R, \phi, Z)$ frame.
+
+
+    In practice this component is computed from a magnetic material-response model
+    for the ferritic structure, driven by the local magnetic field at the element,
+    including contributions from coils, plasma currents, and other magnetized material.
+    A linear susceptibility model may be adequate only at low fields; ferromagnetic
+    steels can show nonlinear saturation and hysteresis, so the component is model
+    dependent and is usually constrained indirectly through magnetic-field reconstruction.
+    Together with the [radial magnetization of ferritic element](name:radial_magnetization_of_ferritic_element)
+    and [toroidal magnetization of ferritic element](name:toroidal_magnetization_of_ferritic_element),
+    it specifies the magnetization vector assigned to the element.
+
+
+    No device-independent numerical range is implied, because the $A\,m^{-2}$ magnitude
+    depends on the element convention, element geometry, material magnetization curve,
+    and local field. Typical signed values are bounded by the model''s element saturation
+    magnitude, ranging from $-M_{\mathrm{sat}}^{\mathrm{elem}}$ to $+M_{\mathrm{sat}}^{\mathrm{elem}}$
+    for that element; near-zero values occur for weakly driven or demagnetized material.
+
+
+    Sign convention: Positive when the element magnetization component points in the
+    $+Z$ direction in the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: A.m^-2
+  physics_domain: magnetic_field_systems
+  links:
+  - name:vertical_magnetic_field_at_ferritic_element_centroid
+  - name:radial_magnetization_of_ferritic_element
+  - name:toroidal_magnetization_of_ferritic_element
+  sources:
+  - id: dd:ferritic/object/time_slice/magnetic_moment_z
+    dd_path: ferritic/object/time_slice/magnetic_moment_z
+    status: composed
 - name: vertical_maximum_force
   kind: scalar
   status: draft
@@ -3406,62 +4175,62 @@
   - id: dd:pf_active/vertical_force/limit_min
     dd_path: pf_active/vertical_force/limit_min
     status: composed
-- name: vertical_vacuum_magnetic_vector_potential
+- name: vertical_outline_of_conductor_cross_section
   kind: scalar
   status: draft
-  description: Vertical Z component of the vacuum magnetic vector potential produced
-    by toroidal-field coil currents, evaluated in the right-handed cylindrical (R,
-    phi, Z) frame.
-  documentation: 'The vertical vacuum magnetic vector potential is the $Z$ component
-    $A_Z$ of the magnetic vector potential $\mathbf{A}_{\mathrm{vac}}$ produced by
-    toroidal-field coil currents with plasma-current and material-response currents
-    excluded. It is evaluated along $\hat{Z}$ in the right-handed cylindrical $(R,
-    \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and $Z$
-    is vertical height. The associated vacuum magnetic field satisfies $\mathbf{B}_{\mathrm{vac}}
-    = \nabla \times \mathbf{A}_{\mathrm{vac}}$.
+  description: Vertical coordinate of a boundary point, typically the start of a circular-arc
+    segment, on a conductor cross-section outline. It is measured in meters from the
+    machine midplane along Z in the right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'The vertical outline of a conductor cross-section is the $Z$ coordinate
+    of a point on the conductor boundary, commonly the start point of a circular-arc
+    segment in a piecewise-circular contour. In the right-handed cylindrical $(R,
+    \phi, Z)$ frame, $R$ is major radius in meters, $\phi$ is toroidal angle, and
+    $Z$ is vertical height in meters measured from the machine midplane.
 
 
-    In the Coulomb gage with reference $\mathbf{A}_{\mathrm{vac}} \to 0$ far from
-    localized coils, the Biot-Savart definition of the component is:
+    A boundary point in a meridional cross-section can be identified by its major-radius
+    and vertical coordinates:
 
 
     $$
 
-    A_Z(R, \phi, Z) = \hat{Z}\cdot\frac{\mu_0}{4\pi}\int_{\Omega_{\mathrm{TF}}}\frac{\mathbf{J}_{\mathrm{TF}}(\mathbf{r}'')}{|\mathbf{r}-\mathbf{r}''|}\,d^3r''
+    p_i = (R_i, Z_i)
 
     $$
 
 
-    where $\mathbf{r}$ is the field point with cylindrical coordinates $(R, \phi,
-    Z)$ in meters, $\mathbf{r}''$ is a source point in meters, $\Omega_{\mathrm{TF}}$
-    is the toroidal-field-coil conductor volume, $\mathbf{J}_{\mathrm{TF}}$ is the
-    coil current density in A m$^{-2}$, $d^3r''$ is the source volume element in m$^3$,
-    $\mu_0$ is the vacuum permeability in N A$^{-2}$, and $A_Z$ is in T m.
+    where $p_i$ is the outline point, $R_i$ is the corresponding major-radius coordinate,
+    and this quantity is $Z_i$. For a circular-arc outline, the point coordinates
+    alone specify only the arc start point; the arc radius, curvature or sweep information,
+    and ordering of neighboring points are also required to define the local boundary
+    segment.
 
 
-    It is normally computed from coil geometry and currents using Biot-Savart quadrature
-    or a magnetostatic vector-potential solver. Together with the radial and toroidal
-    components of $\mathbf{A}_{\mathrm{vac}}$, it determines associated vacuum-field
-    components through the cylindrical curl, including [toroidal_vacuum_magnetic_field](name:toroidal_vacuum_magnetic_field)
-    and non-axisymmetric field components such as [vertical_non_axisymmetric_magnetic_field](name:vertical_non_axisymmetric_magnetic_field).
+    This quantity is obtained from conductor engineering geometry, magnetic-field-system
+    design models, or geometry reconstruction of the cross-section contour. It is
+    used together with the corresponding [major-radius outline] and [arc radius] to
+    build the conductor boundary used in field and structural calculations.
 
 
-    Typical magnitudes in the plasma region are about $10^{-3}$-$10$ T m for medium
-    to large tokamaks, with larger local values possible near high-current coil conductors.
-    The value depends on coil current, conductor geometry, distance from the coils,
-    and the specified gage reference.
+    Typical local outline offsets are 0.01-0.5 m for many coil conductors, while absolute
+    vertical coordinates of conductors and passive magnetic structures commonly span
+    -10-10 m in medium-sized devices and may reach -20-20 m in larger devices.
 
 
-    Sign convention: Positive when the gage-fixed vacuum magnetic vector potential
-    has a component in the $+Z$ direction of the right-handed cylindrical $(R, \phi,
-    Z)$ frame.'
-  unit: T.m
+    Sign convention: Positive when the outline point lies above the machine midplane
+    in the $+Z$ direction of the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: m
   physics_domain: magnetic_field_systems
-  links:
-  - name:radial_vacuum_magnetic_vector_potential
+  links: []
   sources:
-  - id: dd:tf/field_map/a_field_z/values
-    dd_path: tf/field_map/a_field_z/values
+  - id: dd:coils_non_axisymmetric/coil/conductor/cross_section/delta_z
+    dd_path: coils_non_axisymmetric/coil/conductor/cross_section/delta_z
+    status: attached
+  - id: dd:iron_core/segment/geometry/arcs_of_circle/z
+    dd_path: iron_core/segment/geometry/arcs_of_circle/z
+    status: composed
+  - id: dd:tf/coil/conductor/cross_section/delta_z
+    dd_path: tf/coil/conductor/cross_section/delta_z
     status: composed
 - name: voltage_of_correction_coil
   kind: scalar
@@ -3631,6 +4400,59 @@
   - id: dd:tf/coil/voltage
     dd_path: tf/coil/voltage
     status: composed
+- name: volume_of_ferritic_element
+  kind: scalar
+  status: draft
+  description: Total physical volume occupied by a ferritic in-vessel element. It
+    is a non-negative geometric measure used with material properties and magnetization
+    components, with dimensional consistency set by the units of those companion quantities.
+  documentation: 'Volume of a ferritic element is the amount of physical space occupied
+    by the ferromagnetic material assigned to that element. It excludes voids or non-ferritic
+    regions unless they are intentionally homogenized into the element definition.
+
+
+    The element volume $V_e$ is the volume integral over the material region $\Omega_e$:
+
+
+    $$
+
+    V_e = \int_{\Omega_e} d^3x
+
+    $$
+
+
+    where $\Omega_e$ is the region occupied by the ferritic element and $d^3x$ is
+    the differential volume element.
+
+
+    In practice, $V_e$ is computed from a geometric model, mesh, or material inventory
+    by summing the volumes of the cells or subregions assigned to the ferritic element.
+    For homogenized components, the reported volume should correspond to the effective
+    ferritic material volume used in the magnetic model.
+
+
+    The physical range is $V_e \ge 0$ m^3, with $V_e = 0$ only for an absent or idealized
+    zero-volume element. Typical modeled elements range from about $10^{-6}$-$10^{-2}$
+    m^3 for small mesh cells or inserts to $10^{-3}$-1 m^3 for larger ferritic structures.
+
+
+    When combined with ferritic-element magnetization components, the product must
+    respect the component units. For a component expressed in A m^-2, multiplying
+    by $V_e$ in m^3 gives a quantity with unit A m in that component direction; it
+    is not an SI magnetic dipole moment in A m^2 unless the magnetization component
+    has first been converted to true magnetization in A m^-1 or an equivalent model
+    conversion supplies the missing length factor.'
+  unit: m^3
+  physics_domain: magnetic_field_systems
+  links:
+  - name:width_of_ferritic_element
+  - name:toroidal_magnetization_of_ferritic_element
+  - name:radial_magnetization_of_ferritic_element
+  - name:vertical_magnetization_of_ferritic_element
+  sources:
+  - id: dd:ferritic/object/volume
+    dd_path: ferritic/object/volume
+    status: composed
 - name: width_of_correction_coil
   kind: scalar
   status: draft
@@ -3699,6 +4521,113 @@
   - id: dd:coils_non_axisymmetric/coil/conductor/cross_section/width
     dd_path: coils_non_axisymmetric/coil/conductor/cross_section/width
     status: attached
+- name: width_of_ferritic_element
+  kind: scalar
+  status: draft
+  description: Non-negative scalar full radial extent of the rectangular cross-section
+    of a ferritic element, measured along major radius R in the right-handed cylindrical
+    (R, phi, Z) frame.
+  documentation: 'Width of a ferritic element is the non-negative scalar full radial
+    extent of its rectangular cross-section in an axisymmetric thick-line geometric
+    model. The cross-section lies in the plane spanned by $R$ and $Z$ of the right-handed
+    cylindrical $(R, \phi, Z)$ frame, and the width is measured parallel to major
+    radius $R$, not as a directed displacement.
+
+
+    The radial width is defined by the separation of the two radial edges of the rectangle:
+
+
+    $$
+
+    w = R_{\mathrm{max}} - R_{\mathrm{min}}
+
+    $$
+
+
+    where $w$ is the width, and $R_{\mathrm{max}}$ and $R_{\mathrm{min}}$ are the
+    major-radius coordinates, in meters, of the outer and inner radial edges, with
+    $R_{\mathrm{max}} \ge R_{\mathrm{min}}$. The complementary size of the same rectangular
+    section is [thickness_of_ferritic_element](name:thickness_of_ferritic_element),
+    the extent transverse to the ferritic element''s central segment line; with complementary
+    thickness $d$, the rectangular cross-sectional area $A$ satisfies $A = w d$.
+
+
+    The value is normally obtained from engineering geometry or from the geometric
+    model used in magnetic-field and equilibrium calculations. Together with [major_radius_of_ferritic_element](name:major_radius_of_ferritic_element),
+    it fixes the radial span of the rectangle; annular approximations instead use
+    [inner_radius_of_ferritic_element](name:inner_radius_of_ferritic_element) and
+    [outer_radius_of_ferritic_element](name:outer_radius_of_ferritic_element). The
+    analogous dimension for an iron-core magnetic-circuit segment is [width_of_iron_core_segment](name:width_of_iron_core_segment).
+
+
+    Typical values are strongly device- and component-specific. Small ferritic inserts
+    may be centimeter-scale, whereas larger ferritic structures can be decimeter-
+    to meter-scale; in all cases the value is a non-negative length in meters set
+    by the component design.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:thickness_of_ferritic_element
+  - name:major_radius_of_ferritic_element
+  - name:inner_radius_of_ferritic_element
+  - name:outer_radius_of_ferritic_element
+  - name:width_of_iron_core_segment
+  sources:
+  - id: dd:ferritic/object/axisymmetric/rectangle/width
+    dd_path: ferritic/object/axisymmetric/rectangle/width
+    status: attached
+- name: width_of_iron_core_segment
+  kind: scalar
+  status: draft
+  description: Non-negative full extent of an iron core segment's rectangular cross-section
+    in the major-radius direction of the right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'Width of an iron core segment is the non-negative full extent of
+    its rectangular cross-section in the major-radius direction of the right-handed
+    cylindrical $(R, \phi, Z)$ frame, where $R$ is major radius and $Z$ is vertical
+    height. It is the horizontal radial dimension of the rectangle; the complementary
+    vertical dimension is the [height](name:height_of_iron_core_segment), while [thickness](name:thickness_of_iron_core_segment)
+    denotes a separate distance normal to the segment centerline and is not the vertical
+    side of this rectangle.
+
+
+    For a rectangular cross-section bounded by two radial faces, the width is the
+    separation between their extrema in major radius:
+
+
+    $$
+
+    w = R_{\max} - R_{\min}
+
+    $$
+
+
+    where $w$ is the width in meters, and $R_{\max}$ and $R_{\min}$ are the maximum
+    and minimum major-radius coordinates of the rectangular cross-section in meters.
+    For an $R$-$Z$ aligned rectangle, the cross-sectional area is given inline by
+    $A = w h$, where $h$ is the height in meters and $A$ is in square meters.
+
+
+    The width is obtained from engineering geometry, design drawings, or geometric
+    reconstruction of the iron core segment by measuring the horizontal radial separation
+    of the two vertical sides of the rectangular cross-section. It is used with the
+    height and material properties to estimate magnetic flux capacity, saturation
+    behavior, structural envelope, and neutronics shielding effects.
+
+
+    Typical values range from 0.03-0.5 m for many tokamak iron core segments, with
+    larger return-yoke or transformer-core pieces reaching about 1 m depending on
+    the magnetic-circuit design.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:height_of_iron_core_segment
+  - name:thickness_of_iron_core_segment
+  - name:inner_radius_of_iron_core_segment
+  - name:outer_radius_of_iron_core_segment
+  sources:
+  - id: dd:iron_core/segment/geometry/rectangle/width
+    dd_path: iron_core/segment/geometry/rectangle/width
+    status: composed
 - name: width_of_passive_structure
   kind: scalar
   status: draft
@@ -3904,4 +4833,155 @@
   sources:
   - id: dd:ferritic/object/centroid/x
     dd_path: ferritic/object/centroid/x
+    status: composed
+- name: vacuum_magnetic_vector_potential
+  kind: vector
+  status: draft
+  description: Gage-dependent vector potential whose curl yields the vacuum magnetic
+    field produced by externally driven coil currents, with components resolved in
+    the right-handed cylindrical (R, phi, Z) frame.
+  documentation: "The vacuum magnetic vector potential $\\mathbf{A}_\\text{vac}$ is\
+    \ the gage-dependent vector field generated solely by external coil currents in\
+    \ the absence of plasma current or eddy-current contributions. In the right-handed\
+    \ cylindrical $(R, \\phi, Z)$ frame \u2014 where $R$ is the major radius, $\\\
+    phi$ the toroidal angle increasing counter-clockwise when viewed from above, and\
+    \ $Z$ the vertical coordinate \u2014 the vector is characterized by its cylindrical\
+    \ projections; the [radial component](name:radial_vacuum_magnetic_vector_potential)\
+    \ and [vertical component](name:vertical_vacuum_magnetic_vector_potential) together\
+    \ capture the poloidal-plane content of the coil-driven field.\n\nThe defining\
+    \ relation connecting $\\mathbf{A}_\\text{vac}$ to the vacuum magnetic field $\\\
+    mathbf{B}_\\text{vac}$ is:\n\n$$\n\\mathbf{B}_\\text{vac} = \\nabla \\times \\\
+    mathbf{A}_\\text{vac}\n$$\n\nwhere $\\mathbf{B}_\\text{vac}$ is in T. Because\
+    \ the curl determines $\\mathbf{A}_\\text{vac}$ only up to a gradient, a gage\
+    \ condition \u2014 for example the Coulomb gage $\\nabla \\cdot \\mathbf{A}_\\\
+    text{vac} = 0$ \u2014 must be imposed to make the field unique. The vacuum potential\
+    \ enters single-particle canonical dynamics through $\\mathbf{p} = m\\mathbf{v}\
+    \ + q\\mathbf{A}_\\text{vac}$, where $m$ is particle mass, $\\mathbf{v}$ velocity,\
+    \ and $q$ charge, and thereby appears in gyrokinetic Hamiltonians and inductance\
+    \ integrals.\n\nThe vacuum contribution is computed analytically via Biot-Savart\
+    \ integration over discrete coil filaments or numerically through magnetostatic\
+    \ finite-element solvers, and represents the external-source term in the total\
+    \ [magnetic_vector_potential](name:magnetic_vector_potential) before plasma-current\
+    \ contributions are added in full magnetohydrodynamic equilibrium formulations."
+  unit: T.m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:radial_vacuum_magnetic_vector_potential
+  - name:vertical_vacuum_magnetic_vector_potential
+  - name:magnetic_vector_potential
+  arguments:
+  - name: magnetic_vector_potential
+    operator: vacuum
+    operator_kind: qualifier
+- name: radial_vacuum_magnetic_vector_potential
+  kind: scalar
+  status: draft
+  description: Radial (R) component of the vacuum magnetic vector potential produced
+    by toroidal-field coil currents, evaluated in the right-handed cylindrical (R,
+    phi, Z) frame.
+  documentation: 'The radial component $A_R$ of the vacuum magnetic vector potential
+    is the projection of $\mathbf{A}_\mathrm{vac}$ onto the major-radius direction
+    $\hat{R}$ in the right-handed cylindrical $(R, \phi, Z)$ frame. It represents
+    the $R$-directed contribution of the vector field generated exclusively by toroidal-field
+    coil conductor currents in the absence of any plasma contribution, forming part
+    of the complete [vacuum magnetic vector potential](name:vacuum_magnetic_vector_potential)
+    vector $(A_R, A_\phi, A_Z)$.
+
+
+    The vacuum magnetic field is related to the vector potential by $\mathbf{B}_\mathrm{vac}
+    = \nabla \times \mathbf{A}_\mathrm{vac}$, so the poloidal field components follow
+    from the cylindrical curl of $(A_R, A_\phi, A_Z)$. Because only $\nabla \times
+    \mathbf{A}_\mathrm{vac}$ is gage-invariant, $A_R$ individually depends on the
+    chosen gage; the Coulomb gage $\nabla \cdot \mathbf{A} = 0$ is standard for static
+    TF coil computations.
+
+
+    This component is calculated numerically via Biot-Savart integration over the
+    TF coil conductor geometry and current distribution, and is used in equilibrium
+    reconstruction and MHD stability analysis on both structured and unstructured
+    spatial grids. The complementary vertical component is provided by [vertical_vacuum_magnetic_vector_potential](name:vertical_vacuum_magnetic_vector_potential),
+    while the analogous quantity incorporating full plasma and coil contributions
+    is [radial_magnetic_vector_potential](name:radial_magnetic_vector_potential).
+
+
+    Sign convention: Positive when $A_R$ points in the direction of increasing major
+    radius $R$.'
+  unit: T.m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:vacuum_magnetic_vector_potential
+  - name:vertical_vacuum_magnetic_vector_potential
+  - name:radial_magnetic_vector_potential
+  arguments:
+  - name: vacuum_magnetic_vector_potential
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
+  sources:
+  - id: dd:tf/field_map/a_field_r/values
+    dd_path: tf/field_map/a_field_r/values
+    status: composed
+- name: vertical_vacuum_magnetic_vector_potential
+  kind: scalar
+  status: draft
+  description: Vertical Z component of the vacuum magnetic vector potential produced
+    by toroidal-field coil currents, evaluated in the right-handed cylindrical (R,
+    phi, Z) frame.
+  documentation: 'The vertical vacuum magnetic vector potential is the $Z$ component
+    $A_Z$ of the magnetic vector potential $\mathbf{A}_{\mathrm{vac}}$ produced by
+    toroidal-field coil currents with plasma-current and material-response currents
+    excluded. It is evaluated along $\hat{Z}$ in the right-handed cylindrical $(R,
+    \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and $Z$
+    is vertical height. The associated vacuum magnetic field satisfies $\mathbf{B}_{\mathrm{vac}}
+    = \nabla \times \mathbf{A}_{\mathrm{vac}}$.
+
+
+    In the Coulomb gage with reference $\mathbf{A}_{\mathrm{vac}} \to 0$ far from
+    localized coils, the Biot-Savart definition of the component is:
+
+
+    $$
+
+    A_Z(R, \phi, Z) = \hat{Z}\cdot\frac{\mu_0}{4\pi}\int_{\Omega_{\mathrm{TF}}}\frac{\mathbf{J}_{\mathrm{TF}}(\mathbf{r}'')}{|\mathbf{r}-\mathbf{r}''|}\,d^3r''
+
+    $$
+
+
+    where $\mathbf{r}$ is the field point with cylindrical coordinates $(R, \phi,
+    Z)$ in meters, $\mathbf{r}''$ is a source point in meters, $\Omega_{\mathrm{TF}}$
+    is the toroidal-field-coil conductor volume, $\mathbf{J}_{\mathrm{TF}}$ is the
+    coil current density in A m$^{-2}$, $d^3r''$ is the source volume element in m$^3$,
+    $\mu_0$ is the vacuum permeability in N A$^{-2}$, and $A_Z$ is in T m.
+
+
+    It is normally computed from coil geometry and currents using Biot-Savart quadrature
+    or a magnetostatic vector-potential solver. Together with the radial and toroidal
+    components of $\mathbf{A}_{\mathrm{vac}}$, it determines associated vacuum-field
+    components through the cylindrical curl, including [toroidal_vacuum_magnetic_field](name:toroidal_vacuum_magnetic_field)
+    and non-axisymmetric field components such as [vertical_non_axisymmetric_magnetic_field](name:vertical_non_axisymmetric_magnetic_field).
+
+
+    Typical magnitudes in the plasma region are about $10^{-3}$-$10$ T m for medium
+    to large tokamaks, with larger local values possible near high-current coil conductors.
+    The value depends on coil current, conductor geometry, distance from the coils,
+    and the specified gage reference.
+
+
+    Sign convention: Positive when the gage-fixed vacuum magnetic vector potential
+    has a component in the $+Z$ direction of the right-handed cylindrical $(R, \phi,
+    Z)$ frame.'
+  unit: T.m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:radial_vacuum_magnetic_vector_potential
+  arguments:
+  - name: vacuum_magnetic_vector_potential
+    operator: component
+    operator_kind: projection
+    axis: vertical
+    shape: component
+  sources:
+  - id: dd:tf/field_map/a_field_z/values
+    dd_path: tf/field_map/a_field_z/values
     status: composed
