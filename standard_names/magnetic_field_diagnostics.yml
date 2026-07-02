@@ -1,6 +1,6 @@
 # Domain: magnetic_field_diagnostics
-# Catalog sha: b8d10395a003efc46be6fc45a94b1f9308d6a87b
-# Entries: 17
+# Catalog sha: 8907b76455ee66eb637e3842250dd81478dc2348
+# Entries: 20
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -132,8 +132,8 @@
     The ideal relation assumes uniform turn density, a nonmagnetic core, complete
     enclosure of the measured current, negligible pickup from external fields, and
     a return conductor routed along the coil centerline so it does not form an additional
-    single-turn pickup loop. The [major radius of the Rogowski coil](name:major_radius_of_rogowski_coil)
-    helps set the mean winding path length used to convert total turns to turn density.
+    single-turn pickup loop. The [major radius of the Rogowski coil] helps set the
+    mean winding path length used to convert total turns to turn density.
 
 
     Typical effective areas for installed Rogowski coils are about $10^{-4}$-$10^{-2}$
@@ -143,8 +143,7 @@
     voltage signals if their winding densities differ.'
   unit: m^2
   physics_domain: magnetic_field_diagnostics
-  links:
-  - name:major_radius_of_rogowski_coil
+  links: []
   sources:
   - id: dd:magnetics/rogowski_coil/area
     dd_path: magnetics/rogowski_coil/area
@@ -319,183 +318,145 @@
   - id: dd:magnetics/b_field_tor_probe/turns
     dd_path: magnetics/b_field_tor_probe/turns
     status: composed
-- name: major_radius_of_flux_loop
+- name: magnetic_field_at_magnetic_axis_magnitude
   kind: scalar
   status: draft
-  description: Major-radius coordinate of a flux-loop reference point in the right-handed
-    cylindrical (R, phi, Z) frame. It is the perpendicular distance from the toroidal
-    symmetry axis to the loop position.
-  documentation: 'The major radius of a flux loop is the $R$ coordinate of the loop''s
-    chosen reference point in the right-handed cylindrical $(R, \phi, Z)$ frame, where
-    $R$ is distance from the toroidal symmetry axis, $\phi$ is toroidal angle, and
-    $Z$ is vertical height. It locates the sensor in the horizontal plane and, together
-    with $\phi$ and $Z$, specifies the position associated with the loop geometry
-    or attachment point.
-
-
-    The coordinate is the cylindrical radial coordinate derived from horizontal Cartesian
-    coordinates:
-
-
-    $$
-
-    R = \sqrt{x^2 + y^2}
-
-    $$
-
-
-    where $x$ and $y$ are measured in a right-handed Cartesian $(x, y, z)$ frame with
-    $z$ vertical and origin on the toroidal symmetry axis; $x$, $y$, and $R$ have
-    units of meters.
-
-
-    In practice, $R$ is obtained from mechanical design information or metrology of
-    the flux-loop winding, support, or attachment point. For an extended loop, the
-    reference point is chosen consistently, such as the geometric center of the winding
-    or a defined attachment location. This coordinate helps relate the sensor position
-    to the measured [poloidal magnetic flux at the sensor attachment point](name:poloidal_magnetic_flux_at_sensor_attachment_point).
-
-
-    Typical values are comparable to the machine size: about 0.2-2 m in small tokamaks
-    and spherical tori, 1-4 m in medium-size tokamaks, and 4-10 m in large devices.'
+  description: Euclidean norm of the total magnetic field vector evaluated at the
+    magnetic axis, where the poloidal flux reaches its extremum and poloidal field
+    components vanish in an axisymmetric equilibrium.
+  documentation: "The magnetic axis is the unique interior point where the poloidal\
+    \ flux function $\\psi$ attains its extremum, defining the center of the nested\
+    \ flux-surface topology. In an axisymmetric equilibrium, the poloidal field components\
+    \ vanish there by symmetry, so the field magnitude is dominated by the toroidal\
+    \ contribution.\n\nThe on-axis field magnitude is defined as:\n\n$$\nB_0 = |\\\
+    mathbf{B}|_{\\rm axis} = \\sqrt{B_R^2 + B_\\phi^2 + B_Z^2}\\bigg|_{R=R_{\\rm axis},\\\
+    , Z=Z_{\\rm axis}}\n$$\n\nwhere $B_R$, $B_\\phi$, and $B_Z$ are the radial, toroidal,\
+    \ and vertical components of $\\mathbf{B}$ in the right-handed cylindrical $(R,\
+    \ \\phi, Z)$ frame, evaluated at the axis position $(R_{\\rm axis}, Z_{\\rm axis})$.\n\
+    \nThis quantity serves as the conventional reference field $B_0$ for normalizing\
+    \ plasma parameters, and is obtained from equilibrium reconstruction combining\
+    \ external magnetic diagnostics with pressure profile constraints. Its value closely\
+    \ tracks [toroidal_magnetic_field_at_magnetic_axis](name:toroidal_magnetic_field_at_magnetic_axis)\
+    \ because the poloidal field contribution is negligible at the axis. Typical on-axis\
+    \ values range from 1\u20136 T in medium to large tokamaks; the corresponding\
+    \ flux-surface extremal counterparts are [maximum_magnetic_field_magnitude](name:maximum_magnetic_field_magnitude)\
+    \ and [minimum_magnetic_field_magnitude](name:minimum_magnetic_field_magnitude)."
+  unit: T
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:toroidal_magnetic_field_at_magnetic_axis
+  - name:maximum_magnetic_field_magnitude
+  - name:minimum_magnetic_field_magnitude
+  sources:
+  - id: dd:summary/local/magnetic_axis/b_field/value
+    dd_path: summary/local/magnetic_axis/b_field/value
+    status: composed
+- name: radial_coordinate_of_flux_loop
+  kind: scalar
+  status: draft
+  description: "Major radius R coordinate of a flux loop diagnostic position, giving\
+    \ the perpendicular distance from the toroidal symmetry axis to the loop center\
+    \ in the right-handed cylindrical (R, \u03C6, Z) frame."
+  documentation: "The radial coordinate $R$ gives the position of a flux loop diagnostic\
+    \ in the major-radius direction of the right-handed cylindrical $(R, \\phi, Z)$\
+    \ frame, where $R$ is the perpendicular distance from the toroidal symmetry axis.\
+    \ Flux loops are closed conducting loops whose terminal voltage obeys Faraday's\
+    \ law, $V = -d\\Psi/dt$, where $\\Psi$ is the total poloidal magnetic flux enclosed\
+    \ by the loop; the loop's $(R, Z)$ position is essential for mapping the measured\
+    \ flux to the equilibrium geometry during reconstruction. Typical major-radius\
+    \ positions for flux loops span from values near the inner wall to the outer vacuum\
+    \ vessel structure, covering roughly 0.5\u201312 m across current and planned\
+    \ tokamak devices.\n\nThe radial position is obtained from engineering survey\
+    \ data or the design geometry of the magnetic diagnostic assembly and is treated\
+    \ as a fixed calibration parameter for each measurement campaign. Together with\
+    \ the [terminal loop voltage](name:voltage_of_flux_loop) and the [effective sensing\
+    \ area](name:area_of_flux_loop), this coordinate fully characterizes the spatial\
+    \ contribution of each flux loop to the equilibrium constraint set. The identical\
+    \ spatial registration convention is used for the [radial coordinate of a poloidal\
+    \ magnetic field probe](name:radial_coordinate_of_poloidal_magnetic_field_probe).\n\
+    \nSign convention: Positive when directed away from the toroidal symmetry axis\
+    \ in the direction of increasing $R$."
   unit: m
   physics_domain: magnetic_field_diagnostics
   links:
-  - name:major_radius_of_poloidal_magnetic_field_probe
-  - name:major_radius_of_magnetic_axis
+  - name:voltage_of_flux_loop
+  - name:area_of_flux_loop
+  - name:radial_coordinate_of_poloidal_magnetic_field_probe
   sources:
   - id: dd:magnetics/flux_loop/position/r
     dd_path: magnetics/flux_loop/position/r
     status: composed
-- name: major_radius_of_poloidal_magnetic_field_probe
+- name: radial_coordinate_of_poloidal_magnetic_field_probe
   kind: scalar
   status: draft
-  description: Major-radius coordinate of the physical location of a poloidal magnetic
-    field probe, giving the probe's distance from the machine symmetry axis in the
-    right-handed cylindrical $(R, \phi, Z)$ frame.
-  documentation: "The major-radius coordinate $R$ specifies the distance of a poloidal\
-    \ magnetic field probe from the machine's toroidal symmetry axis within the right-handed\
-    \ cylindrical $(R, \\phi, Z)$ frame, where $R$ is the horizontal distance from\
-    \ the symmetry axis in meters, $\\phi$ is the toroidal angle increasing counter-clockwise\
-    \ when viewed from above, and $Z$ is the vertical height.\n\nPoloidal magnetic\
-    \ field probes (Mirnov coils) measure the poloidal component of the magnetic field\
-    \ and are deployed in arrays near the vacuum vessel wall to diagnose MHD activity,\
-    \ determine plasma position and shape, and constrain equilibrium reconstructions.\
-    \ The $R$ coordinate of each probe is surveyed precisely at installation and must\
-    \ be recorded alongside each measured signal so that probe readings can be compared\
-    \ with predicted field values and spatially resolved in the poloidal cross-section.\
-    \ This coordinate pairs with the corresponding vertical position to fully fix\
-    \ each probe's location in the $(R, Z)$ plane.\n\nTypical values range from approximately\
-    \ 0.5 m in compact tokamaks to 4\u20135 m in large-scale devices, tracking the\
-    \ range of machine major radii. This quantity is the poloidal-probe analog of\
-    \ [major_radius_of_toroidal_magnetic_field_probe](name:major_radius_of_toroidal_magnetic_field_probe)\
-    \ and, together with [major_radius_of_magnetic_axis](name:major_radius_of_magnetic_axis),\
-    \ provides the geometric context needed to interpret probe measurements in terms\
-    \ of the [poloidal_magnetic_field](name:poloidal_magnetic_field) distribution\
-    \ across the vessel cross-section.\n\nSign convention: Positive when the probe\
-    \ position is measured in the direction of increasing $R$ from the machine symmetry\
-    \ axis."
+  description: Major radius R coordinate of the physical location of a poloidal magnetic
+    field probe in the right-handed cylindrical (R, phi, Z) frame.
+  documentation: 'The radial coordinate $R$ gives the major-radius position of a poloidal
+    magnetic field probe, measured from the machine symmetry axis in the right-handed
+    cylindrical $(R, \phi, Z)$ frame, where $R$ is the major radius, $\phi$ is the
+    toroidal angle, and $Z$ is the vertical height.
+
+
+    Poloidal magnetic field probes are distributed around the poloidal cross-section
+    of the vessel to sample the local poloidal field component; their radial positions
+    span from the inboard wall to the outboard wall and are established by physical
+    survey of the installed hardware. Together with [radial_coordinate_of_flux_loop](name:radial_coordinate_of_flux_loop)
+    and [radial_coordinate_of_toroidal_magnetic_field_probe](name:radial_coordinate_of_toroidal_magnetic_field_probe),
+    this value maps the complete primary magnetics diagnostic array onto the poloidal
+    cross-section for equilibrium reconstruction. The [area_of_poloidal_magnetic_field_probe](name:area_of_poloidal_magnetic_field_probe)
+    and [voltage_of_poloidal_magnetic_field_probe](name:voltage_of_poloidal_magnetic_field_probe)
+    characterize the flux-sensing area and measured signal of the same probe at this
+    radial location.
+
+
+    Typical values range from roughly 0.5-2 m for compact devices to 4-10 m for large
+    tokamaks.
+
+
+    Sign convention: Positive when measured outward from the machine symmetry axis
+    in the direction of increasing major radius $R$.'
   unit: m
   physics_domain: magnetic_field_diagnostics
   links:
-  - name:major_radius_of_toroidal_magnetic_field_probe
-  - name:major_radius_of_magnetic_axis
-  - name:poloidal_magnetic_field
+  - name:radial_coordinate_of_flux_loop
+  - name:radial_coordinate_of_toroidal_magnetic_field_probe
+  - name:area_of_poloidal_magnetic_field_probe
+  - name:voltage_of_poloidal_magnetic_field_probe
   sources:
-  - id: dd:magnetics/b_field_pol_probe/position/r
-    dd_path: magnetics/b_field_pol_probe/position/r
-    status: composed
   - id: dd:magnetics/bpol_probe/position/r
     dd_path: magnetics/bpol_probe/position/r
     status: composed
-- name: major_radius_of_rogowski_coil
+- name: radial_coordinate_of_toroidal_magnetic_field_probe
   kind: scalar
   status: draft
-  description: "Major radius (R) coordinate of a Rogowski coil position in the right-handed\
-    \ cylindrical (R, \u03C6, Z) frame."
-  documentation: 'Major radius of a Rogowski coil is the $R$ coordinate of the coil
-    reference position in the right-handed cylindrical $(R, \phi, Z)$ frame. It is
-    the perpendicular distance from the toroidal symmetry axis to that reference point,
-    independent of the toroidal angle $\phi$ and vertical coordinate $Z$.
-
-
-    The cylindrical radius is related to a right-handed Cartesian $(x, y, z)$ frame
-    whose $z$ axis is the vertical symmetry axis by
-
-
-    $$
-
-    R = \sqrt{x^2 + y^2}
-
-    $$
-
-
-    where $x$ and $y$ are horizontal Cartesian coordinates measured from the toroidal
-    symmetry axis. The associated cylindrical angle $\phi$ increases counter-clockwise
-    when viewed from above $+\hat{Z}$.
-
-
-    In practice, this coordinate is obtained from the mechanical design, installation
-    survey, or metrology of the Rogowski coil reference point, then expressed in the
-    right-handed cylindrical $(R, \phi, Z)$ frame. Together with related position
-    coordinates such as the vertical position, it specifies the location of the reference
-    point but does not by itself describe the full coil shape, winding path, or enclosed
-    area.
-
-
-    Typical values range from about 0.2-2 m in compact devices, 1-4 m in medium-sized
-    tokamaks, and up to 6-10 m in large devices, depending on where the Rogowski coil
-    is mounted relative to the vacuum vessel, central column, and support structures.'
-  unit: m
-  physics_domain: magnetic_field_diagnostics
-  links:
-  - name:area_of_rogowski_coil
-  - name:major_radius_of_coil_conductor_element
-  sources:
-  - id: dd:magnetics/rogowski_coil/position/r
-    dd_path: magnetics/rogowski_coil/position/r
-    status: composed
-- name: major_radius_of_toroidal_magnetic_field_probe
-  kind: scalar
-  status: draft
-  description: Major-radius R-coordinate of the physical location of a toroidal magnetic
-    field probe in the right-handed cylindrical (R, phi, Z) frame.
-  documentation: 'The major radius $R$ specifies the radial distance from the toroidal
-    symmetry axis to the physical location of a toroidal magnetic field probe, measured
-    in the right-handed cylindrical $(R, \phi, Z)$ frame where $R$ is the distance
-    from the symmetry axis, $\phi$ increases counter-clockwise when viewed from above
-    $+\hat{Z}$, and $Z$ is the vertical height.
-
-
-    Together with the [vertical coordinate](name:vertical_coordinate_of_toroidal_magnetic_field_probe)
-    and the [toroidal angle](name:toroidal_angle_of_toroidal_magnetic_field_probe),
-    the major radius fully specifies the three-dimensional position of the probe.
-    Accurate knowledge of this radial coordinate is essential for interpreting measured
-    $B_\phi$ values and for incorporating probe signals into equilibrium reconstruction
-    or non-axisymmetric field mapping, since both the vacuum field magnitude and the
-    local flux surface geometry depend strongly on $R$.
-
-
-    The probe position is determined by mechanical survey or optical metrology during
-    installation and is treated as a fixed geometric property of the diagnostic array.
-    The [cross-sectional area](name:area_of_toroidal_magnetic_field_probe) of the
-    probe coil and its radial position together enter the calibration of flux measurements.
-    The analogous coordinate for poloidal field probes is [major_radius_of_poloidal_magnetic_field_probe](name:major_radius_of_poloidal_magnetic_field_probe).
-
-
-    Sign convention: Positive when measured outward from the toroidal symmetry axis
-    in the $+\hat{R}$ direction.'
+  description: "Major radius R coordinate of the physical location of a toroidal magnetic\
+    \ field probe in the right-handed cylindrical (R, \u03C6, Z) frame, measured from\
+    \ the toroidal symmetry axis to the probe center."
+  documentation: "The radial position of a toroidal magnetic field probe specifies\
+    \ how far the sensing coil is located from the machine symmetry axis, measured\
+    \ along the major radial direction $\\hat{R}$ in the right-handed cylindrical\
+    \ $(R, \\phi, Z)$ frame where $R$ is the distance from the toroidal symmetry axis\
+    \ and $Z$ is the vertical height.\n\nTogether with the [vertical coordinate](name:vertical_coordinate_of_toroidal_magnetic_field_probe)\
+    \ and the [toroidal angle](name:toroidal_angle_of_toroidal_magnetic_field_probe),\
+    \ this coordinate fully determines the three-dimensional position of the probe\
+    \ in the device. These three coordinates enter directly into equilibrium reconstruction\
+    \ algorithms, which weight magnetic field measurements by their geometric location\
+    \ relative to the plasma column. The analogous coordinate for poloidal-field sensing\
+    \ coils is the [radial coordinate of a poloidal magnetic field probe](name:radial_coordinate_of_poloidal_magnetic_field_probe).\n\
+    \nThe coordinate is obtained from engineering survey data or computer-aided design\
+    \ models of the diagnostic hardware. Typical values range from approximately 1\
+    \ m at the inner wall to 10 m at the outer wall for large-scale devices, with\
+    \ medium-sized tokamaks spanning roughly 1.5\u20135 m.\n\nSign convention: Positive\
+    \ when the probe position is displaced outward from the toroidal symmetry axis\
+    \ in the $+\\hat{R}$ direction of the right-handed cylindrical $(R, \\phi, Z)$\
+    \ frame."
   unit: m
   physics_domain: magnetic_field_diagnostics
   links:
   - name:vertical_coordinate_of_toroidal_magnetic_field_probe
   - name:toroidal_angle_of_toroidal_magnetic_field_probe
-  - name:area_of_toroidal_magnetic_field_probe
-  - name:major_radius_of_poloidal_magnetic_field_probe
+  - name:radial_coordinate_of_poloidal_magnetic_field_probe
   sources:
-  - id: dd:magnetics/b_field_phi_probe/position/r
-    dd_path: magnetics/b_field_phi_probe/position/r
-    status: composed
   - id: dd:magnetics/b_field_tor_probe/position/r
     dd_path: magnetics/b_field_tor_probe/position/r
     status: composed
@@ -588,7 +549,7 @@
 
 
     The value is determined from mechanical design drawings and installation surveys
-    of the magnetics diagnostic system. Combined with the [major_radius_of_toroidal_magnetic_field_probe](name:major_radius_of_toroidal_magnetic_field_probe)
+    of the magnetics diagnostic system. Combined with the major_radius_of_toroidal_magnetic_field_probe
     and [vertical_coordinate_of_toroidal_magnetic_field_probe](name:vertical_coordinate_of_toroidal_magnetic_field_probe),
     it fully localizes the probe in three-dimensional space. For probes distributed
     around the machine, values span the range $0$ to $2\pi$ rad.
@@ -601,7 +562,6 @@
   physics_domain: magnetic_field_diagnostics
   links:
   - name:toroidal_angle_of_magnetic_field_probe
-  - name:major_radius_of_toroidal_magnetic_field_probe
   - name:vertical_coordinate_of_toroidal_magnetic_field_probe
   sources:
   - id: dd:magnetics/b_field_phi_probe/toroidal_angle
@@ -610,38 +570,154 @@
   - id: dd:magnetics/b_field_tor_probe/toroidal_angle
     dd_path: magnetics/b_field_tor_probe/toroidal_angle
     status: composed
-- name: vertical_coordinate_of_toroidal_magnetic_field_probe
+- name: vertical_coordinate_of_flux_loop
   kind: scalar
   status: draft
-  description: Vertical Z-coordinate of the physical location of a toroidal magnetic
-    field probe in the right-handed cylindrical (R, phi, Z) frame.
-  documentation: 'The vertical coordinate $Z$ specifies the height of a toroidal magnetic
-    field probe above the geometric midplane in the right-handed cylindrical $(R,
-    \phi, Z)$ frame, where $R$ is the major radius measured from the toroidal symmetry
-    axis and $Z$ is the vertical height. Toroidal magnetic field probes are inductive
-    sensors deployed on or near the vacuum vessel to monitor the toroidal component
-    $B_\phi$ of the magnetic field; precise knowledge of each probe''s spatial position
-    is essential for interpreting the local field measurement and for incorporating
-    the data into MHD equilibrium reconstruction.
-
-
-    The $Z$ position is a fixed geometric attribute established by engineering survey
-    during machine installation. Together with the corresponding major-radius and
-    toroidal-angle coordinates, it fully specifies the three-dimensional location
-    of the probe. This coordinate role is shared across other magnetic diagnostic
-    components, such as [poloidal field coil] elements and [general measurement positions](name:vertical_coordinate_of_measurement_position)
-    used in equilibrium reconstruction, and analogously for [lower hybrid antenna](name:vertical_coordinate_of_lower_hybrid_antenna)
-    reference points.
-
-
-    Sign convention: Positive when the probe is located above the geometric midplane,
-    in the $+Z$ direction of the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  description: Vertical Z coordinate of a flux loop diagnostic in the right-handed
+    cylindrical (R, phi, Z) frame, giving the height of the loop above or below the
+    machine midplane.
+  documentation: "The vertical coordinate $Z$ locates a flux loop diagnostic along\
+    \ the direction parallel to the toroidal symmetry axis in the right-handed cylindrical\
+    \ $(R, \\phi, Z)$ frame, where $R$ is the major radius, $\\phi$ is the toroidal\
+    \ angle increasing counter-clockwise when viewed from above $+\\hat{Z}$, and $Z$\
+    \ increases upward from the geometric midplane. Together with the [radial coordinate](name:radial_coordinate_of_flux_loop)\
+    \ $R$, it fixes the poloidal-plane position of the loop, which is essential for\
+    \ mapping the induced voltage signal to the local poloidal magnetic flux distribution\
+    \ used in equilibrium reconstruction.\n\nThe $Z$ coordinate is determined during\
+    \ installation by precision engineering surveys and is fixed hardware metadata\
+    \ characterizing the diagnostic geometry. Knowing the full $(R, Z)$ position enables\
+    \ forward-model calculations of the expected flux threading each loop for a given\
+    \ equilibrium, which are compared against [measured voltage signals](name:voltage_of_flux_loop)\
+    \ integrated over time; the [effective sensing area](name:area_of_flux_loop) must\
+    \ also be known to complete this calibration.\n\nTypical $Z$ values span from\
+    \ the machine midplane ($Z = 0$) to $\\pm 1$\u2013$\\pm 4$ m in medium to large\
+    \ tokamaks, placing flux loops on the inboard wall, outboard wall, and top or\
+    \ bottom regions of the vacuum vessel. The analogous vertical-position quantity\
+    \ for Rogowski coil diagnostics is [vertical coordinate of the Rogowski coil](name:vertical_coordinate_of_rogowski_coil).\n\
+    \nSign convention: Positive when the flux loop position is located above the machine\
+    \ midplane in the $+Z$ direction of the right-handed cylindrical $(R, \\phi, Z)$\
+    \ frame."
   unit: m
   physics_domain: magnetic_field_diagnostics
   links:
-  - name:vertical_coordinate_of_measurement_position
-  - name:vertical_coordinate_of_lower_hybrid_antenna
+  - name:radial_coordinate_of_flux_loop
+  - name:voltage_of_flux_loop
+  - name:area_of_flux_loop
+  - name:vertical_coordinate_of_rogowski_coil
   sources:
+  - id: dd:magnetics/flux_loop/position/z
+    dd_path: magnetics/flux_loop/position/z
+    status: composed
+- name: vertical_coordinate_of_poloidal_magnetic_field_probe
+  kind: scalar
+  status: draft
+  description: Vertical Z coordinate of a poloidal magnetic field probe in the right-handed
+    cylindrical (R, phi, Z) frame, measuring the probe's height relative to the machine
+    midplane.
+  documentation: 'The vertical coordinate $Z$ locates a poloidal magnetic field probe
+    along the machine symmetry axis in the right-handed cylindrical $(R, \phi, Z)$
+    frame, where $R$ is the major radius measured from the toroidal symmetry axis,
+    $\phi$ is the toroidal angle, and $Z$ increases upward from the machine midplane.
+
+
+    Poloidal field probes measure the poloidal component of the magnetic field and
+    are deployed around the vacuum vessel to support equilibrium reconstruction; their
+    precise spatial position is essential because the poloidal field pattern sensitively
+    reflects the plasma current distribution. Together with [radial_coordinate_of_poloidal_magnetic_field_probe](name:radial_coordinate_of_poloidal_magnetic_field_probe),
+    the $Z$ coordinate fully defines the probe location in the poloidal cross-section.
+    The analogous coordinate for toroidal probes is given by [vertical_coordinate_of_toroidal_magnetic_field_probe](name:vertical_coordinate_of_toroidal_magnetic_field_probe),
+    and the equivalent geometry for flux loop diagnostics is described by [vertical_coordinate_of_flux_loop](name:vertical_coordinate_of_flux_loop).
+
+
+    Probe positions are established by mechanical survey during installation or from
+    engineering drawings, with positional uncertainties of order 1 mm or less for
+    precision installations. Values range from approximately $-2$ m to $+2$ m in medium-sized
+    tokamaks, and up to several meters in larger devices.
+
+
+    Sign convention: Positive when the probe position is above the machine midplane,
+    in the direction of increasing $Z$.'
+  unit: m
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:radial_coordinate_of_poloidal_magnetic_field_probe
+  - name:vertical_coordinate_of_toroidal_magnetic_field_probe
+  - name:vertical_coordinate_of_flux_loop
+  sources:
+  - id: dd:magnetics/b_field_pol_probe/position/z
+    dd_path: magnetics/b_field_pol_probe/position/z
+    status: composed
+  - id: dd:magnetics/bpol_probe/position/z
+    dd_path: magnetics/bpol_probe/position/z
+    status: composed
+- name: vertical_coordinate_of_rogowski_coil
+  kind: scalar
+  status: draft
+  description: Vertical Z coordinate of the Rogowski coil position in the right-handed
+    cylindrical (R, phi, Z) frame, measured along the machine symmetry axis.
+  documentation: 'The vertical Z coordinate locates the Rogowski coil along the machine
+    symmetry axis in the right-handed cylindrical $(R, \phi, Z)$ frame, where $Z$
+    measures height above the $Z = 0$ reference plane. Together with the major radius
+    given by [radial_coordinate_of_rogowski_coil](name:radial_coordinate_of_rogowski_coil),
+    it fully specifies the coil''s position in a poloidal cross-section, which is
+    required to associate the enclosed-current measurement with the correct plasma
+    geometry and to provide geometric inputs for magnetic equilibrium reconstruction.
+
+
+    This coordinate is a fixed geometric parameter established from engineering metrology
+    of the installed coil. The same vertical-coordinate convention is applied to [vertical_coordinate_of_flux_loop](name:vertical_coordinate_of_flux_loop)
+    and [vertical_coordinate_of_coil_conductor](name:vertical_coordinate_of_coil_conductor)
+    across the magnetic diagnostics family.
+
+
+    Sign convention: Positive when the coil is located above the $Z = 0$ reference
+    plane, in the upward direction along the machine symmetry axis.'
+  unit: m
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:radial_coordinate_of_rogowski_coil
+  - name:vertical_coordinate_of_flux_loop
+  - name:vertical_coordinate_of_coil_conductor
+  sources:
+  - id: dd:magnetics/rogowski_coil/position/z
+    dd_path: magnetics/rogowski_coil/position/z
+    status: composed
+- name: vertical_coordinate_of_toroidal_magnetic_field_probe
+  kind: scalar
+  status: draft
+  description: Vertical Z coordinate of the toroidal magnetic field probe position
+    in the right-handed cylindrical (R, phi, Z) frame, giving the probe's height relative
+    to the machine midplane.
+  documentation: 'The vertical coordinate $Z$ locates a toroidal magnetic field probe
+    along the machine symmetry axis in the right-handed cylindrical $(R, \phi, Z)$
+    frame, where $Z$ increases upward from the machine midplane and $R$ is the perpendicular
+    distance from that axis.
+
+
+    Together with the major-radius coordinate [radial_coordinate_of_toroidal_magnetic_field_probe](name:radial_coordinate_of_toroidal_magnetic_field_probe)
+    and the azimuthal orientation [toroidal_angle_of_toroidal_magnetic_field_probe](name:toroidal_angle_of_toroidal_magnetic_field_probe),
+    this value fully specifies the three-dimensional position of the probe within
+    the vacuum vessel. Probe positions are established from engineering drawings and
+    verified by in-vessel survey or photogrammetry during installation and maintenance
+    campaigns. The analogous vertical coordinate for the poloidal probe is given by
+    [vertical_coordinate_of_poloidal_magnetic_field_probe](name:vertical_coordinate_of_poloidal_magnetic_field_probe),
+    which follows the same frame convention. Typical values span the vertical extent
+    of the vacuum vessel, ranging from approximately $-2$ to $+2$ m in medium-sized
+    tokamaks, with symmetric upper and lower probe arrays straddling the midplane.
+
+
+    Sign convention: Positive when the probe is located above the machine midplane
+    in the $+Z$ direction.'
+  unit: m
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:radial_coordinate_of_toroidal_magnetic_field_probe
+  - name:toroidal_angle_of_toroidal_magnetic_field_probe
+  - name:vertical_coordinate_of_poloidal_magnetic_field_probe
+  sources:
+  - id: dd:magnetics/b_field_phi_probe/position/z
+    dd_path: magnetics/b_field_phi_probe/position/z
+    status: composed
   - id: dd:magnetics/b_field_tor_probe/position/z
     dd_path: magnetics/b_field_tor_probe/position/z
     status: composed
@@ -796,7 +872,7 @@
     essential for equilibrium reconstruction and real-time plasma shape control. The
     directly analogous signal for probes oriented to sense the toroidal field is [voltage_of_toroidal_magnetic_field_probe](name:voltage_of_toroidal_magnetic_field_probe);
     the complement for flux-enclosed measurements is [voltage_of_flux_loop](name:voltage_of_flux_loop).
-    The probe''s spatial location entering the field derivation is given by [major_radius_of_poloidal_magnetic_field_probe](name:major_radius_of_poloidal_magnetic_field_probe).
+    The probe''s spatial location entering the field derivation is given by major_radius_of_poloidal_magnetic_field_probe.
 
 
     Sign convention: Positive when the poloidal magnetic flux threading the coil in
@@ -808,7 +884,6 @@
   - name:area_of_poloidal_magnetic_field_probe
   - name:voltage_of_toroidal_magnetic_field_probe
   - name:voltage_of_flux_loop
-  - name:major_radius_of_poloidal_magnetic_field_probe
   sources:
   - id: dd:magnetics/b_field_pol_probe/voltage
     dd_path: magnetics/b_field_pol_probe/voltage

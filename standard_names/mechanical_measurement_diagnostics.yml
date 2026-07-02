@@ -1,6 +1,6 @@
 # Domain: mechanical_measurement_diagnostics
-# Catalog sha: b8d10395a003efc46be6fc45a94b1f9308d6a87b
-# Entries: 39
+# Catalog sha: 8907b76455ee66eb637e3842250dd81478dc2348
+# Entries: 40
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -336,180 +336,35 @@
   - id: dd:langmuir_probes/reciprocating/plunge/t_e_average
     dd_path: langmuir_probes/reciprocating/plunge/t_e_average
     status: composed
-- name: electrostatic_potential_at_midplane
-  kind: scalar
+- name: heat_flux
+  kind: vector
   status: draft
-  description: Electrostatic potential of the plasma evaluated at the equatorial midplane,
-    providing the local plasma potential reference in the boundary plasma and scrape-off
-    layer.
-  documentation: "The electrostatic potential $V_p$ at the midplane is the local electric\
-    \ potential of the unperturbed plasma, setting the reference against which sheath\
-    \ voltages, probe biases, and radial electric fields are measured in the boundary\
-    \ region. It is distinct from the [floating electrostatic potential](name:floating_electrostatic_potential),\
-    \ which is the potential at which a probe draws zero net current; the two differ\
-    \ by a sheath correction proportional to the local electron temperature.\n\nThe\
-    \ plasma\u2013floating potential difference follows:\n\n$$\n\\Delta V = V_p -\
-    \ V_f \\approx \\frac{k_B T_e}{e}\\,\\Lambda\n$$\n\nwhere $k_B T_e / e$ is the\
-    \ electron temperature expressed as a voltage, and $\\Lambda = \\tfrac{1}{2}\\\
-    ln(m_i / 2\\pi m_e)$ is a dimensionless sheath factor of order 2\u20133 for hydrogen-isotope\
-    \ plasmas ($m_i$ is the ion mass and $m_e$ the electron mass).\n\nIn practice,\
-    \ $V_p$ at the midplane is inferred from Langmuir probe I\u2013V characteristics\
-    \ collected during radial plunges through the scrape-off layer; it is identified\
-    \ at the knee of the electron-saturation branch or estimated by adding the sheath\
-    \ correction to the floating potential using the co-located [electron_temperature_at_midplane](name:electron_temperature_at_midplane).\
-    \ The `midplane` locus is unqualified, but in diverted tokamak configurations\
-    \ the probe traverse most commonly samples the outboard equatorial plane.\n\n\
-    Typical SOL values range from a few to approximately 50 V above machine ground,\
-    \ consistently positive with respect to the [electrostatic_potential_at_wall](name:electrostatic_potential_at_wall)\
-    \ due to the ambipolar sheath constraint."
-  unit: V
+  description: Power per unit area transported by plasma particles and fields across
+    a reference surface, generalizing over field-aligned conduction, cross-field transport,
+    and turbulence-driven energy flux.
+  documentation: "Heat flux is the rate of energy transport per unit area across a\
+    \ reference surface in a magnetized plasma, encompassing contributions from thermal\
+    \ conduction, particle convection, and turbulent fluctuations. In tokamak and\
+    \ stellarator geometries, the heat flux vector naturally decomposes into components\
+    \ along and across the local magnetic field.\n\nThe total heat flux vector $\\\
+    mathbf{q}$ may be written as:\n\n$$\n\\mathbf{q} = q_\\parallel \\hat{b} + \\\
+    mathbf{q}_\\perp\n$$\n\nwhere $\\hat{b} = \\mathbf{B}/|\\mathbf{B}|$ is the unit\
+    \ vector along the equilibrium magnetic field $\\mathbf{B}$, $q_\\parallel$ is\
+    \ the field-aligned component, and $\\mathbf{q}_\\perp$ collects cross-field contributions\
+    \ from diffusion, convection, and turbulence.\n\nThe field-aligned component [parallel_heat_flux](name:parallel_heat_flux)\
+    \ is the dominant energy exhaust channel in the scrape-off layer, where rapid\
+    \ parallel transport carries power to plasma-facing surfaces. In gyrokinetic turbulence\
+    \ calculations, the fluctuation-driven contribution is captured by the [perturbed\
+    \ heat flux], quantifying energy carried by the non-adiabatic part of the gyrocenter\
+    \ distribution function. The convective fraction is characterized by a dimensionless\
+    \ factor relating heat flux to local particle flux and temperature.\n\nTypical\
+    \ steady-state peak heat fluxes at divertor targets in diverted tokamaks range\
+    \ from 1\u201320 MW m$^{-2}$, with transient excursions during edge-localized\
+    \ modes reaching several times higher values."
+  unit: W.m^-2
   physics_domain: mechanical_measurement_diagnostics
   links:
-  - name:floating_electrostatic_potential
-  - name:electron_temperature_at_midplane
-  - name:electrostatic_potential_at_wall
-  sources:
-  - id: dd:langmuir_probes/reciprocating/plunge/potential_plasma
-    dd_path: langmuir_probes/reciprocating/plunge/potential_plasma
-    status: composed
-  - id: dd:langmuir_probes/reciprocating/plunge/v_plasma
-    dd_path: langmuir_probes/reciprocating/plunge/v_plasma
-    status: attached
-- name: electrostatic_potential_at_wall
-  kind: scalar
-  status: draft
-  description: Local plasma electrostatic potential immediately adjacent to a plasma-facing
-    wall, relative to the chosen electrical reference. It is distinct from the material
-    wall voltage, floating potential, and any applied wall bias.
-  documentation: 'Electrostatic potential at wall is the voltage-valued scalar potential
-    of the quasineutral plasma just outside the sheath adjacent to a plasma-facing
-    surface. It is the plasma-side reference for sheath potential drops and near-wall
-    electric fields, not the electrical potential of the solid wall material itself.
-
-
-    In the electrostatic approximation, the electric field is related to the scalar
-    potential by
-
-
-    $$
-
-    \mathbf{E} = -\nabla \Phi
-
-    $$
-
-
-    where $\Phi$ is the electrostatic potential in volts and $\mathbf{E}$ is the electric
-    field in volts per meter. Only potential differences are physically meaningful;
-    changing the electrical reference shifts $\Phi$ by a constant without changing
-    $\mathbf{E}$.
-
-
-    In practice this quantity is commonly inferred from a near-wall Langmuir-probe
-    current-voltage characteristic, sheath analysis, or an edge-plasma reconstruction
-    tied to a specified electrical reference. It differs from [floating electrostatic
-    potential](name:floating_electrostatic_potential), which is the potential of an
-    electrically isolated probe or surface when the net collected current is zero,
-    and from [electrostatic potential at midplane](name:electrostatic_potential_at_midplane),
-    which refers to the local plasma potential at a different position. A grounded
-    or biased wall can have a material voltage that differs from the adjacent plasma
-    potential by the sheath voltage drop.
-
-
-    Typical values are strongly reference- and regime-dependent. In many low-temperature
-    boundary-plasma measurements relative to a grounded vessel, values are of order
-    a few volts to several tens of volts, with larger offsets possible near biased
-    components, strong emission, or hotter edge conditions.
-
-
-    Sign convention: Positive when the local plasma potential at the wall is above
-    the chosen electrical reference potential.'
-  unit: V
-  physics_domain: mechanical_measurement_diagnostics
-  links:
-  - name:floating_electrostatic_potential
-  - name:electrostatic_potential_at_midplane
-  - name:electron_temperature_at_wall
-  - name:ion_saturated_current_density
-  sources:
-  - id: dd:langmuir_probes/embedded/potential_plasma
-    dd_path: langmuir_probes/embedded/potential_plasma
-    status: composed
-  - id: dd:langmuir_probes/embedded/v_plasma
-    dd_path: langmuir_probes/embedded/v_plasma
-    status: attached
-- name: floating_electrostatic_potential
-  kind: scalar
-  status: draft
-  description: Electrostatic potential acquired by an electrically isolated probe
-    or surface when the net plasma current to it is zero.
-  documentation: 'Floating electrostatic potential is the potential acquired by an
-    electrically isolated material surface in contact with a plasma when the total
-    collected current vanishes. It is usually displaced from the local plasma potential
-    by a sheath drop governed mainly by electron temperature, ion mass, collecting
-    geometry, and surface emission.
-
-
-    The defining condition for the floating potential $V_f$ is zero net current to
-    the surface:
-
-
-    $$
-
-    I_\mathrm{i}(V_f) + I_\mathrm{e}(V_f) = 0
-
-    $$
-
-
-    where $I_\mathrm{i}$ is the ion current and $I_\mathrm{e}$ is the electron current
-    collected by the surface at potential $V_f$. For a Maxwellian plasma with ions
-    collected near ion saturation, $V_f$ is commonly below the plasma potential $V_p$
-    by a few electron-temperature volts; equivalently, $V_p - V_f$ is often about
-    $2.5-4$ times $T_e$ when $T_e$ is expressed in eV, with the coefficient depending
-    on ion species, effective collection area, magnetic-field incidence, and secondary-electron
-    emission.
-
-
-    Floating potential is measured directly with a high-impedance connection to an
-    isolated Langmuir-probe electrode or inferred from the zero-current crossing of
-    a probe current-voltage characteristic. Interpretation requires care because RF
-    pickup, sheath expansion, temperature fluctuations, surface condition, and emitted
-    electrons can shift the measured value relative to the local plasma potential.
-
-
-    Typical values relative to grounded conducting structures are often -80 to -5
-    V in limiter and scrape-off-layer edge conditions, while divertor, strongly biased,
-    or RF-perturbed regions can reach about -200 to +50 V. The range is not universal
-    because the value follows both the local plasma potential and the electron-temperature-dependent
-    sheath drop.
-
-
-    Sign convention: Positive when the floating surface potential is above the chosen
-    electrical reference potential.'
-  unit: V
-  physics_domain: mechanical_measurement_diagnostics
-  links:
-  - name:ion_saturated_current
-  - name:fluctuating_electrostatic_potential
-  - name:electrostatic_potential_at_wall
-  sources:
-  - id: dd:langmuir_probes/embedded/potential_floating
-    dd_path: langmuir_probes/embedded/potential_floating
-    status: attached
-  - id: dd:langmuir_probes/embedded/v_floating
-    dd_path: langmuir_probes/embedded/v_floating
-    status: attached
-  - id: dd:langmuir_probes/probe/potential_floating
-    dd_path: langmuir_probes/probe/potential_floating
-    status: composed
-  - id: dd:langmuir_probes/reciprocating/plunge/collector/v_floating
-    dd_path: langmuir_probes/reciprocating/plunge/collector/v_floating
-    status: attached
-  - id: dd:langmuir_probes/reciprocating/plunge/potential_floating
-    dd_path: langmuir_probes/reciprocating/plunge/potential_floating
-    status: attached
-  - id: dd:langmuir_probes/reciprocating/plunge/v_floating
-    dd_path: langmuir_probes/reciprocating/plunge/v_floating
-    status: attached
+  - name:parallel_heat_flux
 - name: ion_current_of_mass_spectrometer_channel
   kind: scalar
   status: draft
@@ -938,6 +793,12 @@
   - name:ion_saturated_current_density
   - name:electron_temperature_at_wall
   - name:effective_area_of_langmuir_probe
+  arguments:
+  - name: heat_flux
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
   sources:
   - id: dd:langmuir_probes/embedded/heat_flux_parallel
     dd_path: langmuir_probes/embedded/heat_flux_parallel
@@ -1410,13 +1271,12 @@
     divertor plasmas are often around 0.5-5 eV, attached divertor and limiter conditions
     commonly a few to several tens of eV, and hotter low-density boundary plasmas
     can approach 100 eV. This quantity is the electron counterpart of [ion_temperature_at_wall](name:ion_temperature_at_wall)
-    and helps interpret total_incident_electron_particle_flux_at_wall and [electron_incident_kinetic_energy_flux_at_wall](name:electron_incident_kinetic_energy_flux_at_wall);
+    and helps interpret total_incident_electron_particle_flux_at_wall and electron_incident_kinetic_energy_flux_at_wall;
     it should not be confused with upstream [electron_temperature_at_midplane](name:electron_temperature_at_midplane).'
   unit: eV
   physics_domain: mechanical_measurement_diagnostics
   links:
   - name:ion_temperature_at_wall
-  - name:electron_incident_kinetic_energy_flux_at_wall
   - name:electron_temperature_at_midplane
   arguments:
   - name: temperature_at_wall
@@ -2154,4 +2014,190 @@
     status: attached
   - id: dd:spi/injector/shatter_cone/unit_vector_minor/y
     dd_path: spi/injector/shatter_cone/unit_vector_minor/y
+    status: attached
+- name: electrostatic_potential_at_midplane
+  kind: scalar
+  status: draft
+  description: Electrostatic potential of the plasma evaluated at the equatorial midplane,
+    providing the local plasma potential reference in the boundary plasma and scrape-off
+    layer.
+  documentation: "The electrostatic potential $V_p$ at the midplane is the local electric\
+    \ potential of the unperturbed plasma, setting the reference against which sheath\
+    \ voltages, probe biases, and radial electric fields are measured in the boundary\
+    \ region. It is distinct from the [floating electrostatic potential](name:floating_electrostatic_potential),\
+    \ which is the potential at which a probe draws zero net current; the two differ\
+    \ by a sheath correction proportional to the local electron temperature.\n\nThe\
+    \ plasma\u2013floating potential difference follows:\n\n$$\n\\Delta V = V_p -\
+    \ V_f \\approx \\frac{k_B T_e}{e}\\,\\Lambda\n$$\n\nwhere $k_B T_e / e$ is the\
+    \ electron temperature expressed as a voltage, and $\\Lambda = \\tfrac{1}{2}\\\
+    ln(m_i / 2\\pi m_e)$ is a dimensionless sheath factor of order 2\u20133 for hydrogen-isotope\
+    \ plasmas ($m_i$ is the ion mass and $m_e$ the electron mass).\n\nIn practice,\
+    \ $V_p$ at the midplane is inferred from Langmuir probe I\u2013V characteristics\
+    \ collected during radial plunges through the scrape-off layer; it is identified\
+    \ at the knee of the electron-saturation branch or estimated by adding the sheath\
+    \ correction to the floating potential using the co-located [electron_temperature_at_midplane](name:electron_temperature_at_midplane).\
+    \ The `midplane` locus is unqualified, but in diverted tokamak configurations\
+    \ the probe traverse most commonly samples the outboard equatorial plane.\n\n\
+    Typical SOL values range from a few to approximately 50 V above machine ground,\
+    \ consistently positive with respect to the [electrostatic_potential_at_wall](name:electrostatic_potential_at_wall)\
+    \ due to the ambipolar sheath constraint."
+  unit: V
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:floating_electrostatic_potential
+  - name:electron_temperature_at_midplane
+  - name:electrostatic_potential_at_wall
+  arguments:
+  - name: electrostatic_potential
+    operator: midplane
+    operator_kind: locus
+  sources:
+  - id: dd:langmuir_probes/reciprocating/plunge/potential_plasma
+    dd_path: langmuir_probes/reciprocating/plunge/potential_plasma
+    status: composed
+  - id: dd:langmuir_probes/reciprocating/plunge/v_plasma
+    dd_path: langmuir_probes/reciprocating/plunge/v_plasma
+    status: attached
+- name: electrostatic_potential_at_wall
+  kind: scalar
+  status: draft
+  description: Local plasma electrostatic potential immediately adjacent to a plasma-facing
+    wall, relative to the chosen electrical reference. It is distinct from the material
+    wall voltage, floating potential, and any applied wall bias.
+  documentation: 'Electrostatic potential at wall is the voltage-valued scalar potential
+    of the quasineutral plasma just outside the sheath adjacent to a plasma-facing
+    surface. It is the plasma-side reference for sheath potential drops and near-wall
+    electric fields, not the electrical potential of the solid wall material itself.
+
+
+    In the electrostatic approximation, the electric field is related to the scalar
+    potential by
+
+
+    $$
+
+    \mathbf{E} = -\nabla \Phi
+
+    $$
+
+
+    where $\Phi$ is the electrostatic potential in volts and $\mathbf{E}$ is the electric
+    field in volts per meter. Only potential differences are physically meaningful;
+    changing the electrical reference shifts $\Phi$ by a constant without changing
+    $\mathbf{E}$.
+
+
+    In practice this quantity is commonly inferred from a near-wall Langmuir-probe
+    current-voltage characteristic, sheath analysis, or an edge-plasma reconstruction
+    tied to a specified electrical reference. It differs from [floating electrostatic
+    potential](name:floating_electrostatic_potential), which is the potential of an
+    electrically isolated probe or surface when the net collected current is zero,
+    and from [electrostatic potential at midplane](name:electrostatic_potential_at_midplane),
+    which refers to the local plasma potential at a different position. A grounded
+    or biased wall can have a material voltage that differs from the adjacent plasma
+    potential by the sheath voltage drop.
+
+
+    Typical values are strongly reference- and regime-dependent. In many low-temperature
+    boundary-plasma measurements relative to a grounded vessel, values are of order
+    a few volts to several tens of volts, with larger offsets possible near biased
+    components, strong emission, or hotter edge conditions.
+
+
+    Sign convention: Positive when the local plasma potential at the wall is above
+    the chosen electrical reference potential.'
+  unit: V
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:floating_electrostatic_potential
+  - name:electrostatic_potential_at_midplane
+  - name:electron_temperature_at_wall
+  - name:ion_saturated_current_density
+  arguments:
+  - name: electrostatic_potential
+    operator: wall
+    operator_kind: locus
+  sources:
+  - id: dd:langmuir_probes/embedded/potential_plasma
+    dd_path: langmuir_probes/embedded/potential_plasma
+    status: composed
+  - id: dd:langmuir_probes/embedded/v_plasma
+    dd_path: langmuir_probes/embedded/v_plasma
+    status: attached
+- name: floating_electrostatic_potential
+  kind: scalar
+  status: draft
+  description: Electrostatic potential acquired by an electrically isolated probe
+    or surface when the net plasma current to it is zero.
+  documentation: 'Floating electrostatic potential is the potential acquired by an
+    electrically isolated material surface in contact with a plasma when the total
+    collected current vanishes. It is usually displaced from the local plasma potential
+    by a sheath drop governed mainly by electron temperature, ion mass, collecting
+    geometry, and surface emission.
+
+
+    The defining condition for the floating potential $V_f$ is zero net current to
+    the surface:
+
+
+    $$
+
+    I_\mathrm{i}(V_f) + I_\mathrm{e}(V_f) = 0
+
+    $$
+
+
+    where $I_\mathrm{i}$ is the ion current and $I_\mathrm{e}$ is the electron current
+    collected by the surface at potential $V_f$. For a Maxwellian plasma with ions
+    collected near ion saturation, $V_f$ is commonly below the plasma potential $V_p$
+    by a few electron-temperature volts; equivalently, $V_p - V_f$ is often about
+    $2.5-4$ times $T_e$ when $T_e$ is expressed in eV, with the coefficient depending
+    on ion species, effective collection area, magnetic-field incidence, and secondary-electron
+    emission.
+
+
+    Floating potential is measured directly with a high-impedance connection to an
+    isolated Langmuir-probe electrode or inferred from the zero-current crossing of
+    a probe current-voltage characteristic. Interpretation requires care because RF
+    pickup, sheath expansion, temperature fluctuations, surface condition, and emitted
+    electrons can shift the measured value relative to the local plasma potential.
+
+
+    Typical values relative to grounded conducting structures are often -80 to -5
+    V in limiter and scrape-off-layer edge conditions, while divertor, strongly biased,
+    or RF-perturbed regions can reach about -200 to +50 V. The range is not universal
+    because the value follows both the local plasma potential and the electron-temperature-dependent
+    sheath drop.
+
+
+    Sign convention: Positive when the floating surface potential is above the chosen
+    electrical reference potential.'
+  unit: V
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:ion_saturated_current
+  - name:fluctuating_electrostatic_potential
+  - name:electrostatic_potential_at_wall
+  arguments:
+  - name: electrostatic_potential
+    operator: floating
+    operator_kind: qualifier
+  sources:
+  - id: dd:langmuir_probes/embedded/potential_floating
+    dd_path: langmuir_probes/embedded/potential_floating
+    status: attached
+  - id: dd:langmuir_probes/embedded/v_floating
+    dd_path: langmuir_probes/embedded/v_floating
+    status: attached
+  - id: dd:langmuir_probes/probe/potential_floating
+    dd_path: langmuir_probes/probe/potential_floating
+    status: composed
+  - id: dd:langmuir_probes/reciprocating/plunge/collector/v_floating
+    dd_path: langmuir_probes/reciprocating/plunge/collector/v_floating
+    status: attached
+  - id: dd:langmuir_probes/reciprocating/plunge/potential_floating
+    dd_path: langmuir_probes/reciprocating/plunge/potential_floating
+    status: attached
+  - id: dd:langmuir_probes/reciprocating/plunge/v_floating
+    dd_path: langmuir_probes/reciprocating/plunge/v_floating
     status: attached

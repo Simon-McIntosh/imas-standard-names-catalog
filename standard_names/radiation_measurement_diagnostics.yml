@@ -1,6 +1,6 @@
 # Domain: radiation_measurement_diagnostics
-# Catalog sha: b8d10395a003efc46be6fc45a94b1f9308d6a87b
-# Entries: 121
+# Catalog sha: 8907b76455ee66eb637e3842250dd81478dc2348
+# Entries: 125
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -249,6 +249,68 @@
   - id: dd:camera_visible/channel/detector/frame/radiance
     dd_path: camera_visible/channel/detector/frame/radiance
     status: composed
+- name: calibration_factor_of_visible_camera
+  kind: scalar
+  status: draft
+  description: Multiplicative calibration factor that converts a dark-corrected raw
+    pixel count from a visible-band camera detector into absolute band-integrated
+    photon radiance, expressed in inverse square meters per second per steradian.
+    It aggregates relay optics transmission, detector quantum efficiency, electronic
+    gain, pixel etendue, and exposure time, integrated over the camera's spectral
+    bandpass, into a single per-pixel coefficient.
+  documentation: 'The calibration factor of a visible camera is the multiplicative
+    coefficient that converts a dark-corrected raw pixel count into the absolute band-integrated
+    photon radiance incident on that pixel. It encapsulates the full end-to-end sensitivity
+    of the detection channel: relay optics transmission, detector quantum efficiency,
+    electronic gain, pixel etendue, and exposure time, all combined into a single
+    per-pixel value. The dark-corrected radiance follows the linear relation $L =
+    C\,I$, where $I$ is the dark-subtracted count and $C$ is this factor.
+
+
+    Because $C$ inverts the detection chain, it equals the reciprocal of the channel
+    throughput. For a pixel of area $A_\mathrm{pix}$ subtending solid angle $\Omega_\mathrm{pix}$,
+    exposed for time $\tau$ with electronic gain $g$ and a bandpass-averaged product
+    of quantum efficiency and optical transmission $\langle \eta T \rangle$:
+
+
+    $$
+
+    C = \frac{1}{A_\mathrm{pix}\,\Omega_\mathrm{pix}\,\tau\,g\,\langle \eta T \rangle}
+
+    $$
+
+
+    where $A_\mathrm{pix}$ is in m^2, $\Omega_\mathrm{pix}$ in sr, $\tau$ in s, and
+    $g$ and $\langle \eta T \rangle$ are dimensionless. The denominator carries units
+    of m^2 sr s, so $C$ has units of m^-2 s^-1 sr^-1, consistent with a band-integrated
+    photon radiance per count. The factor therefore decreases as any element of the
+    throughput increases: a more efficient optical path, higher quantum efficiency,
+    or higher gain produces more counts per unit radiance and hence a smaller counts-to-radiance
+    conversion factor.
+
+
+    The factor is determined by laboratory or in-situ calibration against a source
+    of known absolute spectral radiance, such as an integrating sphere or a calibrated
+    tungsten-halogen lamp, operated under the same optical, spectral-filter, and electronic
+    configuration used during plasma discharges. Because sensitivity varies from pixel
+    to pixel, the factor is resolved across the detector and implicitly absorbs flat-field
+    and vignetting non-uniformities.
+
+
+    No universal value exists because $C$ depends strongly on the optics, detector
+    type, gain setting, and spectral filter. For fast visible cameras on tokamaks,
+    representative magnitudes span roughly $10^{10}$ to $10^{15}$ m^-2 s^-1 sr^-1
+    per count; these are illustrative only, and the applicable measured calibration
+    must be used for quantitative work.'
+  unit: m^-2.s^-1.sr^-1
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:brightness_of_visible_camera
+  - name:spectral_calibration_factor_of_spectrometer
+  sources:
+  - id: dd:camera_visible/channel/detector/counts_to_radiance
+    dd_path: camera_visible/channel/detector/counts_to_radiance
+    status: composed
 - name: count_at_detector_pixel
   kind: scalar
   status: draft
@@ -463,6 +525,150 @@
   - id: dd:neutron_diagnostic/reconstructed_emissivity/fuel_ratio
     dd_path: neutron_diagnostic/reconstructed_emissivity/fuel_ratio
     status: composed
+- name: efficiency_of_spectrometer_channel
+  kind: scalar
+  status: draft
+  description: 'Dimensionless optical throughput of a spectrometer channel: the fraction
+    of photons within the channel acceptance that are delivered to the active detector
+    area after collection, transmission, reflection, dispersion, aperture, and window
+    losses.'
+  documentation: 'Efficiency of a spectrometer channel is the dimensionless probability
+    that a photon within the channel acceptance reaches the active detector area.
+    It represents optical throughput losses only, and is distinct from the geometrical
+    or spectral acceptance described by spectral_etendue_of_spectrometer_channel.
+
+
+    The channel efficiency can be defined as a ratio of photon fluxes:
+
+
+    $$
+
+    \eta_\mathrm{ch}(\lambda) = \frac{\Phi_\mathrm{det}(\lambda)}{\Phi_\mathrm{acc}(\lambda)}
+
+    $$
+
+
+    where $\Phi_\mathrm{det}(\lambda)$ is the photon flux delivered to the detector
+    and $\Phi_\mathrm{acc}(\lambda)$ is the photon flux from the observed source that
+    lies within the channel acceptance before optical losses. Both quantities must
+    be expressed in the same units, such as photons s$^{-1}$ for band-integrated photon
+    flux or photons s$^{-1}$ m$^{-1}$ for wavelength-resolved photon flux.
+
+
+    In practice, this efficiency is obtained from radiometric calibration using calibrated
+    lamps, integrating spheres, laser sources, or transfer-standard detectors. The
+    calibration may include mirror reflectivity, lens or fiber transmission, slit
+    throughput, grating efficiency, filter transmission, detector-window transmission,
+    and alignment losses; detector quantum efficiency may be included only when the
+    efficiency is intended to describe the full photon-to-signal response.
+
+
+    The physical range is $0 \leq \eta_\mathrm{ch} \leq 1$. Well-aligned visible spectroscopy
+    channels commonly have efficiencies from about 0.01-0.8, depending on wavelength,
+    optical coatings, fiber coupling, grating order, and aperture losses.'
+  unit: '1'
+  physics_domain: radiation_measurement_diagnostics
+  links: []
+  sources:
+  - id: dd:spectrometer_visible/channel/light_collection_efficiencies/values
+    dd_path: spectrometer_visible/channel/light_collection_efficiencies/values
+    status: composed
+- name: emissivity_due_to_fusion
+  kind: scalar
+  status: draft
+  description: Local volumetric rate of neutron production from thermonuclear fusion
+    reactions, giving the spatial distribution of fusion neutron emission per unit
+    volume at each point in the plasma.
+  documentation: 'The neutron emissivity due to fusion quantifies the number of fusion-born
+    neutrons generated per unit volume per unit time at a given plasma location. This
+    volumetric source term encodes the combined effect of local fuel-ion densities
+    and the thermally-averaged fusion reactivity, and drives the global neutron field
+    from which plasma performance is diagnosed.
+
+
+    For a binary fusion reaction between ion species $a$ and $b$, the emissivity is
+    given by:
+
+
+    $$
+
+    \epsilon_{ab} = \frac{n_a \, n_b}{1 + \delta_{ab}} \langle \sigma v \rangle_{ab}
+
+    $$
+
+
+    where $n_a$ and $n_b$ are the number densities of the reacting ions, $\langle
+    \sigma v \rangle_{ab}$ is the fusion reactivity (velocity-averaged fusion cross-section)
+    at the local ion temperature, and $\delta_{ab} = 1$ for identical-species reactions
+    to avoid double-counting.
+
+
+    The emissivity profile is inferred from measurements by neutron camera arrays
+    and collimated detector systems via Abel inversion or tomographic reconstruction.
+    The two principal reaction channels are resolved as [deuterium_deuterium_emissivity_due_to_fusion](name:deuterium_deuterium_emissivity_due_to_fusion),
+    covering the neutron-emitting D-D branch, and [deuterium_tritium_emissivity_due_to_fusion](name:deuterium_tritium_emissivity_due_to_fusion),
+    which dominates in D-T operation due to the much larger fusion cross-section.
+    Integrating this emissivity over the plasma volume and weighting by the per-reaction
+    neutron energy connects to the [total_neutron_power](name:total_neutron_power).'
+  unit: m^-3.s^-1
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:deuterium_deuterium_emissivity_due_to_fusion
+  - name:deuterium_tritium_emissivity_due_to_fusion
+  - name:total_neutron_power
+- name: deuterium_deuterium_emissivity_due_to_fusion
+  kind: scalar
+  status: draft
+  description: Local volumetric rate of neutron production from deuterium-deuterium
+    fusion reactions, giving the spatial distribution of DD neutron emission per unit
+    volume across the plasma.
+  documentation: 'The deuterium-deuterium neutron emissivity $\varepsilon_{DD}$ is
+    the local number of neutrons produced per unit volume per unit time from D-D fusion
+    reactions. Of the two equally probable D-D reaction branches, only the neutron-producing
+    channel $^2\text{H} + ^2\text{H} \rightarrow {^3\text{He}} + n$ (releasing a 2.45
+    MeV neutron) contributes to this quantity; the proton-producing branch $^2\text{H}
+    + ^2\text{H} \rightarrow T + p$ does not.
+
+
+    The emissivity is related to the local fuel conditions by:
+
+
+    $$
+
+    \varepsilon_{DD} = \frac{n_D^2}{2} \langle \sigma v \rangle_{DD,n}
+
+    $$
+
+
+    where $n_D$ is the local deuterium number density and $\langle \sigma v \rangle_{DD,n}$
+    is the velocity-averaged reaction rate coefficient for the neutron-producing branch;
+    the factor $1/2$ prevents double-counting of identical reactants.
+
+
+    The spatial profile of $\varepsilon_{DD}$ is reconstructed from chord-integrated
+    signals recorded by multiple neutron detectors distributed around the device,
+    using tomographic inversion to recover the local distribution. Volume integration
+    of $\varepsilon_{DD}$ yields the global neutron emission rate characterized by
+    [deuterium_deuterium_flux_due_to_thermal_fusion](name:deuterium_deuterium_flux_due_to_thermal_fusion)
+    for the purely thermal component and includes beam-related contributions captured
+    by [deuterium_deuterium_flux_due_to_beam_thermal_fusion](name:deuterium_deuterium_flux_due_to_beam_thermal_fusion).
+    The D-T plasma analog is [deuterium_tritium_emissivity_due_to_fusion](name:deuterium_tritium_emissivity_due_to_fusion),
+    and the corresponding local fusion power density from all D-D channels is [deuterium_deuterium_power_density_due_to_fusion](name:deuterium_deuterium_power_density_due_to_fusion).'
+  unit: m^-3.s^-1
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:deuterium_deuterium_flux_due_to_thermal_fusion
+  - name:deuterium_deuterium_flux_due_to_beam_thermal_fusion
+  - name:deuterium_tritium_emissivity_due_to_fusion
+  - name:deuterium_deuterium_power_density_due_to_fusion
+  arguments:
+  - name: emissivity_due_to_fusion
+    operator: deuterium_deuterium
+    operator_kind: qualifier
+  sources:
+  - id: dd:neutron_diagnostic/reconstructed_emissivity/emissivity_dd
+    dd_path: neutron_diagnostic/reconstructed_emissivity/emissivity_dd
+    status: composed
 - name: deuterium_tritium_emissivity_due_to_fusion
   kind: scalar
   status: draft
@@ -516,57 +722,13 @@
   - name:deuterium_tritium_power_density_due_to_fusion
   - name:total_neutron_source_rate_due_to_thermal_fusion
   - name:deuterium_tritium_flux_due_to_beam_thermal_fusion
+  arguments:
+  - name: emissivity_due_to_fusion
+    operator: deuterium_tritium
+    operator_kind: qualifier
   sources:
   - id: dd:neutron_diagnostic/reconstructed_emissivity/emissivity_dt
     dd_path: neutron_diagnostic/reconstructed_emissivity/emissivity_dt
-    status: composed
-- name: efficiency_of_spectrometer_channel
-  kind: scalar
-  status: draft
-  description: 'Dimensionless optical throughput of a spectrometer channel: the fraction
-    of photons within the channel acceptance that are delivered to the active detector
-    area after collection, transmission, reflection, dispersion, aperture, and window
-    losses.'
-  documentation: 'Efficiency of a spectrometer channel is the dimensionless probability
-    that a photon within the channel acceptance reaches the active detector area.
-    It represents optical throughput losses only, and is distinct from the geometrical
-    or spectral acceptance described by spectral_etendue_of_spectrometer_channel.
-
-
-    The channel efficiency can be defined as a ratio of photon fluxes:
-
-
-    $$
-
-    \eta_\mathrm{ch}(\lambda) = \frac{\Phi_\mathrm{det}(\lambda)}{\Phi_\mathrm{acc}(\lambda)}
-
-    $$
-
-
-    where $\Phi_\mathrm{det}(\lambda)$ is the photon flux delivered to the detector
-    and $\Phi_\mathrm{acc}(\lambda)$ is the photon flux from the observed source that
-    lies within the channel acceptance before optical losses. Both quantities must
-    be expressed in the same units, such as photons s$^{-1}$ for band-integrated photon
-    flux or photons s$^{-1}$ m$^{-1}$ for wavelength-resolved photon flux.
-
-
-    In practice, this efficiency is obtained from radiometric calibration using calibrated
-    lamps, integrating spheres, laser sources, or transfer-standard detectors. The
-    calibration may include mirror reflectivity, lens or fiber transmission, slit
-    throughput, grating efficiency, filter transmission, detector-window transmission,
-    and alignment losses; detector quantum efficiency may be included only when the
-    efficiency is intended to describe the full photon-to-signal response.
-
-
-    The physical range is $0 \leq \eta_\mathrm{ch} \leq 1$. Well-aligned visible spectroscopy
-    channels commonly have efficiencies from about 0.01-0.8, depending on wavelength,
-    optical coatings, fiber coupling, grating order, and aperture losses.'
-  unit: '1'
-  physics_domain: radiation_measurement_diagnostics
-  links: []
-  sources:
-  - id: dd:spectrometer_visible/channel/light_collection_efficiencies/values
-    dd_path: spectrometer_visible/channel/light_collection_efficiencies/values
     status: composed
 - name: energy_of_detector_pixel
   kind: scalar
@@ -671,6 +833,43 @@
   - name:spectral_etendue_of_spectrometer_channel
   sources:
   - id: derived:etendue_of_spectrometer_channel
+    status: composed
+- name: exposure_time_of_spectrometer_channel
+  kind: scalar
+  status: draft
+  description: Duration of the detector integration window for a spectrometer channel,
+    defining the temporal interval over which incident photons are accumulated to
+    form a single spectral measurement frame.
+  documentation: "The exposure time of a spectrometer channel is the duration of the\
+    \ detector integration window for a single spectral acquisition \u2014 the temporal\
+    \ interval during which incident photons are continuously accumulated by the detector\
+    \ to produce one spectral measurement. It directly controls the fundamental trade-off\
+    \ between temporal resolution and signal-to-noise ratio: shorter exposures resolve\
+    \ faster plasma dynamics, while longer exposures build up signal for weak emission\
+    \ lines at the cost of temporal averaging.\n\nFor an integrating detector, the\
+    \ accumulated signal count $N$ relates to the exposure time $t_\\mathrm{exp}$\
+    \ and the incident photon rate $\\Phi$ as:\n\n$$\nN = \\Phi \\cdot t_\\mathrm{exp}\n\
+    $$\n\nwhere $\\Phi$ is the photon flux reaching the detector active area. For\
+    \ shot-noise-limited detection the signal-to-noise ratio scales as $\\sqrt{N}$,\
+    \ so longer exposures are beneficial for faint spectral features.\n\nThe exposure\
+    \ time is set by the acquisition timing system and may be configured independently\
+    \ per channel in multi-channel or scanning spectrometer systems. It is selected\
+    \ based on the expected emission intensity, the saturation threshold of the detector,\
+    \ and the timescale of the plasma phenomenon under observation. The [spectral\
+    \ flux of spectrometer channel](name:spectral_flux_of_spectrometer_channel) gives\
+    \ the photon count rate accumulated within this integration window; together they\
+    \ determine the total count per frame.\n\nTypical values span from a few microseconds\
+    \ for fast transient events such as disruptions or edge-localized modes to tens\
+    \ of milliseconds for quasi-steady emission measurements in ohmic or H-mode plasmas.\n\
+    \nSign convention: Positive when the detector is actively integrating the spectral\
+    \ signal over a valid acquisition interval."
+  unit: s
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:spectral_flux_of_spectrometer_channel
+  sources:
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/exposure_time
+    dd_path: spectrometer_visible/channel/filter_spectrometer/exposure_time
     status: composed
 - name: extent_of_detector_pixel
   kind: scalar
@@ -995,18 +1194,16 @@
     \ flux surface.\n\nThe emissivity radial distribution is inferred from multi-chord\
     \ hard X-ray camera brightnesses via tomographic inversion under the assumption\
     \ of toroidal symmetry. Comparing the outer half-width with the complementary\
-    \ [hard_xray_inner_width](name:hard_xray_inner_width) reveals radial asymmetry\
-    \ in the non-thermal electron population; a larger outer value relative to the\
-    \ inner indicates that the fast electron distribution extends further toward the\
-    \ separatrix than toward the magnetic axis. Both quantities are expressed on the\
-    \ [normalized_toroidal_flux_coordinate](name:normalized_toroidal_flux_coordinate)\
+    \ hard_xray_inner_width reveals radial asymmetry in the non-thermal electron population;\
+    \ a larger outer value relative to the inner indicates that the fast electron\
+    \ distribution extends further toward the separatrix than toward the magnetic\
+    \ axis. Both quantities are expressed on the [normalized_toroidal_flux_coordinate](name:normalized_toroidal_flux_coordinate)\
     \ scale.\n\nSign convention: Positive when the outer half-maximum boundary lies\
     \ at greater $\\rho_{tor,norm}$ than the emissivity peak, in the direction of\
     \ increasing normalized toroidal flux toward the separatrix."
   unit: '1'
   physics_domain: radiation_measurement_diagnostics
   links:
-  - name:hard_xray_inner_width
   - name:normalized_toroidal_flux_coordinate
   sources:
   - id: dd:hard_x_rays/emissivity_profile_1d/half_width_external
@@ -1211,265 +1408,6 @@
   - id: dd:soft_x_rays/channel/energy_band/lower_bound
     dd_path: soft_x_rays/channel/energy_band/lower_bound
     status: attached
-- name: major_radius_of_detector_pixel
-  kind: scalar
-  status: draft
-  description: Major radius coordinate of the center of a detector pixel in the right-handed
-    cylindrical (R, phi, Z) frame.
-  documentation: 'Major radius of a detector pixel is the cylindrical $R$ coordinate
-    of the pixel center. It is the perpendicular distance from the machine toroidal
-    symmetry axis to the point representing the center of the pixel''s active area
-    in the right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is major radius
-    and $Z$ is vertical height.
-
-
-    When the same point is represented in a right-handed Cartesian $(\hat{x}, \hat{y},
-    \hat{z})$ basis with origin on the toroidal symmetry axis and $\hat{z}=\hat{Z}$,
-    the major radius is
-
-
-    $$
-
-    R = \sqrt{x^2 + y^2}
-
-    $$
-
-
-    where $x$ and $y$ are the horizontal Cartesian coordinates of the pixel center
-    in m, and $R$ is the major radius in m.
-
-
-    In practice this coordinate is obtained from the diagnostic geometry, survey information,
-    optical design, or alignment model that maps each detector pixel into machine
-    coordinates. Together with the corresponding toroidal angle and vertical position,
-    it fixes the spatial location used to determine viewing geometry, lines of sight,
-    and spatial calibration for pixel-resolved radiation measurements.
-
-
-    Typical values are set by the diagnostic location and device size: detector pixels
-    in compact tokamaks may have major radii of about 0.3-2 m, while pixels associated
-    with cameras or spectrometers on larger devices may lie at about 2-10 m from the
-    toroidal symmetry axis.'
-  unit: m
-  physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:vertical_coordinate_of_detector_pixel
-  - name:major_radius_of_measurement_position
-  - name:radial_line_of_sight
-  sources:
-  - id: dd:camera_x_rays/camera/pixel_position/r
-    dd_path: camera_x_rays/camera/pixel_position/r
-    status: composed
-  - id: dd:spectrometer_x_ray_crystal/channel/camera/pixel_position/r
-    dd_path: spectrometer_x_ray_crystal/channel/camera/pixel_position/r
-    status: attached
-- name: neon_fraction
-  kind: scalar
-  status: draft
-  description: Neon fraction is the ratio of the volume-averaged total neon particle
-    density, summed over all ionization states, to the volume-averaged electron density.
-    It is dimensionless and represents the plasma-wide neon concentration relative
-    to electrons.
-  documentation: 'Neon fraction is a dimensionless impurity concentration measuring
-    how much neon is present in the plasma relative to electrons. The neon density
-    includes neutral and ionized neon populations summed over all charge states before
-    the plasma-volume average is formed.
-
-
-    The volume-averaged neon fraction is defined by
-
-
-    $$
-
-    f_{\mathrm{Ne}} = \frac{\left\langle \sum_{q=0}^{10} n_{\mathrm{Ne}^{q+}} \right\rangle_V}{\langle
-    n_e \rangle_V}
-
-    $$
-
-
-    where $n_{\mathrm{Ne}^{q+}}$ is the number density of neon in charge state $q$
-    in m^-3, $n_e$ is the electron density in m^-3, and $\langle \cdot \rangle_V =
-    V^{-1}\int_V (\cdot)\,dV$ denotes a plasma-volume average over volume $V$. The
-    numerator is the [volume-averaged neon density](name:volume_averaged_neon_density),
-    and the denominator is the volume-averaged electron density.
-
-
-    In practice, neon fraction is inferred from plasma composition analysis using
-    impurity spectroscopy, radiation measurements, charge-state balance modeling,
-    and electron-density information. It should be interpreted as a global composition
-    measure, not as a local impurity abundance at a particular radius or viewing chord.
-
-
-    Typical values are much less than unity. Background neon levels in plasmas without
-    deliberate neon injection are often below $10^{-4}$-$10^{-3}$, while neon-seeded
-    radiating plasmas can reach about $10^{-3}$-$10^{-2}$ depending on fueling, confinement,
-    and exhaust conditions.'
-  unit: '1'
-  physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:volume_averaged_neon_density
-  - name:nitrogen_fraction
-  - name:ratio_of_volume_averaged_oxygen_ion_density_to_volume_averaged_electron_density
-  sources:
-  - id: dd:summary/composition/neon/value
-    dd_path: summary/composition/neon/value
-    status: composed
-- name: neutral_fraction
-  kind: scalar
-  status: draft
-  description: Dimensionless fraction of a hydrogen-isotope neutral population component
-    (cold recycled or hot charge-exchange neutrals) relative to the total neutral
-    atom population.
-  documentation: 'The neutral fraction is a dimensionless ratio bounded in $[0, 1]$
-    expressing the relative abundance of a defined component of the hydrogen-isotope
-    neutral population. In the standard two-component neutral model, cold recycled
-    neutrals and charge-exchange-born hot neutrals partition the neutral atom inventory,
-    and their respective fractions sum to unity.
-
-
-    The fraction for a given component is defined as:
-
-
-    $$
-
-    f_{\mathrm{component}} = \frac{n_{\mathrm{component}}}{n_{\mathrm{cold}} + n_{\mathrm{hot}}}
-
-    $$
-
-
-    where $n_{\mathrm{component}}$ is the number density of the specified neutral
-    component and $n_{\mathrm{cold}}$, $n_{\mathrm{hot}}$ are the cold and hot neutral
-    number densities respectively.
-
-
-    The component fractions are inferred from Doppler-broadening analysis of visible
-    hydrogen-isotope spectral emission lines, in which the cold and hot neutral populations
-    contribute distinct narrow and broad Gaussian components to the line shape. The
-    [cold_neutral_fraction](name:cold_neutral_fraction) characterizes the low-energy
-    recycled neutral component, while [hot_neutral_fraction](name:hot_neutral_fraction)
-    gives the charge-exchange-born component; together they form a complete partition
-    of the neutral population. The energy threshold separating the two components
-    must be specified by the diagnostic or population model employed.
-
-
-    Sign convention: Positive when the specified neutral component density is greater
-    than zero.'
-  unit: '1'
-  physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:cold_neutral_fraction
-  - name:hot_neutral_fraction
-- name: cold_neutral_fraction
-  kind: scalar
-  status: draft
-  description: Cold neutral fraction is the dimensionless fraction of a hydrogen-isotope
-    neutral population assigned to the low-energy neutral component. It is defined
-    relative to the cold and hot neutral components used in the analysis; the cold/hot
-    boundary must be specified by the diagnostic or population model.
-  documentation: 'The cold neutral fraction is the population fraction of neutral
-    atoms of a specified hydrogen isotope that are classified as cold, meaning lower
-    in kinetic energy than the corresponding hot neutral component. The classification
-    boundary between cold and hot neutrals is not universal; it is set by the diagnostic
-    interpretation, spectral decomposition, or population model used for the isotope
-    being analyzed.
-
-
-    For a two-component cold/hot decomposition, the cold neutral fraction is
-
-
-    $$
-
-    f_\mathrm{cold} = \frac{n_\mathrm{cold}}{n_\mathrm{cold} + n_\mathrm{hot}}
-
-    $$
-
-
-    where $n_\mathrm{cold}$ and $n_\mathrm{hot}$ are the cold and hot neutral number
-    densities for the same isotope, typically in $\mathrm{m}^{-3}$. For nonnegative
-    densities this gives $0 \le f_\mathrm{cold} \le 1$. If additional neutral populations
-    are treated separately or excluded from the decomposition, the fraction applies
-    only to the cold-plus-hot population used in the denominator.
-
-
-    In visible spectroscopy, this fraction is commonly inferred by separating emission
-    associated with low-energy recycled or thermal neutrals from emission associated
-    with higher-energy neutrals, using line shapes, Doppler broadening, line ratios,
-    and collisional-radiative modeling. The inferred value depends on the adopted
-    cold/hot energy threshold and on corrections for atomic physics rates, viewing
-    geometry, and instrument response.
-
-
-    Typical values can span the full range 0-1. Values near 1 indicate that the represented
-    neutral population is dominated by low-energy recycled or thermal neutrals, while
-    values near 0 indicate dominance by the hot neutral component, for example from
-    energetic charge-exchange populations or beam-related neutrals.'
-  unit: '1'
-  physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:hot_neutral_fraction
-  - name:neutral_fraction
-  arguments:
-  - name: neutral_fraction
-    operator: cold
-    operator_kind: qualifier
-  sources:
-  - id: dd:spectrometer_visible/channel/isotope_ratios/isotope/cold_neutrals_fraction
-    dd_path: spectrometer_visible/channel/isotope_ratios/isotope/cold_neutrals_fraction
-    status: composed
-- name: hot_neutral_fraction
-  kind: scalar
-  status: draft
-  description: Fraction of charge-exchange-born hot neutral atoms in the total neutral
-    population of a hydrogen isotope, assuming a two-component hot-plus-cold neutral
-    partition. It is the hot neutral density divided by the sum of hot and cold neutral
-    densities.
-  documentation: 'Hot neutral fraction is the dimensionless abundance of fast neutral
-    atoms produced mainly by charge exchange relative to all neutral atoms of the
-    same hydrogen isotope in a two-component neutral model. The complementary population
-    is the cold neutral component, so the modeled total neutral density is the sum
-    of hot and cold neutral densities.
-
-
-    The defining ratio is:
-
-
-    $$
-
-    f_\mathrm{hot} = \frac{n_\mathrm{hot}}{n_\mathrm{hot} + n_\mathrm{cold}}
-
-    $$
-
-
-    where $n_\mathrm{hot}$ and $n_\mathrm{cold}$ are the hot and cold neutral number
-    densities in $m^{-3}$ for the same isotope and physical region.
-
-
-    In visible spectroscopy, hot and cold neutral contributions may be inferred from
-    line-shape components, such as Doppler-broadened charge-exchange emission and
-    colder recycling or fueling emission. The measured component intensities are not
-    density fractions by themselves; converting them to $f_\mathrm{hot}$ requires
-    an emissivity or collisional-radiative model that accounts for excitation, charge
-    exchange, ionization, neutral velocity distributions, instrument response, and
-    line-of-sight integration.
-
-
-    By definition $0 \le f_\mathrm{hot} \le 1$. Values near 0 indicate a cold-neutral-dominated
-    population, while values near 1 indicate a hot-neutral-dominated population; the
-    realized value is strongly dependent on plasma conditions, neutral sources, charge-exchange
-    rates, and the observation region.'
-  unit: '1'
-  physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:cold_neutral_fraction
-  - name:neutral_fraction
-  arguments:
-  - name: neutral_fraction
-    operator: hot
-    operator_kind: qualifier
-  sources:
-  - id: dd:spectrometer_visible/channel/isotope_ratios/isotope/hot_neutrals_fraction
-    dd_path: spectrometer_visible/channel/isotope_ratios/isotope/hot_neutrals_fraction
-    status: composed
 - name: neutron_energy
   kind: scalar
   status: draft
@@ -1590,58 +1528,6 @@
   sources:
   - id: dd:neutron_diagnostic/unit_source/radiation/reaction/flux
     dd_path: neutron_diagnostic/unit_source/radiation/reaction/flux
-    status: composed
-- name: nitrogen_fraction
-  kind: scalar
-  status: draft
-  description: 'Volume-averaged nitrogen concentration: the total nitrogen-particle
-    density over all charge states divided by electron density.'
-  documentation: 'Nitrogen fraction is the dimensionless volume-averaged abundance
-    of nitrogen relative to electrons in a plasma. It counts nitrogen nuclei in all
-    ionization states, from neutral $\mathrm{N}^{0}$ through fully stripped $\mathrm{N}^{7+}$,
-    and normalizes their total number density by the local electron density.
-
-
-    Using a volume average over the plasma volume, the fraction is defined as:
-
-
-    $$
-
-    f_\mathrm{N} = \left\langle \frac{\sum_{q=0}^{7} n_{\mathrm{N}^{q+}}}{n_e} \right\rangle_V
-
-    $$
-
-
-    where $n_{\mathrm{N}^{q+}}$ is the number density of nitrogen with charge state
-    $q$, $q=0$ denotes neutral nitrogen, $q=7$ denotes fully stripped nitrogen, $n_e$
-    is electron density, and $\langle\cdot\rangle_V$ denotes volume averaging. Fully
-    stripped nitrogen is $\mathrm{N}^{7+}$; there is no $\mathrm{N}^{8+}$ charge state
-    for nitrogen.
-
-
-    In practice, this quantity is inferred from a combination of impurity spectroscopy,
-    charge-exchange recombination measurements when available, bolometric radiation
-    constraints, electron-density measurements, and collisional-radiative or transport
-    modeling to complete the charge-state distribution. Neutral and fully stripped
-    populations can be difficult to observe directly, so their contributions are often
-    inferred from ionization-balance modeling rather than measured as isolated emission
-    features.
-
-
-    Typical values are $10^{-4}$-$10^{-3}$ for trace background nitrogen and $10^{-3}$-$5\times10^{-2}$
-    during deliberate nitrogen seeding for radiative divertor or edge-cooling control.
-    Larger fractions increase radiated power and fuel dilution and therefore strongly
-    affect plasma performance.'
-  unit: '1'
-  physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:volume_averaged_nitrogen_density
-  - name:line_averaged_nitrogen_density
-  - name:neon_fraction
-  - name:total_plasma_fraction
-  sources:
-  - id: dd:summary/composition/nitrogen/value
-    dd_path: summary/composition/nitrogen/value
     status: composed
 - name: normalized_count_at_detector_pixel
   kind: scalar
@@ -1828,15 +1714,13 @@
     In practice this quantity is computed from local fuel-ion density and ion temperature
     profiles using tabulated reaction-rate coefficients, or inferred from neutron
     emission diagnostics combined with reaction-rate models. The particle-channel
-    counterparts [deuterium-deuterium neutron emissivity](name:deuterium_deuterium_neutron_emissivity_due_to_fusion)
-    and [deuterium-tritium emissivity](name:deuterium_tritium_emissivity_due_to_fusion)
+    counterparts [deuterium-deuterium neutron emissivity] and [deuterium-tritium emissivity](name:deuterium_tritium_emissivity_due_to_fusion)
     track neutron production rates rather than total energy release.'
   unit: W.m^-3
   physics_domain: radiation_measurement_diagnostics
   links:
   - name:deuterium_deuterium_power_density_due_to_fusion
   - name:deuterium_tritium_power_density_due_to_fusion
-  - name:deuterium_deuterium_neutron_emissivity_due_to_fusion
   - name:deuterium_tritium_emissivity_due_to_fusion
 - name: deuterium_deuterium_power_density_due_to_fusion
   kind: scalar
@@ -1996,61 +1880,6 @@
   - id: dd:disruption/profiles_1d/power_density_radiative_losses
     dd_path: disruption/profiles_1d/power_density_radiative_losses
     status: composed
-- name: power_density_of_soft_xray_detector
-  kind: scalar
-  status: draft
-  description: Radiative power density from plasma soft X-ray emission received per
-    unit active detector surface area, integrated over photon-energy bands transmitted
-    by filters and windows and weighted by the detector spectral response.
-  documentation: 'Power density of a soft X-ray detector is the radiant power from
-    plasma soft X-ray emission received per unit active detector surface area. The
-    received power is limited to the photon-energy band or bands passed by the filter/window
-    assembly and by the detector spectral response, so it is a band- and response-weighted
-    irradiance rather than an intrinsic plasma emissivity.
-
-
-    The area-normalized received power is defined by
-
-
-    $$
-
-    q_\mathrm{SXR} = \frac{P_\mathrm{SXR}}{A_\mathrm{act}}
-
-    $$
-
-
-    where $q_\mathrm{SXR}$ is the detector power density in W m$^{-2}$, $P_\mathrm{SXR}$
-    is the response-weighted soft X-ray power in W accepted by the detector, and $A_\mathrm{act}$
-    is the active detector surface area in m$^2$. The energy integration implicit
-    in $P_\mathrm{SXR}$ includes the selected photon-energy band, filter and window
-    transmission, and detector spectral responsivity.
-
-
-    In practice this quantity is inferred from calibrated detector current, voltage,
-    or count-rate signals after accounting for dark offsets, electronic gain, active
-    area, and spectral responsivity. It is the active-area normalization of [power_of_soft_xray_detector](name:power_of_soft_xray_detector).
-    Relations to [spectral_radiance_of_soft_xray_detector](name:spectral_radiance_of_soft_xray_detector)
-    or [brightness_of_soft_xray_detector](name:brightness_of_soft_xray_detector) additionally
-    require viewing geometry, etendue or solid angle, spectral transmission, and photon-energy
-    weighting; solid-angle normalization alone is not sufficient. The incident direction
-    is into the active detector surface from the plasma-facing side, and outward emission
-    or reflection from the detector is not part of the received-power density.
-
-
-    Typical magnitudes vary strongly with aperture, filter thickness, line of sight,
-    plasma temperature, and impurity content. Heavily filtered or edge-dominated channels
-    may measure about 10^-6-10^-3 W m^-2, while core-viewing channels in hot tokamak
-    plasmas commonly lie around 10^-3-10^1 W m^-2; intense transient events can approach
-    10^2 W m^-2 before detector saturation or attenuation limits are reached.'
-  unit: W.m^-2
-  physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:power_of_soft_xray_detector
-  - name:brightness_of_soft_xray_detector
-  sources:
-  - id: dd:soft_x_rays/channel/power_density
-    dd_path: soft_x_rays/channel/power_density
-    status: composed
 - name: power_due_to_line_radiation
   kind: scalar
   status: draft
@@ -2160,6 +1989,57 @@
   - id: dd:summary/global_quantities/power_synchrotron/value
     dd_path: summary/global_quantities/power_synchrotron/value
     status: composed
+- name: power_of_hard_xray_detector
+  kind: scalar
+  status: draft
+  description: Radiative power received by a hard X-ray detector channel, integrated
+    over its photon-energy acceptance band and serving as a direct measure of suprathermal
+    electron bremsstrahlung emission.
+  documentation: 'Hard X-ray diagnostic power is the total electromagnetic power deposited
+    on a detector channel by photons in the hard X-ray band, produced predominantly
+    by suprathermal and runaway electrons decelerating in the Coulomb fields of plasma
+    ions via bremsstrahlung.
+
+
+    The channel-integrated power relates to the photon power spectral density $d\Phi/dE$
+    at the detector face through:
+
+
+    $$
+
+    P = \int_{\Delta E} \frac{d\Phi}{dE} \, dE
+
+    $$
+
+
+    where $\Delta E$ is the channel''s photon-energy acceptance interval and $d\Phi/dE$
+    is the power spectral density incident on the detector.
+
+
+    Measurement uses scintillator-based detectors (NaI(Tl), BGO, LaBr$_3$) or solid-state
+    semiconductor detectors (CdTe, HPGe) operated in current mode or pulse-height
+    analysis mode, with detector efficiency calibration applied to convert count rates
+    to power. The hard X-ray power level is sensitive to the high-energy tail of the
+    electron energy distribution, making this quantity a primary diagnostic indicator
+    for runaway electron characterization and suprathermal electron beam measurements
+    during disruptions and off-normal plasma events.
+
+
+    The spectrally resolved counterpart, expressed as power per detector area per
+    steradian, is [spectral radiance of a hard X-ray detector channel](name:spectral_radiance_of_hard_xray_detector).
+    The soft X-ray analog covering lower photon energies is [power_of_soft_xray_detector](name:power_of_soft_xray_detector).
+    The total volumetric bremsstrahlung emission driving the detected signal is described
+    by [bremsstrahlung_power](name:bremsstrahlung_power).'
+  unit: W
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:spectral_radiance_of_hard_xray_detector
+  - name:power_of_soft_xray_detector
+  - name:bremsstrahlung_power
+  sources:
+  - id: dd:hard_x_rays/channel/power
+    dd_path: hard_x_rays/channel/power
+    status: composed
 - name: power_of_soft_xray_detector
   kind: scalar
   status: draft
@@ -2198,6 +2078,133 @@
   sources:
   - id: dd:soft_x_rays/channel/power
     dd_path: soft_x_rays/channel/power
+    status: composed
+- name: radial_coordinate_of_aperture
+  kind: scalar
+  status: draft
+  description: Major radius R coordinate of the geometric center of a diagnostic aperture
+    in the right-handed cylindrical (R, phi, Z) frame.
+  documentation: "The major-radius $R$ coordinate of the geometric center of a diagnostic\
+    \ aperture locates the aperture centroid along the radial axis of the right-handed\
+    \ cylindrical $(R, \\phi, Z)$ frame, where $R$ is the perpendicular distance from\
+    \ the machine toroidal symmetry axis measured outward. For spatially extended\
+    \ apertures, the representative point is the centroid of the aperture opening;\
+    \ the physical size of the aperture opening is separately characterized by [radius_of_diagnostic_aperture](name:radius_of_diagnostic_aperture).\n\
+    \nThis coordinate is established from mechanical survey data or optical alignment\
+    \ procedures performed during diagnostic installation and commissioning, and it\
+    \ enters line-of-sight geometry models that project plasma emission volumes onto\
+    \ detector arrays. It applies across a wide range of plasma diagnostics, including\
+    \ hard and soft X-ray cameras, visible and ultraviolet spectrometers, neutron\
+    \ detectors, and infrared imaging systems. The analogous coordinate for filter\
+    \ windows is given by [radial_coordinate_of_filter_window](name:radial_coordinate_of_filter_window),\
+    \ and the measurement-position counterpart used in equilibrium reconstruction\
+    \ is [radial_coordinate_of_measurement_position](name:radial_coordinate_of_measurement_position).\n\
+    \nTypical values span roughly 0.5\u201310 m depending on device size and the radial\
+    \ placement of the diagnostic port.\n\nSign convention: Positive when the aperture\
+    \ center lies at a positive major radius in the $+\\hat{R}$ direction from the\
+    \ machine toroidal symmetry axis."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:radius_of_diagnostic_aperture
+  - name:radial_coordinate_of_filter_window
+  - name:radial_coordinate_of_measurement_position
+  sources:
+  - id: dd:camera_visible/channel/aperture/centre/r
+    dd_path: camera_visible/channel/aperture/centre/r
+    status: composed
+  - id: dd:spectrometer_uv/channel/aperture/centre/r
+    dd_path: spectrometer_uv/channel/aperture/centre/r
+    status: composed
+  - id: dd:spectrometer_visible/channel/active_spatial_resolution/centre/r
+    dd_path: spectrometer_visible/channel/active_spatial_resolution/centre/r
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/aperture/centre/r
+    dd_path: spectrometer_x_ray_crystal/channel/aperture/centre/r
+    status: composed
+- name: radial_coordinate_of_detector_pixel
+  kind: scalar
+  status: draft
+  description: Major radius R of a single detector pixel, locating it along the radial
+    direction from the machine symmetry axis in the right-handed cylindrical (R, phi,
+    Z) frame.
+  documentation: "The radial coordinate $R$ of a detector pixel gives the perpendicular\
+    \ distance from the machine's toroidal symmetry axis to the pixel center in the\
+    \ right-handed cylindrical $(R, \\phi, Z)$ frame, where $R$ is the major-radius\
+    \ coordinate increasing outward from the symmetry axis, $\\phi$ is the toroidal\
+    \ angle, and $Z$ is the vertical height.\n\nFor X-ray crystal spectrometer diagnostics,\
+    \ pixel spatial coordinates are fixed by the mechanical geometry of the detector\
+    \ camera assembly \u2014 the crystal mount, focusing optics, and detector array\
+    \ \u2014 rather than by in-situ plasma measurements. Together with [vertical_coordinate_of_detector_pixel](name:vertical_coordinate_of_detector_pixel),\
+    \ this coordinate fully specifies the two-dimensional position of the pixel in\
+    \ the poloidal cross-section. The pixel radial position enters solid-angle and\
+    \ Bragg-diffraction geometry calculations that map spectral channels to plasma\
+    \ emission locations, and it is paired with [energy_of_detector_pixel](name:energy_of_detector_pixel)\
+    \ when constructing the spatial-to-spectral mapping for each pixel. The analogous\
+    \ quantity for a diagnostic aperture element is the [radial_coordinate_of_aperture](name:radial_coordinate_of_aperture).\n\
+    \nTypical values range from approximately 1 m to 10 m, depending on machine size\
+    \ and spectrometer mounting location.\n\nSign convention: Positive for all physical\
+    \ detector positions, as $R$ measures the outward distance from the toroidal symmetry\
+    \ axis in the right-handed cylindrical $(R, \\phi, Z)$ frame."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:vertical_coordinate_of_detector_pixel
+  - name:energy_of_detector_pixel
+  - name:radial_coordinate_of_aperture
+  sources:
+  - id: dd:camera_x_rays/camera/pixel_position/r
+    dd_path: camera_x_rays/camera/pixel_position/r
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/camera/pixel_position/r
+    dd_path: spectrometer_x_ray_crystal/channel/camera/pixel_position/r
+    status: composed
+- name: radial_coordinate_of_filter_window
+  kind: scalar
+  status: draft
+  description: Radial (R) position of the geometric center of a diagnostic filter
+    window, giving its distance from the toroidal symmetry axis in the right-handed
+    cylindrical (R, phi, Z) frame.
+  documentation: 'The coordinate $R$ gives the perpendicular distance from the toroidal
+    symmetry axis to the geometric center of a diagnostic filter window in the right-handed
+    cylindrical $(R, \phi, Z)$ frame, where $\phi$ is the toroidal angle increasing
+    counter-clockwise when viewed from above $+\hat{Z}$ and $Z$ is the vertical height.
+    Filter windows are thin absorbing foils or transmission elements placed in the
+    optical path of X-ray and spectroscopic diagnostic channels; their precise spatial
+    location is required for line-of-sight modeling, solid-angle weighting, and cross-channel
+    spatial registration.
+
+
+    This coordinate is obtained from mechanical design specifications or optical metrology
+    surveys of the installed diagnostic assembly. It pairs naturally with the aperture-dimension
+    descriptors [filter_window_width](name:filter_window_width) and [filter_window_height](name:filter_window_height),
+    which give the transverse extents of the filter aperture, and with [thickness_of_filter](name:thickness_of_filter),
+    which governs photon attenuation through the filter material. The corresponding
+    radial position of a diagnostic aperture element is given by [radial_coordinate_of_aperture](name:radial_coordinate_of_aperture).
+
+
+    Sign convention: Positive when the filter window center is displaced outward from
+    the toroidal symmetry axis, consistent with $R \geq 0$ in the right-handed cylindrical
+    $(R, \phi, Z)$ frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:filter_window_width
+  - name:filter_window_height
+  - name:thickness_of_filter
+  - name:radial_coordinate_of_aperture
+  sources:
+  - id: dd:camera_x_rays/filter_window/centre/r
+    dd_path: camera_x_rays/filter_window/centre/r
+    status: attached
+  - id: dd:hard_x_rays/channel/filter_window/centre/r
+    dd_path: hard_x_rays/channel/filter_window/centre/r
+    status: composed
+  - id: dd:soft_x_rays/channel/filter_window/centre/r
+    dd_path: soft_x_rays/channel/filter_window/centre/r
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/centre/r
+    dd_path: spectrometer_x_ray_crystal/channel/filter_window/centre/r
     status: composed
 - name: radiance_at_spectral_line
   kind: scalar
@@ -2292,305 +2299,6 @@
   - id: dd:spectrometer_visible/channel/grating_spectrometer/processed_line/radiance
     dd_path: spectrometer_visible/channel/grating_spectrometer/processed_line/radiance
     status: attached
-- name: radiated_power_density
-  kind: scalar
-  status: draft
-  description: Local non-negative volumetric rate at which plasma emits electromagnetic
-    radiation, representing radiated power per unit volume.
-  documentation: 'Radiated power density is the local, non-negative volumetric rate
-    at which plasma thermal energy is converted to electromagnetic radiation. It includes
-    continuum, line, recombination, and other photon emission processes that contribute
-    to bolometric radiated power.
-
-
-    The total radiated power associated with a plasma volume is the volume integral
-    of the local emission density:
-
-
-    $$
-
-    P_\mathrm{rad} = \int_V p_\mathrm{rad}(\mathbf{x})\,dV
-
-    $$
-
-
-    where $P_\mathrm{rad}$ is total radiated power in W, $p_\mathrm{rad}$ is radiated
-    power density in W m$^{-3}$, $\mathbf{x}$ denotes spatial position, and $dV$ is
-    a volume element in m$^3$. For an axisymmetric reconstruction in the right-handed
-    cylindrical $(R,\phi,Z)$ frame, where $R$ is major radius, $\phi$ increases counter-clockwise
-    when viewed from above, and $Z$ is vertical height, the poloidal-plane volume
-    element is $dV = 2\pi R\,dR\,dZ$; this reduction assumes toroidal symmetry of
-    $p_\mathrm{rad}$.
-
-
-    Bolometer measurements infer this quantity from calibrated line-of-sight signals
-    through an optically thin plasma. For channel $i$, the measured signal is commonly
-    modeled as a path integral, $b_i \approx \int_{\ell_i} G_i(\mathbf{x})\,p_\mathrm{rad}(\mathbf{x})\,dl$,
-    where $b_i$ is the calibrated channel response, $G_i$ is the geometric and instrumental
-    response kernel, $\ell_i$ is the viewing chord, and $dl$ is path length in meters.
-    Tomographic inversion combines many such chords, with regularization and uncertainty
-    estimates, to recover the spatial emission distribution.
-
-
-    Typical local values are about $10^3$-$10^6$ W m$^{-3}$ in relatively low-radiation
-    core plasmas, $10^6$-$10^8$ W m$^{-3}$ in strongly radiating edge, divertor, or
-    impurity-accumulation regions, and near zero outside the emitting plasma within
-    measurement uncertainty.'
-  unit: W.m^-3
-  physics_domain: radiation_measurement_diagnostics
-  links: []
-  sources:
-  - id: dd:bolometer/power_density
-    dd_path: bolometer/power_density
-    status: composed
-- name: radius_of_bragg_crystal
-  kind: scalar
-  status: draft
-  description: Radius of a circular Bragg-crystal aperture, defined as the distance
-    from the aperture center to the circular edge of the active diffracting surface.
-    It is an aperture-size radius characterizing the usable transverse extent of the
-    crystal that participates in Bragg reflection, not a curvature radius of the crystal
-    substrate.
-  documentation: "The radius of a Bragg crystal is the geometric radius of the circular\
-    \ active diffracting aperture in an X-ray crystal spectrometer channel. It specifies\
-    \ the usable transverse size of the crystal face that participates in Bragg reflection,\
-    \ and it belongs to the same physical quantity class as [radius_of_diagnostic_aperture](name:radius_of_diagnostic_aperture).\
-    \ It is distinct from the substrate curvature radii and from the lattice spacing\
-    \ that fixes the diffraction angle.\n\nFor a circular aperture the radius is half\
-    \ the full diameter of the active diffracting area:\n\n$$\nr = \\frac{D}{2}\n\
-    $$\n\nwhere $r$ is the aperture radius in meters and $D$ is the full diameter\
-    \ of the active circular surface in meters. The fully illuminated collecting area\
-    \ scales as $A = \\pi r^2$, so the \xE9tendue and photon throughput of the channel\
-    \ increase with the square of this radius, subject to practical limits from focusing\
-    \ optics, angular acceptance, and edge vignetting.\n\nThis radius is determined\
-    \ from the crystal mount, aperture mask, or manufactured active area rather than\
-    \ from Bragg's law. It is independent of the toroidal and vertical curvature radii\
-    \ of the crystal substrate, which describe the shaping of a focusing crystal,\
-    \ and independent of the diffracting wavelength set by the crystal lattice.\n\n\
-    Typical values range from about 0.002-0.05 m for compact high-resolution X-ray\
-    \ spectrometer crystals, with larger specialized crystals reaching roughly 0.1\
-    \ m depending on optical layout and required photon collection."
-  unit: m
-  physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:toroidal_curvature_of_bragg_crystal
-  - name:vertical_curvature_of_bragg_crystal
-  sources:
-  - id: dd:spectrometer_x_ray_crystal/channel/crystal/radius
-    dd_path: spectrometer_x_ray_crystal/channel/crystal/radius
-    status: composed
-- name: radius_of_diagnostic_aperture
-  kind: scalar
-  status: draft
-  description: Radius of a circular diagnostic aperture, defined as the distance from
-    the aperture center to its circular edge. It characterizes the opening size used
-    to compute the corresponding aperture area.
-  documentation: 'The radius of a circular diagnostic aperture is the distance from
-    the center of an idealized circular opening to its edge. It is the appropriate
-    size parameter when the entrance aperture, collimating aperture, or sensitive
-    circular region is modeled as a circle; non-circular apertures are characterized
-    by quantities such as [width_of_diagnostic_aperture](name:width_of_diagnostic_aperture).
-
-
-    For an ideal circular aperture, the associated aperture area is
-
-
-    $$
-
-    A = \pi r^2
-
-    $$
-
-
-    where $r$ is the aperture radius in meters and $A$ is the area_of_diagnostic_aperture
-    in square meters. The corresponding [diameter_of_diagnostic_aperture](name:diameter_of_diagnostic_aperture)
-    is $d = 2r$, where $d$ is the full edge-to-edge distance through the aperture
-    center.
-
-
-    The radius is obtained from mechanical drawings, dimensional metrology, optical
-    inspection, or calibration of the fabricated diagnostic component. For a non-ideal
-    or partially obscured circular opening, an effective radius may be chosen so that
-    the ideal circular area matches the usable open area. The radius contributes to
-    geometric throughput and solid-angle calculations together with the aperture position,
-    orientation, and viewing geometry, but it does not by itself determine the full
-    acceptance.
-
-
-    Representative engineering scales are device- and diagnostic-dependent. Small
-    pinholes or tightly collimated openings may have radii of about 0.0001-0.001 m,
-    while many optical, fiber, or detector apertures use millimeter- to centimeter-scale
-    radii of about 0.001-0.01 m; larger values can occur in wide-aperture systems.'
-  unit: m
-  physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:width_of_diagnostic_aperture
-  - name:diameter_of_diagnostic_aperture
-  sources:
-  - id: dd:bolometer/camera/channel/aperture/radius
-    dd_path: bolometer/camera/channel/aperture/radius
-    status: attached
-  - id: dd:bolometer/camera/channel/detector/radius
-    dd_path: bolometer/camera/channel/detector/radius
-    status: attached
-  - id: dd:bolometer/channel/aperture/radius
-    dd_path: bolometer/channel/aperture/radius
-    status: attached
-  - id: dd:bolometer/channel/detector/radius
-    dd_path: bolometer/channel/detector/radius
-    status: attached
-  - id: dd:camera_ir/fibre_bundle/geometry/radius
-    dd_path: camera_ir/fibre_bundle/geometry/radius
-    status: attached
-  - id: dd:camera_ir/optical_element/geometry/radius
-    dd_path: camera_ir/optical_element/geometry/radius
-    status: attached
-  - id: dd:camera_visible/channel/aperture/radius
-    dd_path: camera_visible/channel/aperture/radius
-    status: composed
-  - id: dd:camera_visible/channel/fibre_bundle/geometry/radius
-    dd_path: camera_visible/channel/fibre_bundle/geometry/radius
-    status: composed
-  - id: dd:camera_visible/channel/optical_element/geometry/radius
-    dd_path: camera_visible/channel/optical_element/geometry/radius
-    status: attached
-  - id: dd:camera_x_rays/aperture/radius
-    dd_path: camera_x_rays/aperture/radius
-    status: attached
-  - id: dd:charge_exchange/aperture/radius
-    dd_path: charge_exchange/aperture/radius
-    status: attached
-  - id: dd:charge_exchange/channel/aperture/radius
-    dd_path: charge_exchange/channel/aperture/radius
-    status: attached
-  - id: dd:ece/polarizer/radius
-    dd_path: ece/polarizer/radius
-    status: attached
-  - id: dd:hard_x_rays/channel/aperture/radius
-    dd_path: hard_x_rays/channel/aperture/radius
-    status: attached
-  - id: dd:hard_x_rays/channel/detector/radius
-    dd_path: hard_x_rays/channel/detector/radius
-    status: attached
-  - id: dd:hard_x_rays/channel/filter_window/radius
-    dd_path: hard_x_rays/channel/filter_window/radius
-    status: attached
-  - id: dd:mse/channel/aperture/radius
-    dd_path: mse/channel/aperture/radius
-    status: attached
-  - id: dd:mse/channel/detector/radius
-    dd_path: mse/channel/detector/radius
-    status: attached
-  - id: dd:neutron_diagnostic/detector/aperture/radius
-    dd_path: neutron_diagnostic/detector/aperture/radius
-    status: attached
-  - id: dd:neutron_diagnostic/detector/geometry/radius
-    dd_path: neutron_diagnostic/detector/geometry/radius
-    status: attached
-  - id: dd:neutron_diagnostic/detectors/aperture/radius
-    dd_path: neutron_diagnostic/detectors/aperture/radius
-    status: attached
-  - id: dd:neutron_diagnostic/detectors/detector/radius
-    dd_path: neutron_diagnostic/detectors/detector/radius
-    status: attached
-  - id: dd:reflectometer_fluctuation/channel/antenna_detection_static/radius
-    dd_path: reflectometer_fluctuation/channel/antenna_detection_static/radius
-    status: attached
-  - id: dd:reflectometer_fluctuation/channel/antenna_emission_static/radius
-    dd_path: reflectometer_fluctuation/channel/antenna_emission_static/radius
-    status: attached
-  - id: dd:reflectometer_profile/channel/antenna_detection/radius
-    dd_path: reflectometer_profile/channel/antenna_detection/radius
-    status: attached
-  - id: dd:reflectometer_profile/channel/antenna_emission/radius
-    dd_path: reflectometer_profile/channel/antenna_emission/radius
-    status: attached
-  - id: dd:soft_x_rays/channel/aperture/radius
-    dd_path: soft_x_rays/channel/aperture/radius
-    status: attached
-  - id: dd:soft_x_rays/channel/detector/radius
-    dd_path: soft_x_rays/channel/detector/radius
-    status: attached
-  - id: dd:soft_x_rays/channel/filter_window/radius
-    dd_path: soft_x_rays/channel/filter_window/radius
-    status: attached
-  - id: dd:spectrometer_uv/channel/aperture/radius
-    dd_path: spectrometer_uv/channel/aperture/radius
-    status: attached
-  - id: dd:spectrometer_uv/channel/detector/radius
-    dd_path: spectrometer_uv/channel/detector/radius
-    status: attached
-  - id: dd:spectrometer_visible/channel/aperture/radius
-    dd_path: spectrometer_visible/channel/aperture/radius
-    status: attached
-  - id: dd:spectrometer_visible/channel/detector/radius
-    dd_path: spectrometer_visible/channel/detector/radius
-    status: attached
-  - id: dd:spectrometer_visible/channel/fibre_bundle/geometry/radius
-    dd_path: spectrometer_visible/channel/fibre_bundle/geometry/radius
-    status: attached
-  - id: dd:spectrometer_visible/channel/polarizer/radius
-    dd_path: spectrometer_visible/channel/polarizer/radius
-    status: attached
-  - id: dd:spectrometer_x_ray_crystal/channel/aperture/radius
-    dd_path: spectrometer_x_ray_crystal/channel/aperture/radius
-    status: attached
-- name: radius_of_filter
-  kind: scalar
-  status: draft
-  description: Radius of a circular diagnostic filter-window aperture, defined as
-    the distance from the aperture center to its circular edge.
-  documentation: 'Radius of a circular filter-window aperture is the distance from
-    the center of the clear opening to its circular edge. It is a purely geometric
-    parameter that sets the size of the window through which photons pass in X-ray
-    diagnostic channels, and applies only when the filter-window geometry is circular.
-    It is distinct from the filter thickness, which governs energy-dependent attenuation,
-    and from any radius of curvature of the filter surface.
-
-
-    The clear circular aperture area $A$ used in solid-angle and geometric throughput
-    (etendue) calculations follows directly from the radius $r$:
-
-
-    $$
-
-    A = \pi r^2
-
-    $$
-
-
-    where $r$ is the aperture radius in meters and $A$ is the resulting clear aperture
-    area in square meters.
-
-
-    The radius is typically taken from the mechanical design of the filter holder
-    or determined by dimensional metrology, optical microscopy, or imaging of the
-    aperture edge. When the filter window is itself the limiting circular aperture
-    of a channel, this radius coincides with the radius of the diagnostic aperture.
-
-
-    Typical values range from about $1\times10^{-4}$ m to $5\times10^{-2}$ m, with
-    sub-millimeter openings used for tightly collimated channels and millimeter-to-centimeter
-    openings used for cameras or spectrometers with larger acceptance.'
-  unit: m
-  physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:radius_of_diagnostic_aperture
-  - name:diameter_of_diagnostic_aperture
-  - name:thickness_of_filter
-  sources:
-  - id: dd:camera_x_rays/filter_window/radius
-    dd_path: camera_x_rays/filter_window/radius
-    status: attached
-  - id: dd:hard_x_rays/channel/filter_window/radius
-    dd_path: hard_x_rays/channel/filter_window/radius
-    status: attached
-  - id: dd:soft_x_rays/channel/filter_window/radius
-    dd_path: soft_x_rays/channel/filter_window/radius
-    status: attached
-  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/radius
-    dd_path: spectrometer_x_ray_crystal/channel/filter_window/radius
-    status: composed
 - name: ratio_of_volume_averaged_krypton_number_density_to_maximum_electron_number_density
   kind: scalar
   status: draft
@@ -2739,58 +2447,6 @@
   - id: dd:spectrometer_x_ray_crystal/channel/instrument_function/centre
     dd_path: spectrometer_x_ray_crystal/channel/instrument_function/centre
     status: attached
-- name: requested_voltage_of_spectrometer
-  kind: scalar
-  status: draft
-  description: Commanded setpoint voltage for a spectrometer high-voltage supply,
-    giving the intended detector or electrode bias relative to the supply return/reference
-    terminal rather than a measured signal output.
-  documentation: 'The requested voltage of a spectrometer is the commanded electrical
-    potential difference for a spectrometer high-voltage supply. It represents the
-    intended bias applied to a detector, multiplier, photocathode, anode, or other
-    controlled electrode relative to the designated return/reference terminal.
-
-
-    When interpreted as an ideal voltage setpoint, the quantity is defined by the
-    commanded potential difference:
-
-
-    $$
-
-    V_\mathrm{req} = \Phi_\mathrm{out,set} - \Phi_\mathrm{ref}
-
-    $$
-
-
-    where $\Phi_\mathrm{out,set}$ is the commanded electric potential of the controlled
-    high-voltage output terminal or biased electrode, and $\Phi_\mathrm{ref}$ is the
-    electric potential of the supply return/reference terminal.
-
-
-    The value is usually generated from an operator setting, diagnostic configuration,
-    or automated scan used to control detector gain, charge collection, or particle/electron
-    multiplication. It should be distinguished from a measured high-voltage supply
-    readback, if one is available, and from voltage_of_spectrometer_channel, which
-    denotes an uncalibrated electrical output signal from a spectrometer channel rather
-    than the high-voltage supply setpoint.
-
-
-    Typical requested values range from 0-5000 V in magnitude, depending on detector
-    technology and operating mode. Photomultiplier, microchannel-plate, and electron-multiplier
-    systems commonly use 500-3000 V in magnitude; low-voltage bias or gating electrodes
-    may use 10-200 V.
-
-
-    Sign convention: Positive when the commanded high-voltage output terminal or biased
-    electrode is at a higher electric potential than its designated return/reference
-    terminal.'
-  unit: V
-  physics_domain: radiation_measurement_diagnostics
-  links: []
-  sources:
-  - id: dd:spectrometer_uv/channel/supply_high_voltage/voltage_set
-    dd_path: spectrometer_uv/channel/supply_high_voltage/voltage_set
-    status: composed
 - name: roughness_of_optical_element
   kind: scalar
   status: draft
@@ -3192,7 +2848,7 @@
 
     Absolute calibration is performed by comparing raw detector signals to a source
     of known radiance, yielding a [spectral calibration factor](name:spectral_calibration_factor_of_spectrometer).
-    The related [bremsstrahlung_spectral_radiance] specializes this quantity to the
+    The related bremsstrahlung_spectral_radiance specializes this quantity to the
     visible continuum component used for effective charge $Z_\mathrm{eff}$ inference,
     and the local volumetric emission analog is captured by [bremsstrahlung_spectral_emissivity](name:bremsstrahlung_spectral_emissivity).
     Measurements restricted to a discrete spectral line, such as the Stark-split beam
@@ -3232,6 +2888,10 @@
   links:
   - name:hard_xray_brightness
   - name:spectral_radiance_of_soft_xray_detector
+  arguments:
+  - name: spectral_radiance
+    operator: hard_xray_detector
+    operator_kind: locus
   sources:
   - id: dd:hard_x_rays/channel/brightness
     dd_path: hard_x_rays/channel/brightness
@@ -3268,6 +2928,10 @@
   - name:brightness_of_soft_xray_detector
   - name:power_of_soft_xray_detector
   - name:spectral_radiance_of_hard_xray_detector
+  arguments:
+  - name: spectral_radiance
+    operator: soft_xray_detector
+    operator_kind: locus
   sources:
   - id: dd:soft_x_rays/channel/brightness
     dd_path: soft_x_rays/channel/brightness
@@ -3572,6 +3236,10 @@
   physics_domain: radiation_measurement_diagnostics
   links:
   - name:back_surface_curvature_of_optical_element
+  arguments:
+  - name: roughness_of_optical_element
+    operator: surface
+    operator_kind: qualifier
   sources:
   - id: dd:camera_ir/optical_element/material_properties/roughness
     dd_path: camera_ir/optical_element/material_properties/roughness
@@ -4357,64 +4025,6 @@
   - id: dd:camera_visible/channel/detector/pixel_to_beta
     dd_path: camera_visible/channel/detector/pixel_to_beta
     status: composed
-- name: vertical_coordinate_of_beam_tracing_point
-  kind: scalar
-  status: draft
-  description: Vertical Z-coordinate of one physically specified beam-tracing point,
-    such as a launch point, first point defining a diagnostic line of sight, or ray-path
-    sample, in the right-handed cylindrical (R, phi, Z) frame.
-  documentation: 'The vertical coordinate $Z$ of a beam-tracing point is the height
-    of one physically specified point used to define or sample a diagnostic sightline,
-    viewing chord, or probing beam. It is expressed in the right-handed cylindrical
-    $(R, \phi, Z)$ frame, where $R$ is major radius from the toroidal symmetry axis,
-    $\phi$ is toroidal angle, and $Z$ is vertical height. The quantity refers to that
-    particular geometric point, not to a varying coordinate along an entire chord
-    unless a specific sampled point is being identified.
-
-
-    For a beam-tracing point with position vector $\mathbf{r}_p$ measured from the
-    coordinate origin, the vertical coordinate is the projection onto the vertical
-    basis direction:
-
-
-    $$
-
-    Z_p = \mathbf{r}_p \cdot \hat{Z}
-
-    $$
-
-
-    where $\hat{Z}$ is the vertical unit vector of the right-handed cylindrical $(R,
-    \phi, Z)$ frame, $\mathbf{r}_p$ is in meters, and $Z_p$ is the vertical coordinate
-    in meters. Together with major_radius_of_beam_tracing_point and toroidal_angle_of_beam_tracing_point,
-    it locates the same physical point as coordinate values $(R_p, \phi_p, Z_p)$.
-
-
-    In practice, this coordinate is obtained from mechanical survey, diagnostic alignment,
-    optical calibration, or ray-tracing geometry. For a two-point line-of-sight definition,
-    [vertical_coordinate_of_along_line_of_sight](name:vertical_coordinate_of_bragg_crystal)
-    denotes the vertical coordinate of the second defining point, while [vertical_coordinate_of_launching_position](name:vertical_coordinate_of_launching_position)
-    denotes the height of a physical launcher or aperture.
-
-
-    Typical values are device and diagnostic dependent: points inside or near a vacuum
-    vessel are commonly within a few meters of the vertical origin, while external
-    beamlines or large facilities can require coordinates of order 10 m. Individual
-    diagnostics usually occupy a much narrower vertical interval set by ports, apertures,
-    and sightline geometry.
-
-
-    Sign convention: Positive when the beam-tracing point is displaced from the coordinate
-    origin in the $+\hat{Z}$ direction.'
-  unit: m
-  physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:vertical_coordinate_of_bragg_crystal
-  - name:vertical_coordinate_of_launching_position
-  sources:
-  - id: dd:spectrometer_visible/channel/line_of_sight/first_point/z
-    dd_path: spectrometer_visible/channel/line_of_sight/first_point/z
-    status: composed
 - name: vertical_coordinate_of_bolometer
   kind: scalar
   status: draft
@@ -4451,58 +4061,6 @@
   sources:
   - id: dd:bolometer/channel/detector/centre/z
     dd_path: bolometer/channel/detector/centre/z
-    status: composed
-- name: vertical_coordinate_of_bragg_crystal
-  kind: scalar
-  status: draft
-  description: Vertical Z-coordinate of the Bragg crystal summit point in the right-handed
-    cylindrical (R, phi, Z) frame, locating the crystal within an X-ray crystal spectrometer
-    assembly.
-  documentation: 'The vertical coordinate $Z$ specifies the height of the Bragg crystal
-    summit above the device equatorial plane in the right-handed cylindrical $(R,
-    \phi, Z)$ frame, where $R$ is the major radius, $\phi$ is the toroidal angle increasing
-    counter-clockwise when viewed from above, and $Z$ is the vertical height. Together
-    with the [radial coordinate], it fully defines the poloidal location of the crystal
-    summit used as the primary geometric reference for the spectrometer.
-
-
-    In X-ray crystal spectrometers, the crystal diffracts plasma X-ray emission according
-    to the Bragg condition:
-
-
-    $$
-
-    2d\sin\theta_B = n\lambda
-
-    $$
-
-
-    where $d$ is the crystal lattice spacing, $\theta_B$ is the Bragg angle, $n$ is
-    the diffraction order, and $\lambda$ is the X-ray wavelength. The summit coordinates
-    enter directly into photon path-length calculations, solid-angle integrations,
-    and line-of-sight geometry for individual detector channels. The position is established
-    from engineering metrology surveys and complements the crystal''s angular acceptance
-    described by [angular_width_of_bragg_crystal](name:angular_width_of_bragg_crystal).
-
-
-    Sign convention: Positive when the crystal summit lies above the device equatorial
-    plane in the $+Z$ direction.'
-  unit: m
-  physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:angular_width_of_bragg_crystal
-  sources:
-  - id: dd:spectrometer_uv/channel/grating/summit/z
-    dd_path: spectrometer_uv/channel/grating/summit/z
-    status: composed
-  - id: dd:spectrometer_x_ray_crystal/channel/bin/line_of_sight/second_point/z
-    dd_path: spectrometer_x_ray_crystal/channel/bin/line_of_sight/second_point/z
-    status: composed
-  - id: dd:spectrometer_x_ray_crystal/channel/profiles_line_integrated/lines_of_sight_second_point/z
-    dd_path: spectrometer_x_ray_crystal/channel/profiles_line_integrated/lines_of_sight_second_point/z
-    status: composed
-  - id: dd:spectrometer_x_ray_crystal/crystal/summit/z
-    dd_path: spectrometer_x_ray_crystal/crystal/summit/z
     status: composed
 - name: vertical_coordinate_of_camera
   kind: scalar
@@ -4630,6 +4188,9 @@
   - id: dd:camera_x_rays/filter_window/centre/z
     dd_path: camera_x_rays/filter_window/centre/z
     status: composed
+  - id: dd:hard_x_rays/channel/filter_window/centre/z
+    dd_path: hard_x_rays/channel/filter_window/centre/z
+    status: attached
   - id: dd:soft_x_rays/channel/filter_window/centre/z
     dd_path: soft_x_rays/channel/filter_window/centre/z
     status: composed
@@ -4904,6 +4465,62 @@
   physics_domain: radiation_measurement_diagnostics
   links:
   - name:spectral_flux_of_spectrometer_channel
+- name: requested_voltage_of_spectrometer
+  kind: scalar
+  status: draft
+  description: Commanded setpoint voltage for a spectrometer high-voltage supply,
+    giving the intended detector or electrode bias relative to the supply return/reference
+    terminal rather than a measured signal output.
+  documentation: 'The requested voltage of a spectrometer is the commanded electrical
+    potential difference for a spectrometer high-voltage supply. It represents the
+    intended bias applied to a detector, multiplier, photocathode, anode, or other
+    controlled electrode relative to the designated return/reference terminal.
+
+
+    When interpreted as an ideal voltage setpoint, the quantity is defined by the
+    commanded potential difference:
+
+
+    $$
+
+    V_\mathrm{req} = \Phi_\mathrm{out,set} - \Phi_\mathrm{ref}
+
+    $$
+
+
+    where $\Phi_\mathrm{out,set}$ is the commanded electric potential of the controlled
+    high-voltage output terminal or biased electrode, and $\Phi_\mathrm{ref}$ is the
+    electric potential of the supply return/reference terminal.
+
+
+    The value is usually generated from an operator setting, diagnostic configuration,
+    or automated scan used to control detector gain, charge collection, or particle/electron
+    multiplication. It should be distinguished from a measured high-voltage supply
+    readback, if one is available, and from voltage_of_spectrometer_channel, which
+    denotes an uncalibrated electrical output signal from a spectrometer channel rather
+    than the high-voltage supply setpoint.
+
+
+    Typical requested values range from 0-5000 V in magnitude, depending on detector
+    technology and operating mode. Photomultiplier, microchannel-plate, and electron-multiplier
+    systems commonly use 500-3000 V in magnitude; low-voltage bias or gating electrodes
+    may use 10-200 V.
+
+
+    Sign convention: Positive when the commanded high-voltage output terminal or biased
+    electrode is at a higher electric potential than its designated return/reference
+    terminal.'
+  unit: V
+  physics_domain: radiation_measurement_diagnostics
+  links: []
+  arguments:
+  - name: voltage_of_spectrometer
+    operator: requested
+    operator_kind: qualifier
+  sources:
+  - id: dd:spectrometer_uv/channel/supply_high_voltage/voltage_set
+    dd_path: spectrometer_uv/channel/supply_high_voltage/voltage_set
+    status: composed
 - name: voltage_of_spectrometer_channel
   kind: scalar
   status: draft
@@ -4957,315 +4574,6 @@
   - name:voltage_of_spectrometer
   - name:measured_voltage_of_spectrometer_channel
   - name:requested_voltage_of_spectrometer
-- name: wavelength_of_detector_pixel
-  kind: scalar
-  status: draft
-  description: Photon wavelength assigned to each detector pixel of an X-ray crystal
-    spectrometer by the Bragg diffraction geometry of the dispersing crystal.
-  documentation: "In an X-ray crystal spectrometer, each detector pixel intercepts\
-    \ photons diffracted at a specific angle by the Bragg crystal, and this angle\
-    \ uniquely determines the photon wavelength. The wavelength varies primarily along\
-    \ the principal dispersion direction of the detector, with a secondary dependence\
-    \ across the orthogonal direction arising from the elliptical curvature of iso-wavelength\
-    \ surfaces produced by curved-crystal geometry.\n\nThe per-pixel wavelength follows\
-    \ Bragg's law:\n\n$$\n\\lambda = \\frac{2d\\sin\\theta}{n}\n$$\n\nwhere $d$ is\
-    \ the interplanar spacing of the diffracting crystal planes, $\\theta$ is the\
-    \ local Bragg angle at the pixel position in the spectrometer focal plane, and\
-    \ $n$ is the integer diffraction order.\n\nThe wavelength map is computed from\
-    \ the spectrometer geometry \u2014 crystal curvature, crystal-to-detector distance,\
-    \ and pixel coordinates \u2014 and calibrated against known spectral emission\
-    \ lines; the reference diffraction wavelength at the nominal crystal orientation\
-    \ is described by bragg_wavelength. Pixel-by-pixel energy bounds on the spectral\
-    \ acceptance window are provided by [lower_bound_energy_of_detector_pixel](name:lower_bound_energy_of_detector_pixel)\
-    \ and [upper_bound_energy_of_detector_pixel](name:upper_bound_energy_of_detector_pixel).\
-    \ Typical wavelengths for fusion-relevant X-ray impurity emission lines (helium-like\
-    \ argon, titanium, or iron charge states) fall in the range 0.1\u20131 nm.\n\n\
-    Sign convention: Positive when the wavelength is assigned at a positive Bragg\
-    \ diffraction angle from the crystal surface, which is satisfied for all physically\
-    \ detected photons."
-  unit: m
-  physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:lower_bound_energy_of_detector_pixel
-  - name:upper_bound_energy_of_detector_pixel
-  sources:
-  - id: dd:spectrometer_x_ray_crystal/channel/crystal/wavelength_bragg
-    dd_path: spectrometer_x_ray_crystal/channel/crystal/wavelength_bragg
-    status: attached
-  - id: dd:spectrometer_x_ray_crystal/channel/wavelength_frames
-    dd_path: spectrometer_x_ray_crystal/channel/wavelength_frames
-    status: attached
-  - id: dd:spectrometer_x_ray_crystal/crystal/wavelength_bragg
-    dd_path: spectrometer_x_ray_crystal/crystal/wavelength_bragg
-    status: attached
-  - id: dd:spectrometer_x_ray_crystal/wavelength_frames
-    dd_path: spectrometer_x_ray_crystal/wavelength_frames
-    status: composed
-- name: wavelength_of_filter
-  kind: scalar
-  status: draft
-  description: Spectral wavelength characterizing the passband of a diagnostic optical
-    filter, encompassing the passband edge wavelengths and the nominal center or reference
-    transmission wavelength.
-  documentation: 'Optical diagnostic filters define a spectral passband through which
-    radiation passes to a detector. Several wavelengths characterize this passband:
-    [lower_wavelength_of_filter](name:lower_wavelength_of_filter) marks the short-wavelength
-    attenuation edge below which radiation is blocked, [upper_wavelength_of_filter](name:upper_wavelength_of_filter)
-    marks the long-wavelength cutoff, and [reference_wavelength_of_filter](name:reference_wavelength_of_filter)
-    identifies the nominal peak or center transmission wavelength.
-
-
-    The relationship between wavelength $\lambda$, photon frequency $\nu$, and the
-    speed of light in vacuum $c$ is:
-
-
-    $$
-
-    \lambda = \frac{c}{\nu}
-
-    $$
-
-
-    where $\nu$ is the photon oscillation frequency in Hz.
-
-
-    Passband center wavelengths in visible plasma spectroscopy typically fall in the
-    300-800 nm range, selected to coincide with prominent atomic or molecular emission
-    features such as H$\alpha$ at 656.3 nm or He I at 587.6 nm. Interference filters
-    and narrowband etalons achieve bandwidths from sub-nanometer to tens of nanometers.
-    The [spectral_wavelength](name:spectral_wavelength_of_optical_element) describes
-    the full spectral axis context, and [wavelength_of_spectral_line](name:wavelength_of_spectral_line)
-    provides the rest-frame reference for targeted spectral lines.
-
-
-    Sign convention: Positive when the wavelength is the spatial period of a forward-propagating
-    electromagnetic wave in the transmission medium.'
-  unit: m
-  physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:lower_wavelength_of_filter
-  - name:upper_wavelength_of_filter
-  - name:reference_wavelength_of_filter
-  - name:spectral_wavelength_of_optical_element
-  - name:wavelength_of_spectral_line
-  sources:
-  - id: dd:spectrometer_visible/channel/filter_spectrometer/filter/wavelength_central
-    dd_path: spectrometer_visible/channel/filter_spectrometer/filter/wavelength_central
-    status: attached
-  - id: derived:wavelength_of_filter
-    status: composed
-- name: lower_wavelength_of_filter
-  kind: scalar
-  status: draft
-  description: Short-wavelength (high-photon-energy) edge of the transmission passband
-    of a diagnostic filter or filter window. Radiation at shorter wavelengths than
-    this nominal cutoff is attenuated below the specified transmission criterion.
-  documentation: 'The lower wavelength of a filter, denoted $\lambda_{\min}$, is the
-    nominal short-wavelength edge of the filter or filter-window transmission passband.
-    It is expressed in meters and corresponds to the highest photon energies intended
-    to be transmitted by the filter; photons with $\lambda < \lambda_{\min}$ are attenuated
-    below the applicable transmission criterion.
-
-
-    Photon energy is inversely related to wavelength:
-
-
-    $$
-
-    E_\gamma = \frac{hc}{\lambda}
-
-    $$
-
-
-    where $E_\gamma$ is photon energy, $h$ is Planck''s constant, $c$ is the speed
-    of light, and $\lambda$ is photon wavelength. A smaller $\lambda_{\min}$ therefore
-    means that higher-energy photons are included in the nominal transmitted band.
-
-
-    In practice, $\lambda_{\min}$ is determined from a calibrated or manufacturer-specified
-    spectral transmission curve $T(\lambda)$. The cutoff should correspond to an explicit
-    attenuation or transmission threshold, such as the shortest wavelength at which
-    $T(\lambda)$ rises above a chosen fraction of the in-band or peak transmission.
-    Together with [upper_wavelength_of_filter](name:upper_wavelength_of_filter), this
-    quantity gives the nominal wavelength interval of the filter, but the detailed
-    wavelength-dependent response is described by quantities such as [spectral_absorptivity_of_filter](name:spectral_absorptivity_of_filter).
-
-
-    Typical values depend strongly on the diagnostic spectral range: visible continuum
-    filters often have lower wavelengths of about $3 \times 10^{-7}$-$8 \times 10^{-7}$
-    m, soft-X-ray filter windows about $10^{-10}$-$10^{-8}$ m, and hard-X-ray filter
-    windows about $10^{-12}$-$10^{-10}$ m.'
-  unit: m
-  physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:upper_wavelength_of_filter
-  - name:wavelength_of_filter
-  - name:spectral_absorptivity_of_filter
-  - name:thickness_of_filter
-  arguments:
-  - name: wavelength_of_filter
-    operator: lower
-    operator_kind: qualifier
-  sources:
-  - id: dd:bremsstrahlung_visible/channel/filter/wavelength_lower
-    dd_path: bremsstrahlung_visible/channel/filter/wavelength_lower
-    status: attached
-  - id: dd:camera_x_rays/filter_window/wavelength_lower
-    dd_path: camera_x_rays/filter_window/wavelength_lower
-    status: attached
-  - id: dd:hard_x_rays/channel/filter_window/wavelength_lower
-    dd_path: hard_x_rays/channel/filter_window/wavelength_lower
-    status: attached
-  - id: dd:soft_x_rays/channel/filter_window/wavelength_lower
-    dd_path: soft_x_rays/channel/filter_window/wavelength_lower
-    status: attached
-  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/wavelength_lower
-    dd_path: spectrometer_x_ray_crystal/channel/filter_window/wavelength_lower
-    status: attached
-- name: upper_wavelength_of_filter
-  kind: scalar
-  status: draft
-  description: Upper wavelength limit of the passband transmitted by a diagnostic
-    filter window. It is the long-wavelength, low-photon-energy cutoff of the filter-window
-    transmission band.
-  documentation: 'The upper wavelength of a filter is the long-wavelength boundary
-    of the passband transmitted by a filter window. It is the largest wavelength included
-    by the filter-window transmission criterion and therefore corresponds to the lowest
-    photon energy admitted by that filter passband. Together with [lower_wavelength_of_filter](name:lower_wavelength_of_filter),
-    it defines the wavelength interval of the transmitted band, normally with $\lambda_{\mathrm{lower}}
-    \le \lambda_{\max}$.
-
-
-    The corresponding minimum photon energy is related to the cutoff wavelength by
-
-
-    $$
-
-    E_{\min} = \frac{hc}{\lambda_{\max}}
-
-    $$
-
-
-    where $\lambda_{\max}$ is the upper wavelength cutoff in meters, $E_{\min}$ is
-    the corresponding photon energy in joules, $h$ is Planck''s constant in joule
-    seconds, and $c$ is the speed of light in meters per second.
-
-
-    For a real filter window the spectral transmission edge is gradual rather than
-    perfectly sharp, so the upper wavelength should be interpreted using the stated
-    passband criterion, such as a specified transmission threshold or calibrated edge
-    definition. It is obtained from the filter-window transmission curve, computed
-    from material optical properties and thickness or measured by spectral transmission
-    calibration.
-
-
-    Representative X-ray and soft-X-ray filter-window upper cutoffs are commonly in
-    the range $10^{-11}$-$10^{-8}$ m, depending on filter material, thickness, and
-    the selected transmission criterion. The wavelength-dependent attenuation within
-    and outside the passband is described by [spectral_absorptivity_of_filter](name:spectral_absorptivity_of_filter).'
-  unit: m
-  physics_domain: radiation_measurement_diagnostics
-  links: []
-  arguments:
-  - name: wavelength_of_filter
-    operator: upper
-    operator_kind: qualifier
-  sources:
-  - id: dd:bremsstrahlung_visible/channel/filter/wavelength_upper
-    dd_path: bremsstrahlung_visible/channel/filter/wavelength_upper
-    status: attached
-  - id: dd:camera_x_rays/filter_window/wavelength_upper
-    dd_path: camera_x_rays/filter_window/wavelength_upper
-    status: composed
-  - id: dd:hard_x_rays/channel/filter_window/wavelength_upper
-    dd_path: hard_x_rays/channel/filter_window/wavelength_upper
-    status: composed
-  - id: dd:soft_x_rays/channel/filter_window/wavelength_upper
-    dd_path: soft_x_rays/channel/filter_window/wavelength_upper
-    status: attached
-  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/wavelength_upper
-    dd_path: spectrometer_x_ray_crystal/channel/filter_window/wavelength_upper
-    status: attached
-- name: wavelength_of_spectral_line
-  kind: scalar
-  status: draft
-  description: Central rest-frame vacuum wavelength of an atomic, ionic, molecular,
-    or nuclear spectral emission or absorption line. It is set by the transition energy
-    between quantum states and identifies the unshifted physical line.
-  documentation: 'Wavelength of a spectral line is the central vacuum wavelength $\lambda_0$
-    of the photon associated with a transition between two quantum states, evaluated
-    in the rest frame of the emitting or absorbing species. It is a property of the
-    transition itself, separate from observed wavelength shifts, broadening, field-induced
-    splitting, and instrumental response.
-
-
-    The rest wavelength is set by the transition energy:
-
-
-    $$
-
-    \lambda_0 = \frac{h c}{|E_u - E_l|}
-
-    $$
-
-
-    where $\lambda_0$ is the vacuum wavelength in meters, $h$ is the Planck constant
-    in joule seconds, $c$ is the speed of light in meters per second, and $E_u$ and
-    $E_l$ are the upper- and lower-state energies in joules.
-
-
-    In spectroscopy, $\lambda_0$ is usually taken from evaluated atomic, molecular,
-    or nuclear transition data, or from fitted line centers after wavelength calibration
-    and correction to vacuum wavelength. For an observed line center $\lambda_{\mathrm{obs}}$
-    in meters, the non-relativistic Doppler relation is $(\lambda_{\mathrm{obs}}-\lambda_0)/\lambda_0
-    \approx v_{\mathrm{los}}/c$ for $|v_{\mathrm{los}}| \ll c$, where $v_{\mathrm{los}}$
-    is in meters per second and is positive when the source recedes from the observer,
-    increasing the observed wavelength. Thermal Doppler Gaussian width scales as $\sigma_\lambda/\lambda_0
-    \approx \sqrt{k_B T_s/(m_s c^2)}$, where $\sigma_\lambda$ is in meters, $T_s$
-    is the species temperature in kelvin, and $m_s$ is the particle mass in kilograms;
-    equivalently use $\sqrt{T_s/(m_s c^2)}$ when $T_s$ is expressed as an energy.
-
-
-    The quantity is not limited to a particular spectral band. Lines used in plasma
-    spectroscopy commonly span about $1\times10^{-11}$-$1\times10^{-5}$ m, including
-    soft-x-ray lines near $1\times10^{-10}$-$1\times10^{-9}$ m, extreme-ultraviolet
-    and ultraviolet lines near $1\times10^{-8}$-$4\times10^{-7}$ m, visible lines
-    near $4\times10^{-7}$-$7\times10^{-7}$ m, and near-infrared lines near $7\times10^{-7}$-$1\times10^{-5}$
-    m; other atomic, molecular, or nuclear transitions can lie outside these ranges.'
-  unit: m
-  physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:reference_wavelength_of_spectrometer_channel
-  - name:spectral_flux_of_spectrometer_channel
-  - name:spectral_width_of_spectrometer_channel
-  sources:
-  - id: dd:charge_exchange/channel/bes/transition_wavelength
-    dd_path: charge_exchange/channel/bes/transition_wavelength
-    status: attached
-  - id: dd:charge_exchange/channel/ion_fast/transition_wavelength
-    dd_path: charge_exchange/channel/ion_fast/transition_wavelength
-    status: attached
-  - id: dd:charge_exchange/channel/spectrum/processed_line/wavelength_central
-    dd_path: charge_exchange/channel/spectrum/processed_line/wavelength_central
-    status: attached
-  - id: dd:spectrometer_uv/channel/processed_line/wavelength_central
-    dd_path: spectrometer_uv/channel/processed_line/wavelength_central
-    status: attached
-  - id: dd:spectrometer_visible/channel/filter_spectrometer/calibrated_lines
-    dd_path: spectrometer_visible/channel/filter_spectrometer/calibrated_lines
-    status: attached
-  - id: dd:spectrometer_visible/channel/filter_spectrometer/processed_line/wavelength_central
-    dd_path: spectrometer_visible/channel/filter_spectrometer/processed_line/wavelength_central
-    status: attached
-  - id: dd:spectrometer_visible/channel/filter_spectrometer/processed_lines
-    dd_path: spectrometer_visible/channel/filter_spectrometer/processed_lines
-    status: attached
-  - id: dd:spectrometer_visible/channel/filter_spectrometer/raw_lines
-    dd_path: spectrometer_visible/channel/filter_spectrometer/raw_lines
-    status: attached
-  - id: dd:spectrometer_visible/channel/grating_spectrometer/processed_line/wavelength_central
-    dd_path: spectrometer_visible/channel/grating_spectrometer/processed_line/wavelength_central
-    status: attached
 - name: width_of_diagnostic_aperture
   kind: scalar
   status: draft
@@ -6539,72 +5847,213 @@
   - id: dd:spectrometer_visible/channel/polarization_spectroscopy/velocity_hot_neutrals
     dd_path: spectrometer_visible/channel/polarization_spectroscopy/velocity_hot_neutrals
     status: composed
-- name: initial_major_radius_of_measurement_position
+- name: neon_fraction
   kind: scalar
   status: draft
-  description: Major radius R of the initial endpoint of a diagnostic measurement
-    line in the right-handed cylindrical (R, phi, Z) frame, where R is the perpendicular
-    distance from the toroidal symmetry axis.
-  documentation: 'The initial major radius of a measurement position is the $R$ coordinate
-    of the first endpoint of a directed diagnostic measurement line or viewing chord.
-    In the right-handed cylindrical $(R, \phi, Z)$ frame, $R$ is the perpendicular
-    distance from the toroidal symmetry axis, $\phi$ is the toroidal angle, and $Z$
-    is vertical height; the word "initial" denotes endpoint ordering only and does
-    not imply physical entry into the plasma.
+  description: Neon fraction is the ratio of the volume-averaged total neon particle
+    density, summed over all ionization states, to the volume-averaged electron density.
+    It is dimensionless and represents the plasma-wide neon concentration relative
+    to electrons.
+  documentation: 'Neon fraction is a dimensionless impurity concentration measuring
+    how much neon is present in the plasma relative to electrons. The neon density
+    includes neutral and ionized neon populations summed over all charge states before
+    the plasma-volume average is formed.
 
 
-    For a first endpoint with Cartesian coordinates $(x_0, y_0, z_0)$ in a right-handed
-    Cartesian $(\hat{x}, \hat{y}, \hat{z})$ basis with $\hat{z}=\hat{Z}$, the corresponding
-    initial major radius is
+    The volume-averaged neon fraction is defined by
 
 
     $$
 
-    R_0 = \sqrt{x_0^2 + y_0^2}
+    f_{\mathrm{Ne}} = \frac{\left\langle \sum_{q=0}^{10} n_{\mathrm{Ne}^{q+}} \right\rangle_V}{\langle
+    n_e \rangle_V}
 
     $$
 
 
-    where $R_0$ is this quantity and the toroidal symmetry axis is the $z$ axis of
-    the Cartesian basis. Together with initial_toroidal_angle_of_measurement_position
-    and initial_height_of_measurement_position, it specifies the first endpoint position;
-    paired with final_major_radius_of_measurement_position and the corresponding final
-    endpoint coordinates, it defines a directed measurement segment.
+    where $n_{\mathrm{Ne}^{q+}}$ is the number density of neon in charge state $q$
+    in m^-3, $n_e$ is the electron density in m^-3, and $\langle \cdot \rangle_V =
+    V^{-1}\int_V (\cdot)\,dV$ denotes a plasma-volume average over volume $V$. The
+    numerator is the [volume-averaged neon density](name:volume_averaged_neon_density),
+    and the denominator is the volume-averaged electron density.
 
 
-    The value is obtained from diagnostic geometry, optical alignment, survey measurements,
-    or ray-tracing of the line of sight. It is normally fixed for a given installed
-    diagnostic configuration, but may change for movable mirrors, steerable antennas,
-    or reconfigured viewing geometry.
+    In practice, neon fraction is inferred from plasma composition analysis using
+    impurity spectroscopy, radiation measurements, charge-state balance modeling,
+    and electron-density information. It should be interpreted as a global composition
+    measure, not as a local impurity abundance at a particular radius or viewing chord.
 
 
-    Typical values are set by device size and port location: about 0.2-4 m in small
-    to medium tokamaks and about 4-10 m in large tokamaks. Because $R$ is a geometric
-    distance from the symmetry axis, physically realized values are non-negative,
-    with $R=0$ only on the symmetry axis.'
-  unit: m
+    Typical values are much less than unity. Background neon levels in plasmas without
+    deliberate neon injection are often below $10^{-4}$-$10^{-3}$, while neon-seeded
+    radiating plasmas can reach about $10^{-3}$-$10^{-2}$ depending on fueling, confinement,
+    and exhaust conditions.'
+  unit: '1'
   physics_domain: radiation_measurement_diagnostics
-  links: []
+  links:
+  - name:volume_averaged_neon_density
+  - name:nitrogen_fraction
+  - name:ratio_of_volume_averaged_oxygen_ion_density_to_volume_averaged_electron_density
+  sources:
+  - id: dd:summary/composition/neon/value
+    dd_path: summary/composition/neon/value
+    status: composed
+- name: neutral_fraction
+  kind: scalar
+  status: draft
+  description: Dimensionless fraction of a hydrogen-isotope neutral population component
+    (cold recycled or hot charge-exchange neutrals) relative to the total neutral
+    atom population.
+  documentation: 'The neutral fraction is a dimensionless ratio bounded in $[0, 1]$
+    expressing the relative abundance of a defined component of the hydrogen-isotope
+    neutral population. In the standard two-component neutral model, cold recycled
+    neutrals and charge-exchange-born hot neutrals partition the neutral atom inventory,
+    and their respective fractions sum to unity.
+
+
+    The fraction for a given component is defined as:
+
+
+    $$
+
+    f_{\mathrm{component}} = \frac{n_{\mathrm{component}}}{n_{\mathrm{cold}} + n_{\mathrm{hot}}}
+
+    $$
+
+
+    where $n_{\mathrm{component}}$ is the number density of the specified neutral
+    component and $n_{\mathrm{cold}}$, $n_{\mathrm{hot}}$ are the cold and hot neutral
+    number densities respectively.
+
+
+    The component fractions are inferred from Doppler-broadening analysis of visible
+    hydrogen-isotope spectral emission lines, in which the cold and hot neutral populations
+    contribute distinct narrow and broad Gaussian components to the line shape. The
+    [cold_neutral_fraction](name:cold_neutral_fraction) characterizes the low-energy
+    recycled neutral component, while [hot_neutral_fraction](name:hot_neutral_fraction)
+    gives the charge-exchange-born component; together they form a complete partition
+    of the neutral population. The energy threshold separating the two components
+    must be specified by the diagnostic or population model employed.
+
+
+    Sign convention: Positive when the specified neutral component density is greater
+    than zero.'
+  unit: '1'
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:cold_neutral_fraction
+  - name:hot_neutral_fraction
+- name: cold_neutral_fraction
+  kind: scalar
+  status: draft
+  description: Cold neutral fraction is the dimensionless fraction of a hydrogen-isotope
+    neutral population assigned to the low-energy neutral component. It is defined
+    relative to the cold and hot neutral components used in the analysis; the cold/hot
+    boundary must be specified by the diagnostic or population model.
+  documentation: 'The cold neutral fraction is the population fraction of neutral
+    atoms of a specified hydrogen isotope that are classified as cold, meaning lower
+    in kinetic energy than the corresponding hot neutral component. The classification
+    boundary between cold and hot neutrals is not universal; it is set by the diagnostic
+    interpretation, spectral decomposition, or population model used for the isotope
+    being analyzed.
+
+
+    For a two-component cold/hot decomposition, the cold neutral fraction is
+
+
+    $$
+
+    f_\mathrm{cold} = \frac{n_\mathrm{cold}}{n_\mathrm{cold} + n_\mathrm{hot}}
+
+    $$
+
+
+    where $n_\mathrm{cold}$ and $n_\mathrm{hot}$ are the cold and hot neutral number
+    densities for the same isotope, typically in $\mathrm{m}^{-3}$. For nonnegative
+    densities this gives $0 \le f_\mathrm{cold} \le 1$. If additional neutral populations
+    are treated separately or excluded from the decomposition, the fraction applies
+    only to the cold-plus-hot population used in the denominator.
+
+
+    In visible spectroscopy, this fraction is commonly inferred by separating emission
+    associated with low-energy recycled or thermal neutrals from emission associated
+    with higher-energy neutrals, using line shapes, Doppler broadening, line ratios,
+    and collisional-radiative modeling. The inferred value depends on the adopted
+    cold/hot energy threshold and on corrections for atomic physics rates, viewing
+    geometry, and instrument response.
+
+
+    Typical values can span the full range 0-1. Values near 1 indicate that the represented
+    neutral population is dominated by low-energy recycled or thermal neutrals, while
+    values near 0 indicate dominance by the hot neutral component, for example from
+    energetic charge-exchange populations or beam-related neutrals.'
+  unit: '1'
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:hot_neutral_fraction
+  - name:neutral_fraction
   arguments:
-  - name: major_radius_of_measurement_position
-    operator: initial
+  - name: neutral_fraction
+    operator: cold
     operator_kind: qualifier
   sources:
-  - id: dd:camera_x_rays/camera/line_of_sight/first_point/r
-    dd_path: camera_x_rays/camera/line_of_sight/first_point/r
-    status: attached
-  - id: dd:reflectometer_fluctuation/channel/antennas_orientation/line_of_sight_detection/first_point/r
-    dd_path: reflectometer_fluctuation/channel/antennas_orientation/line_of_sight_detection/first_point/r
-    status: attached
-  - id: dd:reflectometer_fluctuation/channel/antennas_orientation/line_of_sight_emission/first_point/r
-    dd_path: reflectometer_fluctuation/channel/antennas_orientation/line_of_sight_emission/first_point/r
-    status: attached
-  - id: dd:reflectometer_profile/channel/line_of_sight_emission/first_point/r
-    dd_path: reflectometer_profile/channel/line_of_sight_emission/first_point/r
-    status: attached
-  - id: dd:refractometer/channel/line_of_sight/first_point/r
-    dd_path: refractometer/channel/line_of_sight/first_point/r
-    status: attached
+  - id: dd:spectrometer_visible/channel/isotope_ratios/isotope/cold_neutrals_fraction
+    dd_path: spectrometer_visible/channel/isotope_ratios/isotope/cold_neutrals_fraction
+    status: composed
+- name: hot_neutral_fraction
+  kind: scalar
+  status: draft
+  description: Fraction of charge-exchange-born hot neutral atoms in the total neutral
+    population of a hydrogen isotope, assuming a two-component hot-plus-cold neutral
+    partition. It is the hot neutral density divided by the sum of hot and cold neutral
+    densities.
+  documentation: 'Hot neutral fraction is the dimensionless abundance of fast neutral
+    atoms produced mainly by charge exchange relative to all neutral atoms of the
+    same hydrogen isotope in a two-component neutral model. The complementary population
+    is the cold neutral component, so the modeled total neutral density is the sum
+    of hot and cold neutral densities.
+
+
+    The defining ratio is:
+
+
+    $$
+
+    f_\mathrm{hot} = \frac{n_\mathrm{hot}}{n_\mathrm{hot} + n_\mathrm{cold}}
+
+    $$
+
+
+    where $n_\mathrm{hot}$ and $n_\mathrm{cold}$ are the hot and cold neutral number
+    densities in $m^{-3}$ for the same isotope and physical region.
+
+
+    In visible spectroscopy, hot and cold neutral contributions may be inferred from
+    line-shape components, such as Doppler-broadened charge-exchange emission and
+    colder recycling or fueling emission. The measured component intensities are not
+    density fractions by themselves; converting them to $f_\mathrm{hot}$ requires
+    an emissivity or collisional-radiative model that accounts for excitation, charge
+    exchange, ionization, neutral velocity distributions, instrument response, and
+    line-of-sight integration.
+
+
+    By definition $0 \le f_\mathrm{hot} \le 1$. Values near 0 indicate a cold-neutral-dominated
+    population, while values near 1 indicate a hot-neutral-dominated population; the
+    realized value is strongly dependent on plasma conditions, neutral sources, charge-exchange
+    rates, and the observation region.'
+  unit: '1'
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:cold_neutral_fraction
+  - name:neutral_fraction
+  arguments:
+  - name: neutral_fraction
+    operator: hot
+    operator_kind: qualifier
+  sources:
+  - id: dd:spectrometer_visible/channel/isotope_ratios/isotope/hot_neutrals_fraction
+    dd_path: spectrometer_visible/channel/isotope_ratios/isotope/hot_neutrals_fraction
+    status: composed
 - name: neutron_flux_due_to_beam_beam_fusion
   kind: scalar
   status: draft
@@ -6753,4 +6202,739 @@
     status: composed
   - id: dd:summary/fusion/neutron_rates/tt/beam_thermal/value
     dd_path: summary/fusion/neutron_rates/tt/beam_thermal/value
+    status: attached
+- name: nitrogen_fraction
+  kind: scalar
+  status: draft
+  description: 'Volume-averaged nitrogen concentration: the total nitrogen-particle
+    density over all charge states divided by electron density.'
+  documentation: 'Nitrogen fraction is the dimensionless volume-averaged abundance
+    of nitrogen relative to electrons in a plasma. It counts nitrogen nuclei in all
+    ionization states, from neutral $\mathrm{N}^{0}$ through fully stripped $\mathrm{N}^{7+}$,
+    and normalizes their total number density by the local electron density.
+
+
+    Using a volume average over the plasma volume, the fraction is defined as:
+
+
+    $$
+
+    f_\mathrm{N} = \left\langle \frac{\sum_{q=0}^{7} n_{\mathrm{N}^{q+}}}{n_e} \right\rangle_V
+
+    $$
+
+
+    where $n_{\mathrm{N}^{q+}}$ is the number density of nitrogen with charge state
+    $q$, $q=0$ denotes neutral nitrogen, $q=7$ denotes fully stripped nitrogen, $n_e$
+    is electron density, and $\langle\cdot\rangle_V$ denotes volume averaging. Fully
+    stripped nitrogen is $\mathrm{N}^{7+}$; there is no $\mathrm{N}^{8+}$ charge state
+    for nitrogen.
+
+
+    In practice, this quantity is inferred from a combination of impurity spectroscopy,
+    charge-exchange recombination measurements when available, bolometric radiation
+    constraints, electron-density measurements, and collisional-radiative or transport
+    modeling to complete the charge-state distribution. Neutral and fully stripped
+    populations can be difficult to observe directly, so their contributions are often
+    inferred from ionization-balance modeling rather than measured as isolated emission
+    features.
+
+
+    Typical values are $10^{-4}$-$10^{-3}$ for trace background nitrogen and $10^{-3}$-$5\times10^{-2}$
+    during deliberate nitrogen seeding for radiative divertor or edge-cooling control.
+    Larger fractions increase radiated power and fuel dilution and therefore strongly
+    affect plasma performance.'
+  unit: '1'
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:volume_averaged_nitrogen_density
+  - name:line_averaged_nitrogen_density
+  - name:neon_fraction
+  - name:total_plasma_fraction
+  sources:
+  - id: dd:summary/composition/nitrogen/value
+    dd_path: summary/composition/nitrogen/value
+    status: composed
+- name: power_density_of_soft_xray_detector
+  kind: scalar
+  status: draft
+  description: Radiative power density from plasma soft X-ray emission received per
+    unit active detector surface area, integrated over photon-energy bands transmitted
+    by filters and windows and weighted by the detector spectral response.
+  documentation: 'Power density of a soft X-ray detector is the radiant power from
+    plasma soft X-ray emission received per unit active detector surface area. The
+    received power is limited to the photon-energy band or bands passed by the filter/window
+    assembly and by the detector spectral response, so it is a band- and response-weighted
+    irradiance rather than an intrinsic plasma emissivity.
+
+
+    The area-normalized received power is defined by
+
+
+    $$
+
+    q_\mathrm{SXR} = \frac{P_\mathrm{SXR}}{A_\mathrm{act}}
+
+    $$
+
+
+    where $q_\mathrm{SXR}$ is the detector power density in W m$^{-2}$, $P_\mathrm{SXR}$
+    is the response-weighted soft X-ray power in W accepted by the detector, and $A_\mathrm{act}$
+    is the active detector surface area in m$^2$. The energy integration implicit
+    in $P_\mathrm{SXR}$ includes the selected photon-energy band, filter and window
+    transmission, and detector spectral responsivity.
+
+
+    In practice this quantity is inferred from calibrated detector current, voltage,
+    or count-rate signals after accounting for dark offsets, electronic gain, active
+    area, and spectral responsivity. It is the active-area normalization of [power_of_soft_xray_detector](name:power_of_soft_xray_detector).
+    Relations to [spectral_radiance_of_soft_xray_detector](name:spectral_radiance_of_soft_xray_detector)
+    or [brightness_of_soft_xray_detector](name:brightness_of_soft_xray_detector) additionally
+    require viewing geometry, etendue or solid angle, spectral transmission, and photon-energy
+    weighting; solid-angle normalization alone is not sufficient. The incident direction
+    is into the active detector surface from the plasma-facing side, and outward emission
+    or reflection from the detector is not part of the received-power density.
+
+
+    Typical magnitudes vary strongly with aperture, filter thickness, line of sight,
+    plasma temperature, and impurity content. Heavily filtered or edge-dominated channels
+    may measure about 10^-6-10^-3 W m^-2, while core-viewing channels in hot tokamak
+    plasmas commonly lie around 10^-3-10^1 W m^-2; intense transient events can approach
+    10^2 W m^-2 before detector saturation or attenuation limits are reached.'
+  unit: W.m^-2
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:power_of_soft_xray_detector
+  - name:brightness_of_soft_xray_detector
+  arguments:
+  - name: power_density
+    operator: soft_xray_detector
+    operator_kind: locus
+  sources:
+  - id: dd:soft_x_rays/channel/power_density
+    dd_path: soft_x_rays/channel/power_density
+    status: composed
+- name: radiated_power_density
+  kind: scalar
+  status: draft
+  description: Local non-negative volumetric rate at which plasma emits electromagnetic
+    radiation, representing radiated power per unit volume.
+  documentation: 'Radiated power density is the local, non-negative volumetric rate
+    at which plasma thermal energy is converted to electromagnetic radiation. It includes
+    continuum, line, recombination, and other photon emission processes that contribute
+    to bolometric radiated power.
+
+
+    The total radiated power associated with a plasma volume is the volume integral
+    of the local emission density:
+
+
+    $$
+
+    P_\mathrm{rad} = \int_V p_\mathrm{rad}(\mathbf{x})\,dV
+
+    $$
+
+
+    where $P_\mathrm{rad}$ is total radiated power in W, $p_\mathrm{rad}$ is radiated
+    power density in W m$^{-3}$, $\mathbf{x}$ denotes spatial position, and $dV$ is
+    a volume element in m$^3$. For an axisymmetric reconstruction in the right-handed
+    cylindrical $(R,\phi,Z)$ frame, where $R$ is major radius, $\phi$ increases counter-clockwise
+    when viewed from above, and $Z$ is vertical height, the poloidal-plane volume
+    element is $dV = 2\pi R\,dR\,dZ$; this reduction assumes toroidal symmetry of
+    $p_\mathrm{rad}$.
+
+
+    Bolometer measurements infer this quantity from calibrated line-of-sight signals
+    through an optically thin plasma. For channel $i$, the measured signal is commonly
+    modeled as a path integral, $b_i \approx \int_{\ell_i} G_i(\mathbf{x})\,p_\mathrm{rad}(\mathbf{x})\,dl$,
+    where $b_i$ is the calibrated channel response, $G_i$ is the geometric and instrumental
+    response kernel, $\ell_i$ is the viewing chord, and $dl$ is path length in meters.
+    Tomographic inversion combines many such chords, with regularization and uncertainty
+    estimates, to recover the spatial emission distribution.
+
+
+    Typical local values are about $10^3$-$10^6$ W m$^{-3}$ in relatively low-radiation
+    core plasmas, $10^6$-$10^8$ W m$^{-3}$ in strongly radiating edge, divertor, or
+    impurity-accumulation regions, and near zero outside the emitting plasma within
+    measurement uncertainty.'
+  unit: W.m^-3
+  physics_domain: radiation_measurement_diagnostics
+  links: []
+  arguments:
+  - name: power_density
+    operator: radiated
+    operator_kind: qualifier
+  sources:
+  - id: dd:bolometer/power_density
+    dd_path: bolometer/power_density
+    status: composed
+- name: radius_of_bragg_crystal
+  kind: scalar
+  status: draft
+  description: Radius of a circular Bragg-crystal aperture, defined as the distance
+    from the aperture center to the circular edge of the active diffracting surface.
+    It is an aperture-size radius characterizing the usable transverse extent of the
+    crystal that participates in Bragg reflection, not a curvature radius of the crystal
+    substrate.
+  documentation: "The radius of a Bragg crystal is the geometric radius of the circular\
+    \ active diffracting aperture in an X-ray crystal spectrometer channel. It specifies\
+    \ the usable transverse size of the crystal face that participates in Bragg reflection,\
+    \ and it belongs to the same physical quantity class as [radius_of_diagnostic_aperture](name:radius_of_diagnostic_aperture).\
+    \ It is distinct from the substrate curvature radii and from the lattice spacing\
+    \ that fixes the diffraction angle.\n\nFor a circular aperture the radius is half\
+    \ the full diameter of the active diffracting area:\n\n$$\nr = \\frac{D}{2}\n\
+    $$\n\nwhere $r$ is the aperture radius in meters and $D$ is the full diameter\
+    \ of the active circular surface in meters. The fully illuminated collecting area\
+    \ scales as $A = \\pi r^2$, so the \xE9tendue and photon throughput of the channel\
+    \ increase with the square of this radius, subject to practical limits from focusing\
+    \ optics, angular acceptance, and edge vignetting.\n\nThis radius is determined\
+    \ from the crystal mount, aperture mask, or manufactured active area rather than\
+    \ from Bragg's law. It is independent of the toroidal and vertical curvature radii\
+    \ of the crystal substrate, which describe the shaping of a focusing crystal,\
+    \ and independent of the diffracting wavelength set by the crystal lattice.\n\n\
+    Typical values range from about 0.002-0.05 m for compact high-resolution X-ray\
+    \ spectrometer crystals, with larger specialized crystals reaching roughly 0.1\
+    \ m depending on optical layout and required photon collection."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:toroidal_curvature_of_bragg_crystal
+  - name:vertical_curvature_of_bragg_crystal
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/crystal/radius
+    dd_path: spectrometer_x_ray_crystal/channel/crystal/radius
+    status: composed
+- name: radius_of_diagnostic_aperture
+  kind: scalar
+  status: draft
+  description: Radius of a circular diagnostic aperture, defined as the distance from
+    the aperture center to its circular edge. It characterizes the opening size used
+    to compute the corresponding aperture area.
+  documentation: 'The radius of a circular diagnostic aperture is the distance from
+    the center of an idealized circular opening to its edge. It is the appropriate
+    size parameter when the entrance aperture, collimating aperture, or sensitive
+    circular region is modeled as a circle; non-circular apertures are characterized
+    by quantities such as [width_of_diagnostic_aperture](name:width_of_diagnostic_aperture).
+
+
+    For an ideal circular aperture, the associated aperture area is
+
+
+    $$
+
+    A = \pi r^2
+
+    $$
+
+
+    where $r$ is the aperture radius in meters and $A$ is the area_of_diagnostic_aperture
+    in square meters. The corresponding [diameter_of_diagnostic_aperture](name:diameter_of_diagnostic_aperture)
+    is $d = 2r$, where $d$ is the full edge-to-edge distance through the aperture
+    center.
+
+
+    The radius is obtained from mechanical drawings, dimensional metrology, optical
+    inspection, or calibration of the fabricated diagnostic component. For a non-ideal
+    or partially obscured circular opening, an effective radius may be chosen so that
+    the ideal circular area matches the usable open area. The radius contributes to
+    geometric throughput and solid-angle calculations together with the aperture position,
+    orientation, and viewing geometry, but it does not by itself determine the full
+    acceptance.
+
+
+    Representative engineering scales are device- and diagnostic-dependent. Small
+    pinholes or tightly collimated openings may have radii of about 0.0001-0.001 m,
+    while many optical, fiber, or detector apertures use millimeter- to centimeter-scale
+    radii of about 0.001-0.01 m; larger values can occur in wide-aperture systems.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:width_of_diagnostic_aperture
+  - name:diameter_of_diagnostic_aperture
+  sources:
+  - id: dd:bolometer/camera/channel/aperture/radius
+    dd_path: bolometer/camera/channel/aperture/radius
+    status: attached
+  - id: dd:bolometer/camera/channel/detector/radius
+    dd_path: bolometer/camera/channel/detector/radius
+    status: attached
+  - id: dd:bolometer/channel/aperture/radius
+    dd_path: bolometer/channel/aperture/radius
+    status: attached
+  - id: dd:bolometer/channel/detector/radius
+    dd_path: bolometer/channel/detector/radius
+    status: attached
+  - id: dd:camera_ir/fibre_bundle/geometry/radius
+    dd_path: camera_ir/fibre_bundle/geometry/radius
+    status: attached
+  - id: dd:camera_ir/optical_element/geometry/radius
+    dd_path: camera_ir/optical_element/geometry/radius
+    status: attached
+  - id: dd:camera_visible/channel/aperture/radius
+    dd_path: camera_visible/channel/aperture/radius
+    status: composed
+  - id: dd:camera_visible/channel/fibre_bundle/geometry/radius
+    dd_path: camera_visible/channel/fibre_bundle/geometry/radius
+    status: composed
+  - id: dd:camera_visible/channel/optical_element/geometry/radius
+    dd_path: camera_visible/channel/optical_element/geometry/radius
+    status: attached
+  - id: dd:camera_x_rays/aperture/radius
+    dd_path: camera_x_rays/aperture/radius
+    status: attached
+  - id: dd:charge_exchange/aperture/radius
+    dd_path: charge_exchange/aperture/radius
+    status: attached
+  - id: dd:charge_exchange/channel/aperture/radius
+    dd_path: charge_exchange/channel/aperture/radius
+    status: attached
+  - id: dd:ece/polarizer/radius
+    dd_path: ece/polarizer/radius
+    status: attached
+  - id: dd:hard_x_rays/channel/aperture/radius
+    dd_path: hard_x_rays/channel/aperture/radius
+    status: attached
+  - id: dd:hard_x_rays/channel/detector/radius
+    dd_path: hard_x_rays/channel/detector/radius
+    status: attached
+  - id: dd:hard_x_rays/channel/filter_window/radius
+    dd_path: hard_x_rays/channel/filter_window/radius
+    status: attached
+  - id: dd:mse/channel/aperture/radius
+    dd_path: mse/channel/aperture/radius
+    status: attached
+  - id: dd:mse/channel/detector/radius
+    dd_path: mse/channel/detector/radius
+    status: attached
+  - id: dd:neutron_diagnostic/detector/aperture/radius
+    dd_path: neutron_diagnostic/detector/aperture/radius
+    status: attached
+  - id: dd:neutron_diagnostic/detector/geometry/radius
+    dd_path: neutron_diagnostic/detector/geometry/radius
+    status: attached
+  - id: dd:neutron_diagnostic/detectors/aperture/radius
+    dd_path: neutron_diagnostic/detectors/aperture/radius
+    status: attached
+  - id: dd:neutron_diagnostic/detectors/detector/radius
+    dd_path: neutron_diagnostic/detectors/detector/radius
+    status: attached
+  - id: dd:reflectometer_fluctuation/channel/antenna_detection_static/radius
+    dd_path: reflectometer_fluctuation/channel/antenna_detection_static/radius
+    status: attached
+  - id: dd:reflectometer_fluctuation/channel/antenna_emission_static/radius
+    dd_path: reflectometer_fluctuation/channel/antenna_emission_static/radius
+    status: attached
+  - id: dd:reflectometer_profile/channel/antenna_detection/radius
+    dd_path: reflectometer_profile/channel/antenna_detection/radius
+    status: attached
+  - id: dd:reflectometer_profile/channel/antenna_emission/radius
+    dd_path: reflectometer_profile/channel/antenna_emission/radius
+    status: attached
+  - id: dd:soft_x_rays/channel/aperture/radius
+    dd_path: soft_x_rays/channel/aperture/radius
+    status: attached
+  - id: dd:soft_x_rays/channel/detector/radius
+    dd_path: soft_x_rays/channel/detector/radius
+    status: attached
+  - id: dd:soft_x_rays/channel/filter_window/radius
+    dd_path: soft_x_rays/channel/filter_window/radius
+    status: attached
+  - id: dd:spectrometer_uv/channel/aperture/radius
+    dd_path: spectrometer_uv/channel/aperture/radius
+    status: attached
+  - id: dd:spectrometer_uv/channel/detector/radius
+    dd_path: spectrometer_uv/channel/detector/radius
+    status: attached
+  - id: dd:spectrometer_visible/channel/aperture/radius
+    dd_path: spectrometer_visible/channel/aperture/radius
+    status: attached
+  - id: dd:spectrometer_visible/channel/detector/radius
+    dd_path: spectrometer_visible/channel/detector/radius
+    status: attached
+  - id: dd:spectrometer_visible/channel/fibre_bundle/geometry/radius
+    dd_path: spectrometer_visible/channel/fibre_bundle/geometry/radius
+    status: attached
+  - id: dd:spectrometer_visible/channel/polarizer/radius
+    dd_path: spectrometer_visible/channel/polarizer/radius
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/aperture/radius
+    dd_path: spectrometer_x_ray_crystal/channel/aperture/radius
+    status: attached
+- name: radius_of_filter
+  kind: scalar
+  status: draft
+  description: Radius of a circular diagnostic filter-window aperture, defined as
+    the distance from the aperture center to its circular edge.
+  documentation: 'Radius of a circular filter-window aperture is the distance from
+    the center of the clear opening to its circular edge. It is a purely geometric
+    parameter that sets the size of the window through which photons pass in X-ray
+    diagnostic channels, and applies only when the filter-window geometry is circular.
+    It is distinct from the filter thickness, which governs energy-dependent attenuation,
+    and from any radius of curvature of the filter surface.
+
+
+    The clear circular aperture area $A$ used in solid-angle and geometric throughput
+    (etendue) calculations follows directly from the radius $r$:
+
+
+    $$
+
+    A = \pi r^2
+
+    $$
+
+
+    where $r$ is the aperture radius in meters and $A$ is the resulting clear aperture
+    area in square meters.
+
+
+    The radius is typically taken from the mechanical design of the filter holder
+    or determined by dimensional metrology, optical microscopy, or imaging of the
+    aperture edge. When the filter window is itself the limiting circular aperture
+    of a channel, this radius coincides with the radius of the diagnostic aperture.
+
+
+    Typical values range from about $1\times10^{-4}$ m to $5\times10^{-2}$ m, with
+    sub-millimeter openings used for tightly collimated channels and millimeter-to-centimeter
+    openings used for cameras or spectrometers with larger acceptance.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:radius_of_diagnostic_aperture
+  - name:diameter_of_diagnostic_aperture
+  - name:thickness_of_filter
+  sources:
+  - id: dd:camera_x_rays/filter_window/radius
+    dd_path: camera_x_rays/filter_window/radius
+    status: attached
+  - id: dd:hard_x_rays/channel/filter_window/radius
+    dd_path: hard_x_rays/channel/filter_window/radius
+    status: attached
+  - id: dd:soft_x_rays/channel/filter_window/radius
+    dd_path: soft_x_rays/channel/filter_window/radius
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/radius
+    dd_path: spectrometer_x_ray_crystal/channel/filter_window/radius
+    status: composed
+- name: wavelength_of_detector_pixel
+  kind: scalar
+  status: draft
+  description: Photon wavelength assigned to each detector pixel of an X-ray crystal
+    spectrometer by the Bragg diffraction geometry of the dispersing crystal.
+  documentation: "In an X-ray crystal spectrometer, each detector pixel intercepts\
+    \ photons diffracted at a specific angle by the Bragg crystal, and this angle\
+    \ uniquely determines the photon wavelength. The wavelength varies primarily along\
+    \ the principal dispersion direction of the detector, with a secondary dependence\
+    \ across the orthogonal direction arising from the elliptical curvature of iso-wavelength\
+    \ surfaces produced by curved-crystal geometry.\n\nThe per-pixel wavelength follows\
+    \ Bragg's law:\n\n$$\n\\lambda = \\frac{2d\\sin\\theta}{n}\n$$\n\nwhere $d$ is\
+    \ the interplanar spacing of the diffracting crystal planes, $\\theta$ is the\
+    \ local Bragg angle at the pixel position in the spectrometer focal plane, and\
+    \ $n$ is the integer diffraction order.\n\nThe wavelength map is computed from\
+    \ the spectrometer geometry \u2014 crystal curvature, crystal-to-detector distance,\
+    \ and pixel coordinates \u2014 and calibrated against known spectral emission\
+    \ lines; the reference diffraction wavelength at the nominal crystal orientation\
+    \ is described by bragg_wavelength. Pixel-by-pixel energy bounds on the spectral\
+    \ acceptance window are provided by [lower_bound_energy_of_detector_pixel](name:lower_bound_energy_of_detector_pixel)\
+    \ and [upper_bound_energy_of_detector_pixel](name:upper_bound_energy_of_detector_pixel).\
+    \ Typical wavelengths for fusion-relevant X-ray impurity emission lines (helium-like\
+    \ argon, titanium, or iron charge states) fall in the range 0.1\u20131 nm.\n\n\
+    Sign convention: Positive when the wavelength is assigned at a positive Bragg\
+    \ diffraction angle from the crystal surface, which is satisfied for all physically\
+    \ detected photons."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:lower_bound_energy_of_detector_pixel
+  - name:upper_bound_energy_of_detector_pixel
+  arguments:
+  - name: wavelength
+    operator: detector_pixel
+    operator_kind: locus
+  sources:
+  - id: dd:spectrometer_x_ray_crystal/channel/crystal/wavelength_bragg
+    dd_path: spectrometer_x_ray_crystal/channel/crystal/wavelength_bragg
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/wavelength_frames
+    dd_path: spectrometer_x_ray_crystal/channel/wavelength_frames
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/crystal/wavelength_bragg
+    dd_path: spectrometer_x_ray_crystal/crystal/wavelength_bragg
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/wavelength_frames
+    dd_path: spectrometer_x_ray_crystal/wavelength_frames
+    status: composed
+- name: wavelength_of_filter
+  kind: scalar
+  status: draft
+  description: Spectral wavelength characterizing the passband of a diagnostic optical
+    filter, encompassing the passband edge wavelengths and the nominal center or reference
+    transmission wavelength.
+  documentation: 'Optical diagnostic filters define a spectral passband through which
+    radiation passes to a detector. Several wavelengths characterize this passband:
+    [lower_wavelength_of_filter](name:lower_wavelength_of_filter) marks the short-wavelength
+    attenuation edge below which radiation is blocked, [upper_wavelength_of_filter](name:upper_wavelength_of_filter)
+    marks the long-wavelength cutoff, and [reference_wavelength_of_filter](name:reference_wavelength_of_filter)
+    identifies the nominal peak or center transmission wavelength.
+
+
+    The relationship between wavelength $\lambda$, photon frequency $\nu$, and the
+    speed of light in vacuum $c$ is:
+
+
+    $$
+
+    \lambda = \frac{c}{\nu}
+
+    $$
+
+
+    where $\nu$ is the photon oscillation frequency in Hz.
+
+
+    Passband center wavelengths in visible plasma spectroscopy typically fall in the
+    300-800 nm range, selected to coincide with prominent atomic or molecular emission
+    features such as H$\alpha$ at 656.3 nm or He I at 587.6 nm. Interference filters
+    and narrowband etalons achieve bandwidths from sub-nanometer to tens of nanometers.
+    The [spectral_wavelength](name:spectral_wavelength_of_optical_element) describes
+    the full spectral axis context, and [wavelength_of_spectral_line](name:wavelength_of_spectral_line)
+    provides the rest-frame reference for targeted spectral lines.
+
+
+    Sign convention: Positive when the wavelength is the spatial period of a forward-propagating
+    electromagnetic wave in the transmission medium.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:lower_wavelength_of_filter
+  - name:upper_wavelength_of_filter
+  - name:reference_wavelength_of_filter
+  - name:spectral_wavelength_of_optical_element
+  - name:wavelength_of_spectral_line
+  arguments:
+  - name: wavelength
+    operator: filter
+    operator_kind: locus
+  sources:
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/filter/wavelength_central
+    dd_path: spectrometer_visible/channel/filter_spectrometer/filter/wavelength_central
+    status: attached
+  - id: derived:wavelength_of_filter
+    status: composed
+- name: lower_wavelength_of_filter
+  kind: scalar
+  status: draft
+  description: Short-wavelength (high-photon-energy) edge of the transmission passband
+    of a diagnostic filter or filter window. Radiation at shorter wavelengths than
+    this nominal cutoff is attenuated below the specified transmission criterion.
+  documentation: 'The lower wavelength of a filter, denoted $\lambda_{\min}$, is the
+    nominal short-wavelength edge of the filter or filter-window transmission passband.
+    It is expressed in meters and corresponds to the highest photon energies intended
+    to be transmitted by the filter; photons with $\lambda < \lambda_{\min}$ are attenuated
+    below the applicable transmission criterion.
+
+
+    Photon energy is inversely related to wavelength:
+
+
+    $$
+
+    E_\gamma = \frac{hc}{\lambda}
+
+    $$
+
+
+    where $E_\gamma$ is photon energy, $h$ is Planck''s constant, $c$ is the speed
+    of light, and $\lambda$ is photon wavelength. A smaller $\lambda_{\min}$ therefore
+    means that higher-energy photons are included in the nominal transmitted band.
+
+
+    In practice, $\lambda_{\min}$ is determined from a calibrated or manufacturer-specified
+    spectral transmission curve $T(\lambda)$. The cutoff should correspond to an explicit
+    attenuation or transmission threshold, such as the shortest wavelength at which
+    $T(\lambda)$ rises above a chosen fraction of the in-band or peak transmission.
+    Together with [upper_wavelength_of_filter](name:upper_wavelength_of_filter), this
+    quantity gives the nominal wavelength interval of the filter, but the detailed
+    wavelength-dependent response is described by quantities such as [spectral_absorptivity_of_filter](name:spectral_absorptivity_of_filter).
+
+
+    Typical values depend strongly on the diagnostic spectral range: visible continuum
+    filters often have lower wavelengths of about $3 \times 10^{-7}$-$8 \times 10^{-7}$
+    m, soft-X-ray filter windows about $10^{-10}$-$10^{-8}$ m, and hard-X-ray filter
+    windows about $10^{-12}$-$10^{-10}$ m.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:upper_wavelength_of_filter
+  - name:wavelength_of_filter
+  - name:spectral_absorptivity_of_filter
+  - name:thickness_of_filter
+  arguments:
+  - name: wavelength_of_filter
+    operator: lower
+    operator_kind: qualifier
+  sources:
+  - id: dd:bremsstrahlung_visible/channel/filter/wavelength_lower
+    dd_path: bremsstrahlung_visible/channel/filter/wavelength_lower
+    status: attached
+  - id: dd:camera_x_rays/filter_window/wavelength_lower
+    dd_path: camera_x_rays/filter_window/wavelength_lower
+    status: attached
+  - id: dd:hard_x_rays/channel/filter_window/wavelength_lower
+    dd_path: hard_x_rays/channel/filter_window/wavelength_lower
+    status: attached
+  - id: dd:soft_x_rays/channel/filter_window/wavelength_lower
+    dd_path: soft_x_rays/channel/filter_window/wavelength_lower
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/wavelength_lower
+    dd_path: spectrometer_x_ray_crystal/channel/filter_window/wavelength_lower
+    status: attached
+- name: upper_wavelength_of_filter
+  kind: scalar
+  status: draft
+  description: Upper wavelength limit of the passband transmitted by a diagnostic
+    filter window. It is the long-wavelength, low-photon-energy cutoff of the filter-window
+    transmission band.
+  documentation: 'The upper wavelength of a filter is the long-wavelength boundary
+    of the passband transmitted by a filter window. It is the largest wavelength included
+    by the filter-window transmission criterion and therefore corresponds to the lowest
+    photon energy admitted by that filter passband. Together with [lower_wavelength_of_filter](name:lower_wavelength_of_filter),
+    it defines the wavelength interval of the transmitted band, normally with $\lambda_{\mathrm{lower}}
+    \le \lambda_{\max}$.
+
+
+    The corresponding minimum photon energy is related to the cutoff wavelength by
+
+
+    $$
+
+    E_{\min} = \frac{hc}{\lambda_{\max}}
+
+    $$
+
+
+    where $\lambda_{\max}$ is the upper wavelength cutoff in meters, $E_{\min}$ is
+    the corresponding photon energy in joules, $h$ is Planck''s constant in joule
+    seconds, and $c$ is the speed of light in meters per second.
+
+
+    For a real filter window the spectral transmission edge is gradual rather than
+    perfectly sharp, so the upper wavelength should be interpreted using the stated
+    passband criterion, such as a specified transmission threshold or calibrated edge
+    definition. It is obtained from the filter-window transmission curve, computed
+    from material optical properties and thickness or measured by spectral transmission
+    calibration.
+
+
+    Representative X-ray and soft-X-ray filter-window upper cutoffs are commonly in
+    the range $10^{-11}$-$10^{-8}$ m, depending on filter material, thickness, and
+    the selected transmission criterion. The wavelength-dependent attenuation within
+    and outside the passband is described by [spectral_absorptivity_of_filter](name:spectral_absorptivity_of_filter).'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links: []
+  arguments:
+  - name: wavelength_of_filter
+    operator: upper
+    operator_kind: qualifier
+  sources:
+  - id: dd:bremsstrahlung_visible/channel/filter/wavelength_upper
+    dd_path: bremsstrahlung_visible/channel/filter/wavelength_upper
+    status: attached
+  - id: dd:camera_x_rays/filter_window/wavelength_upper
+    dd_path: camera_x_rays/filter_window/wavelength_upper
+    status: composed
+  - id: dd:hard_x_rays/channel/filter_window/wavelength_upper
+    dd_path: hard_x_rays/channel/filter_window/wavelength_upper
+    status: composed
+  - id: dd:soft_x_rays/channel/filter_window/wavelength_upper
+    dd_path: soft_x_rays/channel/filter_window/wavelength_upper
+    status: attached
+  - id: dd:spectrometer_x_ray_crystal/channel/filter_window/wavelength_upper
+    dd_path: spectrometer_x_ray_crystal/channel/filter_window/wavelength_upper
+    status: attached
+- name: wavelength_of_spectral_line
+  kind: scalar
+  status: draft
+  description: Central rest-frame vacuum wavelength of an atomic, ionic, molecular,
+    or nuclear spectral emission or absorption line. It is set by the transition energy
+    between quantum states and identifies the unshifted physical line.
+  documentation: 'Wavelength of a spectral line is the central vacuum wavelength $\lambda_0$
+    of the photon associated with a transition between two quantum states, evaluated
+    in the rest frame of the emitting or absorbing species. It is a property of the
+    transition itself, separate from observed wavelength shifts, broadening, field-induced
+    splitting, and instrumental response.
+
+
+    The rest wavelength is set by the transition energy:
+
+
+    $$
+
+    \lambda_0 = \frac{h c}{|E_u - E_l|}
+
+    $$
+
+
+    where $\lambda_0$ is the vacuum wavelength in meters, $h$ is the Planck constant
+    in joule seconds, $c$ is the speed of light in meters per second, and $E_u$ and
+    $E_l$ are the upper- and lower-state energies in joules.
+
+
+    In spectroscopy, $\lambda_0$ is usually taken from evaluated atomic, molecular,
+    or nuclear transition data, or from fitted line centers after wavelength calibration
+    and correction to vacuum wavelength. For an observed line center $\lambda_{\mathrm{obs}}$
+    in meters, the non-relativistic Doppler relation is $(\lambda_{\mathrm{obs}}-\lambda_0)/\lambda_0
+    \approx v_{\mathrm{los}}/c$ for $|v_{\mathrm{los}}| \ll c$, where $v_{\mathrm{los}}$
+    is in meters per second and is positive when the source recedes from the observer,
+    increasing the observed wavelength. Thermal Doppler Gaussian width scales as $\sigma_\lambda/\lambda_0
+    \approx \sqrt{k_B T_s/(m_s c^2)}$, where $\sigma_\lambda$ is in meters, $T_s$
+    is the species temperature in kelvin, and $m_s$ is the particle mass in kilograms;
+    equivalently use $\sqrt{T_s/(m_s c^2)}$ when $T_s$ is expressed as an energy.
+
+
+    The quantity is not limited to a particular spectral band. Lines used in plasma
+    spectroscopy commonly span about $1\times10^{-11}$-$1\times10^{-5}$ m, including
+    soft-x-ray lines near $1\times10^{-10}$-$1\times10^{-9}$ m, extreme-ultraviolet
+    and ultraviolet lines near $1\times10^{-8}$-$4\times10^{-7}$ m, visible lines
+    near $4\times10^{-7}$-$7\times10^{-7}$ m, and near-infrared lines near $7\times10^{-7}$-$1\times10^{-5}$
+    m; other atomic, molecular, or nuclear transitions can lie outside these ranges.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:reference_wavelength_of_spectrometer_channel
+  - name:spectral_flux_of_spectrometer_channel
+  - name:spectral_width_of_spectrometer_channel
+  arguments:
+  - name: wavelength
+    operator: spectral_line
+    operator_kind: locus
+  sources:
+  - id: dd:charge_exchange/channel/bes/transition_wavelength
+    dd_path: charge_exchange/channel/bes/transition_wavelength
+    status: attached
+  - id: dd:charge_exchange/channel/ion_fast/transition_wavelength
+    dd_path: charge_exchange/channel/ion_fast/transition_wavelength
+    status: attached
+  - id: dd:charge_exchange/channel/spectrum/processed_line/wavelength_central
+    dd_path: charge_exchange/channel/spectrum/processed_line/wavelength_central
+    status: attached
+  - id: dd:spectrometer_uv/channel/processed_line/wavelength_central
+    dd_path: spectrometer_uv/channel/processed_line/wavelength_central
+    status: attached
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/calibrated_lines
+    dd_path: spectrometer_visible/channel/filter_spectrometer/calibrated_lines
+    status: attached
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/processed_line/wavelength_central
+    dd_path: spectrometer_visible/channel/filter_spectrometer/processed_line/wavelength_central
+    status: attached
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/processed_lines
+    dd_path: spectrometer_visible/channel/filter_spectrometer/processed_lines
+    status: attached
+  - id: dd:spectrometer_visible/channel/filter_spectrometer/raw_lines
+    dd_path: spectrometer_visible/channel/filter_spectrometer/raw_lines
+    status: attached
+  - id: dd:spectrometer_visible/channel/grating_spectrometer/processed_line/wavelength_central
+    dd_path: spectrometer_visible/channel/grating_spectrometer/processed_line/wavelength_central
     status: attached

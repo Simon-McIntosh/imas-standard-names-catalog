@@ -1,68 +1,9 @@
 # Domain: magnetohydrodynamics
-# Catalog sha: b8d10395a003efc46be6fc45a94b1f9308d6a87b
-# Entries: 100
+# Catalog sha: 8907b76455ee66eb637e3842250dd81478dc2348
+# Entries: 90
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: accumulated_deposited_heat_energy_over_halo_region_due_to_conduction
-  kind: scalar
-  status: draft
-  description: Accumulated conductive heat energy deposited in the plasma halo region
-    during a disruption. It is the time integral of conductive power delivered to
-    the halo and excludes local resistive heating.
-  documentation: 'Accumulated deposited heat energy over the halo region due to conduction
-    is the cumulative thermal energy delivered to the disruption halo by conductive
-    heat transport. It represents the time accumulation of conductive deposition into
-    the halo region, distinct from energy produced locally by resistive processes
-    such as [accumulated ohmic dissipation energy](name:accumulated_energy_over_halo_region_due_to_ohmic_dissipation).
-
-
-    The accumulated energy is defined by integrating the instantaneous conductive
-    heat power deposited in the halo over the disruption interval:
-
-
-    $$
-
-    E_\mathrm{cond}(t_f) = \int_{t_0}^{t_f} P_\mathrm{cond}(t)\,dt
-
-    $$
-
-
-    where $E_\mathrm{cond}$ is the accumulated deposited conductive energy in J, $P_\mathrm{cond}$
-    is the conductive heat power delivered to the halo in W, and $t_0$ and $t_f$ are
-    the start and end times of the accumulation in s. The deposited power is evaluated
-    from the conductive heat flux through the boundary of the halo control volume,
-    or equivalently from the volume integral of the conductive heat-flux divergence
-    over the halo; the boundary-flux sign is chosen so that heat flow into the halo
-    increases $P_\mathrm{cond}$.
-
-
-    In practice, $P_\mathrm{cond}$ is obtained from disruption transport or magnetohydrodynamic
-    calculations by summing the conductive heat flux deposited in the halo at each
-    time. The dominant contribution is often field-aligned electron heat conduction,
-    commonly modeled with $q_\parallel = -\kappa_\parallel \nabla_\parallel T_e$,
-    where $q_\parallel$ is in W m^-2 and, if $T_e$ is expressed in eV, $\kappa_\parallel$
-    has units W m^-1 eV^-1. The related [field-aligned accumulated conductive energy](name:accumulated_deposited_heat_energy_over_halo_region_due_to_conduction)
-    isolates that parallel channel, while instantaneous conducted-power quantities
-    are represented by [parallel conducted heat power] and [field-aligned conducted
-    heat power](name:field_aligned_conducted_heat_power_over_halo_region_due_to_disruption).
-
-
-    Reported magnitudes are strongly scenario dependent and should be interpreted
-    relative to the disruption thermal-energy budget, the halo definition, and the
-    modeled conductive channels. A useful physical range is from 0 J, when no conductive
-    heat is delivered into the halo over the accumulation interval, up to a case-dependent
-    fraction of the thermal energy transported during the disruption; universal numerical
-    ranges are not meaningful without specifying the device and disruption scenario.'
-  unit: J
-  physics_domain: magnetohydrodynamics
-  links:
-  - name:accumulated_energy_over_halo_region_due_to_ohmic_dissipation
-  - name:field_aligned_conducted_heat_power_over_halo_region_due_to_disruption
-  sources:
-  - id: dd:disruption/global_quantities/energy_parallel_halo
-    dd_path: disruption/global_quantities/energy_parallel_halo
-    status: composed
 - name: accumulated_radiated_energy_due_to_impurity_radiation
   kind: scalar
   status: draft
@@ -443,6 +384,70 @@
   - id: dd:sawteeth/profiles_1d/zeff
     dd_path: sawteeth/profiles_1d/zeff
     status: attached
+- name: electron_critical_temperature_at_pedestal_top
+  kind: scalar
+  status: draft
+  description: Electron critical temperature at the pedestal top is the threshold
+    pedestal-top electron temperature at which an H-mode edge pedestal is marginal
+    to ideal magnetohydrodynamic peeling-ballooning stability. It represents a stability-limit
+    temperature, not necessarily the measured pedestal-top temperature.
+  documentation: 'Electron critical temperature at the pedestal top is the electron
+    temperature threshold for marginal ideal magnetohydrodynamic stability of the
+    H-mode edge pedestal. It is the value of the pedestal-top electron temperature
+    at which the pedestal pressure-gradient drive reaches the peeling-ballooning stability
+    boundary. It should be compared with the actual [electron_temperature_at_pedestal_top](name:electron_temperature_at_pedestal_top)
+    to assess proximity to the stability limit.
+
+
+    In pedestal stability calculations the threshold is commonly identified by a marginality
+    condition:
+
+
+    $$
+
+    \alpha_\mathrm{ped}(T_{e,\mathrm{crit}}, n_{e,\mathrm{ped}}, \Delta_\mathrm{ped},
+    q, \hat{s}, j_\mathrm{bs}) = \alpha_\mathrm{crit}(q, \hat{s}, j_\mathrm{bs}, \kappa,
+    \delta)
+
+    $$
+
+
+    where $T_{e,\mathrm{crit}}$ is the critical pedestal-top electron temperature
+    in eV, $n_{e,\mathrm{ped}}$ is the pedestal-top electron density in m$^{-3}$,
+    $\Delta_\mathrm{ped}$ is the pedestal width in m, $q$ is the safety factor, $\hat{s}$
+    is the magnetic shear, $j_\mathrm{bs}$ is the bootstrap current density in A m$^{-2}$,
+    and $\kappa$ and $\delta$ are dimensionless shape parameters. The quantities $\alpha_\mathrm{ped}$
+    and $\alpha_\mathrm{crit}$ are dimensionless measures of the pedestal pressure-gradient
+    drive and its ideal MHD stability limit.
+
+
+    This quantity is not measured directly. It is inferred by varying the assumed
+    pedestal-top electron temperature, with other pedestal and equilibrium quantities
+    held fixed or evolved according to a specified model, until an ideal MHD stability
+    calculation finds marginal peeling-ballooning stability. Bootstrap current effects
+    may be included self-consistently because the current profile changes the stability
+    boundary, but no particular pedestal-shape parameterization, bootstrap-current
+    closure, or scan procedure is implied by the standard name.
+
+
+    Typical values in present tokamak H-mode pedestals are about 300-3000 eV. Lower-current
+    or smaller devices may have thresholds near 100-800 eV, while high-field or high-performance
+    plasmas can have critical pedestal-top temperatures of 3000-8000 eV or higher
+    depending on density, pedestal width, shaping, magnetic shear, and bootstrap current.'
+  unit: eV
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:alpha_parameter
+  - name:critical_electron_temperature_at_pedestal_top_due_to_magnetohydrodynamic
+  - name:electron_temperature_at_pedestal_top
+  - name:critical_temperature_at_pedestal_top
+  sources:
+  - id: dd:summary/pedestal_fits/mtanh/stability/bootstrap_current_hager/t_e_pedestal_top_critical/value
+    dd_path: summary/pedestal_fits/mtanh/stability/bootstrap_current_hager/t_e_pedestal_top_critical/value
+    status: attached
+  - id: dd:summary/pedestal_fits/mtanh/stability/bootstrap_current_sauter/t_e_pedestal_top_critical/value
+    dd_path: summary/pedestal_fits/mtanh/stability/bootstrap_current_sauter/t_e_pedestal_top_critical/value
+    status: attached
 - name: electron_temperature
   kind: scalar
   status: draft
@@ -608,97 +613,6 @@
   - id: dd:wall/description_ggd/ggd/phi_potential/values
     dd_path: wall/description_ggd/ggd/phi_potential/values
     status: attached
-- name: energy_upper_fraction_due_to_disruption
-  kind: scalar
-  status: draft
-  description: Dimensionless upper fractional threshold (commonly labeled X2) for
-    the custom linear thermal-energy decay time during a disruption, marking the higher
-    of two crossing levels of the normalized thermal energy.
-  documentation: 'The energy upper fractional threshold X2 is the higher of two user-specified
-    dimensionless levels of the normalized thermal energy $W_\mathrm{th}/W_\mathrm{th,0}$
-    used to bracket the thermal-energy quench interval during a disruption. It marks
-    the point in the decay sequence that the thermal energy crosses first, and is
-    paired with [energy_lower_fraction_due_to_disruption](name:energy_lower_fraction_due_to_disruption)
-    (X1, where $X_1 < X_2 \leq 1$) to define the decay-time window.
-
-
-    The two thresholds jointly define the custom linear thermal-energy decay time
-    $\tau_\mathrm{th,lin}$:
-
-
-    $$
-
-    \tau_\mathrm{th,lin} = \frac{t(X_2) - t(X_1)}{X_1 - X_2}
-
-    $$
-
-
-    where $t(X_i)$ is the time at which the normalized thermal energy $W_\mathrm{th}(t)/W_\mathrm{th,0}$
-    passes through level $X_i$ and $W_\mathrm{th,0}$ is the pre-disruption reference
-    energy. Because thermal energy decays monotonically during a quench, $t(X_2) <
-    t(X_1)$, so both numerator and denominator are negative and $\tau_\mathrm{th,lin}$
-    is positive. The resulting decay time is reported as [thermal_decay_time](name:thermal_energy_decay_time_due_to_disruption).
-    This quantity is the energy-specific instance of the general upper_fraction_due_to_disruption
-    concept, which applies analogously to plasma-current metrics as in plasma_linear_decay_time.
-
-
-    Sign convention: Positive when the upper threshold level X2 is set to a nonzero
-    fraction of the pre-disruption thermal energy and above the lower threshold X1,
-    corresponding to a physically valid downward-crossing decay interval.'
-  unit: '1'
-  physics_domain: magnetohydrodynamics
-  links:
-  - name:energy_lower_fraction_due_to_disruption
-  - name:thermal_energy_decay_time_due_to_disruption
-  sources:
-  - id: dd:summary/disruption/decay_times/energy_thermal/linear_custom/x2
-    dd_path: summary/disruption/decay_times/energy_thermal/linear_custom/x2
-    status: composed
-- name: fraction_due_to_disruption
-  kind: scalar
-  status: draft
-  description: Dimensionless fractional threshold of a monitored plasma quantity normalized
-    to its pre-disruption reference value, representing one of a paired upper/lower
-    set used to define a custom linear decay timescale during a disruption.
-  documentation: 'The fraction due to disruption expresses the value of a monitored
-    plasma quantity at a prescribed threshold-crossing level as a dimensionless ratio
-    relative to its pre-disruption baseline, capturing quantitative milestones during
-    the current or thermal quench phase of a disruption event.
-
-
-    The threshold fraction is defined as
-
-
-    $$
-
-    f = \frac{Q(t)}{Q_0}
-
-    $$
-
-
-    where $Q(t)$ is the plasma quantity at time $t$ during the disruption and $Q_0$
-    is its pre-disruption reference value. Two complementary threshold fractions are
-    always used in concert: the [lower fractional threshold](name:lower_fraction_due_to_disruption)
-    $X_1$ marks the endpoint of the decay window, while the [upper fractional threshold]
-    $X_2 > X_1$ marks its starting point. The elapsed time between the $X_2$ and $X_1$
-    crossings of $f$ determines the [disruption decay timescale]. By construction
-    both fractions satisfy $0 < X_1 < X_2 \leq 1$ for a decaying positive-definite
-    plasma quantity.
-
-
-    For plasma current specifically, the corresponding instances are [plasma_lower_fraction_due_to_disruption](name:plasma_lower_fraction_due_to_disruption)
-    and [plasma_upper_fraction_due_to_disruption](name:ratio_of_upper_bound_plasma_current_to_initial_plasma_current_due_to_disruption),
-    which follow the same upper/lower pairing convention to derive the plasma-current
-    linear decay time.'
-  unit: '1'
-  physics_domain: magnetohydrodynamics
-  links:
-  - name:lower_fraction_due_to_disruption
-  - name:plasma_lower_fraction_due_to_disruption
-  - name:ratio_of_upper_bound_plasma_current_to_initial_plasma_current_due_to_disruption
-  sources:
-  - id: derived:fraction_due_to_disruption
-    status: composed
 - name: halo_current
   kind: vector
   status: draft
@@ -816,7 +730,10 @@
     status: composed
   - id: dd:mhd/ggd/t_i_average/values
     dd_path: mhd/ggd/t_i_average/values
-    status: composed
+    status: attached
+  - id: dd:neutron_diagnostic/reconstructed_emissivity/t_i
+    dd_path: neutron_diagnostic/reconstructed_emissivity/t_i
+    status: attached
   - id: dd:plasma_profiles/ggd/ion/temperature/values
     dd_path: plasma_profiles/ggd/ion/temperature/values
     status: composed
@@ -825,7 +742,7 @@
     status: attached
   - id: dd:plasma_profiles/profiles_2d/ion/temperature
     dd_path: plasma_profiles/profiles_2d/ion/temperature
-    status: composed
+    status: attached
   - id: dd:spectrometer_x_ray_crystal/channel/profiles_line_integrated/t_i
     dd_path: spectrometer_x_ray_crystal/channel/profiles_line_integrated/t_i
     status: attached
@@ -838,151 +755,6 @@
   - id: dd:turbulence/profiles_2d/ion/temperature
     dd_path: turbulence/profiles_2d/ion/temperature
     status: attached
-- name: lower_fraction_due_to_disruption
-  kind: scalar
-  status: draft
-  description: Dimensionless lower fractional threshold, expressed relative to a plasma
-    quantity's pre-disruption reference value, marking the endpoint of the custom
-    linear decay window from which the disruption decay timescale is derived.
-  documentation: "During a disruption, macroscopic plasma quantities such as plasma\
-    \ current and stored thermal energy undergo rapid, approximately linear decay.\
-    \ To characterize this decay without fitting the full waveform, two fractional\
-    \ threshold levels relative to the pre-disruption reference value define a custom\
-    \ linear measurement window. The lower fraction $X_1$ marks the closing boundary\
-    \ of that window \u2014 the level to which the quantity must fall before the interval\
-    \ is complete.\n\nThe linear decay timescale is estimated from the two crossing\
-    \ times as:\n\n$$\n\\tau_{\\rm decay} = \\frac{t(X_1) - t(X_2)}{X_2 - X_1}\n$$\n\
-    \nwhere $t(X)$ is the time at which the decaying quantity equals $X$ times its\
-    \ pre-disruption value and $X_2 > X_1$ is the upper threshold from the companion\
-    \ field. This method is robust to the exact transient shape, relying only on two\
-    \ observed crossing times.\n\nThe value of $X_1$ is user-defined and represents\
-    \ the lower-current or lower-energy endpoint of the fit interval. The complete\
-    \ threshold pair belongs to the parent concept [fraction_due_to_disruption](name:fraction_due_to_disruption).\
-    \ Specific realizations are defined in [plasma_lower_fraction_due_to_disruption](name:plasma_lower_fraction_due_to_disruption)\
-    \ for the current quench and [energy_lower_fraction_due_to_disruption](name:energy_lower_fraction_due_to_disruption)\
-    \ for the thermal quench; the upper partner is [plasma_upper_fraction_due_to_disruption](name:ratio_of_upper_bound_plasma_current_to_initial_plasma_current_due_to_disruption).\n\
-    \nSign convention: Positive when $X_1$ is set at a fraction greater than zero\
-    \ of the pre-disruption reference value of the plasma quantity."
-  unit: '1'
-  physics_domain: magnetohydrodynamics
-  links:
-  - name:fraction_due_to_disruption
-  - name:plasma_lower_fraction_due_to_disruption
-  - name:energy_lower_fraction_due_to_disruption
-  - name:ratio_of_upper_bound_plasma_current_to_initial_plasma_current_due_to_disruption
-  arguments:
-  - name: fraction_due_to_disruption
-    operator: lower
-    operator_kind: qualifier
-- name: energy_lower_fraction_due_to_disruption
-  kind: scalar
-  status: draft
-  description: Dimensionless lower threshold X1 for the plasma thermal energy fraction
-    during a disruption. For a decaying thermal-energy trace, it is the lower, later
-    crossing level used with the upper threshold X2 to define the custom linear decay
-    window.
-  documentation: 'The lower energy fraction due to disruption is the dimensionless
-    threshold $X_1$ applied to the plasma thermal energy normalized to its pre-disruption
-    value. For a decaying thermal-energy trace, $X_1$ is the lower normalized-energy
-    level reached after the paired upper fraction $X_2$, and it forms the later endpoint
-    of the selected decay interval.
-
-
-    The associated linear custom thermal-energy decay time is obtained from the two
-    fractional crossing times:
-
-
-    $$
-
-    \tau_\mathrm{th} = \frac{t_{X_1} - t_{X_2}}{X_2 - X_1}, \qquad W_\mathrm{th}(t_{X_1})
-    = X_1 W_0,\quad W_\mathrm{th}(t_{X_2}) = X_2 W_0
-
-    $$
-
-
-    where $W_0$ and $W_\mathrm{th}$ are thermal energies in joules, $t_{X_1}$, $t_{X_2}$,
-    and $\tau_\mathrm{th}$ are times in seconds, and $X_1$ and $X_2$ are dimensionless
-    fractions. For a decaying trace, $X_2 > X_1$ and $t_{X_1} > t_{X_2}$.
-
-
-    In practice, $W_0$ is estimated from the pre-disruption thermal energy and the
-    normalized trace $W_\mathrm{th}(t)/W_0$ is searched, often with interpolation,
-    to find the crossing time at $X_1$. The selected thresholds define the portion
-    of the decay used for the characteristic [thermal_decay_time](name:thermal_energy_decay_time_due_to_disruption),
-    while excluding parts of the trace that the analysis does not intend to fit.
-
-
-    As a fraction, $X_1$ has unit 1 and is normally chosen within $0 < X_1 < X_2 <
-    1$ for a nonzero decay window. Its numerical value is an analysis parameter rather
-    than a universal physical constant, so no device-independent representative value
-    should be assumed.'
-  unit: '1'
-  physics_domain: magnetohydrodynamics
-  links:
-  - name:thermal_energy_decay_time_due_to_disruption
-  arguments:
-  - name: lower_fraction_due_to_disruption
-    operator: energy
-    operator_kind: qualifier
-  sources:
-  - id: dd:summary/disruption/decay_times/energy_thermal/linear_custom/x1
-    dd_path: summary/disruption/decay_times/energy_thermal/linear_custom/x1
-    status: composed
-- name: magnetic_shear_at_sawtooth_inversion_radius
-  kind: scalar
-  status: draft
-  description: Magnetic shear evaluated at the sawtooth inversion radius, the flux
-    surface where the sawtooth-crash electron-temperature perturbation changes sign.
-    It is the dimensionless outward derivative of the safety factor normalized by
-    the local safety factor; the inversion surface is often near, but is not defined
-    by, q = 1.
-  documentation: 'Magnetic shear at the sawtooth inversion radius is the local magnetic
-    shear of the equilibrium magnetic field on the flux surface identified by the
-    sawtooth inversion radius. The inversion radius is the surface where the electron-temperature
-    perturbation associated with a sawtooth crash changes sign; it is often close
-    to the $q=1$ rational surface but is not defined by requiring $q=1$.
-
-
-    Using the flux coordinate $\rho_{\mathrm{tor,norm}}$ (normalized toroidal flux
-    radius), the shear is defined by
-
-
-    $$
-
-    s_{\mathrm{inv}} = \left. \frac{\rho_{\mathrm{tor,norm}}}{q}\frac{dq}{d\rho_{\mathrm{tor,norm}}}\right|_{\rho_{\mathrm{tor,norm}}=\rho_{\mathrm{inv}}}
-
-    $$
-
-
-    where $q$ is the safety factor and $\rho_{\mathrm{inv}}$ is the [normalized toroidal
-    flux coordinate at the sawtooth inversion radius](name:normalized_toroidal_flux_coordinate_at_sawtooth_inversion_radius).
-
-
-    In practice, $\rho_{\mathrm{inv}}$ is inferred from the radial zero crossing or
-    phase reversal of the crash-related electron-temperature perturbation, while $q$
-    and its radial derivative come from equilibrium reconstruction constrained by
-    magnetic and kinetic measurements. Replacing the observed inversion surface by
-    the $q=1$ surface is an additional modeling assumption, not part of this quantity''s
-    definition.
-
-
-    Representative values in sawtoothing tokamak cores are often of order 0.1-1. Values
-    near zero indicate weak local magnetic shear, and negative values indicate reversed
-    magnetic shear at the inversion surface.
-
-
-    Sign convention: Positive when $q^{-1}dq/d\rho_{\mathrm{tor,norm}}$ is positive
-    as $\rho_{\mathrm{tor,norm}}$ increases outward at the sawtooth inversion surface.'
-  unit: '1'
-  physics_domain: magnetohydrodynamics
-  links:
-  - name:magnetic_shear_at_pedestal
-  - name:normalized_toroidal_flux_coordinate_at_sawtooth_inversion_radius
-  - name:magnetic_shear_at_magnetic_axis
-  sources:
-  - id: dd:sawteeth/diagnostics/magnetic_shear_q1
-    dd_path: sawteeth/diagnostics/magnetic_shear_q1
-    status: composed
 - name: mode_number
   kind: vector
   status: draft
@@ -1019,122 +791,6 @@
   - name:alfven_frequency
   sources:
   - id: derived:mode_number
-    status: composed
-- name: momentum_flux_due_to_viscosity
-  kind: scalar
-  status: draft
-  description: Surface density of momentum transported across a plasma surface by
-    viscous stresses, encompassing contributions from classical, neoclassical, and
-    anomalous viscosity mechanisms.
-  documentation: 'Viscous momentum flux density represents the rate at which momentum
-    is transported across a unit area of a plasma surface by viscous stresses, entering
-    the fluid momentum equation as the divergence of the viscous stress tensor $\boldsymbol{\pi}$.
-    The viscous stress tensor encodes pressure anisotropy of the particle distribution
-    function beyond the isotropic scalar pressure, coupling adjacent plasma layers
-    through collisional and kinetic processes.
-
-
-    The momentum flux carried across a surface element with unit outward normal $\hat{n}$
-    is:
-
-
-    $$
-
-    \boldsymbol{\Gamma}_\mathrm{visc} = \boldsymbol{\pi} \cdot \hat{n}
-
-    $$
-
-
-    where $\boldsymbol{\pi}$ is the viscous stress tensor.
-
-
-    Contributions to viscous momentum transport arise from classical collisions parallel
-    and perpendicular to magnetic field lines, neoclassical mechanisms driven by trapped-particle
-    banana-orbit dynamics, and anomalous turbulence-driven viscosity. The [neoclassical_momentum_flux_due_to_viscosity](name:neoclassical_momentum_flux_due_to_viscosity)
-    child covers the full neoclassical vector contribution across magnetic flux surfaces,
-    including the symmetry-breaking physics associated with neoclassical toroidal
-    viscosity and its role in toroidal rotation damping. In tokamak momentum-transport
-    analysis, the toroidal projection of this flux is the primary modeling and experimental
-    target, connecting to [toroidal_total_plasma_momentum](name:toroidal_total_plasma_momentum)
-    through the angular momentum balance equation.
-
-
-    Viscous momentum flux is computed from drift-kinetic or gyrokinetic transport
-    models, or inferred by combining rotation profile measurements with momentum-balance
-    analysis.'
-  unit: N.m^-2
-  physics_domain: magnetohydrodynamics
-  links:
-  - name:neoclassical_momentum_flux_due_to_viscosity
-  - name:toroidal_total_plasma_momentum
-  sources:
-  - id: derived:momentum_flux_due_to_viscosity
-    status: composed
-- name: neoclassical_momentum_flux_due_to_viscosity
-  kind: vector
-  status: draft
-  description: Full neoclassical viscous momentum flux density vector across magnetic
-    flux surfaces. It represents momentum transport produced by drift-kinetic pressure
-    anisotropy and trapped-particle collisional dynamics, including symmetry-breaking
-    physics whose toroidal projection is associated with neoclassical toroidal viscosity.
-  documentation: 'Neoclassical momentum flux due to viscosity is the vector flux density
-    of plasma momentum transported across magnetic flux surfaces by the neoclassical
-    viscous stress. It describes momentum transport produced by departures from isotropic
-    pressure in collisional drift-kinetic particle motion, especially trapped-particle
-    response in magnetic-field inhomogeneity, and is not restricted to axisymmetric
-    magnetic fields.
-
-
-    At a magnetic flux surface labeled by $\psi$, a compact definition is the traction
-    of the neoclassical viscous stress on the outward flux-surface normal:
-
-
-    $$
-
-    \boldsymbol{\Gamma}^{\mathrm{NC,visc}}_{\mathbf{p}}(\psi) = \left\langle \boldsymbol{\Pi}_{\mathrm{NC}}
-    \cdot \hat{\mathbf{n}}_{\psi} \right\rangle_{\psi}
-
-    $$
-
-
-    where $\boldsymbol{\Pi}_{\mathrm{NC}}$ is the neoclassical viscous stress tensor,
-    $\hat{\mathbf{n}}_{\psi}$ is the unit normal directed outward from the magnetic
-    axis toward the plasma boundary, and $\langle\cdot\rangle_{\psi}$ denotes a flux-surface
-    average. This is a neoclassical stress-derived flux, not a local Newtonian shear-viscosity
-    closure. The [toroidal component](name:toroidal_neoclassical_momentum_flux_due_to_viscosity)
-    is obtained by projecting the vector onto $\hat{\phi}$ in the right-handed cylindrical
-    $(R, \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and
-    $Z$ is vertical height.
-
-
-    In practice this quantity is usually computed rather than measured directly. Calculations
-    use the magnetic geometry, species density and temperature, collisionality, rotation
-    or radial electric field, and the spectrum of non-axisymmetric magnetic perturbations;
-    experiments infer its effect indirectly from momentum balance and rotation evolution
-    after accounting for external torque and turbulent momentum transport.
-
-
-    Representative modeled stress magnitudes for the attested toroidal projection
-    are highly case dependent, commonly of order $10^{-4}-10^{1}\,\mathrm{N\,m^{-2}}$
-    in tokamak plasmas. Values tend to be small in nearly symmetric fields and can
-    increase near strong three-dimensional perturbations or resonant magnetic-field
-    structure.
-
-
-    Sign convention: Positive when a scalar projection of the vector transports the
-    corresponding momentum component outward across a magnetic flux surface, from
-    the magnetic axis toward the plasma boundary.'
-  unit: N.m^-2
-  physics_domain: magnetohydrodynamics
-  links:
-  - name:toroidal_neoclassical_momentum_flux_due_to_viscosity
-  - name:toroidal_momentum_convection_velocity
-  arguments:
-  - name: momentum_flux_due_to_viscosity
-    operator: neoclassical
-    operator_kind: qualifier
-  sources:
-  - id: derived:neoclassical_momentum_flux_due_to_viscosity
     status: composed
 - name: neoclassical_tearing_mode_phase
   kind: scalar
@@ -1208,111 +864,6 @@
   - id: dd:ntms/time_slice/mode/phase
     dd_path: ntms/time_slice/mode/phase
     status: attached
-- name: normalized_toroidal_flux_coordinate_at_sawtooth_inversion_radius
-  kind: scalar
-  status: draft
-  description: Value of the normalized toroidal flux radius rho_tor_norm at the sawtooth
-    inversion surface. This surface is identified by the sign change of the electron-temperature
-    perturbation during a sawtooth crash and is often close to the q=1 rational surface.
-  documentation: 'The normalized toroidal flux coordinate at the sawtooth inversion
-    radius is the value of the flux coordinate $\rho_{\mathrm{tor,norm}}$ on the surface
-    where the electron-temperature perturbation changes sign during a sawtooth crash.
-    The inversion surface is a marker of the radial extent of the sawtooth crash and
-    is commonly associated with the $q=1$ rational surface.
-
-
-    The normalized toroidal flux radius on a magnetic flux surface is defined by
-
-
-    $$
-
-    \rho_{\mathrm{tor,norm}} = \left(\frac{\Phi - \Phi_0}{\Phi_b - \Phi_0}\right)^{1/2}
-
-    $$
-
-
-    where $\Phi$ is the toroidal magnetic flux enclosed by the surface in Wb, $\Phi_0$
-    is the magnetic-axis value in Wb, and $\Phi_b$ is the boundary value in Wb. For
-    this quantity, the expression is evaluated on the sawtooth inversion surface.
-
-
-    In practice, the inversion radius is inferred from time-resolved electron-temperature
-    or emissivity measurements by locating the radial position where the crash-induced
-    perturbation changes sign, then mapping that position to the reconstructed flux
-    coordinate $\rho_{\mathrm{tor,norm}}$. When direct inversion-surface localization
-    is limited, the nearby $q=1$ rational surface may be used as a physics reference,
-    often together with quantities such as [magnetic_shear_at_sawtooth_inversion_radius](name:magnetic_shear_at_sawtooth_inversion_radius).
-    The inversion radius is typically inside or comparable to the sawtooth mixing
-    radius, described by [normalized_toroidal_flux_coordinate_at_sawtooth_mixing_radius](name:normalized_toroidal_flux_coordinate_at_sawtooth_mixing_radius).
-
-
-    Values are dimensionless and lie between 0 at the magnetic axis and 1 at the plasma
-    boundary for closed-flux-surface normalization. Sawtooth inversion surfaces are
-    usually in the plasma core, commonly around 0.2-0.6, with the exact value depending
-    on the current profile, pressure profile, and sawtooth dynamics.'
-  unit: '1'
-  physics_domain: magnetohydrodynamics
-  links:
-  - name:normalized_toroidal_flux_coordinate
-  - name:normalized_toroidal_flux_coordinate_at_sawtooth_mixing_radius
-  sources:
-  - id: dd:sawteeth/diagnostics/rho_tor_norm_inversion
-    dd_path: sawteeth/diagnostics/rho_tor_norm_inversion
-    status: composed
-  - id: dd:sawteeth/diagnostics/rho_tor_norm_q1
-    dd_path: sawteeth/diagnostics/rho_tor_norm_q1
-    status: attached
-- name: normalized_toroidal_flux_coordinate_at_sawtooth_mixing_radius
-  kind: scalar
-  status: draft
-  description: Value of rho_tor_norm at the sawtooth mixing radius, the flux surface
-    marking the outer boundary of the plasma region homogenized during a sawtooth
-    crash.
-  documentation: 'The normalized toroidal flux coordinate at the sawtooth mixing radius
-    is the value of $\rho_{\mathrm{tor,norm}}$ on the flux surface that bounds the
-    region mixed during a sawtooth crash. It locates the mixing surface in magnetic-flux
-    space, with 0 at the magnetic axis and 1 at the last closed flux surface.
-
-
-    The coordinate value is obtained by evaluating the normalized toroidal flux coordinate
-    on the sawtooth mixing surface:
-
-
-    $$
-
-    \rho_{\mathrm{tor,norm,mix}} = \left(\frac{\Phi_{\mathrm{mix}} - \Phi_0}{\Phi_{\mathrm{LCFS}}
-    - \Phi_0}\right)^{1/2}
-
-    $$
-
-
-    where $\Phi_{\mathrm{mix}}$ is the toroidal magnetic flux in Wb enclosed by the
-    sawtooth mixing surface, $\Phi_0$ is the magnetic-axis toroidal flux in Wb, and
-    $\Phi_{\mathrm{LCFS}}$ is the boundary toroidal flux in Wb at the last closed
-    flux surface.
-
-
-    In practice the mixing radius is inferred from the radial extent of crash-induced
-    redistribution, such as flattening or abrupt changes in core temperature, density,
-    radiation, or other sawtooth-sensitive observables, mapped onto equilibrium flux
-    surfaces. It should not be assumed to coincide with the inversion surface or with
-    any particular magnetic-safety-factor surface unless that identification is part
-    of a stated sawtooth model.
-
-
-    For a closed-flux-surface mixing boundary this dimensionless coordinate lies in
-    the interval 0-1 by definition. No universal narrower range applies, because the
-    value depends on the discharge, equilibrium, diagnostic interpretation, and crash
-    dynamics.'
-  unit: '1'
-  physics_domain: magnetohydrodynamics
-  links:
-  - name:normalized_toroidal_flux_coordinate
-  - name:normalized_toroidal_flux_coordinate_at_sawtooth_inversion_radius
-  sources:
-  - id: dd:sawteeth/diagnostics/rho_tor_norm_mixing
-    dd_path: sawteeth/diagnostics/rho_tor_norm_mixing
-    status: composed
 - name: per_toroidal_mode_growth_rate
   kind: scalar
   status: draft
@@ -1391,6 +942,10 @@
   - name:perturbed_plasma_mass_density_real_part
   - name:perturbed_electrostatic_potential_real_part
   - name:perturbed_electrostatic_potential_imaginary_part
+  arguments:
+  - name: electrostatic_potential
+    operator: perturbed
+    operator_kind: qualifier
   sources:
   - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/phi_potential_perturbed/imaginary
     dd_path: mhd_linear/time_slice/toroidal_mode/plasma/phi_potential_perturbed/imaginary
@@ -1480,229 +1035,6 @@
   sources:
   - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/phi_potential_perturbed/real
     dd_path: mhd_linear/time_slice/toroidal_mode/plasma/phi_potential_perturbed/real
-    status: composed
-- name: plasma_lower_fraction_due_to_disruption
-  kind: scalar
-  status: draft
-  description: User-defined lower fractional threshold X1 of the pre-disruption plasma
-    current used to set the lower-current endpoint of a custom linear current-quench
-    decay window during a disruption.
-  documentation: 'Plasma lower fraction due to disruption is the dimensionless threshold
-    $X_1$ that marks the lower-current endpoint of a custom linear current-quench
-    analysis window. It is paired with the upper threshold $X_2$ so that the [plasma
-    linear decay time] is evaluated between two specified fractions of the pre-disruption
-    plasma current.
-
-
-    The custom linear current-quench decay time associated with these thresholds is
-    defined by
-
-
-    $$
-
-    \tau_{\mathrm{CQ,lin}} = \frac{t(X_2)-t(X_1)}{X_1-X_2}, \qquad I_p(t(X_j)) = X_j
-    I_{p,\mathrm{pre}}
-
-    $$
-
-
-    where $X_1$ and $X_2$ are dimensionless fractions, $0 < X_1 < X_2 < 1$, $I_{p,\mathrm{pre}}$
-    is the pre-disruption plasma current in amperes, $t(X_j)$ is the time in seconds
-    at which the plasma current reaches $X_j I_{p,\mathrm{pre}}$, and $\tau_{\mathrm{CQ,lin}}$
-    is the resulting decay time in seconds.
-
-
-    In practice, $X_1$ is selected by the analysis procedure rather than measured
-    directly. The crossing time $t(X_1)$ is usually obtained by interpolating the
-    plasma-current waveform during the current quench after the pre-disruption reference
-    current has been established.
-
-
-    Admissible values are dimensionless and must lie strictly between zero and the
-    chosen upper fraction: $0 < X_1 < X_2 < 1$. No universal typical value is implied,
-    because the threshold is user-defined and depends on the selected disruption decay-time
-    analysis window.'
-  unit: '1'
-  physics_domain: magnetohydrodynamics
-  links: []
-  arguments:
-  - name: lower_fraction_due_to_disruption
-    operator: plasma
-    operator_kind: qualifier
-  sources:
-  - id: dd:summary/disruption/decay_times/ip/linear_custom/x1
-    dd_path: summary/disruption/decay_times/ip/linear_custom/x1
-    status: composed
-- name: plasma_mass_density
-  kind: scalar
-  status: draft
-  description: Local plasma mass per unit volume, forming the inertial term in the
-    MHD momentum equation and appearing in contexts from equilibrium transport profiles
-    to linear MHD stability perturbations.
-  documentation: "The plasma mass density is the local plasma mass per unit volume,\
-    \ forming the inertial term in the MHD momentum balance and the compressibility\
-    \ term in the plasma continuity equation. This parent concept subsumes both equilibrium-profile\
-    \ and linear-perturbation contexts: the equilibrium total value summed over all\
-    \ charged species, and the complex first-order perturbation amplitude used in\
-    \ linear MHD eigenvalue problems.\n\nIn the equilibrium formulation, the mass\
-    \ density is defined by:\n\n$$\n\\rho = \\sum_s m_s n_s\n$$\n\nwhere $m_s$ is\
-    \ the particle mass and $n_s$ the number density of charged species $s$, summed\
-    \ over electrons, main-ion isotopes, and impurity charge states; neutral atoms\
-    \ are excluded. Ion contributions dominate because $m_i \\gg m_e$.\n\nIn deuterium-dominated\
-    \ fusion plasmas at core electron densities of order $10^{20}$ m$^{-3}$, the mass\
-    \ density is approximately $3 \\times 10^{-7}$ kg m$^{-3}$, scaling directly with\
-    \ ion density and average ion mass. The mass density sets the local Alfv\xE9n\
-    \ speed $v_A = B / \\sqrt{\\mu_0 \\rho}$, where $B$ is the local magnetic-field\
-    \ magnitude and $\\mu_0$ is the permeability of free space, governing the [alfven_time](name:alfven_time)\
-    \ and ideal-MHD wave dynamics. It enters [inertial_current_density](name:inertial_current_density)\
-    \ through the plasma-fluid acceleration term and is inferred from electron_number_density\
-    \ measurements combined with plasma composition analysis. This quantity is closely\
-    \ related to [mass_density](name:total_plasma_mass_density), which covers the\
-    \ same physical concept without explicit species qualification."
-  unit: kg.m^-3
-  physics_domain: magnetohydrodynamics
-  links:
-  - name:alfven_time
-  - name:inertial_current_density
-  - name:total_plasma_mass_density
-  sources:
-  - id: derived:plasma_mass_density
-    status: composed
-- name: perturbed_plasma_mass_density
-  kind: scalar
-  status: draft
-  description: Complex eigenfunction of the first-order plasma mass density perturbation
-    associated with a given toroidal Fourier mode in linear MHD stability analysis.
-  documentation: "The perturbed plasma mass density is the complex eigenfunction amplitude\
-    \ representing the first-order departure from the equilibrium [plasma mass density](name:plasma_mass_density)\
-    \ in linear MHD stability theory. It is defined for a specific toroidal Fourier\
-    \ mode number $n$, with the physical perturbation reconstructed as $\\mathrm{Re}[\\\
-    delta\\rho(\\mathbf{r})\\,e^{i(n\\phi - \\omega t)}]$, where $\\phi$ is the toroidal\
-    \ angle in the right-handed cylindrical $(R, \\phi, Z)$ frame, $\\omega$ is the\
-    \ complex mode frequency, and $\\mathbf{r}$ denotes position in the poloidal cross-section.\n\
-    \nThe complex eigenfunction decomposes as:\n\n$$\n\\delta\\rho = \\delta\\rho_{\\\
-    mathrm{Re}} + i\\,\\delta\\rho_{\\mathrm{Im}}\n$$\n\nwhere $\\delta\\rho_{\\mathrm{Re}}$\
-    \ is the [real part](name:perturbed_plasma_mass_density_real_part) and $\\delta\\\
-    rho_{\\mathrm{Im}}$ is the [imaginary part](name:perturbed_plasma_mass_density_imaginary_part)\
-    \ of the eigenfunction, each carrying units of kg m$^{-3}$.\n\nThis eigenfunction\
-    \ is computed by linear MHD stability solvers operating on a fixed equilibrium\
-    \ state. The normalization and overall phase are determined by the solver's eigenfunction\
-    \ convention, so the absolute amplitude of $\\delta\\rho$ is physically meaningful\
-    \ only relative to the full eigenvector. The density perturbation couples to velocity\
-    \ and magnetic-field perturbations \u2014 including the [toroidal component of\
-    \ the perturbed magnetic field](name:toroidal_perturbed_plasma_magnetic_field_real_part)\
-    \ \u2014 through the linearized MHD continuity and momentum equations."
-  unit: kg.m^-3
-  physics_domain: magnetohydrodynamics
-  links:
-  - name:plasma_mass_density
-  - name:perturbed_plasma_mass_density_real_part
-  - name:perturbed_plasma_mass_density_imaginary_part
-  - name:toroidal_perturbed_plasma_magnetic_field_real_part
-  arguments:
-  - name: plasma_mass_density
-    operator: perturbed
-    operator_kind: qualifier
-- name: perturbed_plasma_mass_density_imaginary_part
-  kind: complex
-  status: draft
-  description: Imaginary part of the complex first-order plasma mass density perturbation
-    eigenfunction for a specified toroidal Fourier mode in linear MHD stability analysis.
-  documentation: 'The imaginary part of the complex perturbed plasma mass density
-    eigenfunction $\tilde{\rho}_m$ arises when the first-order mass density perturbation
-    is separated into in-phase and quadrature components relative to a chosen eigenmode
-    phase and normalization. In the standard perturbation decomposition $\delta\rho(\mathbf{r},
-    t) = \mathrm{Re}[\tilde{\rho}_m(\mathbf{r})\, e^{i(n\phi - \omega t)}]$, where
-    $n$ is the toroidal mode number, $\phi$ is the toroidal angle, and $\omega$ is
-    the complex eigenfrequency, the eigenfunction splits as:
-
-
-    $$
-
-    \tilde{\rho}_m = \tilde{\rho}_\mathrm{re} + i\,\tilde{\rho}_\mathrm{im}
-
-    $$
-
-
-    where $\tilde{\rho}_\mathrm{re}$ is the [real part](name:perturbed_plasma_mass_density_real_part)
-    and $\tilde{\rho}_\mathrm{im}$ is this quantity. Together they encode the local
-    amplitude $|\tilde{\rho}_m|$ and spatial phase of the mass density perturbation
-    over the poloidal cross-section.
-
-
-    The equilibrium mass density about which the perturbation is defined is $\rho_{m0}
-    = \sum_s m_s n_s$, where $m_s$ and $n_s$ are the mass and number density of species
-    $s$; ion contributions dominate in fusion plasmas because electron mass is negligible.
-    These eigenfunctions are produced by linear MHD eigenvalue solvers that Fourier-decompose
-    perturbations in the toroidal direction; the imaginary part is meaningful only
-    relative to the phase convention and normalization of the specific eigenmode calculation.
-    The companion quantities [perturbed_plasma_pressure_imaginary_part](name:perturbed_plasma_pressure_imaginary_part)
-    and [perturbed_plasma_temperature_imaginary_part](name:perturbed_plasma_temperature_imaginary_part)
-    form a self-consistent set of perturbed thermodynamic eigenfunctions for the same
-    MHD mode.'
-  unit: kg.m^-3
-  physics_domain: magnetohydrodynamics
-  links:
-  - name:perturbed_plasma_mass_density_real_part
-  - name:perturbed_plasma_pressure_imaginary_part
-  - name:perturbed_plasma_temperature_imaginary_part
-  arguments:
-  - name: perturbed_plasma_mass_density
-    operator: imaginary_part
-    operator_kind: unary_postfix
-  sources:
-  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/mass_density_perturbed/imaginary
-    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/mass_density_perturbed/imaginary
-    status: composed
-- name: perturbed_plasma_mass_density_real_part
-  kind: complex
-  status: draft
-  description: Real part of the complex first-order plasma mass density perturbation
-    eigenfunction for a specified toroidal Fourier harmonic in linear MHD stability
-    analysis.
-  documentation: 'The real part of the perturbed plasma mass density eigenfunction
-    is the in-phase component of the first-order mass density variation associated
-    with a linear MHD eigenmode. In the linear expansion the total plasma mass density
-    is $\rho_m = \rho_{m0} + \delta\rho_m$, where the equilibrium value $\rho_{m0}
-    = \sum_s m_s n_s$ sums over particle species with particle mass $m_s$ and number
-    density $n_s$ (electron mass is typically negligible in fusion plasmas).
-
-
-    The physical mass density perturbation for toroidal mode number $n$ is reconstructed
-    from the complex eigenfunction as
-
-
-    $$\delta\rho_m(R, Z, \phi, t) = \mathrm{Re}\!\left[\tilde{\rho}_m(R, Z)\,e^{i(n\phi
-    - \omega t)}\right]$$
-
-
-    where $\omega = \omega_r + i\gamma$ is the complex eigenfrequency with oscillation
-    frequency $\omega_r$ and growth or damping rate $\gamma$, $\phi$ is the toroidal
-    angle, and $R$, $Z$ are cylindrical coordinates in the right-handed $(R, \phi,
-    Z)$ frame. The real and imaginary parts of $\tilde{\rho}_m(R, Z)$ together encode
-    the full amplitude and phase structure of the perturbation in the poloidal plane.
-
-
-    This eigenfunction component is produced by linear MHD stability solvers as part
-    of the solution to the linearized compressible MHD eigenvalue problem. The absolute
-    magnitude is normalization-dependent; the physically significant information lies
-    in the spatial structure across the poloidal cross-section. The complementary
-    in-quadrature component is [perturbed_plasma_mass_density_imaginary_part](name:perturbed_plasma_mass_density_imaginary_part),
-    and together they constitute the full complex eigenfunction [perturbed_plasma_mass_density](name:perturbed_plasma_mass_density).
-    The analogous real-part quantity for the plasma pressure perturbation is [perturbed_plasma_pressure_real_part](name:perturbed_plasma_pressure_real_part).'
-  unit: kg.m^-3
-  physics_domain: magnetohydrodynamics
-  links:
-  - name:perturbed_plasma_mass_density_imaginary_part
-  - name:perturbed_plasma_mass_density
-  - name:perturbed_plasma_pressure_real_part
-  arguments:
-  - name: perturbed_plasma_mass_density
-    operator: real_part
-    operator_kind: unary_postfix
-  sources:
-  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/mass_density_perturbed/real
-    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/mass_density_perturbed/real
     status: composed
 - name: plasma_temperature
   kind: scalar
@@ -2791,7 +2123,7 @@
     \ the plasma current fraction $I_p / I_{p,0}$, where $I_{p,0}$ is the pre-disruption\
     \ initial plasma current, selecting the higher-current end of the interval used\
     \ to characterize the approximately linear phase of the plasma current quench\
-    \ during a disruption.\n\nTogether with the lower fractional threshold [plasma_lower_fraction_due_to_disruption](name:plasma_lower_fraction_due_to_disruption),\
+    \ during a disruption.\n\nTogether with the lower fractional threshold plasma_lower_fraction_due_to_disruption,\
     \ $X_2$ defines the custom linear plasma current decay time via:\n\n$$\n\\tau_{\\\
     rm lin} = \\frac{t(X_2) - t(X_1)}{X_1 - X_2}\n$$\n\nwhere $t(X_2)$ and $t(X_1)$\
     \ are the times at which $I_p$ passes through fractions $X_2$ and $X_1$ of $I_{p,0}$,\
@@ -2805,8 +2137,7 @@
     \ or against plasma_decay_time from exponential fits."
   unit: '1'
   physics_domain: magnetohydrodynamics
-  links:
-  - name:plasma_lower_fraction_due_to_disruption
+  links: []
   sources:
   - id: dd:summary/disruption/decay_times/ip/linear_custom/x2
     dd_path: summary/disruption/decay_times/ip/linear_custom/x2
@@ -3499,46 +2830,6 @@
   - id: dd:disruption/global_quantities/phi_halo_boundary_poloidal_current
     dd_path: disruption/global_quantities/phi_halo_boundary_poloidal_current
     status: attached
-- name: toroidal_neoclassical_momentum_flux_due_to_viscosity
-  kind: scalar
-  status: draft
-  description: Toroidal component of the neoclassical viscous momentum flux density
-    across magnetic flux surfaces, quantifying angular momentum transport by trapped-particle
-    pressure anisotropy in a non-axisymmetric magnetic field.
-  documentation: "The toroidal neoclassical momentum flux due to viscosity is the\
-    \ projection of the neoclassical viscous stress onto the toroidal direction $\\\
-    hat{\\phi}$, representing the rate per unit flux-surface area at which toroidal\
-    \ angular momentum is transported radially by the neoclassical toroidal viscosity\
-    \ (NTV) mechanism. NTV arises when trapped-particle banana orbits evolve in a\
-    \ non-axisymmetric magnetic field \u2014 produced by error fields, toroidal ripple,\
-    \ or resonant magnetic perturbations \u2014 generating a net banana-drift viscous\
-    \ torque that couples toroidal rotation to magnetic field asymmetry in the collisional\
-    \ drift-kinetic limit.\n\nThe defining projection is:\n\n$$\n\\Pi_\\phi^{\\rm\
-    \ NTV} = \\hat{\\phi} \\cdot \\overleftrightarrow{\\Pi}_{\\rm neo} \\cdot \\hat{n}\n\
-    $$\n\nwhere $\\overleftrightarrow{\\Pi}_{\\rm neo}$ is the neoclassical viscous\
-    \ stress tensor, $\\hat{\\phi}$ is the unit vector in the direction of increasing\
-    \ toroidal angle $\\phi$, and $\\hat{n}$ is the outward unit normal to the flux\
-    \ surface, all defined in the right-handed cylindrical $(R, \\phi, Z)$ frame.\n\
-    \nIn linear MHD eigenmode analyzes this quantity is generally complex-valued for\
-    \ a single toroidal Fourier mode: the in-phase component is given by [the real\
-    \ part](name:toroidal_neoclassical_momentum_flux_due_to_viscosity_real_part) and\
-    \ the quadrature component by [the imaginary part](name:toroidal_neoclassical_momentum_flux_due_to_viscosity_imaginary_part).\
-    \ The NTV coefficients driving this flux are computed from banana-orbit drift-kinetic\
-    \ integrals over the perturbed magnetic geometry; the radial gradient of this\
-    \ flux density gives the local NTV torque density on the plasma.\n\nSign convention:\
-    \ Positive when the toroidal momentum flux is directed in the direction of increasing\
-    \ toroidal angle $\\phi$."
-  unit: N.m^-2
-  physics_domain: magnetohydrodynamics
-  links:
-  - name:toroidal_neoclassical_momentum_flux_due_to_viscosity_real_part
-  - name:toroidal_neoclassical_momentum_flux_due_to_viscosity_imaginary_part
-  arguments:
-  - name: neoclassical_momentum_flux_due_to_viscosity
-    operator: component
-    operator_kind: projection
-    axis: toroidal
-    shape: component
 - name: toroidal_perturbed_plasma_velocity
   kind: scalar
   status: draft
@@ -3862,123 +3153,178 @@
   - id: dd:mhd/ggd/vorticity/values
     dd_path: mhd/ggd/vorticity/values
     status: composed
-- name: critical_temperature_at_pedestal_top
+- name: magnetic_shear_at_sawtooth_inversion_radius
   kind: scalar
   status: draft
-  description: MHD stability threshold temperature at the pedestal top, below which
-    the H-mode pedestal is marginally stable to ideal peeling-ballooning mode onset
-    driving edge-localized mode bursts.
-  documentation: 'The critical temperature at the pedestal top is the marginal stability
-    value at which the H-mode pedestal region becomes susceptible to ideal peeling-ballooning
-    magnetohydrodynamic modes. At this threshold, the combined pressure-gradient drive
-    and the associated bootstrap current density are exactly sufficient to destabilize
-    edge-localized modes (ELMs), so an actual pedestal temperature exceeding this
-    value signals an unstable configuration. It is a component of the broader [temperature_at_pedestal_top](name:temperature_at_pedestal_top)
-    family encompassing both actual and critical temperatures at the pedestal top.
+  description: Magnetic shear evaluated at the sawtooth inversion radius, the flux
+    surface where the sawtooth-crash electron-temperature perturbation changes sign.
+    It is the dimensionless outward derivative of the safety factor normalized by
+    the local safety factor; the inversion surface is often near, but is not defined
+    by, q = 1.
+  documentation: 'Magnetic shear at the sawtooth inversion radius is the local magnetic
+    shear of the equilibrium magnetic field on the flux surface identified by the
+    sawtooth inversion radius. The inversion radius is the surface where the electron-temperature
+    perturbation associated with a sawtooth crash changes sign; it is often close
+    to the $q=1$ rational surface but is not defined by requiring $q=1$.
 
 
-    The critical threshold is identified by scanning the pedestal pressure and current
-    profiles at fixed plasma shape until the linear growth rate $\gamma$ of the most
-    unstable peeling-ballooning eigenmode crosses zero:
+    Using the flux coordinate $\rho_{\mathrm{tor,norm}}$ (normalized toroidal flux
+    radius), the shear is defined by
 
 
     $$
 
-    \gamma\bigl(T_{\text{crit}},\, j_{\text{BS}}(T_{\text{crit}})\bigr) = 0
+    s_{\mathrm{inv}} = \left. \frac{\rho_{\mathrm{tor,norm}}}{q}\frac{dq}{d\rho_{\mathrm{tor,norm}}}\right|_{\rho_{\mathrm{tor,norm}}=\rho_{\mathrm{inv}}}
 
     $$
 
 
-    where $j_{\text{BS}}$ is the bootstrap current density evaluated self-consistently
-    at the critical temperature and $\gamma$ is the maximum growth rate over the ideal
-    MHD peeling-ballooning mode spectrum.
+    where $q$ is the safety factor and $\rho_{\mathrm{inv}}$ is the [normalized toroidal
+    flux coordinate at the sawtooth inversion radius](name:normalized_toroidal_flux_coordinate_at_sawtooth_inversion_radius).
 
 
-    The quantity is obtained from ideal MHD stability analysis applied to reconstructed
-    pedestal equilibria, using input profiles from Thomson scattering, charge-exchange
-    recombination spectroscopy, and reflectometry. The electron-species component
-    is [electron_critical_temperature_at_pedestal_top](name:electron_critical_temperature_at_pedestal_top);
-    the actual electron temperature profile against which this threshold is compared
-    is provided by [electron_temperature](name:electron_temperature).
+    In practice, $\rho_{\mathrm{inv}}$ is inferred from the radial zero crossing or
+    phase reversal of the crash-related electron-temperature perturbation, while $q$
+    and its radial derivative come from equilibrium reconstruction constrained by
+    magnetic and kinetic measurements. Replacing the observed inversion surface by
+    the $q=1$ surface is an additional modeling assumption, not part of this quantity''s
+    definition.
 
 
-    Sign convention: Positive for all physically realized pedestal states, as electron
-    kinetic temperature is non-negative and invariant under reversal of the toroidal
-    field or plasma current direction.'
-  unit: eV
+    Representative values in sawtoothing tokamak cores are often of order 0.1-1. Values
+    near zero indicate weak local magnetic shear, and negative values indicate reversed
+    magnetic shear at the inversion surface.
+
+
+    Sign convention: Positive when $q^{-1}dq/d\rho_{\mathrm{tor,norm}}$ is positive
+    as $\rho_{\mathrm{tor,norm}}$ increases outward at the sawtooth inversion surface.'
+  unit: '1'
   physics_domain: magnetohydrodynamics
   links:
-  - name:temperature_at_pedestal_top
-  - name:electron_critical_temperature_at_pedestal_top
-  - name:electron_temperature
+  - name:magnetic_shear_at_pedestal
+  - name:normalized_toroidal_flux_coordinate_at_sawtooth_inversion_radius
+  - name:magnetic_shear_at_magnetic_axis
   arguments:
-  - name: temperature_at_pedestal_top
-    operator: critical
-    operator_kind: qualifier
+  - name: magnetic_shear
+    operator: sawtooth_inversion_radius
+    operator_kind: locus
   sources:
-  - id: derived:critical_temperature_at_pedestal_top
+  - id: dd:sawteeth/diagnostics/magnetic_shear_q1
+    dd_path: sawteeth/diagnostics/magnetic_shear_q1
     status: composed
-- name: electron_critical_temperature_at_pedestal_top
+- name: normalized_toroidal_flux_coordinate_at_sawtooth_inversion_radius
   kind: scalar
   status: draft
-  description: Electron critical temperature at the pedestal top is the threshold
-    pedestal-top electron temperature at which an H-mode edge pedestal is marginal
-    to ideal magnetohydrodynamic peeling-ballooning stability. It represents a stability-limit
-    temperature, not necessarily the measured pedestal-top temperature.
-  documentation: 'Electron critical temperature at the pedestal top is the electron
-    temperature threshold for marginal ideal magnetohydrodynamic stability of the
-    H-mode edge pedestal. It is the value of the pedestal-top electron temperature
-    at which the pedestal pressure-gradient drive reaches the peeling-ballooning stability
-    boundary. It should be compared with the actual [electron_temperature_at_pedestal_top](name:electron_temperature_at_pedestal_top)
-    to assess proximity to the stability limit.
+  description: Value of the normalized toroidal flux radius rho_tor_norm at the sawtooth
+    inversion surface. This surface is identified by the sign change of the electron-temperature
+    perturbation during a sawtooth crash and is often close to the q=1 rational surface.
+  documentation: 'The normalized toroidal flux coordinate at the sawtooth inversion
+    radius is the value of the flux coordinate $\rho_{\mathrm{tor,norm}}$ on the surface
+    where the electron-temperature perturbation changes sign during a sawtooth crash.
+    The inversion surface is a marker of the radial extent of the sawtooth crash and
+    is commonly associated with the $q=1$ rational surface.
 
 
-    In pedestal stability calculations the threshold is commonly identified by a marginality
-    condition:
+    The normalized toroidal flux radius on a magnetic flux surface is defined by
 
 
     $$
 
-    \alpha_\mathrm{ped}(T_{e,\mathrm{crit}}, n_{e,\mathrm{ped}}, \Delta_\mathrm{ped},
-    q, \hat{s}, j_\mathrm{bs}) = \alpha_\mathrm{crit}(q, \hat{s}, j_\mathrm{bs}, \kappa,
-    \delta)
+    \rho_{\mathrm{tor,norm}} = \left(\frac{\Phi - \Phi_0}{\Phi_b - \Phi_0}\right)^{1/2}
 
     $$
 
 
-    where $T_{e,\mathrm{crit}}$ is the critical pedestal-top electron temperature
-    in eV, $n_{e,\mathrm{ped}}$ is the pedestal-top electron density in m$^{-3}$,
-    $\Delta_\mathrm{ped}$ is the pedestal width in m, $q$ is the safety factor, $\hat{s}$
-    is the magnetic shear, $j_\mathrm{bs}$ is the bootstrap current density in A m$^{-2}$,
-    and $\kappa$ and $\delta$ are dimensionless shape parameters. The quantities $\alpha_\mathrm{ped}$
-    and $\alpha_\mathrm{crit}$ are dimensionless measures of the pedestal pressure-gradient
-    drive and its ideal MHD stability limit.
+    where $\Phi$ is the toroidal magnetic flux enclosed by the surface in Wb, $\Phi_0$
+    is the magnetic-axis value in Wb, and $\Phi_b$ is the boundary value in Wb. For
+    this quantity, the expression is evaluated on the sawtooth inversion surface.
 
 
-    This quantity is not measured directly. It is inferred by varying the assumed
-    pedestal-top electron temperature, with other pedestal and equilibrium quantities
-    held fixed or evolved according to a specified model, until an ideal MHD stability
-    calculation finds marginal peeling-ballooning stability. Bootstrap current effects
-    may be included self-consistently because the current profile changes the stability
-    boundary, but no particular pedestal-shape parameterization, bootstrap-current
-    closure, or scan procedure is implied by the standard name.
+    In practice, the inversion radius is inferred from time-resolved electron-temperature
+    or emissivity measurements by locating the radial position where the crash-induced
+    perturbation changes sign, then mapping that position to the reconstructed flux
+    coordinate $\rho_{\mathrm{tor,norm}}$. When direct inversion-surface localization
+    is limited, the nearby $q=1$ rational surface may be used as a physics reference,
+    often together with quantities such as [magnetic_shear_at_sawtooth_inversion_radius](name:magnetic_shear_at_sawtooth_inversion_radius).
+    The inversion radius is typically inside or comparable to the sawtooth mixing
+    radius, described by [normalized_toroidal_flux_coordinate_at_sawtooth_mixing_radius](name:normalized_toroidal_flux_coordinate_at_sawtooth_mixing_radius).
 
 
-    Typical values in present tokamak H-mode pedestals are about 300-3000 eV. Lower-current
-    or smaller devices may have thresholds near 100-800 eV, while high-field or high-performance
-    plasmas can have critical pedestal-top temperatures of 3000-8000 eV or higher
-    depending on density, pedestal width, shaping, magnetic shear, and bootstrap current.'
-  unit: eV
+    Values are dimensionless and lie between 0 at the magnetic axis and 1 at the plasma
+    boundary for closed-flux-surface normalization. Sawtooth inversion surfaces are
+    usually in the plasma core, commonly around 0.2-0.6, with the exact value depending
+    on the current profile, pressure profile, and sawtooth dynamics.'
+  unit: '1'
   physics_domain: magnetohydrodynamics
   links:
-  - name:alpha_parameter
-  - name:critical_electron_temperature_at_pedestal_top_due_to_magnetohydrodynamic
-  - name:electron_temperature_at_pedestal_top
-  - name:critical_temperature_at_pedestal_top
+  - name:normalized_toroidal_flux_coordinate
+  - name:normalized_toroidal_flux_coordinate_at_sawtooth_mixing_radius
   arguments:
-  - name: critical_temperature_at_pedestal_top
-    operator: electron
-    operator_kind: qualifier
+  - name: normalized_toroidal_flux_coordinate
+    operator: sawtooth_inversion_radius
+    operator_kind: locus
+  sources:
+  - id: dd:sawteeth/diagnostics/rho_tor_norm_inversion
+    dd_path: sawteeth/diagnostics/rho_tor_norm_inversion
+    status: composed
+  - id: dd:sawteeth/diagnostics/rho_tor_norm_q1
+    dd_path: sawteeth/diagnostics/rho_tor_norm_q1
+    status: attached
+- name: normalized_toroidal_flux_coordinate_at_sawtooth_mixing_radius
+  kind: scalar
+  status: draft
+  description: Value of rho_tor_norm at the sawtooth mixing radius, the flux surface
+    marking the outer boundary of the plasma region homogenized during a sawtooth
+    crash.
+  documentation: 'The normalized toroidal flux coordinate at the sawtooth mixing radius
+    is the value of $\rho_{\mathrm{tor,norm}}$ on the flux surface that bounds the
+    region mixed during a sawtooth crash. It locates the mixing surface in magnetic-flux
+    space, with 0 at the magnetic axis and 1 at the last closed flux surface.
+
+
+    The coordinate value is obtained by evaluating the normalized toroidal flux coordinate
+    on the sawtooth mixing surface:
+
+
+    $$
+
+    \rho_{\mathrm{tor,norm,mix}} = \left(\frac{\Phi_{\mathrm{mix}} - \Phi_0}{\Phi_{\mathrm{LCFS}}
+    - \Phi_0}\right)^{1/2}
+
+    $$
+
+
+    where $\Phi_{\mathrm{mix}}$ is the toroidal magnetic flux in Wb enclosed by the
+    sawtooth mixing surface, $\Phi_0$ is the magnetic-axis toroidal flux in Wb, and
+    $\Phi_{\mathrm{LCFS}}$ is the boundary toroidal flux in Wb at the last closed
+    flux surface.
+
+
+    In practice the mixing radius is inferred from the radial extent of crash-induced
+    redistribution, such as flattening or abrupt changes in core temperature, density,
+    radiation, or other sawtooth-sensitive observables, mapped onto equilibrium flux
+    surfaces. It should not be assumed to coincide with the inversion surface or with
+    any particular magnetic-safety-factor surface unless that identification is part
+    of a stated sawtooth model.
+
+
+    For a closed-flux-surface mixing boundary this dimensionless coordinate lies in
+    the interval 0-1 by definition. No universal narrower range applies, because the
+    value depends on the discharge, equilibrium, diagnostic interpretation, and crash
+    dynamics.'
+  unit: '1'
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:normalized_toroidal_flux_coordinate
+  - name:normalized_toroidal_flux_coordinate_at_sawtooth_inversion_radius
+  arguments:
+  - name: normalized_toroidal_flux_coordinate
+    operator: sawtooth_mixing_radius
+    operator_kind: locus
+  sources:
+  - id: dd:sawteeth/diagnostics/rho_tor_norm_mixing
+    dd_path: sawteeth/diagnostics/rho_tor_norm_mixing
+    status: composed
 - name: perturbed_plasma_pressure
   kind: scalar
   status: draft
@@ -5340,6 +4686,180 @@
   - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate3/real
     dd_path: mhd_linear/time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate3/real
     status: composed
+- name: plasma_mass_density
+  kind: scalar
+  status: draft
+  description: Local plasma mass per unit volume, forming the inertial term in the
+    MHD momentum equation and appearing in contexts from equilibrium transport profiles
+    to linear MHD stability perturbations.
+  documentation: "The plasma mass density is the local plasma mass per unit volume,\
+    \ forming the inertial term in the MHD momentum balance and the compressibility\
+    \ term in the plasma continuity equation. This parent concept subsumes both equilibrium-profile\
+    \ and linear-perturbation contexts: the equilibrium total value summed over all\
+    \ charged species, and the complex first-order perturbation amplitude used in\
+    \ linear MHD eigenvalue problems.\n\nIn the equilibrium formulation, the mass\
+    \ density is defined by:\n\n$$\n\\rho = \\sum_s m_s n_s\n$$\n\nwhere $m_s$ is\
+    \ the particle mass and $n_s$ the number density of charged species $s$, summed\
+    \ over electrons, main-ion isotopes, and impurity charge states; neutral atoms\
+    \ are excluded. Ion contributions dominate because $m_i \\gg m_e$.\n\nIn deuterium-dominated\
+    \ fusion plasmas at core electron densities of order $10^{20}$ m$^{-3}$, the mass\
+    \ density is approximately $3 \\times 10^{-7}$ kg m$^{-3}$, scaling directly with\
+    \ ion density and average ion mass. The mass density sets the local Alfv\xE9n\
+    \ speed $v_A = B / \\sqrt{\\mu_0 \\rho}$, where $B$ is the local magnetic-field\
+    \ magnitude and $\\mu_0$ is the permeability of free space, governing the [alfven_time](name:alfven_time)\
+    \ and ideal-MHD wave dynamics. It enters inertial_current_density through the\
+    \ plasma-fluid acceleration term and is inferred from electron_number_density\
+    \ measurements combined with plasma composition analysis. This quantity is closely\
+    \ related to [mass_density](name:total_plasma_mass_density), which covers the\
+    \ same physical concept without explicit species qualification."
+  unit: kg.m^-3
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:alfven_time
+  - name:total_plasma_mass_density
+  arguments:
+  - name: mass_density
+    operator: plasma
+    operator_kind: qualifier
+  sources:
+  - id: derived:plasma_mass_density
+    status: composed
+- name: perturbed_plasma_mass_density
+  kind: scalar
+  status: draft
+  description: Complex eigenfunction of the first-order plasma mass density perturbation
+    associated with a given toroidal Fourier mode in linear MHD stability analysis.
+  documentation: "The perturbed plasma mass density is the complex eigenfunction amplitude\
+    \ representing the first-order departure from the equilibrium [plasma mass density](name:plasma_mass_density)\
+    \ in linear MHD stability theory. It is defined for a specific toroidal Fourier\
+    \ mode number $n$, with the physical perturbation reconstructed as $\\mathrm{Re}[\\\
+    delta\\rho(\\mathbf{r})\\,e^{i(n\\phi - \\omega t)}]$, where $\\phi$ is the toroidal\
+    \ angle in the right-handed cylindrical $(R, \\phi, Z)$ frame, $\\omega$ is the\
+    \ complex mode frequency, and $\\mathbf{r}$ denotes position in the poloidal cross-section.\n\
+    \nThe complex eigenfunction decomposes as:\n\n$$\n\\delta\\rho = \\delta\\rho_{\\\
+    mathrm{Re}} + i\\,\\delta\\rho_{\\mathrm{Im}}\n$$\n\nwhere $\\delta\\rho_{\\mathrm{Re}}$\
+    \ is the [real part](name:perturbed_plasma_mass_density_real_part) and $\\delta\\\
+    rho_{\\mathrm{Im}}$ is the [imaginary part](name:perturbed_plasma_mass_density_imaginary_part)\
+    \ of the eigenfunction, each carrying units of kg m$^{-3}$.\n\nThis eigenfunction\
+    \ is computed by linear MHD stability solvers operating on a fixed equilibrium\
+    \ state. The normalization and overall phase are determined by the solver's eigenfunction\
+    \ convention, so the absolute amplitude of $\\delta\\rho$ is physically meaningful\
+    \ only relative to the full eigenvector. The density perturbation couples to velocity\
+    \ and magnetic-field perturbations \u2014 including the [toroidal component of\
+    \ the perturbed magnetic field](name:toroidal_perturbed_plasma_magnetic_field_real_part)\
+    \ \u2014 through the linearized MHD continuity and momentum equations."
+  unit: kg.m^-3
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:plasma_mass_density
+  - name:perturbed_plasma_mass_density_real_part
+  - name:perturbed_plasma_mass_density_imaginary_part
+  - name:toroidal_perturbed_plasma_magnetic_field_real_part
+  arguments:
+  - name: plasma_mass_density
+    operator: perturbed
+    operator_kind: qualifier
+- name: perturbed_plasma_mass_density_imaginary_part
+  kind: complex
+  status: draft
+  description: Imaginary part of the complex first-order plasma mass density perturbation
+    eigenfunction for a specified toroidal Fourier mode in linear MHD stability analysis.
+  documentation: 'The imaginary part of the complex perturbed plasma mass density
+    eigenfunction $\tilde{\rho}_m$ arises when the first-order mass density perturbation
+    is separated into in-phase and quadrature components relative to a chosen eigenmode
+    phase and normalization. In the standard perturbation decomposition $\delta\rho(\mathbf{r},
+    t) = \mathrm{Re}[\tilde{\rho}_m(\mathbf{r})\, e^{i(n\phi - \omega t)}]$, where
+    $n$ is the toroidal mode number, $\phi$ is the toroidal angle, and $\omega$ is
+    the complex eigenfrequency, the eigenfunction splits as:
+
+
+    $$
+
+    \tilde{\rho}_m = \tilde{\rho}_\mathrm{re} + i\,\tilde{\rho}_\mathrm{im}
+
+    $$
+
+
+    where $\tilde{\rho}_\mathrm{re}$ is the [real part](name:perturbed_plasma_mass_density_real_part)
+    and $\tilde{\rho}_\mathrm{im}$ is this quantity. Together they encode the local
+    amplitude $|\tilde{\rho}_m|$ and spatial phase of the mass density perturbation
+    over the poloidal cross-section.
+
+
+    The equilibrium mass density about which the perturbation is defined is $\rho_{m0}
+    = \sum_s m_s n_s$, where $m_s$ and $n_s$ are the mass and number density of species
+    $s$; ion contributions dominate in fusion plasmas because electron mass is negligible.
+    These eigenfunctions are produced by linear MHD eigenvalue solvers that Fourier-decompose
+    perturbations in the toroidal direction; the imaginary part is meaningful only
+    relative to the phase convention and normalization of the specific eigenmode calculation.
+    The companion quantities [perturbed_plasma_pressure_imaginary_part](name:perturbed_plasma_pressure_imaginary_part)
+    and [perturbed_plasma_temperature_imaginary_part](name:perturbed_plasma_temperature_imaginary_part)
+    form a self-consistent set of perturbed thermodynamic eigenfunctions for the same
+    MHD mode.'
+  unit: kg.m^-3
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:perturbed_plasma_mass_density_real_part
+  - name:perturbed_plasma_pressure_imaginary_part
+  - name:perturbed_plasma_temperature_imaginary_part
+  arguments:
+  - name: perturbed_plasma_mass_density
+    operator: imaginary_part
+    operator_kind: unary_postfix
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/mass_density_perturbed/imaginary
+    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/mass_density_perturbed/imaginary
+    status: composed
+- name: perturbed_plasma_mass_density_real_part
+  kind: complex
+  status: draft
+  description: Real part of the complex first-order plasma mass density perturbation
+    eigenfunction for a specified toroidal Fourier harmonic in linear MHD stability
+    analysis.
+  documentation: 'The real part of the perturbed plasma mass density eigenfunction
+    is the in-phase component of the first-order mass density variation associated
+    with a linear MHD eigenmode. In the linear expansion the total plasma mass density
+    is $\rho_m = \rho_{m0} + \delta\rho_m$, where the equilibrium value $\rho_{m0}
+    = \sum_s m_s n_s$ sums over particle species with particle mass $m_s$ and number
+    density $n_s$ (electron mass is typically negligible in fusion plasmas).
+
+
+    The physical mass density perturbation for toroidal mode number $n$ is reconstructed
+    from the complex eigenfunction as
+
+
+    $$\delta\rho_m(R, Z, \phi, t) = \mathrm{Re}\!\left[\tilde{\rho}_m(R, Z)\,e^{i(n\phi
+    - \omega t)}\right]$$
+
+
+    where $\omega = \omega_r + i\gamma$ is the complex eigenfrequency with oscillation
+    frequency $\omega_r$ and growth or damping rate $\gamma$, $\phi$ is the toroidal
+    angle, and $R$, $Z$ are cylindrical coordinates in the right-handed $(R, \phi,
+    Z)$ frame. The real and imaginary parts of $\tilde{\rho}_m(R, Z)$ together encode
+    the full amplitude and phase structure of the perturbation in the poloidal plane.
+
+
+    This eigenfunction component is produced by linear MHD stability solvers as part
+    of the solution to the linearized compressible MHD eigenvalue problem. The absolute
+    magnitude is normalization-dependent; the physically significant information lies
+    in the spatial structure across the poloidal cross-section. The complementary
+    in-quadrature component is [perturbed_plasma_mass_density_imaginary_part](name:perturbed_plasma_mass_density_imaginary_part),
+    and together they constitute the full complex eigenfunction [perturbed_plasma_mass_density](name:perturbed_plasma_mass_density).
+    The analogous real-part quantity for the plasma pressure perturbation is [perturbed_plasma_pressure_real_part](name:perturbed_plasma_pressure_real_part).'
+  unit: kg.m^-3
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:perturbed_plasma_mass_density_imaginary_part
+  - name:perturbed_plasma_mass_density
+  - name:perturbed_plasma_pressure_real_part
+  arguments:
+  - name: perturbed_plasma_mass_density
+    operator: real_part
+    operator_kind: unary_postfix
+  sources:
+  - id: dd:mhd_linear/time_slice/toroidal_mode/plasma/mass_density_perturbed/real
+    dd_path: mhd_linear/time_slice/toroidal_mode/plasma/mass_density_perturbed/real
+    status: composed
 - name: product_of_current_density_and_major_radius
   kind: scalar
   status: draft
@@ -5408,6 +4928,9 @@
     role: b
     separator: and
   sources:
+  - id: dd:mhd/ggd/j_tor_r/values
+    dd_path: mhd/ggd/j_tor_r/values
+    status: attached
   - id: dd:mhd/ggd/r_j_phi/values
     dd_path: mhd/ggd/r_j_phi/values
     status: composed

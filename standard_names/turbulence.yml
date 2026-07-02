@@ -1,59 +1,53 @@
 # Domain: turbulence
-# Catalog sha: b8d10395a003efc46be6fc45a94b1f9308d6a87b
-# Entries: 73
+# Catalog sha: 8907b76455ee66eb637e3842250dd81478dc2348
+# Entries: 58
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: derivative_with_respect_to_poloidal_angle_of_normalized_effective_particle_energy
+- name: effective_energy
   kind: scalar
   status: draft
-  description: Coordinate derivative of normalized effective particle energy with
-    respect to poloidal angle theta in flux coordinates (rho, theta, phi). It gives
-    the change per radian along the poloidal coordinate on a flux surface.
-  documentation: 'The derivative with respect to poloidal angle of normalized effective
-    particle energy is the coordinate rate of change of the dimensionless [normalized
-    effective particle energy] for a plasma species as the poloidal angle is varied.
-    It is defined in a chosen flux-coordinate system $(\rho, \theta, \phi)$ and is
-    a derivative with respect to the coordinate $\theta$, not a metric component of
-    a spatial gradient.
+  description: Abstract parent quantity for the guiding-center single-particle effective
+    energy, combining parallel kinetic energy with the adiabatic magnetic-moment perpendicular
+    contribution, covering both physical and reference-normalized dimensionless forms.
+  documentation: 'The effective particle energy is the conserved single-particle energy
+    in guiding-center theory, formed from the parallel kinetic contribution and the
+    energy associated with the adiabatic magnetic moment. This parent quantity generalizes
+    over both the dimensional physical energy and its dimensionless form obtained
+    by dividing by a reference thermal energy, as represented concretely by [particle_effective_energy](name:particle_effective_energy).
 
 
-    The defining coordinate derivative is
+    The defining expression is:
 
 
     $$
 
-    \partial_\theta \mathcal{E}_{\mathrm{eff},n} = \left.\frac{\partial \mathcal{E}_{\mathrm{eff},n}}{\partial
-    \theta}\right|_{\rho,\phi}
+    \varepsilon = \frac{1}{2}m v_\parallel^2 + \mu B
 
     $$
 
 
-    where $\mathcal{E}_{\mathrm{eff},n}$ is the normalized effective particle energy
-    and is dimensionless, $\theta$ is the poloidal angle in radians, and the radial
-    flux label $\rho$ and toroidal angle $\phi$ are held fixed.
+    where $v_\parallel$ is the particle speed parallel to the equilibrium magnetic
+    field of magnitude $B$, $m$ is the particle mass, and $\mu = mv_\perp^2/(2B)$
+    is the conserved magnetic moment with $v_\perp$ the speed perpendicular to $B$.
+    Normalized forms divide $\varepsilon$ by a reference thermal energy $T_\mathrm{ref}$,
+    yielding a dimensionless coordinate.
 
 
-    In local gyrokinetic modeling this quantity is computed from the specified poloidal
-    dependence of the species effective energy, using analytic differentiation, finite
-    differences, or spectral differentiation in $\theta$. It is generally a model
-    or equilibrium-derived input rather than a directly measured diagnostic observable.
-
-
-    No universal value range exists. The quantity is dimensionless and may be negative,
-    zero, or positive; magnitudes near 0 indicate weak poloidal variation, while magnitudes
-    of order 1 indicate changes over about one poloidal radian.
-
-
-    Sign convention: Positive when $\mathcal{E}_{\mathrm{eff},n}$ increases for increasing
-    poloidal angle $\theta$ in the chosen flux-coordinate system $(\rho, \theta, \phi)$,
-    with $\rho$ and $\phi$ held fixed.'
+    In gyrokinetic turbulence calculations, the distribution function is expressed
+    in $(\varepsilon, \mu)$ velocity-space coordinates, and $\varepsilon$ appears
+    directly in the integration weights for fluid moments such as particle density,
+    parallel current, and heat flux. The poloidal variation of the normalized form,
+    captured by [derivative_with_respect_to_poloidal_angle_of_normalized_effective_particle_energy](name:derivative_with_respect_to_poloidal_angle_of_normalized_effective_particle_energy),
+    enters bounce-average and transit-average operators in the gyrokinetic equation
+    and is needed when tracing particle orbits along flux surfaces.'
   unit: '1'
   physics_domain: turbulence
-  links: []
+  links:
+  - name:particle_effective_energy
+  - name:derivative_with_respect_to_poloidal_angle_of_normalized_effective_particle_energy
   sources:
-  - id: dd:gyrokinetics_local/species/potential_energy_gradient_norm
-    dd_path: gyrokinetics_local/species/potential_energy_gradient_norm
+  - id: derived:effective_energy
     status: composed
 - name: electron_density_at_outboard_midplane
   kind: scalar
@@ -90,8 +84,8 @@
     local constraints, while line-integrated interferometry constrains the density
     only after inversion or profile reconstruction. In gyrokinetic modeling it is
     commonly used as a reference density $n_\mathrm{ref}$ for dimensionless quantities
-    such as [normalized_density](name:normalized_gyrocenter_perturbed_gyroaveraged_density),
-    $n/n_\mathrm{ref}$, often alongside a reference temperature such as [electron_temperature_at_outboard_midplane](name:electron_temperature_at_outboard_midplane).
+    such as normalized_density, $n/n_\mathrm{ref}$, often alongside a reference temperature
+    such as [electron_temperature_at_outboard_midplane](name:electron_temperature_at_outboard_midplane).
 
 
     Typical values range from $10^{18}$-$10^{20}$ m^-3 in magnetically confined plasmas,
@@ -100,7 +94,6 @@
   unit: m^-3
   physics_domain: turbulence
   links:
-  - name:normalized_gyrocenter_perturbed_gyroaveraged_density
   - name:electron_temperature_at_outboard_midplane
   sources:
   - id: dd:gyrokinetics/normalizing_quantities/n_e
@@ -168,6 +161,174 @@
   - id: dd:gyrokinetics_local/normalizing_quantities/t_e
     dd_path: gyrokinetics_local/normalizing_quantities/t_e
     status: composed
+- name: flux_due_to_perturbed_parallel_magnetic_field
+  kind: scalar
+  status: draft
+  description: Normalized turbulent transport flux contributed by compressional parallel
+    magnetic-field fluctuations in gyrokinetic simulations, serving as the parent
+    abstraction over particle, momentum, and energy flux channels driven by this electromagnetic
+    perturbation.
+  documentation: 'Turbulent flux due to perturbed parallel magnetic field represents
+    the transport of a conserved quantity (such as particles, toroidal momentum, or
+    energy) that arises from correlations between fluctuating components of the parallel
+    magnetic field and the transported quantity. It is a dimensionless, normalized
+    flux typically defined as a flux-surface average.
+
+
+    The general flux $\Gamma_{\delta B_\parallel}$ can be expressed as
+
+
+    $$
+
+    \Gamma_{\delta B_\parallel} = \left\langle \int d^3v \, \mathcal{W}_X \, \delta
+    B_\parallel \, \delta g \right\rangle
+
+    $$
+
+
+    where $\delta B_\parallel$ is the perturbed parallel magnetic field, $\delta g$
+    is the fluctuating gyrocenter distribution function, $\mathcal{W}_X$ is the weight
+    function specific to the transported quantity $X$ (e.g., $X=1$ for particle flux,
+    $X=m_s v_\parallel$ for momentum flux, $X=m_s v^2/2$ for energy flux), and $\langle
+    \cdot \rangle$ denotes flux-surface average.
+
+
+    This flux is computed from gyrokinetic simulations or analytical turbulence models
+    by evaluating the nonlinear correlation of $\delta B_\parallel$ with the fluctuating
+    distribution function. It is normalized by a reference gyro-Bohm flux or by the
+    equilibrium magnetic field.
+
+
+    In core tokamak plasmas, the normalized magnitude of this flux component ranges
+    from $10^{-4}$ to $10^{-2}$ relative to the gyro-Bohm diffusivity, depending on
+    plasma beta and the strength of electromagnetic effects.
+
+
+    Sign convention: Positive when the flux is directed radially outward (toward the
+    plasma boundary).'
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:momentum_flux_due_to_perturbed_parallel_magnetic_field
+  - name:momentum_flux_due_to_perturbed_parallel_vector_potential
+- name: flux_due_to_perturbed_parallel_vector_potential
+  kind: scalar
+  status: draft
+  description: Normalized radial flux of a conserved moment (e.g., toroidal angular
+    momentum, particles, thermal energy) driven by the perturbed parallel vector potential
+    in electromagnetic gyrokinetic turbulence. The specific transported quantity is
+    identified by a child standard name. The normalization is with respect to a reference
+    flux, making the quantity dimensionless.
+  documentation: 'The normalized radial flux of a conserved moment $M$ mediated by
+    the perturbed parallel vector potential $A_\parallel$ quantifies the electromagnetic
+    contribution to anomalous transport in gyrokinetic turbulent simulations. It generalizes
+    over all conserved moments for which a specific child standard name exists, such
+    as toroidal angular momentum in the child [momentum_flux_due_to_perturbed_parallel_vector_potential](name:momentum_flux_due_to_perturbed_parallel_vector_potential).
+
+
+    The flux is defined as the velocity-space integral of the perturbed gyrocenter
+    distribution function $\delta f_s$ over each species $s$, weighted by the moment
+    $M_s(\mathbf{v})$ and the radial component of the $A_\parallel$-induced drift
+    velocity $v_r^{A_\parallel}$, normalized to a reference flux $\Gamma_\mathrm{ref}$:
+
+
+    $$
+
+    \Gamma^{A_\parallel}_M = \frac{1}{\Gamma_\mathrm{ref}} \sum_s \int d^3v \, M_s(\mathbf{v})
+    \, v_r^{A_\parallel} \, \delta f_s
+
+    $$
+
+
+    where $\Gamma_\mathrm{ref}$ is a characteristic flux scale such as the gyro-Bohm
+    flux, $M_s$ may represent particle charge, toroidal angular momentum $m_s R v_\phi$,
+    or kinetic energy $\frac{1}{2} m_s v^2$, and $v_r^{A_\parallel}$ is the radial
+    component of the electromagnetic drift driven by $\delta A_\parallel$.
+
+
+    This quantity is computed directly from linear or nonlinear gyrokinetic simulations
+    by accumulating flux-surface averages of the appropriate velocity moments. It
+    isolates the contribution of magnetic flutter (perturbed parallel vector potential)
+    to the radial transport of the chosen moment.
+
+
+    Typical normalized values range from 0.1 to 10 in gyro-Bohm units, depending on
+    plasma beta, collisionality, and the specific moment, with electromagnetic contributions
+    increasing relative to electrostatic channels at high beta.
+
+
+    Sign convention: Positive when the net radial flux is directed outward, in the
+    direction of increasing normalized minor radius.'
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:momentum_flux_due_to_perturbed_parallel_vector_potential
+  - name:momentum_flux_due_to_perturbed_parallel_magnetic_field
+- name: gyrocenter_pressure
+  kind: scalar
+  status: draft
+  description: Normalized second-order velocity-space moment of the gyrocenter distribution
+    function in gyrokinetic theory, quantifying the kinetic stress carried by gyrocenters
+    and including finite-Larmor-radius effects through the gyroaveraging transformation.
+    In a magnetized plasma this moment is gyrotropic, resolving into distinct parallel
+    and perpendicular components aligned with the background magnetic field; this
+    quantity generalizes over both.
+  documentation: 'Gyrocenter pressure is the second-order velocity-space moment of
+    the gyrocenter distribution function $F(\mathbf{R}, v_\parallel, \mu, t)$ in gyrokinetic
+    theory, expressed here in normalized form relative to a reference thermal pressure.
+    It measures the kinetic stress associated with gyrocenter motion and, because
+    gyrokinetics operates in guiding-center phase space, it incorporates finite-Larmor-radius
+    corrections through the gyroaveraging transformation, distinguishing it from the
+    particle-based pressure. In a strongly magnetized plasma this moment is gyrotropic:
+    the pressure tensor is diagonal in the frame aligned with the background magnetic
+    field $\mathbf{B}$ and resolves into a parallel component (along $\mathbf{B}$)
+    and a perpendicular component. This name is a general abstraction over those gyrotropic
+    components rather than the isotropic trace alone.
+
+
+    The gyrotropic moments follow from weighted integrals of the gyrocenter distribution
+    over velocity space:
+
+
+    $$
+
+    P_g^{(w)}(\mathbf{R}, t) = \int F \, w \, \mathcal{J} \, \mathrm{d}v_\parallel
+    \, \mathrm{d}\mu \, \mathrm{d}\alpha
+
+    $$
+
+
+    where $v_\parallel$ is the parallel gyrocenter velocity, $\mu$ is the magnetic
+    moment, $\alpha$ is the gyrophase, and $\mathcal{J}$ is the phase-space Jacobian.
+    The parallel component uses the weight $w = m v_\parallel^2$ and the perpendicular
+    component uses $w = \mu B$, so the same moment operation yields the two gyrotropic
+    pressures; the isotropic scalar pressure is their weighted trace. Values are reported
+    normalized to a reference pressure $p_\mathrm{ref} = n_\mathrm{ref} T_\mathrm{ref}$.
+
+
+    Gyrocenter pressure is obtained by post-processing gyrokinetic simulation output
+    through direct velocity-space integration of the distribution function, or supplied
+    by closure relations in reduced fluid-gyrokinetic models. It couples the distribution
+    function to the electromagnetic field perturbations through the gyrokinetic moment
+    hierarchy and the field equations. Its fluctuating part is captured by the child
+    name [perturbed_gyrocenter_pressure](name:perturbed_gyrocenter_pressure).
+
+
+    Normalized equilibrium values are of order unity relative to the reference pressure,
+    while turbulent fluctuation amplitudes typically span $10^{-3}$ to $10^{-1}$ of
+    the equilibrium pressure in core plasmas.
+
+
+    Sign convention: Positive when the gyrocenter pressure moment corresponds to a
+    local increase above its equilibrium reference value.'
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:normalized_gyrocenter_perturbed_pressure
+  - name:normalized_gyrocenter_perturbed_density
+  sources:
+  - id: derived:gyrocenter_pressure
+    status: composed
 - name: momentum_flux_due_to_perturbed_parallel_magnetic_field
   kind: scalar
   status: draft
@@ -209,6 +370,10 @@
   - name:parallel_momentum_flux_due_to_perturbed_parallel_magnetic_field
   - name:perpendicular_momentum_flux_due_to_perturbed_parallel_magnetic_field
   - name:momentum_flux_due_to_perturbed_parallel_vector_potential
+  arguments:
+  - name: flux_due_to_perturbed_parallel_magnetic_field
+    operator: momentum
+    operator_kind: qualifier
   sources:
   - id: dd:gyrokinetics_local/non_linear/fluxes_3d/momentum_phi_parallel_b_field_parallel
     dd_path: gyrokinetics_local/non_linear/fluxes_3d/momentum_phi_parallel_b_field_parallel
@@ -269,6 +434,10 @@
   - name:electron_density_at_outboard_midplane
   - name:parallel_momentum_flux_due_to_perturbed_parallel_vector_potential
   - name:momentum_flux_due_to_perturbed_parallel_magnetic_field
+  arguments:
+  - name: flux_due_to_perturbed_parallel_vector_potential
+    operator: momentum
+    operator_kind: qualifier
   sources:
   - id: dd:gyrokinetics_local/non_linear/fluxes_3d/momentum_phi_parallel_a_field_parallel
     dd_path: gyrokinetics_local/non_linear/fluxes_3d/momentum_phi_parallel_a_field_parallel
@@ -462,107 +631,6 @@
   - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/frequency_norm
     dd_path: gyrokinetics_local/linear/wavevector/eigenmode/frequency_norm
     status: composed
-- name: normalized_gyrocenter_gyroaveraged_perturbed_density
-  kind: scalar
-  status: draft
-  description: Dimensionless zeroth velocity moment of the perturbed gyrocenter distribution
-    function weighted by the zeroth-order Bessel function J0, giving the gyrophase-averaged
-    particle density perturbation for a linear gyrokinetic eigenmode.
-  documentation: "In linear gyrokinetic theory, the perturbed gyrocenter distribution\
-    \ function $\\delta h(\\mathbf{R}, v_\\parallel, \\mu)$ describes plasma particle\
-    \ responses to small-amplitude electromagnetic fluctuations at a given perpendicular\
-    \ wave vector $\\mathbf{k}_\\perp$. The gyroaveraging operation \u2014 integration\
-    \ over the gyrophase angle \u2014 is equivalent in Fourier space to weighting\
-    \ by the zeroth-order Bessel function $J_0(k_\\perp \\rho)$, where $\\rho = v_\\\
-    perp / \\Omega_c$ is the species Larmor radius and $\\Omega_c$ is the cyclotron\
-    \ frequency.\n\nThe normalized gyroaveraged perturbed gyrocenter density is defined\
-    \ as:\n\n$$\n\\tilde{n}^{J_0} = \\frac{1}{n_\\mathrm{ref}} \\int J_0(k_\\perp\
-    \ \\rho)\\, \\delta h(\\mathbf{R}, v_\\parallel, \\mu)\\, d^3v\n$$\n\nwhere $n_\\\
-    mathrm{ref}$ is the reference density providing normalization, $v_\\parallel$\
-    \ is the velocity component parallel to the background magnetic field, and $\\\
-    mu = m v_\\perp^2 / (2B)$ is the magnetic moment adiabatic invariant.\n\nThis\
-    \ moment enters the gyrokinetic quasi-neutrality equation, where $J_0$-weighted\
-    \ species densities summed over species (with charge weighting) balance the polarization\
-    \ charge. At $k_\\perp \\rho \\ll 1$ the Bessel factor approaches unity and this\
-    \ moment coincides with [normalized_gyrocenter_perturbed_density](name:normalized_gyrocenter_perturbed_density);\
-    \ for $k_\\perp \\rho \\gtrsim 1$ the $J_0$ weighting progressively suppresses\
-    \ the density response, encoding finite-Larmor-radius physics. It is evaluated\
-    \ per species at each wave vector in flux-tube simulations for linear eigenmode\
-    \ analysis. The analogous pressure moment is [normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure](name:normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure).\n\
-    \nValues are dimensionless and typically of order unity for unstable modes near\
-    \ peak linear growth rate."
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:normalized_gyrocenter_perturbed_density
-  - name:normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure
-  sources:
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/density
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/density
-    status: composed
-- name: normalized_gyrocenter_gyroaveraged_perturbed_pressure_of_gyrokinetic_eigenmode
-  kind: scalar
-  status: draft
-  description: Dimensionless total gyroaveraged pressure moment of the perturbed gyrocenter
-    distribution for a linear gyrokinetic eigenmode. It sums the parallel and perpendicular
-    pressure contributions after zeroth-order Bessel weighting and normalization by
-    a reference pressure.
-  documentation: 'The normalized gyroaveraged perturbed gyrocenter pressure is the
-    total scalar pressure response carried by the perturbed gyrocenter distribution
-    function of a linear gyrokinetic eigenmode. It is the sum of the parallel and
-    perpendicular pressure moments, with finite-Larmor-radius gyroaveraging represented
-    by the zeroth-order Bessel factor $J_0$.
-
-
-    The moment is defined by the velocity-space integral:
-
-
-    $$
-
-    \tilde{p}_{gc,J0} = \frac{1}{p_\mathrm{ref}} \int J_0(k_\perp \rho) \left(m v_\parallel^2
-    + \mu B\right) \delta f_{gc} \, d^3v
-
-    $$
-
-
-    where $\delta f_{gc}$ is the perturbed gyrocenter distribution function, $v_\parallel$
-    is velocity along the local magnetic field, $m$ is the particle mass, $\mu = m
-    v_\perp^2/(2B)$ is the magnetic moment, and $B$ is the magnetic-field magnitude.
-    The factors $m v_\parallel^2$ and $\mu B$ are both particle energies in joules;
-    after velocity-space integration they give the parallel and perpendicular pressure
-    contributions, respectively. The argument $k_\perp \rho$ of $J_0$ is dimensionless,
-    with $k_\perp$ the perpendicular wavenumber and $\rho$ the Larmor radius. The
-    reference pressure is $p_\mathrm{ref}=n_\mathrm{ref}T_\mathrm{ref}$, with units
-    of pascals when $n_\mathrm{ref}$ is in $\mathrm{m}^{-3}$ and $T_\mathrm{ref}$
-    is expressed as energy per particle in joules.
-
-
-    This quantity is computed in linear gyrokinetic eigenmode calculations by integrating
-    or projecting the perturbed gyrocenter distribution over velocity space for each
-    kinetic species. The $J_0$ weighting represents the gyrophase average of the perturbation
-    at the particle Larmor orbit; it approaches unity for $k_\perp\rho \ll 1$ and
-    reduces the moment when finite-Larmor-radius averaging is strong. The result is
-    generally a complex eigenmode amplitude, with its absolute scale set by the chosen
-    eigenvector normalization.
-
-
-    Typical dimensionless magnitudes are not universal because a linear eigenmode
-    can be multiplied by an arbitrary constant. With common normalizations in which
-    a reference field, potential, or density perturbation is order unity, values of
-    about $10^{-3}$-$10$ are typical; much smaller values can occur through finite-Larmor-radius
-    cancelation, and larger values can occur near resonant velocity-space responses.
-    The dimensional counterpart is gyroaveraged_perturbed_gyrocenter_pressure_of_gyrokinetic_eigenmode,
-    while component-resolved moments are [parallel_normalized_gyrocenter_perturbed_pressure](name:parallel_normalized_gyrocenter_perturbed_pressure)
-    and [normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure](name:normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure).'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:parallel_normalized_gyrocenter_perturbed_pressure
-  - name:normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure
-  sources:
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/pressure
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/pressure
-    status: composed
 - name: normalized_gyrocenter_perturbed_density
   kind: scalar
   status: draft
@@ -621,121 +689,6 @@
     status: composed
   - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter/density
     dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter/density
-    status: composed
-- name: normalized_gyrocenter_perturbed_gyroaveraged_density
-  kind: scalar
-  status: draft
-  description: Dimensionless gyroaveraged zeroth velocity moment of the perturbed
-    gyrocenter distribution function, normalized by the reference density, quantifying
-    the gyrocenter particle density perturbation for a gyrokinetic eigenmode.
-  documentation: 'The normalized gyrocenter perturbed gyroaveraged density is the
-    dimensionless gyrophase-averaged zeroth velocity moment of the perturbed gyrocenter
-    distribution function, scaled by the gyrokinetic reference density. It characterizes
-    how the local gyrocenter particle density departs from its equilibrium value for
-    a given eigenmode wavevector, after the fast gyromotion has been removed by the
-    gyroaveraging operator.
-
-
-    The defining moment is:
-
-
-    $$
-
-    \tilde{n}_{\mathrm{gc},s} = \frac{1}{n_{\mathrm{ref}}} \int J_0(k_\perp \rho_s)\,
-    \delta F_s \, d^3v
-
-    $$
-
-
-    where $J_0$ is the zeroth-order Bessel function of the first kind implementing
-    the gyroaveraging operation, $k_\perp$ is the perpendicular wavenumber, $\rho_s
-    = v_{th,s}/\Omega_s$ is the thermal Larmor radius of species $s$ with thermal
-    velocity $v_{th,s}$ and cyclotron frequency $\Omega_s$, $\delta F_s$ is the perturbed
-    gyrocenter distribution function, and $n_{\mathrm{ref}}$ is the normalization
-    reference density.
-
-
-    This moment enters the gyrokinetic quasi-neutrality equation, coupling the perturbed
-    electrostatic potential to gyrocenter charge-density fluctuations. It is computed
-    in linear gyrokinetic eigenmode solvers as a function of wavevector and species
-    index. The unnormalized parent quantity is gyrocenter_perturbed_gyroaveraged_density.
-    The corresponding moments for parallel current and heat flux in the same gyrocenter
-    frame are [normalized_gyrocenter_perturbed_gyroaveraged_current_density](name:normalized_gyrocenter_perturbed_gyroaveraged_current_density)
-    and [normalized_gyrocenter_perturbed_gyroaveraged_heat_flux](name:normalized_gyrocenter_perturbed_gyroaveraged_heat_flux).
-
-
-    Sign convention: Positive when the gyroaveraged gyrocenter density perturbation
-    represents a local enhancement of particle number density above the equilibrium
-    background.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:normalized_gyrocenter_perturbed_gyroaveraged_current_density
-  - name:normalized_gyrocenter_perturbed_gyroaveraged_heat_flux
-  sources:
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/density_gyroav
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/density_gyroav
-    status: composed
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_particle/density
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_particle/density
-    status: composed
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_rotating_frame/density_gyroaveraged_imaginary
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_rotating_frame/density_gyroaveraged_imaginary
-    status: composed
-- name: normalized_gyrocenter_perturbed_gyroaveraged_density_real_part
-  kind: scalar
-  status: draft
-  description: Real part of the normalized gyroaveraged zeroth velocity moment of
-    the perturbed gyrocenter distribution function, capturing finite-Larmor-radius-corrected
-    particle density response for a linear gyrokinetic eigenmode.
-  documentation: 'The normalized gyrocenter perturbed gyroaveraged density real part
-    is the real component of the dimensionless gyroaveraged zeroth velocity-space
-    moment of the perturbed gyrocenter distribution function, evaluated for a linear
-    gyrokinetic eigenmode in the rotating frame. The gyroaveraging operation introduces
-    finite Larmor radius (FLR) corrections through the zeroth-order Bessel function
-    $J_0(k_\perp v_\perp / \Omega_s)$, where $k_\perp$ is the perpendicular wavenumber
-    and $\Omega_s = Z_s e B / m_s$ is the cyclotron frequency of species $s$ with
-    charge number $Z_s$, mass $m_s$, and local magnetic field magnitude $B$.
-
-
-    The defining moment integral is
-
-
-    $$
-
-    \tilde{n}_{s,\mathrm{gyroav}}^{\mathrm{real}} = \mathrm{Re}\!\left[\int J_0\!\left(\frac{k_\perp
-    v_\perp}{\Omega_s}\right) \delta f_s \, d^3v\right] / n_{\mathrm{ref}}
-
-    $$
-
-
-    where $\delta f_s$ is the perturbed distribution function of species $s$ and $n_{\mathrm{ref}}$
-    is the reference background density used in the normalization.
-
-
-    This quantity is obtained from linear gyrokinetic eigenmode calculations at a
-    specified perpendicular wavevector and flux surface. It differs from the unweighted
-    [normalized_gyrocenter_perturbed_density](name:normalized_gyrocenter_perturbed_density)
-    through the $J_0$ Bessel weighting that distributes gyrocenter density over a
-    finite Larmor orbit. The full complex gyroaveraged density moment is described
-    by [normalized_gyrocenter_perturbed_gyroaveraged_density](name:normalized_gyrocenter_perturbed_gyroaveraged_density);
-    this standard name retains only its real component. Typical dimensionless magnitudes
-    are of order unity for linearly unstable modes such as ion-temperature-gradient
-    or electron-temperature-gradient modes. The complementary parallel current-density
-    gyroaveraged moment is described by [normalized_gyrocenter_perturbed_gyroaveraged_current_density](name:normalized_gyrocenter_perturbed_gyroaveraged_current_density).'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:normalized_gyrocenter_perturbed_density
-  - name:normalized_gyrocenter_perturbed_gyroaveraged_density
-  - name:normalized_gyrocenter_perturbed_gyroaveraged_current_density
-  arguments:
-  - name: normalized_gyrocenter_perturbed_gyroaveraged_density
-    operator: real_part
-    operator_kind: unary_postfix
-  sources:
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_rotating_frame/density_gyroaveraged_real
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_rotating_frame/density_gyroaveraged_real
     status: composed
 - name: normalized_linear_growth_rate_of_gyrokinetic_eigenmode
   kind: scalar
@@ -906,6 +859,9 @@
   - id: dd:gyrokinetics/fluxes_integrated_norm/particles_a_field_parallel
     dd_path: gyrokinetics/fluxes_integrated_norm/particles_a_field_parallel
     status: attached
+  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm/particles_a_field_parallel
+    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm/particles_a_field_parallel
+    status: attached
   - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm_gyrocenter/particles_a_field_parallel
     dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm_gyrocenter/particles_a_field_parallel
     status: attached
@@ -1014,74 +970,6 @@
     status: attached
   - id: dd:gyrokinetics_local/species/mass_norm
     dd_path: gyrokinetics_local/species/mass_norm
-    status: composed
-- name: normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure
-  kind: scalar
-  status: draft
-  description: Dimensionless gyroaveraged perpendicular pressure moment of the perturbed
-    gyrocenter distribution for a linear gyrokinetic eigenmode. It represents the
-    finite-Larmor-radius-averaged perpendicular thermal-energy perturbation normalized
-    to reference outboard-midplane plasma parameters.
-  documentation: 'Normalized perpendicular gyroaveraged gyrocenter perturbed pressure
-    is the perpendicular-pressure moment of the linear perturbation to a gyrocenter
-    distribution function after applying the scalar gyroaverage associated with finite
-    Larmor radius motion. The perpendicular direction is defined relative to the local
-    equilibrium magnetic field. Unlike an equilibrium pressure, this perturbation
-    moment is a signed or complex eigenmode amplitude and is not constrained to be
-    non-negative.
-
-
-    For a Fourier component of one kinetic species, or for each species before any
-    explicit species summation, the normalized gyroaveraged perpendicular pressure
-    moment is commonly defined by
-
-
-    $$
-
-    \widehat{P}_{\perp,\mathrm{gc}}^{\mathrm{ga}} = \frac{1}{p_\mathrm{ref}} \int
-    d^3 v\, \frac{m v_\perp^2}{2}\, J_0\!\left(k_\perp \rho\right)\, \delta \widehat{F}_\mathrm{gc}(\mathbf{v})
-
-    $$
-
-
-    where $\delta \widehat{F}_\mathrm{gc}$ is the perturbed gyrocenter distribution
-    eigenfunction, $m$ is the particle mass, $v_\perp$ is particle speed perpendicular
-    to the local equilibrium magnetic field, $d^3v$ is the velocity-space volume element,
-    $J_0$ is the zeroth-order Bessel function representing gyroaveraging, $k_\perp$
-    is the perpendicular wavenumber magnitude, $\rho = v_\perp/|\Omega|$ is the velocity-dependent
-    gyroradius, and $p_\mathrm{ref}=n_\mathrm{ref}T_\mathrm{ref}$ is the reference
-    pressure formed from outboard-midplane density and temperature, with temperature
-    expressed in energy units.
-
-
-    This quantity is computed by taking velocity-space moments of linear gyrokinetic
-    eigenfunctions rather than by measuring a pressure directly. The Bessel factor
-    distinguishes it from the non-gyroaveraged perpendicular moment: it approaches
-    unity for long wavelengths and reduces the contribution of velocity-space regions
-    with large finite-Larmor-radius phase mixing. In complex eigenmode calculations,
-    the overall amplitude and phase are set by the chosen eigenfunction normalization,
-    so relative phases and ratios to density, temperature, potential, or parallel-pressure
-    perturbations are usually the physically meaningful information.
-
-
-    Typical magnitudes are normalization dependent because a linear eigenmode can
-    be rescaled arbitrarily. For eigenfunctions normalized so that a dimensionless
-    electrostatic-potential amplitude such as $e\phi/T_\mathrm{ref}$ is of order unity,
-    $|\widehat{P}_{\perp,\mathrm{gc}}^{\mathrm{ga}}|$ is often about 0.001-1 in drift-wave,
-    ion-temperature-gradient, trapped-electron, or kinetic-ballooning regimes; values
-    outside this range can reflect the selected eigenmode normalization, strong gyroaveraging,
-    resonant velocity-space structure, or a weak species response.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:electron_density_at_outboard_midplane
-  - name:electron_temperature_at_outboard_midplane
-  - name:perpendicular_normalized_gyrocenter_perturbed_pressure
-  - name:parallel_normalized_gyrocenter_perturbed_pressure
-  - name:gyroaveraged_gyrocenter_perturbed_pressure
-  sources:
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/pressure_perpendicular_gyroav
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/pressure_perpendicular_gyroav
     status: composed
 - name: normalized_perturbed_density_imaginary_part
   kind: complex
@@ -1304,123 +1192,6 @@
   - id: dd:gyrokinetics/wavevector/eigenmode/phi_potential_perturbed_norm_real
     dd_path: gyrokinetics/wavevector/eigenmode/phi_potential_perturbed_norm_real
     status: composed
-- name: normalized_perturbed_gyroaveraged_velocity
-  kind: scalar
-  status: draft
-  description: Normalized gyroaveraged parallel-velocity moment of the perturbed gyrocenter
-    distribution for a gyrokinetic eigenmode in a frame co-rotating with the equilibrium
-    plasma.
-  documentation: 'This quantity is the dimensionless parallel-flow fluctuation associated
-    with a gyrokinetic eigenmode. It is a $J_0$-weighted velocity moment of the perturbed
-    gyrocenter distribution, evaluated in a frame co-rotating with the equilibrium
-    plasma so that the equilibrium rotation is not counted as part of the fluctuation.
-
-
-    A common normalization for species $s$ is
-
-
-    $$
-
-    \tilde{u}_{\parallel s}^{J_0} = \frac{1}{n_{0s} v_{\mathrm{th},s}} \int v_{\parallel}^{\mathrm{rot}}
-    J_0\!\left(\frac{k_\perp v_\perp}{\Omega_s}\right) \delta F_s \, d^3v
-
-    $$
-
-
-    where $n_{0s}$ is the equilibrium species density in $\mathrm{m^{-3}}$, $v_{\mathrm{th},s}=\sqrt{2T_{0s}/m_s}$
-    is the species thermal speed in $\mathrm{m\,s^{-1}}$ with $T_{0s}$ expressed as
-    an energy, $v_{\parallel}^{\mathrm{rot}}$ is the parallel velocity in the co-rotating
-    frame in $\mathrm{m\,s^{-1}}$, $v_\perp$ is the perpendicular speed in $\mathrm{m\,s^{-1}}$,
-    $k_\perp$ is the perpendicular wave number in $\mathrm{m^{-1}}$, $\Omega_s=|q_s|B/m_s$
-    is the cyclotron angular frequency in $\mathrm{s^{-1}}$, $\delta F_s$ is the perturbed
-    gyrocenter distribution with units such that $\int \delta F_s d^3v$ is a density,
-    and $J_0$ is the zeroth-order Bessel function. The $J_0$ factor is the finite-Larmor-radius
-    gyroaveraging weight that maps the gyrocenter perturbation to the particle-position
-    moment for the specified perpendicular wave number.
-
-
-    In linear gyrokinetic analysis this moment is generally complex; its real and
-    imaginary parts give the amplitude and phase of the normalized parallel-flow response
-    relative to the eigenmode. It is computed by velocity-space integration of the
-    perturbed gyrocenter distribution and is interpreted together with related normalized
-    gyrocenter moments such as [normalized_gyrocenter_gyroaveraged_density](name:normalized_gyrocenter_gyroaveraged_perturbed_density),
-    [normalized_gyrocenter_perturbed_density](name:normalized_gyrocenter_perturbed_density),
-    and [normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure](name:normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure).
-
-
-    Because the absolute amplitude of a linear eigenmode depends on the chosen eigenfunction
-    normalization, this dimensionless quantity has no universal machine-independent
-    magnitude. When the eigenfunction is normalized so that a density, potential,
-    or pressure perturbation is order unity, $|\tilde{u}_{\parallel s}^{J_0}|$ commonly
-    ranges from near zero for weak parallel-flow response to order unity for modes
-    with strong acoustic or parallel-compressional character.
-
-
-    Sign convention: Positive when the $J_0$-weighted perturbed gyrocenter distribution
-    has a net parallel-flow moment in the direction of the magnetic-field unit vector
-    $\hat{b}=\mathbf{B}/|\mathbf{B}|$ in the co-rotating frame.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:normalized_gyrocenter_gyroaveraged_perturbed_density
-  - name:normalized_gyrocenter_perturbed_density
-  - name:normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure
-  sources:
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_rotating_frame/velocity_parallel_gyroaveraged_imaginary
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_rotating_frame/velocity_parallel_gyroaveraged_imaginary
-    status: composed
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_rotating_frame/velocity_parallel_gyroaveraged_real
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_rotating_frame/velocity_parallel_gyroaveraged_real
-    status: composed
-- name: normalized_perturbed_heat_flux
-  kind: vector
-  status: draft
-  description: Two-component vector of the dimensionless heat-flux moment of the perturbed
-    gyrocenter distribution in gyrokinetic theory, with projections parallel and perpendicular
-    to the local equilibrium magnetic field.
-  documentation: 'In gyrokinetic turbulence theory, the perturbed heat flux is the
-    energy-weighted velocity moment of the non-equilibrium part of the guiding-center
-    distribution function $\delta f_s$, quantifying transport of kinetic energy by
-    perturbed gyrocenter motion across magnetic flux surfaces. Normalizing to a reference
-    heat-flux scale renders the quantity dimensionless and makes results portable
-    across codes and normalization conventions. As a vector, it decomposes into a
-    parallel component, associated with kinetic energy $m_s v_\parallel^2 / 2$, and
-    a perpendicular component, associated with gyration energy $m_s v_\perp^2 / 2$,
-    where $m_s$ is the species mass and $v_\parallel$, $v_\perp$ are velocity components
-    along and perpendicular to the local equilibrium field $\mathbf{B}_0$.
-
-
-    The normalized heat-flux moment is defined as
-
-
-    $$
-
-    \tilde{Q}_s = \frac{1}{Q_\mathrm{ref}} \int \frac{m_s v^2}{2} \, v_r \, \delta
-    f_s \, d^3v
-
-    $$
-
-
-    where $v^2 = v_\parallel^2 + v_\perp^2$, $v_r$ is the radial guiding-center drift
-    velocity across flux surfaces, and $Q_\mathrm{ref}$ is the reference heat flux
-    used for normalization. The parallel and perpendicular projections partition this
-    total by the origin of the transported kinetic energy. The perpendicular projection
-    is described by [perpendicular_normalized_perturbed_heat_flux](name:perpendicular_normalized_perturbed_heat_flux),
-    and the related pressure moments of the same distribution are captured by [gyrocenter_perturbed_pressure](name:gyrocenter_perturbed_pressure).
-    This quantity is computed in both linear eigenmode analyzes and nonlinear gyrokinetic
-    turbulence simulations as part of the turbulent energy transport characterization.
-
-
-    Sign convention: Positive when the net heat flux is directed radially outward
-    from the magnetic axis.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:perpendicular_normalized_perturbed_heat_flux
-  - name:gyrocenter_perturbed_pressure
-  sources:
-  - id: derived:normalized_perturbed_heat_flux
-    status: composed
 - name: normalized_shearing_rate_due_to_e_cross_b_drift
   kind: scalar
   status: draft
@@ -1583,130 +1354,6 @@
   - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/pressure
     dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/pressure
     status: composed
-- name: normalized_turbulent_particle_flux_due_to_e_cross_b_drift
-  kind: scalar
-  status: draft
-  description: "Dimensionless turbulent particle flux produced by the radial electrostatic\
-    \ E\xD7B drift, normalized to the gyro-Bohm particle-flux scale. It measures outward\
-    \ or inward particle transport from the correlation between gyrocenter density\
-    \ fluctuations and electrostatic drift velocity."
-  documentation: "Normalized turbulent particle flux due to E\xD7B drift is the electrostatic\
-    \ component of radial turbulent particle transport across magnetic flux surfaces.\
-    \ It is dimensionless: the physical particle flux, with units m^-2 s^-1, is divided\
-    \ by a gyro-Bohm particle-flux scale.\n\nFor species $s$, a common Fourier-space\
-    \ definition is\n\n$$\n\\Gamma_{N,s}^{(\\varphi)} = \\frac{1}{\\Gamma_{\\mathrm{gB},s}}\
-    \ \\left\\langle \\sum_{\\mathbf{k}_\\perp} \\operatorname{Re}\\left[ \\int \\\
-    delta f_{s,\\mathbf{k}_\\perp}^{*}(\\mathbf{v})\\, \\mathbf{v}_{E,\\mathbf{k}_\\\
-    perp}\\cdot\\nabla r\\, d^3v \\right] \\right\\rangle_{r,t}\n$$\n\nwhere $\\Gamma_{N,s}^{(\\\
-    varphi)}$ is the normalized flux, $\\Gamma_{\\mathrm{gB},s}$ is the gyro-Bohm\
-    \ particle-flux scale in m^-2 s^-1, $r$ is a minor-radius-like flux-surface coordinate\
-    \ in meters in flux coordinates $(r,\\theta,\\phi)$, $\\delta f_{s,\\mathbf{k}_\\\
-    perp}$ is the complex perturbed gyrocenter distribution with units s^3 m^-6, $d^3v$\
-    \ has units m^3 s^-3, $\\mathbf{v}_{E,\\mathbf{k}_\\perp}=\\mathbf{B}\\times\\\
-    nabla\\varphi_{\\mathbf{k}_\\perp}/B^2$ is the electrostatic E\xD7B velocity in\
-    \ m s^-1, $\\varphi_{\\mathbf{k}_\\perp}$ is the electrostatic potential in volts,\
-    \ and $\\langle\\cdot\\rangle_{r,t}$ denotes flux-surface and time averaging.\
-    \ The asterisk denotes complex conjugation and $\\operatorname{Re}$ selects the\
-    \ real quadratic correlation; the sum is over all retained perpendicular wavevectors\
-    \ of the real fields, while one-sided spectra must weight nonzero conjugate pairs\
-    \ to give the same real flux. A typical gyro-Bohm scale is $\\Gamma_{\\mathrm{gB},s}=n_{\\\
-    mathrm{ref}} v_{\\mathrm{ref}}(\\rho_{\\mathrm{ref}}/a)^2$, with $n_{\\mathrm{ref}}$\
-    \ in m^-3, $v_{\\mathrm{ref}}$ in m s^-1, $\\rho_{\\mathrm{ref}}$ and minor radius\
-    \ $a$ in meters.\n\nIn practice this quantity is evaluated in nonlinear gyrokinetic\
-    \ turbulence calculations, or estimated from linear eigenmodes with quasilinear\
-    \ weights, by correlating the perturbed gyrocenter density with the radial E\xD7\
-    B drift. It isolates the electrostatic particle-transport channel; electromagnetic\
-    \ particle-flux channels such as [normalized particle flux due to perturbed parallel\
-    \ vector potential](name:normalized_particle_flux_due_to_perturbed_parallel_vector_potential)\
-    \ and [normalized particle flux due to perturbed parallel magnetic field](name:normalized_particle_flux_due_to_perturbed_parallel_magnetic_field)\
-    \ are distinct contributions. Analogous normalized turbulent transport measures\
-    \ include [energy flux due to E\xD7B drift](name:normalized_turbulent_energy_flux_due_to_e_cross_b_drift)\
-    \ and [parallel momentum flux].\n\nTypical dimensionless values are 0.01-10 for\
-    \ core microturbulence near marginal stability and can reach 10-30 in strongly\
-    \ driven ion-temperature-gradient or trapped-electron-mode turbulence. Negative\
-    \ values occur when the turbulent correlation gives an inward particle pinch.\n\
-    \nSign convention: Positive when the flux-surface-averaged E\xD7B drift carries\
-    \ particles toward increasing minor-radius-like flux coordinate $r$ in flux coordinates\
-    \ $(r,\\theta,\\phi)$."
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:normalized_particle_flux_due_to_perturbed_parallel_vector_potential
-  - name:normalized_particle_flux_due_to_perturbed_parallel_magnetic_field
-  - name:normalized_turbulent_energy_flux_due_to_e_cross_b_drift
-  sources:
-  - id: dd:gyrokinetics/fluxes_integrated_norm/particles_phi_potential
-    dd_path: gyrokinetics/fluxes_integrated_norm/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm/particles_a_field_parallel
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm/particles_a_field_parallel
-    status: composed
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm/particles_b_field_parallel
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm/particles_b_field_parallel
-    status: composed
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm/particles_phi_potential
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm/particles_phi_potential
-    status: composed
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm_gyrocenter/particles_phi_potential
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm_gyrocenter/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm_gyrocenter_rotating_frame/particles_phi_potential
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm_gyrocenter_rotating_frame/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm_particle/particles_phi_potential
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm_particle/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm_particle_rotating_frame/particles_phi_potential
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/fluxes_norm_particle_rotating_frame/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/linear_weights/particles_phi_potential
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/linear_weights/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/linear_weights_rotating_frame/particles_phi_potential
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/linear_weights_rotating_frame/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics_local/non_linear/fluxes_1d/particles_phi_potential
-    dd_path: gyrokinetics_local/non_linear/fluxes_1d/particles_phi_potential
-    status: composed
-  - id: dd:gyrokinetics_local/non_linear/fluxes_1d_rotating_frame/particles_phi_potential
-    dd_path: gyrokinetics_local/non_linear/fluxes_1d_rotating_frame/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics_local/non_linear/fluxes_2d_k_x_k_y_sum/particles_phi_potential
-    dd_path: gyrokinetics_local/non_linear/fluxes_2d_k_x_k_y_sum/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics_local/non_linear/fluxes_2d_k_x_k_y_sum_rotating_frame/particles_phi_potential
-    dd_path: gyrokinetics_local/non_linear/fluxes_2d_k_x_k_y_sum_rotating_frame/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics_local/non_linear/fluxes_2d_k_x_sum/particles_phi_potential
-    dd_path: gyrokinetics_local/non_linear/fluxes_2d_k_x_sum/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics_local/non_linear/fluxes_2d_k_x_sum_rotating_frame/particles_phi_potential
-    dd_path: gyrokinetics_local/non_linear/fluxes_2d_k_x_sum_rotating_frame/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics_local/non_linear/fluxes_3d/particles_phi_potential
-    dd_path: gyrokinetics_local/non_linear/fluxes_3d/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics_local/non_linear/fluxes_3d_k_x_sum/particles_phi_potential
-    dd_path: gyrokinetics_local/non_linear/fluxes_3d_k_x_sum/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics_local/non_linear/fluxes_3d_k_x_sum_rotating_frame/particles_phi_potential
-    dd_path: gyrokinetics_local/non_linear/fluxes_3d_k_x_sum_rotating_frame/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics_local/non_linear/fluxes_3d_rotating_frame/particles_phi_potential
-    dd_path: gyrokinetics_local/non_linear/fluxes_3d_rotating_frame/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics_local/non_linear/fluxes_4d/particles_phi_potential
-    dd_path: gyrokinetics_local/non_linear/fluxes_4d/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics_local/non_linear/fluxes_4d_rotating_frame/particles_phi_potential
-    dd_path: gyrokinetics_local/non_linear/fluxes_4d_rotating_frame/particles_phi_potential
-    status: composed
-  - id: dd:gyrokinetics_local/non_linear/fluxes_5d/particles_phi_potential
-    dd_path: gyrokinetics_local/non_linear/fluxes_5d/particles_phi_potential
-    status: attached
-  - id: dd:gyrokinetics_local/non_linear/fluxes_5d_rotating_frame/particles_phi_potential
-    dd_path: gyrokinetics_local/non_linear/fluxes_5d_rotating_frame/particles_phi_potential
-    status: attached
 - name: parallel_momentum_flux_due_to_perturbed_parallel_vector_potential
   kind: scalar
   status: draft
@@ -1871,207 +1518,6 @@
   - id: dd:gyrokinetics_local/non_linear/fluxes_5d_rotating_frame/momentum_tor_parallel_a_field_parallel
     dd_path: gyrokinetics_local/non_linear/fluxes_5d_rotating_frame/momentum_tor_parallel_a_field_parallel
     status: attached
-- name: parallel_normalized_gyrocenter_gyroaveraged_current_density
-  kind: scalar
-  status: draft
-  description: Dimensionless parallel gyrocenter current-density moment for a linear
-    gyrokinetic eigenmode, including finite-Larmor-radius gyroaveraging through the
-    zeroth-order Bessel weighting. It represents the charge-weighted parallel flow
-    response normalized by a reference current density.
-  documentation: 'The parallel normalized gyrocenter gyroaveraged current density
-    is the dimensionless parallel current-density moment of a perturbed gyrocenter
-    distribution. The gyroaveraged qualifier denotes the finite-Larmor-radius weighting
-    by the zeroth-order Bessel function, so this quantity differs from the ungyroaveraged
-    [parallel_normalized_gyrocenter_perturbed_current_density](name:parallel_normalized_gyrocenter_perturbed_current_density)
-    by including the Bessel-weighted response at the fluctuation perpendicular scale.
-
-
-    For a species $s$ with dimensional perturbed gyrocenter distribution, a common
-    form of the normalized moment is
-
-
-    $$
-
-    \hat{j}_{\parallel,J_0,s} = \frac{q_s}{j_{\mathrm{ref},s}} \int J_0(k_\perp \rho_s)\,
-    v_\parallel\, \delta f_s(\mathbf{v})\, d^3v
-
-    $$
-
-
-    where $q_s$ is the species charge, $J_0$ is the zeroth-order Bessel function,
-    $k_\perp$ is the perpendicular wave number, $\rho_s$ is the species gyroradius,
-    $v_\parallel$ is velocity along $\hat{b}=\mathbf{B}/|\mathbf{B}|$, and $\delta
-    f_s$ is the perturbed gyrocenter phase-space density with units $s^3 m^{-6}$ when
-    SI velocity variables are used. The integral gives a particle flux density; multiplication
-    by $q_s$ gives a current density in $A m^{-2}$. The reference current density
-    $j_{\mathrm{ref},s}$ also has units $A m^{-2}$, often based on species-specific
-    or gyro-Bohm reference quantities such as $e n_{\mathrm{ref}} v_{\mathrm{ref}}$,
-    so the reported value is dimensionless.
-
-
-    This quantity is computed from the linear gyrokinetic eigenfunction by velocity-space
-    quadrature of the perturbed gyrocenter distribution. The Bessel factor suppresses
-    contributions from structures with $k_\perp \rho_s \gtrsim 1$, representing gyroaveraging
-    over the Larmor orbit; in the long-wavelength limit $k_\perp \rho_s \ll 1$, it
-    approaches the corresponding non-gyroaveraged parallel current moment.
-
-
-    Because the amplitude and phase of a linear eigenmode are arbitrary until an eigenfunction
-    normalization is chosen, absolute values should be interpreted together with that
-    normalization. With common dimensionless normalizations, magnitudes of $10^{-4}-1$
-    are typical for weakly electromagnetic modes, while values of order $1-10$ can
-    occur for strongly electromagnetic responses or for normalizations tied to small
-    reference amplitudes.
-
-
-    Sign convention: Positive when the charge-weighted gyrocenter parallel flow is
-    along $\hat{b}=\mathbf{B}/|\mathbf{B}|$.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:parallel_normalized_gyrocenter_gyroaveraged_pressure
-  - name:parallel_normalized_gyrocenter_gyroaveraged_heat_flux
-  - name:parallel_normalized_perturbed_current_density_bessel_1
-  sources:
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/j_parallel
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/j_parallel
-    status: composed
-- name: parallel_normalized_gyrocenter_gyroaveraged_heat_flux
-  kind: scalar
-  status: draft
-  description: Dimensionless parallel heat-flux moment of the perturbed gyrocenter
-    distribution for a linear gyrokinetic eigenmode. It is normalized to the reference
-    gyro-Bohm heat-flux scale and represents the full kinetic-energy moment weighted
-    by parallel velocity.
-  documentation: 'Parallel normalized gyrocenter gyroaveraged heat flux is a dimensionless
-    velocity moment of the perturbed gyrocenter distribution for a species in a linear
-    gyrokinetic eigenmode. It measures the part of the kinetic-energy moment that
-    is odd in parallel velocity after gyroaveraging the perturbation at the eigenmode
-    perpendicular scale. The term parallel refers to the factor of parallel velocity
-    multiplying the full particle kinetic energy, not to a separate projection of
-    a macroscopic vector flux.
-
-
-    For species $s$, the Fourier-space gyroaveraged moment is commonly written as
-
-
-    $$
-
-    \widehat{q}_{\parallel s}^{J_0} = \frac{1}{Q_{\mathrm{gB},s}} \int d^3v\, J_0\!\left(k_{\perp,\mathrm{eig}}\frac{v_\perp}{\Omega_s}\right)\left(\frac{1}{2}m_s
-    v^2\right)v_\parallel\,\delta f_{g s}(\mathbf{k}_{\mathrm{eig}},v_\parallel,\mu)
-
-    $$
-
-
-    where $\delta f_{g s}$ is the perturbed gyrocenter distribution Fourier component
-    for the eigenmode wave vector $\mathbf{k}_{\mathrm{eig}}$, $J_0$ is the zeroth-order
-    Bessel function, $k_{\perp,\mathrm{eig}}$ is the magnitude of that eigenmode wave
-    vector perpendicular to the equilibrium magnetic field, $v_\parallel$ and $v_\perp$
-    are the particle velocity components parallel and perpendicular to the equilibrium
-    magnetic field, $v^2=v_\parallel^2+v_\perp^2$, $m_s$ is the particle mass, $\mu$
-    is the magnetic moment coordinate, and $\Omega_s$ is the cyclotron-frequency magnitude.
-    The reference gyro-Bohm heat-flux scale is $Q_{\mathrm{gB},s}=n_{\mathrm{ref},s}T_{\mathrm{ref},s}v_{\mathrm{ref},s}(\rho_{\mathrm{ref},s}/L_{\mathrm{ref}})^2$,
-    using the same reference density, temperature, speed, gyroradius, and macroscopic
-    length as the gyrokinetic normalization.
-
-
-    This is a Fourier-space gyroaverage: the Bessel factor is evaluated at the finite-Larmor-radius
-    argument set by the eigenmode perpendicular wavenumber, so the velocity-space
-    integral is not independent of $k_\perp$. In practical linear gyrokinetic calculations,
-    the moment is obtained by integrating the eigenfunction over the velocity grid
-    for each species; if the local magnetic geometry makes $k_\perp$ vary along the
-    field line, the local value associated with the eigenmode is used.
-
-
-    Because a linear eigenmode has arbitrary overall amplitude, the absolute value
-    has no universal physical range unless the eigenfunction normalization is also
-    specified. With common fluctuation normalizations, dimensionless magnitudes may
-    range from less than $10^{-6}$ for symmetry-suppressed or weakly resonant responses
-    to order $1-10$ for strongly resonant species; comparisons are meaningful only
-    within a consistent normalization and wavenumber convention.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:parallel_normalized_gyroaveraged_perturbed_gyrocenter_pressure_of_gyrokinetic_eigenmode
-  - name:parallel_normalized_gyrocenter_perturbed_heat_flux
-  - name:normalized_gyrocenter_perturbed_gyroaveraged_heat_flux
-  sources:
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/heat_flux_parallel
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/heat_flux_parallel
-    status: composed
-- name: parallel_normalized_gyrocenter_gyroaveraged_perturbed_pressure_of_gyrokinetic_eigenmode
-  kind: scalar
-  status: draft
-  description: Dimensionless field-aligned pressure moment of a gyrokinetic eigenmode's
-    perturbed gyrocenter distribution, normalized to a reference pressure. A zeroth-order
-    Bessel gyroaverage weights the moment to include finite-Larmor-radius response
-    at finite perpendicular wavenumber.
-  documentation: 'The parallel normalized gyroaveraged perturbed gyrocenter pressure
-    is the field-aligned pressure-tensor moment of the perturbed gyrocenter distribution
-    for a gyrokinetic eigenmode, divided by a reference pressure. It measures the
-    part of the pressure perturbation associated with particle motion along the equilibrium
-    magnetic field, with gyrophase averaging included to represent finite-Larmor-radius
-    response.
-
-
-    With species label $s$, a common dimensional form is
-
-
-    $$
-
-    \tilde{p}_{\parallel,J_0,s} = \frac{m_s}{p_{\mathrm{ref},s}} \int v_\parallel^2\,
-    J_0\!\left(k_\perp \rho_{L,s}(v_\perp)\right)\, \delta h_s\, d^3v
-
-    $$
-
-
-    where $m_s$ is the particle mass in kg, $v_\parallel$ is the velocity component
-    in m s$^{-1}$ along the local equilibrium-field direction $\hat{b}=\mathbf{B}_0/|\mathbf{B}_0|$,
-    and the local field-aligned velocity basis is $(\hat{b},\hat{e}_{\perp1},\hat{e}_{\perp2})$
-    with the perpendicular directions spanning the plane normal to $\hat{b}$. $J_0$
-    is the dimensionless zeroth-order Bessel function, $k_\perp$ is the perpendicular
-    wavenumber in m$^{-1}$, $\rho_{L,s}$ is the Larmor radius in m, $\delta h_s$ is
-    the perturbed gyrocenter distribution, and $d^3v$ is the velocity-space measure
-    with units (m s$^{-1}$)$^3$ including the appropriate Jacobian. For a dimensional
-    distribution with units s$^3$ m$^{-6}$, the numerator has units of pressure; $p_{\mathrm{ref},s}$
-    is in Pa and is typically $n_{0s}T_{0s}$ at a reference flux surface, with $T_{0s}$
-    expressed as energy, or equivalently $e n_{0s}T_{0s}$ when $T_{0s}$ is quoted
-    in eV.
-
-
-    In practice this moment is computed from the complex gyrokinetic eigenfunction
-    by multiplying the perturbed gyrocenter distribution by the Bessel gyroaverage
-    weight and integrating over velocity space. It differs from [parallel_normalized_gyrocenter_perturbed_pressure](name:parallel_normalized_gyrocenter_perturbed_pressure)
-    by the inclusion of the finite-Larmor-radius $J_0$ factor. The perpendicular counterpart
-    is [normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure](name:normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure),
-    and related gyroaveraged velocity moments include [normalized_gyrocenter_perturbed_gyroaveraged_current_density](name:normalized_gyrocenter_perturbed_gyroaveraged_current_density).
-
-
-    Typical magnitudes are dimensionless and depend on the arbitrary normalization
-    of a linear eigenmode. When scaled to an equilibrium reference pressure and a
-    fluctuation-level eigenmode amplitude, $|\tilde{p}_{\parallel,J_0}|$ is often
-    about $10^{-4}$-$10^{-1}$, with $10^{-3}$-$10^{-1}$ common for drift-wave-like
-    microinstabilities; eigenvectors rescaled to a unit maximum component can instead
-    give order-unity values.
-
-
-    Phase convention: For a complex eigenmode coefficient, the overall complex phase
-    and scale are arbitrary and are inherited from the chosen eigenmode normalization;
-    physical comparisons use magnitudes or phases relative to other eigenmode fields
-    rather than an absolute sign.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:parallel_normalized_gyrocenter_perturbed_pressure
-  - name:normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure
-  - name:normalized_gyrocenter_perturbed_gyroaveraged_current_density
-  sources:
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/pressure_parallel_gyroav
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/pressure_parallel_gyroav
-    status: composed
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/pressure_parallel
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/pressure_parallel
-    status: composed
 - name: parallel_normalized_gyrocenter_perturbed_current_density
   kind: scalar
   status: draft
@@ -2139,84 +1585,6 @@
   - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter/j_parallel
     dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter/j_parallel
     status: composed
-- name: parallel_normalized_gyrocenter_perturbed_heat_flux
-  kind: scalar
-  status: draft
-  description: Dimensionless velocity-space moment representing the parallel thermal-energy
-    flux carried by the perturbed gyrocenter distribution of a linear gyrokinetic
-    eigenmode. It is a signed eigenmode amplitude whose numerical value depends on
-    the chosen heat-flux normalization and complex phase reference.
-  documentation: 'Parallel normalized gyrocenter perturbed heat flux is the dimensionless
-    velocity-space moment of the perturbed gyrocenter distribution that weights each
-    particle by kinetic energy and parallel velocity along the magnetic field. It
-    represents the parallel transport of thermal energy associated with a linear gyrokinetic
-    eigenmode, expressed as an eigenmode amplitude rather than as a nonlinear time-averaged
-    flux. The qualifier gyrocenter identifies the distribution being integrated; it
-    does not imply an additional gyroaveraging operation on the heat-flux moment.
-
-
-    The dimensional moment made dimensionless by the normalization is
-
-
-    $$
-
-    \widehat{q}_{\parallel g}^{\,N}
-
-    =
-
-    \frac{1}{q_{\mathrm{ref}}}
-
-    \int \frac{1}{2} m\,v_{\parallel}\,v^2\,
-
-    \widehat{\delta f}_{g}(\mathbf{X},v_{\parallel},\mu)\,d^3v
-
-    $$
-
-
-    where $m$ is the particle mass, $v_{\parallel}$ is velocity along the chosen positive
-    magnetic-field-line direction, $v^2=v_{\parallel}^2+v_{\perp}^2$, $d^3v$ is the
-    velocity-space element, $\widehat{\delta f}_{g}$ is the linear eigenmode coefficient
-    of the perturbed gyrocenter distribution at gyrocenter position $\mathbf{X}$ and
-    magnetic moment $\mu$, and $q_{\mathrm{ref}}$ is the heat-flux scale used to make
-    the moment dimensionless. The symbol for the perturbed gyrocenter distribution
-    does not by itself distinguish adiabatic from non-adiabatic pieces; that split
-    must be kept consistent with the eigenmode convention used for the other moments.
-
-
-    This quantity is computed in linear gyrokinetic analysis by evaluating the eigenmode
-    distribution function on the velocity grid or basis and forming the above moment
-    for the selected species, wavevector, and eigenmode. A complex eigenmode convention
-    must be specified: with a Fourier representation such as $\mathrm{Re}[\widehat{q}_{\parallel
-    g}^{\,N}\exp(i\mathbf{k}\cdot\mathbf{x}-i\omega t)]$, multiplying the eigenfunction
-    by an arbitrary complex constant changes this moment by the same factor. Therefore
-    its absolute amplitude and phase are meaningful only relative to the selected
-    eigenmode normalization and phase reference; ratios to other perturbed moments
-    are meaningful when computed with the same convention.
-
-
-    Because linear eigenmodes have arbitrary amplitude, there is no universal device-independent
-    typical range for the dimensionless value. In a fixed normalization, small magnitudes
-    indicate a weak parallel energy-flux response of the perturbed gyrocenters, order-unity
-    magnitudes indicate response comparable to the chosen heat-flux scale, and the
-    complex phase relative to the driving field distinguishes in-phase from opposed
-    energy transport.
-
-
-    Sign convention: Positive when the real heat-flux moment is carried by gyrocenters
-    with $v_{\parallel}>0$, where positive $v_{\parallel}$ is along the chosen magnetic-field-line
-    direction.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:parallel_normalized_particle_perturbed_heat_flux
-  - name:parallel_normalized_gyrocenter_perturbed_pressure
-  sources:
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/heat_flux_parallel
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/heat_flux_parallel
-    status: composed
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter/heat_flux_parallel
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter/heat_flux_parallel
-    status: composed
 - name: parallel_normalized_particle_perturbed_current_density
   kind: scalar
   status: draft
@@ -2246,161 +1614,20 @@
     \ structure relevant to microtearing modes and kinetic Alfv\xE9n waves. It belongs\
     \ to the same particle-frame moment hierarchy as [parallel normalized particle\
     \ perturbed pressure](name:parallel_normalized_particle_perturbed_pressure) and\
-    \ [parallel normalized particle perturbed heat flux](name:parallel_normalized_particle_perturbed_heat_flux).\n\
-    \nSign convention: Positive when the parallel current flows in the direction of\
-    \ the equilibrium magnetic field $\\hat{b}$ (i.e., parallel to $\\mathbf{B}_0$)."
+    \ [parallel normalized particle perturbed heat flux].\n\nSign convention: Positive\
+    \ when the parallel current flows in the direction of the equilibrium magnetic\
+    \ field $\\hat{b}$ (i.e., parallel to $\\mathbf{B}_0$)."
   unit: '1'
   physics_domain: turbulence
   links:
   - name:parallel_normalized_gyrocenter_perturbed_current_density
   - name:parallel_normalized_particle_perturbed_pressure
-  - name:parallel_normalized_particle_perturbed_heat_flux
   sources:
   - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_particle/j_parallel
     dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_particle/j_parallel
     status: attached
   - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/j_parallel
     dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/j_parallel
-    status: composed
-- name: parallel_normalized_particle_perturbed_energy_flux
-  kind: scalar
-  status: draft
-  description: Normalized parallel perturbed energy-flux moment of a particle distribution,
-    formed by weighting the perturbation with parallel velocity and perpendicular
-    kinetic energy. It is a dimensionless component of the parallel heat-flux hierarchy,
-    not the total kinetic-energy heat flux.
-  documentation: 'Parallel normalized particle perturbed energy flux is a dimensionless
-    velocity-space moment of the particle distribution perturbation. It weights field-aligned
-    streaming by perpendicular kinetic energy, isolating the perpendicular-kinetic-energy
-    contribution to the parallel heat-flux hierarchy. It is not the full parallel
-    heat flux, which would weight by total kinetic energy.
-
-
-    The defining normalized moment for a species of mass $m$ is:
-
-
-    $$
-
-    M_{\parallel,\perp E} = \frac{1}{Q_\mathrm{ref}} \int \frac{1}{2}\, m\, v_\parallel\,
-    v_\perp^2\, \tilde{f}(\mathbf{v})\, d^3v
-
-    $$
-
-
-    where $m$ is the species mass in kg, $v_\parallel$ is the velocity component in
-    m s$^{-1}$ along the local magnetic-field unit vector $\hat{b}$, $v_\perp$ is
-    the speed in m s$^{-1}$ perpendicular to $\hat{b}$, $\tilde{f}$ is the perturbed
-    particle distribution with units m$^{-3}$(m s$^{-1}$)$^{-3}$, and $d^3v$ has units
-    (m s$^{-1}$)$^3$. The factor $\frac{1}{2}m v_\perp^2$ is perpendicular kinetic
-    energy per particle; multiplication by $v_\parallel$ and integration over velocity
-    space gives an energy-flux density in W m$^{-2}$. $Q_\mathrm{ref}$ is a reference
-    energy-flux density with the same units, commonly the gyro-Bohm heat-flux scale
-    $Q_\mathrm{gB}=n_\mathrm{ref}T_\mathrm{ref}v_\mathrm{ref}(\rho_\mathrm{ref}/L_\mathrm{ref})^2$
-    with $T_\mathrm{ref}$ expressed as energy.
-
-
-    This is a particle moment: the velocity weights are applied to the particle distribution
-    perturbation. In gyrokinetic calculations the evolved perturbation may be a gyrocenter
-    distribution, so finite-Larmor-radius or pullback transformations can be needed
-    before evaluating the particle-space moment. For a single spectral component or
-    linear eigenmode $M_{\parallel,\perp E}$ is generally complex and its overall
-    phase follows the chosen perturbation phase; physical real-space flux is obtained
-    by combining conjugate components. It is related to [parallel normalized particle
-    perturbed heat flux](name:parallel_normalized_particle_perturbed_heat_flux) through
-    the decomposition of total kinetic-energy weighting into parallel and perpendicular
-    parts, and it is compared with [parallel normalized particle perturbed pressure](name:parallel_normalized_particle_perturbed_pressure)
-    and [parallel normalized particle perturbed current density](name:parallel_normalized_particle_perturbed_current_density)
-    to diagnose anisotropy and odd-parallel-velocity content.
-
-
-    Typical dimensionless magnitudes are normalization-dependent. For linear modes
-    the absolute amplitude is arbitrary unless the perturbation amplitude is fixed;
-    with field or distribution perturbations normalized to order-unity reference amplitudes,
-    $|M_{\parallel,\perp E}|$ is often $10^{-4}$-1. In saturated turbulence, spectrum-integrated
-    normalized values are commonly $10^{-3}$-1, but values outside these ranges can
-    occur for strong anisotropy or different reference flux choices.
-
-
-    Sign convention: Positive when the real physical perpendicular-energy flux represented
-    by the moment is directed along $+\hat{b}$, the local magnetic-field direction.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:parallel_normalized_particle_perturbed_heat_flux
-  - name:parallel_normalized_particle_perturbed_pressure
-  sources:
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_particle/v_parallel_energy_perpendicular
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_particle/v_parallel_energy_perpendicular
-    status: attached
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/v_parallel_energy_perpendicular
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/v_parallel_energy_perpendicular
-    status: composed
-- name: parallel_normalized_particle_perturbed_heat_flux
-  kind: scalar
-  status: draft
-  description: Dimensionless parallel heat-flux moment of the perturbed particle distribution
-    for a gyrokinetic eigenmode. It weights the perturbation by parallel velocity
-    and particle kinetic energy, then normalizes by a reference pressure times a reference
-    thermal speed.
-  documentation: 'Parallel normalized particle perturbed heat flux is the species-resolved
-    third-order velocity-space moment of the particle distribution perturbation that
-    represents fluctuation-driven thermal energy transport along the local magnetic
-    field. It uses the particle perturbation rather than the gyrocenter perturbation,
-    so finite-Larmor-radius pullback effects are included in the particle-space moment.
-    It is the particle counterpart of [parallel_normalized_gyrocenter_perturbed_heat_flux](name:parallel_normalized_gyrocenter_perturbed_heat_flux)
-    and a more specific form of [normalized_parallel_perturbed_heat_flux](name:parallel_normalized_gyrocenter_perturbed_heat_flux).
-
-
-    The normalized moment can be written as:
-
-
-    $$
-
-    \hat{Q}_{\parallel p,s} = \frac{1}{p_\mathrm{ref} v_{\mathrm{th,ref}}} \int \frac{1}{2}\,
-    m_s\, v_\parallel\, v^2\, \delta f_s(\mathbf{v})\, d^3v
-
-    $$
-
-
-    where $s$ labels the species, $m_s$ is the species mass in kg, $v_\parallel =
-    \mathbf{v}\cdot\hat{b}$ and $v$ are particle speeds in m s$^{-1}$, $\hat{b}=\mathbf{B}/|\mathbf{B}|$
-    is the magnetic-field unit vector, $\delta f_s$ is the perturbed particle distribution
-    with units m$^{-6}$ s$^3$, and $d^3v$ has units m$^3$ s$^{-3}$. The reference
-    pressure $p_\mathrm{ref}$ is in Pa and the reference thermal speed $v_{\mathrm{th,ref}}$
-    is in m s$^{-1}$; therefore the numerator and denominator both have units kg s$^{-3}$,
-    making $\hat{Q}_{\parallel p,s}$ dimensionless.
-
-
-    In practice this quantity is computed from the gyrokinetic eigenmode by velocity-space
-    quadrature over the perturbed particle distribution, after applying any gyrocenter-to-particle
-    transformation required by the kinetic formulation. In linear calculations the
-    eigenmode amplitude and phase are conventional, so the complex value of this moment
-    is interpreted relative to the same normalization used for other moments of the
-    mode.
-
-
-    There is no universal typical magnitude independent of eigenfunction normalization,
-    reference pressure, and reference thermal speed. For a fixed normalization convention,
-    it is most meaningful to compare this moment with related normalized moments for
-    the same species and mode, such as [normalized_particle_perturbed_pressure](name:normalized_particle_perturbed_pressure)
-    and [perpendicular_normalized_particle_perturbed_pressure](name:perpendicular_normalized_particle_perturbed_pressure);
-    values close to zero indicate a weak parallel heat-flux response under that convention.
-
-
-    Sign convention: Positive when the net particle heat-flux moment is directed along
-    the positive magnetic-field unit vector $\hat{b}=\mathbf{B}/|\mathbf{B}|$.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:parallel_normalized_gyrocenter_perturbed_heat_flux
-  - name:normalized_particle_perturbed_pressure
-  - name:perpendicular_normalized_particle_perturbed_pressure
-  sources:
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_particle/heat_flux_parallel
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_particle/heat_flux_parallel
-    status: attached
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/heat_flux_parallel
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/heat_flux_parallel
     status: composed
 - name: parallel_normalized_perturbed_current_density_bessel_1
   kind: scalar
@@ -2755,7 +1982,7 @@
 
     where $m_s$ is the particle mass, $v_\parallel$ is the velocity component parallel
     to the magnetic field, $\mu$ is the magnetic moment, and $B$ is the magnetic-field
-    magnitude. A dimensionless quantity such as [normalized effective particle energy](name:normalized_effective_particle_energy)
+    magnitude. A dimensionless quantity such as [normalized effective particle energy]
     is obtained by dividing $\mathcal{E}_{\mathrm{eff},s}$ by a chosen reference thermal
     energy.
 
@@ -2774,11 +2001,11 @@
     order 1, with suprathermal tails extending to 10 or more.'
   unit: '1'
   physics_domain: turbulence
-  links:
-  - name:derivative_with_respect_to_poloidal_angle_of_normalized_effective_particle_energy
-  sources:
-  - id: derived:effective_particle_energy
-    status: composed
+  links: []
+  arguments:
+  - name: effective_energy
+    operator: particle
+    operator_kind: qualifier
 - name: normalized_particle_effective_energy
   kind: scalar
   status: draft
@@ -2842,6 +2069,61 @@
   - name: particle_effective_energy
     operator: normalized
     operator_kind: qualifier
+- name: derivative_with_respect_to_poloidal_angle_of_normalized_effective_particle_energy
+  kind: scalar
+  status: draft
+  description: Coordinate derivative of normalized effective particle energy with
+    respect to poloidal angle theta in flux coordinates (rho, theta, phi). It gives
+    the change per radian along the poloidal coordinate on a flux surface.
+  documentation: 'The derivative with respect to poloidal angle of normalized effective
+    particle energy is the coordinate rate of change of the dimensionless [normalized
+    effective particle energy] for a plasma species as the poloidal angle is varied.
+    It is defined in a chosen flux-coordinate system $(\rho, \theta, \phi)$ and is
+    a derivative with respect to the coordinate $\theta$, not a metric component of
+    a spatial gradient.
+
+
+    The defining coordinate derivative is
+
+
+    $$
+
+    \partial_\theta \mathcal{E}_{\mathrm{eff},n} = \left.\frac{\partial \mathcal{E}_{\mathrm{eff},n}}{\partial
+    \theta}\right|_{\rho,\phi}
+
+    $$
+
+
+    where $\mathcal{E}_{\mathrm{eff},n}$ is the normalized effective particle energy
+    and is dimensionless, $\theta$ is the poloidal angle in radians, and the radial
+    flux label $\rho$ and toroidal angle $\phi$ are held fixed.
+
+
+    In local gyrokinetic modeling this quantity is computed from the specified poloidal
+    dependence of the species effective energy, using analytic differentiation, finite
+    differences, or spectral differentiation in $\theta$. It is generally a model
+    or equilibrium-derived input rather than a directly measured diagnostic observable.
+
+
+    No universal value range exists. The quantity is dimensionless and may be negative,
+    zero, or positive; magnitudes near 0 indicate weak poloidal variation, while magnitudes
+    of order 1 indicate changes over about one poloidal radian.
+
+
+    Sign convention: Positive when $\mathcal{E}_{\mathrm{eff},n}$ increases for increasing
+    poloidal angle $\theta$ in the chosen flux-coordinate system $(\rho, \theta, \phi)$,
+    with $\rho$ and $\phi$ held fixed.'
+  unit: '1'
+  physics_domain: turbulence
+  links: []
+  arguments:
+  - name: normalized_particle_effective_energy
+    operator: derivative_with_respect_to_poloidal_angle
+    operator_kind: unary_prefix
+  sources:
+  - id: dd:gyrokinetics_local/species/potential_energy_gradient_norm
+    dd_path: gyrokinetics_local/species/potential_energy_gradient_norm
+    status: composed
 - name: perpendicular_momentum_flux_due_to_perturbed_parallel_magnetic_field
   kind: scalar
   status: draft
@@ -3051,210 +2333,6 @@
   - id: dd:gyrokinetics_local/non_linear/fluxes_5d_rotating_frame/momentum_tor_perpendicular_b_field_parallel
     dd_path: gyrokinetics_local/non_linear/fluxes_5d_rotating_frame/momentum_tor_perpendicular_b_field_parallel
     status: attached
-- name: perpendicular_normalized_gyroaveraged_perturbed_heat_flux
-  kind: scalar
-  status: draft
-  description: Dimensionless gyroaveraged perturbed gyrocenter heat-flux moment weighted
-    by parallel velocity and perpendicular kinetic energy. It represents the perpendicular-energy
-    component of a gyrokinetic eigenmode velocity-space moment, not a radial or poloidal
-    transport direction.
-  documentation: 'This quantity is the normalized gyroaveraged perpendicular-energy
-    heat-flux moment of the perturbed gyrocenter distribution for a given species
-    and gyrokinetic eigenmode. The word perpendicular refers to the particle kinetic
-    energy associated with motion perpendicular to the equilibrium magnetic field,
-    while the flux-like character comes from the signed factor of parallel velocity.
-
-
-    Using dimensional velocities, the species moment has the form
-
-
-    $$
-
-    \widehat{Q}_{\perp,\mathrm{ga},s} = \frac{1}{Q_{\mathrm{ref},s}} \int \frac{1}{2}
-    m_s v_\parallel v_\perp^2 J_0\!\left(\frac{k_\perp v_\perp}{\Omega_s}\right) \delta
-    h_s(\mathbf{k},v_\parallel,v_\perp)\, d^3v
-
-    $$
-
-
-    where $m_s$ is the species mass, $v_\parallel$ is velocity parallel to the equilibrium
-    magnetic field, $v_\perp$ is the perpendicular speed, $J_0$ is the zeroth-order
-    Bessel function giving the gyroaverage, $k_\perp v_\perp/\Omega_s$ is the particle
-    gyroaveraging argument, and $\Omega_s=|q_s|B/m_s$ is the cyclotron-frequency magnitude.
-    The perturbed gyrocenter distribution $\delta h_s$ has units of density per velocity-space
-    volume, so $\delta h_s d^3v$ has density units; after gyroangle integration $d^3v$
-    may be written as $2\pi v_\perp dv_\perp dv_\parallel$. The reference factor $Q_{\mathrm{ref},s}$
-    is the species heat-flux moment scale, commonly expressed with units $n_s T_s
-    v_{\mathrm{th},s}$, so the quotient is dimensionless.
-
-
-    The moment is computed from the linear gyrokinetic eigenfunction at the selected
-    perpendicular wavevector rather than measured directly as a macroscopic transport
-    flux. It differs from perpendicular_normalized_perturbed_gyrocenter_heat_flux_of_gyrokinetic_eigenmode
-    by the explicit Bessel gyroaveraging factor. Replacing the perpendicular-energy
-    weight by a parallel-energy weight gives the related [normalized_parallel_perturbed_heat_flux](name:parallel_normalized_gyrocenter_perturbed_heat_flux),
-    while removing the signed $v_\parallel$ factor gives the related perpendicular-pressure
-    moment [normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure](name:normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure).
-
-
-    There is no universal intrinsic range because a linear eigenmode amplitude can
-    be rescaled, and the value may be complex if the eigenfunction is represented
-    with a complex phase. After a fixed eigenmode normalization is chosen, values
-    near zero indicate cancelation of the odd-in-$v_\parallel$ perpendicular-energy
-    perturbation, while magnitudes of order unity indicate a moment comparable to
-    the chosen species heat-flux reference scale; ion and electron values can differ
-    because $m_s$, $q_s$, $T_s$, and the gyroaveraging argument are species dependent.
-
-
-    For complex eigenmodes, the absolute phase of this scalar changes with the arbitrary
-    global phase of the eigenfunction. Its sign is therefore meaningful only for a
-    specified real phase convention or real component, while its magnitude and phase
-    relative to other eigenmode moments are the robust diagnostics.
-
-
-    Sign convention: Positive when, after fixing a real eigenmode phase, the gyroaveraged
-    perpendicular-energy moment is dominated by positive $v_\parallel$ contributions
-    along the equilibrium magnetic field.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:parallel_normalized_gyrocenter_perturbed_heat_flux
-  - name:normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure
-  sources:
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/v_parallel_energy_perpendicular_gyroav
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/v_parallel_energy_perpendicular_gyroav
-    status: attached
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/v_parallel_energy_perpendicular
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/v_parallel_energy_perpendicular
-    status: composed
-- name: perpendicular_normalized_gyrocenter_gyroaveraged_perturbed_energy
-  kind: scalar
-  status: draft
-  description: Dimensionless gyrocenter moment of the perturbed distribution weighted
-    by perpendicular kinetic energy times total speed squared and by the zeroth-order
-    gyroaverage factor J0. It describes the perpendicular-energy-weighted response
-    of a linear gyrokinetic eigenmode.
-  documentation: 'This quantity is a normalized velocity-space moment of the gyrocenter
-    perturbed distribution for a linear gyrokinetic eigenmode. The weighting emphasizes
-    particles with large perpendicular kinetic energy and large total speed, while
-    the zeroth-order Bessel factor represents the finite-Larmor-radius gyroaverage
-    of the perturbation at fixed gyrocenter.
-
-
-    For one species and a specified normalization, the moment is commonly written
-    as
-
-
-    $$
-
-    M_{\perp E,J_0} = \frac{1}{\mathcal{E}_{\mathrm{ref}}} \int J_0(k_\perp \rho)\,\frac{1}{2}
-    m v_\perp^2 v^2\,\delta f(\mathbf{v})\,d^3v
-
-    $$
-
-
-    where $m$ is the species mass, $v_\perp$ is velocity perpendicular to the equilibrium
-    magnetic field, $v^2 = v_\parallel^2 + v_\perp^2$, $k_\perp$ is the perpendicular
-    wavenumber, $\rho$ is the particle Larmor radius, and $J_0$ is the Bessel function
-    of the first kind of order zero. The perturbation $\delta f$ has units of number
-    density per velocity-space volume, $\mathrm{m}^{-3}(\mathrm{m}\,\mathrm{s}^{-1})^{-3}$,
-    and $d^3v$ has units $(\mathrm{m}\,\mathrm{s}^{-1})^3$. The reference factor $\mathcal{E}_{\mathrm{ref}}$
-    has the same units as the unnormalized integral; a common gyrokinetic choice is
-    $n_{\mathrm{ref}} T_{\mathrm{ref}} v_{\mathrm{ref}}^2$, with $n_{\mathrm{ref}}$
-    in $\mathrm{m}^{-3}$, $T_{\mathrm{ref}}$ expressed as energy per particle in joules,
-    and $v_{\mathrm{ref}}$ in $\mathrm{m}\,\mathrm{s}^{-1}$.
-
-
-    In practice this moment is computed by velocity-space quadrature of the eigenmode
-    distribution function, using the local value of $k_\perp \rho$ for the species
-    and wavevector of interest. For linear eigenmodes, $\delta f$ and therefore $M_{\perp
-    E,J_0}$ are generally complex amplitudes; the kernel is real, but the eigenfunction
-    phase is arbitrary, so magnitudes, phases relative to other moments, and ratios
-    are usually more meaningful than an absolute sign.
-
-
-    Typical dimensionless magnitudes depend strongly on the eigenmode normalization.
-    With a Maxwellian-sized perturbation and normalization by $n_{\mathrm{ref}} T_{\mathrm{ref}}
-    v_{\mathrm{ref}}^2$, values are commonly of order 0.1-10; finite-Larmor-radius
-    averaging can reduce the magnitude through cancelation when $k_\perp \rho$ is
-    not small. If the eigenfunction is normalized so that $|\delta f|/f_0$ is 10^-4-10^-2,
-    the moment scales linearly and typically lies in the same 10^-4-10^-2 fraction
-    of its calibration value.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:perpendicular_normalized_gyrocenter_perturbed_energy
-  - name:normalized_gyrocenter_gyroaveraged_perturbed_energy
-  - name:perpendicular_normalized_gyrocenter_perturbed_energy_bessel_1
-  - name:normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure
-  sources:
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/v_perpendicular_square_energy
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/v_perpendicular_square_energy
-    status: composed
-- name: perpendicular_normalized_gyrocenter_gyroaveraged_pressure
-  kind: scalar
-  status: draft
-  description: Dimensionless perpendicular pressure moment of the perturbed gyrocenter
-    distribution, weighted by the zeroth-order Bessel gyroaverage and normalized to
-    a positive reference thermal pressure. It represents the gyrotropic perpendicular
-    thermal response of a linear gyrokinetic eigenmode.
-  documentation: 'Perpendicular normalized gyrocenter gyroaveraged pressure is the
-    perpendicular kinetic-energy moment of the perturbed gyrocenter distribution after
-    zeroth-order finite-Larmor-radius gyroaveraging. It measures the gyrotropic perpendicular
-    thermal part of a linear gyrokinetic perturbation, normalized to a positive reference
-    thermal pressure. It excludes nongyrotropic stress, off-diagonal viscous response,
-    and heat-flux moments.
-
-
-    A common defining velocity-space moment is
-
-
-    $$
-
-    \tilde{p}_{\perp,\mathrm{gc}}^{J_0} = \frac{1}{p_\mathrm{ref}} \int \frac{m v_\perp^2}{2}\,
-    J_0(k_\perp \rho_L)\, \delta f_\mathrm{g}(\mathbf{v})\, d^3v
-
-    $$
-
-
-    where $m$ is the species mass in kg, $v_\perp$ is the speed perpendicular to the
-    background magnetic field in m s$^{-1}$, $J_0$ is the zeroth-order Bessel function,
-    $k_\perp$ is the perpendicular wavenumber in m$^{-1}$, $\rho_L = v_\perp/|\Omega_c|$
-    is the Larmor radius in meters, $\delta f_\mathrm{g}$ is the perturbed gyrocenter
-    distribution function with units such that $\delta f_\mathrm{g} d^3v$ gives a
-    perturbed number density, and $p_\mathrm{ref} > 0$ is the reference species thermal
-    pressure in Pa. The numerator has pressure units, so the normalized moment is
-    dimensionless.
-
-
-    In practice this quantity is computed from the linear gyrokinetic eigenfunction
-    by integrating the perturbed gyrocenter distribution over velocity space at the
-    specified perpendicular scale. For $k_\perp \rho_L \ll 1$, $J_0 \approx 1$ and
-    the moment approaches the ungyroaveraged perpendicular pressure perturbation;
-    at finite $k_\perp \rho_L$, the Bessel weighting represents finite-Larmor-radius
-    cancelation from gyromotion. Together with the parallel gyroaveraged pressure
-    companion it describes the gyrotropic diagonal pressure response, but not the
-    full pressure tensor.
-
-
-    Because the absolute amplitude and phase of a linear eigenmode are set by the
-    chosen eigenfunction normalization, this dimensionless moment has no universal
-    range. With common thermal-pressure normalization and order-unity eigenfunction
-    amplitudes, absolute values are often about $10^{-3}$-$1$, can be much smaller
-    for weakly participating species, and may reach order $1$-$10$ for strongly compressive
-    or resonant kinetic responses. Ratios and relative phases with density, temperature,
-    and parallel-pressure moments in the same eigenmode are usually the physically
-    meaningful comparisons.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:normalized_gyrocenter_gyroaveraged_pressure
-  - name:parallel_normalized_gyroaveraged_perturbed_gyrocenter_pressure_of_gyrokinetic_eigenmode
-  - name:perpendicular_normalized_gyrocenter_perturbed_pressure
-  sources:
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/pressure_perpendicular
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/pressure_perpendicular
-    status: composed
 - name: perpendicular_normalized_particle_perturbed_energy
   kind: scalar
   status: draft
@@ -3308,148 +2386,239 @@
   - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/v_perpendicular_square_energy
     dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/v_perpendicular_square_energy
     status: composed
-- name: perpendicular_normalized_perturbed_heat_flux
+- name: perturbed_gyrocenter_pressure
   kind: scalar
   status: draft
-  description: Normalized perpendicular heat-flux moment of a perturbed gyrokinetic
-    distribution, formed with the parallel streaming velocity and perpendicular kinetic
-    energy as the velocity-space weight. "Perpendicular" names the energy component
-    relative to the magnetic field, not a spatial transport direction.
-  documentation: 'The perpendicular normalized perturbed heat flux is a dimensionless
-    heat-flux moment of a perturbed distribution function in which the energy weight
-    is the kinetic energy associated with particle motion perpendicular to the local
-    equilibrium magnetic field. It is the perpendicular-energy counterpart of parallel-energy
-    moments such as [parallel_normalized_gyrocenter_perturbed_heat_flux](name:parallel_normalized_gyrocenter_perturbed_heat_flux)
-    and should not be interpreted as a heat flux in a perpendicular spatial direction.
-
-
-    A representative definition for species $s$ is the normalized velocity-space moment
-    of the perturbed distribution:
-
-
-    $$
-
-    \widehat{Q}_{\perp s} = \frac{1}{Q_\mathrm{ref}} \int v_\parallel \left(\frac{1}{2}
-    m_s v_\perp^2\right) \delta f_s \, d^3v
-
-    $$
-
-
-    where $\widehat{Q}_{\perp s}$ is dimensionless, $v_\parallel$ and $v_\perp$ are
-    particle velocities in m s$^{-1}$ parallel and perpendicular to the local equilibrium
-    magnetic field, $m_s$ is the particle mass in kg, $\delta f_s$ is the perturbed
-    distribution function for species $s$ (units s$^3$ m$^{-6}$ for a physical distribution),
-    $d^3v$ has units m$^3$ s$^{-3}$, and $Q_\mathrm{ref}$ is the chosen heat-flux
-    normalization with units W m$^{-2}$. The numerator has units W m$^{-2}$, so the
-    normalized moment has unit 1.
-
-
-    This moment is computed from the eigenfunction of a linear gyrokinetic calculation
-    at a specified wavevector and magnetic-surface label, often a normalized toroidal-flux
-    radius $\rho_\mathrm{tor,norm}$. The velocity integral is evaluated over the modeled
-    velocity space; names carrying gyrocenter or gyroaveraged qualifiers specify additional
-    choices such as gyrocenter variables or finite-Larmor-radius averaging. Closely
-    related perpendicular gyrocenter moments include [normalized_perpendicular_perturbed_gyrocenter_heat_flux_of_gyrokinetic_eigenmode](name:normalized_perpendicular_perturbed_gyrocenter_heat_flux_of_gyrokinetic_eigenmode)
-    and [perpendicular_normalized_perturbed_gyrocenter_heat_flux_of_gyrokinetic_eigenmode].
-
-
-    For a linear eigenmode, the eigenfunction can be multiplied by an arbitrary complex
-    amplitude. Consequently the absolute magnitude, sign, and phase of $\widehat{Q}_{\perp
-    s}$ are meaningful only after the eigenmode phase reference, amplitude normalization,
-    normalization of $\delta f_s$, and $Q_\mathrm{ref}$ are fixed; no universal numerical
-    range is intrinsic to this quantity.
-
-
-    Sign convention: Positive when, for the chosen eigenmode phase, contributions
-    from particles with $v_\parallel>0$ along the local equilibrium magnetic field
-    dominate over contributions from particles with $v_\parallel<0$ in the perpendicular-energy-weighted
-    perturbation.'
+  description: Second velocity-space moment of the perturbed gyrocenter distribution
+    function, characterizing the departure of the gyrotropic pressure tensor from
+    its equilibrium value in gyrokinetic turbulence. This parent generalizes over
+    parallel and perpendicular components and over dimensional or normalized representations.
+  documentation: "The perturbed gyrocenter pressure is the perturbed component of\
+    \ the gyrotropic pressure tensor, obtained as the second-order velocity-space\
+    \ moment of the perturbed gyrocenter distribution function \u03B4f. It represents\
+    \ the local deviation of the gyrocenter pressure from the equilibrium pressure\
+    \ profile due to electrostatic and electromagnetic fluctuations.\n\nThe dimensional\
+    \ form of the pressure moment for a species s is defined by the integral over\
+    \ velocity space:\n\n$$\n\\delta p_s = \\int m_s \\, v^2 \\, \\delta f_s \\, d^3v\n\
+    $$\n\nwhere $m_s$ is the species mass, $v$ is the velocity magnitude, and $\\\
+    delta f_s$ is the perturbed distribution. The moment may be taken along the parallel\
+    \ direction ($v_\\parallel$) or perpendicular direction ($v_\\perp$), corresponding\
+    \ to $\\delta p_{\\parallel,s}$ and $\\delta p_{\\perp,s}$ respectively. Specific\
+    \ standard names provide normalized versions where the moment is divided by a\
+    \ reference thermal pressure $n_\\mathrm{ref} T_\\mathrm{ref}$, yielding a dimensionless\
+    \ quantity.\n\nThis moment is computed in gyrokinetic simulations and eigenmode\
+    \ solvers as a diagnostic of the pressure response to turbulence. It complements\
+    \ the perturbed gyrocenter density in the low-order moment hierarchy.\n\nTypical\
+    \ values in the core of a medium-size tokamak range from 0.1\u201310% of the equilibrium\
+    \ pressure for quasilinear turbulence levels, corresponding to $\\delta p / p_\\\
+    mathrm{eq} \\sim 10^{-3}$\u2013$10^{-1}$ for dimensional forms, or equivalent\
+    \ dimensionless values of $10^{-4}$\u2013$10^{-2}$ relative to the reference pressure.\n\
+    \nSign convention: Positive when the perturbed gyrocenter pressure represents\
+    \ a local enhancement above the equilibrium pressure profile."
   unit: '1'
   physics_domain: turbulence
   links:
-  - name:parallel_normalized_gyrocenter_perturbed_heat_flux
-  - name:normalized_perpendicular_perturbed_gyrocenter_heat_flux_of_gyrokinetic_eigenmode
+  - name:gyrocenter_pressure
+  - name:normalized_gyrocenter_perturbed_pressure
+  - name:normalized_gyrocenter_perturbed_density
+  - name:effective_energy
   arguments:
-  - name: normalized_perturbed_heat_flux
+  - name: gyrocenter_pressure
+    operator: perturbed
+    operator_kind: qualifier
+  sources:
+  - id: derived:perturbed_gyrocenter_pressure
+    status: composed
+- name: normalized_gyrocenter_perturbed_pressure
+  kind: vector
+  status: draft
+  description: Two-component vector of the normalized pressure moment of the perturbed
+    gyrocenter distribution, with components parallel and perpendicular to the local
+    magnetic field, each normalized to a reference thermal pressure.
+  documentation: 'The normalized gyrocenter perturbed pressure is a vector quantity
+    collecting the dimensionless parallel and perpendicular thermal-pressure responses
+    of the non-equilibrium part of the gyrocenter distribution function $\delta f_s$
+    for a single plasma species, normalized to a reference thermal pressure $p_{\mathrm{ref}}
+    = n_{\mathrm{ref}} T_{\mathrm{ref}}$. It generalizes the scalar gyrocenter_perturbed_pressure
+    to the full anisotropic pressure decomposition along and across the local magnetic
+    field direction $\hat{b}$.
+
+
+    The two components are defined as velocity-space integrals:
+
+
+    $$
+
+    \hat{p}_{\parallel/\perp,\,s} = \frac{m_s}{p_{\mathrm{ref}}} \int w_{\parallel/\perp}\,
+    \delta f_s\, d^3v
+
+    $$
+
+
+    where $m_s$ is the species mass, the weight $w_\parallel = v_\parallel^2$ defines
+    the parallel component (see [parallel_normalized_gyrocenter_perturbed_pressure](name:parallel_normalized_gyrocenter_perturbed_pressure))
+    and $w_\perp = v_\perp^2/2$ defines the perpendicular gyrotropic component (see
+    [perpendicular_normalized_gyrocenter_perturbed_pressure](name:perpendicular_normalized_gyrocenter_perturbed_pressure)),
+    with $v_\parallel$ and $v_\perp$ the velocity projections along and across $\hat{b}$
+    respectively.
+
+
+    This vector is computed in gyrokinetic simulations as part of the velocity-space
+    moment hierarchy characterizing pressure anisotropy driven by electromagnetic
+    fluctuations. Gyroaveraged variants incorporating finite-Larmor-radius corrections
+    are provided by perpendicular_normalized_gyrocenter_gyroaveraged_pressure and
+    parallel_normalized_gyrocenter_gyroaveraged_pressure.
+
+
+    Sign convention: Positive when the perturbed gyrocenter distribution function
+    increases the respective pressure moment above the equilibrium reference value.'
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:parallel_normalized_gyrocenter_perturbed_pressure
+  - name:perpendicular_normalized_gyrocenter_perturbed_pressure
+  arguments:
+  - name: perturbed_gyrocenter_pressure
+    operator: normalized
+    operator_kind: qualifier
+  sources:
+  - id: derived:normalized_gyrocenter_perturbed_pressure
+    status: composed
+- name: parallel_normalized_gyrocenter_perturbed_pressure
+  kind: scalar
+  status: draft
+  description: Normalized parallel pressure moment of the perturbed gyrocenter distribution
+    for a species, formed by weighting the perturbation with the square of velocity
+    along the local magnetic field. It measures the dimensionless parallel thermal-pressure
+    response of a gyrokinetic eigenmode.
+  documentation: 'Parallel normalized gyrocenter perturbed pressure is the parallel
+    component of the gyrotropic pressure perturbation obtained from the perturbed
+    gyrocenter distribution. It measures the change in thermal pressure associated
+    with gyrocenter motion along the local magnetic field, normalized to a reference
+    scalar pressure.
+
+
+    The defining moment is the full velocity-space integral of the parallel kinetic-energy
+    weighting of the perturbed gyrocenter distribution:
+
+
+    $$
+
+    \tilde{p}_{\parallel,g} = \frac{1}{p_\mathrm{ref}} \int_{\mathbb{R}^3} m v_\parallel^2
+    \, \delta\bar{f}(\mathbf{v}) \, d^3v
+
+    $$
+
+
+    where $m$ is the species mass, $v_\parallel$ is the gyrocenter velocity component
+    along the local magnetic field, $\delta\bar{f}$ is the perturbed gyrocenter distribution,
+    and $p_\mathrm{ref}=n_\mathrm{ref}T_\mathrm{ref}$ with $T_\mathrm{ref}$ expressed
+    as an energy. The integral is over all three velocity components, not only over
+    $v_\parallel$; $\delta\bar{f}$ has units of density per velocity-space volume,
+    so $\int \delta\bar{f}\,d^3v$ has units of number density.
+
+
+    In delta-f gyrokinetic calculations this moment is evaluated for each species
+    and fluctuation or eigenmode to characterize the parallel thermal-energy part
+    of the response. As a gyrocenter moment it is defined after gyroaveraging; the
+    related particle-frame pressure moment also includes the transformation from gyrocenter
+    to particle position. Together with [perpendicular_normalized_gyrocenter_perturbed_pressure](name:perpendicular_normalized_gyrocenter_perturbed_pressure),
+    it specifies the gyrotropic pressure perturbation in the gyrocenter frame.
+
+
+    Typical absolute fluctuation levels in saturated core microturbulence are often
+    $10^{-4}-10^{-2}$ when normalized to the equilibrium pressure, while edge or strongly
+    driven cases can be larger. In linear eigenmode studies the absolute amplitude
+    is set by the chosen eigenfunction normalization, so order-unity values may reflect
+    normalization rather than a physical fluctuation level.
+
+
+    Sign convention: Positive when the perturbed gyrocenter distribution increases
+    the $m v_\parallel^2$ velocity-space moment above its equilibrium value.'
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:perpendicular_normalized_gyrocenter_perturbed_pressure
+  - name:parallel_normalized_particle_perturbed_pressure
+  - name:normalized_gyrocenter_perturbed_density
+  arguments:
+  - name: normalized_gyrocenter_perturbed_pressure
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/pressure_parallel
+    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/pressure_parallel
+    status: attached
+  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/pressure_parallel_gyroav
+    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/pressure_parallel_gyroav
+    status: vocab_gap
+  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter/pressure_parallel
+    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter/pressure_parallel
+    status: composed
+- name: perpendicular_normalized_gyrocenter_perturbed_pressure
+  kind: scalar
+  status: draft
+  description: Dimensionless perpendicular gyrotropic pressure moment of the perturbed
+    gyrocenter distribution function for a linear gyrokinetic eigenmode, normalized
+    to a reference thermal pressure.
+  documentation: 'The perpendicular normalized gyrocenter perturbed pressure is the
+    second velocity-space moment of the perturbed gyrocenter distribution function
+    $\delta f_s$, integrated with the perpendicular kinetic-energy weight and normalized
+    by a reference thermal pressure $p_{\mathrm{ref}} = n_{\mathrm{ref}} T_{\mathrm{ref}}$.
+    It characterizes the perturbation to the gyrotropic pressure component in the
+    plane orthogonal to the background magnetic field $\mathbf{B}_0$ for a given linear
+    gyrokinetic eigenmode.
+
+
+    The defining velocity-space integral is:
+
+
+    $$
+
+    \delta \tilde{p}_{\perp} = \frac{1}{p_{\mathrm{ref}}} \int \frac{m_s v_{\perp}^2}{2}
+    \, \delta f_s \, d^3v
+
+    $$
+
+
+    where $m_s$ is the particle mass, $v_{\perp}$ is the gyrocenter speed perpendicular
+    to $\mathbf{B}_0$, and $\delta f_s$ is the perturbed gyrocenter distribution function.
+    The absence of the $J_0(k_{\perp} \rho_s)$ gyroaveraging factor distinguishes
+    this moment from normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure,
+    where $k_{\perp}$ is the perpendicular wavenumber and $\rho_s$ is the species
+    Larmor radius.
+
+
+    This moment is computed in local delta-f flux-tube gyrokinetic simulations as
+    part of the linear eigenmode structure. It is the second (perpendicular) entry
+    of the ordered component pair in [normalized_gyrocenter_perturbed_pressure](name:normalized_gyrocenter_perturbed_pressure),
+    complementing [parallel_normalized_gyrocenter_perturbed_pressure](name:parallel_normalized_gyrocenter_perturbed_pressure)
+    which carries the parallel component. Together these two moments fully characterize
+    the gyrotropic pressure response of each kinetic species to the eigenmode perturbation.
+
+
+    Sign convention: Positive when the perturbed gyrocenter distribution contributes
+    a net increase in perpendicular thermal pressure relative to the local equilibrium
+    value.'
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:normalized_gyrocenter_perturbed_pressure
+  - name:parallel_normalized_gyrocenter_perturbed_pressure
+  arguments:
+  - name: normalized_gyrocenter_perturbed_pressure
     operator: component
     operator_kind: projection
     axis: perpendicular
     shape: component
-- name: perpendicular_normalized_perturbed_pressure_bessel_1
-  kind: scalar
-  status: draft
-  description: Dimensionless perpendicular pressure moment of the perturbed gyrocenter
-    distribution for a linear gyrokinetic eigenmode, weighted by the first-order Bessel
-    function J1 of the gyroaveraging argument. It is the Bessel-1 counterpart of the
-    normalized perpendicular gyrocenter pressure perturbation.
-  documentation: 'The perpendicular normalized perturbed pressure Bessel-1 moment
-    is the perpendicular kinetic-energy moment of the perturbed gyrocenter distribution
-    weighted by $J_1$. It represents the finite-Larmor-radius part of the perpendicular
-    pressure response of a linear gyrokinetic eigenmode and is generally a complex
-    eigenfunction amplitude.
-
-
-    The normalized moment is defined by
-
-
-    $$
-
-    \hat{\delta p}_{\perp,J_1} = \frac{1}{n_\mathrm{ref} T_\mathrm{ref}} \int_{\mathbb{R}^3}
-    \frac{m v_\perp^2}{2}\, J_1\!\left(k_\perp \rho(v_\perp)\right)\, \delta f_\mathrm{gc}(\mathbf{v})\,
-    d^3v
-
-    $$
-
-
-    where $\hat{\delta p}_{\perp,J_1}$ is dimensionless, $n_\mathrm{ref}$ is the reference
-    density in $\mathrm{m}^{-3}$, and $T_\mathrm{ref}$ is the reference particle energy
-    so that $n_\mathrm{ref}T_\mathrm{ref}$ is a reference pressure. Here $m$ is the
-    species mass in kg, $v_\perp$ is the speed perpendicular to the background magnetic
-    field in $\mathrm{m\,s}^{-1}$, $J_1$ is the dimensionless first-order Bessel function,
-    $k_\perp$ is the perpendicular wave-number magnitude in $\mathrm{m}^{-1}$, and
-    $\rho(v_\perp)=v_\perp/|\Omega|$ is the velocity-dependent gyroradius in meters
-    for cyclotron angular frequency $\Omega$ in $\mathrm{s}^{-1}$. The perturbed gyrocenter
-    distribution $\delta f_\mathrm{gc}$ has units $\mathrm{s}^3\,\mathrm{m}^{-6}$,
-    and the velocity-space measure $d^3v$ has units $\mathrm{m}^3\,\mathrm{s}^{-3}$;
-    using velocity variables $(v_\parallel,v_\perp,\alpha)$, $d^3v = v_\perp\,dv_\perp\,d\alpha\,dv_\parallel$,
-    with $v_\parallel$ the velocity along the background magnetic field and $\alpha$
-    the gyroangle.
-
-
-    This quantity is computed from the eigenmode distribution function by carrying
-    out the velocity-space moment for each species and wave vector. It is not a directly
-    measured thermodynamic pressure; experimental fluctuation measurements may constrain
-    related density, temperature, or field perturbations, while this gyrocenter moment
-    is obtained through gyrokinetic interpretation or simulation.
-
-
-    The $J_1$ weighting separates a finite-Larmor-radius contribution from the unweighted
-    or $J_0$-gyroaveraged perpendicular pressure moments, linking it to related quantities
-    such as [perpendicular_normalized_gyrocenter_perturbed_pressure](name:perpendicular_normalized_gyrocenter_perturbed_pressure)
-    and [perpendicular_normalized_gyrocenter_gyroaveraged_pressure](name:perpendicular_normalized_gyrocenter_gyroaveraged_pressure).
-    The complementary parallel contribution is [parallel_normalized_perturbed_pressure_bessel_1](name:parallel_normalized_perturbed_pressure_bessel_1),
-    and their combination gives the corresponding total Bessel-1 pressure moment.
-
-
-    There is no normalization-independent typical magnitude for a linear eigenmode,
-    because multiplying the eigenfunction by any nonzero complex constant rescales
-    this moment. Values are therefore interpreted as relative complex amplitudes only
-    after the eigenmode amplitude and phase have been fixed by the chosen normalization.
-
-
-    Sign convention: Positive when, after the eigenmode phase has been fixed by the
-    selected reference perturbation, the Bessel-weighted excess of perpendicular gyrocenter
-    kinetic energy in the defining velocity-space integral is positive.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:perpendicular_normalized_perturbed_pressure
-  - name:perpendicular_normalized_gyrocenter_gyroaveraged_pressure
-  - name:parallel_normalized_perturbed_pressure_bessel_1
-  - name:normalized_perturbed_pressure_bessel_1
   sources:
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_1/pressure_perpendicular
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_1/pressure_perpendicular
+  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/pressure_perpendicular
+    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/pressure_perpendicular
+    status: attached
+  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter/pressure_perpendicular
+    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter/pressure_perpendicular
     status: composed
 - name: perturbed_pressure
   kind: scalar
@@ -3483,21 +2652,18 @@
 
     In gyrokinetic turbulence calculations, this moment is computed either from the
     perturbed particle distribution or from the guiding-center (gyrocenter) distribution.
-    The [particle_perturbed_pressure](name:particle_perturbed_pressure) combines the
-    parallel and two perpendicular velocity-moment contributions of the perturbed
-    particle distribution into one scalar, while the [gyrocenter_perturbed_pressure](name:gyrocenter_perturbed_pressure)
-    is the corresponding gyrocenter-frame moment that incorporates finite-Larmor-radius
-    corrections via gyroaveraging. The explicitly normalized form is documented in
-    normalized_perturbed_pressure.
+    The particle_perturbed_pressure combines the parallel and two perpendicular velocity-moment
+    contributions of the perturbed particle distribution into one scalar, while the
+    gyrocenter_perturbed_pressure is the corresponding gyrocenter-frame moment that
+    incorporates finite-Larmor-radius corrections via gyroaveraging. The explicitly
+    normalized form is documented in normalized_perturbed_pressure.
 
 
     Sign convention: Positive when $\delta f_s$ increases the local pressure above
     the equilibrium value $p_{s,0}$.'
   unit: '1'
   physics_domain: turbulence
-  links:
-  - name:particle_perturbed_pressure
-  - name:gyrocenter_perturbed_pressure
+  links: []
 - name: normalized_perturbed_pressure
   kind: scalar
   status: draft
@@ -3695,664 +2861,83 @@
     operator_kind: projection
     axis: perpendicular
     shape: component
-- name: perturbed_gyrocenter_pressure
+- name: perpendicular_normalized_perturbed_pressure_bessel_1
   kind: scalar
   status: draft
-  description: Pressure moment of the perturbed gyrocenter distribution function in
-    gyrokinetic theory, representing the second peculiar-velocity moment of the non-equilibrium
-    part of the guiding-center phase-space density.
-  documentation: "The gyrocenter perturbed pressure is the second peculiar-velocity\
-    \ moment of the perturbed gyrocenter distribution function $\\delta f_s$ in gyrokinetic\
-    \ theory, computed in guiding-center phase space after the rapid gyromotion has\
-    \ been removed. It characterizes how pressure fluctuations of a kinetic species\
-    \ $s$ respond to electromagnetic perturbations in a magnetized plasma, and differs\
-    \ from [perturbed_pressure](name:perturbed_pressure), which is formed from the\
-    \ full particle distribution rather than the gyrocenter distribution.\n\nThe defining\
-    \ moment integral is\n\n$$\n\\delta P_s = \\int \\frac{m_s v^2}{2} \\, \\delta\
-    \ f_s \\, d^3v\n$$\n\nwhere $m_s$ is the species mass, $v$ is the peculiar speed\
-    \ in the gyrocenter frame, and the integral is taken over velocity space. Because\
-    \ the background magnetic field breaks pressure isotropy, the gyrocenter pressure\
-    \ decomposes naturally into components parallel and perpendicular to the local\
-    \ field; [normalized_gyrocenter_perturbed_pressure](name:normalized_gyrocenter_perturbed_pressure)\
-    \ resolves this into an ordered parallel\u2013perpendicular pair, each normalized\
-    \ to a reference thermal pressure.\n\nWhen the finite-Larmor-radius gyroaverage\
-    \ operator $J_0(k_\\perp \\rho_s)$ \u2014 where $k_\\perp$ is the perpendicular\
-    \ wave-vector amplitude and $\\rho_s$ is the thermal Larmor radius of species\
-    \ $s$ \u2014 is applied, the result is captured by gyroaveraged_gyrocenter_perturbed_pressure.\
-    \ The individual tensor components of that family are further specified by parallel_normalized_gyrocenter_gyroaveraged_pressure\
-    \ and [perpendicular_normalized_gyrocenter_gyroaveraged_pressure](name:perpendicular_normalized_gyrocenter_gyroaveraged_pressure)."
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:perturbed_pressure
-  - name:normalized_gyrocenter_perturbed_pressure
-  - name:perpendicular_normalized_gyrocenter_gyroaveraged_pressure
-  arguments:
-  - name: perturbed_pressure
-    operator: gyrocenter
-    operator_kind: qualifier
-  sources:
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/pressure_perpendicular_gyroav
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/pressure_perpendicular_gyroav
-    status: composed
-  - id: derived:gyrocenter_perturbed_pressure
-    status: composed
-- name: normalized_gyrocenter_perturbed_pressure
-  kind: vector
-  status: draft
-  description: Two-component vector of the normalized pressure moment of the perturbed
-    gyrocenter distribution, with components parallel and perpendicular to the local
-    magnetic field, each normalized to a reference thermal pressure.
-  documentation: 'The normalized gyrocenter perturbed pressure is a vector quantity
-    collecting the dimensionless parallel and perpendicular thermal-pressure responses
-    of the non-equilibrium part of the gyrocenter distribution function $\delta f_s$
-    for a single plasma species, normalized to a reference thermal pressure $p_{\mathrm{ref}}
-    = n_{\mathrm{ref}} T_{\mathrm{ref}}$. It generalizes the scalar [gyrocenter_perturbed_pressure](name:gyrocenter_perturbed_pressure)
-    to the full anisotropic pressure decomposition along and across the local magnetic
-    field direction $\hat{b}$.
+  description: Dimensionless perpendicular pressure moment of the perturbed gyrocenter
+    distribution for a linear gyrokinetic eigenmode, weighted by the first-order Bessel
+    function J1 of the gyroaveraging argument. It is the Bessel-1 counterpart of the
+    normalized perpendicular gyrocenter pressure perturbation.
+  documentation: 'The perpendicular normalized perturbed pressure Bessel-1 moment
+    is the perpendicular kinetic-energy moment of the perturbed gyrocenter distribution
+    weighted by $J_1$. It represents the finite-Larmor-radius part of the perpendicular
+    pressure response of a linear gyrokinetic eigenmode and is generally a complex
+    eigenfunction amplitude.
 
 
-    The two components are defined as velocity-space integrals:
+    The normalized moment is defined by
 
 
     $$
 
-    \hat{p}_{\parallel/\perp,\,s} = \frac{m_s}{p_{\mathrm{ref}}} \int w_{\parallel/\perp}\,
-    \delta f_s\, d^3v
-
-    $$
-
-
-    where $m_s$ is the species mass, the weight $w_\parallel = v_\parallel^2$ defines
-    the parallel component (see [parallel_normalized_gyrocenter_perturbed_pressure](name:parallel_normalized_gyrocenter_perturbed_pressure))
-    and $w_\perp = v_\perp^2/2$ defines the perpendicular gyrotropic component (see
-    [perpendicular_normalized_gyrocenter_perturbed_pressure](name:perpendicular_normalized_gyrocenter_perturbed_pressure)),
-    with $v_\parallel$ and $v_\perp$ the velocity projections along and across $\hat{b}$
-    respectively.
-
-
-    This vector is computed in gyrokinetic simulations as part of the velocity-space
-    moment hierarchy characterizing pressure anisotropy driven by electromagnetic
-    fluctuations. Gyroaveraged variants incorporating finite-Larmor-radius corrections
-    are provided by [perpendicular_normalized_gyrocenter_gyroaveraged_pressure](name:perpendicular_normalized_gyrocenter_gyroaveraged_pressure)
-    and parallel_normalized_gyrocenter_gyroaveraged_pressure.
-
-
-    Sign convention: Positive when the perturbed gyrocenter distribution function
-    increases the respective pressure moment above the equilibrium reference value.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:gyrocenter_perturbed_pressure
-  - name:parallel_normalized_gyrocenter_perturbed_pressure
-  - name:perpendicular_normalized_gyrocenter_perturbed_pressure
-  - name:perpendicular_normalized_gyrocenter_gyroaveraged_pressure
-  arguments:
-  - name: perturbed_gyrocenter_pressure
-    operator: normalized
-    operator_kind: qualifier
-  sources:
-  - id: derived:normalized_gyrocenter_perturbed_pressure
-    status: composed
-- name: parallel_normalized_gyrocenter_perturbed_pressure
-  kind: scalar
-  status: draft
-  description: Normalized parallel pressure moment of the perturbed gyrocenter distribution
-    for a species, formed by weighting the perturbation with the square of velocity
-    along the local magnetic field. It measures the dimensionless parallel thermal-pressure
-    response of a gyrokinetic eigenmode.
-  documentation: 'Parallel normalized gyrocenter perturbed pressure is the parallel
-    component of the gyrotropic pressure perturbation obtained from the perturbed
-    gyrocenter distribution. It measures the change in thermal pressure associated
-    with gyrocenter motion along the local magnetic field, normalized to a reference
-    scalar pressure.
-
-
-    The defining moment is the full velocity-space integral of the parallel kinetic-energy
-    weighting of the perturbed gyrocenter distribution:
-
-
-    $$
-
-    \tilde{p}_{\parallel,g} = \frac{1}{p_\mathrm{ref}} \int_{\mathbb{R}^3} m v_\parallel^2
-    \, \delta\bar{f}(\mathbf{v}) \, d^3v
-
-    $$
-
-
-    where $m$ is the species mass, $v_\parallel$ is the gyrocenter velocity component
-    along the local magnetic field, $\delta\bar{f}$ is the perturbed gyrocenter distribution,
-    and $p_\mathrm{ref}=n_\mathrm{ref}T_\mathrm{ref}$ with $T_\mathrm{ref}$ expressed
-    as an energy. The integral is over all three velocity components, not only over
-    $v_\parallel$; $\delta\bar{f}$ has units of density per velocity-space volume,
-    so $\int \delta\bar{f}\,d^3v$ has units of number density.
-
-
-    In delta-f gyrokinetic calculations this moment is evaluated for each species
-    and fluctuation or eigenmode to characterize the parallel thermal-energy part
-    of the response. As a gyrocenter moment it is defined after gyroaveraging; the
-    related particle-frame pressure moment also includes the transformation from gyrocenter
-    to particle position. Together with [perpendicular_normalized_gyrocenter_perturbed_pressure](name:perpendicular_normalized_gyrocenter_perturbed_pressure),
-    it specifies the gyrotropic pressure perturbation in the gyrocenter frame.
-
-
-    Typical absolute fluctuation levels in saturated core microturbulence are often
-    $10^{-4}-10^{-2}$ when normalized to the equilibrium pressure, while edge or strongly
-    driven cases can be larger. In linear eigenmode studies the absolute amplitude
-    is set by the chosen eigenfunction normalization, so order-unity values may reflect
-    normalization rather than a physical fluctuation level.
-
-
-    Sign convention: Positive when the perturbed gyrocenter distribution increases
-    the $m v_\parallel^2$ velocity-space moment above its equilibrium value.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:perpendicular_normalized_gyrocenter_perturbed_pressure
-  - name:parallel_normalized_particle_perturbed_pressure
-  - name:normalized_gyrocenter_perturbed_density
-  arguments:
-  - name: normalized_gyrocenter_perturbed_pressure
-    operator: component
-    operator_kind: projection
-    axis: parallel
-    shape: component
-  sources:
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/pressure_parallel
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_gyrocenter/pressure_parallel
-    status: attached
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter/pressure_parallel
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter/pressure_parallel
-    status: composed
-- name: perpendicular_normalized_gyrocenter_perturbed_pressure
-  kind: scalar
-  status: draft
-  description: Dimensionless perpendicular gyrotropic pressure moment of the perturbed
-    gyrocenter distribution function for a linear gyrokinetic eigenmode, normalized
-    to a reference thermal pressure.
-  documentation: 'The perpendicular normalized gyrocenter perturbed pressure is the
-    second velocity-space moment of the perturbed gyrocenter distribution function
-    $\delta f_s$, integrated with the perpendicular kinetic-energy weight and normalized
-    by a reference thermal pressure $p_{\mathrm{ref}} = n_{\mathrm{ref}} T_{\mathrm{ref}}$.
-    It characterizes the perturbation to the gyrotropic pressure component in the
-    plane orthogonal to the background magnetic field $\mathbf{B}_0$ for a given linear
-    gyrokinetic eigenmode.
-
-
-    The defining velocity-space integral is:
-
-
-    $$
-
-    \delta \tilde{p}_{\perp} = \frac{1}{p_{\mathrm{ref}}} \int \frac{m_s v_{\perp}^2}{2}
-    \, \delta f_s \, d^3v
-
-    $$
-
-
-    where $m_s$ is the particle mass, $v_{\perp}$ is the gyrocenter speed perpendicular
-    to $\mathbf{B}_0$, and $\delta f_s$ is the perturbed gyrocenter distribution function.
-    The absence of the $J_0(k_{\perp} \rho_s)$ gyroaveraging factor distinguishes
-    this moment from [normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure](name:normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure),
-    where $k_{\perp}$ is the perpendicular wavenumber and $\rho_s$ is the species
-    Larmor radius.
-
-
-    This moment is computed in local delta-f flux-tube gyrokinetic simulations as
-    part of the linear eigenmode structure. It is the second (perpendicular) entry
-    of the ordered component pair in [normalized_gyrocenter_perturbed_pressure](name:normalized_gyrocenter_perturbed_pressure),
-    complementing [parallel_normalized_gyrocenter_perturbed_pressure](name:parallel_normalized_gyrocenter_perturbed_pressure)
-    which carries the parallel component. Together these two moments fully characterize
-    the gyrotropic pressure response of each kinetic species to the eigenmode perturbation.
-
-
-    Sign convention: Positive when the perturbed gyrocenter distribution contributes
-    a net increase in perpendicular thermal pressure relative to the local equilibrium
-    value.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:normalized_perpendicular_gyroaveraged_gyrocenter_perturbed_pressure
-  - name:normalized_gyrocenter_perturbed_pressure
-  - name:parallel_normalized_gyrocenter_perturbed_pressure
-  arguments:
-  - name: normalized_gyrocenter_perturbed_pressure
-    operator: component
-    operator_kind: projection
-    axis: perpendicular
-    shape: component
-  sources:
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter/pressure_perpendicular
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter/pressure_perpendicular
-    status: composed
-- name: perturbed_particle_pressure
-  kind: scalar
-  status: draft
-  description: Isotropic scalar pressure fluctuation of the physical particle population
-    in a gyrokinetic eigenmode, formed as the trace average of the perturbed particle
-    pressure tensor over its parallel and perpendicular components.
-  documentation: 'The particle perturbed pressure is the scalar pressure fluctuation
-    associated with the physical (as opposed to gyrocenter) particle population in
-    a linear gyrokinetic eigenmode. Unlike the corresponding gyrocenter moment, it
-    is constructed from the full particle distribution function and therefore incorporates
-    finite-Larmor-radius corrections that arise when transforming from gyrocenter
-    to particle coordinates.
-
-
-    The isotropic scalar is the trace average of the perturbed pressure tensor:
-
-
-    $$
-
-    \delta p_s = \frac{1}{3}\left(\delta P_{\parallel,s} + 2\,\delta P_{\perp,s}\right)
-
-    $$
-
-
-    where $\delta P_{\parallel,s}$ is the field-aligned pressure moment and $\delta
-    P_{\perp,s}$ is the perpendicular pressure moment, both obtained from velocity-space
-    integrals of the perturbed distribution function $\delta f_s$ for species $s$.
-
-
-    This quantity enters gyrokinetic pressure-balance diagnostics and transport analyzes,
-    characterizing the local pressure response to electromagnetic fluctuations. It
-    is structurally related to gyroaveraged_gyrocenter_perturbed_pressure, which captures
-    an analogous moment for gyrocenters rather than particles. The normalized form
-    [normalized_particle_perturbed_pressure](name:normalized_particle_perturbed_pressure)
-    expresses the same fluctuation as a dimensionless ratio to a reference thermal
-    pressure, enabling cross-species and cross-simulation comparison. The parent concept
-    [perturbed_pressure](name:perturbed_pressure) provides the broader equilibrium-normalized
-    pressure-perturbation context.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:normalized_particle_perturbed_pressure
-  - name:perturbed_pressure
-  arguments:
-  - name: perturbed_pressure
-    operator: particle
-    operator_kind: qualifier
-  sources:
-  - id: derived:particle_perturbed_pressure
-    status: composed
-- name: normalized_particle_perturbed_pressure
-  kind: vector
-  status: draft
-  description: Normalized gyrotropic pressure-tensor moment of the perturbed particle
-    distribution for a linear gyrokinetic eigenmode, decomposed into components parallel
-    and perpendicular to the background magnetic field.
-  documentation: 'The normalized particle perturbed pressure is a gyrotropic vector
-    quantity representing the pressure fluctuation of the physical particle population
-    in a linear gyrokinetic eigenmode, decomposed into components parallel and perpendicular
-    to the equilibrium magnetic field $\mathbf{B}$, each expressed dimensionlessly
-    as a ratio to a reference thermal pressure $p_\mathrm{ref}$.
-
-
-    For species $s$, the parallel and perpendicular components are the second velocity-space
-    moments of the perturbed particle distribution function $\delta f_s$:
-
-
-    $$
-
-    \hat{p}_{\parallel,s} = \frac{m_s}{p_\mathrm{ref}} \int v_\parallel^2 \, \delta
-    f_s \, d^3v, \qquad \hat{p}_{\perp,s} = \frac{m_s}{2 \, p_\mathrm{ref}} \int v_\perp^2
-    \, \delta f_s \, d^3v
-
-    $$
-
-
-    where $m_s$ is the species mass, $v_\parallel$ and $v_\perp$ are velocities parallel
-    and perpendicular to $\mathbf{B}$, and $p_\mathrm{ref} = n_\mathrm{ref} T_\mathrm{ref}$
-    is evaluated at the outboard midplane.
-
-
-    Unlike the corresponding [gyroaveraged gyrocenter perturbed pressure], this quantity
-    is built from the full particle distribution function, implicitly incorporating
-    finite-Larmor-radius corrections through the particle-to-gyrocenter coordinate
-    transformation. The isotropic scalar parent [particle_perturbed_pressure](name:particle_perturbed_pressure)
-    is recovered as the trace average $\hat{p}_s = (\hat{p}_{\parallel,s} + 2\hat{p}_{\perp,s})/3$.
-    The [parallel_normalized_particle_perturbed_pressure](name:parallel_normalized_particle_perturbed_pressure)
-    and [perpendicular_normalized_particle_perturbed_pressure](name:perpendicular_normalized_particle_perturbed_pressure)
-    components together encode the pressure anisotropy of the eigenmode, with the
-    ratio $\hat{p}_{\parallel,s}/\hat{p}_{\perp,s}$ quantifying deviation from local
-    thermodynamic equilibrium relevant to mirror-mode and fire-hose stability.
-
-
-    Sign convention: Positive when the species pressure perturbation corresponds to
-    a local increase above the equilibrium background pressure.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:particle_perturbed_pressure
-  - name:parallel_normalized_particle_perturbed_pressure
-  - name:perpendicular_normalized_particle_perturbed_pressure
-  arguments:
-  - name: perturbed_particle_pressure
-    operator: normalized
-    operator_kind: qualifier
-  sources:
-  - id: derived:normalized_particle_perturbed_pressure
-    status: composed
-- name: parallel_normalized_particle_perturbed_pressure
-  kind: scalar
-  status: draft
-  description: Normalized parallel pressure moment of the perturbed particle distribution
-    function for a linear gyrokinetic eigenmode. It is the complex parallel component
-    of the particle pressure perturbation, normalized to a reference pressure, and
-    is distinct from the corresponding gyrocenter moment.
-  documentation: 'The parallel normalized particle perturbed pressure is a dimensionless
-    complex eigenmode moment of the perturbed particle distribution function. It represents
-    the fluctuation of the pressure associated with random particle motion along the
-    local magnetic-field direction, evaluated in particle variables rather than gyrocenter
-    variables.
-
-
-    For species $s$, using reference density $n_{\mathrm{ref},s}$ and reference temperature
-    $T_{\mathrm{ref},s}$ expressed as an energy, a common normalization is
-
-
-    $$
-
-    \widehat{p}_{\parallel s}^{\,\mathrm{part}} = \frac{m_s}{n_{\mathrm{ref},s} T_{\mathrm{ref},s}}
-    \int v_\parallel^2\,\delta f_s^{\,\mathrm{part}}(\mathbf{x},\mathbf{v})\,d^3v
-
-    $$
-
-
-    where $m_s$ is the particle mass, $v_\parallel$ is the particle velocity component
-    along the magnetic field in $\mathrm{m\,s^{-1}}$, $\delta f_s^{\,\mathrm{part}}$
-    is the perturbed particle distribution function in $\mathrm{m^{-6}\,s^3}$, and
-    $d^3v$ is the velocity-space volume element in $\mathrm{m^3\,s^{-3}}$. The denominator
-    $n_{\mathrm{ref},s}T_{\mathrm{ref},s}$ is a reference pressure; if temperature
-    is supplied in eV it must be converted to joules for this expression.
-
-
-    In linear gyrokinetic analysis this moment is computed by applying the parallel-pressure
-    velocity-space weight to the particle perturbed distribution eigenfunction and
-    integrating over velocity space. When the same reference pressure and particle
-    distribution are used, the scalar normalized perturbed pressure is related to
-    the gyrotropic components by $\widehat{p}_s^{\mathrm{part}}=(\widehat{p}_{\parallel
-    s}^{\mathrm{part}}+2\widehat{p}_{\perp s}^{\mathrm{part}})/3$; this trace relation
-    does not specify nongyrotropic or off-diagonal pressure-tensor moments. The particle
-    moment should not be assumed equal to the gyrocenter parallel pressure moment,
-    because the variables used in the velocity-space moment are different.
-
-
-    Typical magnitudes are normalization dependent. With unit-amplitude eigenfunction
-    normalizations, values from about $10^{-3}$ to $10$ are common, while ratios between
-    species, radial locations, or pressure components and the relative complex phase
-    usually carry more physical meaning than the absolute magnitude.
-
-
-    For a linear eigenmode the overall complex amplitude and phase are arbitrary.
-    A self-contained convention is obtained by choosing one reference eigenfunction
-    component to be real with a fixed positive value; changing that choice multiplies
-    all complex moments by the same complex constant, leaving relative phases and
-    normalized ratios invariant.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:parallel_normalized_gyrocenter_perturbed_pressure
-  - name:perpendicular_normalized_perturbed_pressure
-  - name:normalized_perturbed_pressure
-  - name:parallel_normalized_particle_perturbed_current_density
-  arguments:
-  - name: normalized_particle_perturbed_pressure
-    operator: component
-    operator_kind: projection
-    axis: parallel
-    shape: component
-  sources:
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_particle/pressure_parallel
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_particle/pressure_parallel
-    status: attached
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/pressure_parallel
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/pressure_parallel
-    status: composed
-- name: perpendicular_normalized_particle_perturbed_pressure
-  kind: scalar
-  status: draft
-  description: Dimensionless perpendicular-pressure moment of the perturbed particle
-    distribution of a linear gyrokinetic eigenmode, normalized by a reference thermal
-    pressure. It is the second velocity-space moment in perpendicular kinetic energy
-    of the perturbed distribution rather than an independent thermodynamic pressure.
-  documentation: 'Perpendicular normalized particle perturbed pressure is the dimensionless
-    perpendicular-pressure moment of the perturbed particle distribution function
-    for a linear gyrokinetic eigenmode. It measures the fluctuating perpendicular
-    thermal energy density carried by the perturbed distribution, expressed in particle
-    (laboratory) velocity variables and scaled by a reference thermal pressure. It
-    is a velocity-space moment of the perturbation, not an independent thermodynamic
-    state variable.
-
-
-    For species $s$, the normalized perpendicular pressure moment is
-
-
-    $$
-
-    \delta \hat{p}^{\mathrm{particle}}_{\perp s} = \frac{1}{n_{\mathrm{ref}} T_{\mathrm{ref}}}
-    \int \frac{m_s v_\perp^2}{2}\, \delta f^{\mathrm{particle}}_s(\mathbf{x},\mathbf{v},t)\,
+    \hat{\delta p}_{\perp,J_1} = \frac{1}{n_\mathrm{ref} T_\mathrm{ref}} \int_{\mathbb{R}^3}
+    \frac{m v_\perp^2}{2}\, J_1\!\left(k_\perp \rho(v_\perp)\right)\, \delta f_\mathrm{gc}(\mathbf{v})\,
     d^3v
 
     $$
 
 
-    where $m_s$ is the particle mass in kg, $v_\perp$ is the speed perpendicular to
-    the equilibrium magnetic field in m s$^{-1}$, $\delta f^{\mathrm{particle}}_s$
-    is the perturbed particle distribution in units m$^{-3}$ (m s$^{-1}$)$^{-3}$,
-    and the velocity-space element $d^3v$ has units (m s$^{-1}$)$^3$. The reference
-    density $n_{\mathrm{ref}}$ is in m$^{-3}$ and the reference temperature $T_{\mathrm{ref}}$
-    is an energy per particle in J; a temperature given in eV must be multiplied by
-    the elementary charge before forming the reference pressure $n_{\mathrm{ref}}
-    T_{\mathrm{ref}}$.
+    where $\hat{\delta p}_{\perp,J_1}$ is dimensionless, $n_\mathrm{ref}$ is the reference
+    density in $\mathrm{m}^{-3}$, and $T_\mathrm{ref}$ is the reference particle energy
+    so that $n_\mathrm{ref}T_\mathrm{ref}$ is a reference pressure. Here $m$ is the
+    species mass in kg, $v_\perp$ is the speed perpendicular to the background magnetic
+    field in $\mathrm{m\,s}^{-1}$, $J_1$ is the dimensionless first-order Bessel function,
+    $k_\perp$ is the perpendicular wave-number magnitude in $\mathrm{m}^{-1}$, and
+    $\rho(v_\perp)=v_\perp/|\Omega|$ is the velocity-dependent gyroradius in meters
+    for cyclotron angular frequency $\Omega$ in $\mathrm{s}^{-1}$. The perturbed gyrocenter
+    distribution $\delta f_\mathrm{gc}$ has units $\mathrm{s}^3\,\mathrm{m}^{-6}$,
+    and the velocity-space measure $d^3v$ has units $\mathrm{m}^3\,\mathrm{s}^{-3}$;
+    using velocity variables $(v_\parallel,v_\perp,\alpha)$, $d^3v = v_\perp\,dv_\perp\,d\alpha\,dv_\parallel$,
+    with $v_\parallel$ the velocity along the background magnetic field and $\alpha$
+    the gyroangle.
 
 
-    The perpendicular and parallel particle pressure moments combine into the total
-    particle pressure moment of the eigenmode. With the perpendicular component counting
-    the two degrees of freedom orthogonal to $\mathbf{B}$ and the parallel component
-    the single field-aligned degree of freedom, the trace-weighted combination $\delta
-    \hat{p}^{\mathrm{particle}}_s = (2\,\delta \hat{p}^{\mathrm{particle}}_{\perp
-    s} + \delta \hat{p}^{\mathrm{particle}}_{\parallel s})/3$ recovers normalized_total_perturbed_particle_pressure_of_gyrokinetic_eigenmode,
-    where $\delta \hat{p}^{\mathrm{particle}}_{\parallel s}$ is [parallel_normalized_particle_perturbed_pressure](name:parallel_normalized_particle_perturbed_pressure).
-    The difference between this particle-frame moment and its gyrocenter counterpart
-    [perpendicular_normalized_gyrocenter_perturbed_pressure](name:perpendicular_normalized_gyrocenter_perturbed_pressure)
-    reflects the coordinate transformation between particle and gyrocenter velocity
-    variables.
+    This quantity is computed from the eigenmode distribution function by carrying
+    out the velocity-space moment for each species and wave vector. It is not a directly
+    measured thermodynamic pressure; experimental fluctuation measurements may constrain
+    related density, temperature, or field perturbations, while this gyrocenter moment
+    is obtained through gyrokinetic interpretation or simulation.
 
 
-    The moment is obtained by integrating the eigenmode perturbed distribution over
-    velocity space in particle variables; the reference density and temperature defining
-    the normalization are part of the prescribed normalization convention of the calculation.
-    Because a linear eigenmode has an arbitrary overall amplitude, no absolute magnitude
-    range is meaningful: the quantity scales with the chosen eigenfunction normalization
-    and is generally complex.
+    The $J_1$ weighting separates a finite-Larmor-radius contribution from the unweighted
+    or $J_0$-gyroaveraged perpendicular pressure moments, linking it to related quantities
+    such as [perpendicular_normalized_gyrocenter_perturbed_pressure](name:perpendicular_normalized_gyrocenter_perturbed_pressure)
+    and perpendicular_normalized_gyrocenter_gyroaveraged_pressure. The complementary
+    parallel contribution is [parallel_normalized_perturbed_pressure_bessel_1](name:parallel_normalized_perturbed_pressure_bessel_1),
+    and their combination gives the corresponding total Bessel-1 pressure moment.
 
 
-    The complex value carries both magnitude and phase relative to the arbitrary global
-    phase of the eigenmode, which is itself set by the eigenfunction normalization
-    convention. Only relative magnitudes and phase differences between moments of
-    the same eigenmode are physically meaningful; the sign of the real part by itself
-    is not an invariant quantity.'
+    There is no normalization-independent typical magnitude for a linear eigenmode,
+    because multiplying the eigenfunction by any nonzero complex constant rescales
+    this moment. Values are therefore interpreted as relative complex amplitudes only
+    after the eigenmode amplitude and phase have been fixed by the chosen normalization.
+
+
+    Sign convention: Positive when, after the eigenmode phase has been fixed by the
+    selected reference perturbation, the Bessel-weighted excess of perpendicular gyrocenter
+    kinetic energy in the defining velocity-space integral is positive.'
   unit: '1'
   physics_domain: turbulence
   links:
-  - name:parallel_normalized_particle_perturbed_pressure
   - name:perpendicular_normalized_gyrocenter_perturbed_pressure
+  - name:parallel_normalized_perturbed_pressure_bessel_1
   arguments:
-  - name: normalized_particle_perturbed_pressure
-    operator: component
-    operator_kind: projection
-    axis: perpendicular
-    shape: component
+  - name: perpendicular_normalized_perturbed_pressure
+    operator: bessel_1
+    operator_kind: unary_postfix
   sources:
-  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_particle/pressure_perpendicular
-    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_particle/pressure_perpendicular
-    status: attached
-  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/pressure_perpendicular
-    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/pressure_perpendicular
-    status: composed
-- name: ratio_of_particle_temperature_to_reference_particle_temperature
-  kind: scalar
-  status: draft
-  description: Dimensionless ratio of a particle species temperature to a normalization
-    reference temperature, setting the relative thermal speed of that species in a
-    gyrokinetic simulation.
-  documentation: "The ratio of a particle species temperature $T_s$ to a reference\
-    \ temperature $T_{\\rm ref}$ is a fundamental dimensionless input in gyrokinetic\
-    \ flux-tube simulations, governing the amplitude of thermal fluctuations and the\
-    \ relative equilibrium distribution widths between co-existing plasma species.\n\
-    \nThe defining relation is:\n\n$$\n\\tau_s = \\frac{T_s}{T_{\\rm ref}}\n$$\n\n\
-    where $T_s$ is the temperature of species $s$ and $T_{\\rm ref}$ is the global\
-    \ normalization reference temperature, often chosen as the electron temperature\
-    \ at the outboard midplane flux surface. Through the thermal speed $v_{T,s} =\
-    \ \\sqrt{T_s / m_s}$, where $m_s$ is the species mass, $\\tau_s$ directly sets\
-    \ the gyrokinetic Maxwellian width and controls interspecies temperature contrasts\
-    \ that drive ion-temperature-gradient and trapped-electron-mode instabilities.\n\
-    \nThis quantity is equivalent to [normalized_particle_temperature](name:ratio_of_particle_temperature_to_reference_particle_temperature)\
-    \ and overlaps with the more generic [normalized_temperature](name:ratio_of_particle_temperature_to_reference_particle_temperature);\
-    \ it is the temperature analog of [ratio_of_particle_number_density_to_reference_number_density](name:ratio_of_particle_number_density_to_reference_number_density).\
-    \ In practice it is prescribed as a species-level input parameter to a gyrokinetic\
-    \ code, derived from experimental profiles or equilibrium reconstruction at the\
-    \ chosen flux surface.\n\nTypical values in core-plasma flux-tube runs span $\\\
-    tau_s \\approx 0.1$\u201310, with the reference species by definition having $\\\
-    tau_s = 1$ and minority or impurity species taking values determined by their\
-    \ experimental temperature ratios."
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:ratio_of_particle_number_density_to_reference_number_density
-  sources:
-  - id: dd:gyrokinetics/species/temperature_norm
-    dd_path: gyrokinetics/species/temperature_norm
-    status: attached
-  - id: dd:gyrokinetics_local/species/temperature_norm
-    dd_path: gyrokinetics_local/species/temperature_norm
-    status: composed
-- name: toroidal_reference_magnetic_field
-  kind: scalar
-  status: draft
-  description: Toroidal component of the equilibrium magnetic field evaluated at the
-    reference major radius in the right-handed cylindrical (R, phi, Z) frame. It is
-    a signed field component, distinct from the corresponding vacuum toroidal field.
-  documentation: 'The toroidal reference magnetic field is the toroidal component
-    of the equilibrium magnetic field evaluated at the chosen reference location whose
-    major radius is $R_\mathrm{ref}$ in the right-handed cylindrical $(R, \phi, Z)$
-    frame, where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical
-    height. It is a signed component of the equilibrium field and is distinct from
-    both the full magnetic-field magnitude and the vacuum toroidal-field estimate.
-
-
-    The defining projection at the reference point is:
-
-
-    $$
-
-    B_\mathrm{ref} = \mathbf{B}_\mathrm{eq}(R_\mathrm{ref}, \phi, Z_\mathrm{ref})
-    \cdot \hat{\phi}
-
-    $$
-
-
-    where $\mathbf{B}_\mathrm{eq}$ is the equilibrium magnetic field, $\hat{\phi}$
-    is the toroidal unit vector, $B_\mathrm{ref}$ and the component $B_\phi$ are in
-    tesla, and $R_\mathrm{ref}$ and $Z_\mathrm{ref}$ are in meters. In an axisymmetric
-    equilibrium the value is independent of $\phi$; if the reference is specified
-    only by major radius, $Z_\mathrm{ref}$ denotes the associated vertical coordinate
-    of that reference location.
-
-
-    The value is computed by evaluating the equilibrium field at the reference point
-    and projecting onto $\hat{\phi}$. It is the reference-location specialization
-    of [toroidal_magnetic_field](name:toroidal_magnetic_field); [toroidal_magnetic_field_at_magnetic_axis](name:toroidal_magnetic_field_at_magnetic_axis)
-    uses the magnetic-axis location instead. The related [toroidal_vacuum_magnetic_field](name:toroidal_vacuum_magnetic_field)
-    is often written $B_\mathrm{vac}=F_\mathrm{vac}/R_\mathrm{ref}$, where $F_\mathrm{vac}$
-    is in T m and $B_\mathrm{vac}$ is in T, or equivalently $B_\mathrm{vac}=B_{\phi0}R_0/R_\mathrm{ref}$,
-    where $B_{\phi0}$ is in T and $R_0$ is in meters. The equilibrium reference value
-    can differ from this vacuum value because plasma pressure and current modify the
-    toroidal-field function and because the reference point may be displaced by plasma
-    shaping or Shafranov shift.
-
-
-    Typical magnitudes are 1-6 T in medium-sized to large tokamaks, below 1 T in some
-    low-field spherical tokamaks, and up to about 8-12 T in high-field devices. Quantities
-    such as gyrofrequency scales or gyroradii normally use $|B_\mathrm{ref}|$ or a
-    full-field magnitude; the signed value is retained when toroidal-field orientation
-    matters.
-
-
-    Sign convention: Positive when $B_\phi$ points in the direction of increasing
-    toroidal angle $\phi$ in the right-handed cylindrical $(R, \phi, Z)$ frame.'
-  unit: T
-  physics_domain: turbulence
-  links:
-  - name:reference_major_radius
-  sources:
-  - id: dd:gyrokinetics/normalizing_quantities/b_field_tor
-    dd_path: gyrokinetics/normalizing_quantities/b_field_tor
-    status: composed
-  - id: dd:gyrokinetics_local/normalizing_quantities/b_field_phi
-    dd_path: gyrokinetics_local/normalizing_quantities/b_field_phi
-    status: attached
-  - id: dd:gyrokinetics_local/normalizing_quantities/b_field_tor
-    dd_path: gyrokinetics_local/normalizing_quantities/b_field_tor
-    status: attached
-- name: vector_potential
-  kind: scalar
-  status: draft
-  description: Vector potential is the electromagnetic potential whose curl gives
-    the magnetic field. It covers normalized scalar representations, components, projections,
-    or perturbations used in turbulence descriptions without fixing a particular gage,
-    component, or normalization.
-  documentation: 'Vector potential is an electromagnetic potential field whose spatial
-    circulation determines the magnetic field. The general physical object is a vector
-    field, but turbulence variables can represent a chosen normalized scalar component,
-    projection, or perturbation of that field once a gage and normalization are fixed.
-
-
-    The defining relation for the dimensional vector potential $\mathbf{A}$ is its
-    curl:
-
-
-    $$
-
-    \mathbf{B} = \nabla \times \mathbf{A}
-
-    $$
-
-
-    where $\mathbf{B}$ is the magnetic field and $\nabla \times$ denotes the curl
-    operator. In SI units the dimensional $\mathbf{A}$ has units of T m; a dimensionless
-    scalar vector-potential value represents a selected component or projection divided
-    by a specified reference scale. The transformation $\mathbf{A} \rightarrow \mathbf{A}
-    + \nabla \chi$ leaves $\mathbf{B}$ unchanged, so gage choice is part of any concrete
-    realization.
-
-
-    In turbulence theory and simulation, vector-potential quantities are normally
-    evolved or solved from electromagnetic field equations and coupled to current
-    response through Ampere''s law. Concrete descendants add the missing qualifiers,
-    such as perturbation, component, projection, or normalization; for example, [perturbed_vector_potential](name:perturbed_vector_potential)
-    denotes a perturbed realization rather than the full unqualified vector-potential
-    concept.
-
-
-    Typical values are not universal because the absolute value depends on gage, reference
-    scale, and projection. Dimensionless turbulence amplitudes are often ordered small
-    relative to their normalization, commonly $10^{-5}$-$10^{-1}$ for perturbative
-    electromagnetic fluctuations, while the corresponding dimensional scale is set
-    by the product of magnetic-field strength and length scale.
-
-
-    Sign convention: Positive when the represented scalar component or projection
-    of $\mathbf{A}$ is aligned with its defined positive basis vector or projection
-    direction.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:normalized_energy_flux_due_to_perturbed_parallel_vector_potential
-  - name:momentum_flux_due_to_perturbed_parallel_vector_potential
-  sources:
-  - id: derived:vector_potential
+  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_1/pressure_perpendicular
+    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_1/pressure_perpendicular
     status: composed
 - name: perturbed_vector_potential
   kind: scalar
@@ -4416,10 +3001,6 @@
   - name:normalized_energy_flux_due_to_perturbed_parallel_vector_potential
   - name:momentum_flux_due_to_perturbed_parallel_vector_potential
   - name:vector_potential
-  arguments:
-  - name: vector_potential
-    operator: perturbed
-    operator_kind: qualifier
   sources:
   - id: derived:perturbed_vector_potential
     status: composed
@@ -4672,6 +3253,111 @@
   - id: dd:gyrokinetics/wavevector/eigenmode/a_field_parallel_perturbed_norm_real
     dd_path: gyrokinetics/wavevector/eigenmode/a_field_parallel_perturbed_norm_real
     status: composed
+- name: ratio_of_particle_temperature_to_reference_particle_temperature
+  kind: scalar
+  status: draft
+  description: Dimensionless ratio of a particle species temperature to a normalization
+    reference temperature, setting the relative thermal speed of that species in a
+    gyrokinetic simulation.
+  documentation: "The ratio of a particle species temperature $T_s$ to a reference\
+    \ temperature $T_{\\rm ref}$ is a fundamental dimensionless input in gyrokinetic\
+    \ flux-tube simulations, governing the amplitude of thermal fluctuations and the\
+    \ relative equilibrium distribution widths between co-existing plasma species.\n\
+    \nThe defining relation is:\n\n$$\n\\tau_s = \\frac{T_s}{T_{\\rm ref}}\n$$\n\n\
+    where $T_s$ is the temperature of species $s$ and $T_{\\rm ref}$ is the global\
+    \ normalization reference temperature, often chosen as the electron temperature\
+    \ at the outboard midplane flux surface. Through the thermal speed $v_{T,s} =\
+    \ \\sqrt{T_s / m_s}$, where $m_s$ is the species mass, $\\tau_s$ directly sets\
+    \ the gyrokinetic Maxwellian width and controls interspecies temperature contrasts\
+    \ that drive ion-temperature-gradient and trapped-electron-mode instabilities.\n\
+    \nThis quantity is equivalent to [normalized_particle_temperature](name:ratio_of_particle_temperature_to_reference_particle_temperature)\
+    \ and overlaps with the more generic [normalized_temperature](name:ratio_of_particle_temperature_to_reference_particle_temperature);\
+    \ it is the temperature analog of [ratio_of_particle_number_density_to_reference_number_density](name:ratio_of_particle_number_density_to_reference_number_density).\
+    \ In practice it is prescribed as a species-level input parameter to a gyrokinetic\
+    \ code, derived from experimental profiles or equilibrium reconstruction at the\
+    \ chosen flux surface.\n\nTypical values in core-plasma flux-tube runs span $\\\
+    tau_s \\approx 0.1$\u201310, with the reference species by definition having $\\\
+    tau_s = 1$ and minority or impurity species taking values determined by their\
+    \ experimental temperature ratios."
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:ratio_of_particle_number_density_to_reference_number_density
+  sources:
+  - id: dd:gyrokinetics/species/temperature_norm
+    dd_path: gyrokinetics/species/temperature_norm
+    status: attached
+  - id: dd:gyrokinetics_local/species/temperature_norm
+    dd_path: gyrokinetics_local/species/temperature_norm
+    status: composed
+- name: toroidal_reference_magnetic_field
+  kind: scalar
+  status: draft
+  description: Toroidal component of the equilibrium magnetic field evaluated at the
+    reference major radius in the right-handed cylindrical (R, phi, Z) frame. It is
+    a signed field component, distinct from the corresponding vacuum toroidal field.
+  documentation: 'The toroidal reference magnetic field is the toroidal component
+    of the equilibrium magnetic field evaluated at the chosen reference location whose
+    major radius is $R_\mathrm{ref}$ in the right-handed cylindrical $(R, \phi, Z)$
+    frame, where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical
+    height. It is a signed component of the equilibrium field and is distinct from
+    both the full magnetic-field magnitude and the vacuum toroidal-field estimate.
+
+
+    The defining projection at the reference point is:
+
+
+    $$
+
+    B_\mathrm{ref} = \mathbf{B}_\mathrm{eq}(R_\mathrm{ref}, \phi, Z_\mathrm{ref})
+    \cdot \hat{\phi}
+
+    $$
+
+
+    where $\mathbf{B}_\mathrm{eq}$ is the equilibrium magnetic field, $\hat{\phi}$
+    is the toroidal unit vector, $B_\mathrm{ref}$ and the component $B_\phi$ are in
+    tesla, and $R_\mathrm{ref}$ and $Z_\mathrm{ref}$ are in meters. In an axisymmetric
+    equilibrium the value is independent of $\phi$; if the reference is specified
+    only by major radius, $Z_\mathrm{ref}$ denotes the associated vertical coordinate
+    of that reference location.
+
+
+    The value is computed by evaluating the equilibrium field at the reference point
+    and projecting onto $\hat{\phi}$. It is the reference-location specialization
+    of [toroidal_magnetic_field](name:toroidal_magnetic_field); [toroidal_magnetic_field_at_magnetic_axis](name:toroidal_magnetic_field_at_magnetic_axis)
+    uses the magnetic-axis location instead. The related [toroidal_vacuum_magnetic_field](name:toroidal_vacuum_magnetic_field)
+    is often written $B_\mathrm{vac}=F_\mathrm{vac}/R_\mathrm{ref}$, where $F_\mathrm{vac}$
+    is in T m and $B_\mathrm{vac}$ is in T, or equivalently $B_\mathrm{vac}=B_{\phi0}R_0/R_\mathrm{ref}$,
+    where $B_{\phi0}$ is in T and $R_0$ is in meters. The equilibrium reference value
+    can differ from this vacuum value because plasma pressure and current modify the
+    toroidal-field function and because the reference point may be displaced by plasma
+    shaping or Shafranov shift.
+
+
+    Typical magnitudes are 1-6 T in medium-sized to large tokamaks, below 1 T in some
+    low-field spherical tokamaks, and up to about 8-12 T in high-field devices. Quantities
+    such as gyrofrequency scales or gyroradii normally use $|B_\mathrm{ref}|$ or a
+    full-field magnitude; the signed value is retained when toroidal-field orientation
+    matters.
+
+
+    Sign convention: Positive when $B_\phi$ points in the direction of increasing
+    toroidal angle $\phi$ in the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: T
+  physics_domain: turbulence
+  links:
+  - name:reference_major_radius
+  sources:
+  - id: dd:gyrokinetics/normalizing_quantities/b_field_tor
+    dd_path: gyrokinetics/normalizing_quantities/b_field_tor
+    status: composed
+  - id: dd:gyrokinetics_local/normalizing_quantities/b_field_phi
+    dd_path: gyrokinetics_local/normalizing_quantities/b_field_phi
+    status: attached
+  - id: dd:gyrokinetics_local/normalizing_quantities/b_field_tor
+    dd_path: gyrokinetics_local/normalizing_quantities/b_field_tor
+    status: attached
 - name: normalized_particle_density
   kind: scalar
   status: draft
@@ -4725,6 +3411,273 @@
   sources:
   - id: dd:gyrokinetics/species/density_norm
     dd_path: gyrokinetics/species/density_norm
+    status: composed
+- name: perturbed_particle_pressure
+  kind: scalar
+  status: draft
+  description: Abstract parent for the normalized gyrotropic pressure-tensor moment
+    of the perturbed particle distribution in gyrokinetic turbulence, encompassing
+    the parallel and perpendicular components of the pressure decomposition.
+  documentation: 'This parent quantity represents the dimensionless pressure perturbation
+    carried by the particle distribution function $\delta f_s$ for a given species
+    in linear gyrokinetic eigenmode analysis. The full pressure tensor of the perturbed
+    distribution is gyrotropic, decomposing into two independent scalar components
+    along and perpendicular to the equilibrium magnetic field $\mathbf{B}$. Normalization
+    by a reference thermal pressure $p_{\rm ref} = n_{\rm ref} T_{\rm ref}$ makes
+    the moment dimensionless and enables direct comparison across species and plasma
+    parameters.
+
+
+    The defining kinetic moment is:
+
+
+    $$
+
+    \delta \hat{p}_s = \frac{1}{n_{\rm ref} T_{\rm ref}} \int m_s v^2 \, \delta f_s
+    \, d^3v
+
+    $$
+
+
+    where $m_s$ is the species mass, $v$ is the particle speed, $n_{\rm ref}$ is a
+    reference number density, and $T_{\rm ref}$ is a reference temperature. The directional
+    decomposition into parallel and perpendicular gyrotropic components is carried
+    by [normalized_particle_perturbed_pressure](name:normalized_particle_perturbed_pressure).
+    The analogous gyrocenter quantity [normalized_gyrocenter_perturbed_pressure](name:normalized_gyrocenter_perturbed_pressure)
+    differs from the particle moment by finite-Larmor-radius corrections that become
+    significant when the perturbation wavelength is comparable to the thermal gyroradius.
+    For a linear eigenmode, the complex phase of $\delta f_s$ is arbitrary; only relative
+    amplitudes between moments evaluated at the same wavevector carry physical meaning.
+
+
+    Sign convention: Positive when the perturbation corresponds to a local enhancement
+    of particle pressure above the equilibrium background value.'
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:normalized_particle_perturbed_pressure
+  - name:normalized_gyrocenter_perturbed_pressure
+  arguments:
+  - name: particle_pressure
+    operator: perturbed
+    operator_kind: qualifier
+  sources:
+  - id: derived:perturbed_particle_pressure
+    status: composed
+- name: normalized_particle_perturbed_pressure
+  kind: vector
+  status: draft
+  description: Normalized gyrotropic pressure-tensor moment of the perturbed particle
+    distribution for a linear gyrokinetic eigenmode, decomposed into components parallel
+    and perpendicular to the background magnetic field.
+  documentation: 'The normalized particle perturbed pressure is a gyrotropic vector
+    quantity representing the pressure fluctuation of the physical particle population
+    in a linear gyrokinetic eigenmode, decomposed into components parallel and perpendicular
+    to the equilibrium magnetic field $\mathbf{B}$, each expressed dimensionlessly
+    as a ratio to a reference thermal pressure $p_\mathrm{ref}$.
+
+
+    For species $s$, the parallel and perpendicular components are the second velocity-space
+    moments of the perturbed particle distribution function $\delta f_s$:
+
+
+    $$
+
+    \hat{p}_{\parallel,s} = \frac{m_s}{p_\mathrm{ref}} \int v_\parallel^2 \, \delta
+    f_s \, d^3v, \qquad \hat{p}_{\perp,s} = \frac{m_s}{2 \, p_\mathrm{ref}} \int v_\perp^2
+    \, \delta f_s \, d^3v
+
+    $$
+
+
+    where $m_s$ is the species mass, $v_\parallel$ and $v_\perp$ are velocities parallel
+    and perpendicular to $\mathbf{B}$, and $p_\mathrm{ref} = n_\mathrm{ref} T_\mathrm{ref}$
+    is evaluated at the outboard midplane.
+
+
+    Unlike the corresponding [gyroaveraged gyrocenter perturbed pressure], this quantity
+    is built from the full particle distribution function, implicitly incorporating
+    finite-Larmor-radius corrections through the particle-to-gyrocenter coordinate
+    transformation. The isotropic scalar parent particle_perturbed_pressure is recovered
+    as the trace average $\hat{p}_s = (\hat{p}_{\parallel,s} + 2\hat{p}_{\perp,s})/3$.
+    The [parallel_normalized_particle_perturbed_pressure](name:parallel_normalized_particle_perturbed_pressure)
+    and [perpendicular_normalized_particle_perturbed_pressure](name:perpendicular_normalized_particle_perturbed_pressure)
+    components together encode the pressure anisotropy of the eigenmode, with the
+    ratio $\hat{p}_{\parallel,s}/\hat{p}_{\perp,s}$ quantifying deviation from local
+    thermodynamic equilibrium relevant to mirror-mode and fire-hose stability.
+
+
+    Sign convention: Positive when the species pressure perturbation corresponds to
+    a local increase above the equilibrium background pressure.'
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:parallel_normalized_particle_perturbed_pressure
+  - name:perpendicular_normalized_particle_perturbed_pressure
+  arguments:
+  - name: perturbed_particle_pressure
+    operator: normalized
+    operator_kind: qualifier
+  sources:
+  - id: derived:normalized_particle_perturbed_pressure
+    status: composed
+- name: parallel_normalized_particle_perturbed_pressure
+  kind: scalar
+  status: draft
+  description: Normalized parallel pressure moment of the perturbed particle distribution
+    function for a linear gyrokinetic eigenmode. It is the complex parallel component
+    of the particle pressure perturbation, normalized to a reference pressure, and
+    is distinct from the corresponding gyrocenter moment.
+  documentation: 'The parallel normalized particle perturbed pressure is a dimensionless
+    complex eigenmode moment of the perturbed particle distribution function. It represents
+    the fluctuation of the pressure associated with random particle motion along the
+    local magnetic-field direction, evaluated in particle variables rather than gyrocenter
+    variables.
+
+
+    For species $s$, using reference density $n_{\mathrm{ref},s}$ and reference temperature
+    $T_{\mathrm{ref},s}$ expressed as an energy, a common normalization is
+
+
+    $$
+
+    \widehat{p}_{\parallel s}^{\,\mathrm{part}} = \frac{m_s}{n_{\mathrm{ref},s} T_{\mathrm{ref},s}}
+    \int v_\parallel^2\,\delta f_s^{\,\mathrm{part}}(\mathbf{x},\mathbf{v})\,d^3v
+
+    $$
+
+
+    where $m_s$ is the particle mass, $v_\parallel$ is the particle velocity component
+    along the magnetic field in $\mathrm{m\,s^{-1}}$, $\delta f_s^{\,\mathrm{part}}$
+    is the perturbed particle distribution function in $\mathrm{m^{-6}\,s^3}$, and
+    $d^3v$ is the velocity-space volume element in $\mathrm{m^3\,s^{-3}}$. The denominator
+    $n_{\mathrm{ref},s}T_{\mathrm{ref},s}$ is a reference pressure; if temperature
+    is supplied in eV it must be converted to joules for this expression.
+
+
+    In linear gyrokinetic analysis this moment is computed by applying the parallel-pressure
+    velocity-space weight to the particle perturbed distribution eigenfunction and
+    integrating over velocity space. When the same reference pressure and particle
+    distribution are used, the scalar normalized perturbed pressure is related to
+    the gyrotropic components by $\widehat{p}_s^{\mathrm{part}}=(\widehat{p}_{\parallel
+    s}^{\mathrm{part}}+2\widehat{p}_{\perp s}^{\mathrm{part}})/3$; this trace relation
+    does not specify nongyrotropic or off-diagonal pressure-tensor moments. The particle
+    moment should not be assumed equal to the gyrocenter parallel pressure moment,
+    because the variables used in the velocity-space moment are different.
+
+
+    Typical magnitudes are normalization dependent. With unit-amplitude eigenfunction
+    normalizations, values from about $10^{-3}$ to $10$ are common, while ratios between
+    species, radial locations, or pressure components and the relative complex phase
+    usually carry more physical meaning than the absolute magnitude.
+
+
+    For a linear eigenmode the overall complex amplitude and phase are arbitrary.
+    A self-contained convention is obtained by choosing one reference eigenfunction
+    component to be real with a fixed positive value; changing that choice multiplies
+    all complex moments by the same complex constant, leaving relative phases and
+    normalized ratios invariant.'
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:parallel_normalized_gyrocenter_perturbed_pressure
+  - name:perpendicular_normalized_perturbed_pressure
+  - name:normalized_perturbed_pressure
+  - name:parallel_normalized_particle_perturbed_current_density
+  arguments:
+  - name: normalized_particle_perturbed_pressure
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_particle/pressure_parallel
+    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_particle/pressure_parallel
+    status: attached
+  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/pressure_parallel
+    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/pressure_parallel
+    status: composed
+- name: perpendicular_normalized_particle_perturbed_pressure
+  kind: scalar
+  status: draft
+  description: Dimensionless perpendicular-pressure moment of the perturbed particle
+    distribution of a linear gyrokinetic eigenmode, normalized by a reference thermal
+    pressure. It is the second velocity-space moment in perpendicular kinetic energy
+    of the perturbed distribution rather than an independent thermodynamic pressure.
+  documentation: 'Perpendicular normalized particle perturbed pressure is the dimensionless
+    perpendicular-pressure moment of the perturbed particle distribution function
+    for a linear gyrokinetic eigenmode. It measures the fluctuating perpendicular
+    thermal energy density carried by the perturbed distribution, expressed in particle
+    (laboratory) velocity variables and scaled by a reference thermal pressure. It
+    is a velocity-space moment of the perturbation, not an independent thermodynamic
+    state variable.
+
+
+    For species $s$, the normalized perpendicular pressure moment is
+
+
+    $$
+
+    \delta \hat{p}^{\mathrm{particle}}_{\perp s} = \frac{1}{n_{\mathrm{ref}} T_{\mathrm{ref}}}
+    \int \frac{m_s v_\perp^2}{2}\, \delta f^{\mathrm{particle}}_s(\mathbf{x},\mathbf{v},t)\,
+    d^3v
+
+    $$
+
+
+    where $m_s$ is the particle mass in kg, $v_\perp$ is the speed perpendicular to
+    the equilibrium magnetic field in m s$^{-1}$, $\delta f^{\mathrm{particle}}_s$
+    is the perturbed particle distribution in units m$^{-3}$ (m s$^{-1}$)$^{-3}$,
+    and the velocity-space element $d^3v$ has units (m s$^{-1}$)$^3$. The reference
+    density $n_{\mathrm{ref}}$ is in m$^{-3}$ and the reference temperature $T_{\mathrm{ref}}$
+    is an energy per particle in J; a temperature given in eV must be multiplied by
+    the elementary charge before forming the reference pressure $n_{\mathrm{ref}}
+    T_{\mathrm{ref}}$.
+
+
+    The perpendicular and parallel particle pressure moments combine into the total
+    particle pressure moment of the eigenmode. With the perpendicular component counting
+    the two degrees of freedom orthogonal to $\mathbf{B}$ and the parallel component
+    the single field-aligned degree of freedom, the trace-weighted combination $\delta
+    \hat{p}^{\mathrm{particle}}_s = (2\,\delta \hat{p}^{\mathrm{particle}}_{\perp
+    s} + \delta \hat{p}^{\mathrm{particle}}_{\parallel s})/3$ recovers normalized_total_perturbed_particle_pressure_of_gyrokinetic_eigenmode,
+    where $\delta \hat{p}^{\mathrm{particle}}_{\parallel s}$ is [parallel_normalized_particle_perturbed_pressure](name:parallel_normalized_particle_perturbed_pressure).
+    The difference between this particle-frame moment and its gyrocenter counterpart
+    [perpendicular_normalized_gyrocenter_perturbed_pressure](name:perpendicular_normalized_gyrocenter_perturbed_pressure)
+    reflects the coordinate transformation between particle and gyrocenter velocity
+    variables.
+
+
+    The moment is obtained by integrating the eigenmode perturbed distribution over
+    velocity space in particle variables; the reference density and temperature defining
+    the normalization are part of the prescribed normalization convention of the calculation.
+    Because a linear eigenmode has an arbitrary overall amplitude, no absolute magnitude
+    range is meaningful: the quantity scales with the chosen eigenfunction normalization
+    and is generally complex.
+
+
+    The complex value carries both magnitude and phase relative to the arbitrary global
+    phase of the eigenmode, which is itself set by the eigenfunction normalization
+    convention. Only relative magnitudes and phase differences between moments of
+    the same eigenmode are physically meaningful; the sign of the real part by itself
+    is not an invariant quantity.'
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:parallel_normalized_particle_perturbed_pressure
+  - name:perpendicular_normalized_gyrocenter_perturbed_pressure
+  arguments:
+  - name: normalized_particle_perturbed_pressure
+    operator: component
+    operator_kind: projection
+    axis: perpendicular
+    shape: component
+  sources:
+  - id: dd:gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_particle/pressure_perpendicular
+    dd_path: gyrokinetics/wavevector/eigenmode/fluxes_moments/moments_norm_particle/pressure_perpendicular
+    status: attached
+  - id: dd:gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/pressure_perpendicular
+    dd_path: gyrokinetics_local/linear/wavevector/eigenmode/moments_norm_particle/pressure_perpendicular
     status: composed
 - name: radial_derivative_of_elongation_of_flux_surface
   kind: scalar
