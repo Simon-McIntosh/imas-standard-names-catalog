@@ -1,54 +1,57 @@
 # Domain: turbulence
-# Catalog sha: 8907b76455ee66eb637e3842250dd81478dc2348
-# Entries: 58
+# Catalog sha: a1e0207170856872842b8ee168220adcf4acab4a
+# Entries: 57
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
-- name: effective_energy
+- name: effective_particle_energy
   kind: scalar
   status: draft
-  description: Abstract parent quantity for the guiding-center single-particle effective
-    energy, combining parallel kinetic energy with the adiabatic magnetic-moment perpendicular
-    contribution, covering both physical and reference-normalized dimensionless forms.
-  documentation: 'The effective particle energy is the conserved single-particle energy
-    in guiding-center theory, formed from the parallel kinetic contribution and the
-    energy associated with the adiabatic magnetic moment. This parent quantity generalizes
-    over both the dimensional physical energy and its dimensionless form obtained
-    by dividing by a reference thermal energy, as represented concretely by [particle_effective_energy](name:particle_effective_energy).
+  description: Effective particle energy is the guiding-center single-particle energy
+    combining kinetic energy parallel to the magnetic field with magnetic-moment perpendicular
+    energy. The parent concept covers the physical energy and dimensionless forms
+    normalized by a reference thermal energy.
+  documentation: 'Effective particle energy is the single-particle guiding-center
+    energy associated with motion along the magnetic field and gyromotion perpendicular
+    to it. It is an energy-like phase-space quantity used to characterize particle
+    distribution functions and turbulent fluctuations. The concept is not inherently
+    normalized; dimensionless forms are obtained by scaling the physical energy by
+    a reference thermal energy.
 
 
-    The defining expression is:
+    For species $s$, the physical effective energy is commonly written as the sum
+    of parallel kinetic energy and magnetic-moment energy:
 
 
     $$
 
-    \varepsilon = \frac{1}{2}m v_\parallel^2 + \mu B
+    \mathcal{E}_{\mathrm{eff},s} = \frac{1}{2} m_s v_\parallel^2 + \mu B
 
     $$
 
 
-    where $v_\parallel$ is the particle speed parallel to the equilibrium magnetic
-    field of magnitude $B$, $m$ is the particle mass, and $\mu = mv_\perp^2/(2B)$
-    is the conserved magnetic moment with $v_\perp$ the speed perpendicular to $B$.
-    Normalized forms divide $\varepsilon$ by a reference thermal energy $T_\mathrm{ref}$,
-    yielding a dimensionless coordinate.
+    where $m_s$ is the particle mass, $v_\parallel$ is the velocity component parallel
+    to the magnetic field, $\mu$ is the magnetic moment, and $B$ is the magnetic-field
+    magnitude. A dimensionless quantity such as [normalized effective particle energy]
+    is obtained by dividing $\mathcal{E}_{\mathrm{eff},s}$ by a chosen reference thermal
+    energy.
 
 
-    In gyrokinetic turbulence calculations, the distribution function is expressed
-    in $(\varepsilon, \mu)$ velocity-space coordinates, and $\varepsilon$ appears
-    directly in the integration weights for fluid moments such as particle density,
-    parallel current, and heat flux. The poloidal variation of the normalized form,
-    captured by [derivative_with_respect_to_poloidal_angle_of_normalized_effective_particle_energy](name:derivative_with_respect_to_poloidal_angle_of_normalized_effective_particle_energy),
-    enters bounce-average and transit-average operators in the gyrokinetic equation
-    and is needed when tracing particle orbits along flux surfaces.'
+    In turbulence and gyrokinetic calculations, effective particle energy is computed
+    from the phase-space variables, species mass, and local magnetic-field magnitude
+    rather than measured directly. It is used to parameterize kinetic distribution
+    functions, separate thermal and suprathermal particle populations, and express
+    velocity-space dependence in a compact form.
+
+
+    For bulk thermal particles, the physical effective energy is typically of the
+    order of the species thermal energy, from about 10 eV-20 keV in common edge-to-core
+    fusion-plasma conditions, while energetic-particle populations can extend to much
+    higher energies. In normalized form, thermal particles usually have values of
+    order 1, with suprathermal tails extending to 10 or more.'
   unit: '1'
   physics_domain: turbulence
-  links:
-  - name:particle_effective_energy
-  - name:derivative_with_respect_to_poloidal_angle_of_normalized_effective_particle_energy
-  sources:
-  - id: derived:effective_energy
-    status: composed
+  links: []
 - name: electron_density_at_outboard_midplane
   kind: scalar
   status: draft
@@ -566,6 +569,121 @@
     status: attached
   - id: dd:gyrokinetics_local/species_all/debye_length_norm
     dd_path: gyrokinetics_local/species_all/debye_length_norm
+    status: composed
+- name: normalized_effective_particle_energy
+  kind: scalar
+  status: draft
+  description: Normalized effective particle energy is the effective velocity-space
+    energy of one species divided by a strictly positive species reference thermal
+    energy. The reference is an energy scale, such as electronvolts or Boltzmann constant
+    times a thermodynamic temperature, so the result is dimensionless.
+  documentation: 'Normalized effective particle energy is a dimensionless energy coordinate
+    for a particle species in gyrokinetic normalization. It represents the physical
+    effective particle energy scaled by a strictly positive species reference thermal
+    energy, so particles with energies comparable to that reference have values of
+    order unity. The reference scale has units of energy; if it is derived from a
+    thermodynamic temperature in kelvin, the energy scale is Boltzmann constant times
+    that temperature.
+
+
+    The normalization and a common guiding-center decomposition of the physical effective
+    energy are
+
+
+    $$
+
+    \bar{\mathcal{E}}_s = \frac{\mathcal{E}_s}{E_{\mathrm{ref},s}}, \qquad \mathcal{E}_s
+    = \frac{1}{2} m_s v_{\parallel}^2 + \mu B + U_{\mathrm{eff},s}
+
+    $$
+
+
+    where $s$ labels the species, $\mathcal{E}_s$ is the physical effective particle
+    energy in joules, and $E_{\mathrm{ref},s} > 0$ is the species reference thermal
+    energy in joules. Here $m_s$ is species mass in kilograms, $v_{\parallel}$ is
+    velocity parallel to the magnetic field in meters per second, $\mu$ is magnetic
+    moment in joules per tesla, $B$ is magnetic-field magnitude in tesla, and $U_{\mathrm{eff},s}$
+    is the effective potential-energy contribution in joules. The normalized potential
+    contribution is the corresponding [normalized_particle_effective_potential], equal
+    to $U_{\mathrm{eff},s}/E_{\mathrm{ref},s}$ when the same reference energy is used.
+
+
+    In practice this quantity is computed from the species phase-space coordinates,
+    magnetic-field magnitude, effective potential model, and chosen reference energy.
+    The species dependence of the kinetic term is tied to the mass normalization used
+    for [normalized_particle_mass](name:normalized_particle_mass), while electrostatic
+    potential terms depend on the species charge normalization represented by [normalized_particle_charge](name:normalized_particle_charge).
+    The detailed contents of $U_{\mathrm{eff},s}$ are model dependent, but they must
+    be additive energy terms in the effective single-particle Hamiltonian.
+
+
+    Values near 1 indicate effective energies comparable with the selected species
+    thermal-energy reference. Values much larger than 1 represent high-energy tail
+    or suprathermal particles relative to that reference, while the numerical zero
+    and any lower bound depend on the chosen effective-potential offset.'
+  unit: '1'
+  physics_domain: turbulence
+  links:
+  - name:normalized_particle_mass
+  - name:normalized_particle_charge
+  arguments:
+  - name: effective_particle_energy
+    operator: normalized
+    operator_kind: qualifier
+- name: derivative_with_respect_to_poloidal_angle_of_normalized_effective_particle_energy
+  kind: scalar
+  status: draft
+  description: Coordinate derivative of normalized effective particle energy with
+    respect to poloidal angle theta in flux coordinates (rho, theta, phi). It gives
+    the change per radian along the poloidal coordinate on a flux surface.
+  documentation: 'The derivative with respect to poloidal angle of normalized effective
+    particle energy is the coordinate rate of change of the dimensionless [normalized
+    effective particle energy] for a plasma species as the poloidal angle is varied.
+    It is defined in a chosen flux-coordinate system $(\rho, \theta, \phi)$ and is
+    a derivative with respect to the coordinate $\theta$, not a metric component of
+    a spatial gradient.
+
+
+    The defining coordinate derivative is
+
+
+    $$
+
+    \partial_\theta \mathcal{E}_{\mathrm{eff},n} = \left.\frac{\partial \mathcal{E}_{\mathrm{eff},n}}{\partial
+    \theta}\right|_{\rho,\phi}
+
+    $$
+
+
+    where $\mathcal{E}_{\mathrm{eff},n}$ is the normalized effective particle energy
+    and is dimensionless, $\theta$ is the poloidal angle in radians, and the radial
+    flux label $\rho$ and toroidal angle $\phi$ are held fixed.
+
+
+    In local gyrokinetic modeling this quantity is computed from the specified poloidal
+    dependence of the species effective energy, using analytic differentiation, finite
+    differences, or spectral differentiation in $\theta$. It is generally a model
+    or equilibrium-derived input rather than a directly measured diagnostic observable.
+
+
+    No universal value range exists. The quantity is dimensionless and may be negative,
+    zero, or positive; magnitudes near 0 indicate weak poloidal variation, while magnitudes
+    of order 1 indicate changes over about one poloidal radian.
+
+
+    Sign convention: Positive when $\mathcal{E}_{\mathrm{eff},n}$ increases for increasing
+    poloidal angle $\theta$ in the chosen flux-coordinate system $(\rho, \theta, \phi)$,
+    with $\rho$ and $\phi$ held fixed.'
+  unit: '1'
+  physics_domain: turbulence
+  links: []
+  arguments:
+  - name: normalized_effective_particle_energy
+    operator: derivative_with_respect_to_poloidal_angle
+    operator_kind: unary_prefix
+  sources:
+  - id: dd:gyrokinetics_local/species/potential_energy_gradient_norm
+    dd_path: gyrokinetics_local/species/potential_energy_gradient_norm
     status: composed
 - name: normalized_frequency_of_gyrokinetic_eigenmode
   kind: scalar
@@ -1954,176 +2072,6 @@
   - name:perturbed_parity_of_gyrokinetic_eigenmode
   - name:perturbed_parity
   - name:normalized_frequency_of_gyrokinetic_eigenmode
-- name: particle_effective_energy
-  kind: scalar
-  status: draft
-  description: Effective particle energy is the guiding-center single-particle energy
-    combining kinetic energy parallel to the magnetic field with magnetic-moment perpendicular
-    energy. The parent concept covers the physical energy and dimensionless forms
-    normalized by a reference thermal energy.
-  documentation: 'Effective particle energy is the single-particle guiding-center
-    energy associated with motion along the magnetic field and gyromotion perpendicular
-    to it. It is an energy-like phase-space quantity used to characterize particle
-    distribution functions and turbulent fluctuations. The concept is not inherently
-    normalized; dimensionless forms are obtained by scaling the physical energy by
-    a reference thermal energy.
-
-
-    For species $s$, the physical effective energy is commonly written as the sum
-    of parallel kinetic energy and magnetic-moment energy:
-
-
-    $$
-
-    \mathcal{E}_{\mathrm{eff},s} = \frac{1}{2} m_s v_\parallel^2 + \mu B
-
-    $$
-
-
-    where $m_s$ is the particle mass, $v_\parallel$ is the velocity component parallel
-    to the magnetic field, $\mu$ is the magnetic moment, and $B$ is the magnetic-field
-    magnitude. A dimensionless quantity such as [normalized effective particle energy]
-    is obtained by dividing $\mathcal{E}_{\mathrm{eff},s}$ by a chosen reference thermal
-    energy.
-
-
-    In turbulence and gyrokinetic calculations, effective particle energy is computed
-    from the phase-space variables, species mass, and local magnetic-field magnitude
-    rather than measured directly. It is used to parameterize kinetic distribution
-    functions, separate thermal and suprathermal particle populations, and express
-    velocity-space dependence in a compact form.
-
-
-    For bulk thermal particles, the physical effective energy is typically of the
-    order of the species thermal energy, from about 10 eV-20 keV in common edge-to-core
-    fusion-plasma conditions, while energetic-particle populations can extend to much
-    higher energies. In normalized form, thermal particles usually have values of
-    order 1, with suprathermal tails extending to 10 or more.'
-  unit: '1'
-  physics_domain: turbulence
-  links: []
-  arguments:
-  - name: effective_energy
-    operator: particle
-    operator_kind: qualifier
-- name: normalized_particle_effective_energy
-  kind: scalar
-  status: draft
-  description: Normalized effective particle energy is the effective velocity-space
-    energy of one species divided by a strictly positive species reference thermal
-    energy. The reference is an energy scale, such as electronvolts or Boltzmann constant
-    times a thermodynamic temperature, so the result is dimensionless.
-  documentation: 'Normalized effective particle energy is a dimensionless energy coordinate
-    for a particle species in gyrokinetic normalization. It represents the physical
-    effective particle energy scaled by a strictly positive species reference thermal
-    energy, so particles with energies comparable to that reference have values of
-    order unity. The reference scale has units of energy; if it is derived from a
-    thermodynamic temperature in kelvin, the energy scale is Boltzmann constant times
-    that temperature.
-
-
-    The normalization and a common guiding-center decomposition of the physical effective
-    energy are
-
-
-    $$
-
-    \bar{\mathcal{E}}_s = \frac{\mathcal{E}_s}{E_{\mathrm{ref},s}}, \qquad \mathcal{E}_s
-    = \frac{1}{2} m_s v_{\parallel}^2 + \mu B + U_{\mathrm{eff},s}
-
-    $$
-
-
-    where $s$ labels the species, $\mathcal{E}_s$ is the physical effective particle
-    energy in joules, and $E_{\mathrm{ref},s} > 0$ is the species reference thermal
-    energy in joules. Here $m_s$ is species mass in kilograms, $v_{\parallel}$ is
-    velocity parallel to the magnetic field in meters per second, $\mu$ is magnetic
-    moment in joules per tesla, $B$ is magnetic-field magnitude in tesla, and $U_{\mathrm{eff},s}$
-    is the effective potential-energy contribution in joules. The normalized potential
-    contribution is the corresponding [normalized_particle_effective_potential](name:normalized_particle_effective_potential),
-    equal to $U_{\mathrm{eff},s}/E_{\mathrm{ref},s}$ when the same reference energy
-    is used.
-
-
-    In practice this quantity is computed from the species phase-space coordinates,
-    magnetic-field magnitude, effective potential model, and chosen reference energy.
-    The species dependence of the kinetic term is tied to the mass normalization used
-    for [normalized_particle_mass](name:normalized_particle_mass), while electrostatic
-    potential terms depend on the species charge normalization represented by [normalized_particle_charge](name:normalized_particle_charge).
-    The detailed contents of $U_{\mathrm{eff},s}$ are model dependent, but they must
-    be additive energy terms in the effective single-particle Hamiltonian.
-
-
-    Values near 1 indicate effective energies comparable with the selected species
-    thermal-energy reference. Values much larger than 1 represent high-energy tail
-    or suprathermal particles relative to that reference, while the numerical zero
-    and any lower bound depend on the chosen effective-potential offset.'
-  unit: '1'
-  physics_domain: turbulence
-  links:
-  - name:effective_particle_energy
-  - name:normalized_energy
-  - name:normalized_particle_effective_potential
-  - name:derivative_with_respect_to_poloidal_angle_of_normalized_effective_particle_energy
-  arguments:
-  - name: particle_effective_energy
-    operator: normalized
-    operator_kind: qualifier
-- name: derivative_with_respect_to_poloidal_angle_of_normalized_effective_particle_energy
-  kind: scalar
-  status: draft
-  description: Coordinate derivative of normalized effective particle energy with
-    respect to poloidal angle theta in flux coordinates (rho, theta, phi). It gives
-    the change per radian along the poloidal coordinate on a flux surface.
-  documentation: 'The derivative with respect to poloidal angle of normalized effective
-    particle energy is the coordinate rate of change of the dimensionless [normalized
-    effective particle energy] for a plasma species as the poloidal angle is varied.
-    It is defined in a chosen flux-coordinate system $(\rho, \theta, \phi)$ and is
-    a derivative with respect to the coordinate $\theta$, not a metric component of
-    a spatial gradient.
-
-
-    The defining coordinate derivative is
-
-
-    $$
-
-    \partial_\theta \mathcal{E}_{\mathrm{eff},n} = \left.\frac{\partial \mathcal{E}_{\mathrm{eff},n}}{\partial
-    \theta}\right|_{\rho,\phi}
-
-    $$
-
-
-    where $\mathcal{E}_{\mathrm{eff},n}$ is the normalized effective particle energy
-    and is dimensionless, $\theta$ is the poloidal angle in radians, and the radial
-    flux label $\rho$ and toroidal angle $\phi$ are held fixed.
-
-
-    In local gyrokinetic modeling this quantity is computed from the specified poloidal
-    dependence of the species effective energy, using analytic differentiation, finite
-    differences, or spectral differentiation in $\theta$. It is generally a model
-    or equilibrium-derived input rather than a directly measured diagnostic observable.
-
-
-    No universal value range exists. The quantity is dimensionless and may be negative,
-    zero, or positive; magnitudes near 0 indicate weak poloidal variation, while magnitudes
-    of order 1 indicate changes over about one poloidal radian.
-
-
-    Sign convention: Positive when $\mathcal{E}_{\mathrm{eff},n}$ increases for increasing
-    poloidal angle $\theta$ in the chosen flux-coordinate system $(\rho, \theta, \phi)$,
-    with $\rho$ and $\phi$ held fixed.'
-  unit: '1'
-  physics_domain: turbulence
-  links: []
-  arguments:
-  - name: normalized_particle_effective_energy
-    operator: derivative_with_respect_to_poloidal_angle
-    operator_kind: unary_prefix
-  sources:
-  - id: dd:gyrokinetics_local/species/potential_energy_gradient_norm
-    dd_path: gyrokinetics_local/species/potential_energy_gradient_norm
-    status: composed
 - name: perpendicular_momentum_flux_due_to_perturbed_parallel_magnetic_field
   kind: scalar
   status: draft

@@ -1,6 +1,6 @@
 # Domain: radiation_measurement_diagnostics
-# Catalog sha: 8907b76455ee66eb637e3842250dd81478dc2348
-# Entries: 125
+# Catalog sha: a1e0207170856872842b8ee168220adcf4acab4a
+# Entries: 126
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -3656,64 +3656,56 @@
   - id: dd:summary/fusion/neutron_rates/thermal/value
     dd_path: summary/fusion/neutron_rates/thermal/value
     status: attached
-- name: total_plasma_radiated_power
+- name: total_power_due_to_fusion_reactions
   kind: scalar
   status: draft
-  description: Total radiated power from the entire plasma volume, integrated over
-    all photon energies and emission mechanisms, representing the global electromagnetic
-    radiative loss from the plasma.
-  documentation: 'Total plasma radiated power is the aggregate electromagnetic power
-    emitted by the plasma and carried away by photons. It includes continuum and line
-    radiation from all plasma regions included in the physical volume being considered,
-    and is a global loss term in the plasma power balance.
+  description: Volume-integrated rate of thermonuclear energy release from all fusion
+    reaction branches in the plasma, encompassing the kinetic energy of both charged
+    products and fusion neutrons.
+  documentation: 'Total fusion power is the global integral of the local [power_due_to_fusion_reactions](name:power_due_to_fusion_reactions)
+    density over the plasma volume, summing contributions from all reaction branches
+    (D-D, D-T, and higher-order reactions) and all product species. It represents
+    the total rate at which nuclear binding-energy difference is converted to kinetic
+    energy of the reaction products.
 
 
-    If $\epsilon_\mathrm{rad}(\mathbf{r})$ is the spectral-integrated volumetric radiative
-    emissivity, the total radiated power is
+    The defining relation is:
 
 
     $$
 
-    P_\mathrm{rad} = \int_V \epsilon_\mathrm{rad}(\mathbf{r})\, dV
+    P_\mathrm{fus} = \int_V \sum_k Q_k \, n_a^{(k)} n_b^{(k)} \langle \sigma v \rangle_k
+    \, dV
 
     $$
 
 
-    where $V$ is the plasma volume, $\epsilon_\mathrm{rad}$ has units W m$^{-3}$,
-    and $dV$ has units m$^3$.
+    where $Q_k$ is the total energy released per reaction (in J) for branch $k$, $n_a^{(k)}$
+    and $n_b^{(k)}$ are the reactant number densities, $\langle \sigma v \rangle_k$
+    is the thermally averaged reactivity, and $V$ is the plasma volume. For D-T reactions,
+    $Q_\mathrm{DT} = 17.6$ MeV per event, split between the 3.5 MeV alpha particle
+    and the 14.1 MeV neutron.
 
 
-    In experiments, this quantity is commonly inferred from bolometric measurements
-    by reconstructing the spatial emissivity distribution and integrating it over
-    the plasma volume. It may also be computed from radiation models that combine
-    impurity line radiation, recombination radiation, bremsstrahlung, and other relevant
-    photon-emission processes. Related quantities may restrict the integration region,
-    for example to the plasma inside the last closed flux surface, or isolate a specific
-    contribution such as [bremsstrahlung_power](name:bremsstrahlung_power).
-
-
-    Typical values range from $10^4$-$10^6$ W in small or moderate plasmas and from
-    $10^6$-$5 \times 10^7$ W in high-power tokamak plasmas. The radiated fraction
-    of the injected or conducted heating power is often 20-80%, depending strongly
-    on density, impurity content, edge conditions, and detachment state.'
+    In experimental practice, $P_\mathrm{fus}$ is inferred from neutron emission diagnostics
+    by integrating the volumetric neutron source rate, as characterized by [emissivity_due_to_fusion](name:emissivity_due_to_fusion),
+    and scaling to the total energy per reaction event. Unlike [total_neutron_power](name:total_neutron_power),
+    which captures only the neutron-borne fraction of the fusion yield (~80% for D-T),
+    $P_\mathrm{fus}$ includes the charged-particle fraction that heats the plasma
+    directly. The fusion gain $Q = P_\mathrm{fus} / P_\mathrm{heat}$, where $P_\mathrm{heat}$
+    is the [total_plasma_heating_power](name:total_plasma_heating_power), is the primary
+    figure of merit for burning-plasma performance.'
   unit: W
   physics_domain: radiation_measurement_diagnostics
   links:
-  - name:plasma_radiated_power
-  - name:bremsstrahlung_power
+  - name:power_due_to_fusion_reactions
+  - name:emissivity_due_to_fusion
+  - name:total_neutron_power
+  - name:total_plasma_heating_power
   sources:
-  - id: dd:bolometer/power_radiated_inside_lcfs
-    dd_path: bolometer/power_radiated_inside_lcfs
+  - id: dd:neutron_diagnostic/synthetic_signals/fusion_power
+    dd_path: neutron_diagnostic/synthetic_signals/fusion_power
     status: composed
-  - id: dd:bolometer/power_radiated_total
-    dd_path: bolometer/power_radiated_total
-    status: attached
-  - id: dd:summary/global_quantities/power_radiated/value
-    dd_path: summary/global_quantities/power_radiated/value
-    status: attached
-  - id: dd:summary/global_quantities/power_radiated_inside_lcfs/value
-    dd_path: summary/global_quantities/power_radiated_inside_lcfs/value
-    status: attached
 - name: tritium_density
   kind: scalar
   status: draft
@@ -4061,6 +4053,46 @@
   sources:
   - id: dd:bolometer/channel/detector/centre/z
     dd_path: bolometer/channel/detector/centre/z
+    status: composed
+- name: vertical_coordinate_of_bragg_crystal
+  kind: scalar
+  status: draft
+  description: Vertical Z coordinate of the geometric center of a Bragg crystal in
+    the right-handed cylindrical (R, phi, Z) frame. The coordinate is measured relative
+    to the machine midplane (Z=0) with positive upward.
+  documentation: "Vertical coordinate Z of the geometric center of a Bragg crystal\
+    \ in the right-handed cylindrical (R, \u03D5, Z) frame, measured from the machine\
+    \ midplane (Z=0) and positive upward. This is the principal reference point for\
+    \ positioning the crystal; other distinctive points (such as the summit vertex)\
+    \ have separate coordinates defined elsewhere.\n\nThe crystal's Z coordinate is\
+    \ typically obtained from engineering drawings of the diagnostic assembly or from\
+    \ in-situ alignment surveys. It is used in geometric ray-tracing models that relate\
+    \ the crystal position to the observed X-ray spectrum.\n\nSign convention: Positive\
+    \ when the crystal lies above the midplane (Z=0)."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:radial_vertex_of_bragg_crystal
+  - name:vertical_coordinate_of_optical_element
+  - name:vertical_coordinate_of_aperture
+  sources:
+  - id: dd:spectrometer_uv/channel/grating/summit/z
+    dd_path: spectrometer_uv/channel/grating/summit/z
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/bin/line_of_sight/second_point/z
+    dd_path: spectrometer_x_ray_crystal/channel/bin/line_of_sight/second_point/z
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/profiles_line_integrated/lines_of_sight_second_point/z
+    dd_path: spectrometer_x_ray_crystal/channel/profiles_line_integrated/lines_of_sight_second_point/z
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/reflector/centre/z
+    dd_path: spectrometer_x_ray_crystal/channel/reflector/centre/z
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/channel/reflector/sphere_centre/z
+    dd_path: spectrometer_x_ray_crystal/channel/reflector/sphere_centre/z
+    status: composed
+  - id: dd:spectrometer_x_ray_crystal/crystal/summit/z
+    dd_path: spectrometer_x_ray_crystal/crystal/summit/z
     status: composed
 - name: vertical_coordinate_of_camera
   kind: scalar

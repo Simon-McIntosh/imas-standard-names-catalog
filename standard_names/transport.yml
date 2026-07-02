@@ -1,6 +1,6 @@
 # Domain: transport
-# Catalog sha: 8907b76455ee66eb637e3842250dd81478dc2348
-# Entries: 808
+# Catalog sha: a1e0207170856872842b8ee168220adcf4acab4a
+# Entries: 796
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -1373,11 +1373,10 @@
 
 
     Population-resolved specializations include [electron deposited power](name:electron_deposited_power)
-    for the electron channel and [plasma deposited power](name:plasma_deposited_power)
-    for the combined plasma ensemble; [total plasma deposited power](name:total_plasma_deposited_power)
-    aggregates contributions across all sources. The quantity is computed by kinetic
-    transport solvers that handle wave-particle interaction, neutral beam injection,
-    and fast-particle collisional slowing-down.
+    for the electron channel and [plasma deposited power] for the combined plasma
+    ensemble; [total plasma deposited power] aggregates contributions across all sources.
+    The quantity is computed by kinetic transport solvers that handle wave-particle
+    interaction, neutral beam injection, and fast-particle collisional slowing-down.
 
 
     Sign convention: Positive when the source deposits net energy into the particle
@@ -1386,8 +1385,10 @@
   physics_domain: transport
   links:
   - name:electron_deposited_power
-  - name:plasma_deposited_power
-  - name:total_plasma_deposited_power
+  sources:
+  - id: dd:distributions/distribution/global_quantities/source/power
+    dd_path: distributions/distribution/global_quantities/source/power
+    status: attached
 - name: deuterium_density_at_internal_transport_barrier
   kind: scalar
   status: draft
@@ -2006,7 +2007,7 @@
     pinch velocity concepts, subsuming bulk plasma flow, neoclassical Ware pinch,
     and turbulence-driven advection into a single signed transport coefficient. Species-
     and channel-specific forms include [ion_charge_state_effective_convection_velocity](name:ion_charge_state_effective_convection_velocity)
-    for charge-state-resolved particle transport, [momentum_effective_convection_velocity](name:momentum_effective_convection_velocity)
+    for charge-state-resolved particle transport, [momentum_effective_convection_velocity]
     for the ion momentum channel, and [neutral_state_effective_convection_velocity](name:neutral_state_effective_convection_velocity)
     for state-resolved neutral transport.
 
@@ -2043,7 +2044,6 @@
   physics_domain: transport
   links:
   - name:ion_charge_state_effective_convection_velocity
-  - name:momentum_effective_convection_velocity
   - name:neutral_state_effective_convection_velocity
 - name: electric_field
   kind: vector
@@ -2282,9 +2282,8 @@
     reconstruction over the plasma volume of interest. It is the per-source counterpart
     to [total_electron_deposited_power](name:total_electron_deposited_power), which
     gives the electron-channel deposited power for a specified source or sink as well,
-    and is distinct from [total_plasma_deposited_power](name:total_plasma_deposited_power),
-    which aggregates the deposited power over all heating and loss sources collectively
-    across particle species.
+    and is distinct from [total_plasma_deposited_power], which aggregates the deposited
+    power over all heating and loss sources collectively across particle species.
 
 
     Typical magnitudes are strongly source and device dependent, ranging from negligible
@@ -2296,9 +2295,7 @@
   unit: W
   physics_domain: transport
   links:
-  - name:deposited_power
-  - name:total_plasma_particle_deposited_power
-  - name:total_electron_power
+  - name:total_electron_deposited_power
   arguments:
   - name: deposited_power
     operator: electron
@@ -3013,6 +3010,55 @@
     dd_path: edge_transport/model/ggd/electrons/energy/flux/values
     status: composed
   - id: derived:electron_energy_flux
+    status: composed
+- name: energy_source_rate
+  kind: scalar
+  status: draft
+  description: Linearization rate coefficient of a plasma energy source term in transport
+    equations, defined as the derivative of the source term with respect to local
+    energy density.
+  documentation: 'The energy source rate is the linearization coefficient that describes
+    how a plasma energy source term responds to changes in local energy density. It
+    appears in the linearized energy balance equation when the source is expressed
+    as a linear function of energy density.
+
+
+    The governing definition is:
+
+
+    $$
+
+    \gamma = \frac{\partial S}{\partial W}
+
+    $$
+
+
+    where $S$ is the energy source term (power density) and $W$ is the local energy
+    density (pressure volume). The linearized source is $S(W) = S_0 + \gamma W$, and
+    $\gamma$ has units of s$^{-1}$.
+
+
+    In transport modeling, the energy source rate is obtained by linearizing the source
+    term around a reference state. It may represent contributions from auxiliary heating,
+    alpha heating, or losses such as radiation and charge exchange. The sign of $\gamma$
+    indicates whether the source acts as damping (negative) or drive (positive) relative
+    to the energy density.
+
+
+    Typical magnitudes of $\gamma$ range from $10^{-3}$ to $10^{3}$ s$^{-1}$ in fusion
+    plasmas, depending on the heating method and plasma conditions. Negative values
+    of order $-1$ to $-100$ s$^{-1}$ are common for loss-dominated regimes.
+
+
+    Sign convention: Positive when the energy source term increases with increasing
+    local energy density, indicating a destabilizing contribution to the energy balance.'
+  unit: s^-1
+  physics_domain: transport
+  links:
+  - name:implicit_energy_source_rate
+  - name:source_rate_due_to_gas_injection
+  sources:
+  - id: derived:energy_source_rate
     status: composed
 - name: fast_electron_pressure
   kind: vector
@@ -4397,6 +4443,115 @@
   - id: dd:summary/local/magnetic_axis/n_i/hydrogen/value
     dd_path: summary/local/magnetic_axis/n_i/hydrogen/value
     status: composed
+- name: implicit_energy_source_rate
+  kind: scalar
+  status: draft
+  description: Linearization rate coefficient for the stiff portion of a plasma energy
+    source term in transport equations, equal to the net implicit energy source contribution
+    per unit of local energy density.
+  documentation: 'In plasma transport solvers, source terms are decomposed into explicit
+    and stiff (implicit) contributions to ensure numerical stability across disparate
+    energy-exchange time scales. The energy implicit source rate is the linearization
+    coefficient for the energy-density-dependent portion of the total volumetric energy
+    source, and it has dimensions of inverse time.
+
+
+    The implicit energy source contribution is written as:
+
+
+    $$
+
+    S_E^{\rm impl} = \gamma_E \cdot \mathcal{E}
+
+    $$
+
+
+    where $\gamma_E$ is the energy implicit source rate and $\mathcal{E}$ is the local
+    energy density (or temperature proxy, depending on solver convention) of the species.
+    Stiff processes such as collisional thermalization, radiative cooling, or resonant
+    wave heating are handled via this implicit decomposition to avoid prohibitively
+    small time steps in the transport solver.
+
+
+    This rate applies to any plasma species energy channel: for the electron energy
+    balance, see [electron_energy_implicit_source_rate]; for a single ion charge state,
+    see [ion_state_energy_implicit_source_rate]. Both are specializations of the more
+    general [implicit_source_rate](name:implicit_source_rate), which spans particle,
+    energy, and momentum transport channels.
+
+
+    Sign convention: Positive when the implicit source term represents net energy
+    gain (heating) for the species.'
+  unit: s^-1
+  physics_domain: transport
+  links:
+  - name:implicit_source_rate
+  arguments:
+  - name: energy_source_rate
+    operator: implicit
+    operator_kind: qualifier
+- name: electron_implicit_energy_source_rate
+  kind: scalar
+  status: draft
+  description: Implicit rate coefficient for the stiff part of an electron energy
+    source term. Multiplying it by the local electron energy density gives the contribution
+    treated implicitly in an electron energy balance or transport solver.
+  documentation: 'The electron energy implicit source rate is the linear coefficient
+    used to represent the stiff part of an electron energy source or sink. It separates
+    a source term into a part evaluated explicitly and a part proportional to the
+    local electron energy density, improving numerical stability for rapidly responding
+    physics.
+
+
+    A common local decomposition of the electron energy source is:
+
+
+    $$
+
+    Q_e = Q_{e,\mathrm{expl}} + S_{e,\mathrm{impl}}\,u_e
+
+    $$
+
+
+    where $Q_e$ is the total volumetric electron energy source, $Q_{e,\mathrm{expl}}$
+    is the explicit contribution, $S_{e,\mathrm{impl}}$ is the electron energy implicit
+    source rate, and $u_e$ is the electron energy density. The product $S_{e,\mathrm{impl}}u_e$
+    has units of volumetric power density.
+
+
+    This coefficient is usually obtained from the linearization of heating, radiation,
+    equilibration, ionization, recombination, or other source models with respect
+    to the evolved electron energy variable. It is a numerical representation of local
+    stiffness rather than a directly measured physical observable; experiments constrain
+    it through the underlying source models and reconstructed electron density, temperature,
+    and radiation or heating power.
+
+
+    Typical magnitudes are highly model dependent. Slowly varying heating or loss
+    terms may have effective rates below 1 s^-1, while stiff collisional, atomic,
+    or radiation terms commonly fall in the range 1-10^4 s^-1 and can be larger in
+    cold or dense edge conditions.
+
+
+    Sign convention: Positive when the implicit contribution adds energy to the electron
+    population.'
+  unit: s^-1
+  physics_domain: transport
+  links:
+  - name:implicit_ion_energy_source_rate
+  - name:ion_state_implicit_energy_source_rate
+  - name:electron_implicit_source_rate
+  arguments:
+  - name: implicit_energy_source_rate
+    operator: electron
+    operator_kind: qualifier
+  sources:
+  - id: dd:core_sources/source/profiles_1d/electrons/energy_decomposed/implicit_part
+    dd_path: core_sources/source/profiles_1d/electrons/energy_decomposed/implicit_part
+    status: attached
+  - id: dd:plasma_sources/source/profiles_1d/electrons/energy_decomposed/implicit_part
+    dd_path: plasma_sources/source/profiles_1d/electrons/energy_decomposed/implicit_part
+    status: attached
 - name: implicit_source_rate
   kind: scalar
   status: draft
@@ -4481,8 +4636,8 @@
     while radiative and three-body recombination contribute negative terms; transport
     models may also include linearized fueling, recycling, or other external particle
     sources according to the numerical implicit-explicit split. It is the electron-particle
-    counterpart of [electron_energy_implicit_source_rate](name:electron_energy_implicit_source_rate)
-    and is coupled to ion source coefficients through ionization balance and quasineutrality.
+    counterpart of [electron_energy_implicit_source_rate] and is coupled to ion source
+    coefficients through ionization balance and quasineutrality.
 
 
     Typical values are near zero for weakly sourced core regions, about 10^-3-10 s^-1
@@ -4496,9 +4651,7 @@
     increases the electron number density.'
   unit: s^-1
   physics_domain: transport
-  links:
-  - name:electron_energy_implicit_source_rate
-  - name:implicit_source_rate
+  links: []
   arguments:
   - name: implicit_source_rate
     operator: electron
@@ -4509,120 +4662,6 @@
     status: attached
   - id: dd:plasma_sources/source/profiles_1d/electrons/particles_decomposed/implicit_part
     dd_path: plasma_sources/source/profiles_1d/electrons/particles_decomposed/implicit_part
-    status: attached
-- name: energy_implicit_source_rate
-  kind: scalar
-  status: draft
-  description: Linearization rate coefficient for the stiff portion of a plasma energy
-    source term in transport equations, equal to the net implicit energy source contribution
-    per unit of local energy density.
-  documentation: 'In plasma transport solvers, source terms are decomposed into explicit
-    and stiff (implicit) contributions to ensure numerical stability across disparate
-    energy-exchange time scales. The energy implicit source rate is the linearization
-    coefficient for the energy-density-dependent portion of the total volumetric energy
-    source, and it has dimensions of inverse time.
-
-
-    The implicit energy source contribution is written as:
-
-
-    $$
-
-    S_E^{\rm impl} = \gamma_E \cdot \mathcal{E}
-
-    $$
-
-
-    where $\gamma_E$ is the energy implicit source rate and $\mathcal{E}$ is the local
-    energy density (or temperature proxy, depending on solver convention) of the species.
-    Stiff processes such as collisional thermalization, radiative cooling, or resonant
-    wave heating are handled via this implicit decomposition to avoid prohibitively
-    small time steps in the transport solver.
-
-
-    This rate applies to any plasma species energy channel: for the electron energy
-    balance, see [electron_energy_implicit_source_rate](name:electron_energy_implicit_source_rate);
-    for a single ion charge state, see [ion_state_energy_implicit_source_rate](name:ion_state_energy_implicit_source_rate).
-    Both are specializations of the more general [implicit_source_rate](name:implicit_source_rate),
-    which spans particle, energy, and momentum transport channels.
-
-
-    Sign convention: Positive when the implicit source term represents net energy
-    gain (heating) for the species.'
-  unit: s^-1
-  physics_domain: transport
-  links:
-  - name:electron_energy_implicit_source_rate
-  - name:ion_state_energy_implicit_source_rate
-  - name:implicit_source_rate
-  arguments:
-  - name: implicit_source_rate
-    operator: energy
-    operator_kind: qualifier
-  sources:
-  - id: derived:energy_implicit_source_rate
-    status: composed
-- name: electron_energy_implicit_source_rate
-  kind: scalar
-  status: draft
-  description: Implicit rate coefficient for the stiff part of an electron energy
-    source term. Multiplying it by the local electron energy density gives the contribution
-    treated implicitly in an electron energy balance or transport solver.
-  documentation: 'The electron energy implicit source rate is the linear coefficient
-    used to represent the stiff part of an electron energy source or sink. It separates
-    a source term into a part evaluated explicitly and a part proportional to the
-    local electron energy density, improving numerical stability for rapidly responding
-    physics.
-
-
-    A common local decomposition of the electron energy source is:
-
-
-    $$
-
-    Q_e = Q_{e,\mathrm{expl}} + S_{e,\mathrm{impl}}\,u_e
-
-    $$
-
-
-    where $Q_e$ is the total volumetric electron energy source, $Q_{e,\mathrm{expl}}$
-    is the explicit contribution, $S_{e,\mathrm{impl}}$ is the electron energy implicit
-    source rate, and $u_e$ is the electron energy density. The product $S_{e,\mathrm{impl}}u_e$
-    has units of volumetric power density.
-
-
-    This coefficient is usually obtained from the linearization of heating, radiation,
-    equilibration, ionization, recombination, or other source models with respect
-    to the evolved electron energy variable. It is a numerical representation of local
-    stiffness rather than a directly measured physical observable; experiments constrain
-    it through the underlying source models and reconstructed electron density, temperature,
-    and radiation or heating power.
-
-
-    Typical magnitudes are highly model dependent. Slowly varying heating or loss
-    terms may have effective rates below 1 s^-1, while stiff collisional, atomic,
-    or radiation terms commonly fall in the range 1-10^4 s^-1 and can be larger in
-    cold or dense edge conditions.
-
-
-    Sign convention: Positive when the implicit contribution adds energy to the electron
-    population.'
-  unit: s^-1
-  physics_domain: transport
-  links:
-  - name:implicit_ion_energy_source_rate
-  - name:ion_state_implicit_energy_source_rate
-  - name:electron_implicit_source_rate
-  arguments:
-  - name: energy_implicit_source_rate
-    operator: electron
-    operator_kind: qualifier
-  sources:
-  - id: dd:core_sources/source/profiles_1d/electrons/energy_decomposed/implicit_part
-    dd_path: core_sources/source/profiles_1d/electrons/energy_decomposed/implicit_part
-    status: attached
-  - id: dd:plasma_sources/source/profiles_1d/electrons/energy_decomposed/implicit_part
-    dd_path: plasma_sources/source/profiles_1d/electrons/energy_decomposed/implicit_part
     status: attached
 - name: ion_atomic_mass
   kind: scalar
@@ -6293,8 +6332,8 @@
     solver; it is not a directly measured diagnostic quantity. The analogous implicit
     coefficient for the electron particle channel is [electron_implicit_source_rate](name:electron_implicit_source_rate),
     and the corresponding coefficient for the ion charge state energy transport equation
-    is [ion_state_energy_implicit_source_rate](name:ion_state_energy_implicit_source_rate),
-    applying the same decomposition pattern across transport channels.
+    is [ion_state_energy_implicit_source_rate], applying the same decomposition pattern
+    across transport channels.
 
 
     Sign convention: Positive when the implicit term acts as a net local particle
@@ -6305,7 +6344,6 @@
   links:
   - name:ion_state_source_rate
   - name:electron_implicit_source_rate
-  - name:ion_state_energy_implicit_source_rate
   arguments:
   - name: implicit_source_rate
     operator: ion_state
@@ -7437,7 +7475,7 @@
     non-diffusive convective flux through the chosen direction or surface, and $V_M$
     is the corresponding momentum convection velocity. Vector or tensor momentum-flux
     closures apply the same idea component-wise, with the more specific quantity defining
-    the transported momentum and direction; examples include [toroidal_momentum_convection_velocity](name:toroidal_momentum_convection_velocity),
+    the transported momentum and direction; examples include [toroidal_momentum_convection_velocity],
     [ion_momentum_convection_velocity](name:ion_momentum_convection_velocity), and
     [neutral_momentum_convection_velocity](name:neutral_momentum_convection_velocity).
 
@@ -7463,10 +7501,8 @@
   unit: m.s^-1
   physics_domain: transport
   links:
-  - name:radial_energy_convection_velocity
-  - name:toroidal_momentum_effective_convection_velocity
-  - name:radial_ion_momentum_effective_convection_velocity
-  - name:convection_velocity
+  - name:ion_momentum_convection_velocity
+  - name:neutral_momentum_convection_velocity
   sources:
   - id: dd:plasma_transport/model/profiles_1d/momentum_phi/v
     dd_path: plasma_transport/model/profiles_1d/momentum_phi/v
@@ -7525,6 +7561,58 @@
   - id: dd:core_transport/model/profiles_1d/ion/momentum/diamagnetic/v
     dd_path: core_transport/model/profiles_1d/ion/momentum/diamagnetic/v
     status: composed
+- name: effective_momentum_convection_velocity
+  kind: vector
+  status: draft
+  description: Velocity-like coefficient in the flux-surface-averaged ion momentum
+    transport equation that, when multiplied by the local ion momentum density, gives
+    the convective pinch flux of that momentum component across magnetic flux surfaces.
+  documentation: 'The momentum effective convection velocity is the vector transport
+    coefficient governing advective (pinch) transport of ion momentum across magnetic
+    flux surfaces in the flux-surface-averaged radial transport description. Unlike
+    the bulk ion flow velocity, it is an off-diagonal kinetic or fluid transport coefficient
+    that encodes contributions from neoclassical, turbulent, and diamagnetic drift
+    mechanisms, and is in general distinct for each momentum projection (toroidal,
+    poloidal, parallel).
+
+
+    In the radial momentum transport model, the convective momentum flux through a
+    flux surface takes the form:
+
+
+    $$
+
+    \Gamma_{\rm mom}^{\rm conv} = V_{\rm eff}^{\rm mom} \cdot \langle \rho_m u \rangle
+
+    $$
+
+
+    where $V_{\rm eff}^{\rm mom}$ is this effective convection velocity, $\rho_m$
+    is the local ion mass density, and $u$ is the momentum component being transported.
+    The species-aggregated form is given by [ion_momentum_effective_convection_velocity],
+    which sums contributions across all ion charge states. This quantity is the momentum-specific
+    specialization of the parent [effective_convection_velocity](name:effective_convection_velocity),
+    which applies the same pinch-coefficient role to density, energy, and other transported
+    quantities.
+
+
+    The coefficient is not directly measurable; it is inferred from transport model
+    fits to experimentally reconstructed plasma rotation profiles, or computed from
+    gyrokinetic and neoclassical calculations that resolve flux-surface-averaged cross-field
+    momentum fluxes.
+
+
+    Sign convention: Positive when the effective advection is directed outward across
+    flux surfaces, away from the magnetic axis in the direction of increasing minor
+    radius.'
+  unit: m.s^-1
+  physics_domain: transport
+  links:
+  - name:effective_convection_velocity
+  arguments:
+  - name: momentum_convection_velocity
+    operator: effective
+    operator_kind: qualifier
 - name: ion_momentum_convection_velocity
   kind: vector
   status: draft
@@ -7561,10 +7649,10 @@
     field, while [vertical ion momentum convection velocity](name:vertical_ion_momentum_convection_velocity)
     is the $Z$ projection in the right-handed cylindrical $(R, \phi, Z)$ frame, with
     $R$ the major radius, $\phi$ the toroidal angle, and $Z$ the vertical height.
-    Related scalar projections such as [radial ion momentum effective convection velocity](name:radial_ion_momentum_effective_convection_velocity),
-    [parallel momentum effective convection velocity](name:parallel_momentum_effective_convection_velocity),
-    and [poloidal momentum effective convection velocity](name:poloidal_momentum_effective_convection_velocity)
-    use the same coefficient concept after projection onto their stated directions.
+    Related scalar projections such as [radial ion momentum effective convection velocity],
+    [parallel momentum effective convection velocity], and [poloidal momentum effective
+    convection velocity] use the same coefficient concept after projection onto their
+    stated directions.
 
 
     Representative magnitudes are strongly projection dependent. Cross-field effective
@@ -7580,9 +7668,8 @@
   unit: m.s^-1
   physics_domain: transport
   links:
-  - name:toroidal_momentum_convection_velocity
-  - name:momentum_convection_velocity
-  - name:toroidal_ion_state_momentum_convection_velocity
+  - name:parallel_ion_momentum_convection_velocity
+  - name:vertical_ion_momentum_convection_velocity
   arguments:
   - name: momentum_convection_velocity
     operator: ion
@@ -8380,188 +8467,6 @@
   sources:
   - id: derived:momentum_due_to_hot_tail
     status: composed
-- name: momentum_effective_convection_velocity
-  kind: vector
-  status: draft
-  description: Velocity-like coefficient in the flux-surface-averaged ion momentum
-    transport equation that, when multiplied by the local ion momentum density, gives
-    the convective pinch flux of that momentum component across magnetic flux surfaces.
-  documentation: 'The momentum effective convection velocity is the vector transport
-    coefficient governing advective (pinch) transport of ion momentum across magnetic
-    flux surfaces in the flux-surface-averaged radial transport description. Unlike
-    the bulk ion flow velocity, it is an off-diagonal kinetic or fluid transport coefficient
-    that encodes contributions from neoclassical, turbulent, and diamagnetic drift
-    mechanisms, and is in general distinct for each momentum projection (toroidal,
-    poloidal, parallel).
-
-
-    In the radial momentum transport model, the convective momentum flux through a
-    flux surface takes the form:
-
-
-    $$
-
-    \Gamma_{\rm mom}^{\rm conv} = V_{\rm eff}^{\rm mom} \cdot \langle \rho_m u \rangle
-
-    $$
-
-
-    where $V_{\rm eff}^{\rm mom}$ is this effective convection velocity, $\rho_m$
-    is the local ion mass density, and $u$ is the momentum component being transported.
-    The species-aggregated form is given by [ion_momentum_effective_convection_velocity](name:ion_momentum_effective_convection_velocity),
-    which sums contributions across all ion charge states. This quantity is the momentum-specific
-    specialization of the parent [effective_convection_velocity](name:effective_convection_velocity),
-    which applies the same pinch-coefficient role to density, energy, and other transported
-    quantities.
-
-
-    The coefficient is not directly measurable; it is inferred from transport model
-    fits to experimentally reconstructed plasma rotation profiles, or computed from
-    gyrokinetic and neoclassical calculations that resolve flux-surface-averaged cross-field
-    momentum fluxes.
-
-
-    Sign convention: Positive when the effective advection is directed outward across
-    flux surfaces, away from the magnetic axis in the direction of increasing minor
-    radius.'
-  unit: m.s^-1
-  physics_domain: transport
-  links:
-  - name:ion_momentum_effective_convection_velocity
-  - name:effective_convection_velocity
-  arguments:
-  - name: effective_convection_velocity
-    operator: momentum
-    operator_kind: qualifier
-- name: diamagnetic_momentum_effective_convection_velocity
-  kind: scalar
-  status: draft
-  description: Charge-state-aggregated diamagnetic effective convection velocity for
-    radial ion momentum transport. It is the velocity coefficient that, multiplied
-    by the total ion momentum density, reproduces the summed charge-state diamagnetic
-    convective momentum flux across magnetic flux surfaces.
-  documentation: 'Diamagnetic momentum effective convection velocity is the scalar
-    velocity coefficient that condenses the charge-state-aggregated diamagnetic convective
-    contribution to radial ion momentum transport into a single effective velocity.
-    It multiplies the total ion momentum density to reproduce the summed diamagnetic
-    convective momentum flux from all ion charge states.
-
-
-    For ion charge states indexed by $z$, it is defined as the ratio of the summed
-    diamagnetic momentum flux to the summed momentum density on a magnetic flux surface:
-
-
-    $$
-
-    V_{\pi,\mathrm{eff}}^{\mathrm{dia}} = \frac{\sum_z \langle \Gamma_{\pi,z}^{\mathrm{dia}}
-    \rangle}{\sum_z \langle \pi_z \rangle}
-
-    $$
-
-
-    where $\Gamma_{\pi,z}^{\mathrm{dia}}$ is the radial diamagnetic flux of ion momentum
-    for charge state $z$ (units of momentum density times m.s^-1, i.e. kg.m^-1.s^-2
-    or Pa for linear momentum density), $\pi_z$ is the corresponding momentum density,
-    and $\langle A \rangle$ denotes the average of $A$ over a magnetic flux surface
-    labeled by the normalized toroidal flux radius $\rho_\mathrm{tor,norm}$. Equivalently,
-    given charge-state velocities $V_{\pi,z}^{\mathrm{dia}}$ with a common convention,
-    $V_{\pi,\mathrm{eff}}^{\mathrm{dia}} = \sum_z \langle \pi_z \rangle V_{\pi,z}^{\mathrm{dia}}
-    / \sum_z \langle \pi_z \rangle$, provided the denominator is nonzero.
-
-
-    This is the charge-state-aggregated counterpart of the ion-resolved ion_diamagnetic_momentum_convection_velocity
-    and the per-state [ion_state_diamagnetic_momentum_convection_velocity](name:ion_state_diamagnetic_momentum_convection_velocity);
-    it carries the effective qualifier relative to [diamagnetic_momentum_convection_velocity](name:diamagnetic_momentum_convection_velocity)
-    to indicate the density-weighted aggregation over charge states. It is not usually
-    a directly measured velocity but is inferred from reconstructed equilibrium geometry,
-    kinetic profiles, rotation measurements, and the transport model used to separate
-    the diamagnetic component from other momentum-flux channels.
-
-
-    Typical magnitudes are 0.1-10 m.s^-1 in core transport analyzes and can reach
-    10-100 m.s^-1 in steep-gradient regions or during strong momentum redistribution.
-    The value may be either inward or outward and should be interpreted together with
-    the chosen momentum density and the full momentum-flux decomposition.
-
-
-    Sign convention: Positive when the charge-state-aggregated diamagnetic convective
-    flux of ion momentum is directed toward increasing normalized toroidal flux radius
-    $\rho_\mathrm{tor,norm}$, from the magnetic axis toward the plasma boundary.'
-  unit: m.s^-1
-  physics_domain: transport
-  links:
-  - name:ion_state_diamagnetic_momentum_convection_velocity
-  - name:diamagnetic_momentum_convection_velocity
-  arguments:
-  - name: momentum_effective_convection_velocity
-    operator: diamagnetic
-    operator_kind: qualifier
-  sources:
-  - id: dd:plasma_transport/model/profiles_1d/ion/momentum/diamagnetic/v
-    dd_path: plasma_transport/model/profiles_1d/ion/momentum/diamagnetic/v
-    status: composed
-- name: ion_momentum_effective_convection_velocity
-  kind: vector
-  status: draft
-  description: 'Effective cross-field velocity coefficient in ion momentum transport:
-    it multiplies a selected ion momentum component to represent advective radial
-    flux across magnetic flux surfaces. Its specializations refer to the ion momentum
-    component being transported, not to projections of one common velocity vector.'
-  documentation: 'An ion momentum effective convection velocity is an effective cross-field
-    advective coefficient in a flux-surface-averaged ion momentum balance. It represents
-    the velocity multiplying a chosen signed component of ion momentum to form the
-    convective part of that component''s radial momentum flux. The labels in [parallel](name:parallel_ion_momentum_effective_convection_velocity),
-    [poloidal](name:poloidal_ion_momentum_effective_convection_velocity), and [radial](name:radial_ion_momentum_effective_convection_velocity)
-    forms identify which ion momentum component appears in the balance; they are not
-    spatial projections of a single velocity vector.
-
-
-    For a momentum component $k$, the convective contribution to the flux-surface-averaged
-    radial momentum flux is commonly written as:
-
-
-    $$
-
-    \Pi_k^{\mathrm{conv}} = V_{k,\mathrm{eff}} M_k
-
-    $$
-
-
-    where $\Pi_k^{\mathrm{conv}}$ is the convective radial flux of ion momentum component
-    $k$, $M_k$ is the flux-surface-averaged density of that signed ion momentum component,
-    and $V_{k,\mathrm{eff}}$ is the corresponding effective convection velocity.
-
-
-    This coefficient is not generally a directly measured fluid velocity. It is inferred
-    from momentum transport analysis or kinetic modeling by separating the total radial
-    flux of a chosen ion momentum component into diffusive, convective, residual-stress,
-    and source-driven contributions. Depending on the model, it can combine turbulent,
-    neoclassical, finite-orbit-width, and geometry effects into one effective pinch
-    or outward convection coefficient.
-
-
-    Typical core values in tokamak momentum-transport modeling are often about -20-20
-    m.s^-1, while strong rotation shear, edge pedestals, or transient phases can give
-    larger effective values.
-
-
-    Sign convention: Positive when the effective convection velocity points outward
-    across magnetic flux surfaces, from the magnetic axis toward the plasma boundary,
-    in the direction of increasing $\rho$ in flux coordinates $(\rho,\theta,\phi)$.'
-  unit: m.s^-1
-  physics_domain: transport
-  links:
-  - name:radial_ion_momentum_effective_convection_velocity
-  - name:poloidal_ion_momentum_effective_convection_velocity
-  - name:parallel_ion_momentum_effective_convection_velocity
-  - name:momentum_effective_convection_velocity
-  arguments:
-  - name: momentum_effective_convection_velocity
-    operator: ion
-    operator_kind: qualifier
-  sources:
-  - id: derived:ion_momentum_effective_convection_velocity
-    status: composed
 - name: momentum_flux
   kind: vector
   status: draft
@@ -8703,7 +8608,7 @@
     quantifies the radial flux of toroidal momentum relevant to rotation drive, [parallel_ion_momentum_flux](name:parallel_ion_momentum_flux)
     captures transport along the magnetic field, and [poloidal_ion_momentum_flux](name:poloidal_ion_momentum_flux)
     resolves the poloidal channel. The convective contribution can be parameterized
-    through the [radial_ion_momentum_effective_convection_velocity](name:radial_ion_momentum_effective_convection_velocity).
+    through the [radial_ion_momentum_effective_convection_velocity].
 
 
     Sign convention: Positive when ion momentum is transported in the positive direction
@@ -8716,7 +8621,6 @@
   - name:toroidal_ion_momentum_flux
   - name:parallel_ion_momentum_flux
   - name:poloidal_ion_momentum_flux
-  - name:radial_ion_momentum_effective_convection_velocity
   arguments:
   - name: momentum_flux
     operator: ion
@@ -13217,82 +13121,6 @@
   - id: dd:plasma_sources/source/ggd/ion/momentum/parallel
     dd_path: plasma_sources/source/ggd/ion/momentum/parallel
     status: composed
-- name: parallel_ion_momentum_convection_velocity
-  kind: scalar
-  status: draft
-  description: Effective field-aligned convection velocity coefficient for the advective
-    transport of ion parallel momentum density. It multiplies the transported ion
-    parallel momentum density to give the convective momentum-flux contribution along
-    magnetic field lines.
-  documentation: 'Parallel ion momentum convection velocity is the scalar effective
-    velocity that advects ion parallel momentum density along magnetic field lines.
-    It represents only the convective part of the ion parallel-momentum transport
-    closure and is not generally identical to the bulk ion parallel flow velocity.
-
-
-    The field-aligned advective flux contribution of ion parallel momentum is written
-    as:
-
-
-    $$
-
-    \Pi_{i\parallel}^{\mathrm{adv}} = v_{\parallel i}^{\mathrm{conv}} M_{i\parallel}
-
-    $$
-
-
-    where $v_{\parallel i}^{\mathrm{conv}}$ is the parallel ion momentum convection
-    velocity in m.s^-1, $M_{i\parallel}=m_i n_i u_{i\parallel}$ is the ion parallel
-    momentum density in kg m^-2 s^-1, $m_i$ is the ion mass in kg, $n_i$ is the ion
-    number density in m^-3, $u_{i\parallel}$ is the ion parallel flow velocity in
-    m.s^-1, and $\Pi_{i\parallel}^{\mathrm{adv}}$ is the convective flux contribution
-    in Pa. If a vector [ion momentum convection velocity](name:ion_momentum_convection_velocity)
-    $\mathbf{V}_{i}^{\mathrm{conv}}$ is used, this scalar component is $v_{\parallel
-    i}^{\mathrm{conv}}=\mathbf{V}_{i}^{\mathrm{conv}}\cdot\hat{b}$, with $\hat{b}=\mathbf{B}/|\mathbf{B}|$
-    the unit vector along the magnetic field.
-
-
-    This coefficient is computed or inferred by decomposing a modeled ion parallel-momentum
-    flux into diffusive, convective, source-driven, and residual parts. The species-unresolved
-    field-aligned counterpart is [parallel momentum convection velocity](name:parallel_ion_momentum_effective_convection_velocity),
-    while the closest state-resolved analog is [parallel ion state momentum convection
-    velocity](name:parallel_ion_state_momentum_convection_velocity). It should be
-    distinguished from [parallel ion momentum cross-field convection velocity](name:parallel_ion_momentum_effective_convection_velocity)
-    and [parallel momentum effective convection velocity](name:parallel_momentum_effective_convection_velocity),
-    which describe convection of parallel momentum across magnetic surfaces rather
-    than along field lines.
-
-
-    Typical reported values are model dependent: the coefficient can be near 0 m.s^-1
-    when no explicit convective term is retained, and its magnitude may become comparable
-    to the characteristic field-aligned advective speed used in the closure when convection
-    dominates. A universal device-independent numeric range is therefore not implied;
-    values should be interpreted with the local ion population, magnetic field, and
-    transport decomposition.
-
-
-    Sign convention: Positive when the effective convection velocity is directed along
-    the local magnetic field $\mathbf{B}$.'
-  unit: m.s^-1
-  physics_domain: transport
-  links:
-  - name:ion_momentum_convection_velocity
-  - name:parallel_ion_momentum_effective_convection_velocity
-  - name:parallel_ion_state_momentum_convection_velocity
-  - name:parallel_momentum_effective_convection_velocity
-  arguments:
-  - name: ion_momentum_convection_velocity
-    operator: component
-    operator_kind: projection
-    axis: parallel
-    shape: component
-  sources:
-  - id: dd:core_transport/model/profiles_1d/ion/momentum/parallel/v
-    dd_path: core_transport/model/profiles_1d/ion/momentum/parallel/v
-    status: composed
-  - id: dd:edge_transport/model/ggd/ion/momentum/v/parallel
-    dd_path: edge_transport/model/ggd/ion/momentum/v/parallel
-    status: composed
 - name: parallel_ion_momentum_damping_rate
   kind: scalar
   status: draft
@@ -13409,94 +13237,6 @@
   - id: dd:plasma_transport/model/ggd/ion/momentum/d_parallel/values
     dd_path: plasma_transport/model/ggd/ion/momentum/d_parallel/values
     status: composed
-- name: parallel_ion_momentum_effective_convection_velocity
-  kind: scalar
-  status: draft
-  description: Effective advective (pinch) velocity multiplying the ion momentum density
-    parallel to the magnetic field in cross-field transport. It parameterizes net
-    inward or outward convection of parallel ion momentum across magnetic flux surfaces,
-    and is not generally the bulk ion flow speed.
-  documentation: 'Parallel ion momentum effective convection velocity is the scalar
-    transport coefficient that represents the advective part of cross-field transport
-    of ion momentum parallel to the magnetic field. It describes an effective momentum
-    pinch across magnetic flux surfaces, aggregating mechanisms such as turbulent
-    convection, neoclassical effects, and rotation-related transport rather than identifying
-    a single material flow velocity.
-
-
-    In a flux-surface-averaged momentum balance using flux coordinates $(\rho, \theta,
-    \phi)$, with $\rho$ a monotonically increasing radial flux-surface label from
-    the magnetic axis to the plasma boundary, the advective contribution to the cross-field
-    flux of parallel ion momentum is written as:
-
-
-    $$
-
-    \Gamma_{\rho}^{\mathrm{adv}}(L_{\parallel i}) = V_{\parallel i}^{\mathrm{eff}}
-    L_{\parallel i}
-
-    $$
-
-
-    where $\Gamma_{\rho}^{\mathrm{adv}}(L_{\parallel i})$ is the advective flux density
-    of parallel ion momentum across a surface of constant $\rho$, $L_{\parallel i}$
-    is the ion momentum density associated with the ion velocity component parallel
-    to the magnetic field, and $V_{\parallel i}^{\mathrm{eff}}$ is the effective convection
-    velocity. The total cross-field momentum flux may also contain diffusive and residual-stress
-    terms; this quantity is the coefficient of the advective term only.
-
-
-    It is usually obtained from momentum-transport modeling, turbulence or neoclassical
-    closures, or inference from rotation measurements and momentum-balance analysis
-    after accounting for sources, diffusivity, and residual stress. It is the effective
-    counterpart of [parallel_ion_momentum_convection_velocity](name:parallel_ion_momentum_convection_velocity)
-    and is closely related to [parallel_ion_momentum_cross_field_convection_velocity](name:parallel_ion_momentum_effective_convection_velocity);
-    component or species analogs include [radial_ion_momentum_effective_convection_velocity](name:radial_ion_momentum_effective_convection_velocity),
-    [poloidal_ion_momentum_effective_convection_velocity](name:poloidal_ion_momentum_effective_convection_velocity),
-    and [parallel_momentum_effective_convection_velocity](name:parallel_momentum_effective_convection_velocity).
-
-
-    Typical effective velocities are 0.1-10 m.s^-1 in the confined core and can reach
-    10-100 m.s^-1 in edge or steep-gradient regions. Values may be positive or negative
-    depending on whether the effective parallel-momentum convection is outward or
-    inward.
-
-
-    Sign convention: Positive when it drives positive parallel ion momentum outward
-    across magnetic flux surfaces in the direction of increasing radial flux coordinate
-    $\rho$.'
-  unit: m.s^-1
-  physics_domain: transport
-  links:
-  - name:parallel_ion_momentum_convection_velocity
-  - name:radial_ion_momentum_effective_convection_velocity
-  - name:poloidal_ion_momentum_effective_convection_velocity
-  - name:parallel_momentum_effective_convection_velocity
-  arguments:
-  - name: ion_momentum_effective_convection_velocity
-    operator: component
-    operator_kind: projection
-    axis: parallel
-    shape: component
-  sources:
-  - id: dd:core_transport/model/profiles_1d/ion/momentum/parallel/v
-    dd_path: core_transport/model/profiles_1d/ion/momentum/parallel/v
-    status: composed
-  - id: dd:plasma_transport/model/ggd/ion/momentum/v/parallel
-    dd_path: plasma_transport/model/ggd/ion/momentum/v/parallel
-    status: composed
-  - id: dd:plasma_transport/model/ggd/momentum/v/parallel
-    dd_path: plasma_transport/model/ggd/momentum/v/parallel
-    status: attached
-  - id: dd:plasma_transport/model/ggd/neutral/momentum/v/parallel
-    dd_path: plasma_transport/model/ggd/neutral/momentum/v/parallel
-    status: attached
-  - id: dd:plasma_transport/model/ggd/neutral/state/momentum/v/parallel
-    dd_path: plasma_transport/model/ggd/neutral/state/momentum/v/parallel
-    status: attached
-  - id: dd:plasma_transport/model/ggd/neutral/state/momentum/v_parallel/values
-    dd_path: plasma_transport/model/ggd/neutral/state/momentum/v_parallel/values
-    status: attached
 - name: parallel_ion_momentum_flux
   kind: scalar
   status: draft
@@ -13541,7 +13281,7 @@
     density, temperature, flow, magnetic-equilibrium, and fluctuation measurements.
     It may be formed by summing state-resolved quantities such as [parallel_ion_charge_state_momentum_flux](name:parallel_ion_charge_state_momentum_flux),
     or by evaluating a closure for the total ion momentum tensor. The advective cross-surface
-    channel is related to [parallel_ion_momentum_cross_field_convection_velocity](name:parallel_ion_momentum_effective_convection_velocity);
+    channel is related to [parallel_ion_momentum_cross_field_convection_velocity];
     field-aligned ion flow alone does not define this quantity because the flux direction
     is across the flux surface.
 
@@ -13559,7 +13299,6 @@
   physics_domain: transport
   links:
   - name:parallel_ion_charge_state_momentum_flux
-  - name:parallel_ion_momentum_effective_convection_velocity
   arguments:
   - name: ion_momentum_flux
     operator: component
@@ -14107,71 +13846,6 @@
     status: attached
   - id: dd:plasma_profiles/ggd/a_field/parallel
     dd_path: plasma_profiles/ggd/a_field/parallel
-    status: composed
-- name: parallel_momentum_effective_convection_velocity
-  kind: scalar
-  status: draft
-  description: Effective radial convection velocity multiplying the flux-surface-averaged
-    ion momentum component parallel to the magnetic field in a transport model. It
-    parameterizes pinch-like transport of that momentum component across flux surfaces,
-    not ion motion along a field line.
-  documentation: 'Parallel momentum effective convection velocity is the scalar transport
-    coefficient that multiplies the flux-surface-averaged ion momentum component parallel
-    to the magnetic field in a radial transport model. It describes pinch-like transport
-    of that signed momentum component across nested flux surfaces, and is distinct
-    from the ion flow velocity along the magnetic field.
-
-
-    In a local diffusion-convection representation of radial parallel-momentum transport,
-    the effective convection velocity is the coefficient $V_{M_{\parallel i}}$ in
-
-
-    $$
-
-    \Gamma_{M_{\parallel i}} = -D_{M_{\parallel i}} \frac{\partial M_{\parallel i}}{\partial
-    r_\rho} + V_{M_{\parallel i}} M_{\parallel i}
-
-    $$
-
-
-    where $M_{\parallel i}$ is the flux-surface-averaged ion parallel momentum density
-    in kg.m^-2.s^-1, $\Gamma_{M_{\parallel i}}$ is its radial flux across a flux surface
-    in kg.m^-1.s^-2, $D_{M_{\parallel i}}$ is the effective diffusion coefficient
-    in m^2.s^-1, $V_{M_{\parallel i}}$ is this effective convection velocity in m.s^-1,
-    and $r_\rho$ is a distance-like radial flux-surface coordinate that increases
-    outward from the magnetic axis to the plasma boundary.
-
-
-    The coefficient is inferred from momentum-balance analysis, transport-model fitting,
-    or predictive neoclassical and turbulent transport calculations. Experimental
-    constraints commonly include ion rotation measurements, density and temperature,
-    magnetic-equilibrium geometry, external torque estimates, and momentum source
-    and sink terms; as an effective coefficient it can absorb unresolved pinch and
-    off-diagonal transport effects.
-
-
-    Typical inferred core values in tokamaks are of order a few tens of m.s^-1 in
-    magnitude, with larger effective values near strong rotation or pressure gradients
-    and toward the edge transport region; the coefficient can change sign between
-    inward and outward momentum convection.
-
-
-    Sign convention: Positive when, for positive ion parallel momentum density, the
-    convective contribution to the radial momentum flux is directed toward increasing
-    $r_\rho$, from the magnetic axis toward the plasma boundary.'
-  unit: m.s^-1
-  physics_domain: transport
-  links:
-  - name:parallel_ion_momentum_convection_velocity
-  arguments:
-  - name: momentum_effective_convection_velocity
-    operator: component
-    operator_kind: projection
-    axis: parallel
-    shape: component
-  sources:
-  - id: dd:plasma_transport/model/profiles_1d/ion/momentum/parallel/v
-    dd_path: plasma_transport/model/profiles_1d/ion/momentum/parallel/v
     status: composed
 - name: parallel_neutral_energy_flux
   kind: scalar
@@ -17157,42 +16831,6 @@
   - name: current_due_to_ohmic_induction
     operator: plasma
     operator_kind: qualifier
-- name: plasma_deposited_power
-  kind: scalar
-  status: draft
-  description: Power delivered to the plasma particle distribution by heating and
-    energy transfer mechanisms, representing the plasma-specific component of the
-    total deposited power budget.
-  documentation: "Plasma deposited power quantifies the net rate at which energy is\
-    \ transferred to the confined plasma particle distribution \u2014 electrons and\
-    \ ions collectively \u2014 from all active heating and generation mechanisms.\
-    \ Sources include ohmic dissipation, neutral beam injection, radio-frequency heating,\
-    \ and thermalization of energetic fusion products, partially offset by non-plasma\
-    \ sinks such as charge-exchange losses and ionization energy costs.\n\nThe volume-integrated\
-    \ form, [total_plasma_deposited_power](name:total_plasma_deposited_power), is\
-    \ obtained by integrating the local volumetric power density $p_\\mathrm{dep}$\
-    \ over the confined plasma volume $V$:\n\n$$\nP_\\mathrm{dep} = \\int_V p_\\mathrm{dep}(\\\
-    mathbf{r}) \\, dV\n$$\n\nwhere $p_\\mathrm{dep}(\\mathbf{r})$ is the local deposited\
-    \ power density in W m$^{-3}$ at position $\\mathbf{r}$ inside the plasma boundary.\n\
-    \nIn steady state, the plasma deposited power must balance the sum of thermal\
-    \ conduction, convection, and radiation losses; in transient phases it drives\
-    \ changes in stored energy. It is inferred from calorimetric measurements of individual\
-    \ heating systems corrected for transmission and shine-through losses, and cross-checked\
-    \ against bolometric radiated-power estimates to close the global energy budget.\
-    \ In current medium-scale tokamak experiments auxiliary deposited power typically\
-    \ ranges from 1-30 MW; in burning plasma scenarios fusion alpha-particle deposition\
-    \ alone would contribute a comparable or larger contribution to the total."
-  unit: W
-  physics_domain: transport
-  links:
-  - name:total_plasma_deposited_power
-  arguments:
-  - name: deposited_power
-    operator: plasma
-    operator_kind: qualifier
-  sources:
-  - id: derived:plasma_deposited_power
-    status: composed
 - name: plasma_energy
   kind: scalar
   status: draft
@@ -18388,89 +18026,6 @@
   - id: dd:plasma_transport/model/profiles_1d/ion/momentum/poloidal/flow_damping_rate
     dd_path: plasma_transport/model/profiles_1d/ion/momentum/poloidal/flow_damping_rate
     status: composed
-- name: poloidal_ion_momentum_effective_convection_velocity
-  kind: scalar
-  status: draft
-  description: Effective advective, or pinch, velocity for radial transport of the
-    poloidal component of ion momentum across magnetic flux surfaces. It is the velocity-like
-    convective coefficient multiplying flux-surface-averaged poloidal ion momentum
-    density in an ion momentum balance.
-  documentation: 'Poloidal ion momentum effective convection velocity is the velocity-like
-    coefficient that represents advective radial transport of the ion poloidal momentum
-    density across magnetic flux surfaces. The poloidal component is tangent to increasing
-    poloidal angle $\theta$ in flux coordinates $(\rho, \theta, \phi)$, where $\rho$
-    is an outward-increasing radial flux coordinate and $\phi$ is the toroidal angle
-    of the right-handed cylindrical $(R, \phi, Z)$ frame; in that frame, $R$ is major
-    radius, $\phi$ increases counter-clockwise when viewed from $+\hat{Z}$, and $Z$
-    is vertical height.
-
-
-    The coefficient $V_{p_{\theta i}}$ is defined by the convective term in a local
-    flux-gradient decomposition of the radial poloidal-ion-momentum flux:
-
-
-    $$
-
-    \Gamma_{p_{\theta i}} = -D_{p_{\theta i}} \frac{\partial}{\partial \rho}\left\langle
-    m_i n_i u_{i,\theta} \right\rangle + V_{p_{\theta i}} \left\langle m_i n_i u_{i,\theta}
-    \right\rangle
-
-    $$
-
-
-    where $\Gamma_{p_{\theta i}}$ is the flux of poloidal ion momentum across magnetic
-    surfaces toward increasing $\rho$, $\rho$ is a length-like outward-increasing
-    flux-surface label, $D_{p_{\theta i}}$ is the [poloidal ion momentum diffusivity](name:poloidal_ion_momentum_diffusivity),
-    $\langle\cdot\rangle$ denotes a flux-surface average, $m_i$ is ion mass, $n_i$
-    is ion density, and $u_{i,\theta}$ is the ion fluid velocity component along increasing
-    $\theta$. Here $\theta$ is the poloidal coordinate label in $(\rho, \theta, \phi)$,
-    not a unit; if a dimensionless normalized flux label is used instead of a length-like
-    $\rho$, the corresponding metric factors are included in the effective coefficients.
-
-
-    Effective values are obtained by separating radial ion momentum flux into diffusive
-    and convective contributions after flux-surface averaging and after accounting
-    for explicitly modeled sources, sinks, and residual stresses. In practice they
-    may be inferred from the evolution of poloidal flows and ion density, from charge-exchange
-    recombination spectroscopy or other ion-flow diagnostics coupled to transport
-    analysis, or predicted by neoclassical, gyrokinetic, or reduced turbulent-transport
-    models.
-
-
-    Typical core values in tokamak transport studies are of order -10 to 10 m.s^-1,
-    with fitted values in strong-gradient or edge regions sometimes reaching -50 to
-    50 m.s^-1. The magnitude is often comparable to a momentum diffusivity divided
-    by a radial scale length, so it depends sensitively on collisionality, turbulence
-    drive, magnetic geometry, and momentum sources.
-
-
-    Sign convention: Positive when the convective term carries positive flux-surface-averaged
-    poloidal ion momentum density toward increasing $\rho$.'
-  unit: m.s^-1
-  physics_domain: transport
-  links:
-  - name:ion_momentum_effective_convection_velocity
-  - name:parallel_momentum_effective_convection_velocity
-  - name:poloidal_momentum_effective_convection_velocity
-  arguments:
-  - name: ion_momentum_effective_convection_velocity
-    operator: component
-    operator_kind: projection
-    axis: poloidal
-    shape: component
-  sources:
-  - id: dd:core_transport/model/profiles_1d/ion/momentum/poloidal/v
-    dd_path: core_transport/model/profiles_1d/ion/momentum/poloidal/v
-    status: composed
-  - id: dd:plasma_transport/model/ggd/ion/momentum/v_pol/values
-    dd_path: plasma_transport/model/ggd/ion/momentum/v_pol/values
-    status: attached
-  - id: dd:plasma_transport/model/ggd/momentum/v_pol/values
-    dd_path: plasma_transport/model/ggd/momentum/v_pol/values
-    status: attached
-  - id: dd:plasma_transport/model/ggd/neutral/momentum/v_pol/values
-    dd_path: plasma_transport/model/ggd/neutral/momentum/v_pol/values
-    status: attached
 - name: poloidal_ion_momentum_flux
   kind: scalar
   status: draft
@@ -18985,8 +18540,8 @@
     measured flow. It is inferred or prescribed within a chosen momentum-transport
     decomposition using constraints from ion flow measurements, charge-state densities,
     momentum sources and sinks, viscosity, orbit effects, and turbulence closures.
-    Related quantities include [poloidal_ion_momentum_convection_velocity](name:poloidal_ion_momentum_effective_convection_velocity)
-    for the charge-state-summed ion analog, [toroidal_ion_state_momentum_convection_velocity](name:toroidal_ion_state_momentum_convection_velocity)
+    Related quantities include [poloidal_ion_momentum_convection_velocity] for the
+    charge-state-summed ion analog, [toroidal_ion_state_momentum_convection_velocity](name:toroidal_ion_state_momentum_convection_velocity)
     for the toroidal component, and [radial_ion_state_effective_momentum_convection_velocity](name:radial_ion_state_momentum_convection_velocity)
     for radial effective momentum convection.
 
@@ -19003,7 +18558,6 @@
   unit: m.s^-1
   physics_domain: transport
   links:
-  - name:poloidal_ion_momentum_effective_convection_velocity
   - name:toroidal_ion_state_momentum_convection_velocity
   - name:radial_ion_state_momentum_convection_velocity
   arguments:
@@ -19378,74 +18932,6 @@
   sources:
   - id: dd:plasma_profiles/ggd/a_field/poloidal
     dd_path: plasma_profiles/ggd/a_field/poloidal
-    status: composed
-- name: poloidal_momentum_effective_convection_velocity
-  kind: scalar
-  status: draft
-  description: Effective radial convection velocity for transport of aggregate ion
-    poloidal momentum across magnetic flux surfaces. It is the velocity-like coefficient
-    of the convective, or pinch, term rather than the poloidal flow speed itself.
-  documentation: 'Poloidal momentum effective convection velocity is the velocity-like
-    coefficient that represents radial advection of aggregate ion poloidal momentum
-    across magnetic flux surfaces. It is a transport coefficient in the momentum balance,
-    not the poloidal flow speed itself, and no additional moment-arm or angular-momentum
-    normalization is implied.
-
-
-    The coefficient is defined by the convective term in a diffusion-convection decomposition
-    of the radial flux of poloidal ion momentum:
-
-
-    $$
-
-    \Pi_{\theta,r} = -D_\theta \frac{\partial (m_i n_i v_\theta)}{\partial r} + V_\theta^{\mathrm{eff}}
-    m_i n_i v_\theta
-
-    $$
-
-
-    where $V_\theta^{\mathrm{eff}}$ is this quantity in $m.s^{-1}$, $\Pi_{\theta,r}$
-    is the radial flux of poloidal momentum in $kg.m^{-1}.s^{-2}$, $D_\theta$ is the
-    poloidal momentum diffusivity in $m^2.s^{-1}$, $m_i$ is ion mass in $kg$, $n_i$
-    is ion number density in $m^{-3}$, $v_\theta$ is poloidal flow speed in $m.s^{-1}$,
-    and $r$ is a minor-radius-like radial label in meters increasing outward across
-    the flux surfaces. The component $\theta$ is the poloidal direction in flux coordinates
-    $(r,\theta,\phi)$, where $\theta$ is poloidal angle and $\phi$ is toroidal angle.
-    For multiple ion species or charge states, $m_i n_i v_\theta$ denotes the aggregate
-    ion poloidal momentum density used in the balance.
-
-
-    In practice, this coefficient is specified by a transport closure or inferred
-    by fitting an evaluated radial poloidal-momentum flux to a chosen diffusive-convective
-    form. The split between diffusion and convection is meaningful only after the
-    transported momentum density, radial label, and diffusivity convention have been
-    fixed. This aggregate-ion quantity has the same physical role as poloidal_ion_momentum_convection_velocity,
-    while [poloidal_ion_state_momentum_convection_velocity](name:poloidal_ion_state_momentum_convection_velocity)
-    denotes the corresponding charge-state-resolved coefficient; related component
-    analogs include toroidal_ion_momentum_convection_velocity and [parallel_momentum_effective_convection_velocity](name:parallel_momentum_effective_convection_velocity).
-
-
-    Representative magnitudes are strongly model- and regime-dependent. In core momentum-transport
-    studies the magnitude is often of order 0-10 m.s^-1, while fitted edge, pedestal,
-    or transient coefficients can reach several tens of m.s^-1; either sign is possible
-    depending on whether the effective convective transport is outward or inward.
-
-
-    Sign convention: Positive when the effective convective transport of poloidal
-    momentum is radially outward, from the magnetic axis toward the plasma boundary.'
-  unit: m.s^-1
-  physics_domain: transport
-  links:
-  - name:parallel_momentum_effective_convection_velocity
-  arguments:
-  - name: momentum_effective_convection_velocity
-    operator: component
-    operator_kind: projection
-    axis: poloidal
-    shape: component
-  sources:
-  - id: dd:plasma_transport/model/profiles_1d/ion/momentum/poloidal/v
-    dd_path: plasma_transport/model/profiles_1d/ion/momentum/poloidal/v
     status: composed
 - name: poloidal_momentum_flux
   kind: scalar
@@ -24151,70 +23637,6 @@
     status: attached
   - id: dd:plasma_transport/model/profiles_1d/ion/momentum/radial/flow_damping_rate
     dd_path: plasma_transport/model/profiles_1d/ion/momentum/radial/flow_damping_rate
-    status: composed
-- name: radial_ion_momentum_effective_convection_velocity
-  kind: scalar
-  status: draft
-  description: Effective radial convection velocity of ion momentum across magnetic
-    flux surfaces. It is the coefficient of the advective term in the radial ion-momentum
-    flux, combining mean advection and pinch-like contributions into a single velocity,
-    with diffusion and sources represented separately.
-  documentation: 'The radial ion momentum effective convection velocity is the scalar
-    coefficient that carries the advective transport of ion momentum across nested
-    magnetic flux surfaces. The radial direction is the outward normal from the magnetic
-    axis toward the plasma edge. "Effective" means mean radial advection together
-    with any pinch-like terms have been folded into one velocity coefficient, while
-    separately modeled diffusive transport and source terms are excluded.
-
-
-    The advective part of the radial ion-momentum flux is written as the product of
-    this velocity with the transported ion momentum:
-
-
-    $$
-
-    \Gamma_{M_i,r}^{\mathrm{adv}} = V_{M_i,r}^{\mathrm{eff}}\, M_i
-
-    $$
-
-
-    where $\Gamma_{M_i,r}^{\mathrm{adv}}$ is the radial advective flux of ion momentum
-    (in kg m$^{-1}$ s$^{-2}$), $M_i$ is the ion momentum density (in kg m$^{-2}$ s$^{-1}$),
-    and $V_{M_i,r}^{\mathrm{eff}}$ is this effective convection velocity. In a full
-    momentum balance the diffusive flux, external torque, collisional exchange, and
-    sources appear separately; only terms cast into the advective coefficient contribute
-    here.
-
-
-    This quantity is inferred rather than measured directly. It is estimated from
-    momentum-balance analysis using ion rotation, density, temperature, equilibrium,
-    and torque information, or computed from reduced transport models and turbulence
-    and neoclassical calculations by collecting all advective and pinch-like contributions
-    into the coefficient above.
-
-
-    Typical absolute magnitudes in core tokamak transport analyzes span 0.01-10 m
-    s$^{-1}$. Larger apparent values can arise near steep-gradient regions or during
-    rapid transients, when sources, gradients, and momentum density evolve on comparable
-    time scales.
-
-
-    Sign convention: Positive when the advective radial ion-momentum flux for positive
-    ion momentum is directed toward increasing flux-surface radius, from the magnetic
-    axis toward the plasma edge.'
-  unit: m.s^-1
-  physics_domain: transport
-  links:
-  - name:radial_plasma_effective_momentum_convection_velocity
-  arguments:
-  - name: ion_momentum_effective_convection_velocity
-    operator: component
-    operator_kind: projection
-    axis: radial
-    shape: component
-  sources:
-  - id: dd:plasma_transport/model/profiles_1d/ion/momentum/radial/v
-    dd_path: plasma_transport/model/profiles_1d/ion/momentum/radial/v
     status: composed
 - name: radial_ion_momentum_source
   kind: scalar
@@ -33631,7 +33053,7 @@
     measurement of a local momentum source is uncommon; it is usually inferred from
     ion flow evolution, momentum-flux divergence, and force-balance constraints. The
     neutral counterpart is [toroidal_neutral_momentum](name:toroidal_neutral_momentum),
-    and advective representations are related to [toroidal_momentum_convection_velocity](name:toroidal_momentum_convection_velocity).
+    and advective representations are related to [toroidal_momentum_convection_velocity].
 
 
     Typical absolute magnitudes are about $10^{-4}$-$10^{1}$ kg.m^-1.s^-2 in weakly
@@ -33650,7 +33072,6 @@
   - name:ion_momentum
   - name:toroidal_ion_state_momentum
   - name:toroidal_neutral_momentum
-  - name:toroidal_momentum_convection_velocity
   arguments:
   - name: ion_momentum
     operator: component
@@ -33820,66 +33241,6 @@
   - id: dd:plasma_transport/model/profiles_1d/ion/momentum/toroidal/flux
     dd_path: plasma_transport/model/profiles_1d/ion/momentum/toroidal/flux
     status: attached
-- name: toroidal_ion_momentum_implicit_source_rate
-  kind: scalar
-  status: draft
-  description: Rate coefficient for the implicit source proportional to ion momentum
-    in the toroidal phi direction of the right-handed cylindrical (R, phi, Z) frame.
-    Its magnitude is an inverse time scale; its sign distinguishes proportional drive
-    from damping.
-  documentation: 'Toroidal ion momentum implicit source rate is the scalar coefficient
-    multiplying the existing ion toroidal momentum density in a linearized momentum-balance
-    source term. The toroidal direction is the direction of increasing toroidal angle
-    $\phi$ in the right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is major
-    radius and $Z$ is vertical height.
-
-
-    The linearized implicit contribution to the toroidal ion momentum source density
-    is represented as:
-
-
-    $$
-
-    S_{\phi,\mathrm{impl}} = \gamma_{\phi,\mathrm{impl}}\,p_\phi
-
-    $$
-
-
-    where $\gamma_{\phi,\mathrm{impl}}$ is this rate coefficient with unit $\mathrm{s}^{-1}$,
-    $p_\phi$ is the toroidal ion angular-momentum density with unit $\mathrm{kg\,m^{-1}\,s^{-1}}$,
-    and $S_{\phi,\mathrm{impl}}$ is the corresponding toroidal ion angular-momentum
-    source density with unit $\mathrm{kg\,m^{-1}\,s^{-2}}$.
-
-
-    This coefficient is normally obtained by linearizing momentum-source and momentum-sink
-    models about the current plasma state rather than by direct measurement as an
-    independent diagnostic observable. It is used to treat source terms proportional
-    to the existing toroidal flow, such as viscous relaxation, collisional or neutral
-    drag, and wave-particle momentum exchange; non-proportional applied torque is
-    represented separately by [toroidal_ion_torque](name:toroidal_ion_torque). Closely
-    related rate or coefficient names are [toroidal_ion_momentum_coefficient](name:toroidal_ion_momentum_implicit_source_rate),
-    [toroidal_ion_implicit_source_rate](name:toroidal_ion_momentum_implicit_source_rate),
-    and the more general ion_momentum_implicit_source_rate.
-
-
-    There is no device-independent typical range because the value depends on the
-    chosen linearization, species, collisionality, and local plasma conditions. Its
-    magnitude is best interpreted as an inverse relaxation time: $|\gamma_{\phi,\mathrm{impl}}|=1\
-    \mathrm{s}^{-1}$ corresponds to a 1 s proportional time scale, while $|\gamma_{\phi,\mathrm{impl}}|=10^3\
-    \mathrm{s}^{-1}$ corresponds to a 1 ms stiff time scale; zero means no implicit
-    proportional contribution is included.
-
-
-    Sign convention: Positive when $S_{\phi,\mathrm{impl}}$ has the same sign as $p_\phi$,
-    so the implicit contribution amplifies the existing toroidal ion momentum.'
-  unit: s^-1
-  physics_domain: transport
-  links:
-  - name:toroidal_ion_torque
-  sources:
-  - id: dd:core_sources/source/profiles_1d/ion/momentum/toroidal_decomposed/implicit_part
-    dd_path: core_sources/source/profiles_1d/ion/momentum/toroidal_decomposed/implicit_part
-    status: composed
 - name: toroidal_ion_rotation_frequency
   kind: scalar
   status: draft
@@ -34354,11 +33715,10 @@
 
     where $T_{\phi,i}^{\mathrm{explicit}}$ is the explicit toroidal ion torque in
     kg.m^2.s^-2, $T_{\phi,i}^{\mathrm{tot}}$ is the total integrated ion torque, $C_{\phi,i}$
-    is the [toroidal ion momentum coefficient](name:toroidal_ion_momentum_implicit_source_rate)
-    in s^-1, $L_{\phi,i}$ is in kg.m^2.s^-1, and $\tau_{\phi,i}$ is the [toroidal
-    ion torque density](name:toroidal_ion_torque_density) in kg.m^-1.s^-2 integrated
-    over volume $V$. This unit balance distinguishes the integrated torque from a
-    volumetric torque density.
+    is the [toroidal ion momentum coefficient] in s^-1, $L_{\phi,i}$ is in kg.m^2.s^-1,
+    and $\tau_{\phi,i}$ is the [toroidal ion torque density](name:toroidal_ion_torque_density)
+    in kg.m^-1.s^-2 integrated over volume $V$. This unit balance distinguishes the
+    integrated torque from a volumetric torque density.
 
 
     In transport modeling, this quantity is computed by summing momentum-input channels
@@ -34381,7 +33741,6 @@
   unit: kg.m^2.s^-2
   physics_domain: transport
   links:
-  - name:toroidal_ion_momentum_implicit_source_rate
   - name:toroidal_ion_torque_density
   sources:
   - id: dd:core_sources/source/profiles_1d/ion/momentum/toroidal_decomposed/explicit_part
@@ -35131,170 +34490,6 @@
   - id: dd:runaway_electrons/distribution/markers/toroidal_mode
     dd_path: runaway_electrons/distribution/markers/toroidal_mode
     status: attached
-- name: toroidal_momentum_convection_velocity
-  kind: scalar
-  status: draft
-  description: Toroidal component of the effective convection velocity for momentum
-    transport, governing the pinch-like non-diffusive radial flux of toroidal momentum
-    independent of local momentum-density gradients.
-  documentation: "The toroidal momentum convection velocity is the toroidal projection\
-    \ of the effective convection vector $\\mathbf{v}^{\\rm conv}$ that enters the\
-    \ diffusion-convection decomposition of the radial momentum flux. It quantifies\
-    \ all non-diffusive contributions to toroidal momentum transport \u2014 including\
-    \ intrinsic rotation, Coriolis pinch, and turbulence-driven parallel velocity\
-    \ pinch effects \u2014 that produce a net radial momentum flux even in the absence\
-    \ of a local momentum-density gradient.\n\nIn the standard flux-gradient framework,\
-    \ the radial flux of toroidal momentum $\\Gamma_{p_\\phi}$ is decomposed as:\n\
-    \n$$\n\\Gamma_{p_\\phi} = -D_\\phi \\frac{\\partial (m_i n_i v_\\phi)}{\\partial\
-    \ r} + v_\\phi^{\\rm conv} \\cdot m_i n_i v_\\phi\n$$\n\nwhere $D_\\phi$ is the\
-    \ toroidal momentum diffusivity, $m_i$ is the ion mass, $n_i$ is the number density,\
-    \ and $v_\\phi$ is the toroidal fluid velocity. The convection velocity $v_\\\
-    phi^{\\rm conv}$ is the quantity documented here.\n\nThis coefficient is derived\
-    \ from turbulent transport simulations or neoclassical calculations and is central\
-    \ to predicting toroidal rotation profiles in the plasma edge and core regions.\
-    \ It is the toroidal projection of [momentum_convection_velocity](name:momentum_convection_velocity);\
-    \ the corresponding poloidal projection is poloidal_momentum_convection_velocity.\
-    \ Species-resolved neutral variants are [toroidal_neutral_species_momentum_convection_velocity](name:toroidal_neutral_species_momentum_convection_velocity)\
-    \ and [toroidal_neutral_state_momentum_convection_velocity](name:toroidal_neutral_state_momentum_convection_velocity).\
-    \ The closely related [toroidal_momentum_velocity](name:toroidal_momentum_convection_velocity)\
-    \ captures the same pinch physics for the radial grid formulation.\n\nSign convention:\
-    \ Positive when the convection velocity is directed in the direction of increasing\
-    \ toroidal angle $\\phi$ (counter-clockwise when viewed from above the $+\\hat{Z}$\
-    \ axis)."
-  unit: m.s^-1
-  physics_domain: transport
-  links:
-  - name:momentum_convection_velocity
-  - name:toroidal_neutral_species_momentum_convection_velocity
-  - name:toroidal_neutral_state_momentum_convection_velocity
-  arguments:
-  - name: momentum_convection_velocity
-    operator: component
-    operator_kind: projection
-    axis: toroidal
-    shape: component
-  sources:
-  - id: dd:core_transport/model/profiles_1d/ion/momentum/toroidal/v
-    dd_path: core_transport/model/profiles_1d/ion/momentum/toroidal/v
-    status: composed
-  - id: dd:core_transport/model/profiles_1d/momentum_phi/v
-    dd_path: core_transport/model/profiles_1d/momentum_phi/v
-    status: composed
-  - id: dd:core_transport/model/profiles_1d/momentum_tor/v
-    dd_path: core_transport/model/profiles_1d/momentum_tor/v
-    status: attached
-  - id: dd:edge_transport/model/ggd/ion/momentum/v/phi
-    dd_path: edge_transport/model/ggd/ion/momentum/v/phi
-    status: attached
-  - id: dd:edge_transport/model/ggd/ion/state/momentum/v/phi
-    dd_path: edge_transport/model/ggd/ion/state/momentum/v/phi
-    status: attached
-  - id: dd:edge_transport/model/ggd/momentum/v/phi
-    dd_path: edge_transport/model/ggd/momentum/v/phi
-    status: composed
-  - id: dd:edge_transport/model/ggd/momentum/v/toroidal
-    dd_path: edge_transport/model/ggd/momentum/v/toroidal
-    status: composed
-  - id: dd:edge_transport/model/ggd/neutral/momentum/v/phi
-    dd_path: edge_transport/model/ggd/neutral/momentum/v/phi
-    status: attached
-  - id: dd:edge_transport/model/ggd/neutral/state/momentum/v/phi
-    dd_path: edge_transport/model/ggd/neutral/state/momentum/v/phi
-    status: attached
-  - id: dd:plasma_transport/model/ggd/ion/momentum/v/phi
-    dd_path: plasma_transport/model/ggd/ion/momentum/v/phi
-    status: attached
-  - id: dd:plasma_transport/model/ggd/ion/momentum/v/toroidal
-    dd_path: plasma_transport/model/ggd/ion/momentum/v/toroidal
-    status: composed
-  - id: dd:plasma_transport/model/ggd/ion/state/momentum/v/phi
-    dd_path: plasma_transport/model/ggd/ion/state/momentum/v/phi
-    status: attached
-  - id: dd:plasma_transport/model/ggd/momentum/v/phi
-    dd_path: plasma_transport/model/ggd/momentum/v/phi
-    status: attached
-  - id: dd:plasma_transport/model/ggd/neutral/state/momentum/v/phi
-    dd_path: plasma_transport/model/ggd/neutral/state/momentum/v/phi
-    status: attached
-  - id: dd:plasma_transport/model/profiles_1d/neutral/state/momentum/v/phi
-    dd_path: plasma_transport/model/profiles_1d/neutral/state/momentum/v/phi
-    status: attached
-- name: toroidal_momentum_effective_convection_velocity
-  kind: scalar
-  status: draft
-  description: Toroidal component of the effective convection velocity for cross-surface
-    transport of aggregate ion toroidal momentum. It is the net coefficient multiplying
-    the local toroidal momentum density to give the convective (non-diffusive) part
-    of the radial momentum flux in a flux-surface-averaged transport model.
-  documentation: 'Toroidal momentum effective convection velocity is the toroidal
-    component of the effective convection (pinch) velocity that advects aggregate
-    ion toroidal momentum across nested magnetic flux surfaces. The toroidal momentum
-    is associated with motion in the $\hat{\phi}$ direction of the right-handed cylindrical
-    $(R, \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and
-    $Z$ is vertical height; the cross-surface direction follows a flux-coordinate
-    system $(\rho, \theta, \phi)$, where $\rho$ is a radial flux label increasing
-    from the magnetic axis to the boundary.
-
-
-    In a flux-surface-averaged toroidal momentum balance, the convective part of the
-    cross-surface flux is written as the product of this velocity and the local momentum
-    density:
-
-
-    $$
-
-    \Gamma_\phi^{\mathrm{conv}} = v_{\phi,\mathrm{eff}} \, p_\phi
-
-    $$
-
-
-    where $v_{\phi,\mathrm{eff}}$ is the effective convection velocity in m s$^{-1}$,
-    $p_\phi$ is the local aggregate ion toroidal momentum density in kg m$^{-2}$ s$^{-1}$,
-    and $\Gamma_\phi^{\mathrm{conv}}$ is the convective flux of toroidal momentum
-    across the flux surface in kg m$^{-1}$ s$^{-2}$. The adjective "effective" denotes
-    a net coefficient that lumps together every term in the chosen transport decomposition
-    that is proportional to $p_\phi$, after the diffusive contribution and explicitly
-    non-proportional terms such as residual stress or applied torque density have
-    been separated.
-
-
-    This coefficient is not the toroidal rotation speed and is usually not measured
-    directly. It is inferred by solving or fitting the momentum balance using measured
-    ion toroidal rotation, often from charge-exchange recombination spectroscopy,
-    together with ion density and temperature, magnetic geometry, and estimates of
-    external torque and diffusive transport. It can incorporate turbulent and neoclassical
-    momentum-pinch contributions and flux-surface-averaging geometry effects when
-    these are represented as proportional to the momentum density.
-
-
-    Inferred magnitudes in tokamak core momentum transport analyzes are typically
-    of order a few to a few tens of meters per second, with the sign indicating the
-    direction of cross-surface convection rather than the sign of the toroidal momentum
-    itself.
-
-
-    Sign convention: Positive when the effective convection velocity points toward
-    increasing $\rho$, from the magnetic axis toward the plasma boundary.'
-  unit: m.s^-1
-  physics_domain: transport
-  links:
-  - name:momentum_effective_convection_velocity
-  - name:poloidal_momentum_effective_convection_velocity
-  - name:radial_ion_momentum_effective_convection_velocity
-  - name:toroidal_momentum_convection_velocity
-  arguments:
-  - name: momentum_effective_convection_velocity
-    operator: component
-    operator_kind: projection
-    axis: toroidal
-    shape: component
-  sources:
-  - id: dd:plasma_transport/model/profiles_1d/ion/momentum/toroidal/v
-    dd_path: plasma_transport/model/profiles_1d/ion/momentum/toroidal/v
-    status: composed
-  - id: dd:plasma_transport/model/profiles_1d/momentum_tor/v
-    dd_path: plasma_transport/model/profiles_1d/momentum_tor/v
-    status: composed
 - name: toroidal_neon_velocity_at_internal_transport_barrier
   kind: scalar
   status: draft
@@ -38144,7 +37339,7 @@
     electrons. It is closely related to [electron_deposited_power](name:total_electron_deposited_power)
     as another integrated electron deposition quantity, and it contributes to broader
     energy-budget quantities such as [total_electron_power](name:total_electron_deposited_power),
-    total_plasma_deposited_power, and [total_plasma_particle_deposited_power](name:total_plasma_particle_deposited_power).
+    total_plasma_deposited_power, and [total_plasma_particle_deposited_power].
 
 
     Typical magnitudes are strongly source- and device-dependent. Weak source or sink
@@ -38157,8 +37352,7 @@
     electron population and negative when it removes energy from the electron population.'
   unit: W
   physics_domain: transport
-  links:
-  - name:total_plasma_particle_deposited_power
+  links: []
   arguments:
   - name: electron_deposited_power
     operator: total
@@ -39964,9 +39158,9 @@
     not confined by the magnetic field and stream out of the plasma without slowing
     down on the background ions and electrons, whereas alpha particles and other charged
     fusion products deposit their energy locally. The neutron-carried power $P_n$
-    and the deposited charged-product power tracked by [fusion_power](name:plasma_absorbed_power_due_to_fusion)
-    together account for the total thermonuclear energy release; [fusion_power](name:plasma_absorbed_power_due_to_fusion)
-    explicitly excludes the neutron-carried energy.
+    and the deposited charged-product power tracked by [fusion_power] together account
+    for the total thermonuclear energy release; [fusion_power] explicitly excludes
+    the neutron-carried energy.
 
 
     In practice, this quantity is computed by integrating fusion reaction rates over
@@ -39985,7 +39179,6 @@
   unit: W
   physics_domain: transport
   links:
-  - name:plasma_absorbed_power_due_to_fusion
   - name:total_neutron_source_rate_due_to_thermal_fusion
   sources:
   - id: dd:neutron_diagnostic/fusion_power
@@ -40041,64 +39234,6 @@
   - id: dd:distributions/distribution/global_quantities/particles_n
     dd_path: distributions/distribution/global_quantities/particles_n
     status: composed
-- name: total_plasma_deposited_power
-  kind: scalar
-  status: draft
-  description: Total volume-integrated signed power transferred to or from the bulk
-    plasma particle distributions by all modeled heating, exchange, and loss processes
-    considered together.
-  documentation: 'Total plasma deposited power is the net rate at which all modeled
-    source and sink processes transfer energy to the bulk plasma particle distributions,
-    integrated over the plasma volume. It represents the combined contribution of
-    heating, interspecies exchange, and loss terms acting on the particle energy balance;
-    sink terms are included with negative sign.
-
-
-    The total deposited power is defined by integrating the summed volumetric power-density
-    contributions over the plasma volume:
-
-
-    $$
-
-    P_\mathrm{dep} = \int_V \sum_s p_s(\mathbf{x})\, dV
-
-    $$
-
-
-    where $p_s$ is the signed volumetric power density of source or sink process $s$
-    in W m^-3, $dV$ is the volume element in m^3, $V$ is the plasma volume, and $P_\mathrm{dep}$
-    is the total deposited power in W.
-
-
-    In transport analysis this quantity is computed by summing the volume-integrated
-    contributions from modeled processes such as ohmic heating, neutral beam heating,
-    radio-frequency heating, fusion-product heating, radiation, ionization and recombination
-    energy exchange, charge-exchange losses, and collisional energy transfer between
-    species, according to the terms included in the particle energy balance. Experimental
-    estimates combine actuator power accounting, diagnostic constraints, and transport
-    reconstruction to infer the net deposited contribution.
-
-
-    Typical magnitudes are strongly scenario dependent. Ohmic or low-power auxiliary
-    heated plasmas may have total deposited powers of 1e5-1e6 W, present high-performance
-    tokamak scenarios commonly reach 1e6-5e7 W, and reactor-scale or burning-plasma
-    scenarios can reach 1e8-5e8 W. The signed net value can be near zero or negative
-    during phases where modeled losses exceed deposited heating.
-
-
-    Sign convention: Positive when net source terms transfer energy to the bulk plasma
-    particle distributions and negative when they remove energy from those distributions.'
-  unit: W
-  physics_domain: transport
-  links:
-  - name:total_electron_deposited_power
-  - name:deposited_power
-  - name:total_plasma_power
-  - name:total_plasma_particle_deposited_power
-  arguments:
-  - name: plasma_deposited_power
-    operator: total
-    operator_kind: qualifier
 - name: total_plasma_energy
   kind: scalar
   status: draft

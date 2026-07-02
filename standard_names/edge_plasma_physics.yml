@@ -1,5 +1,5 @@
 # Domain: edge_plasma_physics
-# Catalog sha: 8907b76455ee66eb637e3842250dd81478dc2348
+# Catalog sha: a1e0207170856872842b8ee168220adcf4acab4a
 # Entries: 206
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
@@ -85,6 +85,38 @@
   - name:ratio_of_carbon_density_to_electron_density
   - name:beryllium_density
   - name:tungsten_density
+- name: decay_length_over_scrape_off_layer
+  kind: scalar
+  status: draft
+  description: "Radial e-folding scale over which a plasma quantity \u2014 heat flux,\
+    \ particle density, or temperature \u2014 decreases exponentially with distance\
+    \ from the separatrix into the open-field-line scrape-off layer."
+  documentation: "The decay length over the scrape-off layer (SOL) is the radial e-folding\
+    \ scale over which a plasma quantity decreases exponentially with increasing distance\
+    \ from the magnetic separatrix into the open-field-line region between the separatrix\
+    \ and the material wall. It is the abstract parent of a family of species- and\
+    \ transport-channel-specific lengths, including [heat_decay_length_over_scrape_off_layer](name:heat_decay_length_over_scrape_off_layer)\
+    \ and electron_decay_length_over_scrape_off_layer, and is itself a specialization\
+    \ of [length_over_scrape_off_layer] restricted to exponentially decaying profiles.\n\
+    \nThe e-folding length $\\lambda$ is defined by the exponential fit to the radial\
+    \ profile:\n\n$$\nf(r) = f_0 \\exp\\!\\left(-\\frac{r}{\\lambda}\\right)\n$$\n\
+    \nwhere $r$ is the radial distance measured outward from the separatrix in the\
+    \ direction perpendicular to the magnetic field and $f_0$ is the value of the\
+    \ decaying quantity at the separatrix.\n\nSOL decay lengths are inferred from\
+    \ midplane Langmuir probe traversals, edge Thomson scattering measurements, or\
+    \ divertor target heat-flux distributions mapped back to the upstream midplane\
+    \ along field lines. Typical heat-channel decay lengths in H-mode tokamak plasmas\
+    \ lie in the range 1\u201310 mm, while particle density e-folding lengths are\
+    \ generally larger at 10\u201350 mm, reflecting the differing cross-field transport\
+    \ coefficients for energy and particles."
+  unit: m
+  physics_domain: edge_plasma_physics
+  links:
+  - name:heat_decay_length_over_scrape_off_layer
+  sources:
+  - id: dd:summary/scrape_off_layer/n_e_decay_length/value
+    dd_path: summary/scrape_off_layer/n_e_decay_length/value
+    status: composed
 - name: density_at_pedestal
   kind: scalar
   status: draft
@@ -995,6 +1027,60 @@
     status: composed
   - id: dd:summary/local/separatrix_average/zeff/value
     dd_path: summary/local/separatrix_average/zeff/value
+    status: composed
+- name: electron_decay_length_over_scrape_off_layer
+  kind: scalar
+  status: draft
+  description: Positive radial e-folding length of electron number density in the
+    scrape-off layer, defined as the inverse magnitude of the outward logarithmic
+    radial gradient. It measures how rapidly electron density falls with distance
+    outside the confined plasma.
+  documentation: 'Electron decay length in the scrape-off layer is the positive e-folding
+    length for the falloff of electron number density with outward distance across
+    the scrape-off layer. It characterizes the radial width of the electron-density
+    decay region; a larger value means a more gradual decrease of density outside
+    the confined plasma.
+
+
+    For a local outward distance coordinate $x$, the decay length is defined by the
+    inverse magnitude of the logarithmic density gradient:
+
+
+    $$
+
+    \lambda_{n_e} = \left|\frac{d\ln n_e}{dx}\right|^{-1} = \frac{n_e}{\left|d n_e/dx\right|}
+
+    $$
+
+
+    where $n_e$ is electron number density in $m^{-3}$, $x$ is outward distance in
+    m across the scrape-off layer, and $\lambda_{n_e}$ is the decay length in m. The
+    absolute value makes the quantity non-negative for the usual outward density decrease
+    and for local gradients of either sign.
+
+
+    In practice, $\lambda_{n_e}$ is obtained by fitting or differentiating electron-density
+    measurements in the scrape-off layer, commonly using Langmuir probes, Thomson
+    scattering, reflectometry, or equilibrium-mapped edge measurements over a specified
+    radial interval. It is conceptually equivalent to [radial_electron_decay_length_over_scrape_off_layer](name:electron_decay_length_over_scrape_off_layer)
+    when the decay direction is the outward radial direction; the explicitly radial
+    name is useful when distinguishing this scale from parallel, poloidal, or other
+    directional decay lengths.
+
+
+    Typical values in tokamak scrape-off-layer analyzes are about 0.001-0.05 m, depending
+    on plasma conditions, magnetic geometry, density, fueling, recycling, and the
+    radial interval used for the fit.'
+  unit: m
+  physics_domain: edge_plasma_physics
+  links: []
+  arguments:
+  - name: decay_length_over_scrape_off_layer
+    operator: electron
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/scrape_off_layer/n_e_decay_length/value
+    dd_path: summary/scrape_off_layer/n_e_decay_length/value
     status: composed
 - name: electron_density_at_launching_position
   kind: scalar
@@ -1922,6 +2008,94 @@
   - id: dd:summary/pedestal_fits/mtanh/n_e/d_dpsi_norm/value
     dd_path: summary/pedestal_fits/mtanh/n_e/d_dpsi_norm/value
     status: attached
+- name: heat_decay_length_over_scrape_off_layer
+  kind: scalar
+  status: draft
+  description: Radial e-folding decay length of the heat flux profile in the scrape-off
+    layer, without specifying the electron or ion heat channel.
+  documentation: "The heat decay length in the scrape-off layer (SOL) is the radial\
+    \ distance over which the heat flux profile falls to $1/e$ of its value at the\
+    \ separatrix, characterizing the spatial scale of heat exhaust across the open-field-line\
+    \ region. This parent quantity leaves the contributing heat channel unspecified,\
+    \ generalizing over both the electron and ion contributions captured by its species-resolved\
+    \ children.\n\nThe decay length is formally defined as the inverse of the magnitude\
+    \ of the logarithmic radial gradient of the heat flux $q$:\n\n$$\n\\lambda_q =\
+    \ \\left| \\frac{\\partial \\ln q}{\\partial r} \\right|^{-1}\n$$\n\nwhere $r$\
+    \ is the radial coordinate measured outward from the separatrix into the SOL.\
+    \ The species-specific children [electron_heat_decay_length_over_scrape_off_layer](name:electron_heat_decay_length_over_scrape_off_layer)\
+    \ and [ion_heat_decay_length_over_scrape_off_layer](name:ion_heat_decay_length_over_scrape_off_layer)\
+    \ resolve this quantity into the electron and ion heat channels, respectively;\
+    \ users requiring species resolution should reference those names directly.\n\n\
+    The heat decay length is inferred from infrared thermography of the divertor target,\
+    \ which images the radial heat load footprint, or from radially distributed Langmuir\
+    \ probe arrays in the SOL. Typical midplane-mapped values in H-mode tokamak plasmas\
+    \ span 1\u201310 mm.\n\nSign convention: Positive when the heat flux decreases\
+    \ with increasing radial distance outward from the separatrix toward the first\
+    \ wall."
+  unit: m
+  physics_domain: edge_plasma_physics
+  links:
+  - name:electron_heat_decay_length_over_scrape_off_layer
+  - name:ion_heat_decay_length_over_scrape_off_layer
+  arguments:
+  - name: decay_length_over_scrape_off_layer
+    operator: heat
+    operator_kind: qualifier
+- name: electron_heat_decay_length_over_scrape_off_layer
+  kind: scalar
+  status: draft
+  description: Radial e-folding decay length of electron heat flux in the scrape-off
+    layer, equal to the inverse magnitude of its logarithmic radial gradient.
+  documentation: 'The electron heat decay length over the scrape-off layer is the
+    radial e-folding distance over which the electron heat flux decreases outside
+    the last closed flux surface. It quantifies how narrowly the electron heat channel
+    is localized in the scrape-off layer; smaller values correspond to a steeper radial
+    falloff.
+
+
+    For a local outward radial coordinate $r$, the decay length is defined from the
+    logarithmic radial gradient of the electron heat flux:
+
+
+    $$
+
+    \lambda_{q_e} = \left|\frac{q_e}{d q_e / dr}\right| = \left|\frac{d \ln q_e}{dr}\right|^{-1}
+
+    $$
+
+
+    where $q_e(r)$ is the electron heat flux density in W m$^{-2}$, $r$ is the outward
+    radial distance in m, and $\lambda_{q_e}$ is in m. The absolute value makes the
+    decay length non-negative; for an outwardly decreasing heat flux, $d q_e / dr
+    < 0$.
+
+
+    In practice, $\lambda_{q_e}$ is obtained by fitting an exponential falloff of
+    the electron heat flux as a function of a consistently defined radial coordinate,
+    or by evaluating the local logarithmic gradient from measurements or edge-plasma
+    transport calculations. If distances are mapped between locations, such as from
+    a target surface to an outer-midplane radial coordinate, the geometric mapping
+    should be treated consistently with the heat-flux definition.
+
+
+    Typical values in tokamak scrape-off layers are of order millimeters to centimeters,
+    approximately 0.001-0.05 m, with the value depending on confinement regime, collisionality,
+    connection length, and magnetic geometry.'
+  unit: m
+  physics_domain: edge_plasma_physics
+  links:
+  - name:heat_decay_length_over_scrape_off_layer
+  - name:ion_heat_decay_length_over_scrape_off_layer
+  - name:thermal_electron_decay_length_over_scrape_off_layer
+  - name:electron_decay_length_over_scrape_off_layer
+  arguments:
+  - name: heat_decay_length_over_scrape_off_layer
+    operator: electron
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/scrape_off_layer/heat_flux_e_decay_length/value
+    dd_path: summary/scrape_off_layer/heat_flux_e_decay_length/value
+    status: composed
 - name: helium_3_density_at_pedestal
   kind: scalar
   status: draft
@@ -2321,6 +2495,67 @@
   - name:electron_diffusivity
   sources:
   - id: derived:ion_diffusivity
+    status: composed
+- name: ion_heat_decay_length_over_scrape_off_layer
+  kind: scalar
+  status: draft
+  description: Radial e-folding decay length of the ion heat flux in the scrape-off
+    layer, equal to the inverse magnitude of its outward logarithmic radial gradient.
+    It is non-negative by definition and characterizes how rapidly ion heat exhaust
+    falls away from the separatrix.
+  documentation: 'The ion heat decay length over the scrape-off layer is the radial
+    e-folding scale over which the ion heat flux decreases outside the confined plasma.
+    It characterizes the width of the ion heat exhaust channel and complements the
+    electron-channel quantity [electron_heat_decay_length_over_scrape_off_layer](name:electron_heat_decay_length_over_scrape_off_layer)
+    in determining the overall heat-exhaust fall-off described by [heat_decay_length_over_scrape_off_layer](name:heat_decay_length_over_scrape_off_layer).
+
+
+    The local decay length is the inverse magnitude of the outward logarithmic gradient
+    of the ion heat flux:
+
+
+    $$
+
+    \lambda_{q_i} = \left|\frac{\partial \ln q_i}{\partial r_\perp}\right|^{-1}
+
+    $$
+
+
+    where $q_i(r_\perp)$ is the positive ion heat-flux density in W m^-2, $r_\perp$
+    is distance in meters measured locally outward from the separatrix approximately
+    normal to magnetic flux surfaces, and $\lambda_{q_i}$ is in meters. For an exponential
+    dependence $q_i \propto \exp(-r_\perp/\lambda_{q_i})$, the ion heat flux decreases
+    by a factor $e$ over one decay length.
+
+
+    In practice, this quantity is inferred by fitting or differentiating the radial
+    dependence of ion heat-flux estimates in the scrape-off layer. Those estimates
+    may come from target heat measurements, probe-based ion energy and particle flux
+    measurements, edge power balance, or transport modeling with magnetic mapping
+    between divertor and upstream locations. It is distinct from ion temperature decay
+    lengths such as radial_average_ion_temperature_decay_length_over_scrape_off_layer
+    and ion_average_decay_length_over_scrape_off_layer, because it describes heat-flux
+    fall-off rather than temperature fall-off.
+
+
+    Typical magnitudes in present tokamak scrape-off layers are on the order of 0.001-0.03
+    m, ranging from millimeter-scale widths in narrow high-confinement conditions
+    to centimeter-scale widths in broader low-confinement or high-collisionality conditions.
+    The value depends on plasma density, power crossing the separatrix, magnetic geometry,
+    collisionality, and whether the quoted location is upstream or mapped to the divertor
+    target.'
+  unit: m
+  physics_domain: edge_plasma_physics
+  links:
+  - name:electron_heat_decay_length_over_scrape_off_layer
+  - name:heat_decay_length_over_scrape_off_layer
+  arguments:
+  - name: heat_decay_length_over_scrape_off_layer
+    operator: ion
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/scrape_off_layer/heat_flux_i_decay_length/value
+    dd_path: summary/scrape_off_layer/heat_flux_i_decay_length/value
     status: composed
 - name: iron_density
   kind: scalar
@@ -3445,13 +3680,12 @@
     \ and temperature.\n\nThe parent quantity ion_heat_convection_velocity defines\
     \ the full vector; the parallel component dominates along open field lines where\
     \ parallel transport greatly exceeds cross-field transport. The analogous transport\
-    \ coefficient for parallel momentum is [parallel_momentum_effective_convection_velocity](name:parallel_momentum_effective_convection_velocity).\n\
+    \ coefficient for parallel momentum is [parallel_momentum_effective_convection_velocity].\n\
     \nSign convention: Positive when the ion heat convection is directed along the\
     \ local magnetic field unit vector $\\hat{b} = \\mathbf{B}/|\\mathbf{B}|$."
   unit: m.s^-1
   physics_domain: edge_plasma_physics
-  links:
-  - name:parallel_momentum_effective_convection_velocity
+  links: []
   sources:
   - id: dd:edge_transport/model/ggd/electrons/energy/v_parallel/values
     dd_path: edge_transport/model/ggd/electrons/energy/v_parallel/values
@@ -4499,6 +4733,61 @@
     status: attached
   - id: dd:summary/scrape_off_layer/power_radiated/value
     dd_path: summary/scrape_off_layer/power_radiated/value
+    status: composed
+- name: thermal_electron_decay_length_over_scrape_off_layer
+  kind: scalar
+  status: draft
+  description: Radial e-folding scale length of the thermal electron temperature in
+    the scrape-off layer. It is the positive inverse magnitude of the outward logarithmic
+    radial gradient of the thermal electron temperature.
+  documentation: 'Thermal electron decay length over the scrape-off layer is the characteristic
+    distance over which the thermal electron temperature falls by a factor of $e$
+    outside the last closed flux surface. It describes the local radial steepness
+    of $T_e$ in the open-field-line region and is a positive scale length, not a signed
+    gradient.
+
+
+    For a local radial coordinate $r$ measured outward from the separatrix along the
+    normal to magnetic flux surfaces into the scrape-off layer, an exponential falloff
+    is represented by:
+
+
+    $$
+
+    T_e(r) \simeq T_{e,\mathrm{sep}} \exp\left[-\frac{r-r_{\mathrm{sep}}}{\lambda_{T_e}}\right],
+    \qquad \lambda_{T_e} = \left|\frac{d\ln T_e}{dr}\right|^{-1}
+
+    $$
+
+
+    where $T_e$ is the thermal electron temperature in eV, $T_{e,\mathrm{sep}}$ is
+    its separatrix value, $r_{\mathrm{sep}}$ is the separatrix location on the same
+    outward radial coordinate, and $\lambda_{T_e}$ is the thermal electron temperature
+    decay length.
+
+
+    In practice, $\lambda_{T_e}$ is obtained by fitting an exponential or local logarithmic-gradient
+    model to scrape-off-layer electron temperature measurements or reconstructed edge
+    profiles. The radial coordinate is usually interpreted locally at a specified
+    poloidal location, such as the outboard midplane or divertor-mapped upstream location,
+    because flux expansion and magnetic geometry can make the apparent decay length
+    location dependent.
+
+
+    Typical values in tokamak scrape-off layers are about 0.002-0.05 m, with shorter
+    lengths in high-confinement, high-power-density conditions and longer lengths
+    in cooler, lower-power, or more weakly magnetized edge plasmas.'
+  unit: m
+  physics_domain: edge_plasma_physics
+  links:
+  - name:electron_heat_decay_length_over_scrape_off_layer
+  arguments:
+  - name: electron_decay_length_over_scrape_off_layer
+    operator: thermal
+    operator_kind: qualifier
+  sources:
+  - id: dd:summary/scrape_off_layer/t_e_decay_length/value
+    dd_path: summary/scrape_off_layer/t_e_decay_length/value
     status: composed
 - name: toroidal_angle_of_active_limiter_point
   kind: scalar
@@ -6860,7 +7149,7 @@
     tensors in kg.m^-1.s^-2. The first $\hat{\phi}$ selects the transported toroidal
     momentum component and the second specifies the positive toroidal flux direction.
     A radial flux of toroidal momentum would instead use the $\hat{R}$ surface-normal
-    projection, and is conceptually distinct from convective quantities such as [toroidal_momentum_convection_velocity](name:toroidal_momentum_convection_velocity).
+    projection, and is conceptually distinct from convective quantities such as [toroidal_momentum_convection_velocity].
 
 
     In practice this quantity is computed from edge-plasma momentum balance models
@@ -6886,9 +7175,7 @@
   unit: kg.m^-1.s^-2
   physics_domain: edge_plasma_physics
   links:
-  - name:toroidal_momentum_flux
-  - name:poloidal_momentum_flux
-  - name:parallel_momentum_flux
+  - name:toroidal_neutral_momentum
   - name:toroidal_neutral_torque_density
   sources:
   - id: dd:edge_transport/model/ggd/momentum/flux/phi
@@ -8038,301 +8325,6 @@
     status: attached
   - id: dd:summary/pedestal_fits/mtanh/coulomb_factor_pedestal_top/value
     dd_path: summary/pedestal_fits/mtanh/coulomb_factor_pedestal_top/value
-    status: composed
-- name: decay_length_over_scrape_off_layer
-  kind: scalar
-  status: draft
-  description: "Radial e-folding scale over which a plasma quantity \u2014 heat flux,\
-    \ particle density, or temperature \u2014 decreases exponentially with distance\
-    \ from the separatrix into the open-field-line scrape-off layer."
-  documentation: "The decay length over the scrape-off layer (SOL) is the radial e-folding\
-    \ scale over which a plasma quantity decreases exponentially with increasing distance\
-    \ from the magnetic separatrix into the open-field-line region between the separatrix\
-    \ and the material wall. It is the abstract parent of a family of species- and\
-    \ transport-channel-specific lengths, including [heat_decay_length_over_scrape_off_layer](name:heat_decay_length_over_scrape_off_layer)\
-    \ and electron_decay_length_over_scrape_off_layer, and is itself a specialization\
-    \ of [length_over_scrape_off_layer](name:length_over_scrape_off_layer) restricted\
-    \ to exponentially decaying profiles.\n\nThe e-folding length $\\lambda$ is defined\
-    \ by the exponential fit to the radial profile:\n\n$$\nf(r) = f_0 \\exp\\!\\left(-\\\
-    frac{r}{\\lambda}\\right)\n$$\n\nwhere $r$ is the radial distance measured outward\
-    \ from the separatrix in the direction perpendicular to the magnetic field and\
-    \ $f_0$ is the value of the decaying quantity at the separatrix.\n\nSOL decay\
-    \ lengths are inferred from midplane Langmuir probe traversals, edge Thomson scattering\
-    \ measurements, or divertor target heat-flux distributions mapped back to the\
-    \ upstream midplane along field lines. Typical heat-channel decay lengths in H-mode\
-    \ tokamak plasmas lie in the range 1\u201310 mm, while particle density e-folding\
-    \ lengths are generally larger at 10\u201350 mm, reflecting the differing cross-field\
-    \ transport coefficients for energy and particles."
-  unit: m
-  physics_domain: edge_plasma_physics
-  links:
-  - name:heat_decay_length_over_scrape_off_layer
-  - name:length_over_scrape_off_layer
-  arguments:
-  - name: length_over_scrape_off_layer
-    operator: decay
-    operator_kind: qualifier
-  sources:
-  - id: dd:summary/scrape_off_layer/n_e_decay_length/value
-    dd_path: summary/scrape_off_layer/n_e_decay_length/value
-    status: composed
-- name: electron_decay_length_over_scrape_off_layer
-  kind: scalar
-  status: draft
-  description: Positive radial e-folding length of electron number density in the
-    scrape-off layer, defined as the inverse magnitude of the outward logarithmic
-    radial gradient. It measures how rapidly electron density falls with distance
-    outside the confined plasma.
-  documentation: 'Electron decay length in the scrape-off layer is the positive e-folding
-    length for the falloff of electron number density with outward distance across
-    the scrape-off layer. It characterizes the radial width of the electron-density
-    decay region; a larger value means a more gradual decrease of density outside
-    the confined plasma.
-
-
-    For a local outward distance coordinate $x$, the decay length is defined by the
-    inverse magnitude of the logarithmic density gradient:
-
-
-    $$
-
-    \lambda_{n_e} = \left|\frac{d\ln n_e}{dx}\right|^{-1} = \frac{n_e}{\left|d n_e/dx\right|}
-
-    $$
-
-
-    where $n_e$ is electron number density in $m^{-3}$, $x$ is outward distance in
-    m across the scrape-off layer, and $\lambda_{n_e}$ is the decay length in m. The
-    absolute value makes the quantity non-negative for the usual outward density decrease
-    and for local gradients of either sign.
-
-
-    In practice, $\lambda_{n_e}$ is obtained by fitting or differentiating electron-density
-    measurements in the scrape-off layer, commonly using Langmuir probes, Thomson
-    scattering, reflectometry, or equilibrium-mapped edge measurements over a specified
-    radial interval. It is conceptually equivalent to [radial_electron_decay_length_over_scrape_off_layer](name:electron_decay_length_over_scrape_off_layer)
-    when the decay direction is the outward radial direction; the explicitly radial
-    name is useful when distinguishing this scale from parallel, poloidal, or other
-    directional decay lengths.
-
-
-    Typical values in tokamak scrape-off-layer analyzes are about 0.001-0.05 m, depending
-    on plasma conditions, magnetic geometry, density, fueling, recycling, and the
-    radial interval used for the fit.'
-  unit: m
-  physics_domain: edge_plasma_physics
-  links: []
-  arguments:
-  - name: decay_length_over_scrape_off_layer
-    operator: electron
-    operator_kind: qualifier
-  sources:
-  - id: dd:summary/scrape_off_layer/n_e_decay_length/value
-    dd_path: summary/scrape_off_layer/n_e_decay_length/value
-    status: composed
-- name: heat_decay_length_over_scrape_off_layer
-  kind: scalar
-  status: draft
-  description: Radial e-folding decay length of the heat flux profile in the scrape-off
-    layer, without specifying the electron or ion heat channel.
-  documentation: "The heat decay length in the scrape-off layer (SOL) is the radial\
-    \ distance over which the heat flux profile falls to $1/e$ of its value at the\
-    \ separatrix, characterizing the spatial scale of heat exhaust across the open-field-line\
-    \ region. This parent quantity leaves the contributing heat channel unspecified,\
-    \ generalizing over both the electron and ion contributions captured by its species-resolved\
-    \ children.\n\nThe decay length is formally defined as the inverse of the magnitude\
-    \ of the logarithmic radial gradient of the heat flux $q$:\n\n$$\n\\lambda_q =\
-    \ \\left| \\frac{\\partial \\ln q}{\\partial r} \\right|^{-1}\n$$\n\nwhere $r$\
-    \ is the radial coordinate measured outward from the separatrix into the SOL.\
-    \ The species-specific children [electron_heat_decay_length_over_scrape_off_layer](name:electron_heat_decay_length_over_scrape_off_layer)\
-    \ and [ion_heat_decay_length_over_scrape_off_layer](name:ion_heat_decay_length_over_scrape_off_layer)\
-    \ resolve this quantity into the electron and ion heat channels, respectively;\
-    \ users requiring species resolution should reference those names directly.\n\n\
-    The heat decay length is inferred from infrared thermography of the divertor target,\
-    \ which images the radial heat load footprint, or from radially distributed Langmuir\
-    \ probe arrays in the SOL. Typical midplane-mapped values in H-mode tokamak plasmas\
-    \ span 1\u201310 mm.\n\nSign convention: Positive when the heat flux decreases\
-    \ with increasing radial distance outward from the separatrix toward the first\
-    \ wall."
-  unit: m
-  physics_domain: edge_plasma_physics
-  links:
-  - name:electron_heat_decay_length_over_scrape_off_layer
-  - name:ion_heat_decay_length_over_scrape_off_layer
-  arguments:
-  - name: decay_length_over_scrape_off_layer
-    operator: heat
-    operator_kind: qualifier
-- name: electron_heat_decay_length_over_scrape_off_layer
-  kind: scalar
-  status: draft
-  description: Radial e-folding decay length of electron heat flux in the scrape-off
-    layer, equal to the inverse magnitude of its logarithmic radial gradient.
-  documentation: 'The electron heat decay length over the scrape-off layer is the
-    radial e-folding distance over which the electron heat flux decreases outside
-    the last closed flux surface. It quantifies how narrowly the electron heat channel
-    is localized in the scrape-off layer; smaller values correspond to a steeper radial
-    falloff.
-
-
-    For a local outward radial coordinate $r$, the decay length is defined from the
-    logarithmic radial gradient of the electron heat flux:
-
-
-    $$
-
-    \lambda_{q_e} = \left|\frac{q_e}{d q_e / dr}\right| = \left|\frac{d \ln q_e}{dr}\right|^{-1}
-
-    $$
-
-
-    where $q_e(r)$ is the electron heat flux density in W m$^{-2}$, $r$ is the outward
-    radial distance in m, and $\lambda_{q_e}$ is in m. The absolute value makes the
-    decay length non-negative; for an outwardly decreasing heat flux, $d q_e / dr
-    < 0$.
-
-
-    In practice, $\lambda_{q_e}$ is obtained by fitting an exponential falloff of
-    the electron heat flux as a function of a consistently defined radial coordinate,
-    or by evaluating the local logarithmic gradient from measurements or edge-plasma
-    transport calculations. If distances are mapped between locations, such as from
-    a target surface to an outer-midplane radial coordinate, the geometric mapping
-    should be treated consistently with the heat-flux definition.
-
-
-    Typical values in tokamak scrape-off layers are of order millimeters to centimeters,
-    approximately 0.001-0.05 m, with the value depending on confinement regime, collisionality,
-    connection length, and magnetic geometry.'
-  unit: m
-  physics_domain: edge_plasma_physics
-  links:
-  - name:heat_decay_length_over_scrape_off_layer
-  - name:ion_heat_decay_length_over_scrape_off_layer
-  - name:thermal_electron_decay_length_over_scrape_off_layer
-  - name:electron_decay_length_over_scrape_off_layer
-  arguments:
-  - name: heat_decay_length_over_scrape_off_layer
-    operator: electron
-    operator_kind: qualifier
-  sources:
-  - id: dd:summary/scrape_off_layer/heat_flux_e_decay_length/value
-    dd_path: summary/scrape_off_layer/heat_flux_e_decay_length/value
-    status: composed
-- name: ion_heat_decay_length_over_scrape_off_layer
-  kind: scalar
-  status: draft
-  description: Radial e-folding decay length of the ion heat flux in the scrape-off
-    layer, equal to the inverse magnitude of its outward logarithmic radial gradient.
-    It is non-negative by definition and characterizes how rapidly ion heat exhaust
-    falls away from the separatrix.
-  documentation: 'The ion heat decay length over the scrape-off layer is the radial
-    e-folding scale over which the ion heat flux decreases outside the confined plasma.
-    It characterizes the width of the ion heat exhaust channel and complements the
-    electron-channel quantity [electron_heat_decay_length_over_scrape_off_layer](name:electron_heat_decay_length_over_scrape_off_layer)
-    in determining the overall heat-exhaust fall-off described by [heat_decay_length_over_scrape_off_layer](name:heat_decay_length_over_scrape_off_layer).
-
-
-    The local decay length is the inverse magnitude of the outward logarithmic gradient
-    of the ion heat flux:
-
-
-    $$
-
-    \lambda_{q_i} = \left|\frac{\partial \ln q_i}{\partial r_\perp}\right|^{-1}
-
-    $$
-
-
-    where $q_i(r_\perp)$ is the positive ion heat-flux density in W m^-2, $r_\perp$
-    is distance in meters measured locally outward from the separatrix approximately
-    normal to magnetic flux surfaces, and $\lambda_{q_i}$ is in meters. For an exponential
-    dependence $q_i \propto \exp(-r_\perp/\lambda_{q_i})$, the ion heat flux decreases
-    by a factor $e$ over one decay length.
-
-
-    In practice, this quantity is inferred by fitting or differentiating the radial
-    dependence of ion heat-flux estimates in the scrape-off layer. Those estimates
-    may come from target heat measurements, probe-based ion energy and particle flux
-    measurements, edge power balance, or transport modeling with magnetic mapping
-    between divertor and upstream locations. It is distinct from ion temperature decay
-    lengths such as radial_average_ion_temperature_decay_length_over_scrape_off_layer
-    and ion_average_decay_length_over_scrape_off_layer, because it describes heat-flux
-    fall-off rather than temperature fall-off.
-
-
-    Typical magnitudes in present tokamak scrape-off layers are on the order of 0.001-0.03
-    m, ranging from millimeter-scale widths in narrow high-confinement conditions
-    to centimeter-scale widths in broader low-confinement or high-collisionality conditions.
-    The value depends on plasma density, power crossing the separatrix, magnetic geometry,
-    collisionality, and whether the quoted location is upstream or mapped to the divertor
-    target.'
-  unit: m
-  physics_domain: edge_plasma_physics
-  links:
-  - name:electron_heat_decay_length_over_scrape_off_layer
-  - name:heat_decay_length_over_scrape_off_layer
-  arguments:
-  - name: heat_decay_length_over_scrape_off_layer
-    operator: ion
-    operator_kind: qualifier
-  sources:
-  - id: dd:summary/scrape_off_layer/heat_flux_i_decay_length/value
-    dd_path: summary/scrape_off_layer/heat_flux_i_decay_length/value
-    status: composed
-- name: thermal_electron_decay_length_over_scrape_off_layer
-  kind: scalar
-  status: draft
-  description: Radial e-folding scale length of the thermal electron temperature in
-    the scrape-off layer. It is the positive inverse magnitude of the outward logarithmic
-    radial gradient of the thermal electron temperature.
-  documentation: 'Thermal electron decay length over the scrape-off layer is the characteristic
-    distance over which the thermal electron temperature falls by a factor of $e$
-    outside the last closed flux surface. It describes the local radial steepness
-    of $T_e$ in the open-field-line region and is a positive scale length, not a signed
-    gradient.
-
-
-    For a local radial coordinate $r$ measured outward from the separatrix along the
-    normal to magnetic flux surfaces into the scrape-off layer, an exponential falloff
-    is represented by:
-
-
-    $$
-
-    T_e(r) \simeq T_{e,\mathrm{sep}} \exp\left[-\frac{r-r_{\mathrm{sep}}}{\lambda_{T_e}}\right],
-    \qquad \lambda_{T_e} = \left|\frac{d\ln T_e}{dr}\right|^{-1}
-
-    $$
-
-
-    where $T_e$ is the thermal electron temperature in eV, $T_{e,\mathrm{sep}}$ is
-    its separatrix value, $r_{\mathrm{sep}}$ is the separatrix location on the same
-    outward radial coordinate, and $\lambda_{T_e}$ is the thermal electron temperature
-    decay length.
-
-
-    In practice, $\lambda_{T_e}$ is obtained by fitting an exponential or local logarithmic-gradient
-    model to scrape-off-layer electron temperature measurements or reconstructed edge
-    profiles. The radial coordinate is usually interpreted locally at a specified
-    poloidal location, such as the outboard midplane or divertor-mapped upstream location,
-    because flux expansion and magnetic geometry can make the apparent decay length
-    location dependent.
-
-
-    Typical values in tokamak scrape-off layers are about 0.002-0.05 m, with shorter
-    lengths in high-confinement, high-power-density conditions and longer lengths
-    in cooler, lower-power, or more weakly magnetized edge plasmas.'
-  unit: m
-  physics_domain: edge_plasma_physics
-  links:
-  - name:electron_heat_decay_length_over_scrape_off_layer
-  arguments:
-  - name: electron_decay_length_over_scrape_off_layer
-    operator: thermal
-    operator_kind: qualifier
-  sources:
-  - id: dd:summary/scrape_off_layer/t_e_decay_length/value
-    dd_path: summary/scrape_off_layer/t_e_decay_length/value
     status: composed
 - name: diamagnetic_current_density_due_to_heat_viscosity
   kind: scalar

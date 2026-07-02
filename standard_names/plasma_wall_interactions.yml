@@ -1,5 +1,5 @@
 # Domain: plasma_wall_interactions
-# Catalog sha: 8907b76455ee66eb637e3842250dd81478dc2348
+# Catalog sha: a1e0207170856872842b8ee168220adcf4acab4a
 # Entries: 85
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
@@ -634,8 +634,8 @@
   documentation: 'Energy flux at the wall is the local power per unit area delivered
     to a plasma-facing surface by plasma, neutral, radiative, and electromagnetic
     processes. It represents the aggregate wall heat-loading density; integrating
-    it over a surface gives the corresponding [plasma_deposited_power_at_wall](name:plasma_deposited_power_at_wall),
-    while its maximum over a surface is related to [peak_power_density_at_wall](name:peak_power_density_at_wall).
+    it over a surface gives the corresponding [plasma_deposited_power_at_wall], while
+    its maximum over a surface is related to [peak_power_density_at_wall](name:peak_power_density_at_wall).
 
 
     The total wall energy flux density is the area density of deposited power and
@@ -674,11 +674,7 @@
   unit: W.m^-2
   physics_domain: plasma_wall_interactions
   links:
-  - name:ion_kinetic_energy_flux_at_wall
-  - name:energy_flux_at_wall_due_to_recombination
-  - name:energy_flux_at_wall_due_to_radiation
-  - name:energy_flux_at_wall_due_to_eddy_current
-  - name:electron_energy_flux_at_wall
+  - name:peak_power_density_at_wall
 - name: electron_energy_flux_at_wall
   kind: scalar
   status: draft
@@ -929,6 +925,108 @@
   - name:neutral_energy_flux_at_wall_due_to_recombination
   - name:neutral_particle_flux_at_wall_due_to_recombination
   - name:energy_flux_at_wall_due_to_radiation
+- name: flux_due_to_recombination
+  kind: scalar
+  status: draft
+  description: Surface-normal particle flux density arising from recombination of
+    plasma ions and electrons into neutral atoms or molecules. It quantifies the rate
+    at which plasma particles are removed from the confined region through recombination
+    across a specified surface, such as a material boundary or a flux surface.
+  documentation: 'Recombination-driven particle flux density is the surface-normal
+    flux of plasma particles that recombine, typically at a plasma-facing surface
+    or across an arbitrary reference surface. It measures the rate per unit area at
+    which ions and electrons combine to form neutral atoms or molecules, thereby removing
+    particles from the plasma volume.
+
+
+    The defining kinetic expression relates the recombination flux density to the
+    velocity distribution of recombined particles emerging from the surface:
+
+
+    $$
+
+    \Gamma_{\mathrm{rec}} = \int (\mathbf{v} \cdot \hat{n})\, f_{\mathrm{rec}}(\mathbf{v})\,
+    d^3v
+
+    $$
+
+
+    where $\hat{n}$ is the unit normal vector of the surface, $f_{\mathrm{rec}}(\mathbf{v})$
+    is the velocity distribution function of recombined particles (atoms or molecules)
+    leaving the surface, and integration is over the outgoing half-space. When recombination
+    is purely surface-mediated, the flux is often approximated as the product of the
+    incident ion flux density and a recombination coefficient $R_{\mathrm{rec}}$.
+
+
+    In practice, the recombination flux is inferred from Langmuir probe measurements
+    of the incident ion flux combined with spectroscopic determination of neutral
+    densities or from particle-balance analysis in scrape-off layer modeling. For
+    volume recombination, it may be derived from rate coefficients and local plasma
+    conditions.
+
+
+    Typical magnitudes at divertor targets in attached conditions range from $10^{21}$
+    to $10^{23}$ m$^{-2}$ s$^{-1}$, decreasing under detached regimes to $10^{20}$--$10^{22}$
+    m$^{-2}$ s$^{-1}$. Volume recombination fluxes across flux surfaces are typically
+    several orders lower.
+
+
+    Sign convention: Positive when the particle flux due to recombination is directed
+    outward from the plasma (i.e., away from the confined region towards a material
+    surface or across an enclosing boundary).'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:flux_at_wall_due_to_recombination
+  - name:electron_particle_flux_at_wall
+  - name:energy_flux_at_wall_due_to_recombination
+  sources:
+  - id: derived:flux_due_to_recombination
+    status: composed
+- name: flux_due_to_surface_emission
+  kind: scalar
+  status: draft
+  description: Flux of any physical quantity emanating from a material surface through
+    emission processes such as particle recycling, sputtering, or secondary electron
+    and photon emission.
+  documentation: 'Surface emission encompasses the range of physical processes by
+    which plasma-facing material surfaces re-emit particles, energy, or radiation
+    into the plasma or surrounding environment. These include neutral recycling (incident
+    ions reflected or thermally desorbed as neutrals), physical and chemical sputtering
+    (wall atoms ejected by energetic ion bombardment), secondary electron emission
+    (electrons liberated by ion or electron impact), and thermal or fluorescence photon
+    emission from heated or excited surface atoms.
+
+
+    The emitted flux $\Gamma_\mathrm{emit}$ at a surface element is related to the
+    incident driving flux $\Gamma_\mathrm{incident}$ through a process-specific emission
+    yield $Y$:
+
+
+    $$
+
+    \Gamma_\mathrm{emit} = Y \cdot \Gamma_\mathrm{incident}
+
+    $$
+
+
+    where $Y$ is the emission yield (dimensionless for particle emission, or carrying
+    the appropriate units ratio for energy or photon emission), and $\Gamma_\mathrm{incident}$
+    is the incident flux of the driving species.
+
+
+    The specific instantiation of this flux at the first wall is described by [flux_at_wall_due_to_surface_emission](name:flux_at_wall_due_to_surface_emission).
+    For the total radiated thermal power emitted by wall material, see [thermal_power_of_wall_material_due_to_radiation_emission](name:thermal_power_of_wall_material_due_to_radiation_emission).
+    General energy transport through a surface is captured by [energy_flux](name:energy_flux).'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:flux_at_wall_due_to_surface_emission
+  - name:thermal_power_of_wall_material_due_to_radiation_emission
+  - name:energy_flux
+  sources:
+  - id: derived:flux_due_to_surface_emission
+    status: composed
 - name: flux_at_wall_due_to_surface_emission
   kind: scalar
   status: draft
@@ -991,78 +1089,19 @@
     \ key parameter for thermal design of wall components. The net deposited power\
     \ density derives from the difference between the incident and emitted energy\
     \ fluxes and connects to aggregate quantities such as [energy_flux_at_wall](name:energy_flux_at_wall)\
-    \ and [plasma_deposited_power_at_wall](name:plasma_deposited_power_at_wall)."
+    \ and [plasma_deposited_power_at_wall]."
   unit: W.m^-2
   physics_domain: plasma_wall_interactions
   links:
   - name:flux_at_wall_due_to_surface_emission
   - name:kinetic_energy_flux_at_wall_due_to_surface_emission
   - name:energy_flux_at_wall
-  - name:plasma_deposited_power_at_wall
   arguments:
   - name: flux_at_wall_due_to_surface_emission
     operator: energy
     operator_kind: qualifier
   sources:
   - id: derived:energy_flux_at_wall_due_to_surface_emission
-    status: composed
-- name: flux_due_to_recombination
-  kind: scalar
-  status: draft
-  description: Surface-normal particle flux density arising from recombination of
-    plasma ions and electrons into neutral atoms or molecules. It quantifies the rate
-    at which plasma particles are removed from the confined region through recombination
-    across a specified surface, such as a material boundary or a flux surface.
-  documentation: 'Recombination-driven particle flux density is the surface-normal
-    flux of plasma particles that recombine, typically at a plasma-facing surface
-    or across an arbitrary reference surface. It measures the rate per unit area at
-    which ions and electrons combine to form neutral atoms or molecules, thereby removing
-    particles from the plasma volume.
-
-
-    The defining kinetic expression relates the recombination flux density to the
-    velocity distribution of recombined particles emerging from the surface:
-
-
-    $$
-
-    \Gamma_{\mathrm{rec}} = \int (\mathbf{v} \cdot \hat{n})\, f_{\mathrm{rec}}(\mathbf{v})\,
-    d^3v
-
-    $$
-
-
-    where $\hat{n}$ is the unit normal vector of the surface, $f_{\mathrm{rec}}(\mathbf{v})$
-    is the velocity distribution function of recombined particles (atoms or molecules)
-    leaving the surface, and integration is over the outgoing half-space. When recombination
-    is purely surface-mediated, the flux is often approximated as the product of the
-    incident ion flux density and a recombination coefficient $R_{\mathrm{rec}}$.
-
-
-    In practice, the recombination flux is inferred from Langmuir probe measurements
-    of the incident ion flux combined with spectroscopic determination of neutral
-    densities or from particle-balance analysis in scrape-off layer modeling. For
-    volume recombination, it may be derived from rate coefficients and local plasma
-    conditions.
-
-
-    Typical magnitudes at divertor targets in attached conditions range from $10^{21}$
-    to $10^{23}$ m$^{-2}$ s$^{-1}$, decreasing under detached regimes to $10^{20}$--$10^{22}$
-    m$^{-2}$ s$^{-1}$. Volume recombination fluxes across flux surfaces are typically
-    several orders lower.
-
-
-    Sign convention: Positive when the particle flux due to recombination is directed
-    outward from the plasma (i.e., away from the confined region towards a material
-    surface or across an enclosing boundary).'
-  unit: m^-2.s^-1
-  physics_domain: plasma_wall_interactions
-  links:
-  - name:flux_at_wall_due_to_recombination
-  - name:electron_particle_flux_at_wall
-  - name:energy_flux_at_wall_due_to_recombination
-  sources:
-  - id: derived:flux_due_to_recombination
     status: composed
 - name: helium_3_density_at_limiter
   kind: scalar
@@ -2752,65 +2791,6 @@
   - id: dd:summary/local/limiter/power_flux_peak/value
     dd_path: summary/local/limiter/power_flux_peak/value
     status: composed
-- name: plasma_deposited_power_at_wall
-  kind: scalar
-  status: draft
-  description: Total power from the plasma deposited on plasma-facing wall surfaces.
-    It is the surface integral of the plasma-to-wall energy flux and is positive for
-    energy transfer into the wall.
-  documentation: 'Plasma deposited power at the wall is the total rate at which energy
-    from the plasma is delivered to plasma-facing wall surfaces, including first-wall
-    and divertor surfaces. It represents the global wall heat-load contribution associated
-    with plasma energy crossing the plasma-wall interface.
-
-
-    For a wall surface area $A_\mathrm{wall}$, the deposited power is defined from
-    the local plasma-to-wall energy flux density $q_{p\to w}$ as:
-
-
-    $$
-
-    P_{p\to w} = \int_{A_\mathrm{wall}} q_{p\to w}(\mathbf{x})\, dA
-
-    $$
-
-
-    where $q_{p\to w}$ is the total local energy flux density from the plasma into
-    the wall in W m$^{-2}$, $dA$ is a surface-area element, and the integral is over
-    the plasma-facing wall area.
-
-
-    In practice this quantity is inferred from wall calorimetry, infrared thermography
-    combined with thermal modeling, embedded heat-flux sensors, bolometry and spectroscopy
-    constraints, and power-balance analysis. The local flux density may include conducted,
-    convected, radiative, and particle-associated energy contributions, but the standard
-    name denotes only their total deposited power, not a decomposition by channel.
-
-
-    Typical values range from about $10^5$-$10^7$ W in many present tokamak discharges,
-    with high-power experiments and reactor-scale scenarios reaching $10^7$-$10^8$
-    W or more depending on auxiliary heating, radiated-power fraction, confinement
-    regime, and divertor detachment.
-
-
-    Sign convention: Positive when energy is transferred from the plasma into the
-    wall surface.'
-  unit: W
-  physics_domain: plasma_wall_interactions
-  links:
-  - name:deposited_power_at_wall
-  - name:total_deposited_plasma_power_at_wall
-  - name:total_coolant_absorbed_thermal_power_at_wall
-  sources:
-  - id: dd:balance_of_plant/power_plant/heat_load_wall
-    dd_path: balance_of_plant/power_plant/heat_load_wall
-    status: attached
-  - id: dd:wall/global_quantities/power_from_plasma
-    dd_path: wall/global_quantities/power_from_plasma
-    status: composed
-  - id: dd:wall/global_quantities/power_incident
-    dd_path: wall/global_quantities/power_incident
-    status: attached
 - name: radial_total_current_density_at_wall
   kind: scalar
   status: draft
