@@ -1,6 +1,6 @@
 # Domain: auxiliary_heating
-# Catalog sha: 10f138b84e69986b8eee80d3faba7d3fae3888b1
-# Entries: 136
+# Catalog sha: b1f901b848c4c5043df782c70c45f8e6c43619bc
+# Entries: 137
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -6457,60 +6457,51 @@
 - name: poloidal_angle_of_beam_tracing_beam
   kind: scalar
   status: draft
-  description: Poloidal angle of a beam-tracing ray point, defined geometrically as
-    atan2(Z - Z_axis, R - R_axis) in the right-handed cylindrical (R, phi, Z) frame.
-    It locates the beam in the poloidal plane rather than specifying the propagation
-    direction.
-  documentation: 'Poloidal angle of a beam-tracing beam is the angular position of
-    a ray or beam point in the poloidal plane of the right-handed cylindrical $(R,
-    \phi, Z)$ frame, where $R$ is major radius and $Z$ is vertical height. It is a
-    position coordinate of the beam trace, not a propagation angle or wave-vector
-    pitch, and it complements radial labels such as [poloidal magnetic flux at the
-    same beam-tracing point](name:poloidal_magnetic_flux_at_beam_tracing_point).
+  description: Poloidal angle of a beam-tracing beam point in the poloidal cross-section
+    of the right-handed cylindrical (R, phi, Z) frame, locating each trajectory position
+    angularly about the magnetic axis.
+  documentation: 'The poloidal angle of a beam-tracing beam is the geometric angular
+    coordinate of each successive point along a wave propagation trajectory in the
+    poloidal $(R, Z)$ plane of the right-handed cylindrical $(R, \phi, Z)$ frame,
+    where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height.
+    This spatial position angle locates where the beam lies in the poloidal cross-section
+    at each step along its path, in contrast to [poloidal_angle_of_electron_cyclotron_beam](name:poloidal_angle_of_electron_cyclotron_beam),
+    which encodes the wave-vector propagation direction rather than the geometric
+    beam location.
 
 
-    For a geometric angle centered on the magnetic axis, the defining relation is:
+    For a beam-tracing point at coordinates $(R, Z)$ with the magnetic axis at $(R_\mathrm{axis},
+    Z_\mathrm{axis})$, the angle follows the general [poloidal_angle](name:poloidal_angle)
+    construction:
 
 
     $$
 
-    \theta = \operatorname{atan2}\left(Z - Z_\mathrm{axis}, R - R_\mathrm{axis}\right)
+    \theta = \operatorname{atan2}(Z - Z_\mathrm{axis},\; R - R_\mathrm{axis})
 
     $$
 
 
-    where $(R,Z)$ is the beam point position, $(R_\mathrm{axis},Z_\mathrm{axis})$
-    is the magnetic-axis position in the same right-handed cylindrical $(R,\phi,Z)$
-    frame, and $\operatorname{atan2}(y,x)$ returns the quadrant-resolved angle from
-    the positive $R$ direction toward positive $Z$. The outboard midplane corresponds
-    to $\theta = 0$.
+    where $R$, $Z$, $R_\mathrm{axis}$, and $Z_\mathrm{axis}$ are in meters and $\operatorname{atan2}(y,
+    x)$ is the quadrant-aware arctangent.
 
 
-    In beam-tracing calculations, $\theta$ is computed from the propagated ray coordinates
-    or by interpolating an equilibrium coordinate mapping; periodicity is usually
-    handled modulo $2\pi$, with optional unwrapping to keep the trajectory continuous.
-    The coordinate is used to sample equilibrium and wave-plasma quantities along
-    auxiliary-heating beams, including electron-cyclotron and other coherent-wave
-    beam models, and to compare beam position with reference geometry such as the
-    [poloidal angle at a plasma-boundary gap reference point](name:poloidal_angle_at_plasma_boundary_gap_reference_point).
-    It should be distinguished from direction-dependent quantities such as the [radial
-    component of normalized wave vector of a beam-tracing beam].
+    In beam-tracing calculations, $\theta$ is evaluated at each discrete point along
+    the computed ray path, allowing the beam deposition profile to be mapped onto
+    poloidal-angle coordinates for comparison with profiles sampled at similar [poloidal_angle_of_measurement_position](name:poloidal_angle_of_measurement_position)
+    values. Values span $(-\pi, \pi]$ rad, with $\theta = 0$ at the outboard midplane,
+    $\theta = \pi/2$ rad at the top of the plasma, and $\theta = \pm\pi$ rad at the
+    inboard midplane.
 
 
-    Typical wrapped values cover 0-6.283 rad: 0 rad on the outboard midplane, about
-    1.57 rad above the magnetic axis, about 3.14 rad on the inboard side, and about
-    4.71 rad below the magnetic axis. Unwrapped values can differ by integer multiples
-    of $2\pi$ rad without changing the physical poloidal location.
-
-
-    Sign convention: Positive when $\theta$ increases counterclockwise from the outboard
-    midplane on an $(R,Z)$ poloidal-plane plot with $R$ increasing to the right and
-    $Z$ increasing upward in the right-handed cylindrical $(R,\phi,Z)$ frame.'
+    Sign convention: Positive when the beam-tracing point is above the horizontal
+    plane through the magnetic axis ($Z > Z_\mathrm{axis}$).'
   unit: rad
   physics_domain: auxiliary_heating
   links:
-  - name:poloidal_magnetic_flux_at_beam_tracing_point
-  - name:poloidal_angle_at_plasma_boundary_gap_reference_point
+  - name:poloidal_angle_of_electron_cyclotron_beam
+  - name:poloidal_angle
+  - name:poloidal_angle_of_measurement_position
   arguments:
   - name: poloidal_angle
     operator: beam_tracing_beam
@@ -6589,6 +6580,83 @@
   - id: dd:summary/heating_current_drive/ec/angle_pol/value
     dd_path: summary/heating_current_drive/ec/angle_pol/value
     status: attached
+- name: radial_wave_electric_field
+  kind: scalar
+  status: draft
+  description: Complex scalar phasor of the wave electric field projected onto the
+    outward normal to a magnetic flux surface. It represents the flux-surface-radial
+    polarization component, distinct from the major-radius R component in the right-handed
+    cylindrical (R, phi, Z) frame.
+  documentation: 'The radial wave electric field $E_\rho$ is the complex phasor component
+    of an electromagnetic-wave electric-field vector along the outward unit normal
+    to a magnetic flux surface. It describes the flux-surface-radial polarization
+    of the wave, distinct from the major-radius projection in the right-handed cylindrical
+    $(R, \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and
+    $Z$ is vertical height. As a complex scalar, it carries amplitude and phase relative
+    to the common phasor reference used for the same coherent wave.
+
+
+    The defining projection is:
+
+
+    $$
+
+    E_\rho(\mathbf{x}) = \mathbf{E}_w(\mathbf{x}) \cdot \hat{\mathbf{n}}_\rho(\mathbf{x})
+
+    $$
+
+
+    where $E_\rho$ is the radial wave electric field in $\mathrm{V\,m^{-1}}$, $\mathbf{E}_w$
+    is the complex [wave_electric_field](name:wave_electric_field) phasor in $\mathrm{V\,m^{-1}}$,
+    $\mathbf{x}$ is position, and $\hat{\mathbf{n}}_\rho$ is the dimensionless outward
+    unit normal to surfaces of a scalar flux-surface label $\rho$, directed toward
+    increasing $\rho$ from the magnetic axis toward the plasma boundary. Changing
+    the common global phasor phase multiplies all wave-field components by the same
+    complex factor; the projection direction and relative component phases are unchanged.
+
+
+    In wave modeling, $E_\rho$ is computed by projecting the local vector electric-field
+    phasor from a frequency-domain wave solution onto the outward flux-surface normal
+    supplied by the magnetic equilibrium. Experimentally, polarization-sensitive electric-field
+    measurements can contribute to this quantity only after the measured component
+    basis has been transformed using the local flux-surface geometry; a major-radius
+    component along $\hat{R}$ in the right-handed cylindrical $(R, \phi, Z)$ frame
+    is equal to $E_\rho$ only where the flux-surface normal is locally aligned with
+    $\hat{R}$. The quantity characterizes polarization perpendicular to magnetic flux
+    surfaces, while radial electromagnetic power flow depends on the normal component
+    of the Poynting vector involving both electric and magnetic wave fields.
+
+
+    No universal device-independent typical magnitude in $\mathrm{V\,m^{-1}}$ is meaningful,
+    because the phasor amplitude depends on launched power, coupling, field normalization,
+    absorption, and position relative to cutoffs, resonances, and mode-conversion
+    regions. Values should therefore be interpreted together with the wave normalization
+    and compared with related components such as [parallel_wave_electric_field](name:parallel_wave_electric_field),
+    [toroidal_wave_electric_field](name:toroidal_wave_electric_field), and [vertical_wave_electric_field](name:vertical_wave_electric_field).
+
+
+    Sign convention: Positive when a real phasor component corresponds to an electric-field
+    vector directed along the outward unit normal to the magnetic flux surface, from
+    the magnetic axis toward the plasma boundary.'
+  unit: V.m^-1
+  physics_domain: auxiliary_heating
+  links:
+  - name:wave_electric_field
+  - name:parallel_wave_electric_field
+  - name:radial_electric_field
+  arguments:
+  - name: wave_electric_field
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
+  sources:
+  - id: dd:spectrometer_visible/channel/polarization_spectroscopy/e_field_lh_r
+    dd_path: spectrometer_visible/channel/polarization_spectroscopy/e_field_lh_r
+    status: composed
+  - id: dd:waves/coherent_wave/full_wave/e_field/normal/values
+    dd_path: waves/coherent_wave/full_wave/e_field/normal/values
+    status: skipped
 - name: radius_of_antenna_strap
   kind: scalar
   status: draft

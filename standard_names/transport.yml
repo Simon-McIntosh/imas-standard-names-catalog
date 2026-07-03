@@ -1,6 +1,6 @@
 # Domain: transport
-# Catalog sha: 10f138b84e69986b8eee80d3faba7d3fae3888b1
-# Entries: 786
+# Catalog sha: b1f901b848c4c5043df782c70c45f8e6c43619bc
+# Entries: 790
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -2414,7 +2414,7 @@
 
     where $n_e$ is the electron density, $\Gamma_e$ is the electron particle flux,
     $S_e$ is the electron source rate, $S_{e,\mathrm{exp}}$ is an explicit source
-    contribution with units m$^{-3}$ s$^{-1}$, and $\nu_{e,\mathrm{imp}}$ is the [electron_implicit_source_rate],
+    contribution with units m$^{-3}$ s$^{-1}$, and $\nu_{e,\mathrm{imp}}$ is the electron_implicit_source_rate,
     a density-dependent coefficient with units s$^{-1}$ that multiplies $n_e$.
 
 
@@ -2761,49 +2761,63 @@
 - name: energy_diffusivity
   kind: scalar
   status: draft
-  description: Effective aggregate Fickian diffusivity for neutral thermal-energy
-    transport, combining the neutral-state population when state-resolved decomposition
-    is not required.
-  documentation: 'Energy diffusivity is the effective scalar coefficient that represents
-    diffusive transport of neutral-particle thermal energy. It aggregates the neutral
-    population into one Fickian transport parameter, so a larger value means faster
-    spatial smoothing of neutral thermal-energy density.
+  description: Fickian diffusivity for thermal-energy transport of a plasma constituent,
+    defined so the diffusive energy flux is proportional to and opposite the gradient
+    of thermal-energy density.
+  documentation: 'Energy diffusivity is the effective scalar transport coefficient
+    for local diffusive smoothing of a constituent''s thermal-energy density. It represents
+    the part of thermal-energy transport that can be modeled as a Fickian flux, distinct
+    from convective energy transport by particle motion or from explicitly nonlocal
+    transport.
 
 
-    The coefficient appears in a Fick-law closure for the neutral thermal-energy flux:
+    The defining closure relates the diffusive thermal-energy flux to the thermal-energy-density
+    gradient:
 
 
     $$
 
-    \mathbf{q}_E = -\chi_E \nabla u_E
+    \mathbf{q}_E = -\chi_E \nabla w
 
     $$
 
 
-    where $\mathbf{q}_E$ is the neutral thermal-energy flux in W m$^{-2}$, $\chi_E$
-    is the energy diffusivity in m$^2$ s$^{-1}$, and $u_E$ is the neutral thermal-energy
-    density in J m$^{-3}$. The minus sign expresses down-gradient transport: for positive
-    $\chi_E$, the diffusive energy flux is directed from larger to smaller $u_E$.
+    where $\mathbf{q}_E$ is the diffusive thermal-energy flux in W m$^{-2}$, $\chi_E$
+    is the energy diffusivity in m$^2$ s$^{-1}$, $w$ is the thermal-energy density
+    in J m$^{-3}$, and $\nabla w$ is the spatial gradient of that energy density in
+    J m$^{-4}$. The minus sign fixes the down-gradient convention: a positive $\chi_E$
+    gives an energy flux from larger $w$ toward smaller $w$.
 
 
-    In practice, this coefficient is obtained from neutral-transport modeling, reduced
-    fluid or random-walk closures, or by fitting an effective diffusive term in a
-    neutral energy balance. When the transport must be separated by neutral state,
-    use [neutral_state_energy_diffusivity](name:neutral_state_energy_diffusivity);
-    when only the radial component is meant, use [radial_neutral_energy_diffusion_coefficient](name:radial_neutral_energy_diffusion_coefficient).
+    For an ideal nonrelativistic constituent, $w = c_v n T$ when $T$ is expressed
+    in energy units, with $c_v = 3/2$ for three translational degrees of freedom.
+    Thus $\nabla w = c_v(n\nabla T + T\nabla n)$; temperature-gradient closures are
+    the fixed-density or heat-conduction form, or use a convention that absorbs the
+    heat-capacity factor, while the energy-density-gradient form also includes the
+    density-gradient contribution.
 
 
-    Typical effective values span about 0.1-10^4 m$^2$ s$^{-1}$. Dense, cold edge
-    or divertor neutrals often give 0.1-10 m$^2$ s$^{-1}$, while more weakly collisional
-    edge, scrape-off-layer, or halo neutrals can give 10-10^4 m$^2$ s$^{-1}$ depending
-    on mean free path and neutral speed.'
+    In practice, energy diffusivity is inferred from energy-balance analysis or supplied
+    by reduced transport models. For charged particles it can combine collisional,
+    neoclassical, and turbulent contributions; for neutrals it can represent an effective
+    local approximation to collisional or kinetic mixing. Species-specific and directional
+    variants include [electron_energy_diffusivity](name:electron_energy_diffusivity),
+    [radial_electron_energy_diffusion_coefficient](name:radial_electron_energy_diffusion_coefficient),
+    [radial_ion_energy_diffusion_coefficient](name:radial_ion_energy_diffusion_coefficient),
+    [radial_neutral_energy_diffusion_coefficient](name:radial_neutral_energy_diffusion_coefficient),
+    and [radial_neutral_state_energy_diffusion_coefficient](name:radial_neutral_state_energy_diffusion_coefficient).
+
+
+    Typical effective electron or ion energy diffusivities in confined tokamak cores
+    are about 0.1-5 m$^2$ s$^{-1}$, with values below 0.1 m$^2$ s$^{-1}$ possible
+    in transport barriers and values of 5-50 m$^2$ s$^{-1}$ in more turbulent edge
+    or scrape-off-layer conditions. Neutral effective values are more model-dependent
+    because they depend strongly on mean free path and collision physics.'
   unit: m^2.s^-1
   physics_domain: transport
   links:
-  - name:neutral_state_diffusivity
-  - name:neutral_state_energy_diffusivity
-  - name:poloidal_neutral_energy_diffusivity
   - name:radial_neutral_energy_diffusion_coefficient
+  - name:radial_neutral_diffusion_coefficient
 - name: electron_energy_diffusivity
   kind: scalar
   status: draft
@@ -2956,55 +2970,6 @@
     dd_path: edge_transport/model/ggd/electrons/energy/flux/values
     status: composed
   - id: derived:electron_energy_flux
-    status: composed
-- name: energy_source_rate
-  kind: scalar
-  status: draft
-  description: Linearization rate coefficient of a plasma energy source term in transport
-    equations, defined as the derivative of the source term with respect to local
-    energy density.
-  documentation: 'The energy source rate is the linearization coefficient that describes
-    how a plasma energy source term responds to changes in local energy density. It
-    appears in the linearized energy balance equation when the source is expressed
-    as a linear function of energy density.
-
-
-    The governing definition is:
-
-
-    $$
-
-    \gamma = \frac{\partial S}{\partial W}
-
-    $$
-
-
-    where $S$ is the energy source term (power density) and $W$ is the local energy
-    density (pressure volume). The linearized source is $S(W) = S_0 + \gamma W$, and
-    $\gamma$ has units of s$^{-1}$.
-
-
-    In transport modeling, the energy source rate is obtained by linearizing the source
-    term around a reference state. It may represent contributions from auxiliary heating,
-    alpha heating, or losses such as radiation and charge exchange. The sign of $\gamma$
-    indicates whether the source acts as damping (negative) or drive (positive) relative
-    to the energy density.
-
-
-    Typical magnitudes of $\gamma$ range from $10^{-3}$ to $10^{3}$ s$^{-1}$ in fusion
-    plasmas, depending on the heating method and plasma conditions. Negative values
-    of order $-1$ to $-100$ s$^{-1}$ are common for loss-dominated regimes.
-
-
-    Sign convention: Positive when the energy source term increases with increasing
-    local energy density, indicating a destabilizing contribution to the energy balance.'
-  unit: s^-1
-  physics_domain: transport
-  links:
-  - name:implicit_energy_source_rate
-  - name:source_rate_due_to_gas_injection
-  sources:
-  - id: derived:energy_source_rate
     status: composed
 - name: fast_electron_pressure
   kind: vector
@@ -4882,6 +4847,91 @@
   - name:radial_ion_state_diffusion_coefficient
   - name:ion_charge_state_energy_diffusivity
   - name:parallel_ion_charge_state_momentum_diffusivity
+- name: ion_charge_state_energy_diffusivity
+  kind: scalar
+  status: draft
+  description: Ion charge-state energy diffusivity is the effective scalar Fickian
+    coefficient for thermal-energy transport of ions in one specified ionization state.
+    It multiplies that charge state's temperature gradient in the conductive heat-flux
+    closure, separate from convection and explicit energy sources.
+  documentation: 'Ion charge-state energy diffusivity $\chi_{E,z}$ is an effective
+    scalar [energy_diffusivity](name:energy_diffusivity) for diffusive transport of
+    thermal energy carried by ions in one selected ion species and charge state. It
+    applies to a resolved ionization stage, labeled here by $z$ such as an integer
+    ionic charge $Z_\mathrm{ion}$, rather than to an aggregate over all ion species
+    or charge states. It parameterizes the conductive, down-gradient part of the charge-state
+    energy flux after particle convection, heat-pinch terms, interspecies energy exchange,
+    ionization-recombination balance, and explicit heating or loss terms are treated
+    separately.
+
+
+    The defining Fickian closure can be written in the temperature-gradient convention
+    as:
+
+
+    $$
+
+    \mathbf{q}^{\mathrm{diff}}_{E,z} = - n_z \chi_{E,z} \nabla_\perp T_z
+
+    $$
+
+
+    where $\mathbf{q}^{\mathrm{diff}}_{E,z}$ is the diffusive thermal-energy flux
+    of the selected ion charge state in W m$^{-2}$, $n_z$ is its number density in
+    m$^{-3}$, $\chi_{E,z}$ is this energy diffusivity in m$^2$ s$^{-1}$, $T_z$ is
+    its temperature expressed in energy units, and $\nabla_\perp T_z$ is the physical
+    spatial gradient of $T_z$ normal to nested magnetic flux surfaces. In flux-surface-averaged
+    transport this normal derivative is often represented using the flux coordinate
+    $\rho_\mathrm{tor,norm}$, the normalized toroidal flux radius, with metric factors
+    converting derivatives in $\rho_\mathrm{tor,norm}$ to per-meter gradients. If
+    $T_z$ is expressed in eV, the elementary-charge conversion is implied in $n_z\nabla_\perp
+    T_z$; an energy-density-gradient form using $w_z$ is equivalent only when heat-capacity
+    and density-gradient terms are handled consistently.
+
+
+    In practice, $\chi_{E,z}$ is inferred from charge-state-resolved energy-balance
+    analysis using ion temperature and density measurements, charge-state populations
+    from spectroscopy or collisional-radiative modeling, and modeled heating, exchange,
+    and loss terms. It may absorb neoclassical transport, turbulent transport, and
+    unresolved closure assumptions, so aggregate coefficients such as total_ion_energy_diffusivity
+    or [ion_energy_diffusivity](name:ion_energy_diffusivity) are model-dependent energy-flux
+    closures and are not generally simple sums of the charge-state diffusivities.
+    Related state and directional variants include [ion_state_energy_diffusivity](name:ion_state_energy_diffusivity),
+    [radial_ion_state_energy_diffusion_coefficient](name:radial_ion_state_energy_diffusion_coefficient),
+    [radial_ion_energy_diffusion_coefficient](name:radial_ion_energy_diffusion_coefficient),
+    and [parallel_ion_state_energy_diffusivity](name:parallel_ion_state_energy_diffusivity);
+    particle and momentum-channel analogs include [ion_charge_state_diffusivity](name:ion_charge_state_diffusivity)
+    and [radial_ion_charge_state_momentum_diffusivity](name:radial_ion_charge_state_momentum_diffusivity).
+
+
+    Typical core-plasma effective values are 0.1-10 m$^2$ s$^{-1}$. Values near 0.01-0.1
+    m$^2$ s$^{-1}$ can occur in neoclassical-dominated or strongly confined regions,
+    while values above 10 m$^2$ s$^{-1}$ may appear near strong gradients, edge transport
+    barriers, or strongly turbulent conditions.
+
+
+    Sign convention: Positive when the diffusive thermal-energy flux is opposite to
+    $\nabla_\perp T_z$, so thermal energy flows from higher $T_z$ toward lower $T_z$
+    in the closure above.'
+  unit: m^2.s^-1
+  physics_domain: transport
+  links:
+  - name:energy_diffusivity
+  - name:ion_energy_diffusivity
+  - name:ion_state_energy_diffusivity
+  - name:radial_ion_state_energy_diffusion_coefficient
+  - name:radial_ion_energy_diffusion_coefficient
+  - name:parallel_ion_state_energy_diffusivity
+  - name:ion_charge_state_diffusivity
+  - name:radial_ion_charge_state_momentum_diffusivity
+  arguments:
+  - name: energy_diffusivity
+    operator: ion_charge_state
+    operator_kind: qualifier
+  sources:
+  - id: dd:core_transport/model/profiles_1d/ion/state/energy/d
+    dd_path: core_transport/model/profiles_1d/ion/state/energy/d
+    status: composed
 - name: ion_charge_state_temperature
   kind: scalar
   status: draft
@@ -9582,7 +9632,7 @@
     acts along increasing poloidal angle $\theta$ in flux coordinates $(\rho, \theta,
     \phi)$, and the [parallel component](name:parallel_neutral_state_energy_convection_velocity)
     is evaluated as a flux-surface average along the magnetic field direction. The
-    analogous coefficient for neutral particle transport is [neutral_state_effective_convection_velocity],
+    analogous coefficient for neutral particle transport is neutral_state_effective_convection_velocity,
     and the corresponding quantity for ion energy transport is [radial_ion_energy_convection_velocity](name:radial_ion_energy_convection_velocity).
     This quantity specializes the general [energy_convection_velocity](name:energy_convection_velocity)
     concept to the charge-state-resolved neutral species level.
@@ -9613,6 +9663,70 @@
     dd_path: plasma_transport/model/profiles_1d/neutral/state/energy/v
     status: composed
   - id: derived:neutral_state_energy_convection_velocity
+    status: composed
+- name: neutral_state_energy_diffusivity
+  kind: scalar
+  status: draft
+  description: Effective scalar Fickian diffusivity for thermal-energy transport by
+    neutral particles in a specified atomic, molecular, or internal state, parameterizing
+    the down-gradient component of the state-resolved neutral energy flux.
+  documentation: 'Neutral-state energy diffusivity is the effective scalar [energy_diffusivity](name:energy_diffusivity)
+    for diffusive transport of thermal energy carried by neutral particles in a single
+    resolved atomic, molecular, or internal state. It captures the Fickian component
+    of the state-resolved neutral energy flux, distinct from convective transport
+    by bulk neutral flow and from inter-state energy exchange, extending the species-aggregate
+    [neutral_energy_diffusivity](name:neutral_energy_diffusivity) to a state-by-state
+    description analogous to [ion_charge_state_energy_diffusivity](name:ion_charge_state_energy_diffusivity)
+    for ions.
+
+
+    The defining closure relates the diffusive energy flux of neutral state $s$ to
+    the gradient of its thermal-energy density:
+
+
+    $$
+
+    \mathbf{q}_E^{(s)} = -\chi_E^{(s)} \nabla w^{(s)}
+
+    $$
+
+
+    where $\mathbf{q}_E^{(s)}$ is the diffusive thermal-energy flux in W m$^{-2}$,
+    $\chi_E^{(s)}$ is the neutral-state energy diffusivity in m$^2$ s$^{-1}$, and
+    $w^{(s)}$ is the thermal-energy density of state $s$ in J m$^{-3}$. The minus
+    sign enforces transport from higher toward lower energy density.
+
+
+    This coefficient is supplied by neutral fluid or kinetic transport models that
+    resolve individual neutral states, either from collisional rate estimates or from
+    moment closures of the neutral kinetic equation applied per state. Directional
+    specializations include [parallel_neutral_state_energy_diffusivity](name:parallel_neutral_state_energy_diffusivity)
+    for field-aligned transport and [poloidal_neutral_state_energy_diffusivity](name:poloidal_neutral_state_energy_diffusivity)
+    for poloidal transport; the radial component is captured by [radial_neutral_state_energy_diffusion_coefficient](name:radial_neutral_state_energy_diffusion_coefficient).
+    The corresponding particle diffusivity for the same neutral state is [neutral_state_diffusivity](name:neutral_state_diffusivity).'
+  unit: m^2.s^-1
+  physics_domain: transport
+  links:
+  - name:energy_diffusivity
+  - name:neutral_energy_diffusivity
+  - name:ion_charge_state_energy_diffusivity
+  - name:parallel_neutral_state_energy_diffusivity
+  - name:poloidal_neutral_state_energy_diffusivity
+  - name:radial_neutral_state_energy_diffusion_coefficient
+  - name:neutral_state_diffusivity
+  arguments:
+  - name: energy_diffusivity
+    operator: neutral_state
+    operator_kind: qualifier
+  sources:
+  - id: dd:core_transport/model/profiles_1d/neutral/state/energy/d
+    dd_path: core_transport/model/profiles_1d/neutral/state/energy/d
+    status: composed
+  - id: dd:plasma_transport/model/ggd/neutral/state/energy/d/values
+    dd_path: plasma_transport/model/ggd/neutral/state/energy/d/values
+    status: composed
+  - id: dd:plasma_transport/model/profiles_1d/neutral/state/energy/d
+    dd_path: plasma_transport/model/profiles_1d/neutral/state/energy/d
     status: composed
 - name: neutral_state_energy_flux
   kind: scalar
@@ -12527,6 +12641,87 @@
   - id: dd:plasma_sources/source/ggd/ion/momentum/parallel
     dd_path: plasma_sources/source/ggd/ion/momentum/parallel
     status: composed
+- name: parallel_ion_momentum_convection_velocity
+  kind: scalar
+  status: draft
+  description: Field-aligned effective convection velocity that advects parallel ion
+    momentum density along magnetic field lines for a specified ion species, aggregated
+    over its ionization states. It is separate from diffusive viscosity, residual
+    stress, and explicit momentum sources.
+  documentation: 'The parallel ion momentum convection velocity is the field-aligned
+    component of an effective transport velocity for advective ion-momentum transport
+    along magnetic field lines. It applies to a specified ion species aggregated over
+    its ionization states, and represents the convective or pinch contribution to
+    the parallel ion momentum flux, separate from diffusive viscosity, residual stress,
+    and explicit momentum sources. It is not generally identical to the bulk ion parallel
+    fluid velocity.
+
+
+    For the parallel momentum component, the convective flux density along the magnetic
+    field is represented by:
+
+
+    $$
+
+    \Gamma^{\mathrm{conv}}_{p_{\parallel i},\parallel} = p_{\parallel i}\,v^{\mathrm{conv}}_{\parallel
+    i}, \qquad p_{\parallel i}=m_i\sum_{\zeta} n_{i,\zeta} u_{\parallel i,\zeta}
+
+    $$
+
+
+    where $\Gamma^{\mathrm{conv}}_{p_{\parallel i},\parallel}$ is the field-aligned
+    convective flux density of parallel ion momentum with unit kg.m^-1.s^-2, $p_{\parallel
+    i}$ is the parallel ion momentum density with unit kg.m^-2.s^-1, $v^{\mathrm{conv}}_{\parallel
+    i}$ is the parallel ion momentum convection velocity with unit m.s^-1, $m_i$ is
+    the ion mass in kg, $n_{i,\zeta}$ is the density in m^-3 of ionization state $\zeta$
+    of species $i$, and $u_{\parallel i,\zeta}$ is its parallel flow velocity in m.s^-1.
+    If a full effective convection velocity vector $\mathbf{V}^{\mathrm{conv}}_{i,\mathrm{mom}}$
+    is used, this scalar corresponds to the projection $\mathbf{V}^{\mathrm{conv}}_{i,\mathrm{mom}}\cdot\hat{\mathbf{b}}$,
+    with $\hat{\mathbf{b}}=\mathbf{B}/|\mathbf{B}|$.
+
+
+    In practice, this coefficient is obtained from a parallel ion momentum balance,
+    from fluid or gyrofluid closures, from neoclassical or turbulence-based transport
+    calculations, or by isolating the part of the modeled momentum flux proportional
+    to the local parallel momentum density. The charge-state-resolved analog is [parallel
+    ion state momentum convection velocity](name:parallel_ion_state_momentum_convection_velocity),
+    while [parallel ion momentum cross field convection velocity] describes cross-field
+    advection of parallel ion momentum rather than field-aligned advection. The species-unresolved
+    related coefficient is [parallel momentum effective convection velocity], and
+    the parent vector concept is [ion momentum convection velocity](name:ion_momentum_convection_velocity).
+
+
+    Representative absolute magnitudes are strongly model and regime dependent. Core
+    transport applications often use effective field-aligned convection speeds of
+    about 1-10^3 m.s^-1, while edge and open-field-line applications can reach 10^3-10^5
+    m.s^-1 when the coefficient is comparable to characteristic parallel flow or ion
+    sound speeds. The signed value can pass through zero where opposing convective,
+    pinch-like, or closure contributions cancel.
+
+
+    Sign convention: Positive when the effective convection velocity points along
+    the local magnetic field $\mathbf{B}$.'
+  unit: m.s^-1
+  physics_domain: transport
+  links:
+  - name:parallel_ion_state_momentum_convection_velocity
+  - name:ion_momentum_convection_velocity
+  arguments:
+  - name: ion_momentum_convection_velocity
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - id: dd:core_transport/model/profiles_1d/ion/momentum/parallel/v
+    dd_path: core_transport/model/profiles_1d/ion/momentum/parallel/v
+    status: composed
+  - id: dd:edge_transport/model/ggd/ion/momentum/v/parallel
+    dd_path: edge_transport/model/ggd/ion/momentum/v/parallel
+    status: composed
+  - id: dd:plasma_transport/model/profiles_1d/ion/momentum/parallel/v
+    dd_path: plasma_transport/model/profiles_1d/ion/momentum/parallel/v
+    status: composed
 - name: parallel_ion_momentum_damping_rate
   kind: scalar
   status: draft
@@ -13716,6 +13911,12 @@
   - name:radial_ion_state_energy_diffusivity
   - name:parallel_diffusivity
   - name:parallel_ion_charge_state_diffusivity
+  arguments:
+  - name: neutral_state_energy_diffusivity
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
   sources:
   - id: dd:edge_transport/model/ggd/neutral/state/energy/d_parallel/values
     dd_path: edge_transport/model/ggd/neutral/state/energy/d_parallel/values
@@ -18057,49 +18258,55 @@
 - name: poloidal_ion_state_momentum_flux
   kind: scalar
   status: draft
-  description: Radial flux density of poloidal linear momentum carried by ions in
-    a specified ionization state through a magnetic flux surface. It is the charge-state-resolved
-    stress component for outward transport of poloidal momentum.
-  documentation: 'Poloidal ion state momentum flux is the radial transport flux of
-    poloidal linear momentum for ions in a specified ionization state. It is the radial-poloidal
-    component of the momentum-flux tensor in flux coordinates $(\rho,\theta,\phi)$,
-    where $\rho$ increases outward across nested magnetic flux surfaces and $\theta$
-    labels the poloidal direction. It is not the flux moving in the poloidal direction;
-    it is the amount of poloidal momentum crossing a flux surface per unit area and
-    per unit time.
+  description: Flux-surface-averaged radial flux density of poloidal linear momentum
+    for ions in a specified ionization state, defined in flux coordinates (rho, theta,
+    phi) with rho increasing outward. It is poloidal momentum crossing a magnetic
+    flux surface, not momentum transported along the poloidal direction.
+  documentation: 'Poloidal ion-state momentum flux is the flux-surface-averaged radial
+    transport flux density of the poloidal component of linear momentum for one ion
+    species in one specified ionization state. It is the radial-poloidal component
+    of the charge-state-resolved momentum-flux tensor in flux coordinates $(\rho,\theta,\phi)$,
+    where $\rho$ increases outward across nested magnetic flux surfaces, $\theta$
+    labels the poloidal direction, and $\phi$ is the toroidal angle. It is not a poloidal-direction
+    flux; it is $\theta$-directed momentum crossing a magnetic flux surface.
 
 
-    For ion species $i$ and ionization state $s$, a common decomposition is
+    The flux-surface-averaged quantity at radial coordinate $\rho$ is defined from
+    the local momentum-flux tensor component across the flux surface:
 
 
     $$
 
-    \Pi_{\theta\rho}^{(i,s)} = m_i n_{i,s} v_{\theta,i,s} v_{\rho,i,s} + \pi_{\theta\rho}^{(i,s)}
+    \Gamma_{p_\theta}^{(i,s)}(\rho) = \left\langle \Pi_{\theta\rho}^{(i,s)} \right\rangle_\rho
+    = \frac{\int_{S(\rho)} \Pi_{\theta\rho}^{(i,s)}\, dA}{\int_{S(\rho)} dA}
 
     $$
 
 
-    where $\Pi_{\theta\rho}^{(i,s)}$ is the flux of poloidal momentum across the outward
-    radial direction, $m_i$ is the ion mass, $n_{i,s}$ is the number density of that
-    ionization state, $v_{\theta,i,s}$ is its poloidal velocity component, $v_{\rho,i,s}$
-    is its outward radial velocity component, and $\pi_{\theta\rho}^{(i,s)}$ is the
-    nonconvective stress contribution, including viscous, collisional, turbulent,
-    or fluctuation-correlated terms as appropriate.
+    where $S(\rho)$ is the magnetic flux surface, $dA$ is its surface-area element,
+    and $\Pi_{\theta\rho}^{(i,s)}$ is the local flux of $\theta$-directed ion momentum
+    across the outward $\rho$ normal. A common decomposition is $\Pi_{\theta\rho}^{(i,s)}
+    = m_i n_{i,s} v_{\theta,i,s} v_{\rho,i,s} + \pi_{\theta\rho}^{(i,s)}$, where $m_i$
+    is ion mass in kg, $n_{i,s}$ is the number density of ionization state $s$ in
+    m$^{-3}$, $v_{\theta,i,s}$ and $v_{\rho,i,s}$ are poloidal and outward-radial
+    velocity components in m s$^{-1}$, and $\pi_{\theta\rho}^{(i,s)}$ is the nonconvective
+    stress contribution. The resulting unit is kg.m^-1.s^-2.
 
 
-    In practice this quantity is obtained from transport analysis or kinetic/fluid
-    modeling by projecting the charge-state-resolved momentum-flux tensor onto the
-    poloidal momentum direction and the outward radial surface normal. Experimental
-    estimates combine ionization-state densities, flow velocities inferred from spectroscopic
-    or probe-based diagnostics when available, and modeled nonconvective stress terms;
-    direct measurement of the full tensor component is uncommon.
+    In practice this quantity is obtained from charge-state-resolved fluid, kinetic,
+    or transport modeling by forming the local tensor component and averaging it over
+    a magnetic flux surface. Experimental inference is indirect: it combines ion-state
+    densities, flow velocities from spectroscopic or probe-based diagnostics when
+    available, and modeled viscous, collisional, turbulent, or fluctuation-correlated
+    stress terms. Direct measurement of the complete tensor component is uncommon.
 
 
-    Typical magnitudes are often 10^-4-1 kg.m^-1.s^-2 in core transport analyzes and
-    0.01-100 kg.m^-1.s^-2 in edge or scrape-off-layer conditions, depending strongly
-    on ion mass, charge-state density, radial particle transport, poloidal flow shear,
-    and turbulent stress. The value may be positive or negative because it is a signed
-    tensor component.
+    Typical magnitudes are not universal because the value scales with ion mass, charge-state
+    density, radial particle transport, poloidal flow, and nonconvective stress. For
+    representative edge-plasma inputs such as $n_{i,s}=10^{17}$-$10^{20}$ m$^{-3}$,
+    $|v_{\rho,i,s}|=1$-$10^3$ m s$^{-1}$, and $|v_{\theta,i,s}|=10^2$-$10^4$ m s$^{-1}$,
+    the convective scale can span roughly $10^{-8}$-$10^2$ kg.m^-1.s^-2, with turbulent
+    or viscous stresses sometimes comparable to or larger than the convective term.
 
 
     Sign convention: Positive when ion momentum in the direction of increasing poloidal
@@ -18109,9 +18316,8 @@
   physics_domain: transport
   links:
   - name:ion_state_momentum_flux
-  - name:radial_ion_state_momentum_flux
-  - name:toroidal_ion_state_momentum_flux
-  - name:vertical_ion_state_momentum_flux
+  - name:poloidal_ion_charge_state_momentum_flux
+  - name:radial_ion_charge_state_momentum_flux
   arguments:
   - name: ion_state_momentum_flux
     operator: component
@@ -18128,51 +18334,68 @@
 - name: poloidal_ion_state_velocity
   kind: scalar
   status: draft
-  description: Poloidal component of the bulk fluid velocity for ions in a specified
-    ionization charge state, projecting the charge-state-resolved mean flow onto the
-    poloidal direction.
-  documentation: 'The poloidal component $v_{\theta,z}$ of the mean fluid velocity
-    for ions in a resolved ionization charge state $z$, obtained by projecting the
-    full [ion_state_velocity](name:ion_state_velocity) vector onto the poloidal direction.
-    In a multi-fluid plasma model, each charge state of an ion species carries its
-    own independent velocity field; the poloidal component can differ substantially
-    between charge states owing to neoclassical friction, charge-dependent transport
-    forces, and orbit effects at the plasma edge.
+  description: Poloidal projection of the mean bulk fluid velocity of ions in a specified
+    ionization charge state, resolved per charge state rather than averaged over all
+    ionization states.
+  documentation: 'The poloidal ion-state velocity $v_{\theta,z}$ is the component
+    of the [ion_state_velocity](name:ion_state_velocity) vector projected onto the
+    poloidal direction $\hat{e}_\theta$ for ions in a prescribed ionization charge
+    state $z$. The poloidal direction is tangent to increasing $\theta$ at fixed $\rho$
+    and $\phi$ in an explicitly chosen flux-coordinate system $(\rho,\theta,\phi)$,
+    where $\rho$ labels magnetic flux surfaces; $\theta$ is not a coordinate of the
+    right-handed cylindrical $(R,\phi,Z)$ frame, where $R$ is major radius, $\phi$
+    increases counter-clockwise when viewed from the $+\hat{Z}$ side, and $Z$ is vertical
+    height. This quantity is the total mean bulk-flow component of the charge-state
+    fluid, not a particular guiding-center drift contribution such as [poloidal_ion_state_velocity_due_to_e_cross_b_drift](name:poloidal_ion_state_velocity_due_to_e_cross_b_drift).
 
 
-    The poloidal velocity of charge state $z$ enters the radial force balance:
+    The component is obtained by projecting the charge-state-resolved first velocity
+    moment onto the poloidal unit direction:
 
 
     $$
 
-    E_r = \frac{1}{Z_z e n_z} \frac{\partial p_z}{\partial r} - v_{\theta,z} B_\phi
-    + v_{\phi,z} B_\theta
+    v_{\theta,z} = \hat{e}_\theta \cdot \mathbf{u}_z, \qquad \mathbf{u}_z = \frac{1}{n_z}\int
+    \mathbf{v}\, f_z(\mathbf{v})\, d^3v
 
     $$
 
 
-    where $E_r$ is the radial electric field, $Z_z$ is the ion charge number, $e$
-    is the elementary charge, $n_z$ is the number density of charge state $z$, $p_z$
-    is its pressure, $B_\phi$ is the toroidal magnetic field, $B_\theta$ is the poloidal
-    magnetic field, and $v_{\phi,z}$ is the [toroidal_ion_state_velocity](name:toroidal_ion_state_momentum_convection_velocity).
-    This coupling links poloidal rotation to measurable pressure gradients and toroidal
-    flow for each charge state.
+    where $\mathbf{u}_z$ is the mean velocity of charge state $z$, $f_z(\mathbf{v})$
+    is its velocity distribution function, $\mathbf{v}$ is particle velocity, $n_z
+    = \int f_z(\mathbf{v})\,d^3v$ is the charge-state number density in m$^{-3}$,
+    and $\hat{e}_\theta$ is the unit vector toward increasing $\theta$ at fixed $\rho$
+    and $\phi$.
 
 
-    Poloidal ion velocities are measured by charge exchange recombination spectroscopy
-    (CXRS), resolving Doppler shifts of charge-exchange emission lines in the poloidal
-    viewing direction. The charge-state-averaged counterpart is poloidal_ion_velocity.
-    Typical magnitudes range from tens of meters per second to tens of kilometers
-    per second, depending on ion species, charge state, and radial location.
+    For optically emitting impurity charge states, poloidal ion-state velocity can
+    be inferred from Doppler shifts in charge-exchange or passive emission spectroscopy
+    using viewing geometry sensitive to the poloidal projection. For main ions or
+    charge states without direct spectroscopic access, it is commonly obtained from
+    kinetic or multi-fluid momentum balance constrained by pressure gradients, electric
+    fields, magnetic geometry, toroidal flow, and collisional coupling. Related projections
+    of the same charge-state velocity include [parallel_ion_state_velocity](name:parallel_ion_state_velocity),
+    [radial_ion_state_velocity](name:radial_ion_state_velocity), [toroidal_ion_state_velocity](name:toroidal_ion_state_velocity),
+    and [vertical_ion_state_velocity](name:vertical_ion_state_velocity); the charge-state-averaged
+    ion counterpart is [poloidal_ion_velocity](name:poloidal_ion_velocity).
 
 
-    Sign convention: Positive when the ion flow is directed in the direction of increasing
-    poloidal angle $\theta$.'
+    Typical absolute magnitudes are strongly species-, charge-state-, and regime-dependent.
+    In thermal magnetically confined plasmas they are usually subsonic, spanning from
+    below $10^2$ m.s$^{-1}$ in weak-flow regions to $10^3$-$10^4$ m.s$^{-1}$ where
+    strong rotation, edge momentum balance, or steep gradients produce appreciable
+    poloidal motion.
+
+
+    Sign convention: Positive when the charge-state mean flow is directed toward increasing
+    poloidal angle $\theta$ at fixed $\rho$ and $\phi$ in the chosen flux-coordinate
+    system $(\rho,\theta,\phi)$.'
   unit: m.s^-1
   physics_domain: transport
   links:
   - name:ion_state_velocity
-  - name:toroidal_ion_state_momentum_convection_velocity
+  - name:poloidal_ion_velocity
+  - name:poloidal_electron_velocity
   arguments:
   - name: ion_state_velocity
     operator: component
@@ -19131,64 +19354,80 @@
 - name: poloidal_neutral_state_momentum_flux
   kind: scalar
   status: draft
-  description: Transport-surface-normal flux density of the poloidal component of
-    linear momentum carried by neutral particles in a specified internal state, in
-    flux-surface coordinates (rho, theta, phi). The flux direction is the positive
-    transport-surface normal; this is not a poloidal-direction projection of the momentum-flux
-    vector.
-  documentation: 'Poloidal neutral-state momentum flux is the transport-surface-normal
-    flux density of the poloidal component of linear momentum carried by neutral particles
-    in a specified internal state. In flux-surface coordinates $(\rho,\theta,\phi)$,
-    the surface is a constant-$\rho$ transport surface and the momentum component
-    is associated with motion in the direction of increasing poloidal angle $\theta$;
-    the flux direction is the positive transport-surface normal, not the poloidal
-    direction.
+  description: Poloidal neutral-state momentum flux is the transport-surface-normal
+    flux density of poloidal linear momentum carried by neutral particles in a specified
+    atomic, molecular, charge, or excitation state. In flux-surface coordinates (rho,
+    theta, phi), the transported momentum is along increasing theta and the flux direction
+    is the positive normal to a constant-rho surface.
+  documentation: 'Poloidal neutral-state momentum flux is the scalar component of
+    the state-resolved momentum-flux tensor that carries poloidal linear momentum
+    across a transport surface. The state qualifier identifies the atomic, molecular,
+    charge, or excitation state of the neutral population. In flux-surface coordinates
+    $(\rho,\theta,\phi)$, with $\rho$ increasing outward from the magnetic axis, $\theta$
+    the poloidal angle, and $\phi$ the toroidal angle, this component is evaluated
+    through the normal to a constant-$\rho$ surface; it is not the projection of a
+    flux vector along the poloidal tangent.
 
 
-    A common fluid decomposition separates convective momentum transport from non-convective
-    stress transport:
+    The kinetic definition is the mixed normal-poloidal projection of the neutral-state
+    momentum-flux tensor:
 
 
     $$
 
-    F_{n,s}^{\perp\theta} = m_n n_{n,s} v_{n,s,\perp} v_{n,s,\theta} + \pi_{n,s}^{\perp\theta}
+    F_{n,s}^{\perp\theta} = \hat{\mathbf{n}}_\rho \cdot \boldsymbol{\Pi}_{n,s} \cdot
+    \hat{\mathbf{e}}_\theta = \int m_s\,(\mathbf{v}\cdot\hat{\mathbf{n}}_\rho)\,(\mathbf{v}\cdot\hat{\mathbf{e}}_\theta)\,f_s(\mathbf{v})\,d^3v
+    = m_s n_s u_{s,\perp} u_{s,\theta} + P_{s,\perp\theta}
 
     $$
 
 
-    where $F_{n,s}^{\perp\theta}$ is the poloidal momentum flux of neutral state $s$,
-    $m_n$ is the neutral particle mass, $n_{n,s}$ is the state-resolved neutral density,
-    $v_{n,s,\perp}$ is the velocity component normal to the transport surface and
-    positive toward increasing $\rho$, $v_{n,s,\theta}$ is the poloidal velocity component,
-    and $\pi_{n,s}^{\perp\theta}$ is the pressure-tensor or viscous-stress contribution
-    transporting poloidal momentum across the surface.
+    where $F_{n,s}^{\perp\theta}$ has units kg m^-1 s^-2, $\hat{\mathbf{n}}_\rho$
+    is the dimensionless unit normal to the transport surface toward increasing $\rho$,
+    $\hat{\mathbf{e}}_\theta$ is the dimensionless unit tangent toward increasing
+    $\theta$, $\boldsymbol{\Pi}_{n,s}$ is the full momentum-flux tensor in kg m^-1
+    s^-2, $m_s$ is the neutral-particle mass in kg, $\mathbf{v}$ is particle velocity
+    in m s^-1, and $f_s$ is the state-resolved velocity distribution in m^-3 (m s^-1)^-3.
+    The distribution is normalized so that its velocity integral gives the state density
+    $n_s$ in m^-3; $u_{s,\perp}$ and $u_{s,\theta}$ are mean normal and poloidal velocities
+    in m s^-1; and $P_{s,\perp\theta}$ is the non-convective pressure-tensor contribution
+    in kg m^-1 s^-2. If a viscous-stress notation is used, its sign is interpreted
+    through this full tensor projection rather than by adding an independently signed
+    stress term.
 
 
-    In kinetic neutral descriptions, this quantity is computed as the velocity-space
-    moment of the state-resolved neutral distribution weighted by surface-normal velocity
-    and poloidal momentum. In fluid or reduced transport descriptions, it is evaluated
-    from neutral density, mean flow, and stress closures; direct experimental inference
-    is usually indirect and constrained by neutral density, temperature, flow, charge-exchange,
-    ionization, recombination, and recycling information.
+    In kinetic neutral descriptions, this quantity is computed directly as the velocity-space
+    moment of the neutral distribution for state $s$. In fluid or reduced transport
+    descriptions, it is evaluated from state density, mean flow, and a pressure-tensor
+    or stress closure; direct experimental inference is usually indirect and constrained
+    by neutral density, temperature, flow, charge-exchange, ionization, recombination,
+    and recycling information. Summing over internal states gives the aggregate [poloidal_neutral_momentum_flux](name:poloidal_neutral_momentum_flux),
+    while related tensor projections include [radial_neutral_state_momentum_flux](name:radial_neutral_state_momentum_flux),
+    [toroidal_neutral_state_momentum_flux](name:toroidal_neutral_state_momentum_flux),
+    [vertical_neutral_state_momentum_flux](name:vertical_neutral_state_momentum_flux),
+    and [parallel_neutral_state_momentum_flux](name:parallel_neutral_state_momentum_flux).
 
 
-    Typical magnitudes vary strongly with neutral density and flow anisotropy. Core-penetrating
-    neutral contributions can be below $10^{-8}$-$10^{-5}$ kg.m^-1.s^-2, edge and
-    scrape-off-layer values are often $10^{-5}$-$10^{-1}$ kg.m^-1.s^-2, and dense
-    divertor or recycling regions can reach $10^{-1}$-$10$ kg.m^-1.s^-2.
+    Representative absolute magnitudes are highly model- and regime-dependent because
+    the flux scales with neutral density, correlated normal and poloidal motion, and
+    pressure-tensor anisotropy. For deuterium-like neutral populations in edge-transport
+    applications, order-of-magnitude values can span about 10^-8-10^1 kg m^-1 s^-2,
+    with near-zero values common when flows are weak or symmetry cancels the mixed
+    normal-poloidal moment, and the largest values occurring in dense recycling or
+    divertor regions.
 
 
-    Sign convention: Positive when the net flux evaluated through a constant-$\rho$
-    transport surface in flux-surface coordinates $(\rho,\theta,\phi)$, using the
-    positive surface normal, carries poloidal momentum in the direction of increasing
+    Sign convention: Positive when the flux through a constant-$\rho$ transport surface
+    in flux-surface coordinates $(\rho,\theta,\phi)$, evaluated with the surface normal
+    toward increasing $\rho$, carries poloidal momentum in the direction of increasing
     poloidal angle $\theta$.'
   unit: kg.m^-1.s^-2
   physics_domain: transport
   links:
   - name:neutral_state_momentum_flux
-  - name:poloidal_neutral_momentum_flux
-  - name:poloidal_ion_state_momentum_flux
-  - name:poloidal_neutral_state_particle_flux
+  - name:radial_neutral_state_momentum_flux
+  - name:vertical_neutral_state_momentum_flux
+  - name:parallel_neutral_state_momentum_flux
   arguments:
   - name: neutral_state_momentum_flux
     operator: component
@@ -19446,49 +19685,63 @@
 - name: power_density
   kind: scalar
   status: draft
-  description: Net local rate of energy transfer per unit volume into the electron
-    population; it is the source-minus-sink term that drives the electron energy transport
-    balance.
-  documentation: 'Power density is the volumetric source term for the electron energy
-    balance. It represents the net local rate at which all included mechanisms add
-    energy to, or remove energy from, the electron population per unit volume.
+  description: Power density is the net local volumetric energy source rate in a local
+    energy balance for a specified energy-carrying population or channel. It gives
+    the net rate of energy gain or loss per unit volume arising from heating, radiation,
+    collisions, particle interactions, or transport-model sources.
+  documentation: 'Power density is the net volumetric energy source rate appearing
+    on the right-hand side of a local energy balance for a specified energy-carrying
+    population or channel. It is the net rate at which all included mechanisms add
+    energy to, or remove energy from, that channel per unit volume, combining contributions
+    such as external heating, radiation losses, collisional equilibration, and ionization
+    or recombination energy exchange.
 
 
-    A common local form of the electron energy balance is:
+    A general local form of the energy balance for a channel $c$ is:
 
 
     $$
 
-    \frac{\partial}{\partial t}\left(\frac{3}{2} n_e T_e\right) + \nabla \cdot \mathbf{q}_e
-    = P_e
+    \frac{\partial U_c}{\partial t} + \nabla \cdot \mathbf{F}_c = P_c
 
     $$
 
 
-    where $n_e$ is electron density in $m^{-3}$, $T_e$ is electron temperature expressed
-    as an energy in joules, $\mathbf{q}_e$ is electron energy flux in $W\,m^{-2}$,
-    and $P_e$ is the power density in $W\,m^{-3}$. If $T_e$ is given in eV, it must
-    be converted to joules in this equation.
+    where $U_c$ is the energy density of the channel in $J\,m^{-3}$, $\mathbf{F}_c$
+    is the channel energy flux in $W\,m^{-2}$, and $P_c$ is the power density in $W\,m^{-3}$.
+    For an electron channel, for example, $U_c = \tfrac{3}{2} n_e T_e$ with $n_e$
+    the electron density in $m^{-3}$ and $T_e$ the electron temperature expressed
+    as an energy in joules; if $T_e$ is given in eV it must be converted to joules
+    in this expression.
 
 
-    In practice, power density is obtained from transport analysis by combining measured
-    or reconstructed electron density and temperature evolution with the divergence
-    of the electron energy flux and with modeled or inferred heating and loss terms.
-    It is distinct from source-rate coefficients such as [electron_implicit_source_rate],
-    which parameterize how a numerical source depends on an evolving state variable;
-    power density is the resulting energy transfer rate per volume.
+    The quantity is a source term rather than a source-rate coefficient: it is the
+    resulting energy transfer rate per unit volume, distinct from parameterizations
+    that describe how a numerical source depends on an evolving state variable. It
+    is normally evaluated in the laboratory frame, consistent with the frame in which
+    the energy density and energy flux are defined. In practice it is obtained from
+    transport analysis by combining measured or reconstructed density and temperature
+    evolution with the divergence of the channel energy flux and with modeled or inferred
+    heating and loss terms.
 
 
-    Typical tokamak electron-channel values are about $10^3-10^6\ W\,m^{-3}$ for broad
-    core heating or loss terms, can reach $10^6-10^8\ W\,m^{-3}$ in strongly localized
+    Typical tokamak channel values are about $10^3-10^6\ W\,m^{-3}$ for broad core
+    heating or loss terms, can reach $10^6-10^8\ W\,m^{-3}$ in strongly localized
     deposition or edge-loss regions, and may be close to zero where sources and sinks
     nearly balance.
 
 
-    Sign convention: Positive when energy is transferred into the electron population.'
+    Sign convention: Positive when energy is transferred into the specified channel.'
   unit: W.m^-3
   physics_domain: transport
-  links: []
+  links:
+  - name:electron_power_density
+  - name:ion_power_density
+  - name:co_passing_power_density
+  - name:trapped_power_density
+  - name:radiated_power_density
+  - name:total_electron_deposited_power
+  - name:total_ion_power
 - name: co_passing_power_density
   kind: scalar
   status: draft
@@ -23515,6 +23768,101 @@
     status: composed
   - id: dd:plasma_transport/model/ggd/ion/state/momentum/d_radial/values
     dd_path: plasma_transport/model/ggd/ion/state/momentum/d_radial/values
+    status: composed
+- name: radial_ion_state_momentum_flux
+  kind: scalar
+  status: draft
+  description: Radial ion-state momentum flux is the outward flux density, across
+    surfaces of constant radial flux coordinate rho, of the flux-surface-normal component
+    of ion linear momentum for one species in one ionization state. It is a charge-state-resolved
+    momentum-stress component in flux coordinates (rho, theta, phi), with rho increasing
+    outward.
+  documentation: 'Radial ion-state momentum flux is the flux-surface-normal transport
+    flux density of the flux-surface-normal component of linear momentum for one ion
+    species in one specified ionization state. The radial direction is defined by
+    surfaces of constant radial flux coordinate $\rho$ in flux coordinates $(\rho,
+    \theta, \phi)$, with $\rho$ increasing outward from the magnetic axis toward the
+    plasma boundary. This quantity is a scalar component of the ion-state momentum-flux
+    tensor and has the dimensions of a pressure or stress.
+
+
+    The tensor projection defining this radial component is:
+
+
+    $$
+
+    \Phi_{\rho\rho}^{(s,q)} = \hat{\mathbf{n}}_\rho \cdot \boldsymbol{\Pi}^{(s,q)}
+    \cdot \hat{\mathbf{n}}_\rho
+
+    $$
+
+
+    where $\Phi_{\rho\rho}^{(s,q)}$ is the radial ion-state momentum flux for ion
+    species $s$ and ionization state $q$, $\hat{\mathbf{n}}_\rho$ is the dimensionless
+    outward unit normal to a surface of constant $\rho$, and $\boldsymbol{\Pi}^{(s,q)}$
+    is the total momentum-flux tensor in kg m$^{-1}$ s$^{-2}$. In a fluid-moment representation,
+    $\boldsymbol{\Pi}^{(s,q)}$ contains a convective contribution, the scalar partial
+    pressure $p_{s,q}$ as the isotropic pressure contribution, and a non-isotropic
+    viscous or Reynolds-stress contribution; the corresponding radial projection contains
+    terms scaling as $m_s n_{s,q}(u_\rho^{s,q})^2$, $p_{s,q}$, and $\pi_{\rho\rho}^{s,q}$,
+    where $m_s$ is ion mass in kg, $n_{s,q}$ is number density in m$^{-3}$, $u_\rho^{s,q}$
+    is flux-surface-normal velocity in m s$^{-1}$, and all stress-like terms are in
+    kg m$^{-1}$ s$^{-2}$.
+
+
+    This quantity is computed from charge-state-resolved density, pressure or temperature,
+    flow velocity, and stress information in multi-fluid or kinetic transport descriptions.
+    It is usually inferred rather than measured directly: diagnostics constrain the
+    density, temperature, charge-state composition, flows, and gradients, while an
+    equilibrium mapping supplies the flux coordinates $(\rho, \theta, \phi)$ used
+    to identify the outward normal direction. It is the radial member of [ion_state_momentum_flux](name:ion_state_momentum_flux);
+    closely related quantities include [radial_ion_charge_state_momentum_flux](name:radial_ion_charge_state_momentum_flux),
+    [radial_ion_momentum_flux](name:radial_ion_momentum_flux_over_edge_region), and
+    [radial_ion_state_momentum_convection_velocity](name:radial_ion_state_momentum_convection_velocity).
+
+
+    Typical magnitudes are set by the local ion-state partial pressure and dynamic
+    pressure. For edge-plasma densities of about $10^{17}$-$10^{20}$ m$^{-3}$ and
+    ion temperatures of about $1$-$100$ eV, the scalar pressure scale is roughly $0.01$-$10^3$
+    kg m$^{-1}$ s$^{-2}$; the actual radial momentum flux can be smaller or larger
+    depending on flux-surface-normal flow, turbulence, viscosity, and the population
+    of the selected ionization state.
+
+
+    Sign convention: Positive when flux-surface-normal ion momentum is transported
+    toward increasing $\rho$ across surfaces of constant $\rho$ in flux coordinates
+    $(\rho, \theta, \phi)$.'
+  unit: kg.m^-1.s^-2
+  physics_domain: transport
+  links:
+  - name:ion_state_momentum_flux
+  - name:radial_ion_charge_state_momentum_flux
+  - name:radial_ion_momentum_flux_over_edge_region
+  - name:radial_ion_state_momentum_convection_velocity
+  arguments:
+  - name: ion_state_momentum_flux
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
+  sources:
+  - id: dd:edge_sources/source/ggd/ion/state/momentum/r
+    dd_path: edge_sources/source/ggd/ion/state/momentum/r
+    status: composed
+  - id: dd:edge_sources/source/ggd/ion/state/momentum/radial
+    dd_path: edge_sources/source/ggd/ion/state/momentum/radial
+    status: attached
+  - id: dd:edge_transport/model/ggd/ion/state/momentum/flux_radial/values
+    dd_path: edge_transport/model/ggd/ion/state/momentum/flux_radial/values
+    status: composed
+  - id: dd:plasma_sources/source/ggd/ion/state/momentum/r
+    dd_path: plasma_sources/source/ggd/ion/state/momentum/r
+    status: composed
+  - id: dd:plasma_sources/source/ggd/ion/state/momentum/radial
+    dd_path: plasma_sources/source/ggd/ion/state/momentum/radial
+    status: composed
+  - id: dd:plasma_transport/model/ggd/ion/state/momentum/flux/r
+    dd_path: plasma_transport/model/ggd/ion/state/momentum/flux/r
     status: composed
 - name: radial_ion_state_velocity
   kind: scalar
@@ -32479,6 +32827,83 @@
   - id: dd:plasma_sources/source/profiles_1d/ion/momentum/toroidal
     dd_path: plasma_sources/source/profiles_1d/ion/momentum/toroidal
     status: composed
+- name: toroidal_ion_momentum_convection_velocity
+  kind: scalar
+  status: draft
+  description: Effective flux-surface-normal convection velocity that advects the
+    toroidal component of ion momentum density across magnetic flux surfaces for a
+    specified ion species, aggregated over its ionization states. The toroidal label
+    names the transported momentum component, not the velocity direction.
+  documentation: 'The toroidal ion momentum convection velocity is the flux-surface-normal
+    effective velocity that advects the toroidal component of ion momentum density
+    across magnetic flux surfaces. The toroidal component is the $\phi$ component
+    in the right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is major radius,
+    $\phi$ is toroidal angle, and $Z$ is vertical height; the label $\phi$ identifies
+    the transported momentum component, not the direction of the convection velocity.
+    It represents the nondiffusive convection or pinch part of [ion momentum convection
+    velocity](name:ion_momentum_convection_velocity) for a specified ion species,
+    with the momentum density summed over all ionization states of that species.
+
+
+    The convective part of the flux-surface-normal toroidal-ion-momentum flux is represented
+    by:
+
+
+    $$
+
+    \Gamma_{\phi,\mathrm{conv}}^{i} = v_{i,\phi,\mathrm{mom,conv}}\, p_{i,\phi}
+
+    $$
+
+
+    where $\Gamma_{\phi,\mathrm{conv}}^{i}$ is the flux-surface-normal flux of toroidal
+    ion momentum (in kg.m^-1.s^-2), $v_{i,\phi,\mathrm{mom,conv}}$ is this convection
+    velocity (in m.s^-1), and $p_{i,\phi}$ is the charge-state-summed toroidal ion
+    momentum density (in kg.m^-2.s^-1). For charge-state index $c$, $p_{i,\phi}$ is
+    obtained by summing $m_i n_{i,c}\langle u_{\phi,i,c}\rangle$ over $c$, where $m_i$
+    is ion mass (in kg), $n_{i,c}$ is number density (in m^-3), and $\langle u_{\phi,i,c}\rangle$
+    is the signed flux-surface-averaged toroidal ion velocity (in m.s^-1); in a single
+    bulk-ion representation this reduces to $n_i m_i\langle u_{\phi,i}\rangle$. The
+    related [toroidal ion momentum diffusion coefficient](name:toroidal_ion_momentum_diffusion_coefficient)
+    multiplies a gradient of this momentum density rather than the density itself.
+
+
+    In practice, this coefficient is not measured directly. It is inferred from momentum-balance
+    analysis by fitting toroidal rotation, density, and source information and isolating
+    the part of the flux proportional to $p_{i,\phi}$ after diffusive viscosity, residual
+    stress, and applied torque terms are treated separately. Measurements of [toroidal
+    ion velocity](name:toroidal_ion_velocity), commonly from charge-exchange recombination
+    spectroscopy or other spectroscopic methods, provide the rotation input; neoclassical
+    and turbulence calculations may supply or constrain the closure.
+
+
+    Representative inferred cross-field magnitudes are usually model dependent: 0.1-10
+    m.s^-1 is common in confined-core transport studies, while 10-100 m.s^-1 can occur
+    in steep-gradient or edge regions. Values can also be close to 0 m.s^-1 when the
+    nondiffusive pinch is weak or cannot be separated robustly from the diffusive
+    and residual-stress terms.
+
+
+    Sign convention: Positive when the effective convection is directed outward across
+    magnetic flux surfaces, from the magnetic axis toward the plasma boundary.'
+  unit: m.s^-1
+  physics_domain: transport
+  links:
+  - name:ion_momentum_convection_velocity
+  - name:toroidal_ion_velocity
+  arguments:
+  - name: ion_momentum_convection_velocity
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - id: dd:core_transport/model/profiles_1d/ion/momentum/toroidal/v
+    dd_path: core_transport/model/profiles_1d/ion/momentum/toroidal/v
+    status: composed
+  - id: dd:plasma_transport/model/profiles_1d/ion/momentum/toroidal/v
+    dd_path: plasma_transport/model/profiles_1d/ion/momentum/toroidal/v
+    status: composed
 - name: toroidal_ion_momentum_damping_rate
   kind: scalar
   status: draft
@@ -37707,48 +38132,61 @@
 - name: total_ion_power
   kind: scalar
   status: draft
-  description: Net rate of energy transfer from a specified source to the ion population,
-    summed over all ion species and integrated over the plasma volume.
-  documentation: 'Total ion power is the volume-integrated contribution of a specified
-    source to the ion energy balance. It includes the net energy coupled to all ion
-    species and excludes power coupled directly to electrons, which is represented
-    separately by quantities such as [total_electron_power](name:total_electron_deposited_power).
+  description: Total power coupled to the full ion population from a specified plasma
+    source or sink, summed over all ion species and integrated over the confined plasma
+    volume. Positive values denote net ion energy deposition; negative values denote
+    net removal.
+  documentation: 'Total ion power is the volume-integrated net rate at which a specified
+    plasma source or sink transfers energy to the full ion population, summed over
+    all ion species. It is the source-resolved all-ion contribution to [ion_power](name:ion_power)
+    and excludes power coupled directly to electrons, represented by [total_electron_power](name:total_electron_deposited_power).
 
 
-    For ion species indexed by $a$, the total ion power is the volume integral of
-    the local ion power density summed over species:
+    For a source or sink labeled $s$, the source-specific total ion power $P_{i,s}^{\mathrm{tot}}$
+    is defined by summing the local ion power density over ion species and integrating
+    over the confined plasma volume:
 
 
     $$
 
-    P_{\mathrm{ion}}^{\mathrm{tot}} = \sum_a \int_V p_a(\mathbf{x})\, dV
+    P_{i,s}^{\mathrm{tot}} = \sum_a \int_V q_{i,a}^{(s)}(\mathbf{r})\, dV
 
     $$
 
 
-    where $p_a$ is the net power density coupled to ion species $a$ in W m$^{-3}$,
-    $dV$ is the plasma volume element, and $V$ is the plasma volume over which the
-    source contribution is evaluated.
+    where $a$ indexes ion species, $q_{i,a}^{(s)}(\mathbf{r})$ is the net volumetric
+    power density coupled by source term $s$ to ion species $a$ at position $\mathbf{r}$
+    in W m$^{-3}$, $dV$ is the volume element, and $V$ is the confined plasma volume.
+    The local density $q_{i,a}^{(s)}$ may be positive for local deposition or negative
+    for local cooling or loss.
 
 
-    In practice this quantity is computed from source modeling or diagnostic inference
-    by integrating the spatial distribution of ion heating or cooling and summing
-    over thermal and fast ion species as appropriate. It is the ion-channel contribution
-    to the source power balance; adding the corresponding electron-channel contribution
-    gives the total plasma power from the same source when no other channels are included.
+    In practice this quantity is obtained from source modeling, transport energy-balance
+    calculations, or diagnostic inference by integrating the spatial ion heating or
+    cooling term for the selected source. The flux-surface cumulative form cumulative_inside_flux_surface_total_ion_power
+    records how the same source contribution accumulates from the magnetic axis to
+    the plasma boundary. For coherent-wave sources, [fast_ion_power](name:fast_ion_power)
+    and [thermal_ion_power](name:thermal_ion_power) describe population-resolved parts
+    of the ion-channel budget; adding [total_electron_power](name:total_electron_deposited_power)
+    for the same source gives total_plasma_power when only electron and ion channels
+    are considered.
 
 
-    Typical values range from 0 W for an absent or inactive source to $10^3$-$10^6$
-    W for weak source terms, and up to $10^6$-$5 \times 10^7$ W for strong auxiliary
-    ion heating in medium to large tokamak plasmas.
+    Representative magnitudes are source and discharge dependent: inactive sources
+    give 0 W, weak or residual source terms can be $10^3$-$10^5$ W, and dominant auxiliary-heating
+    ion channels in present tokamak plasmas commonly lie around $10^6$-$10^7$ W, with
+    the largest source-specific contributions reaching several $10^7$ W.
 
 
-    Sign convention: Positive when energy is transferred from the source to the ion
-    population.'
+    Sign convention: Positive when net energy is transferred to the ion population
+    by the specified source term.'
   unit: W
   physics_domain: transport
   links:
+  - name:ion_power
   - name:total_electron_deposited_power
+  - name:fast_ion_power
+  - name:thermal_ion_power
   arguments:
   - name: ion_power
     operator: total

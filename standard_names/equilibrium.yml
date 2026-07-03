@@ -1,6 +1,6 @@
 # Domain: equilibrium
-# Catalog sha: 10f138b84e69986b8eee80d3faba7d3fae3888b1
-# Entries: 125
+# Catalog sha: b1f901b848c4c5043df782c70c45f8e6c43619bc
+# Entries: 126
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -1828,6 +1828,59 @@
     status: attached
   - id: dd:summary/global_quantities/beta_pol_mhd/value
     dd_path: summary/global_quantities/beta_pol_mhd/value
+    status: attached
+- name: poloidal_cross_sectional_area_of_plasma_boundary
+  kind: scalar
+  status: draft
+  description: Area enclosed by the plasma-boundary contour in the poloidal plane
+    at fixed toroidal angle phi in the right-handed cylindrical (R, phi, Z) frame.
+    It is a non-negative measure of the last closed flux surface cross-sectional size.
+  documentation: 'Poloidal cross-sectional area of the plasma boundary is the area
+    of the closed region enclosed by the last closed flux surface in a poloidal plane
+    at fixed toroidal angle $\phi$ in the right-handed cylindrical $(R, \phi, Z)$
+    frame, where $R$ is major radius and $Z$ is vertical height. It characterizes
+    the size of the plasma cross section and is non-negative by definition.
+
+
+    Let $\Omega_p$ be the enclosed region and $\partial\Omega_p$ its boundary contour
+    in the poloidal $(R,Z)$ plane of the right-handed cylindrical $(R, \phi, Z)$ frame.
+    The area may be written as the plane integral, or equivalently by Green''s theorem
+    as an orientation-independent contour integral:
+
+
+    $$
+
+    A_p = \int_{\Omega_p} dR\,dZ = \frac{1}{2}\left|\oint_{\partial\Omega_p} \left(R\,dZ
+    - Z\,dR\right)\right|
+
+    $$
+
+
+    where $A_p$ is the poloidal cross-sectional area. The absolute value removes any
+    dependence on the traversal direction of the boundary contour; reversing the order
+    of contour points changes the sign of the line integral but not the physical area.
+
+
+    In equilibrium analysis, this quantity is computed after identifying the last
+    closed flux surface and evaluating the area of its fixed-$\phi$ boundary contour,
+    often using a polygon-area or Green-theorem calculation. For axisymmetric equilibria
+    the value is independent of $\phi$; for nonaxisymmetric boundaries it refers to
+    the specified fixed-$\phi$ poloidal section.
+
+
+    Typical values are best interpreted through geometric scaling rather than a universal
+    device-independent range. For an approximately elliptical boundary, $A_p$ is of
+    order $\pi \kappa a^2$, where $a$ is the horizontal minor radius and $\kappa$
+    is the elongation, so the area scales quadratically with plasma size and linearly
+    with elongation.'
+  unit: m^2
+  physics_domain: equilibrium
+  links:
+  - name:length_of_plasma_boundary
+  - name:elongation_of_plasma_boundary
+  sources:
+  - id: dd:equilibrium/time_slice/global_quantities/area
+    dd_path: equilibrium/time_slice/global_quantities/area
     status: attached
 - name: poloidal_current_function
   kind: scalar
@@ -8004,52 +8057,50 @@
   kind: scalar
   status: draft
   description: Safety factor evaluated on the closed flux surface where normalized
-    poloidal magnetic flux is 0.95, commonly called q95.
-  documentation: 'Safety factor at normalized poloidal magnetic flux equal to 0.95,
-    commonly denoted $q_{95}$, is the value of the safety factor on the closed flux
-    surface whose flux coordinate $\psi_N$ is 0.95. It measures how many toroidal
-    turns a magnetic field line makes per poloidal turn near the plasma edge, while
-    remaining inside the separatrix where X-point geometry can make the boundary value
-    more sensitive. It is an edge-near complement to [safety_factor_at_plasma_boundary](name:safety_factor_at_normalized_poloidal_magnetic_flux_equal_to_0_95)
-    and [safety_factor_at_pedestal](name:safety_factor_at_pedestal).
-
-
-    Using the safety-factor function as a function of normalized poloidal magnetic
-    flux, the defining relation is
-
-
-    $$
-
-    q_{95} = q(\psi_N = 0.95) = \left.\frac{d\Phi_\mathrm{tor}}{d\psi}\right|_{\psi_N=0.95}
-
-    $$
-
-
-    where $\Phi_\mathrm{tor}$ is toroidal magnetic flux, $\psi$ is poloidal magnetic
-    flux, and $\psi_N$ is normalized poloidal magnetic flux, equal to 0 at the magnetic
-    axis and 1 at the boundary of closed flux surfaces. The derivative is dimensionless
-    because both fluxes are measured in webers.
-
-
-    In practice, $q_{95}$ is obtained from an axisymmetric magnetic equilibrium reconstruction
-    constrained by magnetic diagnostics and, when available, pressure and current-distribution
-    information. The reconstruction determines the relevant closed flux surface and
-    the flux functions; $q(\psi_N)$ is then evaluated or interpolated at $\psi_N=0.95$.
-
-
-    Typical tokamak values are about 2-8; H-mode and baseline scenarios often lie
-    around 3-6, while low-current or high-safety-factor scenarios can exceed 8. Values
-    close to low-order rational numbers, especially near 2 or 3, are important for
-    global kink, tearing, and edge-stability limits.
-
-
-    Sign convention: Positive when, moving outward across neighboring closed flux
-    surfaces at $\psi_N=0.95$, the signed toroidal magnetic flux changes in the same
-    sense as the signed poloidal magnetic flux.'
+    poloidal magnetic flux equals 0.95; it gives the toroidal field-line winding per
+    poloidal circuit near the plasma edge.
+  documentation: "The safety factor at normalized poloidal magnetic flux equal to\
+    \ 0.95, often denoted $q_{95}$, is the value of the [safety factor](name:safety_factor)\
+    \ on the closed flux surface where the normalized poloidal magnetic flux $\x7F\
+    psi_N$ equals 0.95. It characterizes magnetic-field-line winding near the plasma\
+    \ edge: the number of toroidal turns per poloidal turn on that surface. The 0.95\
+    \ surface is close to, but distinct from, the boundary of closed flux surfaces\
+    \ and is less sensitive than a separatrix value to X-point geometry in diverted\
+    \ equilibria.\n\nUsing normalized poloidal magnetic flux as the radial label,\
+    \ $q_{95}$ is defined by evaluating the safety-factor function at $\x7Fpsi_N =\
+    \ 0.95$:\n\n$$\nq_{95} = q(\\psi_N = 0.95), \\qquad \\psi_N = \\frac{\\psi - \\\
+    psi_\\mathrm{axis}}{\\psi_\\mathrm{b} - \\psi_\\mathrm{axis}}\n$$\n\nwhere $q(\\\
+    psi_N)$ is dimensionless, $\\psi$ is the poloidal magnetic flux in Wb on the selected\
+    \ closed flux surface, $\\psi_\\mathrm{axis}$ is the magnetic-axis poloidal flux\
+    \ in Wb, and $\\psi_\\mathrm{b}$ is the boundary value in Wb for which [normalized\
+    \ poloidal magnetic flux at the plasma boundary](name:normalized_poloidal_magnetic_flux_at_plasma_boundary)\
+    \ equals 1. The underlying safety factor is the same dimensionless flux-increment\
+    \ ratio as [safety_factor](name:safety_factor), formed from toroidal and poloidal\
+    \ magnetic-flux increments measured in Wb.\n\nIn practice, $q_{95}$ is obtained\
+    \ from an axisymmetric magnetic-equilibrium reconstruction constrained by external\
+    \ magnetic measurements and, when available, internal information on current density\
+    \ or field-line pitch. The reconstruction determines the nested closed flux surfaces\
+    \ and the function $q(\\psi_N)$, which is then evaluated or interpolated at $\\\
+    psi_N = 0.95$. This edge-near scalar complements [safety factor at the pedestal](name:safety_factor_at_pedestal),\
+    \ [safety factor at the plasma boundary](name:safety_factor_at_normalized_poloidal_magnetic_flux_equal_to_0_95),\
+    \ [safety factor at the magnetic axis](name:safety_factor_at_magnetic_axis), and\
+    \ [minimum safety factor](name:minimum_safety_factor) as summaries of the safety-factor\
+    \ distribution.\n\nTypical tokamak values in conventional H-mode operation are\
+    \ about 3-5, while broader operational scenarios can span roughly 2-8 depending\
+    \ on plasma current, toroidal field, size, and shaping. Low-order rational values\
+    \ of the edge-near safety factor are monitored because they can coincide with\
+    \ magnetohydrodynamic resonances, but quantitative stability limits are scenario\
+    \ dependent.\n\nSign convention: Positive when the signed toroidal magnetic flux\
+    \ increases with the signed poloidal magnetic flux across neighboring closed flux\
+    \ surfaces at $\\psi_N = 0.95$."
   unit: '1'
   physics_domain: equilibrium
   links:
+  - name:safety_factor
+  - name:normalized_poloidal_magnetic_flux_at_plasma_boundary
   - name:safety_factor_at_pedestal
+  - name:safety_factor_at_magnetic_axis
+  - name:minimum_safety_factor
   arguments:
   - name: safety_factor
     operator: normalized_poloidal_magnetic_flux

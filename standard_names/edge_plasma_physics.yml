@@ -1,6 +1,6 @@
 # Domain: edge_plasma_physics
-# Catalog sha: 10f138b84e69986b8eee80d3faba7d3fae3888b1
-# Entries: 206
+# Catalog sha: b1f901b848c4c5043df782c70c45f8e6c43619bc
+# Entries: 207
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -8605,51 +8605,59 @@
 - name: flux_surface_averaged_magnetic_shear
   kind: scalar
   status: draft
-  description: Flux-surface value of magnetic shear, describing how the safety factor
-    changes with normalized toroidal flux radius on a magnetic flux surface. When
-    the safety factor is a flux function, it is the representative surface value,
-    not an independent average of a local pointwise shear.
-  documentation: 'Flux-surface-averaged magnetic shear is the magnetic shear assigned
-    to an entire magnetic flux surface, quantifying the radial variation of field-line
-    pitch through the safety factor. It is the flux-surface counterpart of [magnetic_shear](name:magnetic_shear_at_pedestal);
-    when the safety factor is constant on a flux surface, no separate local-shear
-    averaging model is implied.
+  description: Normalized logarithmic derivative of the safety factor with respect
+    to normalized toroidal flux radius, reported as the representative magnetic shear
+    on a complete magnetic flux surface.
+  documentation: 'Flux-surface-averaged magnetic shear is the value of [magnetic_shear](name:magnetic_shear)
+    representative of a complete magnetic flux surface. It quantifies how rapidly
+    magnetic field-line pitch changes between neighboring flux surfaces through the
+    radial variation of the [safety factor](name:safety_factor) $q$ with the radial
+    flux coordinate $\rho_\mathrm{tor}$ (normalized toroidal flux radius). Because
+    $q$ and $\rho_\mathrm{tor}$ are flux functions in this definition, the surface
+    average equals the single safety-factor-shear value on that surface.
 
 
-    The value on a surface labeled by normalized toroidal flux radius $\rho_{\mathrm{tor}}$
-    is defined by:
+    The defining relation on a surface labeled by $\rho_\mathrm{tor}$ is:
 
 
     $$
 
-    s_{\mathrm{fs}}(\rho_{\mathrm{tor}}) = \frac{\rho_{\mathrm{tor}}}{q(\rho_{\mathrm{tor}})}
-    \frac{d q}{d \rho_{\mathrm{tor}}}
+    s_\mathrm{fs}(\rho_\mathrm{tor}) = \frac{\rho_\mathrm{tor}}{q(\rho_\mathrm{tor})}\frac{d
+    q}{d\rho_\mathrm{tor}}
 
     $$
 
 
-    where $s_{\mathrm{fs}}$ is the flux-surface value of magnetic shear, $q$ is the
-    [safety factor](name:safety_factor), and $\rho_{\mathrm{tor}}$ labels the flux
-    surface, with $\rho_{\mathrm{tor}}=0$ at the magnetic axis and $\rho_{\mathrm{tor}}=1$
-    at the last-closed flux surface.
+    where $s_\mathrm{fs}$ is the flux-surface-averaged magnetic shear, $q$ is the
+    dimensionless safety factor, and $\rho_\mathrm{tor}$ is dimensionless with $\rho_\mathrm{tor}=0$
+    at the magnetic axis and $\rho_\mathrm{tor}=1$ at the last closed flux surface.
+    The derivative is taken outward across neighboring flux surfaces, so applying
+    a flux-surface average to this safety-factor-shear definition does not change
+    the value.
 
 
-    In practice, this quantity is inferred from an equilibrium description by evaluating
-    the radial derivative of $q(\rho_{\mathrm{tor}})$ at the chosen surface, such
-    as a separatrix, pedestal, or internal-transport-barrier location. It is sensitive
-    to the local radial variation of $q$, so uncertainty is largest where the safety-factor
-    variation is weakly constrained or changes rapidly.
+    In practice, this quantity is obtained from an equilibrium description by evaluating
+    the safety-factor variation as a function of $\rho_\mathrm{tor}$ and differentiating
+    it at the selected flux surface. Related special-surface evaluations include [magnetic_shear_at_magnetic_axis](name:magnetic_shear_at_magnetic_axis),
+    [magnetic_shear_at_pedestal](name:magnetic_shear_at_pedestal), [magnetic_shear_at_internal_transport_barrier](name:magnetic_shear_at_internal_transport_barrier),
+    [magnetic_shear_at_plasma_boundary](name:magnetic_shear_at_plasma_boundary), and
+    [magnetic_shear_at_sawtooth_inversion_radius](name:magnetic_shear_at_sawtooth_inversion_radius).
 
 
-    Typical dimensionless values are of order unity to several in many tokamak equilibria.
-    Values near zero indicate a locally flat safety-factor variation, negative values
-    indicate reversed magnetic shear, and larger positive values can occur in steep-gradient
-    edge or separatrix regions.'
+    Typical values are dimensionless. In conventional H-mode tokamak scenarios, $s_\mathrm{fs}$
+    is near zero at the magnetic axis and commonly reaches about 2-5 toward the edge;
+    reversed-shear configurations can have negative core values, often around -1 to
+    -2.
+
+
+    Sign convention: Positive when the safety factor $q$ increases with increasing
+    normalized toroidal flux radius $\rho_\mathrm{tor}$.'
   unit: '1'
   physics_domain: edge_plasma_physics
   links:
-  - name:magnetic_shear_at_pedestal
+  - name:magnetic_shear
   - name:safety_factor
+  - name:magnetic_shear_at_plasma_boundary
   arguments:
   - name: magnetic_shear
     operator: flux_surface_averaged
@@ -8787,35 +8795,49 @@
 - name: magnetic_shear_at_pedestal
   kind: scalar
   status: draft
-  description: "Dimensionless magnetic shear \u2014 the normalized logarithmic derivative\
-    \ of the safety factor with respect to normalized toroidal flux radius \u2014\
-    \ evaluated at the H-mode pedestal transport barrier."
-  documentation: "Magnetic shear quantifies the spatial variation of field-line helicity\
-    \ across nested flux surfaces, controlling the stability of MHD and drift-wave\
-    \ modes. Evaluated at the pedestal \u2014 the steep pressure-gradient transport\
-    \ barrier characteristic of H-mode confinement \u2014 it enters directly into\
-    \ peeling-ballooning stability criteria governing edge-localized modes and sets\
-    \ constraints on the maximum achievable pedestal pressure.\n\nThe pedestal magnetic\
-    \ shear is defined as:\n\n$$\ns = \\frac{\\rho_\\mathrm{tor}}{q} \\frac{dq}{d\\\
-    rho_\\mathrm{tor}}\n$$\n\nwhere $q$ is the local safety factor and $\\rho_\\mathrm{tor}$\
-    \ is the normalized toroidal flux radius, equal to 0 at the magnetic axis and\
-    \ 1 at the separatrix. This is the scalar pedestal-locus counterpart of the radial\
-    \ profile [magnetic_shear](name:magnetic_shear_at_pedestal), and is analogous\
-    \ in structure to [magnetic_shear_at_magnetic_axis](name:magnetic_shear_at_magnetic_axis)\
-    \ evaluated on axis and [magnetic_shear_at_internal_transport_barrier](name:magnetic_shear_at_internal_transport_barrier)\
-    \ evaluated at internal barriers.\n\nPedestal magnetic shear is inferred from\
-    \ equilibrium reconstruction, combining external magnetic measurements with internal\
-    \ profile constraints such as motional Stark effect polarimetry or pressure-profile\
-    \ data. In conventional H-mode pedestals, $s$ spans 1\u20135, reflecting the rapid\
-    \ increase in $q$ across the narrow pedestal width; reversed-shear configurations\
-    \ can yield negative values near the pedestal foot.\n\nSign convention: Positive\
-    \ when $q$ increases with increasing $\\rho_\\mathrm{tor}$, corresponding to outward-increasing\
-    \ field-line helicity toward the plasma edge."
+  description: Dimensionless magnetic shear at the H-mode pedestal, equal to the normalized
+    logarithmic derivative of the safety factor with respect to normalized toroidal
+    flux radius evaluated at the steep edge transport barrier.
+  documentation: 'Magnetic shear at the pedestal is the value of [magnetic_shear](name:magnetic_shear)
+    on the flux surface corresponding to the H-mode transport barrier, characterizing
+    how rapidly the magnetic field-line pitch changes with normalized toroidal flux
+    radius in the steep-gradient edge region.
+
+
+    The defining relation is:
+
+
+    $$
+
+    s_\mathrm{ped} = \left. \frac{\rho_\mathrm{tor}}{q} \frac{dq}{d\rho_\mathrm{tor}}
+    \right|_{\rho_\mathrm{ped}}
+
+    $$
+
+
+    where $q$ is the safety factor, $\rho_\mathrm{tor}$ is the normalized toroidal
+    flux radius running from 0 at the magnetic axis to 1 at the last closed flux surface,
+    and $\rho_\mathrm{ped}$ is the radial coordinate of the pedestal.
+
+
+    The pedestal magnetic shear is obtained from equilibrium reconstruction by evaluating
+    the logarithmic derivative of the safety factor profile at the reconstructed pedestal
+    location. It enters peeling-ballooning stability analyzes that govern edge-localized
+    mode onset, and it complements the on-axis value given by [magnetic_shear_at_magnetic_axis](name:magnetic_shear_at_magnetic_axis)
+    and the boundary value given by [magnetic_shear_at_plasma_boundary](name:magnetic_shear_at_plasma_boundary).
+    In conventional H-mode scenarios, $s_\mathrm{ped}$ typically ranges from 1 to
+    5, reflecting the rapid outward rise of the safety factor profile near the plasma
+    edge.
+
+
+    Sign convention: Positive when the safety factor $q$ increases with increasing
+    normalized toroidal flux radius $\rho_\mathrm{tor}$ at the pedestal location.'
   unit: '1'
   physics_domain: edge_plasma_physics
   links:
+  - name:magnetic_shear
   - name:magnetic_shear_at_magnetic_axis
-  - name:magnetic_shear_at_internal_transport_barrier
+  - name:magnetic_shear_at_plasma_boundary
   arguments:
   - name: magnetic_shear
     operator: pedestal
@@ -10632,6 +10654,12 @@
   - name:neutral_state_energy_diffusivity
   - name:parallel_energy_diffusivity
   - name:radial_neutral_energy_diffusion_coefficient
+  arguments:
+  - name: neutral_state_energy_diffusivity
+    operator: component
+    operator_kind: projection
+    axis: poloidal
+    shape: component
   sources:
   - id: dd:edge_transport/model/ggd/neutral/state/energy/d_pol/values
     dd_path: edge_transport/model/ggd/neutral/state/energy/d_pol/values
@@ -10639,39 +10667,65 @@
 - name: poloidal_total_current_density
   kind: scalar
   status: draft
-  description: Signed projection of the total plasma current density vector onto the
-    poloidal direction, summing all current contributions including ohmic, bootstrap,
-    and externally driven currents.
-  documentation: "The poloidal total current density is the scalar component of the\
-    \ net current density vector $\\mathbf{j}_\\mathrm{total}$ resolved along the\
-    \ poloidal direction at each point in the edge plasma, integrating contributions\
-    \ from all current-carrying mechanisms \u2014 ohmic induction, bootstrap drive,\
-    \ neoclassical effects, and any externally applied current drive.\n\nThe defining\
-    \ relation is:\n\n$$\nj_\\theta = \\mathbf{j}_\\mathrm{total} \\cdot \\hat{\\\
-    theta}\n$$\n\nwhere $\\mathbf{j}_\\mathrm{total}$ is the total current density\
-    \ vector and $\\hat{\\theta}$ is the unit vector tangent to the flux surface in\
-    \ the poloidal direction within the $(R, Z)$ plane of the right-handed cylindrical\
-    \ $(R, \\phi, Z)$ frame.\n\nCombined with [toroidal_total_current_density](name:toroidal_current_density)\
-    \ and [radial_total_current_density](name:radial_total_current_density), this\
-    \ component completes the directional decomposition of [total_current_density](name:total_current_density).\
-    \ The closely related [poloidal_current_density](name:poloidal_current_density)\
-    \ represents the same physical projection; the present name makes the all-contributions\
-    \ character of the sum explicit. The neoclassical [poloidal_pfirsch_schlueter_current_density](name:poloidal_pfirsch_schlueter_current_density)\
-    \ is a physically important subset arising from pressure-gradient-driven return\
-    \ currents in toroidal geometry.\n\nThis quantity is evaluated from magnetohydrodynamic\
-    \ equilibrium reconstruction or self-consistent kinetic edge-plasma transport\
-    \ simulations, and is resolved on a spatially explicit grid covering complex edge\
-    \ geometries including the scrape-off layer and divertor region.\n\nSign convention:\
-    \ Positive when the current flows in the direction of increasing poloidal angle\
-    \ $\\theta$ in the $(R, Z)$ plane."
+  description: Poloidal total current density is the signed component of the total
+    edge-plasma current density along the local poloidal direction, summing ohmic,
+    bootstrap, and externally driven contributions over all plasma species and charge
+    states.
+  documentation: 'The poloidal total current density is the component of the aggregated
+    current density vector [total_current_density](name:total_current_density) resolved
+    along the local poloidal direction in a flux-coordinate system such as $(\rho,
+    \theta, \phi)$. It represents the net conventional positive charge flux per unit
+    area along increasing poloidal angle after summing ohmic, bootstrap, and externally
+    driven current mechanisms over all resolved plasma species and charge states.
+    The poloidal unit vector $\hat{\boldsymbol{\theta}}$ is tangent to changing $\theta$
+    at fixed radial flux coordinate and toroidal angle $\phi$, embedded in the right-handed
+    cylindrical $(R, \phi, Z)$ frame where $R$ is major radius and $Z$ is vertical
+    height.
+
+
+    The projection is defined by:
+
+
+    $$
+
+    j_{\theta,\mathrm{total}} = \mathbf{J}_\mathrm{total}\cdot\hat{\boldsymbol{\theta}}
+    = \left(\mathbf{J}_\mathrm{ohmic} + \mathbf{J}_\mathrm{bootstrap} + \mathbf{J}_\mathrm{drive}\right)\cdot\hat{\boldsymbol{\theta}}
+
+    $$
+
+
+    where $j_{\theta,\mathrm{total}}$ is the scalar poloidal total current density
+    in A m$^{-2}$, $\mathbf{J}_\mathrm{total}$ and each contribution vector are in
+    A m$^{-2}$, and $\hat{\boldsymbol{\theta}}$ is dimensionless. $\mathbf{J}_\mathrm{drive}$
+    collects externally driven current sources, while the bootstrap and ohmic terms
+    represent neoclassical pressure-gradient drive and inductive electric-field drive,
+    respectively.
+
+
+    In practice this quantity is obtained by projecting a reconstructed or simulated
+    total current-density vector onto the local poloidal direction defined by the
+    chosen $(\rho, \theta, \phi)$ flux coordinates. It is a directional sibling of
+    [radial_total_current_density](name:radial_total_current_density), [toroidal_total_current_density](name:toroidal_total_current_density),
+    [vertical_total_current_density](name:vertical_total_current_density), and [parallel_total_current_density](name:parallel_total_current_density);
+    the parallel component is field-aligned and is not generally identical to the
+    poloidal projection. The related [poloidal_pfirsch_schlueter_current_density](name:poloidal_pfirsch_schlueter_current_density)
+    is a specific neoclassical contribution rather than the full summed current.
+
+
+    Typical edge-plasma magnitudes are highly device- and scenario-dependent. Transport
+    and edge simulations commonly give $10^2$-$10^5$ A m$^{-2}$ for steady poloidal
+    total current density, with localized source regions, steep-gradient regions,
+    or transient events reaching about $10^6$ A m$^{-2}$.
+
+
+    Sign convention: Positive when conventional current flows in the direction of
+    increasing poloidal angle $\theta$ in the explicitly chosen flux-coordinate system
+    $(\rho, \theta, \phi)$.'
   unit: A.m^-2
   physics_domain: edge_plasma_physics
   links:
-  - name:toroidal_current_density
-  - name:radial_total_current_density
   - name:total_current_density
-  - name:poloidal_current_density
-  - name:poloidal_pfirsch_schlueter_current_density
+  - name:radial_total_current_density
   arguments:
   - name: total_current_density
     operator: component
@@ -11190,6 +11244,54 @@
   - id: dd:edge_transport/model/ggd/ion/state/particles/flux_radial/values
     dd_path: edge_transport/model/ggd/ion/state/particles/flux_radial/values
     status: composed
+- name: radial_total_current_density
+  kind: scalar
+  status: draft
+  description: Radial total current density is the component of the total electric
+    current density resolved normal to magnetic flux surfaces, summing ohmic, bootstrap,
+    and externally driven contributions over all plasma species and charge states.
+  documentation: "The radial total current density is the component of the aggregated\
+    \ current density vector [total_current_density](name:total_current_density) resolved\
+    \ in the direction normal to magnetic flux surfaces. It sums all current-carrying\
+    \ mechanisms \u2014 ohmic induction, bootstrap, and externally driven currents\
+    \ \u2014 over all resolved species and charge states. This cross-flux-surface\
+    \ radial direction is distinct from the cylindrical major-radius $\\hat{R}$ direction\
+    \ in the right-handed cylindrical $(R, \\phi, Z)$ frame, where $R$ is major radius\
+    \ and $Z$ is vertical height.\n\nThe aggregate radial current density satisfies:\n\
+    \n$$\nJ_r = J_{\\mathrm{ohmic},r} + J_{\\mathrm{bootstrap},r} + J_{\\mathrm{drive},r}\n\
+    $$\n\nwhere $J_{\\mathrm{ohmic},r}$, $J_{\\mathrm{bootstrap},r}$, and $J_{\\mathrm{drive},r}$\
+    \ are the ohmic, bootstrap, and externally driven contributions projected onto\
+    \ the flux-surface-normal direction, each in A m$^{-2}$.\n\nIn edge plasma models,\
+    \ the radial current density is resolved on generalized geometry grids spanning\
+    \ the pedestal, scrape-off layer, and divertor region. It appears in current continuity\
+    \ equations and the perpendicular Ohm's law governing cross-field charge transport,\
+    \ complementing the field-aligned [parallel_total_current_density](name:parallel_total_current_density)\
+    \ and azimuthal [toroidal_total_current_density](name:toroidal_total_current_density)\
+    \ projections of the same total current.\n\nSign convention: Positive when conventional\
+    \ current flows outward along the flux-surface normal, away from the magnetic\
+    \ axis."
+  unit: A.m^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:total_current_density
+  - name:parallel_total_current_density
+  - name:toroidal_total_current_density
+  arguments:
+  - name: total_current_density
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
+  sources:
+  - id: dd:edge_profiles/ggd/j_total/r
+    dd_path: edge_profiles/ggd/j_total/r
+    status: composed
+  - id: dd:edge_profiles/ggd/j_total/radial
+    dd_path: edge_profiles/ggd/j_total/radial
+    status: attached
+  - id: dd:plasma_profiles/ggd/j_total/radial
+    dd_path: plasma_profiles/ggd/j_total/radial
+    status: attached
 - name: ratio_of_vertical_vorticity_to_major_radius
   kind: scalar
   status: draft
@@ -11261,41 +11363,67 @@
 - name: safety_factor_at_pedestal
   kind: scalar
   status: draft
-  description: Safety factor evaluated at the H-mode pedestal, quantifying field-line
-    helicity at the steep-gradient edge transport barrier that governs ELM stability
-    and confinement.
-  documentation: "The safety factor at the pedestal is the value of $q$ on the flux\
-    \ surface that coincides with the H-mode pressure pedestal \u2014 the steep-gradient\
-    \ edge transport barrier where pressure, temperature, and density transition sharply\
-    \ from the hot core to the scrape-off layer. Along with [safety_factor_at_magnetic_axis](name:safety_factor_at_magnetic_axis)\
-    \ and [safety_factor_at_plasma_boundary](name:safety_factor_at_normalized_poloidal_magnetic_flux_equal_to_0_95),\
-    \ it characterizes the magnetic field-line helicity at a physically significant\
-    \ plasma location and is a key parameter for edge MHD stability analysis, particularly\
-    \ for edge-localized mode onset.\n\nThe safety factor is defined as the ratio\
-    \ of incremental toroidal to poloidal magnetic flux:\n\n$$\nq(\\psi) = \\frac{d\\\
-    Phi_{\\rm tor}}{d\\Phi_{\\rm pol}}\n$$\n\nwhere $\\Phi_{\\rm tor}$ is the toroidal\
-    \ magnetic flux enclosed by the flux surface labeled by poloidal flux $\\psi$,\
-    \ and $\\Phi_{\\rm pol}$ is the corresponding poloidal flux. Equivalently, $q$\
-    \ counts the number of toroidal field-line transits per single poloidal circuit.\
-    \ The pedestal value is closely related to the commonly quoted $q_{95}$ parameter,\
-    \ which evaluates [safety_factor](name:safety_factor) at the 95% normalized poloidal\
-    \ flux surface and is widely used as a global stability proxy.\n\nThe pedestal\
-    \ $q$ is extracted from magnetic equilibrium reconstruction using external flux-loop\
-    \ and magnetic-probe measurements, optionally constrained by internal current-profile\
-    \ diagnostics such as motional-Stark-effect polarimetry; the pedestal location\
-    \ is identified from electron pressure or density gradient profiles.\n\nTypical\
-    \ values in H-mode tokamak plasmas range from 3 to 6, increasing with weaker plasma\
-    \ current or a higher $q$ operating point. The [minimum_safety_factor](name:minimum_safety_factor)\
-    \ provides a complementary global bound on the $q$ profile.\n\nSign convention:\
-    \ Positive when both the toroidal magnetic field $B_\\phi$ and the plasma current\
-    \ $I_p$ point in the direction of increasing toroidal angle $\\phi$."
+  description: Safety factor at the H-mode pedestal; it is the toroidal-to-poloidal
+    magnetic-flux increment ratio on the edge transport-barrier flux surface and gives
+    the number of toroidal turns in the right-handed cylindrical (R, phi, Z) frame
+    per poloidal turn.
+  documentation: 'The safety factor at the pedestal, often denoted $q_\mathrm{ped}$,
+    is the value of the [safety factor](name:safety_factor) on the flux surface associated
+    with the H-mode pedestal. It characterizes magnetic-field-line winding: the number
+    of toroidal turns in the right-handed cylindrical $(R, \phi, Z)$ frame per poloidal
+    turn around the inner plasma region on the steep-gradient edge transport-barrier
+    flux surface.
+
+
+    The formal definition is inherited from the flux-increment definition of $q$ and
+    evaluated at the pedestal flux surface:
+
+
+    $$
+
+    q_\mathrm{ped} = \left. \frac{d\Phi_{\rm tor}}{d\Phi_{\rm pol}/(2\pi)} \right|_{\rm
+    pedestal}
+
+    $$
+
+
+    where $\Phi_{\rm tor}$ is the toroidal magnetic flux in Wb enclosed by the flux
+    surface, $\Phi_{\rm pol}$ is the poloidal magnetic flux in Wb encircled by the
+    flux-surface boundary, and the subscript denotes evaluation on the pedestal flux
+    surface. Rational values $q_\mathrm{ped}=m/n$ align the pedestal with perturbations
+    of poloidal mode number $m$ and toroidal mode number $n$, influencing edge magnetohydrodynamic
+    stability and edge-localized-mode thresholds.
+
+
+    The pedestal flux surface is identified from the location of the strongest edge
+    gradients in electron pressure, temperature, or density, with the pedestal top
+    often near the normalized poloidal flux $\psi_N \approx 0.95$. The value is computed
+    from magnetic equilibrium reconstruction constrained by magnetic measurements
+    and, when available, internal current-profile constraints such as motional Stark
+    effect polarimetry or Faraday rotation. Because the pedestal top is often close
+    to $\psi_N=0.95$, $q_\mathrm{ped}$ is closely related to [safety_factor_at_normalized_poloidal_magnetic_flux_equal_to_0_95](name:safety_factor_at_normalized_poloidal_magnetic_flux_equal_to_0_95)
+    but is tied to the measured pedestal location rather than to the fixed normalized
+    poloidal flux value $\psi_N=0.95$.
+
+
+    In conventional H-mode tokamak plasmas, $q_\mathrm{ped}$ is commonly 3-6, with
+    higher values in lower-current or deliberately high-$q$ operating points and lower
+    values in high-current scenarios. It complements [safety_factor_at_internal_transport_barrier](name:safety_factor_at_internal_transport_barrier),
+    [safety_factor_at_magnetic_axis](name:safety_factor_at_magnetic_axis), and [minimum_safety_factor](name:minimum_safety_factor)
+    by locating the safety-factor function at the edge transport barrier.
+
+
+    Sign convention: Positive when the toroidal magnetic field $B_\phi$ and the plasma
+    current $I_p$ are both directed toward increasing toroidal angle $\phi$ in the
+    right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is major radius and $Z$
+    is vertical height.'
   unit: '1'
   physics_domain: edge_plasma_physics
   links:
-  - name:safety_factor_at_magnetic_axis
-  - name:safety_factor_at_normalized_poloidal_magnetic_flux_equal_to_0_95
   - name:safety_factor
-  - name:minimum_safety_factor
+  - name:edge_localized_mode_frequency
+  - name:safety_factor_at_normalized_poloidal_magnetic_flux_equal_to_0_95
+  - name:magnetic_shear_at_plasma_boundary
   arguments:
   - name: safety_factor
     operator: pedestal

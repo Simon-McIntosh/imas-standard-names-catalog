@@ -1,5 +1,5 @@
 # Domain: divertor_physics
-# Catalog sha: 10f138b84e69986b8eee80d3faba7d3fae3888b1
+# Catalog sha: b1f901b848c4c5043df782c70c45f8e6c43619bc
 # Entries: 62
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
@@ -1757,58 +1757,67 @@
 - name: power_at_divertor_target_due_to_convection
   kind: scalar
   status: draft
-  description: Power deposited on a divertor target by incident plasma particle flow
-    carrying thermal enthalpy and directed kinetic energy. It excludes the conductive
-    heat-flux contribution, so it represents the convective part of the target heat
-    load.
-  documentation: 'Convective power at a divertor target is the rate at which plasma
-    particles flowing into the material surface deliver thermal enthalpy and directed
-    bulk-flow kinetic energy. It is the convective contribution to [power_at_divertor_target](name:deposited_power_at_divertor_target_due_to_halo_current),
-    complements [power_at_divertor_target_due_to_conduction](name:power_at_divertor_target_due_to_conduction),
-    and may be summed over targets in [power_of_divertor_due_to_convection](name:power_of_divertor_due_to_convection).
-    For an outer target it contributes to quantities such as [power_at_outer_divertor_target](name:power_at_outer_divertor_target).
+  description: Power deposited on a single divertor target by convective plasma particle
+    flux, comprising thermal enthalpy and directed kinetic energy carried by streaming
+    ions and electrons from the scrape-off layer.
+  documentation: 'Convective power at a divertor target is the surface-integrated
+    rate at which incident charged plasma particles deposit energy on one target surface
+    by their bulk motion into the material. It includes thermal enthalpy and directed
+    kinetic energy carried by ions and electrons flowing from the scrape-off layer,
+    and it is the single-target member of the broader [power due to convection](name:power_due_to_convection)
+    family. This channel is distinct from temperature-gradient-driven [conductive
+    target power](name:power_at_divertor_target_due_to_conduction) and from radiative
+    or neutral-particle deposition.
 
 
-    In a single-ion fluid description, the target-integrated convective power can
-    be written as the surface integral of the incident normal convective energy flux:
+    The target-integrated convective power can be represented as the incident surface
+    integral of the charged-species convective energy flux:
 
 
     $$
 
-    P_\mathrm{conv} = \int_A \left[\frac{5}{2}(p_e+p_i) + \frac{1}{2}m_i n_i u_\parallel^2\right]
-    \max\!\left(0,-u_\parallel\,\hat{b}\cdot\hat{n}_\mathrm{in}\right)\,dA
+    P_{\mathrm{conv},t} = \int_{A_t} \sum_{s \in \mathrm{charged}} \left[\frac{\gamma_s}{\gamma_s-1}p_s
+    + \frac{1}{2}m_s n_s u_{\parallel,s}^2\right] \max\!\left(0, u_{\parallel,s}\,\hat{b}\cdot\hat{n}_{\mathrm{mat}}\right)\,dA
 
     $$
 
 
-    where $A$ is the target surface receiving plasma, $p_e$ and $p_i$ are the local
-    electron and ion thermal pressures at the sheath entrance or equivalent target-facing
-    plasma boundary, $m_i$ and $n_i$ are the ion mass and density, $u_\parallel$ is
-    the plasma flow velocity along the magnetic-field unit vector $\hat{b}$, and $\hat{n}_\mathrm{in}$
-    is the unit normal directed from the material surface into the plasma. The pressure
-    terms should be in energy density units; if temperatures are expressed in electronvolts,
-    the conversion to pressure includes the elementary charge.
+    where $A_t$ is the wetted area of the target, $s$ labels charged species, $p_s$
+    is the local thermal pressure, $\gamma_s$ is the adiabatic index, $m_s$ and $n_s$
+    are particle mass and number density, $u_{\parallel,s}$ is the signed flow speed
+    along the magnetic-field unit vector $\hat{b}$, and $\hat{n}_{\mathrm{mat}}$ is
+    the unit normal directed from the plasma into the target material. The projection
+    term gives the incident normal speed through the target surface; outward flow
+    is excluded by the maximum operator. Pressures are in pascals, speeds in m s^-1,
+    and the surface integral yields watts; for monatomic species $\gamma_s=5/3$, giving
+    the familiar $5p_s/2$ enthalpy density.
 
 
-    In practice this quantity is computed by integrating a modeled or inferred convective
-    heat-flux density over the wetted target surface. Local density, temperature,
-    ion-saturation current, flow, and magnetic-incidence information can constrain
-    the convective term, while infrared thermography or calorimetry usually measure
-    total target heat load; separating convective from conductive power therefore
-    requires a sheath or edge-transport model.
+    In experiments and simulations this quantity is obtained by integrating an inferred
+    or modeled convective heat-flux density over the wetted strike region of a single
+    target. Langmuir-probe measurements, sheath-entrance density and temperature estimates,
+    flow information, and magnetic-incidence geometry can constrain the convective
+    term, while infrared thermography or calorimetry usually measure the total target
+    heat load; separating convection from conduction therefore requires a sheath or
+    edge-transport model. Summing this quantity over all target surfaces gives [power
+    of divertor due to convection](name:power_of_divertor_due_to_convection), and
+    comparisons between [inner](name:power_at_inner_divertor_target) and [outer](name:power_at_outer_divertor_target)
+    targets are used to study divertor power-sharing asymmetry.
 
 
-    Representative target-integrated values are highly device- and regime-dependent:
-    less than $10^3$ W in small or strongly detached cases, $10^4-10^6$ W in many
-    medium-size diverted tokamak plasmas, and $10^6-10^7$ W or higher during high-power
-    attached operation.'
+    Representative single-target values are strongly device- and regime-dependent:
+    less than $10^3$ W in small or strongly detached plasmas, $10^4-10^6$ W in many
+    medium-size diverted tokamak discharges, and $10^6-10^7$ W or higher during high-power
+    attached operation. The value depends on upstream scrape-off-layer density and
+    temperature, particle flux, target wetted area, magnetic flux expansion, and the
+    degree of detachment.'
   unit: W
   physics_domain: divertor_physics
   links:
-  - name:deposited_power_at_divertor_target_due_to_halo_current
-  - name:power_at_divertor_target_due_to_conduction
-  - name:power_of_divertor_due_to_convection
-  - name:power_at_outer_divertor_target
+  - name:power_of_divertor_due_to_conduction
+  - name:electron_temperature_at_divertor_target
+  - name:power_due_to_convection
+  - name:thermal_power_of_divertor
   arguments:
   - name: power_due_to_convection
     operator: divertor_target
@@ -3262,59 +3271,40 @@
 - name: power_at_divertor_target_due_to_conduction
   kind: scalar
   status: draft
-  description: Thermal power deposited on a single divertor target by conductive plasma
-    heat flow along magnetic field lines. It is the target-surface integral of the
-    conductive heat-flux component into the material, excluding heat carried by convective
-    particle flow.
-  documentation: 'Power at a divertor target due to conduction is the thermal power
-    deposited on one divertor target by electron and ion heat conduction along magnetic
-    field lines in the scrape-off-layer plasma. It represents only the temperature-gradient-driven
-    heat-flow channel and excludes enthalpy and kinetic energy carried to the target
-    by net particle flow, which belongs to [power_at_divertor_target_due_to_convection](name:power_at_divertor_target_due_to_convection).
-
-
-    For a target surface $A_t$, with unit normal $\mathbf{n}_t$ directed from the
-    target material toward the plasma, a surface-integral definition is:
-
-
-    $$
-
-    P_{\mathrm{cond},t} = -\int_{A_t} \left(q_{\parallel e,\mathrm{cond}} + q_{\parallel
-    i,\mathrm{cond}}\right)\left(\mathbf{b}\cdot\mathbf{n}_t\right)\,dA,\qquad q_{\parallel
-    s,\mathrm{cond}} = -\kappa_{\parallel s}\nabla_\parallel T_s,\ s\in\{e,i\}
-
-    $$
-
-
-    where $P_{\mathrm{cond},t}$ is in W; $q_{\parallel e,\mathrm{cond}}$ and $q_{\parallel
-    i,\mathrm{cond}}$ are electron and ion conductive parallel heat-flux densities
-    in W m$^{-2}$; $\mathbf{b}$ is the unit vector along the magnetic field; $dA$
-    is a target-surface element in m$^2$; $\nabla_\parallel=\mathbf{b}\cdot\nabla$;
-    $T_s$ is the species temperature; and $\kappa_{\parallel s}$ is the species parallel
-    thermal conductivity, in W m$^{-1}$ eV$^{-1}$ if $T_s$ is expressed in eV. The
-    leading minus sign follows from the chosen normal direction, so heat entering
-    the material from the plasma contributes positively.
-
-
-    In practice, this quantity is computed by integrating separated electron and ion
-    conductive heat-flux channels over the wetted part of a divertor target. It can
-    also be inferred from measured target heat loads when an edge-plasma power-balance
-    model separates conductive heat flow from convective particle-energy transport.
-    Summing this quantity over all divertor targets gives [power_of_divertor_due_to_conduction](name:power_of_divertor_due_to_conduction),
-    and it is one contribution to the broader divertor thermal power balance represented
-    by [thermal_power_of_divertor](name:thermal_power_of_divertor).
-
-
-    Typical per-target values are highly scenario dependent: an unloaded target is
-    near 0 W, while a wetted strike region in present tokamaks is often in the 10^4-10^7
-    W range. The value is constrained by the exhaust power entering the scrape-off
-    layer and by how much of that power is dissipated before the field lines intersect
-    the target.'
+  description: Thermal power deposited on a single divertor target by parallel conduction
+    along magnetic field lines in the scrape-off layer, excluding convective, radiative,
+    and neutral-particle power channels.
+  documentation: "The power at divertor target due to conduction is the component\
+    \ of the total divertor target heat load attributed to parallel thermal conduction\
+    \ along open magnetic field lines in the scrape-off layer and divertor plasma.\
+    \ It isolates the conductive channel of the plasma\u2013target power balance from\
+    \ contributions by convective particle enthalpy flux, absorbed radiation, and\
+    \ neutral-particle energy deposition, and is the single-target resolved contribution\
+    \ of the global conducted power described by [power_due_to_conduction](name:power_due_to_conduction).\n\
+    \nIn the scrape-off layer the electron conductive heat flux follows the Spitzer\u2013\
+    H\xE4rm closure:\n\n$$\nq_{\\parallel,e} = -\\kappa_0 T_e^{5/2} \\nabla_\\parallel\
+    \ T_e\n$$\n\nwhere $\\kappa_0 \\approx 2000\\ \\mathrm{W\\,m^{-1}\\,eV^{-7/2}}$\
+    \ is the electron thermal conductivity prefactor, $T_e$ is the local electron\
+    \ temperature, and $\\nabla_\\parallel T_e$ is the temperature gradient along\
+    \ the magnetic field. The conducted power at the target is the surface integral\
+    \ of this flux\u2014plus the smaller ion conductive contribution\u2014over the\
+    \ wetted target area.\n\nIn attached divertor operation this quantity is obtained\
+    \ from two-point model power balance calculations relating upstream scrape-off-layer\
+    \ conditions to target heat fluxes, or from infrared thermography and calorimetric\
+    \ inversion of target surface temperature measurements. In detached operation,\
+    \ volumetric power dissipation by radiation and recombination in the divertor\
+    \ volume substantially reduces the conducted power reaching the target, making\
+    \ this quantity a sensitive diagnostic indicator of detachment depth. Together\
+    \ with [power_at_divertor_target_due_to_convection](name:power_at_divertor_target_due_to_convection)\
+    \ and [power_at_divertor_target_due_to_radiation](name:power_at_divertor_target_due_to_radiation),\
+    \ it contributes to the total [power_at_divertor_target](name:power_at_divertor_target)."
   unit: W
   physics_domain: divertor_physics
   links:
+  - name:power_due_to_conduction
   - name:power_at_divertor_target_due_to_convection
-  - name:thermal_power_of_divertor
+  - name:power_at_divertor_target_due_to_radiation
+  - name:power_at_divertor_target
   sources:
   - id: dd:divertors/divertor/target/power_conducted
     dd_path: divertors/divertor/target/power_conducted
@@ -3322,36 +3312,58 @@
 - name: power_of_divertor_due_to_conduction
   kind: scalar
   status: draft
-  description: Power transported to all divertor targets via parallel thermal conduction
-    in the scrape-off layer, summed over targets.
-  documentation: "The total power conducted from the scrape-off layer (SOL) plasma\
-    \ to the divertor represents the conductive channel of the plasma\u2013divertor\
-    \ power exhaust balance, summed over all individual targets. In attached divertor\
-    \ operation, parallel electron and ion thermal conduction along open magnetic\
-    \ field lines is the dominant heat transport mechanism, driven by the temperature\
-    \ gradient between the high-temperature upstream SOL and the cooler target.\n\n\
-    The electron conductive heat flux density along a field line follows the Spitzer\u2013\
-    H\xE4rm relation:\n\n$$\nq_{\\parallel,e} = -\\kappa_0 T_e^{5/2} \\nabla_\\parallel\
-    \ T_e\n$$\n\nwhere $\\kappa_0 \\approx 2000$ W m$^{-1}$ eV$^{-7/2}$ is the electron\
-    \ Spitzer conductivity prefactor and $\\nabla_\\parallel T_e$ is the parallel\
-    \ electron temperature gradient. Integrating over the wetted target area and summing\
-    \ over all divertor targets yields the total conducted power.\n\nTogether with\
-    \ [power_of_divertor_due_to_convection](name:power_of_divertor_due_to_convection),\
-    \ this quantity partitions the total plasma heat load reaching the divertor surface;\
-    \ the conductive fraction dominates at high upstream temperatures in attached\
-    \ conditions and diminishes progressively as the plasma approaches detachment,\
-    \ when $T_e$ at the target drops toward the ionization threshold. In detached\
-    \ states, processes such as [plasma_power_of_divertor_due_to_recombination](name:plasma_power_of_divertor_due_to_recombination)\
-    \ and volumetric radiation absorb an increasing fraction of the exhaust power\
-    \ before it reaches the targets.\n\nThis quantity is assessed from integrated\
-    \ power balance accounting or from multi-fluid SOL transport modeling. Typical\
-    \ values range from 1\u201310 MW in medium-power present-day devices to tens of\
-    \ MW in high-performance reactor-relevant operations."
+  description: Total thermal power deposited on all divertor targets by parallel conduction
+    along magnetic field lines in the scrape-off layer, excluding convective particle
+    enthalpy flux, absorbed radiation, recombination, and neutral-particle power channels.
+  documentation: "The power of divertor due to conduction is the component of the\
+    \ total divertor target heat load attributed to parallel thermal conduction along\
+    \ open magnetic field lines in the scrape-off layer and divertor plasma. It isolates\
+    \ the conductive channel of the plasma\u2013target power balance from contributions\
+    \ by convective particle enthalpy flux, absorbed radiation, recombination, and\
+    \ neutral-particle energy deposition, and is the all-target sum corresponding\
+    \ to [power_at_divertor_target_due_to_conduction](name:power_at_divertor_target_due_to_conduction).\n\
+    \nThe all-target conducted power is the surface integral of the conductive heat-flux\
+    \ density over the wetted divertor target surfaces:\n\n$$\nP_{\\mathrm{div,cond}}\
+    \ = \\sum_{t \\in \\mathcal{T}_{\\mathrm{div}}} \\int_{A_t} \\mathbf{q}_{\\mathrm{cond}}\
+    \ \\cdot \\hat{\\mathbf{n}}_{\\mathrm{mat}} \\, dA\n$$\n\nwhere $P_{\\mathrm{div,cond}}$\
+    \ is the conducted divertor power in W, $\\mathcal{T}_{\\mathrm{div}}$ is the\
+    \ set of divertor targets, $A_t$ is the wetted surface area of target $t$, $\\\
+    mathbf{q}_{\\mathrm{cond}}$ is the conductive heat-flux density in W m$^{-2}$,\
+    \ $\\hat{\\mathbf{n}}_{\\mathrm{mat}}$ is the unit normal directed from the plasma\
+    \ into the target material, and $dA$ is the surface-area element. With this normal\
+    \ choice, a positive integrand represents conductive heat entering the material.\
+    \ In collisional scrape-off-layer conditions the dominant electron contribution\
+    \ is commonly modeled by the Spitzer\u2013H\xE4rm closure $q_{\\parallel,e} =\
+    \ -\\kappa_0 T_e^{5/2}\\nabla_\\parallel T_e$, where $\\kappa_0 \\approx 2000\\\
+    \ \\mathrm{W\\,m^{-1}\\,eV^{-7/2}}$, $T_e$ is the electron temperature in eV,\
+    \ and $\\nabla_\\parallel = \\hat{\\mathbf{b}}\\cdot\\nabla$ is the gradient along\
+    \ the local magnetic-field unit vector $\\hat{\\mathbf{b}}$; the total conductive\
+    \ flux also includes the ion conductive contribution.\n\nThis quantity is obtained\
+    \ by integrating conductive estimates of the target heat-flux density over all\
+    \ wetted target footprints and summing the targets. In practice it can be inferred\
+    \ from two-point or scrape-off-layer power-balance modeling, from infrared thermography\
+    \ or calorimetric inversion of target surface temperature measurements combined\
+    \ with channel decomposition, and from Langmuir-probe measurements of target plasma\
+    \ conditions used to constrain the conductive part of the heat flux. The flux-density\
+    \ counterpart is [parallel_heat_flux_at_divertor_target](name:parallel_heat_flux_at_divertor_target);\
+    \ together with [power_of_divertor_due_to_convection](name:power_of_divertor_due_to_convection),\
+    \ radiative, recombination, and neutral channels, it contributes to the total\
+    \ divertor power exhaust balance.\n\nTypical values range from about $10^5$-$10^6$\
+    \ W in small or strongly dissipative divertor plasmas, $10^6$-$10^7$ W in medium-power\
+    \ attached operation, and up to several $10^7$ W in high-performance reactor-relevant\
+    \ scenarios. The conducted component is generally largest in hot attached conditions\
+    \ with steep parallel temperature gradients and is reduced as divertor detachment\
+    \ develops, because volumetric radiation, ionization, charge exchange, and recombination\
+    \ remove energy before it reaches the targets."
   unit: W
   physics_domain: divertor_physics
   links:
-  - name:power_of_divertor_due_to_convection
-  - name:plasma_power_of_divertor_due_to_recombination
+  - name:power_at_divertor_target_due_to_conduction
+  - name:total_lost_power_over_scrape_off_layer
+  - name:radiated_power_over_scrape_off_layer
+  - name:power_due_to_conduction
+  - name:power_at_divertor_target_due_to_convection
+  - name:parallel_heat_flux_at_divertor_target
   sources:
   - id: dd:divertors/divertor/power_conducted
     dd_path: divertors/divertor/power_conducted
