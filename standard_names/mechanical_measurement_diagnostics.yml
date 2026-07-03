@@ -1,6 +1,6 @@
 # Domain: mechanical_measurement_diagnostics
-# Catalog sha: b1f901b848c4c5043df782c70c45f8e6c43619bc
-# Entries: 38
+# Catalog sha: 1bd4d6774e1c48755a0b5a4cd7740643fe40853b
+# Entries: 40
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -569,6 +569,66 @@
   - id: dd:langmuir_probes/reciprocating/plunge/collector/j_i_saturation
     dd_path: langmuir_probes/reciprocating/plunge/collector/j_i_saturation
     status: composed
+- name: fluctuating_ion_saturated_current_density
+  kind: scalar
+  status: draft
+  description: Non-negative standard deviation of the ion-saturation current density
+    about its time average, quantifying temporal fluctuations collected by a negatively
+    biased Langmuir probe when electron collection is negligible.
+  documentation: 'Fluctuating ion saturated current density is the non-negative RMS
+    amplitude of temporal variations in the ion-saturation current density. The underlying
+    ion-saturation current density is the limiting conventional current density of
+    positive ions collected by a Langmuir probe biased sufficiently negative relative
+    to the plasma potential that electron collection is negligible.
+
+
+    For a sampling interval of duration $T$, the fluctuation amplitude is defined
+    as the time-domain standard deviation:
+
+
+    $$
+
+    \sigma_{j_{i,\mathrm{sat}}} = \left[\frac{1}{T}\int_{t_0}^{t_0+T} \left(j_{i,\mathrm{sat}}(t)-\langle
+    j_{i,\mathrm{sat}}\rangle_T\right)^2\,dt\right]^{1/2}
+
+    $$
+
+
+    where $\sigma_{j_{i,\mathrm{sat}}}$ and $j_{i,\mathrm{sat}}$ are in A m^-2, $t$
+    and $t_0$ are times in s, $T$ is the averaging duration in s, and $\langle j_{i,\mathrm{sat}}\rangle_T$
+    is the time average over the same interval. The physical range is $0 \le \sigma_{j_{i,\mathrm{sat}}}
+    < \infty$; zero corresponds to no resolved temporal variation in the ion-saturation
+    current-density signal.
+
+
+    In practice, the signal is obtained from the ion-saturation branch of a Langmuir-probe
+    characteristic or from a probe held at sufficiently negative bias, then divided
+    by the effective collecting area. The averaging window and bandwidth determine
+    which turbulence and transient components contribute; slow trends, electronic
+    noise, and sheath-area corrections are usually treated before computing the standard
+    deviation. Any derived relative fluctuation level should use the magnitude of
+    the mean current density, $\sigma_{j_{i,\mathrm{sat}}}/|\langle j_{i,\mathrm{sat}}\rangle_T|$,
+    so that it remains non-negative and independent of the electrical sign assigned
+    to the collected current.
+
+
+    Typical scrape-off-layer fluctuation amplitudes are about $10^2-10^5$ A m^-2 in
+    tokamak edge measurements, ranging from small fractions of the mean ion-saturation
+    current density in quiet conditions to order-unity relative fluctuations in intermittent
+    blob-dominated transport.'
+  unit: A.m^-2
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:ion_saturated_current_density
+  - name:parallel_fluctuating_ion_current_density
+  arguments:
+  - name: ion_saturated_current_density
+    operator: fluctuating
+    operator_kind: qualifier
+  sources:
+  - id: dd:langmuir_probes/reciprocating/plunge/collector/j_i_sigma
+    dd_path: langmuir_probes/reciprocating/plunge/collector/j_i_sigma
+    status: composed
 - name: neutral_pressure
   kind: scalar
   status: draft
@@ -696,6 +756,63 @@
   sources:
   - id: dd:spectrometer_mass/channel/pressure_partial
     dd_path: spectrometer_mass/channel/pressure_partial
+    status: composed
+- name: parallel_fluctuating_ion_current_density
+  kind: scalar
+  status: draft
+  description: Standard deviation of the signed ion electric-current density projected
+    along the local magnetic-field direction at a plasma-facing probe. The ion current
+    density is the total charge-weighted contribution from all ion species and charge
+    states, so this non-negative quantity measures field-aligned ion-current fluctuations.
+  documentation: 'Parallel fluctuating ion current density is the standard deviation
+    of the signed ion electric-current density projected onto the local magnetic-field
+    direction. The ion electric-current density is the total charge-weighted contribution
+    from all ion species and charge states, and the standard deviation reports the
+    fluctuation amplitude rather than the sign of the instantaneous projection.
+
+
+    For samples over a specified averaging interval or ensemble, the fluctuation amplitude
+    is defined as:
+
+
+    $$
+
+    \sigma_{j_{i\parallel}} = \sqrt{\left\langle \left[j_{i\parallel}(t) - \left\langle
+    j_{i\parallel}\right\rangle\right]^2 \right\rangle}
+
+    $$
+
+
+    where $\sigma_{j_{i\parallel}}$ is the parallel fluctuating ion current density
+    in A m^-2, $j_{i\parallel}(t)$ is the signed parallel ion current density in A
+    m^-2, and $\left\langle j_{i\parallel}\right\rangle$ is its mean over the same
+    interval or ensemble in A m^-2. The signed input $j_{i\parallel}$ is the projection
+    $\mathbf{j}_i\cdot\hat{\mathbf{b}}$; $\hat{\mathbf{b}}$ is the unit vector along
+    the local magnetic field, and $\mathbf{j}_i$ is the total charge-weighted ion
+    current density summed over species and charge states.
+
+
+    In practice, the signed samples are inferred from time-resolved plasma-facing
+    probe measurements by converting collected ion current to current density using
+    the effective collecting area and the local magnetic-field incidence. The standard
+    deviation is evaluated over a stated time window, ensemble, or frequency band
+    after subtracting the mean; instrumental noise and slow drifts are commonly treated
+    separately when the intent is to quantify plasma turbulence.
+
+
+    Typical fluctuation amplitudes in scrape-off-layer and divertor probe measurements
+    are about $10^2$-$10^5$ A m^-2, with lower values in weakly ionized or shadowed
+    conditions and higher values during intermittent filament impacts or near high-recycling
+    divertor targets. The relevant range should be interpreted together with the averaging
+    bandwidth and local plasma density and temperature.'
+  unit: A.m^-2
+  physics_domain: mechanical_measurement_diagnostics
+  links:
+  - name:parallel_ion_current_density
+  - name:fluctuating_ion_saturated_current_density
+  sources:
+  - id: dd:langmuir_probes/embedded/j_i_parallel_sigma
+    dd_path: langmuir_probes/embedded/j_i_parallel_sigma
     status: composed
 - name: parallel_heat_flux
   kind: scalar

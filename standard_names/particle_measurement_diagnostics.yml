@@ -1,6 +1,6 @@
 # Domain: particle_measurement_diagnostics
-# Catalog sha: b1f901b848c4c5043df782c70c45f8e6c43619bc
-# Entries: 65
+# Catalog sha: 1bd4d6774e1c48755a0b5a4cd7740643fe40853b
+# Entries: 67
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -1899,6 +1899,65 @@
   - id: dd:neutron_diagnostic/detectors/amplitude_peak
     dd_path: neutron_diagnostic/detectors/amplitude_peak
     status: composed
+- name: requested_voltage_of_neutron_detector
+  kind: scalar
+  status: draft
+  description: Commanded high-voltage bias setpoint for a neutron detector module,
+    expressed as the target potential difference between the bias output and its return
+    or reference terminal rather than the measured detector signal or measured supply
+    output.
+  documentation: 'Requested voltage of a neutron detector is the commanded high-voltage
+    bias setpoint for a detector module or its associated bias input. It represents
+    the target electrical potential difference requested from the bias supply, not
+    the instantaneous measured supply output and not the raw detector signal represented
+    by [voltage_of_neutron_detector](name:voltage_of_neutron_detector).
+
+
+    For a bias-supply command at time $t$, the requested detector voltage is defined
+    by:
+
+
+    $$
+
+    V_\mathrm{req}(t) = \Phi_{\mathrm{bias,set}}(t) - \Phi_{\mathrm{return}}(t)
+
+    $$
+
+
+    where $V_\mathrm{req}$ is the requested voltage in volts, $\Phi_{\mathrm{bias,set}}$
+    is the commanded electric potential of the bias output terminal in volts, $\Phi_{\mathrm{return}}$
+    is the return or electronics reference potential in volts, and $t$ is the command
+    time.
+
+
+    In practice this quantity is obtained from the detector operating configuration
+    or control waveform sent to the high-voltage supply. It may differ from the measured
+    output because of ramp-rate limits, regulation error, interlocks, trips, finite
+    settling time, or shutdown behavior; those measured voltages are separate quantities.
+
+
+    Typical requested absolute voltages range from 10-5000 V, depending on detector
+    technology and operating point. Semiconductor or low-voltage sensor biases may
+    be 10-500 V, while photomultiplier, proportional-counter, ionization-chamber,
+    or fission-chamber systems commonly use several hundred volts to a few kilovolts;
+    standby, ramp-up, and shutdown commands may pass through 0 V.
+
+
+    Sign convention: Positive when the commanded bias output terminal potential is
+    above the chosen supply return or electronics reference potential.'
+  unit: V
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:voltage_of_neutron_detector
+  - name:requested_voltage_of_spectrometer
+  arguments:
+  - name: voltage_of_neutron_detector
+    operator: requested
+    operator_kind: qualifier
+  sources:
+  - id: dd:neutron_diagnostic/detector/supply_high_voltage/voltage_set
+    dd_path: neutron_diagnostic/detector/supply_high_voltage/voltage_set
+    status: composed
 - name: voltage_of_temperature_sensor
   kind: scalar
   status: draft
@@ -3332,6 +3391,59 @@
   - name: radiance_at_spectral_line
     operator: motional_stark
     operator_kind: qualifier
+- name: neutral_beam_atomic_number
+  kind: scalar
+  status: draft
+  description: Nuclear charge number of the neutral-beam species, equal to the number
+    of protons in its nucleus, serving as its invariant elemental identifier independent
+    of ionization state or isotope.
+  documentation: 'The neutral beam atomic number $Z_n$ is the number of protons in
+    the nucleus of the neutral-beam species, an intrinsic nuclear property that uniquely
+    identifies the element. It is independent of the atom''s ionization state and
+    of the isotope used in the beam.
+
+
+    The defining relation is
+
+
+    $$
+
+    Z_n = N_p
+
+    $$
+
+
+    where $N_p$ is the integer proton count in the nucleus. Both $Z_n$ and $N_p$ are
+    dimensionless integer counts with canonical unit 1.
+
+
+    In neutral-beam physics, $Z_n$ identifies the beam element for atomic-data lookup,
+    spectral-line selection, charge-exchange reactions, ionization balance, and stopping
+    calculations. The nuclear charge is $Z_n e$, but a neutral beam atom has zero
+    net electric charge before ionization because bound electrons balance the nuclear
+    charge; interaction strengths therefore depend on the atomic state and collision
+    process as well as on $Z_n$.
+
+
+    Typical fusion neutral beams use hydrogen isotopes with $Z_n = 1$ for hydrogen,
+    deuterium, or tritium. Diagnostic or calibration beams may use helium with $Z_n
+    = 2$ or lithium with $Z_n = 3$; heavier neutral-beam species are uncommon. Atomic
+    number specifies the element, while isotope distinctions are represented by mass
+    number.'
+  unit: '1'
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:atomic_number
+  - name:neutral_beam_mass
+  - name:ion_atomic_number
+  arguments:
+  - name: atomic_number
+    operator: neutral_beam
+    operator_kind: qualifier
+  sources:
+  - id: dd:charge_exchange/channel/bes/z_ion
+    dd_path: charge_exchange/channel/bes/z_ion
+    status: composed
 - name: total_ion_temperature
   kind: scalar
   status: draft

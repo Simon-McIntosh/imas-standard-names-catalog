@@ -1,6 +1,6 @@
 # Domain: radiation_measurement_diagnostics
-# Catalog sha: b1f901b848c4c5043df782c70c45f8e6c43619bc
-# Entries: 123
+# Catalog sha: 1bd4d6774e1c48755a0b5a4cd7740643fe40853b
+# Entries: 124
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -514,7 +514,7 @@
     tokamak plasmas often $10^{19}-10^{20}\ \mathrm{m^{-3}}$. In nearly pure deuterium
     operation, $n_D$ can be close to the total hydrogenic ion density; in balanced
     deuterium-tritium mixtures, it is often of the same order as the tritium density.'
-  unit: '1'
+  unit: m^-3
   physics_domain: radiation_measurement_diagnostics
   links:
   - name:line_averaged_deuterium_density
@@ -2795,10 +2795,6 @@
   links:
   - name:hard_xray_brightness
   - name:spectral_radiance_of_soft_xray_detector
-  arguments:
-  - name: spectral_radiance
-    operator: hard_xray_detector
-    operator_kind: locus
   sources:
   - id: dd:hard_x_rays/channel/brightness
     dd_path: hard_x_rays/channel/brightness
@@ -2835,10 +2831,6 @@
   - name:brightness_of_soft_xray_detector
   - name:power_of_soft_xray_detector
   - name:spectral_radiance_of_hard_xray_detector
-  arguments:
-  - name: spectral_radiance
-    operator: soft_xray_detector
-    operator_kind: locus
   sources:
   - id: dd:soft_x_rays/channel/brightness
     dd_path: soft_x_rays/channel/brightness
@@ -3474,6 +3466,47 @@
   - id: dd:summary/fusion/neutron_rates/thermal/value
     dd_path: summary/fusion/neutron_rates/thermal/value
     status: attached
+- name: total_plasma_radiated_power
+  kind: scalar
+  status: draft
+  description: Total electromagnetic power lost from the plasma as radiation, integrated
+    over the full plasma volume and all emission channels including impurity line
+    emission, bremsstrahlung, and recombination.
+  documentation: "The total plasma radiated power $P_\\mathrm{rad}$ is the rate at\
+    \ which electromagnetic energy escapes the plasma via all radiation processes\
+    \ \u2014 impurity line radiation, electron-ion bremsstrahlung continuum, recombination\
+    \ radiation, and synchrotron emission \u2014 integrated over the entire plasma\
+    \ volume. It constitutes the radiation-loss channel in the global power balance,\
+    \ alongside conductive and convective energy transport.\n\nThe defining relation\
+    \ connects $P_\\mathrm{rad}$ to the local volumetric emissivity $\\epsilon_\\\
+    mathrm{rad}(\\mathbf{r})$:\n\n$$\nP_\\mathrm{rad} = \\int_V \\epsilon_\\mathrm{rad}(\\\
+    mathbf{r}) \\, dV\n$$\n\nwhere the integral is taken over the full plasma volume\
+    \ $V$.\n\nMeasurement relies on bolometry: broadband multi-chord detectors sensitive\
+    \ from infrared to soft X-ray wavelengths collect line-integrated emission signals,\
+    \ which are tomographically inverted to reconstruct $\\epsilon_\\mathrm{rad}(\\\
+    mathbf{r})$ and then volume-integrated. The radiation fraction $f_\\mathrm{rad}\
+    \ = P_\\mathrm{rad} / P_\\mathrm{heat}$, where $P_\\mathrm{heat}$ is the [total\
+    \ plasma heating power](name:total_plasma_heating_power), quantifies the confinement\
+    \ efficiency and guides impurity-seeding strategies for divertor detachment. In\
+    \ present-day tokamaks, $P_\\mathrm{rad}$ spans 0.1\u201350 MW depending on density,\
+    \ impurity content, and heating level; in impurity-seeded reactor scenarios it\
+    \ can account for 50\u201380% of $P_\\mathrm{heat}$. The bremsstrahlung continuum\
+    \ contribution alone is captured by [bremsstrahlung_power](name:bremsstrahlung_power),\
+    \ while [total neutron power](name:total_neutron_power) tracks the kinetic energy\
+    \ channel that exits via particle transport rather than electromagnetic emission."
+  unit: W
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:total_plasma_heating_power
+  - name:bremsstrahlung_power
+  - name:total_neutron_power
+  sources:
+  - id: dd:bolometer/power_radiated_total
+    dd_path: bolometer/power_radiated_total
+    status: attached
+  - id: dd:summary/global_quantities/power_radiated/value
+    dd_path: summary/global_quantities/power_radiated/value
+    status: composed
 - name: total_power_due_to_fusion_reactions
   kind: scalar
   status: draft
@@ -3557,7 +3590,7 @@
 
 
     Sign convention: Positive when tritium ions are present in the plasma.'
-  unit: '1'
+  unit: m^-3
   physics_domain: radiation_measurement_diagnostics
   links:
   - name:line_averaged_tritium_density

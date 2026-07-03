@@ -1,6 +1,6 @@
 # Domain: transport
-# Catalog sha: b1f901b848c4c5043df782c70c45f8e6c43619bc
-# Entries: 790
+# Catalog sha: 1bd4d6774e1c48755a0b5a4cd7740643fe40853b
+# Entries: 798
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -1389,6 +1389,68 @@
   - id: dd:distributions/distribution/global_quantities/source/power
     dd_path: distributions/distribution/global_quantities/source/power
     status: attached
+- name: deposited_power_density_due_to_fast_particle_source
+  kind: scalar
+  status: draft
+  description: Local volumetric rate at which fast, suprathermal particle sources
+    transfer kinetic energy to the plasma. It is a power-density source term for the
+    local energy balance, with positive values denoting heating.
+  documentation: 'Deposited power density due to a fast particle source is the local
+    rate per unit volume at which suprathermal particles created or sustained by a
+    source transfer energy to a receiving plasma energy channel. It represents volumetric
+    heating from processes such as neutral beam fast ions, fusion-born alpha particles,
+    or other modeled fast-particle populations, rather than the total power integrated
+    over the plasma volume.
+
+
+    The quantity is the additive fast-particle source term in a local energy balance;
+    for a thermal species with internal energy density $u = 3 n k_B T / 2$, it may
+    be written as:
+
+
+    $$
+
+    \frac{\partial u}{\partial t} + \nabla \cdot \mathbf{q} = P_{\mathrm{dep,fast}}
+    + \cdots
+
+    $$
+
+
+    where $P_{\mathrm{dep,fast}}$ is the deposited power density, $u$ is energy density
+    in J m^-3, $\mathbf{q}$ is heat flux in W m^-2, $n$ is particle density in m^-3,
+    $T$ is temperature in K, $k_B$ is the Boltzmann constant, and the ellipsis denotes
+    other source, sink, and transport terms.
+
+
+    In practice this term is computed from fast-particle birth, orbit, and slowing-down
+    models, or from the energy moment of a kinetic source operator. It is constrained
+    indirectly by measurements of injected or fusion power, neutron emission, stored-energy
+    evolution, charge-exchange or spectroscopic fast-particle information, and consistency
+    with the inferred electron and ion heating balances.
+
+
+    Typical local values range from about 10^3-10^7 W m^-3, with auxiliary-heated
+    tokamak cores often in the 10^5-10^7 W m^-3 range and much smaller values near
+    weakly heated or poorly confined regions. Volume integration gives the corresponding
+    deposited power, commonly from kilowatts in small experiments to many megawatts
+    in high-power plasmas.
+
+
+    Sign convention: Positive when the fast-particle source produces net local heating
+    of the receiving plasma energy channel.'
+  unit: W.m^-3
+  physics_domain: transport
+  links:
+  - name:deposited_power
+  - name:thermal_particle_power_density_due_to_thermalization
+  - name:co_passing_power_density
+  sources:
+  - id: dd:distribution_sources/source/profiles_1d/energy
+    dd_path: distribution_sources/source/profiles_1d/energy
+    status: composed
+  - id: dd:distributions/distribution/profiles_1d/source/energy
+    dd_path: distributions/distribution/profiles_1d/source/energy
+    status: attached
 - name: deuterium_density_at_internal_transport_barrier
   kind: scalar
   status: draft
@@ -1902,6 +1964,62 @@
   - id: dd:plasma_profiles/ggd/j_perpendicular_viscosity/diamagnetic
     dd_path: plasma_profiles/ggd/j_perpendicular_viscosity/diamagnetic
     status: composed
+- name: diamagnetic_energy
+  kind: scalar
+  status: draft
+  description: Global internal stored energy of the confined plasma inferred from
+    diamagnetic flux measurements, equal to three-halves the plasma-volume integral
+    of the total perpendicular pressure (pressure transverse to the local magnetic
+    field), summed over thermal and fast-particle species. It captures perpendicular
+    kinetic pressure energy but excludes electromagnetic-field energy and bulk-flow
+    kinetic energy.
+  documentation: "Diamagnetic energy is a global measure of the plasma's internal\
+    \ stored energy accessible from magnetic measurements. It is defined as three-halves\
+    \ the plasma-volume integral of the total perpendicular pressure, where the perpendicular\
+    \ pressure is the component of the kinetic pressure tensor transverse to the local\
+    \ magnetic field, summed over all thermal and fast-particle species. It is a purely\
+    \ kinetic-pressure quantity: it excludes the energy stored in the electromagnetic\
+    \ fields and the bulk-flow kinetic energy of the plasma.\n\nThe quantity is defined\
+    \ by the perpendicular-pressure volume integral:\n\n$$\nW_\\mathrm{dia} = \\frac{3}{2}\
+    \ \\int_V p_\\perp \\, dV\n$$\n\nwhere $p_\\perp$ is the total perpendicular pressure\
+    \ (in Pa), i.e. the pressure-tensor component perpendicular to the local magnetic\
+    \ field summed over species, and $V$ is the plasma volume (in m$^3$). In the isotropic\
+    \ limit the perpendicular and parallel pressures coincide, $p_\\perp = p$, and\
+    \ the diamagnetic energy reduces to the thermal stored energy $\\tfrac{3}{2}\\\
+    int p\\,dV$, matching the [thermal plasma energy](name:thermal_plasma_energy).\
+    \ For anisotropic distributions\u2014typically produced by neutral-beam or ion-cyclotron\
+    \ heating\u2014$W_\\mathrm{dia}$ weights only the perpendicular pressure and therefore\
+    \ differs from the total internal kinetic energy, which involves the trace-averaged\
+    \ pressure.\n\nExperimentally, $W_\\mathrm{dia}$ is inferred from the diamagnetic\
+    \ reduction of the toroidal magnetic flux enclosed by the plasma, sensed by a\
+    \ diamagnetic loop encircling the plasma column. This provides a fast, robust\
+    \ global energy estimate from external magnetics without requiring spatially resolved\
+    \ profiles, and it depends on careful calibration and compensation of the much\
+    \ larger vacuum toroidal-field flux. When kinetic pressure profiles are available,\
+    \ the same quantity can be obtained by direct volume integration of $p_\\perp$,\
+    \ built from perpendicular-pressure components such as [perpendicular_fast_ion_pressure](name:perpendicular_fast_ion_pressure)\
+    \ and [perpendicular_fast_neutral_pressure](name:perpendicular_fast_neutral_pressure)\
+    \ together with the thermal pressure.\n\nTypical values range from a few kJ in\
+    \ small experimental devices to several MJ in large high-confinement-mode tokamaks,\
+    \ scaling broadly with plasma current and applied heating power. The time derivative\
+    \ of this quantity is the [diamagnetic power](name:diamagnetic_power), and the\
+    \ value is commonly compared against the stored energy obtained from equilibrium\
+    \ reconstruction as a cross-check of global energy accounting."
+  unit: J
+  physics_domain: transport
+  links:
+  - name:diamagnetic_power
+  - name:thermal_plasma_energy
+  sources:
+  - id: dd:core_profiles/global_quantities/energy_diamagnetic
+    dd_path: core_profiles/global_quantities/energy_diamagnetic
+    status: attached
+  - id: dd:plasma_profiles/global_quantities/energy_diamagnetic
+    dd_path: plasma_profiles/global_quantities/energy_diamagnetic
+    status: attached
+  - id: dd:summary/global_quantities/energy_diamagnetic/value
+    dd_path: summary/global_quantities/energy_diamagnetic/value
+    status: attached
 - name: effective_charge_at_internal_transport_barrier
   kind: scalar
   status: draft
@@ -4009,6 +4127,66 @@
   - id: dd:summary/fusion/neutron_rates/dt/beam_thermal/value
     dd_path: summary/fusion/neutron_rates/dt/beam_thermal/value
     status: composed
+- name: flux_due_to_diamagnetic_drift
+  kind: scalar
+  status: draft
+  description: Flux density of momentum assigned to the diamagnetic-drift term in
+    a transport decomposition. Its stress-like dimension identifies momentum transport;
+    this parent generalizes over species, charge state, momentum component, and projection,
+    not over particle or energy fluxes.
+  documentation: 'Flux due to diamagnetic drift is the momentum-flux density, or stress
+    contribution, attributed to pressure-gradient-driven diamagnetic drift of a charged
+    fluid component. It represents momentum transport, not particle or energy transport,
+    because its dimensions are those of pressure. The abstraction leaves the species,
+    charge state, selected momentum component, reference surface, and scalar projection
+    unspecified; a concrete specialization is [momentum flux due to diamagnetic drift](name:momentum_flux_due_to_diamagnetic_drift).
+
+
+    For any chosen scalar projection, the quantity can be represented as a contraction
+    of the diamagnetic part of the momentum-flux tensor:
+
+
+    $$
+
+    \Phi_{\mathrm{dia}}^{(m)} = \hat{\mathbf{e}}_m \cdot \boldsymbol{\Pi}_{\mathrm{dia}}
+    \cdot \hat{\mathbf{n}}
+
+    $$
+
+
+    where $\boldsymbol{\Pi}_{\mathrm{dia}}$ is the diamagnetic contribution to the
+    momentum-flux tensor, $\hat{\mathbf{n}}$ is the chosen positive normal to the
+    reference surface, and $\hat{\mathbf{e}}_m$ selects the momentum component being
+    transported.
+
+
+    In transport modeling this term is obtained by decomposing the total momentum
+    flux into physical mechanisms such as convective, diffusive, viscous, electromagnetic,
+    and diamagnetic contributions. The diamagnetic part is associated with the pressure-gradient
+    drift velocity, proportional to $\mathbf{B}\times\nabla p/(q n B^2)$ for species
+    pressure $p$, charge $q$, density $n$, and magnetic-field magnitude $B$; the reported
+    scalar is then formed using the chosen component and projection.
+
+
+    Representative magnitudes are strongly model- and projection-dependent. Core tokamak
+    momentum-flux densities assigned to this mechanism are often about $10^{-3}$-$10^2$
+    kg m$^{-1}$ s$^{-2}$, with larger localized values possible in steep-gradient
+    edge or pedestal regions.
+
+
+    Sign convention: Positive when the diamagnetic-drift term carries the selected
+    momentum component through the reference surface in its defined positive normal
+    direction.'
+  unit: kg.m^-1.s^-2
+  physics_domain: transport
+  links:
+  - name:ion_momentum_due_to_diamagnetic_drift
+  - name:neutral_momentum_due_to_diamagnetic_drift
+  - name:momentum_due_to_diamagnetic_drift
+  - name:neutral_state_momentum_due_to_diamagnetic_drift
+  sources:
+  - id: derived:flux_due_to_diamagnetic_drift
+    status: composed
 - name: helium_3_density_at_internal_transport_barrier
   kind: scalar
   status: draft
@@ -4221,6 +4399,61 @@
   sources:
   - id: dd:summary/local/magnetic_axis/n_i/helium_4/value
     dd_path: summary/local/magnetic_axis/n_i/helium_4/value
+    status: composed
+- name: helium_confinement_time
+  kind: scalar
+  status: draft
+  description: Global particle confinement time of thermalized helium ash (fully ionized
+    He-4, He2+) in the plasma. It is the characteristic e-folding time governing the
+    decay of the confined helium ion inventory in the absence of sources, assuming
+    the outward loss rate is proportional to the inventory.
+  documentation: 'The helium confinement time is the characteristic timescale for
+    the retention of thermalized helium ash (fully ionized helium, He2+) in the confined
+    plasma. Helium ash is the slowed-down, thermalized end product of fusion-born
+    alpha particles; its confinement time is a global scalar quantity analogous to
+    the [energy confinement time](name:energy_confinement_time), but it tracks the
+    helium particle inventory rather than the thermal energy.
+
+
+    The quantity follows from the global helium particle balance. If the confined
+    helium inventory evolves according to $dN_{He}/dt = S_{He} - N_{He}/\tau_{He}$,
+    where $S_{He}$ is the volume-integrated helium source rate, then in the absence
+    of sources the inventory decays exponentially with time constant $\tau_{He}$.
+    Equivalently, in a quasi-steady state the confinement time is the ratio of the
+    inventory to the net outward loss rate:
+
+
+    $$
+
+    \tau_{He} = \frac{N_{He}}{\Gamma_{He}}
+
+    $$
+
+
+    where $N_{He} = \int_V n_{He}\, dV$ is the total number of thermalized helium
+    ions obtained by integrating the helium ion density $n_{He}$ over the confined
+    plasma volume, and $\Gamma_{He}$ is the net outward helium loss rate in particles
+    per second. The ratio of particles to particles-per-second yields a result in
+    seconds.
+
+
+    The helium confinement time is inferred by combining a measurement of the confined
+    helium content, typically from spectroscopy of thermal helium line emission, with
+    a global particle-balance model that accounts for the source and the net exhaust
+    rate through the plasma edge and divertor.
+
+
+    The ratio $\tau_{He}/\tau_E$ relative to the energy confinement time is a key
+    figure of merit for burning-plasma operation: efficient helium ash exhaust requires
+    this ratio to remain modest, since excessive helium retention dilutes the fusion
+    fuel and degrades fusion power, while the exact acceptable value is scenario-dependent.'
+  unit: s
+  physics_domain: transport
+  links:
+  - name:energy_confinement_time
+  sources:
+  - id: dd:summary/global_quantities/tau_helium/value
+    dd_path: summary/global_quantities/tau_helium/value
     status: composed
 - name: hydrogen_density
   kind: scalar
@@ -8326,6 +8559,10 @@
   - name:ion_charge_state_momentum_flux_due_to_diamagnetic_drift
   - name:ion_momentum_due_to_diamagnetic_drift
   - name:neutral_state_momentum_due_to_diamagnetic_drift
+  arguments:
+  - name: flux_due_to_diamagnetic_drift
+    operator: momentum
+    operator_kind: qualifier
   sources:
   - id: dd:edge_transport/model/ggd/momentum/flux/diamagnetic
     dd_path: edge_transport/model/ggd/momentum/flux/diamagnetic
@@ -11245,6 +11482,76 @@
   - id: dd:plasma_profiles/ggd/j_diamagnetic/parallel
     dd_path: plasma_profiles/ggd/j_diamagnetic/parallel
     status: composed
+- name: parallel_current_density_due_to_ion_inertia
+  kind: scalar
+  status: draft
+  description: Parallel component, along the local magnetic-field direction, of the
+    electric current density arising from ion inertia in the plasma momentum balance.
+  documentation: 'Parallel projection of the current density due to ion inertia is
+    the component taken along the local magnetic-field unit vector $\hat{b}$. The
+    underlying current density is produced by inertial acceleration terms in the ion
+    fluid momentum equation, so finite ion mass permits acceleration, flow convergence,
+    curvature, and transient electric-field response to contribute to charge transport.
+
+
+    The projection is defined by:
+
+
+    $$
+
+    j_\parallel = \mathbf{j}_\mathrm{inertia} \cdot \hat{b}
+
+    $$
+
+
+    where $j_\parallel$ and $\mathbf{j}_\mathrm{inertia}$ are current densities in
+    A m$^{-2}$, $\hat{b} = \mathbf{B}/|\mathbf{B}|$ is the unit vector tangent to
+    the local magnetic field, and $\mathbf{B}$ is the magnetic field in T.
+
+
+    In practice, this quantity is obtained by first evaluating the full [current_density_due_to_ion_inertia](name:current_density_due_to_ion_inertia)
+    from the ion momentum balance or the associated current-continuity and vorticity
+    equations, then projecting it onto $\hat{b}$. It is most relevant where ion acceleration
+    and flow shear are strong, particularly in plasma edge and scrape-off-layer transport
+    and during transient events. Complementary projections of the same vector include
+    [radial_current_density_due_to_ion_inertia](name:radial_current_density_due_to_ion_inertia),
+    [toroidal_current_density_due_to_ion_inertia](name:toroidal_current_density_due_to_ion_inertia),
+    and [vertical_current_density_due_to_ion_inertia](name:vertical_current_density_due_to_ion_inertia)
+    in the right-handed cylindrical $(R, \phi, Z)$ frame, and [poloidal_current_density_due_to_ion_inertia](name:poloidal_current_density_due_to_ion_inertia)
+    along increasing $\theta$ in flux coordinates $(\psi, \theta, \phi)$.
+
+
+    Typical magnitudes are not universal because the term scales with local ion density,
+    ion mass, magnetic-field strength, and ion acceleration. Values should therefore
+    be interpreted in A m$^{-2}$ relative to the other current-density terms in the
+    same plasma current balance rather than from a device-independent numerical range;
+    the contribution is usually weakest in slowly evolving core conditions and most
+    important in edge or scrape-off-layer regions with rapid flow changes.
+
+
+    Sign convention: Positive when the ion-inertia-driven current flows in the direction
+    of the local magnetic field $\mathbf{B}$.'
+  unit: A.m^-2
+  physics_domain: transport
+  links:
+  - name:current_density_due_to_ion_inertia
+  - name:radial_current_density_due_to_ion_inertia
+  - name:poloidal_current_density_due_to_ion_inertia
+  - name:toroidal_current_density_due_to_ion_inertia
+  - name:parallel_current_density_due_to_ion_neutral_friction
+  arguments:
+  - name: current_density_due_to_ion_inertia
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - id: dd:edge_profiles/ggd/j_inertial/parallel
+    dd_path: edge_profiles/ggd/j_inertial/parallel
+    status: composed
+  - id: dd:plasma_profiles/ggd/j_inertial/parallel
+    dd_path: plasma_profiles/ggd/j_inertial/parallel
+    status: composed
 - name: parallel_current_density_due_to_ion_neutral_friction
   kind: scalar
   status: draft
@@ -11295,6 +11602,72 @@
   - id: dd:plasma_profiles/ggd/j_ion_neutral_friction/parallel
     dd_path: plasma_profiles/ggd/j_ion_neutral_friction/parallel
     status: composed
+- name: parallel_current_density_due_to_non_inductive_current_drive
+  kind: scalar
+  status: draft
+  description: Parallel current density driven by non-inductive mechanisms is the
+    flux-surface-averaged projection of the non-inductive current density along the
+    magnetic field, normalized by a reference magnetic-field magnitude. It includes
+    bootstrap and externally driven current contributions and excludes inductive electric-field
+    drive.
+  documentation: 'Parallel current density due to non-inductive current drive is the
+    field-aligned scalar current density associated with mechanisms that do not rely
+    on the inductive electric field. It combines neoclassical bootstrap current with
+    externally driven current from sources such as waves or neutral beams, and is
+    complementary to the ohmic contribution [parallel_current_density_due_to_ohmic_current_drive](name:parallel_current_density_due_to_ohmic_current_drive).
+
+
+    The defining flux-surface average is
+
+
+    $$
+
+    j_{\parallel,\mathrm{ni}} = \frac{\left\langle \mathbf{j}_{\mathrm{ni}} \cdot
+    \mathbf{B} \right\rangle}{B_0}
+
+    $$
+
+
+    where $j_{\parallel,\mathrm{ni}}$ is the non-inductive parallel current density
+    in A.m^-2, $\mathbf{j}_{\mathrm{ni}}$ is the non-inductive current-density vector
+    in A.m^-2, $\mathbf{B}$ is the magnetic-field vector in T, $\langle\cdot\rangle$
+    denotes a flux-surface average, and $B_0$ is the positive scalar reference magnetic-field
+    magnitude in T, not a signed magnetic-field component.
+
+
+    In transport analysis this quantity is computed by summing modeled or inferred
+    non-inductive sources, including bootstrap-current models and current-drive calculations
+    constrained by heating, wave, beam, and magnetic diagnostics. Wave-driven contributions
+    may also be represented in a mode-resolved form as [parallel_per_toroidal_mode_current_density_due_to_wave_driven_current_drive](name:parallel_per_toroidal_mode_current_density_due_to_wave_driven_current_drive),
+    while this quantity denotes the combined non-inductive contribution.
+
+
+    Typical magnitudes in magnetically confined plasmas range from near zero in weakly
+    driven regions to 10^4-10^6 A.m^-2 in the core; locally stronger bootstrap fraction
+    or applied current drive can reach a few 10^6 A.m^-2. The value can change sign
+    where the net non-inductive current opposes the magnetic-field direction.
+
+
+    Sign convention: Positive when the non-inductive current density flows, on flux-surface
+    average, along the magnetic-field direction.'
+  unit: A.m^-2
+  physics_domain: transport
+  links:
+  - name:parallel_current_density_due_to_ohmic_current_drive
+  - name:plasma_current_due_to_non_inductive_current_drive
+  sources:
+  - id: dd:core_profiles/profiles_1d/j_non_inductive
+    dd_path: core_profiles/profiles_1d/j_non_inductive
+    status: composed
+  - id: dd:edge_profiles/profiles_1d/j_non_inductive
+    dd_path: edge_profiles/profiles_1d/j_non_inductive
+    status: composed
+  - id: dd:plasma_profiles/profiles_1d/j_non_inductive
+    dd_path: plasma_profiles/profiles_1d/j_non_inductive
+    status: composed
+  - id: dd:sawteeth/profiles_1d/j_non_inductive
+    dd_path: sawteeth/profiles_1d/j_non_inductive
+    status: attached
 - name: parallel_current_density_due_to_parallel_viscosity
   kind: scalar
   status: draft
@@ -21526,6 +21899,91 @@
   - id: dd:plasma_profiles/ggd/j_heat_viscosity/radial
     dd_path: plasma_profiles/ggd/j_heat_viscosity/radial
     status: composed
+- name: radial_current_density_due_to_ion_inertia
+  kind: scalar
+  status: draft
+  description: Radial component, along increasing major radius R in the right-handed
+    cylindrical (R, phi, Z) frame, of the electric current density arising from ion
+    inertia in the plasma momentum balance.
+  documentation: 'Radial projection of the current density due to ion inertia is the
+    component taken along the $\hat{R}$ direction in the right-handed cylindrical
+    $(R, \phi, Z)$ frame, where $R$ is major radius, $\phi$ increases counter-clockwise
+    when viewed from above along $+\hat{Z}$, and $Z$ is vertical height. It represents
+    the part of the finite-ion-mass polarization current that transports charge toward
+    or away from the machine symmetry axis when the perpendicular ion flow accelerates.
+
+
+    In the drift-fluid limit for a single effective ion species, the component-specific
+    expression is:
+
+
+    $$
+
+    j_{R,\mathrm{inertia}} = \hat{\mathbf{R}}\cdot\mathbf{J}_{\mathrm{inertia}} =
+    \frac{m_i n_i}{B^2}\,\hat{\mathbf{R}}\cdot\left(\mathbf{B}\times\frac{d_i\mathbf{v}_{\perp
+    i}}{dt}\right) = \frac{m_i n_i}{B^2}\left(B_\phi a_{Z i}-B_Z a_{\phi i}\right)
+
+    $$
+
+
+    where $m_i$ is the ion mass in kg, $n_i$ is the ion number density in m$^{-3}$,
+    $B=|\mathbf{B}|$ is the magnetic-field magnitude in T, and $B_\phi$ and $B_Z$
+    are magnetic-field components in the local orthonormal $(\hat{R}, \hat{\phi},
+    \hat{Z})$ basis associated with the right-handed cylindrical $(R, \phi, Z)$ frame.
+    The quantities $a_{\phi i}$ and $a_{Z i}$ are the $\hat{\phi}$ and $\hat{Z}$ components
+    of $d_i\mathbf{v}_{\perp i}/dt$ in m s$^{-2}$, with $d_i/dt = \partial/\partial
+    t + \mathbf{v}_i\cdot\nabla$ the ion convective derivative and $\mathbf{v}_i$
+    in m s$^{-1}$. Using $1\,\mathrm{T}=1\,\mathrm{kg\,A^{-1}\,s^{-2}}$, the product
+    $m_i n_i B a_i/B^2$ has dimensions $\mathrm{kg\,m^{-3}}\,\mathrm{T}\,\mathrm{m\,s^{-2}}\,\mathrm{T^{-2}}
+    = \mathrm{A\,m^{-2}}$.
+
+
+    This component is usually computed from fluid or transport solutions rather than
+    measured directly, using ion density, ion composition, magnetic-field components,
+    and temporal plus convective derivatives of the perpendicular ion flow. Ion density
+    and flow may be constrained by interferometry, spectroscopy, and edge probe measurements,
+    while magnetic-field components come from magnetic equilibrium information. Together
+    with [toroidal_current_density_due_to_ion_inertia](name:toroidal_current_density_due_to_ion_inertia)
+    and [vertical_current_density_due_to_ion_inertia](name:vertical_current_density_due_to_ion_inertia),
+    it forms the $(\hat{R}, \hat{\phi}, \hat{Z})$ component decomposition of [current_density_due_to_ion_inertia](name:current_density_due_to_ion_inertia);
+    related projections include [poloidal_current_density_due_to_ion_inertia](name:poloidal_current_density_due_to_ion_inertia)
+    and [parallel_current_density_due_to_ion_inertia](name:parallel_current_density_due_to_ion_inertia).
+
+
+    Typical absolute magnitudes are strongly regime dependent: 0.01-10 A m$^{-2}$
+    for slowly evolving core or near-edge flows, and 10-1000 A m$^{-2}$ in sharp edge,
+    pedestal, or scrape-off-layer transients. The value scales approximately as $m_i
+    n_i a_{\perp i}/B$, so higher ion mass density, stronger perpendicular acceleration,
+    and lower magnetic-field magnitude increase the inertial current density.
+
+
+    Sign convention: Positive when the ion-inertia current density vector has a component
+    in the $+\hat{R}$ direction, toward increasing major radius $R$, in the right-handed
+    cylindrical $(R, \phi, Z)$ frame.'
+  unit: A.m^-2
+  physics_domain: transport
+  links:
+  - name:current_density_due_to_ion_inertia
+  - name:poloidal_current_density_due_to_ion_inertia
+  - name:toroidal_current_density_due_to_ion_inertia
+  - name:parallel_current_density_due_to_ion_inertia
+  - name:vertical_current_density_due_to_ion_inertia
+  arguments:
+  - name: current_density_due_to_ion_inertia
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
+  sources:
+  - id: dd:edge_profiles/ggd/j_inertial/r
+    dd_path: edge_profiles/ggd/j_inertial/r
+    status: attached
+  - id: dd:edge_profiles/ggd/j_inertial/radial
+    dd_path: edge_profiles/ggd/j_inertial/radial
+    status: composed
+  - id: dd:plasma_profiles/ggd/j_inertial/r
+    dd_path: plasma_profiles/ggd/j_inertial/r
+    status: attached
 - name: radial_current_density_due_to_ion_neutral_friction
   kind: scalar
   status: draft
@@ -41950,6 +42408,79 @@
   - id: dd:plasma_transport/model/ggd/conductivity/z
     dd_path: plasma_transport/model/ggd/conductivity/z
     status: composed
+- name: vertical_current_density_due_to_anomalous_transport
+  kind: scalar
+  status: draft
+  description: Vertical component of the electrical current density driven by anomalous
+    transport, projected along the Z direction of the right-handed cylindrical (R,
+    phi, Z) frame.
+  documentation: 'The vertical component of the anomalous current density, $j_{Z,\rm
+    anom}$, is the projection of the full [current_density_due_to_anomalous_transport](name:current_density_due_to_anomalous_transport)
+    vector onto the vertical unit vector $\hat{Z}$ of the right-handed cylindrical
+    $(R, \phi, Z)$ frame. It quantifies the signed turbulence-driven conventional
+    current density flowing upward or downward, distinct from the radial, toroidal,
+    and magnetic-field-aligned projections.
+
+
+    The scalar projection is defined by:
+
+
+    $$
+
+    j_{Z,\rm anom} = \mathbf{j}_{\rm anom} \cdot \hat{Z}
+
+    $$
+
+
+    where $\mathbf{j}_{\rm anom}$ is the anomalous current-density vector, $j_{Z,\rm
+    anom}$ is its vertical component in A m$^{-2}$, and $\hat{Z}$ is the unit vector
+    in the direction of increasing vertical coordinate $Z$.
+
+
+    Together with [radial_current_density_due_to_anomalous_transport](name:radial_current_density_due_to_anomalous_transport)
+    and [toroidal_current_density_due_to_anomalous_transport](name:toroidal_current_density_due_to_anomalous_transport),
+    this quantity forms the cylindrical-component decomposition of anomalous current
+    density in the right-handed cylindrical $(R, \phi, Z)$ frame. It is geometrically
+    distinct from [parallel_current_density_due_to_anomalous_transport](name:parallel_current_density_due_to_anomalous_transport),
+    which is projected along the local magnetic-field direction rather than along
+    $\hat{Z}$.
+
+
+    In transport modeling, $j_{Z,\rm anom}$ is obtained from turbulence-driven charge-selective
+    particle fluxes or from the anomalous contribution to the generalized Ohm''s law
+    after separating classical, neoclassical, and inductive current-density terms.
+    Experimental inference is indirect and normally requires comparison of reconstructed
+    total current density with modeled non-anomalous contributions.
+
+
+    Typical magnitudes are strongly regime- and model-dependent rather than fixed
+    by the definition. The component may be near zero when turbulent charge transport
+    has little vertical projection, and it is usually interpreted by comparison with
+    the local total current density and with the radial, toroidal, and parallel anomalous
+    current-density components.
+
+
+    Sign convention: Positive when conventional current due to anomalous transport
+    flows in the $+\hat{Z}$ direction, the direction of increasing vertical coordinate
+    $Z$ in the right-handed cylindrical $(R, \phi, Z)$ frame.'
+  unit: A.m^-2
+  physics_domain: transport
+  links:
+  - name:current_density_due_to_anomalous_transport
+  - name:radial_current_density_due_to_anomalous_transport
+  - name:toroidal_current_density_due_to_anomalous_transport
+  - name:parallel_current_density_due_to_anomalous_transport
+  - name:vertical_current_density
+  arguments:
+  - name: current_density_due_to_anomalous_transport
+    operator: component
+    operator_kind: projection
+    axis: vertical
+    shape: component
+  sources:
+  - id: dd:plasma_profiles/ggd/j_anomalous/z
+    dd_path: plasma_profiles/ggd/j_anomalous/z
+    status: composed
 - name: vertical_current_density_due_to_diamagnetic_drift
   kind: scalar
   status: draft
@@ -43868,11 +44399,11 @@
     by integrating the local concentration-weighted charge average over the confined
     plasma volume.
   documentation: 'The volume-averaged ion state average charge number is the global
-    scalar form of [ion_state_average_charge_number](name:ion_state_average_charge_number),
-    representing the ionization level of a charge-state bundle condensed into a single
-    plasma-wide value rather than a radial profile. It characterizes the mean effective
-    charge of the bundle across the entire confined plasma, making it useful for global
-    impurity transport monitoring and multi-species plasma bookkeeping.
+    scalar form of ion_state_average_charge_number, representing the ionization level
+    of a charge-state bundle condensed into a single plasma-wide value rather than
+    a radial profile. It characterizes the mean effective charge of the bundle across
+    the entire confined plasma, making it useful for global impurity transport monitoring
+    and multi-species plasma bookkeeping.
 
 
     The quantity is defined by integrating the local concentration-weighted mean charge
@@ -43910,7 +44441,6 @@
   unit: '1'
   physics_domain: transport
   links:
-  - name:ion_state_average_charge_number
   - name:volume_averaged_effective_charge
   - name:volume_averaged_ion_charge
   sources:
