@@ -1,6 +1,6 @@
 # Domain: plasma_wall_interactions
-# Catalog sha: b815f3a8d6e8d88ff0c0863da70207ae0ffe229a
-# Entries: 87
+# Catalog sha: 01ba7f68dcc53b86d244676b574e3d958ef7b28c
+# Entries: 89
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -3258,8 +3258,7 @@
   kind: scalar
   status: draft
   description: Total number density of tungsten ions in the plasma, summed over all
-    ionization states from W$^{1+}$ through W$^{74+}$, excluding neutral tungsten
-    atoms.
+    ionization states from W1+ through W74+, excluding neutral tungsten atoms.
   documentation: "Tungsten density is the local number density of ionized tungsten\
     \ in a plasma, aggregated across all charge states from W$^{1+}$ through W$^{74+}$,\
     \ without including neutral tungsten atoms. Tungsten is introduced into the plasma\
@@ -3432,60 +3431,6 @@
   - name:vertical_coordinate_of_aperture
   - name:vertical_coordinate_of_optical_element
   - name:vertical_coordinate_of_measurement_position
-- name: vertical_coordinate_of_divertor_target
-  kind: scalar
-  status: draft
-  description: "Vertical Z coordinate of the divertor target surface center in the\
-    \ right-handed cylindrical (R, \u03C6, Z) frame, where Z is vertical height."
-  documentation: 'The vertical coordinate of the divertor target is the $Z$ component
-    of the geometric center of the target surface in the right-handed cylindrical
-    $(R, \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and
-    $Z$ is vertical height. It locates the hardware surface as a geometric reference
-    and is distinct from the vertical position of a plasma strike point on that surface.
-
-
-    For a finite divertor target surface $S_t$, the surface-center coordinate is the
-    area centroid of that surface:
-
-
-    $$
-
-    Z_t = \frac{1}{A_t}\int_{S_t} Z(\mathbf{x})\,dA, \qquad A_t = \int_{S_t} dA
-
-    $$
-
-
-    where $Z_t$ is the target-center vertical coordinate, $A_t$ is the target-surface
-    area, $dA$ is the surface area element, and $Z(\mathbf{x})$ is the vertical height
-    of point $\mathbf{x}$ on the target surface.
-
-
-    In practice this coordinate is computed from the defined target geometry, for
-    example from an engineering surface model, metrology description, or calibrated
-    diagnostic geometry. For a mesh representation, the integral is evaluated as an
-    area-weighted average of the mesh-element center $Z$ coordinates. The corresponding
-    horizontal or transverse coordinates are described by [x_coordinate_of_divertor_target](name:x_coordinate_of_divertor_target)
-    and [y_coordinate_of_divertor_target](name:y_coordinate_of_divertor_target), while
-    inner and outer strike-location quantities refer to different physical points
-    on the divertor.
-
-
-    Typical values are machine-size and vertical-origin dependent. In lower-single-null
-    tokamaks the target surface center commonly has $Z<0$, often about 0.5-3 m below
-    the magnetic-axis or midplane region in medium to large devices; upper-divertor
-    targets have comparable positive values, and compact devices can have magnitudes
-    of about 0.1-1 m.
-
-
-    Sign convention: Positive when the divertor target surface center lies in the
-    $+Z$ direction of the right-handed cylindrical $(R, \phi, Z)$ frame.'
-  unit: m
-  physics_domain: plasma_wall_interactions
-  links:
-  - name:x_coordinate_of_divertor_target
-  - name:y_coordinate_of_divertor_target
-  - name:vertical_coordinate_of_inner_divertor_target
-  - name:vertical_coordinate_of_outer_divertor_target
 - name: vertical_coordinate_of_optical_element
   kind: scalar
   status: draft
@@ -3625,6 +3570,26 @@
   links:
   - name:y_coordinate_of_divertor_target
   - name:vertical_coordinate_of_divertor_target
+- name: x_direction_unit_vector_of_camera
+  kind: scalar
+  status: draft
+  description: X-axis projection of the unit vector defining the image-up orientation
+    direction of a camera in the right-handed Cartesian (x, y, z) frame.
+  documentation: The X-axis component $u_x$ of the orientation/line-of-sight direction
+    unit vector of a infrared camera, expressed in the right-handed device Cartesian
+    $(x, y, z)$ frame. Together with the [y component](name:y_direction_unit_vector_of_camera)
+    and [z component](name:z_direction_unit_vector_of_camera) it defines the three-dimensional
+    orientation of the vector. As the component of a unit vector $\hat{u} = (u_x,
+    u_y, u_z)$, the three components satisfy the normalization $u_x^2 + u_y^2 + u_z^2
+    = 1$.
+  unit: '1'
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:y_direction_unit_vector_of_camera
+  sources:
+  - id: dd:camera_ir/channel/camera/direction/x
+    dd_path: camera_ir/channel/camera/direction/x
+    status: extracted
 - name: xenon_density_at_limiter
   kind: scalar
   status: draft
@@ -3750,7 +3715,7 @@
 
 
     This coordinate is used alongside [x_coordinate_of_divertor_target](name:x_coordinate_of_divertor_target)
-    and [vertical_coordinate_of_divertor_target](name:vertical_coordinate_of_divertor_target)
+    and [vertical_coordinate_of_divertor_target](name:z_coordinate_of_divertor_target)
     to fully specify the three-dimensional Cartesian position of the divertor target
     center in plasma-wall interaction modeling. It is obtained from engineering drawings
     of the divertor geometry or from geometric calibration of diagnostics such as
@@ -3769,7 +3734,34 @@
   physics_domain: plasma_wall_interactions
   links:
   - name:x_coordinate_of_divertor_target
-  - name:vertical_coordinate_of_divertor_target
+  - name:z_coordinate_of_divertor_target
+- name: y_direction_unit_vector_of_camera
+  kind: scalar
+  status: draft
+  description: Y component of the camera's image-up unit vector in its local right-handed
+    Cartesian (x, y, z) frame. It is a dimensionless scalar giving the projection
+    of the camera's image-up direction onto the local +y axis.
+  documentation: The Y-axis component $u_y$ of the orientation/line-of-sight direction
+    unit vector of a infrared camera, expressed in the right-handed device Cartesian
+    $(x, y, z)$ frame. Together with the [x component](name:x_direction_unit_vector_of_camera)
+    and [z component](name:z_direction_unit_vector_of_camera) it defines the three-dimensional
+    orientation of the vector. As the component of a unit vector $\hat{u} = (u_x,
+    u_y, u_z)$, the three components satisfy the normalization $u_x^2 + u_y^2 + u_z^2
+    = 1$.
+  unit: '1'
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:x_direction_unit_vector_of_camera
+  sources:
+  - id: dd:camera_ir/channel/camera/direction/y
+    dd_path: camera_ir/channel/camera/direction/y
+    status: extracted
+  - id: dd:operational_instrumentation/sensor/direction/y
+    dd_path: operational_instrumentation/sensor/direction/y
+    status: extracted
+  - id: dd:operational_instrumentation/sensor/direction_second/y
+    dd_path: operational_instrumentation/sensor/direction_second/y
+    status: extracted
 - name: y_image_up_unit_vector_of_camera
   kind: scalar
   status: draft
@@ -3812,6 +3804,19 @@
   sources:
   - id: dd:camera_ir/channel/camera/up/y
     dd_path: camera_ir/channel/camera/up/y
+    status: composed
+- name: z_coordinate_of_divertor_target
+  kind: scalar
+  status: draft
+  description: "Vertical Z coordinate of the divertor target surface center in the\
+    \ right-handed cylindrical (R, \u03C6, Z) frame, where Z is vertical height."
+  documentation: ''
+  unit: m
+  physics_domain: plasma_wall_interactions
+  links: []
+  sources:
+  - id: dd:camera_ir/channel/target_surface_center/z
+    dd_path: camera_ir/channel/target_surface_center/z
     status: composed
 - name: power_at_wall_due_to_conduction
   kind: scalar
