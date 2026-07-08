@@ -1,6 +1,5 @@
 # Domain: divertor_physics
-# Catalog sha: 01ba7f68dcc53b86d244676b574e3d958ef7b28c
-# Entries: 62
+# Entries: 63
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -168,42 +167,38 @@
 - name: density_at_divertor_target
   kind: scalar
   status: draft
-  description: Local number density of a given plasma species in the plasma immediately
-    adjacent to a divertor target surface; for ionic species the density is summed
-    over all ionization stages, and neutral atoms are excluded.
-  documentation: 'The number density of a plasma species at the divertor target quantifies
-    the local particle count per unit volume in the thin plasma layer immediately
-    upstream of the electrostatic sheath entrance at the plasma-material interface.
-    This parent quantity abstracts over species-specific children covering electrons,
-    fuel ions such as [deuterium_density_at_divertor_target](name:deuterium_density_at_divertor_target),
-    helium ash, low-Z wall materials such as [beryllium_density_at_divertor_target](name:beryllium_density_at_divertor_target),
-    and noble-gas seeding impurities. For all ionic children the density is summed
-    over all positive charge states and excludes neutral atoms; [electron_density_at_divertor_target](name:electron_density_at_divertor_target)
-    is treated as a separate species.
-
-
-    Near-target densities are inferred by Langmuir-probe arrays for the electron species
-    and by spectroscopic line-ratio analysis combined with multi-fluid edge-transport
-    simulations for ion species. Quasi-neutrality provides a cross-species consistency
-    constraint: the sum of species ion densities weighted by their respective charge
-    numbers must equal the local electron density. The [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target)
-    aggregates all ion species contributions without charge-state weighting.
-
-
-    Near-target electron densities range from roughly $10^{19}$ to $10^{21}$ m$^{-3}$,
-    increasing from the low-recycling to the high-recycling and detached regimes;
-    individual ion-species densities depend on fuel mix, impurity seeding fraction,
-    and plasma-facing-material composition.
-
-
-    Sign convention: Positive when particles of the specified species are present
-    in the plasma at the divertor target.'
+  description: "Local number density of any plasma species \u2014 electrons, fuel\
+    \ ions, or impurity ions \u2014 evaluated in the plasma adjacent to the divertor\
+    \ target surface, with ionic species summed over all ionization charge states\
+    \ and neutral atoms excluded."
+  documentation: "The number density at the divertor target quantifies the local plasma\
+    \ particle population of a given species \u2014 electrons, bulk ions, or impurity\
+    \ ions \u2014 in the layer immediately adjacent to the target surface, at the\
+    \ entrance to the electrostatic sheath. For ionic species the density is summed\
+    \ over all ionization charge states co-existing at that location unless a specific\
+    \ charge state is separately resolved; neutral atoms are excluded from ionic species\
+    \ densities. Species-resolved instances include [electron_density_at_divertor_target](name:electron_density_at_divertor_target)\
+    \ and [hydrogen_density_at_divertor_target](name:hydrogen_density_at_divertor_target),\
+    \ while the aggregate over all ion species is provided by [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target).\n\
+    \nIn scrape-off-layer two-point models the target density $n_t$ is coupled to\
+    \ the upstream density $n_u$ through momentum and pressure balance along field\
+    \ lines. In the conduction-limited, high-recycling regime the dominant relation\
+    \ is:\n\n$$\nn_t = \\frac{n_u T_u}{T_t}\n$$\n\nwhere $T_u$ is the upstream electron\
+    \ temperature and $T_t$ is the electron temperature at the target sheath entrance.\
+    \ As $T_t$ drops toward detachment onset, $n_t$ rises sharply.\n\nTarget densities\
+    \ are measured primarily by Langmuir probe arrays embedded in divertor tiles,\
+    \ exploiting the ion saturation current density $j_\\mathrm{sat} = \\tfrac{1}{2}\\\
+    ,e\\,n_t c_s$, where $c_s = \\sqrt{(T_e + T_i)/m_i}$ is the local Bohm acoustic\
+    \ speed. Passive spectroscopy of line emission from known impurity species provides\
+    \ supplementary particle-balance constraints. Typical values range from $10^{18}$\
+    \ to $10^{21}$ m$^{-3}$, spanning low-recycling attached through fully detached\
+    \ divertor regimes.\n\nSign convention: Positive when physical particles of the\
+    \ specified species occupy the plasma volume adjacent to the target surface."
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:deuterium_density_at_divertor_target
-  - name:beryllium_density_at_divertor_target
   - name:electron_density_at_divertor_target
+  - name:hydrogen_density_at_divertor_target
   - name:total_ion_density_at_divertor_target
   sources:
   - id: derived:density_at_divertor_target
@@ -211,58 +206,36 @@
 - name: beryllium_density_at_divertor_target
   kind: scalar
   status: draft
-  description: Local non-negative number density of beryllium ions at the divertor
-    target, summed over Be1+ through Be4+ charge states and excluding neutral beryllium
-    atoms.
-  documentation: 'Beryllium density at the divertor target is the local number of
-    beryllium ions per unit volume in the plasma adjacent to the divertor target surface.
-    It is a species-resolved, non-negative scalar density for atomic number 4 and
-    excludes neutral beryllium unless a separate neutral-density quantity is specified.
-
-
-    When individual charge states are not represented separately, the ion density
-    is the sum over the bound-electron charge states of beryllium ions:
-
-
-    $$
-
-    n_{\mathrm{Be},\mathrm{tgt}} = \sum_{q=1}^{4} n_{\mathrm{Be}^{q+},\mathrm{tgt}}
-
-    $$
-
-
-    where $n_{\mathrm{Be},\mathrm{tgt}}$ is the beryllium ion number density at the
-    divertor target, $n_{\mathrm{Be}^{q+},\mathrm{tgt}}$ is the partial number density
-    in m$^{-3}$ of ions in charge state Be$^{q+}$, and $q$ is the charge-state index;
-    an ion in charge state $q$ carries charge $+q e$, with $e$ the elementary charge.
-    The neutral state Be$^{0}$ is not included in this sum.
-
-
-    In practice this quantity is inferred from beryllium line emission together with
-    atomic population modeling, from impurity transport modeling constrained by edge
-    and divertor measurements, or from edge-plasma simulations that evolve species-resolved
-    ion densities. It is a beryllium-specific component of the local divertor-target
-    ion population and should be interpreted relative to [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target)
-    when assessing impurity concentration.
-
-
-    Typical absolute values are strongly dependent on wall material, erosion and recycling
-    conditions, ionization balance, and divertor plasma state, so no device-independent
-    numerical range is implied by the definition. Under trace-impurity conditions
-    $n_{\mathrm{Be},\mathrm{tgt}}$ is much smaller than the total target ion density;
-    in all cases it is constrained to be non-negative and not larger than the local
-    total ion density. Related beryllium-density quantities include [beryllium_density_at_plasma_boundary](name:beryllium_density_at_plasma_boundary),
-    [beryllium_density_at_limiter](name:beryllium_density_at_limiter), [volume_averaged_beryllium_density](name:volume_averaged_beryllium_density),
-    and [line_averaged_beryllium_density](name:line_averaged_beryllium_density).'
+  description: Number density of beryllium ions in the plasma immediately adjacent
+    to a divertor target surface, summed over all ionization states Be1+ through Be4+
+    and excluding neutral beryllium atoms.
+  documentation: "Beryllium density at the divertor target is the local number density\
+    \ of beryllium ions in the plasma immediately adjacent to a divertor target surface,\
+    \ summed over all ionization states from Be$^{1+}$ through Be$^{4+}$. Neutral\
+    \ beryllium atoms are excluded, as they do not couple to the electrostatic sheath\
+    \ at the plasma-material interface. It is the beryllium-specific member of the\
+    \ parent [density_at_divertor_target](name:density_at_divertor_target).\n\nThe\
+    \ charge-state sum is defined as:\n\n$$\nn_\\mathrm{Be} = \\sum_{k=1}^{4} n_{\\\
+    mathrm{Be}^{k+}}\n$$\n\nwhere $n_{\\mathrm{Be}^{k+}}$ is the number density of\
+    \ beryllium ions in charge state $k$, evaluated in the near-target plasma layer\
+    \ upstream of the sheath entrance.\n\nBeryllium enters the divertor plasma through\
+    \ sputtering and erosion of beryllium-containing plasma-facing materials. Near-target\
+    \ beryllium densities are inferred from divertor spectroscopy of Be emission lines\
+    \ combined with ionization-balance modeling, or from edge-plasma simulations constrained\
+    \ by Langmuir probe data. In attached divertor conditions, typical near-target\
+    \ impurity densities reach $10^{16}$\u2013$10^{18}$ m$^{-3}$; detachment reduces\
+    \ these values as recombination diminishes the ionized fraction. The beryllium\
+    \ density at the divertor target is complementary to [beryllium_density_at_plasma_boundary](name:beryllium_density_at_plasma_boundary),\
+    \ which characterizes the upstream boundary value, and [beryllium_density_at_limiter](name:beryllium_density_at_limiter)\
+    \ for the limiter-surface analog. For comparison with a seeded noble-gas species\
+    \ at the same location, see [neon_density_at_divertor_target](name:neon_density_at_divertor_target)."
   unit: m^-3
   physics_domain: divertor_physics
   links:
   - name:density_at_divertor_target
-  - name:boron_density_at_divertor_target
-  - name:argon_density_at_divertor_target
   - name:beryllium_density_at_plasma_boundary
-  - name:beryllium_density_at_pedestal
   - name:beryllium_density_at_limiter
+  - name:neon_density_at_divertor_target
   arguments:
   - name: density_at_divertor_target
     operator: beryllium
@@ -270,47 +243,58 @@
 - name: carbon_density_at_divertor_target
   kind: scalar
   status: draft
-  description: Number density of carbon ions in the plasma immediately adjacent to
-    a divertor target surface, summed over charge states C+ through C6+. Neutral carbon
-    atoms and molecules are excluded unless a neutral-inclusive quantity is explicitly
-    specified.
-  documentation: 'Carbon density at a divertor target is the local number density
-    of carbon ions in the plasma immediately adjacent to a divertor target surface.
-    It is a charge-state-summed impurity ion density, so neutral carbon atoms and
-    molecules are treated as separate species and are not included.
+  description: Local number density of carbon ions evaluated in the plasma adjacent
+    to the divertor target surface at the electrostatic sheath entrance, summed over
+    all carbon ionization charge states from C1+ through C6+ and excluding neutral
+    carbon atoms and molecules.
+  documentation: 'Carbon density at the divertor target is the local number density
+    of carbon ions in the plasma immediately adjacent to the divertor target surface,
+    evaluated upstream of the electrostatic sheath entrance. It is summed over all
+    ionization charge states from C$^{1+}$ through C$^{6+}$ and excludes neutral carbon
+    atoms and carbon-bearing neutral molecules. As a species-resolved impurity density,
+    it contributes to the local ion inventory represented by [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target).
 
 
-    The charge-state-summed carbon ion density is obtained by summing over the ionization
-    stages of carbon:
+    The charge-state-summed carbon ion density is defined by summing the densities
+    of the resolved ionic charge states:
 
 
     $$
 
-    n_{C,\mathrm{ion}} = \sum_{q=1}^{6} n_{C^{q+}}
+    n_{\mathrm{C},t} = \sum_{q=1}^{6} n_{\mathrm{C}^{q+},t}
 
     $$
 
 
-    where $n_{C,\mathrm{ion}}$ is the total carbon ion density in m^-3, $n_{C^{q+}}$
-    is the density of carbon ions in charge state $q$ in m^-3, and $q$ is the dimensionless
-    positive ion charge state ranging from $1$ up to the nuclear charge $6$.
+    where $n_{\mathrm{C},t}$ is the carbon ion density at the target in $\mathrm{m^{-3}}$,
+    $n_{\mathrm{C}^{q+},t}$ is the density of carbon ions with charge state $q$ at
+    the target in $\mathrm{m^{-3}}$, and $q$ runs from singly ionized carbon to fully
+    stripped carbon.
 
 
-    This density is commonly inferred from divertor spectroscopy of carbon emission
-    lines combined with local electron density and temperature estimates and a collisional-radiative
-    model, or evolved per charge state in edge-plasma transport calculations and then
-    summed.
+    Carbon density at the target is usually obtained indirectly. In experiments it
+    is constrained by spectroscopy of carbon emission near the target, together with
+    local electron conditions and atomic data; in edge-plasma and impurity-transport
+    calculations it is obtained from charge-state-resolved carbon continuity equations
+    and then summed. Measurements of the bulk plasma density and temperature provide
+    sheath-entrance context but do not by themselves separate carbon from other ion
+    species.
 
 
-    Typical values near divertor targets span a wide range depending on plasma-facing
-    material composition, recycling regime, and detachment state, and are generally
-    a fraction of the local total ion density.'
+    Typical values are strongly device and wall-material dependent because carbon
+    is usually an impurity source associated with plasma-facing components, erosion,
+    redeposition, or residual carbon content rather than the main fuel population.
+    It is generally a minority component of the local ion density, can become important
+    for divertor radiation and detachment behavior when carbon sources are strong,
+    and may be close to trace levels in devices with weak carbon sources.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
   - name:density_at_divertor_target
-  - name:nitrogen_density_at_divertor_target
-  - name:neon_density_at_divertor_target
+  - name:electron_temperature_at_divertor_target
+  - name:carbon_density_at_plasma_boundary
+  - name:carbon_density_at_magnetic_axis
+  - name:effective_charge_at_divertor_target
   arguments:
   - name: density_at_divertor_target
     operator: carbon
@@ -380,49 +364,57 @@
 - name: deuterium_density_at_divertor_target
   kind: scalar
   status: draft
-  description: Number density of deuterium ions in the plasma immediately adjacent
-    to a divertor target. It is the species-resolved fuel-ion population at the plasma-material
-    interface in deuterium-fueled operation.
+  description: Deuterium density at the divertor target is the local number density
+    of deuterium ions in the plasma immediately adjacent to a divertor target surface,
+    summed over all deuterium ion charge states and excluding neutral deuterium atoms
+    and molecules.
   documentation: 'Deuterium density at the divertor target is the local number density
-    of deuterium ions, usually singly ionized $D^+$, in the plasma next to a divertor
-    target surface. It is a species-resolved ion density, distinct from the species-agnostic
-    [density at divertor target](name:density_at_divertor_target) and from [total
-    ion density at divertor target](name:total_ion_density_at_divertor_target), which
-    sums over all ion species present.
+    of deuterium ions in the plasma immediately adjacent to a divertor target surface,
+    evaluated at the entrance to the electrostatic sheath. It is summed over all positive
+    atomic deuterium ion charge states, which reduces to the singly ionized $D^+$
+    state; neutral deuterium atoms and molecules are excluded. It is the deuterium-specific
+    member of [density at the divertor target](name:density_at_divertor_target), distinct
+    from [total ion density at the divertor target](name:total_ion_density_at_divertor_target)
+    and related to [deuterium density at a limiter](name:deuterium_density_at_limiter).
 
 
-    For a small volume element adjacent to the target, the deuterium ion density is
-    defined by the local particle population per unit volume:
+    At the sheath entrance, the deuterium target density is coupled to the deuterium
+    ion flux toward the material surface by the Bohm sheath condition:
 
 
     $$
 
-    n_D = \frac{dN_D}{dV}
+    \Gamma_{D,t} \simeq n_{D,t} c_{s,D}
 
     $$
 
 
-    where $N_D$ is the number of deuterium ions in the volume element $dV$ and $n_D$
-    is the corresponding number density.
+    where $\Gamma_{D,t}$ is the deuterium ion particle flux toward the target, $n_{D,t}$
+    is the deuterium density at the sheath entrance, and $c_{s,D}$ is the deuterium
+    Bohm acoustic speed set by the local electron and ion temperatures and the deuterium
+    ion mass. Increased recycling and reduced target temperature in high-recycling
+    or detached conditions tend to raise $n_{D,t}$ while reducing the ion energy delivered
+    to the surface.
 
 
-    In practice, this quantity is inferred from local divertor plasma measurements
-    and modeling, such as target-region probe analysis, spectroscopic interpretation
-    of deuterium emission, or divertor Thomson scattering when available. The inferred
-    value depends strongly on recycling, ionization balance, cross-field transport,
-    sheath-edge conditions, and whether the divertor is attached, partially detached,
-    or detached.
+    In practice, this quantity is inferred from divertor Langmuir-probe measurements
+    of ion saturation current, divertor Thomson scattering constraints on local plasma
+    conditions when available, and spectroscopic analysis of deuterium emission interpreted
+    with edge-plasma and neutral-transport modeling. The interpretation must separate
+    ionized deuterium from neutral atoms and molecules and can depend strongly on
+    recycling, ionization balance, cross-field transport, and whether the divertor
+    is attached, partially detached, or detached.
 
 
-    Typical values are about $10^{18}-10^{20}$ m^-3 in attached divertor conditions
-    and can reach $10^{20}-10^{21}$ m^-3 in high-recycling or detached divertor conditions,
-    depending on fueling, target heat flux, and divertor geometry.'
+    Typical values are $10^{18}$-$10^{20}$ m$^{-3}$ in attached low- to moderate-recycling
+    divertor plasmas and $10^{20}$-$10^{21}$ m$^{-3}$ in high-recycling or detached
+    conditions.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
   - name:density_at_divertor_target
-  - name:hydrogen_density_at_divertor_target
-  - name:tritium_density_at_divertor_target
+  - name:deuterium_tritium_density_at_divertor_target
+  - name:deuterium_density_at_plasma_boundary
   arguments:
   - name: density_at_divertor_target
     operator: deuterium
@@ -430,53 +422,37 @@
 - name: deuterium_tritium_density_at_divertor_target
   kind: scalar
   status: draft
-  description: Number density at a divertor target of an effective single ion species
-    representing a deuterium-tritium plasma mixture with mean mass 2.5 amu.
-  documentation: 'Deuterium-tritium density at the divertor target is the number density
-    of the effective DT ion constituent in the plasma adjacent to a divertor target
-    surface. The constituent is a fictitious single species with mean ion mass 2.5
-    amu, used to represent a combined deuterium-tritium ion population; it is distinct
-    from neutral atomic or molecular density.
-
-
-    When separate deuterium and tritium ion populations are replaced by this effective
-    constituent, the target density represents the combined DT ion population and
-    contributes to the [total ion density at the divertor target](name:total_ion_density_at_divertor_target)
-    together with any other ion species and impurities. It is analogous to [deuterium
-    density at the divertor target](name:deuterium_density_at_divertor_target), but
-    for the DT pseudo-species rather than a pure deuterium ion constituent.
-
-
-    Target values are computed directly in edge-plasma models or inferred from target
-    diagnostics through sheath models. A common approximate relation for singly charged
-    ions is the Bohm-sheath ion-saturation current density:
-
-
-    $$
-
-    j_{\mathrm{sat}} \simeq e\, n_{\mathrm{DT}}\, c_s
-
-    $$
-
-
-    where $j_{\mathrm{sat}}$ is the ion saturation current density in $\mathrm{A\,m^{-2}}$,
-    $e$ is the elementary charge in C, $n_{\mathrm{DT}}$ is the effective DT ion density
-    in $\mathrm{m^{-3}}$, and $c_s$ is the ion sound speed in $\mathrm{m\,s^{-1}}$.
-    If $c_s$ is evaluated from electron and ion temperatures, $T_e$ and $T_i$ must
-    be used consistently as temperature energies, commonly in eV with the conversion
-    to joules included in the sound-speed expression.
-
-
-    Typical magnitudes are highly scenario dependent because the target plasma changes
-    with recycling, detachment, magnetic geometry, and strike-point conditions. As
-    a broad order-of-magnitude guide for tokamak divertor modeling, effective DT target
-    ion densities may span about $10^{18}-10^{21}\ \mathrm{m^{-3}}$; this range is
-    contextual rather than a validity bound.'
+  description: Number density of the deuterium-tritium ion mixture in the plasma immediately
+    adjacent to a divertor target, representing the ionized D-T fuel population as
+    a single effective species with mean atomic mass 2.5 u, excluding neutral fuel
+    atoms.
+  documentation: "Deuterium-tritium density at the divertor target is the local number\
+    \ density of the deuterium-tritium fuel ion mixture in the plasma adjacent to\
+    \ the divertor target surface. The quantity combines singly ionized $D^+$ and\
+    \ $T^+$ fuel ions, treating them as a single effective species with mean atomic\
+    \ mass 2.5 u for an equimolar D\u2013T mixture. As a component of [density_at_divertor_target](name:density_at_divertor_target),\
+    \ the density is summed over both fuel-ion charge states and excludes neutral\
+    \ deuterium and tritium atoms.\n\nThe total deuterium-tritium ion number density\
+    \ is the sum of the individual fuel-ion contributions:\n\n$$\nn_{DT} = n_D + n_T\n\
+    $$\n\nwhere $n_D$ is the local deuterium ion number density and $n_T$ is the local\
+    \ tritium ion number density at the target location. In an equimolar D\u2013T\
+    \ plasma, $n_D \\approx n_T$ and therefore $n_{DT} \\approx 2n_D$.\n\nNear-target\
+    \ density values are obtained from Langmuir probe measurements at the target plate,\
+    \ two-point scrape-off-layer model calculations using upstream density and pressure\
+    \ balance, or from plasma-edge simulations. In attached divertor conditions the\
+    \ fuel-ion density is the dominant contributor to the total ion population tracked\
+    \ by [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target).\n\
+    \nTypical values span $10^{19}$\u2013$10^{21}$ m$^{-3}$ in attached high-recycling\
+    \ H-mode operation. In partially or fully detached conditions, recombination upstream\
+    \ reduces the ion flux to the target and the near-target density can fall below\
+    \ $10^{18}$ m$^{-3}$. For the analogous quantity at the plasma core see [deuterium_tritium_density_at_magnetic_axis](name:deuterium_tritium_density_at_magnetic_axis);\
+    \ for the species-resolved fuel components see [deuterium_density_at_divertor_target](name:deuterium_density_at_divertor_target)."
   unit: m^-3
   physics_domain: divertor_physics
   links:
   - name:density_at_divertor_target
-  - name:deuterium_tritium_density_at_plasma_boundary
+  - name:total_ion_density_at_divertor_target
+  - name:deuterium_tritium_density_at_magnetic_axis
   - name:deuterium_density_at_divertor_target
   arguments:
   - name: density_at_divertor_target
@@ -519,58 +495,53 @@
 - name: electron_density_at_divertor_target
   kind: scalar
   status: draft
-  description: Electron number density in the plasma immediately adjacent to the divertor
-    target surface. It is the downstream scrape-off-layer electron density at the
-    target and is distinct from the electron density at the plasma boundary or separatrix.
-  documentation: 'Electron density at the divertor target is the local number of free
-    electrons per unit volume in the plasma adjacent to the plasma-facing target,
-    usually interpreted as a sheath-entrance or near-target plasma density rather
-    than a property inside the solid surface. It characterizes downstream scrape-off-layer
-    conditions at the material boundary and should not be identified with the separatrix
-    value [electron_density_at_plasma_boundary](name:electron_density_at_plasma_boundary),
-    which is evaluated upstream at the plasma boundary.
+  description: Electron density at the divertor target is the local number density
+    of free electrons in the plasma immediately adjacent to a divertor target surface,
+    evaluated at the electrostatic sheath entrance.
+  documentation: 'Electron density at the divertor target is the local number density
+    of free electrons in the thin plasma layer immediately upstream of the electrostatic
+    sheath entrance at a divertor target surface. As the electron counterpart in the
+    [density_at_divertor_target](name:density_at_divertor_target) family, no charge-state
+    summation is required; the electron population is a single-charge-state constituent
+    coupled to the ion species through local quasi-neutrality.
 
 
-    As a local number density it is defined by
+    At the sheath entrance, quasi-neutrality constrains the electron density to equal
+    the total ion charge density:
 
 
     $$
 
-    n_{e,t} = \left.\frac{dN_e}{dV}\right|_{\mathrm{target}}
+    n_e \approx \sum_s Z_s \, n_s
 
     $$
 
 
-    where $N_e$ is the number of free electrons in a small plasma volume $V$ adjacent
-    to the target and $n_{e,t}$ is expressed in m$^{-3}$.
+    where $Z_s$ is the charge number and $n_s$ is the number density of ion species
+    $s$ at the target. The parallel electron particle flux at the sheath edge satisfies
+    $\Gamma_{e,t} = n_{e,t} v_B$, where $v_B = \sqrt{k_B(T_e + T_i)/m_i}$ is the Bohm
+    velocity, $T_e$ and $T_i$ are the electron and ion temperatures in joules, and
+    $m_i$ is a representative ion mass.
 
 
-    In practice, $n_{e,t}$ is obtained from near-target diagnostics and edge-plasma
-    modeling. Flush or embedded Langmuir probes infer it from ion-saturation current
-    using sheath assumptions, effective ion mass, and local electron and ion temperatures;
-    divertor Thomson scattering and spectroscopic analysis can provide independent
-    constraints where available. Reduced two-point scrape-off-layer estimates may
-    infer $n_{e,t}$ from upstream or separatrix conditions and target temperature
-    using quasineutrality and parallel pressure or momentum balance, but the coefficient
-    relating upstream and target quantities depends on ion temperature, Mach number,
-    sheath boundary conditions, volumetric momentum losses, radiation, recycling,
-    and detachment state. Therefore a fixed electron-only pressure-balance factor
-    is not a general definition; in such formulas both $n_{e,t}$ and any upstream
-    density $n_{e,u}$ are electron number densities in m$^{-3}$.
+    This quantity is measured using Langmuir probes embedded in the divertor target
+    tiles, which yield the saturated ion current density $j_{sat} = e\,n_{e,t}\,v_B$;
+    combined with [electron_temperature_at_divertor_target](name:electron_temperature_at_divertor_target),
+    this gives $n_{e,t}$ directly. It is distinct from the upstream separatrix value
+    [electron_density_at_plasma_boundary](name:electron_density_at_plasma_boundary),
+    with the ratio $n_{e,t}/n_{e,u}$ characterizing the parallel density decay through
+    the scrape-off layer and serving as a sensitive indicator of divertor detachment
+    onset.
 
 
-    Typical values are about $10^{18}$-$10^{20}$ m$^{-3}$ in sheath-limited or attached
-    divertor conditions and $10^{20}$-$10^{21}$ m$^{-3}$ in high-recycling conditions.
-    During detachment, the near-target density may rise before rollover and then decrease
-    as the ionization front moves away from the target, so the range is strongly dependent
-    on fueling, magnetic geometry, and power exhaust regime.'
+    Typical values range from $10^{18}$ m$^{-3}$ in detached divertor conditions to
+    above $10^{21}$ m$^{-3}$ in high-recycling attached plasmas in current tokamaks.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:electron_temperature_at_divertor_target
   - name:density_at_divertor_target
-  - name:deuterium_density_at_divertor_target
-  - name:hydrogen_density_at_divertor_target
+  - name:electron_temperature_at_divertor_target
+  - name:electron_density_at_plasma_boundary
   arguments:
   - name: density_at_divertor_target
     operator: electron
@@ -579,49 +550,32 @@
   kind: scalar
   status: draft
   description: Number density of helium-3 ions in the plasma immediately adjacent
-    to a divertor target. It is summed over the singly ionized and fully stripped
-    (doubly ionized) helium-3 charge states and excludes neutral helium-3 atoms.
-  documentation: 'Helium-3 density at the divertor target is the local number density
-    of ionized helium with mass number 3 in the plasma next to the material target
-    surface. It accounts for the helium-3 ion population per unit volume and excludes
-    neutral helium-3 atoms.
-
-
-    Helium-3 has atomic number 2, so its accessible positive charge states are the
-    singly ionized state and the fully stripped doubly ionized state. The ion density
-    is the sum over these two charge states:
-
-
-    $$
-
-    n_{{}^{3}\mathrm{He},\,\mathrm{ion}} = n_{{}^{3}\mathrm{He}^{+}} + n_{{}^{3}\mathrm{He}^{2+}}
-
-    $$
-
-
-    where $n_{{}^{3}\mathrm{He}^{+}}$ is the singly ionized helium-3 density, $n_{{}^{3}\mathrm{He}^{2+}}$
-    is the fully stripped helium-3 density, and $n_{{}^{3}\mathrm{He},\,\mathrm{ion}}$
-    is the total ion density, all in m^-3. The neutral density $n_{{}^{3}\mathrm{He}^{0}}$
-    is not part of this quantity.
-
-
-    In practice this density is inferred from diagnostics or modeling that can distinguish
-    helium-3 from other ion species and separate ionized helium from neutral helium.
-    Common approaches include isotope-resolved spectroscopy interpreted with atomic
-    physics models, mass-sensitive particle measurements where available, and edge
-    or divertor transport analysis tied to local electron density and species composition.
-
-
-    The value is strongly scenario dependent: without deliberate helium-3 fueling
-    it may be negligible or below diagnostic sensitivity, whereas in helium-3 fueled
-    or seeded divertor plasmas it becomes a significant fraction of the local ion
-    inventory.'
+    to a divertor target, summed over both ionization stages (singly ionized and fully
+    stripped) and excluding neutral helium-3 atoms.
+  documentation: "Helium-3 density at a divertor target is the local number density\
+    \ of ionized helium-3 in the plasma adjacent to a plasma-facing divertor surface.\
+    \ It covers both helium-3 ionization stages \u2014 the singly ionized ($\\mathrm{He3}^{1+}$)\
+    \ and the fully stripped ($\\mathrm{He3}^{2+}$) \u2014 and excludes neutral helium-3\
+    \ atoms. This quantity is a species-resolved instance of the [density_at_divertor_target](name:density_at_divertor_target)\
+    \ family, which abstracts over all species present at the target.\n\nThe total\
+    \ helium-3 ion density is defined as:\n\n$$\nn_{\\mathrm{He3}} = \\sum_{z=1}^{2}\
+    \ n_{\\mathrm{He3}}^{z+}\n$$\n\nwhere $n_{\\mathrm{He3}}^{z+}$ is the local density\
+    \ of helium-3 in charge state $z+$ in the plasma layer immediately upstream of\
+    \ the electrostatic sheath entrance at the target surface.\n\nThis quantity is\
+    \ inferred from spectroscopic measurements of characteristic helium-3 line emission\
+    \ combined with local ionization-balance calculations, or from edge-transport\
+    \ simulations constrained by particle-balance diagnostics. Helium-3 reaches the\
+    \ divertor target following transport through the scrape-off layer, originating\
+    \ either from advanced D-He3 fuel-cycle scenarios or from injected tracer gas.\
+    \ The helium-4 analog is [helium_4_density_at_divertor_target](name:helium_4_density_at_divertor_target);\
+    \ the spatial profile of the same species across the confined plasma is represented\
+    \ by [helium_3_density](name:helium_3_density)."
   unit: m^-3
   physics_domain: divertor_physics
   links:
+  - name:density_at_divertor_target
   - name:helium_4_density_at_divertor_target
-  - name:helium_3_density_at_plasma_boundary
-  - name:helium_3_density_at_pedestal
+  - name:helium_3_density
   arguments:
   - name: density_at_divertor_target
     operator: helium_3
@@ -630,48 +584,33 @@
   kind: scalar
   status: draft
   description: Number density of helium-4 ions in the plasma immediately adjacent
-    to a divertor target. It is summed over all helium-4 ionization charge states
-    up to fully ionized helium and excludes neutral helium atoms.
-  documentation: 'Helium-4 density at a divertor target is the local number density
-    of ionized helium-4 in the plasma next to a plasma-facing divertor surface. It
-    represents the charge-state-summed helium-4 ion population at that location, excluding
-    neutral helium atoms, and is relevant to helium ash accumulation and exhaust.
-
-
-    The charge-state-summed density is defined as the sum over ionized charge states:
-
-
-    $$
-
-    n_{\mathrm{He4,target}} = \sum_{q=1}^{2} n_{{}^{4}\mathrm{He}^{q+},\mathrm{target}}
-
-    $$
-
-
-    where $n_{\mathrm{He4,target}}$ is the helium-4 ion density in m^-3, $q$ is the
-    ion charge state, $q=1$ is singly ionized helium-4, $q=2$ is fully ionized helium-4,
-    and each charge-state density $n_{{}^{4}\mathrm{He}^{q+},\mathrm{target}}$ is
-    in m^-3. The neutral state $q=0$ is not included.
-
-
-    In practice this quantity is inferred from measurements and analysis sensitive
-    to helium ion populations near the divertor target, together with local plasma
-    conditions and atomic-physics interpretation. It is commonly compared with upstream
-    or global helium-4 measures such as [helium_4_density_at_plasma_boundary](name:helium_4_density_at_plasma_boundary)
-    and [volume_averaged_helium_4_density](name:volume_averaged_helium_4_density),
-    and with the total ion population [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target).
-
-
-    Typical order-of-magnitude values can span $10^{16}$-$10^{20}$ m^-3, from trace
-    helium concentrations to helium-rich divertor conditions. The value depends strongly
-    on helium source rate, ionization balance, recycling, pumping, parallel transport,
-    and divertor plasma density.'
+    to a divertor target, summed over singly and doubly ionized helium-4 charge states
+    and excluding neutral helium-4 atoms.
+  documentation: "Helium-4 density at the divertor target is the local number density\
+    \ of ionized helium with mass number 4 in the plasma immediately adjacent to the\
+    \ material target surface. It is summed over the two ionization stages \u2014\
+    \ singly ionized $\\text{He}^{1+}$ and fully stripped $\\text{He}^{2+}$ \u2014\
+    \ and excludes neutral helium-4 atoms, consistent with the [density_at_divertor_target](name:density_at_divertor_target)\
+    \ convention that ionic species are summed over all charge states.\n\nThe charge-state-summed\
+    \ density is defined as:\n\n$$\nn_{\\text{He-4}} = n_{\\text{He}^{1+}} + n_{\\\
+    text{He}^{2+}}\n$$\n\nwhere $n_{\\text{He}^{1+}}$ and $n_{\\text{He}^{2+}}$ are\
+    \ the number densities of the individual charge states. In deuterium\u2013tritium\
+    \ burning plasmas, helium-4 is the dominant fusion ash originating from thermalized\
+    \ alpha particles; its concentration at the divertor target directly reflects\
+    \ the efficiency of ash exhaust by the divertor pumping system. Insufficient helium\
+    \ removal causes ash accumulation and progressive fuel dilution in the core. The\
+    \ quantity is inferred from spectroscopic or charge-exchange recombination measurements\
+    \ in the divertor region. The analogous helium isotope quantity at this surface\
+    \ is [helium_3_density_at_divertor_target](name:helium_3_density_at_divertor_target);\
+    \ complementary helium-4 profiles at other locations are given by [helium_4_density_at_magnetic_axis](name:helium_4_density_at_magnetic_axis)\
+    \ and [helium_4_density_at_plasma_boundary](name:helium_4_density_at_plasma_boundary)."
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:helium_3_density_at_divertor_target
-  - name:helium_4_density_at_plasma_boundary
   - name:density_at_divertor_target
+  - name:helium_3_density_at_divertor_target
+  - name:helium_4_density_at_magnetic_axis
+  - name:helium_4_density_at_plasma_boundary
   arguments:
   - name: density_at_divertor_target
     operator: helium_4
@@ -679,54 +618,127 @@
 - name: hydrogen_density_at_divertor_target
   kind: scalar
   status: draft
-  description: Number density of hydrogen ions evaluated locally in the plasma adjacent
-    to the divertor target surface.
+  description: Local number density of hydrogen ions evaluated in the plasma adjacent
+    to the divertor target surface, summed over all positive hydrogen ionization charge
+    states, which reduces to the single H+ state, and excluding neutral hydrogen atoms
+    and molecules.
   documentation: 'Hydrogen density at the divertor target is the local number density
-    of hydrogen ions in the plasma immediately adjacent to the target surface. It
-    represents the hydrogen contribution to the ion population that enters the divertor
-    sheath and participates in recycling, ionization balance, and target particle
-    loading.
+    of hydrogen (protium) ions in the plasma immediately adjacent to a divertor target
+    surface, evaluated at the entrance to the electrostatic sheath. It is summed over
+    all positive hydrogen ionization charge states, which for protium reduces to the
+    single $\mathrm{H}^+$ state; neutral hydrogen atoms and molecules are excluded.
+    It is the hydrogen member of [density_at_divertor_target](name:density_at_divertor_target),
+    analogous to [deuterium_density_at_divertor_target](name:deuterium_density_at_divertor_target)
+    and related to [electron_density_at_divertor_target](name:electron_density_at_divertor_target)
+    and [helium_4_density_at_divertor_target](name:helium_4_density_at_divertor_target);
+    the corresponding aggregate over ionic species is [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target).
 
 
-    For an attached sheath-limited target, the hydrogen ion particle flux to the surface
-    is often related to the local density by the Bohm sheath estimate:
+    At an attached target sheath, the hydrogen ion flux to the material surface is
+    commonly related to the sheath-entrance density by the Bohm-flux relation:
 
 
     $$
 
-    \Gamma_H \simeq n_H c_s
+    \Gamma = n c_s
 
     $$
 
 
-    where $n_H$ is the hydrogen ion density in m$^{-3}$, $\Gamma_H$ is the hydrogen
-    ion particle flux density in m$^{-2}$ s$^{-1}$, and $c_s$ is the ion sound speed
-    at the sheath entrance in m s$^{-1}$. In collisional or detached conditions, the
-    same density may require a more detailed treatment of ionization, recombination,
-    charge exchange, and flow between the plasma and the material surface.
+    where $n$ is the hydrogen density at the sheath entrance, $\Gamma$ is the hydrogen
+    ion particle flux density (m$^{-2}$ s$^{-1}$), and $c_s$ is the Bohm acoustic
+    speed (m s$^{-1}$) determined by local temperatures and the hydrogen ion mass.
+    In high-recycling and detached conditions, ionization, recombination, charge exchange,
+    and momentum losses modify the relation between upstream plasma conditions, target
+    density, and the net particle flux.
 
 
-    This quantity is usually inferred rather than measured directly. Langmuir probes
-    can constrain local electron density and ion saturation current, spectroscopy
-    can constrain hydrogen emission and ionization sources through collisional-radiative
-    analysis, and edge plasma modeling combines these observations with particle-balance
-    assumptions to separate the hydrogen ion contribution from other ion species.
+    Hydrogen target density is usually inferred by combining Langmuir-probe measurements
+    of ion saturation current and electron density with Balmer-line spectroscopy interpreted
+    through collisional-radiative modeling. Particle-balance or edge-plasma modeling
+    is often needed to separate the $\mathrm{H}^+$ component from deuterium, tritium,
+    helium, and impurity ions in mixed-species divertor plasmas.
 
 
-    A universal numerical range is not intrinsic to the quantity because divertor
-    target density varies strongly with machine size, fueling, detachment state, impurity
-    seeding, and isotope mix. In hydrogen-dominated, singly ionized target plasma,
-    $n_H$ is typically of the same order as the local [electron density](name:electron_density_at_divertor_target);
-    in mixed-species plasmas it is the hydrogen component of the local [ion density]
-    and is reduced by deuterium, tritium, helium, or impurity dilution.'
+    Typical values range from $10^{18}$ to $10^{21}$ m$^{-3}$, with the lower end
+    associated with attached, low-recycling targets and the upper end with high-recycling
+    or detached divertor conditions. In a nearly pure hydrogen plasma, this density
+    is generally comparable to [electron_density_at_divertor_target](name:electron_density_at_divertor_target)
+    through quasineutrality; in mixed-species plasmas it is a diluted component of
+    [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target).'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:electron_density_at_divertor_target
+  - name:nitrogen_density_at_divertor_target
+  - name:density_at_divertor_target
+  - name:deuterium_density_at_divertor_target
   arguments:
   - name: density_at_divertor_target
     operator: hydrogen
     operator_kind: qualifier
+- name: ion_density_at_divertor_target
+  kind: scalar
+  status: draft
+  description: "Local number density of ionic plasma species \u2014 fuel ions, impurity\
+    \ ions, or aggregate ion populations \u2014 evaluated in the plasma adjacent to\
+    \ the divertor target surface, with species-level densities summed over all ionization\
+    \ charge states and neutral atoms excluded."
+  documentation: 'Ion density at the divertor target is the local number density of
+    ionic plasma species or ion aggregates in the plasma immediately adjacent to a
+    divertor target surface, evaluated at the entrance to the electrostatic sheath.
+    Species-level ion densities are summed over all ionization charge states present
+    at that location unless a specific charge state is separately resolved, and neutral
+    atoms or molecules are excluded. The aggregate child [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target)
+    sums all ionic species, while concrete species examples include [hydrogen_density_at_divertor_target](name:hydrogen_density_at_divertor_target)
+    and [carbon_density_at_divertor_target](name:carbon_density_at_divertor_target).
+
+
+    For any chosen ion set $\mathcal{I}$, the charge-state-summed target ion density
+    is defined by summing the local densities of its positive ion charge states:
+
+
+    $$
+
+    n_{\mathcal{I},t} = \sum_{a \in \mathcal{I}} \sum_{q=1}^{Z_a} n_{a,q,t}
+
+    $$
+
+
+    where $a$ labels an atomic or isotope species, $q$ is the positive ion charge
+    state, $Z_a$ is the nuclear charge of species $a$, and $n_{a,q,t}$ is the local
+    density of charge state $q$ at the target sheath entrance. Choosing one species
+    gives a species-resolved ion density; choosing all ion species gives the total
+    ion density.
+
+
+    Target ion densities are inferred from embedded Langmuir probes, divertor Thomson
+    scattering, passive spectroscopy, and edge plasma modeling. Langmuir probes relate
+    ion saturation current density to a Bohm-sheath flux using an order-unity sheath
+    and collection factor; the relevant acoustic speed includes electron and ion temperature
+    contributions and, for multispecies plasmas, depends on the effective ion mass
+    and charge-state composition. In simple attached high-recycling two-point models,
+    pressure balance gives the qualitative scaling $n_{i,t} \sim n_{i,u} T_u/T_t$,
+    so the target density rises as the target temperature falls toward detachment.
+
+
+    Typical aggregate or main-fuel ion densities adjacent to divertor targets span
+    $10^{18}$-$10^{21}$ m$^{-3}$ from low-recycling attached conditions through high-recycling
+    and detached regimes. Species-resolved impurity ion densities are often lower
+    than the aggregate fuel-ion density, but can become a substantial fraction of
+    it in seeded, strongly radiating, or material-eroding divertor conditions.'
+  unit: m^-3
+  physics_domain: divertor_physics
+  links:
+  - name:density_at_divertor_target
+  - name:effective_charge_at_divertor_target
+  - name:electron_temperature_at_divertor_target
+  arguments:
+  - name: density_at_divertor_target
+    operator: ion
+    operator_kind: qualifier
+  sources:
+  - id: derived:ion_density_at_divertor_target
+    status: composed
 - name: ion_fluence_at_divertor_target
   kind: scalar
   status: draft
@@ -789,53 +801,55 @@
 - name: iron_density_at_divertor_target
   kind: scalar
   status: draft
-  description: Number density of iron ions at the divertor target, summed over all
-    ionization stages, providing a local measure of this high-Z metallic impurity
-    from erosion of iron-containing plasma-facing and structural materials.
-  documentation: 'Iron is a high-Z metallic impurity in fusion plasmas, originating
-    from sputtering and erosion of iron-containing structural components and plasma-facing
-    materials. The iron number density at the divertor target represents the total
-    number of iron ions per unit volume at the divertor target location, aggregated
-    over all ionization states $z = 1, \ldots, 26$.
+  description: Iron density at the divertor target is the local number density of
+    iron ions in the plasma immediately adjacent to a divertor target surface, summed
+    over all ionization states from Fe1+ through fully stripped Fe26+ and excluding
+    neutral iron atoms.
+  documentation: 'Iron density at the divertor target is the local number density
+    of iron ions in the plasma immediately adjacent to the divertor target surface,
+    evaluated upstream of the electrostatic sheath entrance. It is summed over all
+    ionization states from Fe$^{1+}$ through fully stripped Fe$^{26+}$; neutral iron
+    atoms are excluded. This species-resolved impurity density is a component of [density_at_divertor_target](name:density_at_divertor_target)
+    and contributes to charge balance, impurity radiation, and [effective_charge_at_divertor_target](name:effective_charge_at_divertor_target).
 
 
-    The combined iron density is defined as:
+    The charge-state-summed target density is defined by summing the local densities
+    of all ionic iron charge states:
 
 
     $$
 
-    n_\text{Fe} = \sum_{z=1}^{26} n_{\text{Fe}^{z+}}
+    n_{\mathrm{Fe},t} = \sum_{z=1}^{26} n_{\mathrm{Fe}^{z+},t}
 
     $$
 
 
-    where $n_{\text{Fe}^{z+}}$ is the local density of iron ions in charge state $z$,
-    in m$^{-3}$.
+    where $n_{\mathrm{Fe},t}$ is the iron density at the target, $n_{\mathrm{Fe}^{z+},t}$
+    is the local density of iron in charge state $z$ at the sheath entrance, and $z=1,\ldots,26$
+    spans all ionic charge states of iron.
 
 
-    This quantity is a species-resolved component of the broader [density_at_divertor_target](name:density_at_divertor_target),
-    characterizing how much high-Z impurity load reaches the divertor target from
-    the scrape-off layer. Elevated iron concentrations at the divertor target indicate
-    strong erosion or enhanced impurity transport toward the target, and can substantially
-    increase radiated power through iron line emission. The density is inferred from
-    spectroscopic analysis of iron emission lines in the divertor region, combined
-    with collisional-radiative modeling to convert observed line intensities to absolute
-    number densities.
+    Iron target density is usually inferred from divertor spectroscopy of Fe line
+    emission combined with collisional-radiative modeling and impurity transport analysis.
+    Edge and divertor simulations compute it by resolving iron charge-state populations
+    along scrape-off-layer field lines and summing the ionic charge states at the
+    target-adjacent plasma location. Iron reaching the divertor can originate from
+    erosion of iron-containing components, transport from main-chamber sources, redeposition,
+    and transient material-release events, so interpretation is strongly material-
+    and discharge-dependent.
 
 
-    Comparison with [volume_averaged_iron_density](name:volume_averaged_iron_density)
-    reveals the degree of impurity accumulation near the target relative to the bulk
-    plasma, while [iron_density_at_pedestal](name:iron_density_at_pedestal) gives
-    the corresponding local density at the pedestal. Analogous divertor-target densities
-    for other impurity species include [krypton_density_at_divertor_target](name:krypton_density_at_divertor_target),
-    argon_density_at_divertor_target, and boron_density_at_divertor_target.'
+    Typical values are trace-impurity densities far below the bulk plasma density;
+    representative target-adjacent values are often $10^{14}$-$10^{17}$ m$^{-3}$,
+    with localized erosion events or strong impurity transport producing higher transient
+    values.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
   - name:density_at_divertor_target
-  - name:volume_averaged_iron_density
-  - name:iron_density_at_pedestal
-  - name:krypton_density_at_divertor_target
+  - name:effective_charge_at_divertor_target
+  - name:iron_density_at_plasma_boundary
+  - name:iron_density_at_limiter
   arguments:
   - name: density_at_divertor_target
     operator: iron
@@ -843,54 +857,52 @@
 - name: krypton_density_at_divertor_target
   kind: scalar
   status: draft
-  description: Number density of krypton ions in the near-target divertor plasma,
-    summed over all krypton charge states unless a specific charge state is identified
-    separately.
+  description: Number density of krypton ions in the plasma immediately adjacent to
+    a divertor target, summed over all krypton ionization charge states from Kr1+
+    through Kr36+ and excluding neutral krypton atoms.
   documentation: 'Krypton density at the divertor target is the local number density
-    of krypton ions in the plasma adjacent to a divertor target. It includes all ionized
-    krypton charge states and excludes neutral krypton atoms unless a neutral density
-    is defined separately. As a number density, it is non-negative.
+    of ionized krypton in the plasma immediately adjacent to the material target surface,
+    evaluated upstream of the electrostatic sheath entrance. It is the charge-state-summed
+    krypton ion population at that location, excluding neutral krypton atoms, and
+    is a species-resolved instance of [density_at_divertor_target](name:density_at_divertor_target).
 
 
-    The charge-state-summed krypton ion density is defined by
+    The total krypton ion number density aggregates all 36 bound-electron configurations:
 
 
     $$
 
-    n_{\mathrm{Kr},t} = \sum_{q=1}^{36} n_{\mathrm{Kr}^{q+},t}
+    n_{\mathrm{Kr}} = \sum_{z=1}^{36} n_{\mathrm{Kr}^{z+}}
 
     $$
 
 
-    where $q$ is the krypton charge state, 36 is the atomic number of krypton, and
-    each partial density $n_{\mathrm{Kr}^{q+},t}$ is in m^-3. The quantity satisfies
-    $0 \le n_{\mathrm{Kr},t}$ and, at a fixed near-target location, is bounded by
-    the part of the [total ion density at the divertor target](name:total_ion_density_at_divertor_target)
-    not contributed by non-krypton ion species.
+    where $n_{\mathrm{Kr}^{z+}}$ is the local number density of krypton ions carrying
+    charge state $z$.
 
 
-    In experiments, this density is inferred mainly from krypton line emission observed
-    near the divertor target, interpreted with collisional-radiative atomic physics
-    using local electron temperature and density. In modeling, it is obtained by summing
-    the charge-state-resolved krypton ion populations from edge, scrape-off-layer,
-    or divertor plasma calculations.
+    Krypton (atomic number 36) is a noble gas used as a heavy radiative seeding impurity;
+    it radiates efficiently across a broad electron temperature range, redistributing
+    power away from the strike zone and facilitating plasma detachment. The local
+    density at the target reflects the balance between krypton injection, ionization
+    and recombination, cross-field diffusion in the scrape-off layer, parallel transport
+    along field lines, and surface recycling. In attached divertor conditions the
+    krypton ion population peaks farther upstream; in detached conditions, reduced
+    parallel transport can concentrate the ionized fraction closer to the target.
+    This quantity complements [krypton_density](name:krypton_density), which gives
+    the radially resolved density profile, and [carbon_density_at_divertor_target](name:carbon_density_at_divertor_target)
+    for the analogous charge-state-summed carbon species.
 
 
-    Typical values are 0 m^-3 when krypton is absent or not injected. In seeded divertor
-    scenarios, krypton is usually a trace or minor impurity, so its density is best
-    interpreted as a species fraction of the local [total ion density at the divertor
-    target](name:total_ion_density_at_divertor_target); unusually large fractions
-    indicate impurity accumulation, strong local radiation, or detachment-relevant
-    impurity enrichment. This is the krypton-specific counterpart of the parent [density
-    at divertor target](name:density_at_divertor_target) and is closely related to
-    other seeded noble-gas impurity densities such as [argon density at divertor target]
-    and [xenon density at divertor target](name:xenon_density_at_divertor_target).'
+    The quantity is inferred from vacuum ultraviolet or extreme ultraviolet emission
+    spectroscopy in the divertor volume, or from edge plasma transport simulations
+    benchmarked against spectroscopic line-ratio diagnostics.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:total_ion_density_at_divertor_target
   - name:density_at_divertor_target
-  - name:xenon_density_at_divertor_target
+  - name:krypton_density
+  - name:carbon_density_at_divertor_target
   arguments:
   - name: density_at_divertor_target
     operator: krypton
@@ -898,52 +910,37 @@
 - name: neon_density_at_divertor_target
   kind: scalar
   status: draft
-  description: Number density of ionized neon immediately adjacent to the divertor
-    target, summed over all neon charge states Ne1+ through Ne10+ and excluding neutral
-    neon atoms.
-  documentation: 'Neon density at the divertor target is the local number density
-    of ionized neon in the plasma directly next to the material target surface. It
-    represents the total population of neon ions over all bound-electron configurations,
-    excluding neutral neon, and is used to quantify impurity content, radiative cooling,
-    and dilution in the divertor plasma.
-
-
-    The total ionized neon density is the sum over neon charge-state densities:
-
-
-    $$
-
-    n_{\mathrm{Ne}} = \sum_{q=1}^{10} n_{\mathrm{Ne}^{q+}}
-
-    $$
-
-
-    where $n_{\mathrm{Ne}^{q+}}$ is the number density of neon ions with charge $q$
-    and the upper limit corresponds to fully stripped neon.
-
-
-    In practice this quantity is inferred from impurity emission measurements combined
-    with atomic-physics modeling, or obtained from edge and divertor plasma simulations
-    that evolve impurity ionization, recombination, radiation, and transport. The
-    ratio to [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target)
-    gives the local neon ionic fraction; interpretation is also coupled to local [electron_density_at_divertor_target](name:electron_density_at_divertor_target)
-    and [ion_temperature_at_divertor_target](name:ion_temperature_at_divertor_target).
-
-
-    Typical values range from about $10^{15}$-$10^{20}$ m$^{-3}$, depending strongly
-    on neon seeding level, divertor detachment state, plasma density, and impurity
-    transport. In trace-seeded attached conditions the value may be far below the
-    main-ion density, while in strongly radiating or detached divertor plasmas it
-    can approach percent-level fractions of the local ion density.'
+  description: Number density of neon ions in the plasma immediately adjacent to a
+    divertor target, summed over all ionization states Ne1+ through Ne10+ and excluding
+    neutral neon atoms.
+  documentation: "Neon density at the divertor target is the local number density\
+    \ of neon ions in the plasma immediately adjacent to the divertor target surface,\
+    \ covering all ionization stages from Ne1+ through Ne10+ and excluding neutral\
+    \ neon atoms. It is a species-resolved member of the [density_at_divertor_target](name:density_at_divertor_target)\
+    \ family, evaluated just upstream of the electrostatic sheath entrance at the\
+    \ plasma\u2013material interface.\n\nThe charge-state-summed density is defined\
+    \ as:\n\n$$\nn_{\\text{Ne}} = \\sum_{q=1}^{10} n_{\\text{Ne}^{q+}}\n$$\n\nwhere\
+    \ $n_{\\text{Ne}^{q+}}$ is the local number density of neon ions in charge state\
+    \ $q+$ at the near-target measurement position.\n\nNeon is injected as a seeding\
+    \ impurity to drive radiative energy dissipation in the divertor volume, lowering\
+    \ the peak heat flux on plasma-facing surfaces. The near-target neon ion density\
+    \ reflects the balance between the seeding source rate, parallel and cross-field\
+    \ transport in the scrape-off layer, ionization, and recombination. In high-recycling\
+    \ or detached regimes the ionization balance shifts toward lower charge states\
+    \ and the sheath-entrance density can differ substantially from the upstream separatrix\
+    \ value. Analogous quantities for alternative seeding species are [nitrogen_density_at_divertor_target](name:nitrogen_density_at_divertor_target)\
+    \ and [xenon_density_at_divertor_target](name:xenon_density_at_divertor_target);\
+    \ the overall impurity content at the target is captured by [effective_charge_at_divertor_target](name:effective_charge_at_divertor_target),\
+    \ and the local [electron_temperature_at_divertor_target](name:electron_temperature_at_divertor_target)\
+    \ governs which neon charge states dominate the ionization distribution."
   unit: m^-3
   physics_domain: divertor_physics
   links:
   - name:density_at_divertor_target
-  - name:argon_density_at_divertor_target
   - name:nitrogen_density_at_divertor_target
-  - name:krypton_density_at_divertor_target
-  - name:electron_density_at_divertor_target
-  - name:ion_temperature_at_divertor_target
+  - name:xenon_density_at_divertor_target
+  - name:effective_charge_at_divertor_target
+  - name:electron_temperature_at_divertor_target
   arguments:
   - name: density_at_divertor_target
     operator: neon
@@ -951,47 +948,53 @@
 - name: nitrogen_density_at_divertor_target
   kind: scalar
   status: draft
-  description: Nitrogen ion number density evaluated at the divertor target.
-  documentation: 'Nitrogen ion number density at the divertor target quantifies the
-    local concentration of ionized nitrogen in the plasma immediately adjacent to
-    the divertor plate surface. Nitrogen is commonly seeded as an impurity into the
-    divertor region to enhance radiative power dissipation through atomic line emission,
-    promoting plasma detachment and reducing peak heat loads on the target.
+  description: Nitrogen density at the divertor target is the local number density
+    of nitrogen ions in the plasma immediately adjacent to a divertor target surface,
+    summed over all ionization charge states N1+ through N7+ and excluding neutral
+    nitrogen atoms.
+  documentation: 'Nitrogen density at the divertor target is the local number density
+    of nitrogen ions in the plasma immediately adjacent to the divertor target surface,
+    evaluated at the entrance to the electrostatic sheath. It is summed over all ionization
+    states from N$^{1+}$ through fully stripped N$^{7+}$; neutral nitrogen atoms and
+    molecules are excluded. It is the nitrogen impurity contribution to [ion_density_at_divertor_target](name:ion_density_at_divertor_target)
+    and a species-resolved member of [density_at_divertor_target](name:density_at_divertor_target).
 
 
-    The ion number density $n_\mathrm{N}$ is defined as the zeroth velocity moment
-    of the nitrogen ion velocity distribution:
+    The charge-state aggregation convention is:
 
 
     $$
 
-    n_\mathrm{N} = \int f_\mathrm{N}(\mathbf{v}) \, d^3v
+    n_{\mathrm{N},t} = \sum_{q=1}^{7} n_{\mathrm{N}^{q+},t}
 
     $$
 
 
-    where $f_\mathrm{N}(\mathbf{v})$ is the nitrogen ion phase-space distribution
-    function and integration is over all velocities $\mathbf{v}$.
+    where $n_{\mathrm{N},t}$ is the nitrogen ion number density at the target sheath
+    entrance in m$^{-3}$, $n_{\mathrm{N}^{q+},t}$ is the number density of nitrogen
+    ions in charge state $q+$ at the same location, and $q=0$ neutral nitrogen is
+    not included. Each charge-state density is non-negative, so $n_{\mathrm{N},t}
+    \ge 0$ and is zero when no ionized nitrogen is present.
 
 
-    This quantity is inferred from optical spectroscopy of nitrogen line emission
-    in the divertor plasma, or from Langmuir probe measurements combined with spectroscopic
-    impurity fraction estimates. It is a key parameter for characterizing impurity
-    seeding scenarios and controlling plasma detachment. Analogous quantities for
-    other seeded impurity species include [neon_density_at_divertor_target](name:neon_density_at_divertor_target),
-    argon_density_at_divertor_target, [oxygen_density_at_divertor_target](name:oxygen_density_at_divertor_target),
-    and [xenon_density_at_divertor_target](name:xenon_density_at_divertor_target);
-    this quantity is the nitrogen-specific component of the parent [density_at_divertor_target](name:density_at_divertor_target).
+    In practice, nitrogen density at the target is inferred from nitrogen line emission
+    using collisional-radiative modeling constrained by local electron density and
+    temperature, viewing geometry, and atomic data. Langmuir probes provide complementary
+    sheath-entrance plasma conditions, while impurity particle-balance or divertor
+    transport modeling can connect the local target value to the upstream and divertor-volume
+    nitrogen population.
 
 
-    Sign convention: Positive when nitrogen ions are present at the divertor target.'
+    Typical near-target nitrogen ion densities are about $10^{15}$-$10^{18}$ m$^{-3}$
+    in weakly seeded plasmas and about $10^{18}$-$10^{20}$ m$^{-3}$ during deliberate
+    nitrogen seeding for strong radiative divertor operation or detachment, depending
+    on fueling, pumping, ionization balance, and target temperature.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:neon_density_at_divertor_target
-  - name:oxygen_density_at_divertor_target
-  - name:xenon_density_at_divertor_target
   - name:density_at_divertor_target
+  - name:neon_density_at_divertor_target
+  - name:hydrogen_density_at_divertor_target
   arguments:
   - name: density_at_divertor_target
     operator: nitrogen
@@ -999,52 +1002,41 @@
 - name: oxygen_density_at_divertor_target
   kind: scalar
   status: draft
-  description: Local plasma volume number density of oxygen impurity ions adjacent
-    to the divertor target, summed over all ionized oxygen charge states.
-  documentation: 'Oxygen density at the divertor target is the local volume number
-    density of ionized oxygen impurity species in the near-target divertor plasma.
-    It counts oxygen ions by particle number, not by charge density, and excludes
-    neutral oxygen atoms and oxygen retained in or adsorbed on the target material.
+  description: Number density of oxygen ions in the plasma immediately adjacent to
+    a divertor target, summed over all ionization charge states O1+ through O8+ and
+    excluding neutral oxygen atoms.
+  documentation: 'Oxygen density at the divertor target is the local number density
+    of ionized oxygen in the plasma next to a divertor target surface. It is the charge-state-summed
+    oxygen ion population per unit volume at the plasma-material interface, spanning
+    all ionization stages from singly ionized O$^{1+}$ through fully stripped O$^{8+}$,
+    and excludes neutral oxygen atoms. As a species-resolved component of [density_at_divertor_target](name:density_at_divertor_target),
+    it quantifies the oxygen impurity content at the sheath entrance of the divertor.
 
 
-    The all-charge-state oxygen ion density is defined as the sum of the local charge-state
-    densities:
+    Oxygen is a low-Z impurity in fusion plasmas, entering through outgassing of vacuum
+    vessel walls, residual water vapor, or erosion of oxide-forming plasma-facing
+    components. Elevated oxygen density at the target enhances radiative power dissipation
+    through line emission from partially stripped ions and raises [effective_charge_at_divertor_target](name:effective_charge_at_divertor_target)
+    above unity, degrading fuel-ion purity. In strongly radiating or detached divertor
+    regimes, distributed oxygen line radiation can partially detach the plasma and
+    redistribute heat loads away from the target surface.
 
 
-    $$
-
-    n_\mathrm{O}^{\mathrm{target}} = \sum_{q=1}^{8} n_{\mathrm{O}^{q+}}^{\mathrm{target}}
-
-    $$
-
-
-    where $q$ is the oxygen ion charge state, $n_{\mathrm{O}^{q+}}^{\mathrm{target}}$
-    is the local volume number density of oxygen ions in charge state $q$ in m^-3,
-    and $n_\mathrm{O}^{\mathrm{target}}$ is the summed oxygen ion density in m^-3.
-    The neutral state $q=0$ is not included.
-
-
-    In practice, this quantity is inferred from divertor spectroscopy of oxygen emission
-    lines combined with electron temperature, electron density, and collisional-radiative
-    or ionization-balance modeling, or from edge plasma simulations constrained by
-    such measurements. Because different emission lines sample different charge states
-    and plasma conditions, evaluating the all-charge-state sum requires an estimate
-    of the local oxygen charge-state distribution.
-
-
-    Useful value checks are non-negativity and consistency with the local total ion
-    density: $0 \le n_\mathrm{O}^{\mathrm{target}} \le$ [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target).
-    A universal numerical range is not intrinsic to the definition because the value
-    depends strongly on divertor plasma conditions, oxygen sources, and ionization
-    balance; normalized comparisons are often expressed using [oxygen_fraction](name:ratio_of_volume_averaged_oxygen_ion_density_to_volume_averaged_electron_density).
-    Related oxygen densities at other spatial scopes include [oxygen_density_at_plasma_boundary](name:oxygen_density_at_plasma_boundary)
-    and [volume_averaged_oxygen_density](name:volume_averaged_oxygen_density).'
+    The oxygen ion density at the target is inferred from visible and vacuum-ultraviolet
+    spectroscopy of oxygen emission lines near the divertor, combined with collisional-radiative
+    modeling to relate observed line intensities to the total ion population across
+    charge states. This interpretation requires concurrent knowledge of the local
+    electron temperature and electron density to resolve the charge-state distribution.
+    The oxygen contribution sums into [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target)
+    alongside fuel species such as [hydrogen_density_at_divertor_target](name:hydrogen_density_at_divertor_target);
+    the volume-averaged confined-plasma counterpart is [volume_averaged_oxygen_density](name:volume_averaged_oxygen_density).'
   unit: m^-3
   physics_domain: divertor_physics
   links:
+  - name:density_at_divertor_target
+  - name:effective_charge_at_divertor_target
   - name:total_ion_density_at_divertor_target
-  - name:ratio_of_volume_averaged_oxygen_ion_density_to_volume_averaged_electron_density
-  - name:oxygen_density_at_plasma_boundary
+  - name:hydrogen_density_at_divertor_target
   - name:volume_averaged_oxygen_density
   arguments:
   - name: density_at_divertor_target
@@ -1125,15 +1117,14 @@
     \ devices; reactor design limits for tungsten monoblock divertor components are\
     \ set near 10 MW/m\xB2 for continuous operation, with transient events exceeding\
     \ steady-state limits by large factors. Analogous peak loads on other plasma-facing\
-    \ surfaces are captured by [peak power density at the limiter](name:peak_power_density_at_limiter),\
-    \ [peak power density at the first wall](name:peak_power_density_at_first_wall),\
-    \ and the device-level [peak power density at the wall](name:peak_power_density_at_wall),\
-    \ while [power at the divertor target due to radiation] quantifies the integrated\
-    \ radiative contribution to the total target heat load."
+    \ surfaces are captured by [peak power density at the limiter], [peak power density\
+    \ at the first wall](name:peak_power_density_at_first_wall), and the device-level\
+    \ [peak power density at the wall](name:peak_power_density_at_wall), while [power\
+    \ at the divertor target due to radiation] quantifies the integrated radiative\
+    \ contribution to the total target heat load."
   unit: W.m^-2
   physics_domain: divertor_physics
   links:
-  - name:peak_power_density_at_limiter
   - name:peak_power_density_at_first_wall
   - name:peak_power_density_at_wall
 - name: power_at_divertor_target
@@ -1268,7 +1259,6 @@
   unit: W
   physics_domain: divertor_physics
   links:
-  - name:power_due_to_conduction
   - name:power_at_divertor_target_due_to_convection
   - name:power_at_divertor_target
 - name: power_at_inner_divertor_target
@@ -1318,7 +1308,6 @@
   links:
   - name:electron_power_at_inner_divertor_target
   - name:total_ion_power_at_inner_divertor_target
-  - name:power_at_divertor_target_due_to_radiation
   - name:thermal_power_of_divertor
 - name: electron_power_at_inner_divertor_target
   kind: scalar
@@ -2075,9 +2064,7 @@
   physics_domain: divertor_physics
   links:
   - name:power_at_divertor_target_due_to_conduction
-  - name:total_lost_power_over_scrape_off_layer
   - name:radiated_power_over_scrape_off_layer
-  - name:power_due_to_conduction
   - name:power_at_divertor_target_due_to_convection
   - name:parallel_heat_flux_at_divertor_target
 - name: power_of_divertor_due_to_convection
@@ -2455,7 +2442,6 @@
   physics_domain: divertor_physics
   links:
   - name:wetted_area_of_divertor_target
-  - name:wetted_area_of_divertor
   sources:
   - id: dd:divertors/divertor/target/tile/surface_area
     dd_path: divertors/divertor/target/tile/surface_area
@@ -2650,6 +2636,10 @@
   - name:deuterium_density_at_divertor_target
   - name:neon_density_at_divertor_target
   - name:carbon_density_at_divertor_target
+  arguments:
+  - name: ion_density_at_divertor_target
+    operator: total
+    operator_kind: qualifier
 - name: total_ion_power_at_inner_divertor_target
   kind: scalar
   status: draft
@@ -2761,52 +2751,61 @@
 - name: tritium_density_at_divertor_target
   kind: scalar
   status: draft
-  description: Number density of tritium ions in the scrape-off-layer plasma immediately
-    upstream of a divertor target surface.
-  documentation: 'Tritium density at a divertor target is the local number density
-    of ionized atomic tritium in the scrape-off-layer plasma immediately upstream
-    of a material target surface. It excludes neutral tritium atoms and molecules,
-    and is a species-resolved component of the local total ion density at the target.
+  description: Local number density of tritium ions evaluated in the plasma immediately
+    adjacent to the divertor target surface, with atomic tritium ions summed over
+    their single ionization charge state T+ and neutral tritium atoms and molecules
+    excluded.
+  documentation: 'Tritium density at the divertor target is the local number density
+    of tritium ions in the plasma immediately adjacent to a divertor target surface,
+    evaluated at the entrance to the electrostatic sheath. As tritium has one bound
+    electron, the ionized atomic species is the single charge state $T^+$; neutral
+    tritium atoms and molecules are excluded. It is a species-resolved fuel-ion instance
+    of [density_at_divertor_target](name:density_at_divertor_target) and contributes
+    to aggregate ion densities such as [ion_density_at_divertor_target](name:ion_density_at_divertor_target).
 
 
-    The local density is the tritium-ion particle count per plasma volume in the infinitesimal-volume
-    limit:
+    At the sheath entrance, target-density estimates are often constrained by the
+    tritium ion flux reaching the material surface through the Bohm sheath relation:
 
 
     $$
 
-    n_T(\mathbf{x}_t) = \lim_{\Delta V \to 0} \frac{\Delta N_T^{\mathrm{ion}}}{\Delta
-    V}
+    \Gamma_{\parallel,T} = n_T u_{\parallel,T} \simeq n_T c_{s,T}, \qquad c_{s,T}
+    = \sqrt{\frac{e\,(T_e+T_T)}{m_T}}
 
     $$
 
 
-    where $n_T$ is the tritium ion number density in m^-3, $\mathbf{x}_t$ denotes
-    a point in the plasma immediately adjacent to the target, $\Delta V$ is a small
-    plasma volume around that point, and $\Delta N_T^{\mathrm{ion}}$ is the number
-    of tritium ions in that volume.
+    where $\Gamma_{\parallel,T}$ is the parallel tritium ion particle flux to the
+    target in m$^{-2}$ s$^{-1}$, taken positive along the field-line direction toward
+    the material surface; $n_T$ is the tritium density at the sheath entrance in m$^{-3}$;
+    $u_{\parallel,T}$ is the tritium ion parallel flow speed in m s$^{-1}$; $c_{s,T}$
+    is the tritium Bohm acoustic speed in m s$^{-1}$; $e$ is the elementary charge;
+    $T_e$ and $T_T$ are the sheath-entrance electron and tritium-ion temperatures
+    in eV; and $m_T$ is the tritium ion mass in kg.
 
 
-    In practice this quantity is inferred from isotope-resolved boundary-plasma analysis,
-    particle-balance modeling, or diagnostics constrained by local electron and ion
-    density measurements when tritium-sensitive measurements are available. It is
-    the divertor-target counterpart of [tritium_density_at_plasma_boundary](name:tritium_density_at_plasma_boundary)
-    and [tritium_density_at_limiter](name:tritium_density_at_limiter), and it relates
-    to the local fuel mixture through ratios such as $n_T/n_i$, where $n_i$ is the
-    total ion density.
+    In practice, $n_T$ is inferred by combining target electron-density or ion-saturation-current
+    measurements from embedded Langmuir probes with isotope-resolved spectroscopy,
+    recycling and fueling particle balance, neutral-pressure constraints, or boundary-plasma
+    modeling. Quasineutrality and isotope fractions link it to [deuterium_density_at_divertor_target](name:deuterium_density_at_divertor_target)
+    and to the fuel-mixture quantity [deuterium_tritium_density_at_divertor_target](name:deuterium_tritium_density_at_divertor_target).
 
 
-    The physically allowed range is $0 \le n_T \le n_i$ when $n_i$ includes all local
-    ion species. A tritium-free plasma has $n_T = 0$ m^-3; in a tritium-rich edge
-    plasma the value is set by the local fuel-ion density and tritium fraction, for
-    example $n_T \simeq f_T n_i$ when $f_T$ denotes the tritium ion fraction.'
+    Typical target ion densities in attached and high-recycling divertor plasmas span
+    $10^{18}$-$10^{21}$ m$^{-3}$; the tritium component is this range multiplied by
+    the local tritium ion fraction and can be $0$ m$^{-3}$ in tritium-free operation.
+    In an approximately equimolar deuterium-tritium fuel plasma with weak impurity
+    dilution, $n_T$ is roughly half of the local fuel-ion target density; high-recycling
+    conditions can raise the sheath-entrance density, while deep detachment can strongly
+    reduce the tritium ion flux reaching the surface.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
+  - name:hydrogen_density_at_divertor_target
   - name:density_at_divertor_target
   - name:tritium_density_at_plasma_boundary
-  - name:deuterium_density_at_divertor_target
-  - name:helium_4_density_at_divertor_target
+  - name:tritium_density_at_limiter
   arguments:
   - name: density_at_divertor_target
     operator: tritium
@@ -2814,50 +2813,50 @@
 - name: tungsten_density_at_divertor_target
   kind: scalar
   status: draft
-  description: Number density of tungsten ions at the divertor target, summed over
-    all ionization stages and excluding neutral tungsten atoms.
-  documentation: 'Tungsten (atomic number $Z = 74$) is the primary plasma-facing material
-    in the divertor regions of present-day and next-generation fusion devices, where
-    ion bombardment causes physical sputtering and releases tungsten atoms that rapidly
-    ionize in the scrape-off-layer plasma. The tungsten ion number density at the
-    divertor target quantifies the total local concentration of tungsten ions per
-    unit volume in the plasma immediately adjacent to the strike-zone surface, and
-    is a key component of the broader [density_at_divertor_target](name:density_at_divertor_target)
-    species set.
+  description: Number density of tungsten ions in the plasma immediately adjacent
+    to a divertor target, summed over all ionization stages W1+ through W74+ and excluding
+    neutral tungsten atoms.
+  documentation: 'Tungsten density at the divertor target is the local number density
+    of tungsten ions in the plasma adjacent to a divertor target surface, summed over
+    all ionization stages W$^{1+}$ through W$^{74+}$ and excluding neutral tungsten
+    atoms. As a fully charge-state-summed impurity ion density, it follows the convention
+    of the parent [density_at_divertor_target](name:density_at_divertor_target) and
+    is evaluated at the plasma-material interface immediately upstream of the electrostatic
+    sheath entrance.
 
 
-    When charge states are not individually resolved, this quantity represents the
-    sum over all ionization stages:
+    Tungsten is a high-Z refractory metal with atomic number $Z = 74$. The total ion
+    number density is defined as:
 
 
     $$
 
-    n_W = \sum_{q=1}^{74} n_{W^{q+}}
+    n_W = \sum_{z=1}^{74} n_{W^{z+}}
 
     $$
 
 
-    where $n_{W^{q+}}$ is the number density of tungsten ions in charge state $q$
-    at the target location. Neutral tungsten atoms are excluded from this sum.
+    where $n_{W^{z+}}$ is the local number density of tungsten ions in charge state
+    $z$. Tungsten ions at the divertor target arise primarily from physical sputtering
+    of tungsten plasma-facing components by energetic incident hydrogenic and impurity
+    ions.
 
 
-    This quantity is inferred from optical emission spectroscopy of tungsten line
-    radiation, charge-exchange recombination spectroscopy, or impurity transport codes
-    constrained by global particle balance. It characterizes the local impurity source
-    strength at the plasma-material interface and is a key input for assessing core
-    contamination risk, since tungsten fractional concentrations above approximately
-    $10^{-5}$ relative to the electron density can produce intolerable radiated power
-    losses in the confined plasma. The boundary impurity content reaching the separatrix
-    is tracked separately by [tungsten_density_at_plasma_boundary](name:tungsten_density_at_plasma_boundary).
-    Co-seeded impurity densities at the same location, such as [nitrogen_density_at_divertor_target](name:nitrogen_density_at_divertor_target)
-    and argon_density_at_divertor_target, are routinely compared with this quantity
-    in divertor detachment control studies.'
+    Even trace tungsten concentrations that migrate from the divertor region into
+    the core can produce severe radiative power losses at electron temperatures above
+    a few keV, making this near-target density a critical diagnostic quantity for
+    impurity transport and divertor detachment studies. It is distinct from the bulk
+    plasma content captured by [tungsten_density](name:tungsten_density) and from
+    the separatrix-averaged value given by [tungsten_density_at_plasma_boundary](name:tungsten_density_at_plasma_boundary).
+    Near-target tungsten ion densities are inferred from vacuum-ultraviolet and optical
+    emission spectroscopy of tungsten line radiation combined with impurity transport
+    modeling.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
   - name:density_at_divertor_target
+  - name:tungsten_density
   - name:tungsten_density_at_plasma_boundary
-  - name:nitrogen_density_at_divertor_target
   arguments:
   - name: density_at_divertor_target
     operator: tungsten
@@ -2905,7 +2904,6 @@
   physics_domain: divertor_physics
   links:
   - name:radial_length_of_divertor_target
-  - name:vertical_coordinate_of_divertor_target
 - name: vertical_outline_of_divertor_tile
   kind: scalar
   status: draft
@@ -3009,49 +3007,50 @@
 - name: xenon_density_at_divertor_target
   kind: scalar
   status: draft
-  description: Xenon ion number density in the plasma immediately adjacent to a divertor
-    target, summed over all ionized charge states of elemental xenon and excluding
-    neutral xenon atoms.
-  documentation: 'Xenon density at a divertor target is the local number density of
-    ionized elemental xenon in the boundary plasma next to the target surface. It
-    represents the total population of xenon ions, independent of charge state, and
-    does not include neutral xenon atoms.
+  description: Number density of xenon ions in the plasma immediately adjacent to
+    a divertor target, summed over all ionization charge states Xe1+ through Xe54+
+    and excluding neutral xenon atoms.
+  documentation: 'Xenon density at the divertor target is the local number density
+    of ionized xenon in the plasma immediately adjacent to the divertor target surface.
+    It represents all occupied ionization stages in the thin plasma layer upstream
+    of the electrostatic sheath entrance, excluding neutral xenon atoms, and is a
+    species-resolved member of the [density_at_divertor_target](name:density_at_divertor_target)
+    family.
 
 
-    When charge-state-resolved densities are available, the elemental xenon ion density
-    is the charge-state sum:
+    The total xenon ion density is the sum over all occupied charge states:
 
 
     $$
 
-    n_{\mathrm{Xe,ion}} = \sum_{q=1}^{54} n_{\mathrm{Xe}^{q+}}
+    n_{\mathrm{Xe}} = \sum_{q=1}^{54} n_{\mathrm{Xe}^{q+}}
 
     $$
 
 
-    where $n_{\mathrm{Xe,ion}}$ is the total ionized xenon number density at the divertor
-    target in $m^{-3}$, $n_{\mathrm{Xe}^{q+}}$ is the number density in xenon charge
-    state $q+$ in $m^{-3}$, and the sum excludes the neutral state $q=0$.
+    where $n_{\mathrm{Xe}^{q+}}$ is the local number density of xenon ions in charge
+    state $q$, summed from singly ionized Xe$^{1+}$ through fully stripped Xe$^{54+}$.
 
 
-    In practice this quantity may be obtained by summing modeled charge-state populations,
-    by interpreting xenon line emission with atomic collisional-radiative data, or
-    from boundary-plasma impurity transport calculations constrained by local diagnostics.
-    It is used to quantify xenon seeding and impurity accumulation near plasma-facing
-    divertor surfaces, where xenon affects radiative cooling and local power balance.
+    Xenon is introduced as a high-Z noble-gas seeding impurity to enhance radiative
+    power dissipation in the divertor region, reducing peak target heat loads during
+    high-power operation. At near-target plasma temperatures of a few to tens of eV,
+    lower charge states dominate the local xenon ion population; higher charge states
+    become significant only further upstream where the electron temperature is substantially
+    greater. The near-target xenon density is inferred from spectroscopic line-emission
+    measurements combined with impurity transport modeling.
 
 
-    A device-independent numerical range is not intrinsic to the definition. The value
-    is 0 m^-3 when no ionized xenon is present and, in xenon-seeded divertor plasmas,
-    is an experiment-dependent trace-impurity density that can vary by orders of magnitude
-    with seeding rate, divertor temperature, ionization balance, and plasma detachment
-    state.'
+    For comparison, [neon_density_at_divertor_target](name:neon_density_at_divertor_target)
+    gives the analogous quantity for the lighter noble-gas seeding species neon, and
+    [xenon_density_at_limiter](name:xenon_density_at_limiter) provides the corresponding
+    xenon ion density at a limiter surface rather than a divertor target.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:argon_density_at_divertor_target
-  - name:neon_density_at_divertor_target
   - name:density_at_divertor_target
+  - name:neon_density_at_divertor_target
+  - name:xenon_density_at_limiter
   arguments:
   - name: density_at_divertor_target
     operator: xenon
@@ -3073,24 +3072,22 @@
     \ denotes position on the full plasma-facing surface set $\\mathcal{W}$ and $q$\
     \ is the local heat flux in W m$^{-2}$. Location-specific equivalents \u2014 [peak_power_density_at_divertor_target](name:peak_power_density_at_divertor_target),\
     \ [peak_power_density_at_first_wall](name:peak_power_density_at_first_wall), and\
-    \ [peak_power_density_at_limiter](name:peak_power_density_at_limiter) \u2014 maximize\
-    \ over their respective sub-surfaces; the more general peak_power_density covers\
-    \ the same concept without a locus qualifier.\n\nInfrared thermography is the\
-    \ primary diagnostic for spatially resolved surface heat flux measurement; the\
-    \ local power flux density is reconstructed from the measured surface temperature\
-    \ transient via the surface heat conduction equation, with emissivity calibration\
-    \ accounting for material surface properties. Embedded thermocouples and calorimetric\
-    \ tiles provide complementary point-wise constraints.\n\nSteady-state peak values\
-    \ range from 0.1\u20131 MW m$^{-2}$ on main-chamber first-wall panels and 5\u2013\
-    20 MW m$^{-2}$ at attached divertor strike zones; transient events such as edge-localized\
-    \ modes and disruptions can drive local peak loading far above these steady-state\
-    \ values."
+    \ peak_power_density_at_limiter \u2014 maximize over their respective sub-surfaces;\
+    \ the more general peak_power_density covers the same concept without a locus\
+    \ qualifier.\n\nInfrared thermography is the primary diagnostic for spatially\
+    \ resolved surface heat flux measurement; the local power flux density is reconstructed\
+    \ from the measured surface temperature transient via the surface heat conduction\
+    \ equation, with emissivity calibration accounting for material surface properties.\
+    \ Embedded thermocouples and calorimetric tiles provide complementary point-wise\
+    \ constraints.\n\nSteady-state peak values range from 0.1\u20131 MW m$^{-2}$ on\
+    \ main-chamber first-wall panels and 5\u201320 MW m$^{-2}$ at attached divertor\
+    \ strike zones; transient events such as edge-localized modes and disruptions\
+    \ can drive local peak loading far above these steady-state values."
   unit: W.m^-2
   physics_domain: divertor_physics
   links:
   - name:peak_power_density_at_divertor_target
   - name:peak_power_density_at_first_wall
-  - name:peak_power_density_at_limiter
   arguments:
   - name: power_density_at_wall
     operator: peak
