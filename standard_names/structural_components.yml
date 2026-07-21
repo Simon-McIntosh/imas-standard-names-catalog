@@ -1,5 +1,5 @@
 # Domain: structural_components
-# Entries: 51
+# Entries: 55
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -45,61 +45,46 @@
         inner surface of the vacuum vessel. A global device geometry parameter relevant
         to plasma-wall interaction and heat load analysis.
       kind: llm
-- name: coolant_pressure_at_cooling_circuit_inlet
+- name: fraction_of_breeder_blanket_layer
   kind: scalar
   status: active
-  description: Coolant pressure at a cooling-circuit inlet is the absolute static
-    pressure of the coolant where it enters a hydraulically defined cooling circuit
-    or component. It is the coolant-specific inlet pressure boundary and excludes
-    gage, dynamic, and stagnation pressure.
-  documentation: 'Coolant pressure at a cooling-circuit inlet is the absolute static
-    thermodynamic pressure of the coolant where it enters a hydraulically defined
-    cooling circuit or component. It denotes the scalar upstream boundary pressure
-    of the coolant and excludes gage pressure, dynamic pressure, and stagnation pressure.
+  description: Fraction of breeder blanket layer is the part-to-whole share of a specified
+    constituent material, phase, void, or subregion within a defined breeder-blanket
+    layer. It abstracts composition fractions formed on a stated basis, such as volume,
+    mass, chemical amount, or atom count, for homogenized layer properties.
+  documentation: 'Fraction of breeder blanket layer is the composition share of a
+    specified constituent material, phase, void, or subregion within a defined breeder-blanket
+    layer. It is an abstract part-to-whole fraction; each concrete specialization
+    defines which extensive geometrical or material measure is used to form the share.
 
 
-    For the same hydraulic flow path, the associated static pressure drop is related
-    to this inlet pressure by:
+    For a constituent $\alpha$ and a chosen fraction basis $Q$, the fraction is defined
+    by
 
 
     $$
 
-    p_{\mathrm{coolant,in}} = p_{\mathrm{coolant,out}} + \Delta p_{\mathrm{coolant}}
+    f_\alpha^{(Q)} = \frac{Q_\alpha}{Q_\mathrm{layer}}
 
     $$
 
 
-    where $p_{\mathrm{coolant,in}}$ is this inlet absolute static coolant pressure
-    in pascals, $p_{\mathrm{coolant,out}}$ is the corresponding outlet absolute static
-    coolant pressure in pascals, and $\Delta p_{\mathrm{coolant}}$ is the total static
-    pressure drop in pascals, defined positive when the outlet static pressure is
-    lower than the inlet static pressure.
+    where $Q_\alpha$ is the selected extensive measure associated with constituent
+    $\alpha$ in the breeder-blanket layer, and $Q_\mathrm{layer}$ is the corresponding
+    total measure for that same layer on the same basis.
 
 
-    This quantity is the coolant-specific specialization of [pressure at a cooling-circuit
-    inlet](name:pressure_at_cooling_circuit_inlet): when the working fluid is coolant,
-    both names denote the same inlet absolute static pressure. It is also the cooling-circuit-inlet
-    value of [coolant pressure](name:coolant_pressure), and it is distinct from pressure
-    loss, pump head, and mechanical stress in the surrounding structure.'
-  unit: Pa
+    Fractions formed on different bases, such as volume basis, mass basis, chemical-amount
+    basis, or atom-count basis, are distinct quantities and are not generally interchangeable.
+    The [volumetric fraction of breeder blanket layer](name:volumetric_fraction_of_breeder_blanket_layer)
+    is the volume-basis specialization of this parent concept. A set of such fractions
+    sums to unity only when the listed constituents form a complete, non-overlapping
+    decomposition of the same layer on the same basis.'
+  unit: '1'
   physics_domain: structural_components
   links:
-  - name:coolant_pressure
-  sources:
-  - dd_path: breeding_blanket/module/cooling/time_slice/pressure_inlet
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/breeding_blanket.html#breeding_blanket-module-cooling-time_slice-pressure_inlet
-    dd_documentation:
-      leaf: Inlet coolant pressure
-      parent_path: breeding_blanket/module/cooling/time_slice
-      parent: Dynamic quantities at various time slices
-      data_type: FLT_0D
-      unit: Pa
-    enhanced_context:
-      description: Inlet coolant pressure (P_in) in the cooling circuit of a breeding
-        blanket module at a given time slice. Serves as a thermodynamic boundary condition
-        for coolant flow analysis.
-      kind: llm
+  - name:volumetric_fraction_of_breeder_blanket_layer
+  - name:volume_of_breeder_blanket
 - name: heating_power_of_breeder_blanket
   kind: scalar
   status: active
@@ -168,7 +153,39 @@
   unit: W
   physics_domain: structural_components
   links:
+  - name:power_density_of_breeder_blanket_layer
   - name:nuclear_heating_power_of_breeder_blanket_layer
+- name: heating_power_of_breeder_blanket_shield
+  kind: scalar
+  status: active
+  description: Rate of energy deposition as heat within the breeder blanket shield,
+    integrated over the full shield volume and independent of the specific deposition
+    mechanism.
+  documentation: "The heating power of the breeder blanket shield is the volume-integral\
+    \ of all local power-deposition rates within the shield structural materials,\
+    \ encompassing every mechanism by which incident radiation transfers energy to\
+    \ the shield.\n\nThe total shield heating power $P_\\mathrm{shield}$ is defined\
+    \ as:\n\n$$\nP_\\mathrm{shield} = \\int_{V_\\mathrm{shield}} q'''(\\mathbf{r})\
+    \ \\, dV\n$$\n\nwhere $q'''(\\mathbf{r})$ is the local volumetric power deposition\
+    \ rate and $V_\\mathrm{shield}$ is the total shield volume.\n\nIn a fusion blanket,\
+    \ the shield primarily attenuates the neutron and photon fluxes emerging from\
+    \ the breeding zone, making nuclear interactions \u2014 neutron scattering, neutron\
+    \ capture, and secondary gamma absorption \u2014 the dominant heating channel,\
+    \ as detailed by [nuclear_heating_power_of_breeder_blanket_shield](name:nuclear_heating_power_of_breeder_blanket_shield).\
+    \ This total power sets the thermal load on shield coolant circuits and constrains\
+    \ peak material temperatures critical for structural integrity. The layer-resolved\
+    \ analog [nuclear_heating_power_of_breeder_blanket_layer](name:nuclear_heating_power_of_breeder_blanket_layer)\
+    \ and the module-integrated quantity [nuclear_heating_power_of_breeder_blanket_module](name:nuclear_heating_power_of_breeder_blanket_module)\
+    \ provide complementary views of the power distribution within the broader blanket\
+    \ system. Shield heating powers are obtained by integrating neutron and photon\
+    \ transport solutions over the shield volume, summing contributions from all interaction\
+    \ channels."
+  unit: W
+  physics_domain: structural_components
+  links:
+  - name:nuclear_heating_power_of_breeder_blanket_shield
+  - name:nuclear_heating_power_of_breeder_blanket_layer
+  - name:nuclear_heating_power_of_breeder_blanket_module
 - name: nuclear_heating_power_of_breeder_blanket
   kind: scalar
   status: active
@@ -382,6 +399,10 @@
   - name:nuclear_heating_power_of_breeder_blanket_layer
   - name:nuclear_heating_power_of_breeder_blanket
   - name:nuclear_power_density_of_breeder_blanket_module
+  arguments:
+  - name: heating_power_of_breeder_blanket_shield
+    operator: nuclear
+    operator_kind: qualifier
   sources:
   - dd_path: breeding_blanket/time_slice/power_nuclear_shields
     dd_version: 4.1.0
@@ -396,52 +417,6 @@
       description: Nuclear heating power deposited in the breeding blanket shield
         modules due to neutron and gamma interactions. A key thermal load parameter
         for shield design and reactor safety assessment.
-      kind: llm
-- name: nuclear_power_density_of_breeder_blanket_layer
-  kind: scalar
-  status: active
-  description: Local rate of nuclear energy deposition within the material volume
-    of one breeder blanket layer, generated by neutron interactions and associated
-    photon absorption.
-  documentation: 'Nuclear power density is the local volumetric heat-generation rate
-    within one defined breeder blanket material layer. It includes energy deposited
-    by neutron interactions and by absorption of primary or secondary photons, rather
-    than surface heat loads or externally applied heating.
-
-
-    The volume integral gives the corresponding layer-integrated nuclear heating power:
-
-
-    $$
-
-    P_{\mathrm{nuc,layer}} = \int_{V_{\mathrm{layer}}} q_{\mathrm{nuc}}(\mathbf{r})\,\mathrm{d}V
-
-    $$
-
-
-    where $q_{\mathrm{nuc}}(\mathbf{r})$ is the local nuclear power density, $P_{\mathrm{nuc,layer}}$
-    is the integrated nuclear heating power, $\mathbf{r}$ is position, and $V_{\mathrm{layer}}$
-    is the material volume of the layer. This quantity is the nuclear-deposition component
-    of [power density of a breeder blanket layer](name:power_density_of_breeder_blanket_layer)
-    and integrates to [nuclear heating power of a breeder blanket layer](name:nuclear_heating_power_of_breeder_blanket_layer).'
-  unit: W.m^-3
-  physics_domain: structural_components
-  links:
-  - name:nuclear_heating_power_of_breeder_blanket_layer
-  sources:
-  - dd_path: breeding_blanket/module/layer/time_slice/midplane_power_density_nuclear
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/breeding_blanket.html#breeding_blanket-module-layer-time_slice-midplane_power_density_nuclear
-    dd_documentation:
-      leaf: Nuclear heating power density in the layer, evaluated at midplane
-      parent_path: breeding_blanket/module/layer/time_slice
-      parent: Dynamic quantities at various time slices
-      data_type: FLT_0D
-      unit: W.m^-3
-    enhanced_context:
-      description: Nuclear heating power density (volumetric) in a breeding blanket
-        layer evaluated at the outboard midplane. Quantifies local neutron-induced
-        heat deposition at the midplane position within the blanket material.
       kind: llm
 - name: power_of_breeder_blanket_module
   kind: scalar
@@ -628,6 +603,88 @@
       description: Nuclear power deposited in a specific limiter or plasma-facing
         component (PFC) unit of the 2D wall description. Captures the heating contribution
         from neutron and gamma radiation to the wall structure.
+      kind: llm
+- name: pressure_at_cooling_circuit_inlet
+  kind: scalar
+  status: active
+  description: Absolute static pressure of a coolant or working fluid at a defined
+    hydraulic location, referenced to perfect vacuum and independent of flow-speed
+    effects.
+  documentation: 'Absolute static pressure is the isotropic thermodynamic pressure
+    of a coolant or working fluid at a defined hydraulic location, referenced to perfect
+    vacuum. It describes the local fluid state rather than a pressure contribution
+    associated with bulk-flow motion.
+
+
+    The quantity is the static component only: it excludes gage pressure as a reference
+    convention, dynamic pressure, and stagnation pressure. A concrete inlet instance
+    is [coolant pressure at cooling-circuit inlet](name:coolant_pressure_at_cooling_circuit_inlet),
+    while [coolant pressure](name:coolant_pressure) applies the same physical definition
+    at a plant-system component port.'
+  unit: Pa
+  physics_domain: structural_components
+  links:
+  - name:coolant_pressure_at_cooling_circuit_inlet
+  - name:coolant_pressure
+- name: coolant_pressure_at_cooling_circuit_inlet
+  kind: scalar
+  status: active
+  description: Coolant pressure at a cooling-circuit inlet is the absolute static
+    pressure of the coolant where it enters a hydraulically defined cooling circuit
+    or component. It is the coolant-specific inlet pressure boundary and excludes
+    gage, dynamic, and stagnation pressure.
+  documentation: 'Coolant pressure at a cooling-circuit inlet is the absolute static
+    thermodynamic pressure of the coolant where it enters a hydraulically defined
+    cooling circuit or component. It denotes the scalar upstream boundary pressure
+    of the coolant and excludes gage pressure, dynamic pressure, and stagnation pressure.
+
+
+    For the same hydraulic flow path, the associated static pressure drop is related
+    to this inlet pressure by:
+
+
+    $$
+
+    p_{\mathrm{coolant,in}} = p_{\mathrm{coolant,out}} + \Delta p_{\mathrm{coolant}}
+
+    $$
+
+
+    where $p_{\mathrm{coolant,in}}$ is this inlet absolute static coolant pressure
+    in pascals, $p_{\mathrm{coolant,out}}$ is the corresponding outlet absolute static
+    coolant pressure in pascals, and $\Delta p_{\mathrm{coolant}}$ is the total static
+    pressure drop in pascals, defined positive when the outlet static pressure is
+    lower than the inlet static pressure.
+
+
+    This quantity is the coolant-specific specialization of [pressure at a cooling-circuit
+    inlet](name:pressure_at_cooling_circuit_inlet): when the working fluid is coolant,
+    both names denote the same inlet absolute static pressure. It is also the cooling-circuit-inlet
+    value of [coolant pressure](name:coolant_pressure), and it is distinct from pressure
+    loss, pump head, and mechanical stress in the surrounding structure.'
+  unit: Pa
+  physics_domain: structural_components
+  links:
+  - name:pressure_at_cooling_circuit_inlet
+  - name:coolant_pressure
+  arguments:
+  - name: pressure_at_cooling_circuit_inlet
+    operator: coolant
+    operator_kind: qualifier
+  sources:
+  - dd_path: breeding_blanket/module/cooling/time_slice/pressure_inlet
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/breeding_blanket.html#breeding_blanket-module-cooling-time_slice-pressure_inlet
+    dd_documentation:
+      leaf: Inlet coolant pressure
+      parent_path: breeding_blanket/module/cooling/time_slice
+      parent: Dynamic quantities at various time slices
+      data_type: FLT_0D
+      unit: Pa
+    enhanced_context:
+      description: Inlet coolant pressure (P_in) in the cooling circuit of a breeding
+        blanket module at a given time slice. Serves as a thermodynamic boundary condition
+        for coolant flow analysis.
       kind: llm
 - name: radiated_power_of_breeder_blanket_module
   kind: scalar
@@ -2145,6 +2202,7 @@
   unit: m^3
   physics_domain: structural_components
   links:
+  - name:fraction_of_breeder_blanket_layer
   - name:coolant_volume_of_breeder_blanket
 - name: coolant_volume_of_breeder_blanket
   kind: scalar
@@ -2496,7 +2554,12 @@
     from the whole-blanket volume described by [volume of breeder blanket](name:volume_of_breeder_blanket).'
   unit: '1'
   physics_domain: structural_components
-  links: []
+  links:
+  - name:fraction_of_breeder_blanket_layer
+  arguments:
+  - name: fraction_of_breeder_blanket_layer
+    operator: volumetric
+    operator_kind: qualifier
   sources:
   - dd_path: breeding_blanket/module/layer/material_volume_fraction
     dd_version: 4.1.0
@@ -2562,6 +2625,105 @@
     enhanced_context:
       description: Y coordinate of centroid.
       kind: template
+- name: power_density_of_breeder_blanket_layer
+  kind: scalar
+  status: active
+  description: Power density of a breeder blanket layer is the net local rate at which
+    energy is transferred to or from material within a specified breeder blanket layer
+    per unit material volume, independent of the volumetric mechanism specified by
+    a more specialized quantity.
+  documentation: 'Power density of a breeder blanket layer is the net local rate at
+    which energy is transferred to or from material within a specified breeder blanket
+    layer per unit material volume. It is the material-region specialization of [power
+    density](name:power_density) for a layer of a breeder blanket, with the layer
+    defining the recipient material region in the local energy balance.
+
+
+    For a differential material volume of the layer, the volumetric power density
+    is defined by
+
+
+    $$
+
+    p_\mathrm{layer} = \frac{dE_\mathrm{layer}}{dt\,dV_\mathrm{layer}}
+
+    $$
+
+
+    where $E_\mathrm{layer}$ is the energy transferred to the layer material, $t$
+    is time, and $V_\mathrm{layer}$ is the material volume within that layer.
+
+
+    This quantity is not mechanism-specific unless qualified by a more specialized
+    standard name; [nuclear power density of breeder blanket layer](name:nuclear_power_density_of_breeder_blanket_layer)
+    restricts the transfer to nuclear energy deposition in the same material layer.
+    It is distinct from surface heat flux at a layer interface, volume-integrated
+    power of the layer, and [power density of a breeder blanket module](name:power_density_of_breeder_blanket_module)
+    defined for a larger blanket material region.
+
+
+    Sign convention: Positive when energy is transferred to the material of the breeder
+    blanket layer.'
+  unit: W.m^-3
+  physics_domain: structural_components
+  links:
+  - name:nuclear_power_density_of_breeder_blanket_layer
+  - name:nuclear_heating_power_of_breeder_blanket_layer
+  arguments:
+  - name: power_density
+    operator: breeder_blanket_layer
+    operator_kind: locus
+- name: nuclear_power_density_of_breeder_blanket_layer
+  kind: scalar
+  status: active
+  description: Local rate of nuclear energy deposition within the material volume
+    of one breeder blanket layer, generated by neutron interactions and associated
+    photon absorption.
+  documentation: 'Nuclear power density is the local volumetric heat-generation rate
+    within one defined breeder blanket material layer. It includes energy deposited
+    by neutron interactions and by absorption of primary or secondary photons, rather
+    than surface heat loads or externally applied heating.
+
+
+    The volume integral gives the corresponding layer-integrated nuclear heating power:
+
+
+    $$
+
+    P_{\mathrm{nuc,layer}} = \int_{V_{\mathrm{layer}}} q_{\mathrm{nuc}}(\mathbf{r})\,\mathrm{d}V
+
+    $$
+
+
+    where $q_{\mathrm{nuc}}(\mathbf{r})$ is the local nuclear power density, $P_{\mathrm{nuc,layer}}$
+    is the integrated nuclear heating power, $\mathbf{r}$ is position, and $V_{\mathrm{layer}}$
+    is the material volume of the layer. This quantity is the nuclear-deposition component
+    of [power density of a breeder blanket layer](name:power_density_of_breeder_blanket_layer)
+    and integrates to [nuclear heating power of a breeder blanket layer](name:nuclear_heating_power_of_breeder_blanket_layer).'
+  unit: W.m^-3
+  physics_domain: structural_components
+  links:
+  - name:power_density_of_breeder_blanket_layer
+  - name:nuclear_heating_power_of_breeder_blanket_layer
+  arguments:
+  - name: power_density_of_breeder_blanket_layer
+    operator: nuclear
+    operator_kind: qualifier
+  sources:
+  - dd_path: breeding_blanket/module/layer/time_slice/midplane_power_density_nuclear
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/breeding_blanket.html#breeding_blanket-module-layer-time_slice-midplane_power_density_nuclear
+    dd_documentation:
+      leaf: Nuclear heating power density in the layer, evaluated at midplane
+      parent_path: breeding_blanket/module/layer/time_slice
+      parent: Dynamic quantities at various time slices
+      data_type: FLT_0D
+      unit: W.m^-3
+    enhanced_context:
+      description: Nuclear heating power density (volumetric) in a breeding blanket
+        layer evaluated at the outboard midplane. Quantifies local neutron-induced
+        heat deposition at the midplane position within the blanket material.
+      kind: llm
 - name: power_density_of_breeder_blanket_module
   kind: scalar
   status: active
@@ -2601,6 +2763,7 @@
   - name:power_density
   - name:nuclear_power_density_of_breeder_blanket_module
   - name:power_of_breeder_blanket_module
+  - name:power_density_of_breeder_blanket_layer
   arguments:
   - name: power_density
     operator: breeder_blanket_module

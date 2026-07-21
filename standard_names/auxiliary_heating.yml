@@ -1,5 +1,5 @@
 # Domain: auxiliary_heating
-# Entries: 114
+# Entries: 146
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -563,73 +563,179 @@
         inside a flux surface. Gives the enclosed wave-driven toroidal current as
         a radial profile, complementing the parallel current density profile.
       kind: llm
+- name: electron_absorbed_wave_power
+  kind: scalar
+  status: active
+  description: Total coherent electromagnetic-wave power transferred directly to electron
+    populations, integrated over the plasma volume and partitioned into thermal and
+    fast-electron contributions.
+  documentation: 'Electron absorbed wave power is the total rate of energy transfer
+    from coherent electromagnetic waves to the electron populations. It includes direct
+    absorption by both bulk thermal electrons and fast non-thermal electrons.
+
+
+    The volume-integrated electron power is defined by
+
+
+    $$
+
+    P_e^{\mathrm{abs}} = \int_V p_e^{\mathrm{abs}}(\mathbf{r})\,dV = P_{e,\mathrm{fast}}^{\mathrm{abs}}
+    + P_{e,\mathrm{thermal}}^{\mathrm{abs}}
+
+    $$
+
+
+    where $P_e^{\mathrm{abs}}$ is the total electron absorbed wave power, $p_e^{\mathrm{abs}}(\mathbf{r})$
+    is the local wave power deposition density to electrons, $V$ is the plasma volume,
+    and the two terms are the [fast-electron absorbed wave power](name:fast_electron_absorbed_wave_power)
+    and [thermal-electron absorbed wave power](name:thermal_electron_absorbed_wave_power).
+    This quantity is the electron component of [absorbed wave power](name:absorbed_wave_power),
+    excluding power absorbed directly by ions or other channels; [ion absorbed wave
+    power](name:ion_absorbed_wave_power) represents the corresponding ion channel.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:fast_electron_absorbed_wave_power
+  - name:thermal_electron_absorbed_wave_power
+  - name:ion_absorbed_wave_power
+  arguments:
+  - name: absorbed_wave_power
+    operator: electron
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/global_quantities/electrons/power_thermal
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-global_quantities-electrons-power_thermal
+    dd_documentation:
+      leaf: Wave power absorbed by the thermal particle population
+      parent_path: waves/coherent_wave/global_quantities/electrons
+      parent: Quantities related to the electrons
+      data_type: FLT_0D
+      unit: W
+    enhanced_context:
+      description: Global wave power absorbed by the thermal (bulk) electron population
+        from a coherent wave. Represents the total heating power deposited into thermal
+        electrons by the wave, excluding fast particle absorption.
+      kind: llm
 - name: electron_energy
   kind: scalar
   status: active
   description: Volume-integrated kinetic energy content of a specified electron population,
-    including either bulk thermal or fast suprathermal electrons.
-  documentation: 'The quantity is the total kinetic energy contained in a defined
-    electron population, obtained by integrating its local kinetic-energy density
-    over the plasma volume. The population definition distinguishes bulk thermal electrons
-    from fast suprathermal electrons.
-
-
-    The defining relation is
+    encompassing bulk thermal and fast suprathermal electrons while excluding other
+    plasma populations.
+  documentation: 'This quantity is the total kinetic energy contained in a selected
+    electron population throughout the confined plasma volume. It is an extensive
+    energy content, not a power or energy-transfer rate; the population scope determines
+    which electron component is included.
 
 
     $$
 
-    E_e = \int_V u_e(\mathbf{x})\,dV
+    E_e = \int_{V_\mathrm{plasma}} u_e(\mathbf{r})\,\mathrm{d}V
 
     $$
 
 
-    where $E_e$ is the integrated electron energy, $u_e(\mathbf{x})$ is the local
-    kinetic-energy density of the included population, $\mathbf{x}$ is position, and
-    $V$ is the relevant confined plasma volume. For thermal electrons, [thermal electron
+    where $E_e$ is the integrated electron energy, $u_e(\mathbf{r})$ is the local
+    kinetic-energy density of the selected electron population, $V_\mathrm{plasma}$
+    is the confined plasma volume, and $\mathbf{r}$ denotes position. For the fast
+    suprathermal component, [fast electron energy](name:fast_electron_energy) excludes
+    the bulk thermal electron contribution. For the thermal component, [thermal electron
     energy](name:thermal_electron_energy) uses $u_e = 3p_e/2$, where $p_e$ is the
-    local thermal electron pressure. [Fast electron energy](name:fast_electron_energy)
-    instead excludes the bulk thermal electron contribution and represents the suprathermal
-    population. The quantity is an energy content, not a power, power density, or
-    absorbed-power rate.'
+    local thermal electron pressure.'
   unit: J
   physics_domain: auxiliary_heating
   links:
   - name:fast_electron_energy
+  - name:thermal_electron_energy
+- name: fast_electron_absorbed_wave_power
+  kind: scalar
+  status: active
+  description: Fast electron power is the total coherent-wave power absorbed by the
+    fast (non-thermal) electron population, integrated over the plasma volume.
+  documentation: 'Fast electron absorbed wave power is the total coherent-wave power
+    transferred to the fast, non-thermal electron population throughout the plasma
+    volume. It is the fast-electron component of [electron absorbed wave power](name:electron_absorbed_wave_power).
+
+
+    The volume-integrated power is defined by
+
+
+    $$
+
+    P_{e,\mathrm{fast}} = \int_V p_{e,\mathrm{fast}}(\mathbf{x})\,\mathrm{d}V
+
+    $$
+
+
+    where $P_{e,\mathrm{fast}}$ is the fast-electron absorbed wave power, $p_{e,\mathrm{fast}}(\mathbf{x})$
+    is the local coherent-wave power density absorbed by fast electrons at position
+    $\mathbf{x}$, and $V$ is the plasma volume.
+
+
+    This quantity excludes wave power absorbed by bulk thermal electrons, ions, and
+    other populations, as well as wave power that is launched but not absorbed. Unlike
+    [fast electron power at inside flux surface](name:fast_electron_power_at_inside_flux_surface),
+    it represents the total plasma-volume integral rather than a cumulative value
+    inside a specified flux surface. The population scope is complementary to [thermal
+    electron absorbed wave power](name:thermal_electron_absorbed_wave_power).'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:electron_absorbed_wave_power
+  - name:fast_electron_power_at_inside_flux_surface
+  - name:thermal_electron_absorbed_wave_power
+  arguments:
+  - name: electron_absorbed_wave_power
+    operator: fast
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/global_quantities/electrons/power_fast
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-global_quantities-electrons-power_fast
+    dd_documentation:
+      leaf: Wave power absorbed by the fast particle population
+      parent_path: waves/coherent_wave/global_quantities/electrons
+      parent: Quantities related to the electrons
+      data_type: FLT_0D
+      unit: W
+    enhanced_context:
+      description: Wave power absorbed by the fast (non-thermal) electron population
+        from a given coherent wave. Represents the total (globally integrated) fraction
+        of wave energy transferred to suprathermal electrons.
+      kind: llm
 - name: fast_electron_energy
   kind: scalar
   status: active
-  description: Volume-integrated kinetic energy of the fast (suprathermal) electron
-    population in the plasma, excluding the bulk thermal electron contribution.
-  documentation: 'Volume-integrated kinetic energy of the fast (suprathermal) electron
-    population in the plasma, excluding the bulk thermal electron contribution. It
-    is a stored energy content rather than a power or power density.
+  description: Volume-integrated fast suprathermal energy content of the electron
+    population, excluding the bulk thermal electron contribution.
+  documentation: 'Volume-integrated fast suprathermal energy content of the electron
+    population is the total kinetic energy carried by electrons outside the bulk thermal
+    population. It is the fast-population component of [electron_energy](name:electron_energy)
+    and is distinct from [thermal_electron_energy](name:thermal_electron_energy).
 
 
-    The defining volume integral is
+    The quantity is defined by
 
 
     $$
 
-    E_{\mathrm{fe}} = \int_{V_{\mathrm{p}}} u_{\mathrm{fe}}(\mathbf{x})\,\mathrm{d}V
+    E_{e,\mathrm{fast}} = \int_{\mathcal{V}_{\mathrm{plasma}}} u_{e,\mathrm{fast}}(\mathbf{x})\,dV
 
     $$
 
 
-    where $E_{\mathrm{fe}}$ is the fast-electron energy, $u_{\mathrm{fe}}(\mathbf{x})$
-    is the local fast-electron kinetic-energy density, $\mathbf{x}$ is position, and
-    $V_{\mathrm{p}}$ is the plasma volume.
-
-
-    The quantity excludes the bulk thermal contribution represented by [thermal electron
-    energy](name:thermal_electron_energy). When thermal and fast electrons form an
-    exhaustive partition, their contributions sum to [electron energy](name:electron_energy);
-    [fast particle energy](name:fast_particle_energy) is the corresponding quantity
-    including fast particles of all species.'
+    where $E_{e,\mathrm{fast}}$ is the integrated fast-electron kinetic energy, $u_{e,\mathrm{fast}}(\mathbf{x})$
+    is the local kinetic-energy density of the fast electron population at position
+    $\mathbf{x}$, and $\mathcal{V}_{\mathrm{plasma}}$ is the defined plasma volume.
+    The integral excludes kinetic energy assigned to bulk thermal electrons. Unlike
+    [fast_particle_energy](name:fast_particle_energy), this quantity is restricted
+    specifically to suprathermal electrons.'
   unit: J
   physics_domain: auxiliary_heating
   links:
   - name:electron_energy
+  - name:thermal_electron_energy
   - name:fast_particle_energy
   arguments:
   - name: electron_energy
@@ -653,62 +759,6 @@
         electron population. A summary-level global scalar for the LH heating and
         current drive system.
       kind: template
-- name: fast_electron_power_at_inside_flux_surface
-  kind: scalar
-  status: active
-  description: Cumulative wave power absorbed by the fast (suprathermal) electron
-    population within the plasma volume enclosed by a specified magnetic flux surface.
-  documentation: 'Fast electron power at an inside flux surface quantifies the total
-    rate at which coherent wave energy is absorbed by the non-thermal fast electron
-    population within the plasma volume bounded by a given magnetic flux surface.
-    It is the fast-electron contribution to [electron power at an inside flux surface](name:electron_power_at_inside_flux_surface),
-    distinct from the bulk thermal-electron contribution [thermal electron power at
-    an inside flux surface](name:thermal_electron_power_at_inside_flux_surface).
-
-
-    The quantity is obtained by integrating the flux-surface-averaged [fast electron
-    power density](name:fast_electron_power_density) $p_{\mathrm{fast,e}}$ over the
-    enclosed plasma volume:
-
-
-    $$
-
-    P_{\mathrm{fast,e}}(\rho) = \int_0^\rho p_{\mathrm{fast,e}}(\rho'') \frac{dV}{d\rho''}
-    \, d\rho''
-
-    $$
-
-
-    where $P_{\mathrm{fast,e}}(\rho)$ is the cumulative absorbed power, $\rho$ labels
-    the limiting flux surface, $\rho''$ is the integration variable, $p_{\mathrm{fast,e}}$
-    is the local fast-electron absorbed power density, and $dV/d\rho''$ is the differential
-    enclosed volume per unit flux-surface label. Only absorption by fast electrons
-    is included; thermal-electron and ion absorption, launched power, and power absorbed
-    outside the enclosed volume are excluded. At the outermost closed flux surface,
-    the quantity gives the total wave power absorbed by fast electrons.'
-  unit: W
-  physics_domain: auxiliary_heating
-  links:
-  - name:thermal_electron_power_at_inside_flux_surface
-  - name:fast_electron_power_density
-  sources:
-  - dd_path: waves/coherent_wave/profiles_1d/electrons/power_inside_fast
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_1d-electrons-power_inside_fast
-    dd_documentation:
-      leaf: Absorbed wave power on thermal species inside a flux surface (cumulative
-        volume integral of the absorbed power density)
-      parent_path: waves/coherent_wave/profiles_1d/electrons
-      parent: Quantities related to the electrons
-      data_type: FLT_1D
-      unit: W
-      coordinates:
-      - waves/coherent_wave/profiles_1d/grid/rho_tor_norm
-    enhanced_context:
-      description: Cumulative absorbed wave power deposited on fast (non-thermal)
-        electrons inside a given flux surface, computed by volume integration of the
-        fast-electron power deposition density from the magnetic axis outward.
-      kind: llm
 - name: first_local_tangential_coordinate_of_electron_cyclotron_launcher_mirror
   kind: scalar
   status: active
@@ -783,6 +833,46 @@
         EC launcher mirror geometry in its reference position, in the local (X1, X2)
         coordinate system. Forms part of the closed contour describing the mirror
         cross-sectional shape.
+      kind: llm
+- name: first_local_tangential_coordinate_of_neutral_beam_injector
+  kind: scalar
+  status: active
+  description: "Signed coordinate of a neutral beam injector source-outline vertex\
+    \ along the injector\u2019s first local tangential direction."
+  documentation: "This quantity is the signed first local tangential coordinate of\
+    \ a point on a neutral beam injector source outline. It belongs to the injector\u2019\
+    s object-local frame and is paired with the [second local tangential coordinate](name:second_local_tangential_coordinate_of_neutral_beam_injector)\
+    \ to describe the outline in its tangent plane.\n\nThe coordinate is defined by\n\
+    \n$$\nx_1 = (\\mathbf{r} - \\mathbf{r}_0) \\cdot \\hat{\\mathbf{e}}_1\n$$\n\n\
+    where $x_1$ is the first local tangential coordinate, $\\mathbf{r}$ is the position\
+    \ of the source-outline vertex, $\\mathbf{r}_0$ is the origin of the injector-local\
+    \ frame, and $\\hat{\\mathbf{e}}_1$ is its positive first local tangential unit\
+    \ vector.\n\nThe origin and orientation are determined by the neutral beam injector\u2019\
+    s local geometric convention; this quantity is not a coordinate in the right-handed\
+    \ cylindrical $(R, \\phi, Z)$ frame and does not specify that convention by itself.\n\
+    \nSign convention: Positive when the outline vertex lies in the direction of the\
+    \ positive first local tangential basis vector from the local-frame origin."
+  unit: m
+  physics_domain: auxiliary_heating
+  links:
+  - name:second_local_tangential_coordinate_of_neutral_beam_injector
+  sources:
+  - dd_path: nbi/unit/source/outline/x1
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/nbi.html#nbi-unit-source-outline-x1
+    dd_documentation:
+      leaf: Positions along x1 axis
+      parent_path: nbi/unit/source/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Positions of NBI ion source outline vertices along the x1 axis
+        of the local (X1, X2) coordinate system. Defines the geometry of the beam
+        extraction surface outline.
       kind: llm
 - name: fraction_of_wave_beam
   kind: scalar
@@ -1153,6 +1243,258 @@
       description: Vertical full height of the rectangular cross-section of an ICRH
         antenna strap element. Defines the vertical dimension of the rectangular strap
         geometry used in ion cyclotron antenna modelling.
+      kind: llm
+- name: ion_absorbed_wave_power
+  kind: scalar
+  status: active
+  description: Total coherent electromagnetic-wave power transferred directly to ion
+    populations, integrated over the plasma volume and partitioned into thermal and
+    fast-ion contributions.
+  documentation: 'Ion absorbed wave power is the total rate of energy transfer from
+    coherent electromagnetic waves to ion populations. It includes direct absorption
+    by both bulk thermal ions and suprathermal fast ions.
+
+
+    The volume-integrated ion power is defined by
+
+
+    $$
+
+    P_i^{\mathrm{abs}} = \int_V p_i^{\mathrm{abs}}(\mathbf{r})\,dV = P_{i,\mathrm{fast}}^{\mathrm{abs}}
+    + P_{i,\mathrm{thermal}}^{\mathrm{abs}}
+
+    $$
+
+
+    where $P_i^{\mathrm{abs}}$ is the total ion absorbed wave power, $p_i^{\mathrm{abs}}(\mathbf{r})$
+    is the local wave power deposition density to ions, $V$ is the plasma volume,
+    and the two terms are the [fast-ion absorbed wave power](name:fast_ion_absorbed_wave_power)
+    and [thermal-ion absorbed wave power](name:thermal_ion_absorbed_wave_power). This
+    quantity is the ion component of [absorbed wave power](name:absorbed_wave_power),
+    excluding power transferred directly to electron populations; [electron absorbed
+    wave power](name:electron_absorbed_wave_power) represents the corresponding electron
+    channel.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:fast_ion_absorbed_wave_power
+  - name:thermal_ion_absorbed_wave_power
+  - name:electron_absorbed_wave_power
+  arguments:
+  - name: absorbed_wave_power
+    operator: ion
+    operator_kind: qualifier
+- name: fast_ion_absorbed_wave_power
+  kind: scalar
+  status: active
+  description: Total coherent-wave power absorbed by the suprathermal ion population,
+    integrated over the plasma volume and excluding thermal-ion absorption.
+  documentation: 'The fast ion absorbed wave power is the volume-integrated power
+    delivered by coherent electromagnetic waves to the suprathermal, nonthermal ion
+    population through wave-particle interactions.
+
+
+    $$
+
+    P_{\mathrm{fast\,ion}} = \int_{V_{\mathrm{plasma}}} p_{\mathrm{abs,fast\,ion}}(\mathbf{r})\,\mathrm{d}V
+
+    $$
+
+
+    where $P_{\mathrm{fast\,ion}}$ is the total absorbed power, $p_{\mathrm{abs,fast\,ion}}(\mathbf{r})$
+    is the local power-absorption density for fast ions at position $\mathbf{r}$,
+    and $V_{\mathrm{plasma}}$ is the plasma volume. This quantity is the fast-ion
+    component of [ion absorbed wave power](name:ion_absorbed_wave_power), excluding
+    power absorbed by thermal ions and electrons. It is aggregated over the coherent-wave
+    channels and toroidal modes represented by the global quantity; [per-toroidal-mode
+    fast-ion absorbed wave power](name:per_toroidal_mode_fast_ion_absorbed_wave_power)
+    and [fast-ion power at an inside flux surface](name:fast_ion_power_at_inside_flux_surface)
+    provide more resolved scopes.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:ion_absorbed_wave_power
+  - name:per_toroidal_mode_fast_ion_absorbed_wave_power
+  - name:fast_ion_power_at_inside_flux_surface
+  arguments:
+  - name: ion_absorbed_wave_power
+    operator: fast
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/global_quantities/ion/power_fast
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-global_quantities-ion-power_fast
+    dd_documentation:
+      leaf: Wave power absorbed by the fast particle population
+      parent_path: waves/coherent_wave/global_quantities/ion
+      parent: Quantities related to the different ion species
+      data_type: FLT_0D
+      unit: W
+    enhanced_context:
+      description: Total wave power absorbed by the fast (suprathermal) ion population
+        from a coherent wave, integrated over the plasma volume. Represents energy
+        transfer from the RF wave to non-thermal ions for a given ion species.
+      kind: llm
+- name: ion_charge_state_absorbed_wave_power
+  kind: scalar
+  status: active
+  description: Total coherent-wave power absorbed by a specified ion charge state
+    is the direct wave-to-ion energy-transfer rate for that charge-state population,
+    integrated over the plasma volume and excluding later collisional energy exchange.
+  documentation: 'Total coherent-wave power absorbed by a specified ion charge state
+    is the volume-integrated rate at which coherent electromagnetic-wave fields transfer
+    energy directly to ions in that charge-state population.
+
+
+    The defining volume integral is
+
+
+    $$
+
+    P_{i,\zeta}^{\mathrm{wave}} = \int_{V_\mathrm{plasma}} p_{i,\zeta}^{\mathrm{wave}}(\mathbf{r})
+    \, dV
+
+    $$
+
+
+    where $P_{i,\zeta}^{\mathrm{wave}}$ is the absorbed wave power for ion charge
+    state $\zeta$, $p_{i,\zeta}^{\mathrm{wave}}(\mathbf{r})$ is the local coherent-wave
+    power absorption density for ions in that charge state at position $\mathbf{r}$,
+    $V_\mathrm{plasma}$ is the plasma volume, and $dV$ is the volume element.
+
+
+    This quantity is resolved for one ion charge state; it is not the charge-state-summed
+    [ion absorbed wave power](name:ion_absorbed_wave_power) and it never includes
+    [electron absorbed wave power](name:electron_absorbed_wave_power). More specific
+    children may add an ion-population qualifier while retaining the same charge-state-resolved
+    meaning, for example [fast ion charge-state absorbed wave power](name:fast_ion_charge_state_absorbed_wave_power).
+    It excludes energy exchanged after absorption through Coulomb collisions or other
+    inter-population relaxation.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:fast_ion_charge_state_absorbed_wave_power
+  - name:ion_absorbed_wave_power
+  arguments:
+  - name: absorbed_wave_power
+    operator: ion_charge_state
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/global_quantities/ion/state/power_fast
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-global_quantities-ion-state-power_fast
+    dd_documentation:
+      leaf: Wave power absorbed by the fast particle population
+      parent_path: waves/coherent_wave/global_quantities/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_0D
+      unit: W
+    enhanced_context:
+      description: Total wave power absorbed by the fast (suprathermal) ion population
+        of a given ion charge state. Quantifies the fraction of RF wave energy deposited
+        into energetic ions rather than the thermal bulk.
+      kind: llm
+- name: fast_ion_charge_state_absorbed_wave_power
+  kind: scalar
+  status: active
+  description: Volume-integrated electromagnetic-wave power transferred directly to
+    fast ions in one specified ion charge state, excluding collisional energy exchange.
+  documentation: 'This quantity is the direct electromagnetic-wave energy transfer
+    rate to the fast, non-thermal ions belonging to one specified charge state, integrated
+    over the full plasma volume.
+
+
+    The defining relation is
+
+
+    $$
+
+    P_{q,\mathrm{wave}} = \int_V p_{q,\mathrm{wave}}(\mathbf{r})\,dV
+
+    $$
+
+
+    where $P_{q,\mathrm{wave}}$ is the absorbed wave power for charge state $q$, $p_{q,\mathrm{wave}}(\mathbf{r})$
+    is its local wave-power deposition density, $\mathbf{r}$ is position, and $V$
+    is the full plasma volume.
+
+
+    This is a charge-state-resolved component of [ion charge-state absorbed wave power](name:ion_charge_state_absorbed_wave_power):
+    it excludes power transferred subsequently through Coulomb collisions and is not
+    the cumulative value inside a selected flux surface, which is represented by [fast
+    ion charge-state power at inside flux surface](name:fast_ion_charge_state_power_at_inside_flux_surface).'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:ion_charge_state_absorbed_wave_power
+  - name:fast_ion_charge_state_power_at_inside_flux_surface
+  arguments:
+  - name: ion_charge_state_absorbed_wave_power
+    operator: fast
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/global_quantities/ion/state/power_fast
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-global_quantities-ion-state-power_fast
+    dd_documentation:
+      leaf: Wave power absorbed by the fast particle population
+      parent_path: waves/coherent_wave/global_quantities/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_0D
+      unit: W
+    enhanced_context:
+      description: Total wave power absorbed by the fast (suprathermal) ion population
+        of a given ion charge state. Quantifies the fraction of RF wave energy deposited
+        into energetic ions rather than the thermal bulk.
+      kind: llm
+- name: ion_charge_state_power
+  kind: scalar
+  status: active
+  description: Volume-integrated power transferred from a coherent electromagnetic
+    wave to an ion population, with population resolution and mode aggregation defined
+    by each specific instance.
+  documentation: 'This quantity is the total power absorbed directly from a coherent
+    electromagnetic wave by a selected ion population over the plasma volume. It generalizes
+    the charge-state-resolved thermal quantity represented by [thermal ion charge-state
+    power](name:thermal_ion_charge_state_power).
+
+
+    $$
+
+    P_{\mathrm{ion}} = \int_{V_{\mathrm{plasma}}} p_{\mathrm{abs,ion}}(\mathbf{r})\,dV
+
+    $$
+
+
+    where $P_{\mathrm{ion}}$ is the volume-integrated ion absorption power, $p_{\mathrm{abs,ion}}(\mathbf{r})$
+    is the local electromagnetic-wave power absorbed by ions, $V_{\mathrm{plasma}}$
+    is the plasma volume, $\mathbf{r}$ is position, and $dV$ is the volume element.
+    Population selection, charge-state resolution, and toroidal-mode aggregation are
+    specified by more specific instances. The quantity is an ion contribution to the
+    broader [ion absorbed wave power](name:ion_absorbed_wave_power), rather than power
+    absorbed by electron populations.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:thermal_ion_charge_state_power
+  - name:ion_absorbed_wave_power
+  sources:
+  - dd_path: waves/coherent_wave/global_quantities/ion/state/power_fast
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-global_quantities-ion-state-power_fast
+    dd_documentation:
+      leaf: Wave power absorbed by the fast particle population
+      parent_path: waves/coherent_wave/global_quantities/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_0D
+      unit: W
+    enhanced_context:
+      description: Total wave power absorbed by the fast (suprathermal) ion population
+        of a given ion charge state. Quantifies the fraction of RF wave energy deposited
+        into energetic ions rather than the thermal bulk.
       kind: llm
 - name: length_of_beam_tracing_beam
   kind: scalar
@@ -1552,6 +1894,224 @@
         \ resolved per toroidal mode number (n\u03C6). Provides the radial profile\
         \ of wave-driven current decomposed by toroidal harmonic for a coherent wave."
       kind: llm
+- name: per_toroidal_mode_fast_electron_absorbed_wave_power
+  kind: scalar
+  status: active
+  description: Wave power absorbed by fast suprathermal electrons, resolved into contributions
+    from individual toroidal Fourier mode numbers.
+  documentation: 'This quantity is the coherent-wave power transferred to the fast,
+    suprathermal electron population for one toroidal Fourier mode. Summing the modal
+    contributions gives the volume-integrated [fast electron absorbed wave power](name:fast_electron_absorbed_wave_power).
+
+
+    $$
+
+    P_{\mathrm{fast}} = \sum_{n_\phi} P_{\mathrm{fast},n_\phi}
+
+    $$
+
+
+    where $P_{\mathrm{fast}}$ is the total fast-electron absorbed wave power, $P_{\mathrm{fast},n_\phi}$
+    is its contribution for toroidal Fourier mode number $n_\phi$, and the sum covers
+    the mode numbers in the decomposition. The quantity includes only fast electrons
+    and excludes thermal-electron and ion absorption. It is distinct from [per-toroidal-mode
+    thermal electron absorbed wave power](name:per_toroidal_mode_thermal_electron_absorbed_wave_power).'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:fast_electron_absorbed_wave_power
+  - name:per_toroidal_mode_thermal_electron_absorbed_wave_power
+  arguments:
+  - name: fast_electron_absorbed_wave_power
+    operator: per_toroidal_mode
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/global_quantities/electrons/power_fast_n_phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-global_quantities-electrons-power_fast_n_phi
+    dd_documentation:
+      leaf: Wave power absorbed by the fast particle population per toroidal mode
+        number
+      parent_path: waves/coherent_wave/global_quantities/electrons
+      parent: Quantities related to the electrons
+      data_type: FLT_1D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/global_quantities/n_phi
+    enhanced_context:
+      description: Wave power absorbed by the fast (non-thermal) electron population
+        resolved per toroidal mode number (n_phi) for a coherent wave. Captures the
+        mode-number decomposition of fast-particle RF power absorption by electrons.
+      kind: llm
+  - dd_path: waves/coherent_wave/profiles_1d/electrons/power_inside_fast_n_phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_1d-electrons-power_inside_fast_n_phi
+    dd_documentation:
+      leaf: Absorbed wave power on thermal species inside a flux surface (cumulative
+        volume integral of the absorbed power density), per toroidal mode number
+      parent_path: waves/coherent_wave/profiles_1d/electrons
+      parent: Quantities related to the electrons
+      data_type: FLT_2D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/profiles_1d/grid/rho_tor_norm
+      - waves/coherent_wave/profiles_1d/n_phi
+    enhanced_context:
+      description: Cumulative radial profile of absorbed wave power on fast electrons
+        inside a flux surface, resolved per toroidal mode number (n_phi). Quantifies
+        mode-resolved fast-electron wave absorption as a function of radius.
+      kind: llm
+- name: per_toroidal_mode_fast_ion_absorbed_wave_power
+  kind: scalar
+  status: active
+  description: Cumulative coherent-wave power absorbed by the suprathermal ion population
+    within a magnetic flux surface, resolved by toroidal Fourier mode number.
+  documentation: 'This quantity is the power transferred from a coherent electromagnetic
+    wave to suprathermal (fast) ions, cumulatively integrated inside a magnetic flux
+    surface and separated by toroidal Fourier mode number.
+
+
+    $$
+
+    P_{\mathrm{fast\,ion}}(\rho,n_\phi)=\int_{V(\rho)}p_{\mathrm{abs,fast\,ion}}(\mathbf{x},n_\phi)\,dV
+
+    $$
+
+
+    Here, $\rho$ labels the magnetic flux surface, $n_\phi$ is the toroidal Fourier
+    mode number, $V(\rho)$ is the volume enclosed by that surface, and $p_{\mathrm{abs,fast\,ion}}$
+    is the local power density absorbed by fast ions in that mode.
+
+
+    The quantity excludes power absorbed by thermal ions or electrons and excludes
+    wave power that is launched but not transferred to fast ions. Summing over toroidal
+    modes at the full plasma volume recovers the total [fast-ion absorbed wave power](name:fast_ion_absorbed_wave_power);
+    species-resolved thermal contributions are represented by [per-toroidal-mode thermal-ion
+    absorbed wave power](name:per_toroidal_mode_thermal_ion_absorbed_wave_power) and
+    [per-toroidal-mode thermal-electron absorbed wave power](name:per_toroidal_mode_thermal_electron_absorbed_wave_power).'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:fast_ion_absorbed_wave_power
+  - name:per_toroidal_mode_thermal_ion_absorbed_wave_power
+  - name:per_toroidal_mode_thermal_electron_absorbed_wave_power
+  arguments:
+  - name: fast_ion_absorbed_wave_power
+    operator: per_toroidal_mode
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/global_quantities/ion/power_fast_n_phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-global_quantities-ion-power_fast_n_phi
+    dd_documentation:
+      leaf: Wave power absorbed by the fast particle population per toroidal mode
+        number
+      parent_path: waves/coherent_wave/global_quantities/ion
+      parent: Quantities related to the different ion species
+      data_type: FLT_1D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/global_quantities/n_phi
+    enhanced_context:
+      description: Wave power absorbed by the fast (non-thermal) ion population from
+        a coherent RF wave, resolved per toroidal mode number (n_phi). Quantifies
+        RF energy deposition into the fast ion component as a function of toroidal
+        mode index.
+      kind: llm
+  - dd_path: waves/coherent_wave/profiles_1d/ion/power_inside_fast_n_phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_1d-ion-power_inside_fast_n_phi
+    dd_documentation:
+      leaf: Absorbed wave power on thermal species inside a flux surface (cumulative
+        volume integral of the absorbed power density), per toroidal mode number
+      parent_path: waves/coherent_wave/profiles_1d/ion
+      parent: Quantities related to the different ion species
+      data_type: FLT_2D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/profiles_1d/grid/rho_tor_norm
+      - waves/coherent_wave/profiles_1d/n_phi
+    enhanced_context:
+      description: Cumulative absorbed wave power on thermal ion species inside a
+        flux surface, resolved per toroidal mode number (n_phi). Provides the toroidal
+        mode decomposition of the radial power deposition profile for thermal ions.
+      kind: llm
+- name: per_toroidal_mode_fast_ion_charge_state_power
+  kind: scalar
+  status: active
+  description: Toroidal-Fourier-mode contribution to coherent-wave power directly
+    absorbed by fast ions in a specified charge state, integrated over the plasma
+    volume.
+  documentation: 'This quantity is the coherent-electromagnetic-wave power absorbed
+    directly by fast ions in one specified charge state, resolved by toroidal Fourier
+    mode and integrated over the plasma volume. It is a modal component of [fast-ion
+    charge-state power](name:fast_ion_charge_state_absorbed_wave_power), excluding
+    collisional energy exchange between plasma populations.
+
+
+    The volume-integrated modal power is defined by
+
+
+    $$
+
+    P_{\mathrm{fast},q}(n_\phi)=\int_{V_{\mathrm{plasma}}}p_{\mathrm{abs,fast},q}(n_\phi,\mathbf{x})\,dV
+
+    $$
+
+
+    where $n_\phi$ is the toroidal Fourier mode number, $q$ is the ion charge state,
+    $p_{\mathrm{abs,fast},q}$ is the corresponding local absorbed-power density, $\mathbf{x}$
+    is position, and $V_{\mathrm{plasma}}$ is the plasma volume.
+
+
+    Unlike [per-toroidal-mode fast-ion power density](name:per_toroidal_mode_fast_ion_power_density),
+    this quantity is volume-integrated and retains ion charge-state resolution; it
+    is distinct from the corresponding thermal-ion modal power [per-toroidal-mode
+    thermal-ion charge-state power](name:per_toroidal_mode_thermal_ion_charge_state_power).'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:fast_ion_charge_state_absorbed_wave_power
+  - name:per_toroidal_mode_fast_ion_power_density
+  - name:per_toroidal_mode_thermal_ion_charge_state_power
+  sources:
+  - dd_path: waves/coherent_wave/global_quantities/ion/state/power_fast_n_phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-global_quantities-ion-state-power_fast_n_phi
+    dd_documentation:
+      leaf: Wave power absorbed by the fast particle population per toroidal mode
+        number
+      parent_path: waves/coherent_wave/global_quantities/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_1D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/global_quantities/n_phi
+    enhanced_context:
+      description: Wave power absorbed by the fast (non-thermal) ion population, decomposed
+        per toroidal mode number (n_phi). Captures the mode-number-dependent RF heating
+        contribution to fast ions for a specific ion charge state.
+      kind: llm
+  - dd_path: waves/coherent_wave/profiles_1d/ion/state/power_inside_fast_n_phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_1d-ion-state-power_inside_fast_n_phi
+    dd_documentation:
+      leaf: Absorbed wave power on thermal species inside a flux surface (cumulative
+        volume integral of the absorbed power density), per toroidal mode number
+      parent_path: waves/coherent_wave/profiles_1d/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_2D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/profiles_1d/grid/rho_tor_norm
+      - waves/coherent_wave/profiles_1d/n_phi
+    enhanced_context:
+      description: Cumulative absorbed wave power on fast (non-thermal) ion species
+        inside a flux surface, resolved per toroidal mode number (n_phi). Quantifies
+        the toroidal-mode-resolved RF power deposition profile for fast ions.
+      kind: llm
 - name: perpendicular_wave_vector_of_ion_cyclotron_heating_antenna
   kind: scalar
   status: active
@@ -1754,7 +2314,247 @@
   unit: W
   physics_domain: auxiliary_heating
   links:
+  - name:electron_power_at_inside_flux_surface
   - name:ion_power_at_inside_flux_surface
+  - name:ion_charge_state_power_at_inside_flux_surface
+- name: electron_power_at_inside_flux_surface
+  kind: scalar
+  status: active
+  description: Cumulative wave power absorbed by all electron populations, thermal
+    and fast, from a specified wave source or source set within the plasma volume
+    enclosed by a magnetic flux surface.
+  documentation: 'The electron power at inside flux surface is the cumulative rate
+    at which wave energy from a specified source or source set is deposited into the
+    electron population, spanning both thermal bulk electrons and fast suprathermal
+    electrons, within the plasma volume bounded by a closed magnetic flux surface.
+    It is an enclosed-volume channel quantity: each bounding surface includes all
+    electron wave absorption inside that surface.
+
+
+    For a local volumetric electron wave-power deposition density, the cumulative
+    power is
+
+
+    $$
+
+    P_e(\psi_s) = \int_{V(\psi_s)} p_e^{\mathrm{wave}}(\mathbf{r})\,\mathrm{d}V
+
+    $$
+
+
+    where $P_e(\psi_s)$ is this cumulative electron wave power, $\psi_s$ is the magnetic-flux-surface
+    label of the bounding surface, $V(\psi_s)$ is the plasma volume enclosed by that
+    surface, $p_e^{\mathrm{wave}}$ is the local volumetric rate of wave energy deposition
+    into the electron population, $\mathbf{r}$ is position, and $\mathrm{d}V$ is the
+    volume element.
+
+
+    For the same wave channel and enclosed volume, this quantity satisfies the population
+    decomposition $P_e = P_{e,\mathrm{thermal}} + P_{e,\mathrm{fast}}$, with components
+    [thermal electron power at inside flux surface](name:thermal_electron_power_at_inside_flux_surface)
+    and [fast electron power at inside flux surface](name:fast_electron_power_at_inside_flux_surface).
+    It is the electron counterpart of [ion power at inside flux surface](name:ion_power_at_inside_flux_surface)
+    and a species-specific instance of [power at inside flux surface](name:power_at_inside_flux_surface);
+    it excludes ion absorption and non-wave loss or exchange channels.
+
+
+    Sign convention: Positive when wave energy is deposited into the electron population.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:power_at_inside_flux_surface
+  - name:thermal_electron_power_at_inside_flux_surface
+  - name:fast_electron_power_at_inside_flux_surface
+  arguments:
+  - name: power_at_inside_flux_surface
+    operator: electron
+    operator_kind: qualifier
+- name: fast_electron_power_at_inside_flux_surface
+  kind: scalar
+  status: active
+  description: Cumulative wave power absorbed by the fast (suprathermal) electron
+    population within the plasma volume enclosed by a specified magnetic flux surface.
+  documentation: 'Fast electron power at an inside flux surface quantifies the total
+    rate at which coherent wave energy is absorbed by the non-thermal fast electron
+    population within the plasma volume bounded by a given magnetic flux surface.
+    It is the fast-electron contribution to [electron power at an inside flux surface](name:electron_power_at_inside_flux_surface),
+    distinct from the bulk thermal-electron contribution [thermal electron power at
+    an inside flux surface](name:thermal_electron_power_at_inside_flux_surface).
+
+
+    The quantity is obtained by integrating the flux-surface-averaged [fast electron
+    power density](name:fast_electron_power_density) $p_{\mathrm{fast,e}}$ over the
+    enclosed plasma volume:
+
+
+    $$
+
+    P_{\mathrm{fast,e}}(\rho) = \int_0^\rho p_{\mathrm{fast,e}}(\rho'') \frac{dV}{d\rho''}
+    \, d\rho''
+
+    $$
+
+
+    where $P_{\mathrm{fast,e}}(\rho)$ is the cumulative absorbed power, $\rho$ labels
+    the limiting flux surface, $\rho''$ is the integration variable, $p_{\mathrm{fast,e}}$
+    is the local fast-electron absorbed power density, and $dV/d\rho''$ is the differential
+    enclosed volume per unit flux-surface label. Only absorption by fast electrons
+    is included; thermal-electron and ion absorption, launched power, and power absorbed
+    outside the enclosed volume are excluded. At the outermost closed flux surface,
+    the quantity gives the total wave power absorbed by fast electrons.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:electron_power_at_inside_flux_surface
+  - name:thermal_electron_power_at_inside_flux_surface
+  - name:fast_electron_power_density
+  arguments:
+  - name: electron_power_at_inside_flux_surface
+    operator: fast
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/profiles_1d/electrons/power_inside_fast
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_1d-electrons-power_inside_fast
+    dd_documentation:
+      leaf: Absorbed wave power on thermal species inside a flux surface (cumulative
+        volume integral of the absorbed power density)
+      parent_path: waves/coherent_wave/profiles_1d/electrons
+      parent: Quantities related to the electrons
+      data_type: FLT_1D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/profiles_1d/grid/rho_tor_norm
+    enhanced_context:
+      description: Cumulative absorbed wave power deposited on fast (non-thermal)
+        electrons inside a given flux surface, computed by volume integration of the
+        fast-electron power deposition density from the magnetic axis outward.
+      kind: llm
+- name: ion_charge_state_power_at_inside_flux_surface
+  kind: scalar
+  status: active
+  description: Cumulative power associated with wave absorption by a specified ion
+    charge state, integrated over the plasma volume enclosed by a magnetic flux surface.
+  documentation: 'This quantity is the cumulative power associated with one physically
+    defined plasma heating or energy-transfer channel inside a specified magnetic
+    flux surface. Here, the channel is wave power absorbed by a specified ion charge
+    state, which may belong to either the thermal or fast ion population.
+
+
+    The cumulative absorbed power is
+
+
+    $$
+
+    P_q^{\mathrm{abs}}(\psi) = \int_{V(\psi)} p_q^{\mathrm{abs}}(\mathbf{r})\,\mathrm{d}V
+
+    $$
+
+
+    where $P_q^{\mathrm{abs}}(\psi)$ is the cumulative absorbed power for charge state
+    $q$, $\psi$ is the magnetic-flux-surface label, $V(\psi)$ is the plasma volume
+    enclosed by that surface, $p_q^{\mathrm{abs}}(\mathbf{r})$ is the corresponding
+    local absorbed wave-power density, $\mathbf{r}$ is position, and $\mathrm{d}V$
+    is the volume element.
+
+
+    This quantity is resolved for one ion charge state and excludes absorption by
+    other charge states and by non-ion populations. It is the charge-state-resolved
+    counterpart of [ion power at an inside flux surface](name:ion_power_at_inside_flux_surface),
+    while [fast ion charge state power at an inside flux surface](name:fast_ion_charge_state_power_at_inside_flux_surface)
+    and [thermal ion charge state power at an inside flux surface](name:thermal_ion_charge_state_power_at_inside_flux_surface)
+    specify the fast and thermal realizations.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:ion_power_at_inside_flux_surface
+  - name:fast_ion_charge_state_power_at_inside_flux_surface
+  - name:thermal_ion_charge_state_power_at_inside_flux_surface
+  arguments:
+  - name: power_at_inside_flux_surface
+    operator: ion_charge_state
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/profiles_1d/ion/state/power_inside_fast
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_1d-ion-state-power_inside_fast
+    dd_documentation:
+      leaf: Absorbed wave power on thermal species inside a flux surface (cumulative
+        volume integral of the absorbed power density)
+      parent_path: waves/coherent_wave/profiles_1d/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_1D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/profiles_1d/grid/rho_tor_norm
+    enhanced_context:
+      description: Cumulative absorbed wave power on fast (non-thermal) ion species
+        of a given charge state inside a flux surface, obtained by volume integration
+        of the fast ion power absorption density from the plasma centre outward.
+      kind: llm
+- name: fast_ion_charge_state_power_at_inside_flux_surface
+  kind: scalar
+  status: active
+  description: Cumulative wave power absorbed by a specified fast (non-thermal) ion
+    charge state within the plasma volume enclosed by a selected magnetic flux surface.
+  documentation: 'Charge-state-resolved cumulative wave power deposited into the fast
+    (non-thermal) ion population enclosed by a specified magnetic flux surface. It
+    is obtained by integrating the local fast-ion charge-state power-deposition density
+    over the plasma volume from the magnetic axis to the selected flux surface.
+
+
+    $$
+
+    P_{\mathrm{fast,cs}}(\psi) = \int_{V(\psi)} p_{\mathrm{fast,cs}}(\mathbf{r})\,
+    dV
+
+    $$
+
+
+    where $p_{\mathrm{fast,cs}}$ is the local wave power deposited per unit volume
+    into the specified fast-ion charge state and $V(\psi)$ is the plasma volume enclosed
+    by the flux surface labeled by $\psi$.
+
+
+    This quantity is the fast-ion subset of [ion_charge_state_power_at_inside_flux_surface](name:ion_charge_state_power_at_inside_flux_surface)
+    and the charge-state-resolved counterpart of [fast_ion_power_at_inside_flux_surface](name:fast_ion_power_at_inside_flux_surface).
+    It excludes power absorbed by thermal ions of the same charge state; the thermal
+    complement is [thermal_ion_charge_state_power_at_inside_flux_surface](name:thermal_ion_charge_state_power_at_inside_flux_surface).
+    Summing over all charge states recovers the total fast-ion enclosed power.
+
+
+    Sign convention: Positive when net wave power flows from the electromagnetic field
+    into the fast-ion charge state.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:ion_charge_state_power_at_inside_flux_surface
+  - name:fast_ion_power_at_inside_flux_surface
+  - name:thermal_ion_charge_state_power_at_inside_flux_surface
+  arguments:
+  - name: ion_charge_state_power_at_inside_flux_surface
+    operator: fast
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/profiles_1d/ion/state/power_inside_fast
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_1d-ion-state-power_inside_fast
+    dd_documentation:
+      leaf: Absorbed wave power on thermal species inside a flux surface (cumulative
+        volume integral of the absorbed power density)
+      parent_path: waves/coherent_wave/profiles_1d/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_1D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/profiles_1d/grid/rho_tor_norm
+    enhanced_context:
+      description: Cumulative absorbed wave power on fast (non-thermal) ion species
+        of a given charge state inside a flux surface, obtained by volume integration
+        of the fast ion power absorption density from the plasma centre outward.
+      kind: llm
 - name: ion_power_at_inside_flux_surface
   kind: scalar
   status: active
@@ -1830,6 +2630,7 @@
   links:
   - name:ion_power_at_inside_flux_surface
   - name:thermal_ion_power_at_inside_flux_surface
+  - name:fast_ion_charge_state_power_at_inside_flux_surface
   - name:fast_ion_power_density
   arguments:
   - name: ion_power_at_inside_flux_surface
@@ -1889,6 +2690,7 @@
   physics_domain: auxiliary_heating
   links:
   - name:total_power_due_to_electron_cyclotron_heating
+  - name:electron_absorbed_wave_power
   sources:
   - dd_path: summary/heating_current_drive/ec/power/value
     dd_version: 4.1.0
@@ -2113,10 +2915,92 @@
   - name:power_of_beam_tracing_beam
   - name:initial_power_of_beam_tracing_beam
   - name:electron_absorbed_power_of_beam_tracing_beam
+  - name:ion_charge_state_absorbed_power_of_beam_tracing_beam
   arguments:
   - name: power_of_beam_tracing_beam
     operator: absorbed
     operator_kind: qualifier
+- name: ion_charge_state_absorbed_power_of_beam_tracing_beam
+  kind: scalar
+  status: active
+  description: Wave power absorbed by ions of a specified charge state from a single
+    coherent beam-tracing beam, giving the charge-state-resolved ion contribution
+    to total path-integrated wave energy deposition for that beam.
+  documentation: 'The ion charge-state absorbed power of a beam-tracing beam is the
+    total wave power transferred from a single traced coherent electromagnetic beam
+    to the ionic population in a specified charge state over its computed propagation
+    path. It is the charge-state-resolved ion contribution to the species-summed [absorbed_power_of_beam_tracing_beam](name:absorbed_power_of_beam_tracing_beam),
+    complementing the electron channel provided by [electron_absorbed_power_of_beam_tracing_beam](name:electron_absorbed_power_of_beam_tracing_beam).
+
+
+    For a ray arc length $s$ increasing along the direction of wave propagation, the
+    absorbed power for ion charge state $z$ is
+
+
+    $$
+
+    P_{\mathrm{abs},z} = \int_{s_0}^{s_{\mathrm{end}}} 2\kappa_{i,z}(s)\,P(s)\,ds
+
+    $$
+
+
+    where $\kappa_{i,z}(s)$ is the spatial amplitude-damping coefficient for the specified
+    ion charge state in m$^{-1}$, $P(s)$ is the remaining beam power in W at arc-length
+    position $s$ in m, and $s_0$ and $s_{\mathrm{end}}$ are the start and end arc-length
+    positions. The factor of 2 converts amplitude-damping to power-damping because
+    wave power is proportional to squared wave-field amplitude, consistent with the
+    parent formulation.
+
+
+    Summing over all charge states of all ion species and adding the electron contribution
+    recovers [absorbed_power_of_beam_tracing_beam](name:absorbed_power_of_beam_tracing_beam)
+    for that beam. The residual [power_of_beam_tracing_beam](name:power_of_beam_tracing_beam)
+    at the beam end equals the entering power minus the sum of all species- and charge-state-resolved
+    absorbed powers.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:absorbed_power_of_beam_tracing_beam
+  - name:electron_absorbed_power_of_beam_tracing_beam
+  - name:power_of_beam_tracing_beam
+  arguments:
+  - name: absorbed_power_of_beam_tracing_beam
+    operator: ion_charge_state
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/beam_tracing/beam/ion/power
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-beam_tracing-beam-ion-power
+    dd_documentation:
+      leaf: Power absorbed along the beam by the species
+      parent_path: waves/coherent_wave/beam_tracing/beam/ion
+      parent: Quantities related to the different ion species
+      data_type: FLT_1D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/beam_tracing/beam/length
+    enhanced_context:
+      description: Wave power absorbed by a specific ion species along the beam path
+        in beam tracing calculations. Quantifies the local RF power deposition to
+        the ion species as a function of position along the ray or beam.
+      kind: llm
+  - dd_path: waves/coherent_wave/beam_tracing/beam/ion/state/power
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-beam_tracing-beam-ion-state-power
+    dd_documentation:
+      leaf: Power absorbed along the beam by the species
+      parent_path: waves/coherent_wave/beam_tracing/beam/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_1D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/beam_tracing/beam/length
+    enhanced_context:
+      description: Power absorbed from the wave beam along the ray or beam path by
+        a specific ion charge state. Represents local RF power deposition to the ion
+        species as computed in beam tracing calculations within the waves IDS.
+      kind: llm
 - name: power_of_ion_cyclotron_heating_antenna
   kind: scalar
   status: active
@@ -3685,6 +4569,196 @@
         the local (X1, X2) coordinate system. Defines the irregular 2D contour of
         the mirror geometry at its reference position.
       kind: llm
+- name: second_local_tangential_coordinate_of_neutral_beam_injector
+  kind: scalar
+  status: active
+  description: Signed second local-tangential coordinate of a neutral beam injector
+    outline vertex, measured in the injector-local frame and paired with the first
+    coordinate to locate that vertex.
+  documentation: 'The quantity is the signed position of an outline vertex along the
+    neutral beam injector''s second local tangential axis. It is paired with the [first
+    local-tangential coordinate](name:first_local_tangential_coordinate_of_neutral_beam_injector)
+    to locate the same vertex in the injector-local frame.
+
+
+    The coordinate is defined by:
+
+
+    $$
+
+    x_2 = (\mathbf{r}_v-\mathbf{r}_0)\cdot\hat{\mathbf{e}}_2
+
+    $$
+
+
+    where $x_2$ is this coordinate, $\mathbf{r}_v$ is the vertex position, $\mathbf{r}_0$
+    is the local origin, and $\hat{\mathbf{e}}_2$ is the second local tangential unit
+    vector. The local orthonormal basis $(\hat{\mathbf{e}}_1,\hat{\mathbf{e}}_2,\hat{\mathbf{e}}_3)$
+    is right-handed; $\hat{\mathbf{e}}_3$ is the plasma-facing normal, and $\hat{\mathbf{e}}_1$
+    points toward increasing toroidal angle $\phi$ in the right-handed cylindrical
+    $(R,\phi,Z)$ frame.
+
+
+    The coordinate applies to outline vertices associated with the neutral beam injector
+    and is distinct from the first local-tangential coordinate and from global cylindrical
+    coordinates.
+
+
+    Sign convention: Positive when the vertex displacement has a positive projection
+    along $\hat{\mathbf{e}}_2=\hat{\mathbf{e}}_3\times\hat{\mathbf{e}}_1$ from the
+    local origin.'
+  unit: m
+  physics_domain: auxiliary_heating
+  links:
+  - name:first_local_tangential_coordinate_of_neutral_beam_injector
+  sources:
+  - dd_path: nbi/unit/source/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/nbi.html#nbi-unit-source-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: nbi/unit/source/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - nbi/unit/source/outline/x1
+    enhanced_context:
+      description: Positions of the NBI ion source outline vertices along the x2 axis
+        of the local (X1, X2) coordinate system. Defines the irregular geometry of
+        the beam extraction surface in the x2 direction.
+      kind: llm
+- name: thermal_electron_absorbed_wave_power
+  kind: scalar
+  status: active
+  description: Thermal electron absorbed wave power is the total coherent-wave power
+    absorbed by the bulk thermal electron population, integrated over the plasma volume.
+  documentation: 'Thermal electron absorbed wave power is the plasma-volume integral
+    of the local coherent-wave power deposition density into the bulk thermal electron
+    population. It is the thermal-electron component of [electron absorbed wave power](name:electron_absorbed_wave_power),
+    rather than the total absorbed power across all plasma channels.
+
+
+    The defining volume integral is
+
+
+    $$
+
+    P_{\mathrm{abs},e}^{\mathrm{th}} = \int_{V_{\mathrm{plasma}}} p_{\mathrm{abs},e}^{\mathrm{th}}(\mathbf{r})\,\mathrm{d}V
+
+    $$
+
+
+    where $p_{\mathrm{abs},e}^{\mathrm{th}}$ is the [thermal electron power density](name:thermal_electron_power_density),
+    $V_{\mathrm{plasma}}$ is the plasma volume, $\mathbf{r}$ is position, and $\mathrm{d}V$
+    is differential volume.
+
+
+    The integral includes only power absorbed by bulk thermal electrons and excludes
+    deposition into fast electrons, ions, and other channels. Unlike [thermal electron
+    power at inside flux surface](name:thermal_electron_power_at_inside_flux_surface),
+    it covers the complete plasma volume rather than a specified enclosed region.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:electron_absorbed_wave_power
+  - name:thermal_electron_power_density
+  - name:thermal_electron_power_at_inside_flux_surface
+  arguments:
+  - name: electron_absorbed_wave_power
+    operator: thermal
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/global_quantities/electrons/power_thermal
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-global_quantities-electrons-power_thermal
+    dd_documentation:
+      leaf: Wave power absorbed by the thermal particle population
+      parent_path: waves/coherent_wave/global_quantities/electrons
+      parent: Quantities related to the electrons
+      data_type: FLT_0D
+      unit: W
+    enhanced_context:
+      description: Global wave power absorbed by the thermal (bulk) electron population
+        from a coherent wave. Represents the total heating power deposited into thermal
+        electrons by the wave, excluding fast particle absorption.
+      kind: llm
+- name: per_toroidal_mode_thermal_electron_absorbed_wave_power
+  kind: scalar
+  status: active
+  description: Toroidal-Fourier-mode contribution to coherent-wave power absorbed
+    by the bulk thermal electron population, excluding fast-electron and non-electron
+    absorption.
+  documentation: 'This quantity is the power transferred from a coherent electromagnetic
+    wave to the bulk thermal electron population, resolved into a single toroidal
+    Fourier mode. Summed over all toroidal modes, it gives the volume-integrated [thermal
+    electron absorbed wave power](name:thermal_electron_absorbed_wave_power), while
+    excluding the fast-electron contribution represented by [per toroidal mode fast
+    electron absorbed wave power](name:per_toroidal_mode_fast_electron_absorbed_wave_power).
+
+
+    The modal contributions satisfy
+
+
+    $$
+
+    P_{e,\mathrm{th}}^{\mathrm{abs}} = \sum_{n_\phi} P_{e,\mathrm{th}}^{\mathrm{abs}}(n_\phi)
+
+    $$
+
+
+    where $P_{e,\mathrm{th}}^{\mathrm{abs}}$ is the total coherent-wave power absorbed
+    by thermal electrons, $P_{e,\mathrm{th}}^{\mathrm{abs}}(n_\phi)$ is its contribution
+    for toroidal mode number $n_\phi$, and the sum uses the adopted modal normalization.
+    The quantity concerns bulk thermal electrons only; absorption by fast electrons,
+    ions, or other channels is excluded.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:thermal_electron_absorbed_wave_power
+  - name:per_toroidal_mode_fast_electron_absorbed_wave_power
+  arguments:
+  - name: thermal_electron_absorbed_wave_power
+    operator: per_toroidal_mode
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/global_quantities/electrons/power_thermal_n_phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-global_quantities-electrons-power_thermal_n_phi
+    dd_documentation:
+      leaf: Wave power absorbed by the thermal particle population per toroidal mode
+        number
+      parent_path: waves/coherent_wave/global_quantities/electrons
+      parent: Quantities related to the electrons
+      data_type: FLT_1D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/global_quantities/n_phi
+    enhanced_context:
+      description: Wave power absorbed by the thermal electron population, resolved
+        per toroidal mode number (n_phi). Gives the mode-number spectrum of thermal
+        electron heating from a coherent wave.
+      kind: llm
+  - dd_path: waves/coherent_wave/profiles_1d/electrons/power_inside_thermal_n_phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_1d-electrons-power_inside_thermal_n_phi
+    dd_documentation:
+      leaf: Absorbed wave power on thermal species inside a flux surface (cumulative
+        volume integral of the absorbed power density), per toroidal mode number
+      parent_path: waves/coherent_wave/profiles_1d/electrons
+      parent: Quantities related to the electrons
+      data_type: FLT_2D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/profiles_1d/grid/rho_tor_norm
+      - waves/coherent_wave/profiles_1d/n_phi
+    enhanced_context:
+      description: Cumulative absorbed wave power on thermal electrons inside a flux
+        surface (volume-integrated power density), resolved per toroidal mode number
+        (n_phi). Captures the radial deposition profile contribution from each toroidal
+        harmonic for thermal electron heating.
+      kind: llm
 - name: thermal_electron_power_at_inside_flux_surface
   kind: scalar
   status: active
@@ -3721,7 +4795,12 @@
   unit: W
   physics_domain: auxiliary_heating
   links:
+  - name:electron_power_at_inside_flux_surface
   - name:fast_electron_power_at_inside_flux_surface
+  arguments:
+  - name: electron_power_at_inside_flux_surface
+    operator: thermal
+    operator_kind: qualifier
   sources:
   - dd_path: waves/coherent_wave/profiles_1d/electrons/power_inside_thermal
     dd_version: 4.1.0
@@ -3739,6 +4818,325 @@
       description: Cumulative absorbed wave power on thermal electrons inside a flux
         surface (volume integral of absorbed power density), as a 1D radial profile.
         Represents the total thermal electron wave power deposition profile.
+      kind: llm
+- name: thermal_ion_absorbed_wave_power
+  kind: scalar
+  status: active
+  description: Total coherent-wave power absorbed by the bulk thermal (Maxwellian)
+    ion population, integrated over the plasma volume.
+  documentation: 'The thermal ion absorbed wave power is the volume-integrated power
+    delivered by coherent electromagnetic waves to the bulk thermal (approximately
+    Maxwellian) ion population via wave-particle resonance interactions. It is the
+    thermal-ion component of [ion_absorbed_wave_power](name:ion_absorbed_wave_power),
+    which spans all ion populations.
+
+
+    $$
+
+    P_{\mathrm{th,i}} = \int_{V} p_{\mathrm{th,i}}(\mathbf{r}) \, dV
+
+    $$
+
+
+    where $p_{\mathrm{th,i}}$ is the local wave power density absorbed by thermal
+    ions and $V$ is the total plasma volume. The associated spatial deposition profile
+    is described by [thermal_ion_power_density](name:thermal_ion_power_density).
+
+
+    This quantity excludes power deposited into suprathermal (fast) ions. No ion-species
+    qualifier is carried: it aggregates over all thermal ion species present in the
+    plasma. Charge-state-resolved contributions are provided by [thermal_ion_charge_state_power](name:thermal_ion_charge_state_power);
+    summing over all charge states and species recovers this global value.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:ion_absorbed_wave_power
+  - name:thermal_ion_power_density
+  - name:thermal_ion_charge_state_power
+  arguments:
+  - name: ion_absorbed_wave_power
+    operator: thermal
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/global_quantities/ion/power_thermal
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-global_quantities-ion-power_thermal
+    dd_documentation:
+      leaf: Wave power absorbed by the thermal particle population
+      parent_path: waves/coherent_wave/global_quantities/ion
+      parent: Quantities related to the different ion species
+      data_type: FLT_0D
+      unit: W
+    enhanced_context:
+      description: Total RF wave power absorbed by the thermal (bulk) ion population
+        of a given species from a coherent wave. Represents the heating power deposited
+        into the Maxwellian ion distribution, distinct from fast-ion absorption.
+      kind: llm
+- name: per_toroidal_mode_thermal_ion_absorbed_wave_power
+  kind: scalar
+  status: active
+  description: Toroidal-mode-resolved contribution to coherent-wave power absorbed
+    by the bulk thermal ion population, retaining the cumulative power associated
+    with each mode.
+  documentation: 'This quantity is the toroidal Fourier-mode contribution to [thermal
+    ion absorbed wave power](name:thermal_ion_absorbed_wave_power), representing coherent
+    electromagnetic-wave power transferred to the bulk thermal ion population. It
+    is volume-integrated over the same physical domain as the parent quantity and
+    summed over all thermal-ion charge states.
+
+
+    $$
+
+    P_{\mathrm{th\,ion}}(n_\phi)=\int_V q_{\mathrm{abs,th\,ion}}(n_\phi,\mathbf{x})\,dV
+
+    $$
+
+
+    where $P_{\mathrm{th\,ion}}(n_\phi)$ is the absorbed power for toroidal mode number
+    $n_\phi$, $q_{\mathrm{abs,th\,ion}}$ is the corresponding local absorbed-wave
+    power density, $\mathbf{x}$ is position, $dV$ is the volume element, and $V$ is
+    the integration volume. Under the adopted Fourier normalization, summing modal
+    contributions over toroidal mode number recovers the parent power. Unlike [per-toroidal-mode
+    thermal-ion power density](name:per_toroidal_mode_thermal_ion_power_density),
+    this quantity is volume-integrated; unlike [per-toroidal-mode thermal-ion charge-state
+    power](name:per_toroidal_mode_thermal_ion_charge_state_power), it is not resolved
+    by charge state.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:thermal_ion_absorbed_wave_power
+  - name:per_toroidal_mode_thermal_ion_power_density
+  - name:per_toroidal_mode_thermal_ion_charge_state_power
+  arguments:
+  - name: thermal_ion_absorbed_wave_power
+    operator: per_toroidal_mode
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/global_quantities/ion/power_thermal_n_phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-global_quantities-ion-power_thermal_n_phi
+    dd_documentation:
+      leaf: Wave power absorbed by the thermal particle population per toroidal mode
+        number
+      parent_path: waves/coherent_wave/global_quantities/ion
+      parent: Quantities related to the different ion species
+      data_type: FLT_1D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/global_quantities/n_phi
+    enhanced_context:
+      description: Wave power absorbed by the thermal ion population resolved per
+        toroidal mode number (n_phi). Captures the RF heating power deposition spectrum
+        over toroidal Fourier harmonics for thermal ions in coherent wave interactions.
+      kind: llm
+  - dd_path: waves/coherent_wave/profiles_1d/ion/power_inside_thermal_n_phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_1d-ion-power_inside_thermal_n_phi
+    dd_documentation:
+      leaf: Absorbed wave power on thermal species inside a flux surface (cumulative
+        volume integral of the absorbed power density), per toroidal mode number
+      parent_path: waves/coherent_wave/profiles_1d/ion
+      parent: Quantities related to the different ion species
+      data_type: FLT_2D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/profiles_1d/grid/rho_tor_norm
+      - waves/coherent_wave/profiles_1d/n_phi
+    enhanced_context:
+      description: "Cumulative absorbed wave power on thermal ions inside a flux surface,\
+        \ resolved per toroidal mode number (n\u03C6). Represents the volume-integrated\
+        \ power deposition profile for each toroidal harmonic contribution to thermal\
+        \ ion heating."
+      kind: llm
+- name: thermal_ion_charge_state_power
+  kind: scalar
+  status: active
+  description: Power transferred from a coherent electromagnetic wave to the bulk
+    thermal ions of a specified charge state, integrated over the plasma volume.
+  documentation: 'This quantity is the volume-integrated power absorbed by the bulk
+    thermal ion population in a specified charge state from a coherent electromagnetic
+    wave. It is the thermal component of ion charge-state power and excludes nonthermal
+    ions and collisional energy exchange between plasma populations.
+
+
+    The total absorbed power is defined by
+
+
+    $$
+
+    P_{\mathrm{th},q} = \int_{V_{\mathrm{plasma}}} p_{\mathrm{abs},\mathrm{th},q}(\mathbf{x})\,dV
+
+    $$
+
+
+    where $P_{\mathrm{th},q}$ is the thermal-ion power for charge state $q$, $p_{\mathrm{abs},\mathrm{th},q}$
+    is the corresponding local coherent-wave power-transfer density, and $V_{\mathrm{plasma}}$
+    is the plasma volume. The total includes all toroidal Fourier modes; [per-toroidal-mode
+    thermal ion charge-state power](name:per_toroidal_mode_thermal_ion_charge_state_power)
+    resolves the same quantity by mode. It contributes to the broader [ion absorbed
+    wave power](name:ion_absorbed_wave_power) and is a charge-state-resolved component
+    of ion charge-state power.'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:per_toroidal_mode_thermal_ion_charge_state_power
+  - name:ion_absorbed_wave_power
+  arguments:
+  - name: ion_charge_state_power
+    operator: thermal
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/global_quantities/ion/state/power_thermal
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-global_quantities-ion-state-power_thermal
+    dd_documentation:
+      leaf: Wave power absorbed by the thermal particle population
+      parent_path: waves/coherent_wave/global_quantities/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_0D
+      unit: W
+    enhanced_context:
+      description: Total wave power absorbed by the thermal ion population for a specific
+        ion charge state, integrated over all toroidal mode numbers. Quantifies the
+        net thermal ion heating from wave-particle interaction for this species state.
+      kind: llm
+- name: per_toroidal_mode_thermal_ion_charge_state_power
+  kind: scalar
+  status: active
+  description: Power transferred from a coherent electromagnetic wave to bulk thermal
+    ions of a specified charge state, resolved per toroidal Fourier mode number.
+  documentation: 'The quantity $P_{n,\mathrm{th},Z}$ is the wave power absorbed by
+    thermal bulk ions of a specified charge state $Z$, attributed to toroidal Fourier
+    harmonic $n$ of the coherent driving wave field. It is the toroidal-mode-resolved
+    component of [thermal_ion_charge_state_power](name:thermal_ion_charge_state_power);
+    summing over all resolved toroidal mode numbers $n$ recovers the charge-state-resolved
+    total:
+
+
+    $$
+
+    P_{\mathrm{th},Z} = \sum_{n} P_{n,\mathrm{th},Z}
+
+    $$
+
+
+    where $P_{\mathrm{th},Z}$ is the volume-integrated absorbed power for the specified
+    charge state over all modes. The quantity is charge-state-resolved rather than
+    summed over all states of the ion species, in contrast to [per_toroidal_mode_thermal_ion_absorbed_wave_power](name:per_toroidal_mode_thermal_ion_absorbed_wave_power),
+    which aggregates over all thermal ion charge states. For the analogous quantity
+    in the fast, non-thermal ion population, see [per_toroidal_mode_fast_ion_charge_state_power](name:per_toroidal_mode_fast_ion_charge_state_power).'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:thermal_ion_charge_state_power
+  - name:per_toroidal_mode_thermal_ion_absorbed_wave_power
+  - name:per_toroidal_mode_fast_ion_charge_state_power
+  arguments:
+  - name: thermal_ion_charge_state_power
+    operator: per_toroidal_mode
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/global_quantities/ion/state/power_thermal_n_phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-global_quantities-ion-state-power_thermal_n_phi
+    dd_documentation:
+      leaf: Wave power absorbed by the thermal particle population per toroidal mode
+        number
+      parent_path: waves/coherent_wave/global_quantities/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_1D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/global_quantities/n_phi
+    enhanced_context:
+      description: Wave power absorbed by the thermal ion population for a specific
+        ion charge state, decomposed per toroidal mode number (n_phi). Quantifies
+        the contribution of each toroidal mode to the total thermal ion heating.
+      kind: llm
+  - dd_path: waves/coherent_wave/profiles_1d/ion/state/power_inside_thermal_n_phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_1d-ion-state-power_inside_thermal_n_phi
+    dd_documentation:
+      leaf: Absorbed wave power on thermal species inside a flux surface (cumulative
+        volume integral of the absorbed power density), per toroidal mode number
+      parent_path: waves/coherent_wave/profiles_1d/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_2D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/profiles_1d/n_phi
+      - waves/coherent_wave/profiles_1d/grid/rho_tor_norm
+    enhanced_context:
+      description: Cumulative absorbed wave power on thermal ion species inside a
+        flux surface (volume integral of absorbed power density), resolved per toroidal
+        mode number (n_phi), as a 2D profile in radius and mode number.
+      kind: llm
+- name: thermal_ion_charge_state_power_at_inside_flux_surface
+  kind: scalar
+  status: active
+  description: Cumulative wave power absorbed by a specified thermal ion charge state
+    within the plasma volume enclosed by a specified magnetic flux surface.
+  documentation: 'Cumulative wave power absorbed by a specified thermal ion charge
+    state within the plasma volume enclosed by a specified magnetic flux surface.
+    It is the portion of wave power transferred to thermal ions in that charge state,
+    accumulated over the volume inside the chosen surface.
+
+
+    The cumulative power is defined by integrating the local absorbed-wave-power density
+    for that thermal ion charge state over the enclosed plasma volume:
+
+
+    $$
+
+    P_q^{\mathrm{th}}(\lambda) = \int_{V(\lambda)} p_q^{\mathrm{th}}(\mathbf{x}) \,
+    dV
+
+    $$
+
+
+    where $P_q^{\mathrm{th}}(\lambda)$ is the cumulative absorbed wave power for thermal
+    ion charge state $q$ inside the magnetic flux surface labeled by $\lambda$, $p_q^{\mathrm{th}}$
+    is the local absorbed-wave-power density for that thermal ion charge state, and
+    $V(\lambda)$ is the plasma volume enclosed by that magnetic flux surface.
+
+
+    This quantity is charge-state resolved and includes only absorption by the thermal
+    ion population; it excludes absorption by electrons, fast or non-thermal ions,
+    neutrals, and non-wave power exchange. Because power is extensive, the sum over
+    all thermal-ion charge states gives [thermal_ion_power_at_inside_flux_surface](name:thermal_ion_power_at_inside_flux_surface).
+    It is the thermal-population contribution to [ion_charge_state_power_at_inside_flux_surface](name:ion_charge_state_power_at_inside_flux_surface);
+    the corresponding fast-ion contribution is [fast_ion_charge_state_power_at_inside_flux_surface](name:fast_ion_charge_state_power_at_inside_flux_surface).'
+  unit: W
+  physics_domain: auxiliary_heating
+  links:
+  - name:ion_charge_state_power_at_inside_flux_surface
+  - name:fast_ion_charge_state_power_at_inside_flux_surface
+  arguments:
+  - name: ion_charge_state_power_at_inside_flux_surface
+    operator: thermal
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/profiles_1d/ion/state/power_inside_thermal
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_1d-ion-state-power_inside_thermal
+    dd_documentation:
+      leaf: Absorbed wave power on thermal species inside a flux surface (cumulative
+        volume integral of the absorbed power density)
+      parent_path: waves/coherent_wave/profiles_1d/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_1D
+      unit: W
+      coordinates:
+      - waves/coherent_wave/profiles_1d/grid/rho_tor_norm
+    enhanced_context:
+      description: Cumulative absorbed wave power on thermal ion species inside a
+        flux surface, obtained by volume integration of the absorbed power density
+        from the magnetic axis outward. Provides the radial profile of total wave
+        power deposited on thermal ions.
       kind: llm
 - name: thermal_ion_power_at_inside_flux_surface
   kind: scalar
@@ -5311,6 +6709,58 @@
         \ the relative phasing used to control wave spectral content and current drive\
         \ efficiency."
       kind: template
+- name: wave_vector
+  kind: vector
+  status: active
+  description: Wave-vector quantity giving the spatial gradient of wave phase; its
+    magnitude is the local wavenumber and its components describe phase variation
+    along specified directions.
+  documentation: 'The wave vector is the spatial phase-gradient vector of a propagating
+    or fluctuating wave. It specifies the rate and direction of phase variation, while
+    its magnitude is the local wavenumber.
+
+
+    For a local phase field $\Phi(\mathbf{r},t)$, the wave vector $\mathbf{k}$ is
+    defined by
+
+
+    $$
+
+    \mathbf{k} = \nabla \Phi
+
+    $$
+
+
+    where $\mathbf{r}$ is position, $t$ is time, and $\Phi$ is the wave phase. Components
+    may be resolved along geometric directions, as in [vertical_wave_vector](name:vertical_wave_vector),
+    or relative to the local equilibrium magnetic field, as in [perpendicular_wave_vector](name:perpendicular_wave_vector).
+    Dimensionless forms such as [normalized_wave_vector](name:normalized_wave_vector)
+    and [product_of_wave_vector_and_reference_larmor_radius](name:product_of_wave_vector_and_reference_larmor_radius)
+    are scaled representations obtained by multiplying the wave vector or one of its
+    components by a reference Larmor radius; they retain the underlying spatial-scale
+    information without being additional directional components.'
+  unit: m^-1
+  physics_domain: auxiliary_heating
+  links:
+  - name:perpendicular_wave_vector
+  - name:normalized_wave_vector
+  sources:
+  - dd_path: ec_launchers/beam/direction/kz
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/ec_launchers.html#ec_launchers-beam-direction-kz
+    dd_documentation:
+      leaf: Component along the vertical direction
+      parent_path: ec_launchers/beam/direction
+      parent: Wavevector at launch point
+      data_type: FLT_1D
+      unit: m^-1
+      coordinates:
+      - ec_launchers/beam/time
+    enhanced_context:
+      description: Vertical (Z) component of the unit wavevector (k_z) at the launch
+        point of an electron cyclotron (EC) beam. Defines the vertical direction of
+        beam propagation at the launcher for ray-tracing calculations.
+      kind: llm
 - name: width_of_aperture
   kind: scalar
   status: active
@@ -5368,6 +6818,151 @@
         direction, applicable when geometry_type = 3 (rectangular). Defines one of
         the two rectangular dimensions shaping the neutral beam cross-section.
       kind: llm
+- name: x_direction_unit_vector_of_electron_cyclotron_launcher_mirror
+  kind: scalar
+  status: active
+  description: "Signed x-axis component of the unit vector defining an electron-cyclotron\
+    \ launcher mirror\u2019s translation or rotation axis at its home position in\
+    \ the right-handed Cartesian (x, y, z) basis."
+  documentation: 'Signed x-axis component of the unit vector defining an electron-cyclotron
+    launcher mirror''s translation or rotation axis at its home position is the projection
+    of that mirror-axis unit vector onto the $\hat{x}$ basis direction of the right-handed
+    Cartesian $(\hat{x}, \hat{y}, \hat{z})$ frame. The vector direction is evaluated
+    for the mirror at its home position.
+
+
+    The component is defined by the scalar projection
+
+
+    $$
+
+    d_x = \hat{\mathbf{d}} \cdot \hat{x}
+
+    $$
+
+
+    where $d_x$ is this x-axis component, $\hat{\mathbf{d}}$ is the unit vector along
+    the mirror translation or rotation axis at the home position, and $\hat{x}$ is
+    the x basis vector of the right-handed Cartesian $(\hat{x}, \hat{y}, \hat{z})$
+    frame.
+
+
+    Together with the [y-axis component](name:y_direction_unit_vector_of_electron_cyclotron_launcher_mirror)
+    and [z-axis component](name:z_direction_unit_vector_of_electron_cyclotron_launcher_mirror),
+    this quantity specifies the orientation of the mirror movement axis and satisfies
+    $d_x^2 + d_y^2 + d_z^2 = 1$. It is an orientation component, not a mirror position,
+    displacement, or rotation angle.
+
+
+    Sign convention: Positive when the mirror-axis unit vector has a component in
+    the $+\hat{x}$ direction of the right-handed Cartesian $(\hat{x}, \hat{y}, \hat{z})$
+    frame.'
+  unit: '1'
+  physics_domain: auxiliary_heating
+  links:
+  - name:y_direction_unit_vector_of_electron_cyclotron_launcher_mirror
+  - name:z_direction_unit_vector_of_electron_cyclotron_launcher_mirror
+  sources:
+  - dd_path: ec_launchers/mirror/movement/direction/x
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/ec_launchers.html#ec_launchers-mirror-movement-direction-x
+    dd_documentation:
+      leaf: Component along X axis
+      parent_path: ec_launchers/mirror/movement/direction
+      parent: Unit vector indicating the direction of the translation or the rotation
+        axis at "home" position (i.e. ../../geometry/centre)
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: X coordinate of direction.
+      kind: template
+- name: y_direction_unit_vector_of_electron_cyclotron_launcher_mirror
+  kind: scalar
+  status: active
+  description: "Y-axis component of the unit vector defining an electron-cyclotron\
+    \ launcher mirror\u2019s translation or rotation axis at its home position."
+  documentation: "This quantity is the y component of the unit direction vector defining\
+    \ an electron-cyclotron launcher mirror\u2019s translation direction or rotation\
+    \ axis at its home position. It is a directional cosine, not a displacement or\
+    \ steering angle.\n\nThe component is defined by\n\n$$\nd_y = \\mathbf{d} \\cdot\
+    \ \\hat{\\mathbf{y}}\n$$\n\nwhere $\\mathbf{d}$ is the mirror direction unit vector\
+    \ and $\\hat{\\mathbf{y}}$ is the y-axis unit vector in the right-handed Cartesian\
+    \ basis $(\\hat{x},\\hat{y},\\hat{z})$, with $\\hat{z}$ vertical. The unit-vector\
+    \ condition gives $-1 \\leq d_y \\leq 1$. The corresponding [x-axis direction\
+    \ component](name:x_direction_unit_vector_of_electron_cyclotron_launcher_mirror)\
+    \ and [z-axis direction component](name:z_direction_unit_vector_of_electron_cyclotron_launcher_mirror)\
+    \ complete the Cartesian direction description.\n\nSign convention: Positive when\
+    \ the mirror direction vector has a component toward increasing Cartesian y coordinate,\
+    \ that is, $d_y > 0$."
+  unit: '1'
+  physics_domain: auxiliary_heating
+  links:
+  - name:x_direction_unit_vector_of_electron_cyclotron_launcher_mirror
+  - name:z_direction_unit_vector_of_electron_cyclotron_launcher_mirror
+  sources:
+  - dd_path: ec_launchers/mirror/movement/direction/y
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/ec_launchers.html#ec_launchers-mirror-movement-direction-y
+    dd_documentation:
+      leaf: Component along Y axis
+      parent_path: ec_launchers/mirror/movement/direction
+      parent: Unit vector indicating the direction of the translation or the rotation
+        axis at "home" position (i.e. ../../geometry/centre)
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Y coordinate of direction.
+      kind: template
+- name: z_direction_unit_vector_of_electron_cyclotron_launcher_mirror
+  kind: scalar
+  status: active
+  description: "Signed z-axis component of the unit vector defining the electron-cyclotron\
+    \ launcher mirror\u2019s translation or rotation axis at its home position."
+  documentation: 'The quantity is the z-axis component of the unit direction vector
+    that defines the translation direction or rotation axis of an electron-cyclotron
+    launcher mirror at its home position. The corresponding [x-axis component](name:x_direction_unit_vector_of_electron_cyclotron_launcher_mirror)
+    and [y-axis component](name:y_direction_unit_vector_of_electron_cyclotron_launcher_mirror)
+    complete the Cartesian direction vector.
+
+
+    For unit direction vector $\mathbf{u}$, the component is defined by:
+
+
+    $$
+
+    u_z = \mathbf{u} \cdot \hat{\mathbf{z}}, \qquad \lVert\mathbf{u}\rVert = 1
+
+    $$
+
+
+    where $u_z$ is the z-axis component, $\mathbf{u}$ is the mirror direction unit
+    vector, and $\hat{\mathbf{z}}$ is the positive z-axis unit vector in the right-handed
+    Cartesian $(\hat{x},\hat{y},\hat{z})$ frame, with $\hat{z}$ aligned with the vertical
+    $+Z$ direction. The vector describes the mirror movement direction or rotation
+    axis at its home position.
+
+
+    Sign convention: Positive when the mirror direction vector has a component along
+    the positive $\hat{z}$ axis, corresponding to the vertical $+Z$ direction.'
+  unit: '1'
+  physics_domain: auxiliary_heating
+  links:
+  - name:x_direction_unit_vector_of_electron_cyclotron_launcher_mirror
+  - name:y_direction_unit_vector_of_electron_cyclotron_launcher_mirror
+  sources:
+  - dd_path: ec_launchers/mirror/movement/direction/z
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/ec_launchers.html#ec_launchers-mirror-movement-direction-z
+    dd_documentation:
+      leaf: Component along Z axis
+      parent_path: ec_launchers/mirror/movement/direction
+      parent: Unit vector indicating the direction of the translation or the rotation
+        axis at "home" position (i.e. ../../geometry/centre)
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Vertical (Z) coordinate of direction.
+      kind: template
 - name: fast_electron_power_density
   kind: scalar
   status: active
@@ -5415,6 +7010,7 @@
   - name:electron_power_density
   - name:per_toroidal_mode_fast_electron_power_density
   - name:thermal_electron_power_density
+  - name:fast_electron_absorbed_wave_power
   arguments:
   - name: electron_power_density
     operator: fast
@@ -5486,6 +7082,7 @@
   physics_domain: auxiliary_heating
   links:
   - name:fast_electron_power_density
+  - name:fast_electron_absorbed_wave_power
   arguments:
   - name: fast_electron_power_density
     operator: per_toroidal_mode
@@ -5639,6 +7236,7 @@
   physics_domain: auxiliary_heating
   links:
   - name:fast_ion_power_density
+  - name:per_toroidal_mode_fast_ion_charge_state_power_density
   arguments:
   - name: fast_ion_power_density
     operator: per_toroidal_mode
@@ -5680,6 +7278,386 @@
         toroidal mode number (n_phi), resolved on a 2D poloidal cross-section. Quantifies
         wave-particle power transfer to fast ions from each toroidal harmonic of the
         wave spectrum.
+      kind: llm
+- name: ion_charge_state_power_density
+  kind: scalar
+  status: active
+  description: Volumetric rate of wave energy absorbed by ions in a specified charge
+    state, covering both thermal and fast ion populations.
+  documentation: 'Ion charge-state power density is the local rate at which wave energy
+    is absorbed by ions in a specified charge state per unit plasma volume. It is
+    the ion-population specialization of [power density](name:power_density) and applies
+    to both thermal and fast ions, represented by [thermal ion charge-state power
+    density](name:thermal_ion_charge_state_power_density) and [fast ion charge-state
+    power density](name:fast_ion_charge_state_power_density).
+
+
+    For a differential plasma volume, the absorbed-wave power density is defined by
+
+
+    $$
+
+    p_{i,q}^{\mathrm{abs}} = \frac{dE_{\mathrm{wave}}^{i,q}}{dt\,dV}
+
+    $$
+
+
+    where $p_{i,q}^{\mathrm{abs}}$ is the absorbed wave power density, $E_{\mathrm{wave}}^{i,q}$
+    is the wave energy transferred to ion population $i$ in charge state $q$, $t$
+    is time, and $V$ is plasma volume.
+
+
+    This quantity denotes local wave-power deposition rather than a volume-integrated
+    power or an unrelated collisional or transport source. Integrating it over the
+    plasma volume gives the corresponding [ion charge-state power](name:ion_charge_state_power),
+    while integration inside a flux surface gives [ion charge-state power at inside
+    flux surface](name:ion_charge_state_power_at_inside_flux_surface).'
+  unit: W.m^-3
+  physics_domain: auxiliary_heating
+  links:
+  - name:power_density
+  - name:thermal_ion_charge_state_power_density
+  - name:fast_ion_charge_state_power_density
+  - name:ion_charge_state_power
+  - name:ion_charge_state_power_at_inside_flux_surface
+  arguments:
+  - name: power_density
+    operator: ion_charge_state
+    operator_kind: qualifier
+- name: fast_ion_charge_state_power_density
+  kind: scalar
+  status: active
+  description: Absorbed wave power density deposited on fast (non-thermal) ions in
+    a specified charge state, expressed per unit plasma volume.
+  documentation: 'Local volumetric rate at which coherent wave energy is deposited
+    into fast (non-thermal) ions of a single ion charge state. It is the fast-ion,
+    charge-state-resolved component of [ion charge-state power density](name:ion_charge_state_power_density).
+
+
+    The local density is defined by
+
+
+    $$
+
+    p_{\mathrm{fast},q}(\mathbf{x}) = \frac{dP_{\mathrm{fast},q}}{dV}
+
+    $$
+
+
+    where $p_{\mathrm{fast},q}(\mathbf{x})$ is the deposited power density at spatial
+    position $\mathbf{x}$, $q$ identifies the ion charge state, $P_{\mathrm{fast},q}$
+    is the corresponding absorbed wave power, and $dV$ is a differential plasma volume.
+
+
+    This quantity includes only the specified fast-ion charge state and excludes thermal
+    ions and other charge states. Integrating it over a plasma volume gives the corresponding
+    cumulative quantity, such as [fast-ion charge-state power inside a flux surface](name:fast_ion_charge_state_power_at_inside_flux_surface).
+    It is distinct from [thermal-ion charge-state power density](name:thermal_ion_charge_state_power_density),
+    which describes deposition into bulk thermal ions.'
+  unit: W.m^-3
+  physics_domain: auxiliary_heating
+  links:
+  - name:ion_charge_state_power_density
+  - name:fast_ion_charge_state_power_at_inside_flux_surface
+  - name:thermal_ion_charge_state_power_density
+  arguments:
+  - name: ion_charge_state_power_density
+    operator: fast
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/profiles_1d/ion/state/power_density_fast
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_1d-ion-state-power_density_fast
+    dd_documentation:
+      leaf: Flux surface averaged absorbed wave power density on the fast species
+      parent_path: waves/coherent_wave/profiles_1d/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_1D
+      unit: W.m^-3
+      coordinates:
+      - waves/coherent_wave/profiles_1d/grid/rho_tor_norm
+    enhanced_context:
+      description: Flux-surface-averaged absorbed wave power density deposited on
+        the fast (non-thermal) ion population of a given charge state bundle, as a
+        1D radial profile. Characterises RF heating power density absorbed by fast
+        ions via wave-particle interactions.
+      kind: llm
+  - dd_path: waves/coherent_wave/profiles_2d/ion/state/power_density_fast
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_2d-ion-state-power_density_fast
+    dd_documentation:
+      leaf: Absorbed wave power density on the fast species
+      parent_path: waves/coherent_wave/profiles_2d/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_2D
+      unit: W.m^-3
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Absorbed RF wave power density deposited on fast (non-thermal)
+        ions of a given charge state in a 2D poloidal cross-section. Represents the
+        spatial distribution of RF wave energy deposited on fast ions per unit volume.
+      kind: llm
+- name: per_toroidal_mode_fast_ion_charge_state_power_density
+  kind: scalar
+  status: active
+  description: Absorbed wave power density deposited on fast (non-thermal) ions of
+    a specified charge state, resolved per toroidal Fourier mode number.
+  documentation: 'The local volumetric rate of wave energy deposition on fast (non-thermal)
+    ions of a specific charge state $q$, attributed to a single toroidal Fourier mode
+    number $n_\phi$. It is the charge-state-resolved and mode-resolved form of the
+    fast-ion wave absorption.
+
+
+    Summing over all toroidal mode numbers and integrating over the plasma volume
+    recovers the total charge-state-specific absorbed power:
+
+
+    $$
+
+    P_{abs}^{q} = \sum_{n_\phi} \int p_{n_\phi,q}(\mathbf{r}) \, dV
+
+    $$
+
+
+    where $p_{n_\phi,q}(\mathbf{r})$ is this quantity at spatial coordinate $\mathbf{r}$
+    for toroidal mode $n_\phi$ and charge state $q$.
+
+
+    Summing over all charge states $q$ yields [per_toroidal_mode_fast_ion_power_density](name:per_toroidal_mode_fast_ion_power_density),
+    the charge-state-integrated counterpart. The mode-summed parent quantity is [fast_ion_charge_state_power_density](name:fast_ion_charge_state_power_density).
+    The thermal-ion analog at the same charge-state and mode resolution is [per_toroidal_mode_thermal_ion_charge_state_power_density](name:per_toroidal_mode_thermal_ion_charge_state_power_density).'
+  unit: W.m^-3
+  physics_domain: auxiliary_heating
+  links:
+  - name:per_toroidal_mode_fast_ion_power_density
+  - name:fast_ion_charge_state_power_density
+  - name:per_toroidal_mode_thermal_ion_charge_state_power_density
+  arguments:
+  - name: fast_ion_charge_state_power_density
+    operator: per_toroidal_mode
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/profiles_1d/ion/state/power_density_fast_n_phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_1d-ion-state-power_density_fast_n_phi
+    dd_documentation:
+      leaf: Flux surface averaged absorbed wave power density on the fast species,
+        per toroidal mode number
+      parent_path: waves/coherent_wave/profiles_1d/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_2D
+      unit: W.m^-3
+      coordinates:
+      - waves/coherent_wave/profiles_1d/grid/rho_tor_norm
+      - waves/coherent_wave/profiles_1d/n_phi
+    enhanced_context:
+      description: "Flux-surface-averaged absorbed wave power density on fast ions\
+        \ of a given ion state, resolved per toroidal mode number (n\u03C6). Quantifies\
+        \ the power deposition spectrum of the wave on the fast ion population as\
+        \ a function of toroidal mode index."
+      kind: llm
+  - dd_path: waves/coherent_wave/profiles_2d/ion/state/power_density_fast_n_phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_2d-ion-state-power_density_fast_n_phi
+    dd_documentation:
+      leaf: Absorbed wave power density on the fast species, per toroidal mode number
+      parent_path: waves/coherent_wave/profiles_2d/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_3D
+      unit: W.m^-3
+      coordinates:
+      - waves/coherent_wave/profiles_2d/n_phi
+      - 1...N
+    enhanced_context:
+      description: Absorbed RF wave power density per toroidal mode number (n_phi)
+        deposited on the fast ion population of a given charge state, resolved on
+        a 2D poloidal cross-section. Quantifies the wave-particle resonance contribution
+        to fast particle energization for each toroidal mode.
+      kind: llm
+- name: thermal_ion_charge_state_power_density
+  kind: scalar
+  status: active
+  description: Absorbed wave power density deposited on thermal (bulk) ions in a specified
+    charge state, expressed per unit plasma volume.
+  documentation: 'Local volumetric rate at which coherent wave energy is deposited
+    into thermal (bulk) ions of a single ion charge state. It is the thermal-ion,
+    charge-state-resolved component of [ion_charge_state_power_density](name:ion_charge_state_power_density),
+    restricted to the bulk Maxwellian ion population and excluding fast suprathermal
+    ions.
+
+
+    The quantity $p_{\mathrm{th,cs}}$ relates to the volume-integrated absorbed power
+    by
+
+
+    $$
+
+    P_{\mathrm{th,cs}} = \int_V p_{\mathrm{th,cs}} \, dV
+
+    $$
+
+
+    where $P_{\mathrm{th,cs}}$ is the total wave power absorbed by thermal ions of
+    the charge state and $V$ is the plasma volume.
+
+
+    The collisional energy-exchange contribution to the same population is resolved
+    separately by [thermal_ion_charge_state_power_density_due_to_collisions](name:thermal_ion_charge_state_power_density_due_to_collisions).
+    The fast-ion counterpart for the same charge state is [fast_ion_charge_state_power_density](name:fast_ion_charge_state_power_density).
+    The toroidal-mode-resolved decomposition is provided by [per_toroidal_mode_thermal_ion_charge_state_power_density](name:per_toroidal_mode_thermal_ion_charge_state_power_density).'
+  unit: W.m^-3
+  physics_domain: auxiliary_heating
+  links:
+  - name:ion_charge_state_power_density
+  - name:thermal_ion_charge_state_power_density_due_to_collisions
+  - name:fast_ion_charge_state_power_density
+  - name:per_toroidal_mode_thermal_ion_charge_state_power_density
+  arguments:
+  - name: ion_charge_state_power_density
+    operator: thermal
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/profiles_1d/ion/state/power_density_thermal
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_1d-ion-state-power_density_thermal
+    dd_documentation:
+      leaf: Flux surface averaged absorbed wave power density on the thermal species
+      parent_path: waves/coherent_wave/profiles_1d/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_1D
+      unit: W.m^-3
+      coordinates:
+      - waves/coherent_wave/profiles_1d/grid/rho_tor_norm
+    enhanced_context:
+      description: Flux-surface averaged absorbed wave power density (per unit volume)
+        deposited onto the thermal ion charge state by a coherent wave. Characterizes
+        bulk thermal ion heating, distinct from fast-particle absorption tracked in
+        the sibling power_density_fast field.
+      kind: llm
+  - dd_path: waves/coherent_wave/profiles_2d/ion/state/power_density_thermal
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_2d-ion-state-power_density_thermal
+    dd_documentation:
+      leaf: Absorbed wave power density on the thermal species
+      parent_path: waves/coherent_wave/profiles_2d/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_2D
+      unit: W.m^-3
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Absorbed wave power density deposited on the thermal (bulk) ion
+        species in a 2D poloidal cross-section. Represents the local volumetric RF
+        heating power per unit volume from a coherent wave, distinguishing bulk-ion
+        from fast-ion deposition.
+      kind: llm
+- name: per_toroidal_mode_thermal_ion_charge_state_power_density
+  kind: scalar
+  status: active
+  description: "Coherent-wave power density absorbed by bulk thermal ions of one specified\
+    \ charge state, resolved by toroidal Fourier mode number in the right-handed cylindrical\
+    \ (R, \u03C6, Z) frame. It is the toroidal-mode contribution to the charge-state-resolved\
+    \ thermal-ion heating density."
+  documentation: 'Coherent-wave power density absorbed by bulk thermal ions of one
+    specified charge state, resolved by toroidal Fourier mode number in the right-handed
+    cylindrical $(R, \phi, Z)$ frame, is the local density of coherent-wave energy
+    absorption by that thermal ion charge-state population for a single toroidal mode
+    label. The charge state is fixed; the quantity is neither summed over ion charge
+    states nor over toroidal modes.
+
+
+    The corresponding [per-toroidal-mode thermal-ion charge-state power](name:per_toroidal_mode_thermal_ion_charge_state_power)
+    is the volume integral of this density for the same mode and charge state:
+
+
+    $$
+
+    P_{n,c}^{\mathrm{th\,i}} = \int_V p_{n,c}^{\mathrm{th\,i}}(\mathbf{x})\, dV
+
+    $$
+
+
+    where $p_{n,c}^{\mathrm{th\,i}}$ is this coherent-wave power density, $P_{n,c}^{\mathrm{th\,i}}$
+    is the [per-toroidal-mode thermal-ion charge-state power](name:per_toroidal_mode_thermal_ion_charge_state_power),
+    $n$ is the toroidal Fourier mode number, $c$ is the specified ion charge state,
+    the superscript $\mathrm{th\,i}$ denotes bulk thermal ions, $\mathbf{x}$ is position,
+    and $dV$ is the volume element over the plasma volume $V$.
+
+
+    The toroidal mode number $n$ is the integer Fourier label associated with coherent-wave
+    dependence $\exp(i n\phi)$; in the right-handed cylindrical $(R, \phi, Z)$ frame,
+    $R$ is major radius, $\phi$ is toroidal angle increasing counter-clockwise when
+    viewed from above $+\hat{Z}$, and $Z$ is vertical height. The modal normalization
+    must make the modal densities additive: summing $p_{n,c}^{\mathrm{th\,i}}$ over
+    the retained toroidal mode labels reconstructs the [thermal-ion charge-state power
+    density](name:thermal_ion_charge_state_power_density) for the same charge state,
+    with no additional toroidal or volume factor. Only the real physical contribution
+    assigned to the mode label is represented; any complex Fourier-coefficient normalization
+    is already absorbed into the modal partition.
+
+
+    It excludes power absorbed by electrons, fast ions, other ion charge states, and
+    the charge-state-summed [per-toroidal-mode thermal-ion power density](name:per_toroidal_mode_thermal_ion_power_density).
+    As absorbed auxiliary-heating power density, each modal contribution is non-negative;
+    a signed wave-particle exchange representing energy returned from the selected
+    thermal ion charge-state population to the wave is outside this deposited-power
+    quantity.'
+  unit: W.m^-3
+  physics_domain: auxiliary_heating
+  links:
+  - name:thermal_ion_charge_state_power_density
+  - name:per_toroidal_mode_thermal_ion_power_density
+  arguments:
+  - name: thermal_ion_charge_state_power_density
+    operator: per_toroidal_mode
+    operator_kind: qualifier
+  sources:
+  - dd_path: waves/coherent_wave/profiles_1d/ion/state/power_density_thermal_n_phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_1d-ion-state-power_density_thermal_n_phi
+    dd_documentation:
+      leaf: Flux surface averaged absorbed wave power density on the thermal species,
+        per toroidal mode number
+      parent_path: waves/coherent_wave/profiles_1d/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_2D
+      unit: W.m^-3
+      coordinates:
+      - waves/coherent_wave/profiles_1d/grid/rho_tor_norm
+      - waves/coherent_wave/profiles_1d/n_phi
+    enhanced_context:
+      description: Flux-surface-averaged absorbed wave power density on the thermal
+        ion charge state, resolved per toroidal mode number (n_phi). Quantifies the
+        RF power deposition into the thermal ion population as a function of toroidal
+        mode index.
+      kind: llm
+  - dd_path: waves/coherent_wave/profiles_2d/ion/state/power_density_thermal_n_phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/waves.html#waves-coherent_wave-profiles_2d-ion-state-power_density_thermal_n_phi
+    dd_documentation:
+      leaf: Absorbed wave power density on the thermal species, per toroidal mode
+        number
+      parent_path: waves/coherent_wave/profiles_2d/ion/state
+      parent: Collisional exchange with the various states of the ion species (ionisation,
+        energy, excitation, ...)
+      data_type: FLT_3D
+      unit: W.m^-3
+      coordinates:
+      - waves/coherent_wave/profiles_2d/n_phi
+      - 1...N
+    enhanced_context:
+      description: Absorbed RF wave power density on the thermal ion charge state,
+        decomposed by toroidal mode number (n_phi), on the 2D poloidal cross-section.
+        Gives the spatial distribution of wave energy absorption by thermal ions per
+        toroidal harmonic.
       kind: llm
 - name: left_hand_circularly_polarized_electric_field
   kind: scalar
@@ -6425,6 +8403,7 @@
   physics_domain: auxiliary_heating
   links:
   - name:electron_power_density
+  - name:thermal_electron_absorbed_wave_power
   - name:per_toroidal_mode_thermal_electron_power_density
   arguments:
   - name: electron_power_density
@@ -6591,6 +8570,7 @@
   links:
   - name:ion_power_density
   - name:per_toroidal_mode_thermal_ion_power_density
+  - name:thermal_ion_absorbed_wave_power
   arguments:
   - name: ion_power_density
     operator: thermal
@@ -6667,6 +8647,7 @@
   physics_domain: auxiliary_heating
   links:
   - name:thermal_ion_power_density
+  - name:per_toroidal_mode_thermal_ion_charge_state_power_density
   - name:per_toroidal_mode_fast_ion_power_density
   arguments:
   - name: thermal_ion_power_density

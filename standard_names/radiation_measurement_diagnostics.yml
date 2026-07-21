@@ -1,8 +1,44 @@
 # Domain: radiation_measurement_diagnostics
-# Entries: 111
+# Entries: 129
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: absorptivity_of_filter
+  kind: scalar
+  status: active
+  description: Dimensionless fraction of the incident photon flux absorbed by a diagnostic
+    filter material, bounded between 0 and 1.
+  documentation: 'Absorptivity of a diagnostic filter is the dimensionless ratio of
+    the absorbed photon flux to the total incident photon flux at the filter surface.
+    It is bounded on the interval $[0, 1]$, where $\alpha = 0$ indicates no absorption
+    and $\alpha = 1$ indicates complete absorption of incident photons.
+
+
+    Conservation of energy at the filter interface constrains absorptivity $\alpha$,
+    transmissivity $T$, and reflectivity $R$ through
+
+
+    $$
+
+    \alpha + T + R = 1
+
+    $$
+
+
+    where scattering contributions are subsumed into reflectivity or treated as a
+    separate loss term, depending on the optical model.
+
+
+    The wavelength-resolved instance [spectral_absorptivity_of_filter](name:spectral_absorptivity_of_filter)
+    extends this quantity as a function of photon wavelength, capturing the spectral
+    selectivity of the filter material. The overall filter detection probability,
+    which combines absorptivity with downstream optical and detector efficiencies,
+    is quantified separately by [efficiency_of_filter](name:efficiency_of_filter).'
+  unit: '1'
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:spectral_absorptivity_of_filter
+  - name:efficiency_of_filter
 - name: angular_width_of_bragg_crystal
   kind: scalar
   status: active
@@ -127,6 +163,8 @@
   unit: m
   physics_domain: radiation_measurement_diagnostics
   links:
+  - name:first_local_tangential_coordinate_of_bragg_crystal
+  - name:second_local_tangential_coordinate_of_bragg_crystal
   - name:thickness_of_bragg_crystal
   sources:
   - dd_path: spectrometer_x_ray_crystal/channel/crystal/x1_width
@@ -250,58 +288,6 @@
         radiance as a 2D pixel array indexed by line and column. Used for plasma emission
         monitoring including line radiation, bremsstrahlung, and plasma-wall interactions.
       kind: llm
-- name: calibration_factor_of_visible_camera
-  kind: scalar
-  status: active
-  description: Multiplicative radiometric coefficient that converts a corrected visible-camera
-    detector signal into absolute photon radiance integrated over the admitted spectral
-    band.
-  documentation: 'A visible-camera radiometric factor converts a consistently corrected
-    detector signal into band-integrated photon radiance. It represents the combined
-    response of the optical throughput, detector sensitivity, pixel etendue, and exposure
-    treatment rather than the radiance itself.
-
-
-    The defining conversion is
-
-
-    $$
-
-    L_{\mathrm{vis}} = C_{\mathrm{vis}} S_{\mathrm{corr}}
-
-    $$
-
-
-    where $L_{\mathrm{vis}}$ is the [visible-camera brightness](name:brightness_of_visible_camera),
-    $C_{\mathrm{vis}}$ is this visible-camera factor, and $S_{\mathrm{corr}}$ is the
-    corrected detector signal. The spectral dependence is integrated over the relevant
-    visible passband. Unlike the resulting brightness, the factor is a calibration
-    coefficient and must be applied to the corrected signal; it is the camera-specific
-    component of the parent [factor of visible camera](name:factor_of_visible_camera).'
-  unit: m^-2.s^-1.sr^-1
-  physics_domain: radiation_measurement_diagnostics
-  links:
-  - name:brightness_of_visible_camera
-  sources:
-  - dd_path: camera_visible/channel/detector/counts_to_radiance
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_visible.html#camera_visible-channel-detector-counts_to_radiance
-    dd_documentation:
-      leaf: Counts to radiance factor, for each pixel of the detector. Includes both
-        the transmission losses in the relay optics and the quantum efficiency of
-        the camera itself, integrated over the wavelength range
-      parent_path: camera_visible/channel/detector
-      parent: Set of detectors
-      data_type: FLT_2D
-      unit: m^-2.s^-1.sr^-1
-      coordinates:
-      - 1...N
-    enhanced_context:
-      description: Calibration factor converting raw detector pixel counts to radiance
-        for each pixel of the 2D visible camera detector array. Incorporates relay
-        optics transmission and camera quantum efficiency integrated over the wavelength
-        bandpass.
-      kind: llm
 - name: curvature_of_optical_element
   kind: scalar
   status: active
@@ -375,6 +361,7 @@
   physics_domain: radiation_measurement_diagnostics
   links:
   - name:curvature_of_optical_element
+  - name:vertical_back_surface_curvature_of_optical_element
   arguments:
   - name: curvature_of_optical_element
     operator: back_surface
@@ -532,6 +519,7 @@
   physics_domain: radiation_measurement_diagnostics
   links:
   - name:spectral_efficiency_of_filter
+  - name:absorptivity_of_filter
   - name:efficiency_of_spectrometer_channel
 - name: efficiency_of_spectrometer_channel
   kind: scalar
@@ -575,6 +563,7 @@
   physics_domain: radiation_measurement_diagnostics
   links:
   - name:spectral_etendue_of_spectrometer_channel
+  - name:absorptivity_of_filter
   sources:
   - dd_path: spectrometer_visible/channel/light_collection_efficiencies/values
     dd_version: 4.1.0
@@ -1008,7 +997,9 @@
     \ or [second local tangential coordinate](name:second_local_tangential_coordinate_of_soft_xray_detector)."
   unit: m
   physics_domain: radiation_measurement_diagnostics
-  links: []
+  links:
+  - name:first_local_tangential_coordinate_of_soft_xray_detector
+  - name:second_local_tangential_coordinate_of_soft_xray_detector
   sources:
   - dd_path: spectrometer_x_ray_crystal/channel/camera/camera_dimensions
     dd_version: 4.1.0
@@ -1061,7 +1052,160 @@
   unit: m^-3.sr^-1
   physics_domain: radiation_measurement_diagnostics
   links:
+  - name:calibration_factor_of_spectrometer
   - name:spectral_etendue_of_spectrometer_channel
+- name: calibration_factor_of_spectrometer
+  kind: scalar
+  status: active
+  description: Multiplicative absolute radiometric calibration coefficient for a spectrometer
+    response channel, mapping registered photon count rate to the corresponding photon
+    radiance density. It abstracts calibration factors by their count-rate-to-radiance
+    role rather than by a specific resolved-variable specialization.
+  documentation: 'Calibration factor of a spectrometer is the multiplicative coefficient
+    that places a spectrometer response channel on an absolute photon radiance-density
+    scale. It represents the net radiometric response needed to convert the photon
+    count rate registered in that channel into the corresponding photon radiance density.
+
+
+    The defining relation is:
+
+
+    $$
+
+    \mathcal{L}_\gamma = C_\mathrm{cal} \, \dot{N}_\gamma
+
+    $$
+
+
+    where $\mathcal{L}_\gamma$ is the photon radiance density represented by the spectrometer
+    response channel, $\dot{N}_\gamma$ is the photon count rate registered in the
+    same channel, and $C_\mathrm{cal}$ is this calibration factor.
+
+
+    This parent quantity is defined by the absolute radiometric count-rate-to-radiance
+    conversion, not by the particular variable used to identify the spectrometer channel.
+    The [spectral calibration factor of a spectrometer](name:spectral_calibration_factor_of_spectrometer)
+    is the wavelength-resolved specialization; non-radiometric spectrometer factors
+    and additive corrections such as background or dark-count offsets are excluded.'
+  unit: m^-3.sr^-1
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:factor_of_spectrometer
+  - name:spectral_calibration_factor_of_spectrometer
+  - name:spectral_flux_of_spectrometer_channel
+  arguments:
+  - name: factor_of_spectrometer
+    operator: calibration
+    operator_kind: qualifier
+- name: factor_of_visible_camera
+  kind: scalar
+  status: active
+  description: Visible-camera factor is a multiplicative radiometric coefficient associated
+    with visible-band camera measurements. In this dimensional convention, it scales
+    a corrected dimensionless camera signal to band-integrated photon radiance while
+    absorbing throughput, detector response, etendue, and exposure treatment.
+  documentation: 'Visible-camera factor is a parent concept for multiplicative radiometric
+    coefficients used with visible-band camera measurements. It represents the response
+    factor that converts a consistently corrected, dimensionless detector signal into
+    absolute photon radiance integrated over the relevant spectral band, with optical
+    throughput, detector response, electronics, exposure treatment, and viewing etendue
+    condensed into one coefficient. The absolute-calibration specialization [calibration
+    factor of visible camera](name:calibration_factor_of_visible_camera) is one concrete
+    member of this factor family.
+
+
+    When used in the radiance-calibration direction, the defining relationship is
+
+
+    $$
+
+    L_\gamma = F_\mathrm{vis} S_\mathrm{corr}
+
+    $$
+
+
+    where $L_\gamma$ is the band-integrated photon radiance, $F_\mathrm{vis}$ is the
+    visible-camera factor, and $S_\mathrm{corr}$ is a dimensionless detector signal
+    after the corrections and normalizations specified for the factor. A signal represented
+    as a rate would require a coefficient with different dimensionality, so the treatment
+    of exposure time or frame integration is part of the factor definition.
+
+
+    The factor is determined by radiometric calibration with a source of known photon
+    radiance, by end-to-end modeling of the optical and detector response, or by a
+    hybrid of both. The calibration must be consistent with dark subtraction, background
+    removal, flat-fielding, nonlinearity correction, spectral filtering, and any conversion
+    between camera electronics and corrected signal.
+
+
+    Numerical values are highly instrument-specific because throughput, etendue, exposure
+    duration, gain, and bandpass can vary widely. For visible imaging channels, values
+    of order $10^{12}$-$10^{19}$ per corrected count are common; a single constant
+    factor is not valid for saturated, nonlinear, or configuration-dependent response
+    unless those effects are explicitly included.'
+  unit: m^-2.s^-1.sr^-1
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:calibration_factor_of_visible_camera
+  - name:brightness_of_visible_camera
+  - name:calibration_factor_of_spectrometer
+- name: calibration_factor_of_visible_camera
+  kind: scalar
+  status: active
+  description: Multiplicative radiometric coefficient that converts a corrected visible-camera
+    detector signal into absolute photon radiance integrated over the admitted spectral
+    band.
+  documentation: 'A visible-camera radiometric factor converts a consistently corrected
+    detector signal into band-integrated photon radiance. It represents the combined
+    response of the optical throughput, detector sensitivity, pixel etendue, and exposure
+    treatment rather than the radiance itself.
+
+
+    The defining conversion is
+
+
+    $$
+
+    L_{\mathrm{vis}} = C_{\mathrm{vis}} S_{\mathrm{corr}}
+
+    $$
+
+
+    where $L_{\mathrm{vis}}$ is the [visible-camera brightness](name:brightness_of_visible_camera),
+    $C_{\mathrm{vis}}$ is this visible-camera factor, and $S_{\mathrm{corr}}$ is the
+    corrected detector signal. The spectral dependence is integrated over the relevant
+    visible passband. Unlike the resulting brightness, the factor is a calibration
+    coefficient and must be applied to the corrected signal; it is the camera-specific
+    component of the parent [factor of visible camera](name:factor_of_visible_camera).'
+  unit: m^-2.s^-1.sr^-1
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:brightness_of_visible_camera
+  - name:factor_of_visible_camera
+  arguments:
+  - name: factor_of_visible_camera
+    operator: calibration
+    operator_kind: qualifier
+  sources:
+  - dd_path: camera_visible/channel/detector/counts_to_radiance
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_visible.html#camera_visible-channel-detector-counts_to_radiance
+    dd_documentation:
+      leaf: Counts to radiance factor, for each pixel of the detector. Includes both
+        the transmission losses in the relay optics and the quantum efficiency of
+        the camera itself, integrated over the wavelength range
+      parent_path: camera_visible/channel/detector
+      parent: Set of detectors
+      data_type: FLT_2D
+      unit: m^-2.s^-1.sr^-1
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Calibration factor converting raw detector pixel counts to radiance
+        for each pixel of the 2D visible camera detector array. Incorporates relay
+        optics transmission and camera quantum efficiency integrated over the wavelength
+        bandpass.
+      kind: llm
 - name: filter_window_width
   kind: scalar
   status: active
@@ -1095,7 +1239,9 @@
     of the filter window](name:first_local_tangential_coordinate_of_filter_window).'
   unit: m
   physics_domain: radiation_measurement_diagnostics
-  links: []
+  links:
+  - name:second_local_tangential_coordinate_of_filter_window
+  - name:first_local_tangential_coordinate_of_filter_window
   sources:
   - dd_path: spectrometer_x_ray_crystal/channel/filter_window/x1_width
     dd_version: 4.1.0
@@ -1112,6 +1258,73 @@
         X1 direction, applicable when the rectangular geometry type (geometry_type=3)
         is selected. Specifies the physical aperture size in the primary filter axis
         direction for photon transmission.
+      kind: llm
+- name: first_local_tangential_coordinate_of_bragg_crystal
+  kind: scalar
+  status: active
+  description: "Signed coordinate of a Bragg-crystal outline vertex along the first\
+    \ local tangential axis of the right-handed crystal-local (e1, e2, e3) frame,\
+    \ with e1 the more horizontal crystal-tangential direction oriented toward increasing\
+    \ toroidal angle \u03C6 in the right-handed cylindrical (R, \u03C6, Z) frame."
+  documentation: 'Signed coordinate of a Bragg-crystal outline vertex along the first
+    local tangential axis is the scalar displacement of that vertex from the crystal-local
+    reference point along the first in-surface direction of the Bragg crystal. The
+    quantity is defined in the right-handed crystal-local $(\hat{\mathbf{e}}_1,\hat{\mathbf{e}}_2,\hat{\mathbf{e}}_3)$
+    frame tied to the crystal surface.
+
+
+    The coordinate is the projection of the vertex displacement onto the first local
+    tangential unit vector:
+
+
+    $$
+
+    X_1 = (\mathbf{r} - \mathbf{r}_0) \cdot \hat{\mathbf{e}}_1
+
+    $$
+
+
+    where $\mathbf{r}$ is the position vector of the Bragg-crystal outline vertex,
+    $\mathbf{r}_0$ is the position vector of the crystal-local reference point, and
+    $\hat{\mathbf{e}}_1$ is the first local tangential unit vector.
+
+
+    The crystal-local triad is fixed geometrically: $\hat{\mathbf{e}}_3$ is the plasma-facing
+    surface normal, $\hat{\mathbf{e}}_1$ is the more horizontal tangent to the crystal
+    surface and is oriented so that its toroidal component points in the $+\hat{\phi}$
+    direction of the right-handed cylindrical $(R,\phi,Z)$ frame, where $R$ is major
+    radius, $\phi$ is toroidal angle, and $Z$ is vertical height, and $\hat{\mathbf{e}}_2
+    = \hat{\mathbf{e}}_3 \times \hat{\mathbf{e}}_1$. This coordinate is distinct from
+    the [second local tangential coordinate](name:second_local_tangential_coordinate_of_bragg_crystal),
+    which uses $\hat{\mathbf{e}}_2$, and from any coordinate along the surface normal.
+
+
+    Sign convention: Positive when the outline vertex is displaced from the crystal-local
+    reference point in the $+\hat{\mathbf{e}}_1$ direction, the more horizontal crystal-tangential
+    direction oriented toward increasing toroidal angle $\phi$ in the right-handed
+    cylindrical $(R,\phi,Z)$ frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:second_local_tangential_coordinate_of_bragg_crystal
+  sources:
+  - dd_path: spectrometer_x_ray_crystal/channel/crystal/outline/x1
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_x_ray_crystal.html#spectrometer_x_ray_crystal-channel-crystal-outline-x1
+    dd_documentation:
+      leaf: Positions along x1 axis
+      parent_path: spectrometer_x_ray_crystal/channel/crystal/outline
+      parent: Irregular outline of the object in the (X1, X2) coordinate system, used
+        only if geometry_type/index=1. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Positions along the X1 axis of the irregular outline of the crystal
+        in the (X1, X2) coordinate system for an X-ray crystal spectrometer channel.
+        Defines the boundary vertices of the crystal cross-section used in Bragg diffraction
+        geometry.
       kind: llm
 - name: first_local_tangential_coordinate_of_filter
   kind: scalar
@@ -1134,7 +1347,8 @@
     mathbf e}_1$."
   unit: m
   physics_domain: radiation_measurement_diagnostics
-  links: []
+  links:
+  - name:second_local_tangential_coordinate_of_filter
   sources:
   - dd_path: soft_x_rays/channel/filter_window/outline/x1
     dd_version: 4.1.0
@@ -1169,6 +1383,196 @@
       description: Positions of the filter window outline vertices along the x1 axis
         of the local (X1, X2) coordinate system for an X-ray crystal spectrometer
         channel. Defines the irregular aperture geometry of the filter window.
+      kind: llm
+- name: first_local_tangential_coordinate_of_filter_window
+  kind: scalar
+  status: active
+  description: "Signed position of a filter-window outline point along the first local\
+    \ tangential in-plane basis direction in the object-local frame (e1, e2, e3),\
+    \ chosen as the more-horizontal tangent oriented toward increasing toroidal angle\
+    \ \u03C6 in the right-handed cylindrical (R, \u03C6, Z) frame."
+  documentation: 'Signed position of a filter-window outline point along the first
+    local tangential in-plane basis direction is the scalar coordinate of the point
+    in the filter-window object-local planar frame. The object-local frame is the
+    orthonormal triad $(\hat{e}_1,\hat{e}_2,\hat{e}_3)$, with $\hat{e}_1$ the window-plane
+    tangent having the larger projection onto the local horizontal plane spanned by
+    $\hat{R}$ and $\hat{\phi}$ and oriented toward increasing toroidal angle $\phi$
+    in the right-handed cylindrical $(R,\phi,Z)$ frame.
+
+
+    The coordinate is defined by the projection of the outline-point displacement
+    onto the first local tangent:
+
+
+    $$
+
+    \xi_1 = (\mathbf{r} - \mathbf{r}_0) \cdot \hat{e}_1
+
+    $$
+
+
+    where $\xi_1$ is the first local tangential coordinate of the filter-window outline
+    point, $\mathbf{r}$ is the outline-point position, $\mathbf{r}_0$ is the filter-window
+    local origin, and $\hat{e}_1$ is the first local tangential unit vector.
+
+
+    The object-local triad $(\hat{e}_1,\hat{e}_2,\hat{e}_3)$ is right-handed: $\hat{e}_3$
+    is the filter-window normal directed toward the plasma-facing side, and $\hat{e}_2
+    = \hat{e}_3 \times \hat{e}_1$ is the second local tangential direction. This quantity
+    excludes the coordinate along $\hat{e}_2$, which is the [second local tangential
+    coordinate of a filter-window outline point](name:second_local_tangential_coordinate_of_filter_window).
+
+
+    Sign convention: Positive when the outline point lies on the side of the filter-window
+    local origin reached by moving along the more-horizontal in-plane tangent toward
+    increasing toroidal angle $\phi$ in the right-handed cylindrical $(R,\phi,Z)$
+    frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:second_local_tangential_coordinate_of_filter_window
+  sources:
+  - dd_path: camera_x_rays/filter_window/outline/x1
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_x_rays.html#camera_x_rays-filter_window-outline-x1
+    dd_documentation:
+      leaf: Positions along x1 axis
+      parent_path: camera_x_rays/filter_window/outline
+      parent: Irregular outline of the filter in the (X1, X2) coordinate system, used
+        only if geometry_type/index=1. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Positions along the X1 axis of the irregular outline of the filter
+        window for an X-ray camera. Together with X2 positions, defines the 2D boundary
+        polygon of the filter aperture in the local (X1, X2) coordinate system.
+      kind: llm
+- name: first_local_tangential_coordinate_of_optical_element
+  kind: scalar
+  status: active
+  description: "Signed position of an optical-element outline vertex along the first\
+    \ local tangential coordinate of the optical-element object-local frame. The positive\
+    \ first tangent is the more-horizontal in-surface direction selected toward increasing\
+    \ toroidal angle \u03C6 in the right-handed cylindrical (R, \u03C6, Z) frame,\
+    \ where R is major radius and Z is vertical height."
+  documentation: 'Signed position of an optical-element outline vertex along the first
+    local tangential coordinate of the optical-element object-local frame is the scalar
+    coordinate obtained by projecting the vertex displacement from the local origin
+    onto the first tangent. The object-local frame is the right-handed triad $(\hat{\mathbf{e}}_1,\hat{\mathbf{e}}_2,\hat{\mathbf{e}}_3)$
+    with $\hat{\mathbf{e}}_3$ the plasma-facing surface normal; $\hat{\mathbf{e}}_1$
+    is the more-horizontal surface tangent directed toward increasing toroidal angle
+    $\phi$ in the right-handed cylindrical $(R,\phi,Z)$ frame, where $R$ is major
+    radius, $Z$ is vertical height, and $\phi$ increases counter-clockwise when viewed
+    from above $+\hat{Z}$.
+
+
+    The coordinate is defined by the projection
+
+
+    $$
+
+    q_1 = (\mathbf{r}_v - \mathbf{r}_0) \cdot \hat{\mathbf{e}}_1
+
+    $$
+
+
+    where $q_1$ is the first local tangential coordinate of the optical element, $\mathbf{r}_v$
+    is the position vector of the outline vertex, $\mathbf{r}_0$ is the optical-element
+    local origin, and $\hat{\mathbf{e}}_1$ is the first local tangential unit vector.
+
+
+    It applies only to the in-surface outline of the optical element and excludes
+    displacement along the plasma-facing normal. The companion [second local tangential
+    coordinate](name:second_local_tangential_coordinate_of_optical_element) gives
+    the coordinate along $\hat{\mathbf{e}}_2$, the other surface tangent that completes
+    the right-handed local triad.
+
+
+    Sign convention: Positive when the vertex displacement from the optical-element
+    local origin has a component along $+\hat{\mathbf{e}}_1$, the more-horizontal
+    surface tangent directed toward increasing toroidal angle $\phi$ in the right-handed
+    cylindrical $(R,\phi,Z)$ frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_local_tangential_coordinate_of_filter_window
+  - name:first_local_tangential_coordinate_of_filter
+  sources:
+  - dd_path: spectrometer_uv/channel/detector/outline/x1
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_uv.html#spectrometer_uv-channel-detector-outline-x1
+    dd_documentation:
+      leaf: Positions along x1 axis
+      parent_path: spectrometer_uv/channel/detector/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Positions of the UV spectrometer detector aperture outline vertices
+        along the X1 axis of the local (X1, X2) coordinate system of the detector
+        face. Defines one component of the 2D aperture boundary polygon.
+      kind: llm
+  - dd_path: spectrometer_visible/channel/optical_element/geometry/outline/x1
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_visible.html#spectrometer_visible-channel-optical_element-geometry-outline-x1
+    dd_documentation:
+      leaf: Positions along x1 axis
+      parent_path: spectrometer_visible/channel/optical_element/geometry/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Positions of the optical element outline along the X1 axis in the
+        local (X1, X2) coordinate system, defining the irregular boundary geometry
+        of a detector or aperture for a visible spectrometer channel.
+      kind: llm
+- name: first_local_tangential_coordinate_of_soft_xray_detector
+  kind: scalar
+  status: active
+  description: Signed coordinate of a soft X-ray detector outline vertex along the
+    first local tangential (X1) axis of the detector-local two-dimensional Cartesian
+    frame.
+  documentation: 'The first local tangential coordinate specifies the signed displacement
+    of an outline vertex along the first tangential axis (X1) of the detector-local
+    Cartesian frame. Together with [second_local_tangential_coordinate_of_soft_xray_detector](name:second_local_tangential_coordinate_of_soft_xray_detector),
+    it defines the polygonal boundary of the soft X-ray detector''s sensitive area
+    projected onto the object-local plane. The two coordinates $(X_1, X_2)$ form a
+    right-handed pair intrinsic to the owning detector object; their orientation is
+    fixed per detector installation and is not in general aligned with the machine
+    cylindrical $(R, \phi, Z)$ frame.
+
+
+    Sign convention: Positive when the vertex displacement is in the direction of
+    the positive first local tangential axis of the detector-local frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:second_local_tangential_coordinate_of_soft_xray_detector
+  sources:
+  - dd_path: soft_x_rays/channel/detector/outline/x1
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/soft_x_rays.html#soft_x_rays-channel-detector-outline-x1
+    dd_documentation:
+      leaf: Positions along x1 axis
+      parent_path: soft_x_rays/channel/detector/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Positions of the soft X-ray detector outline vertices along the
+        X1 axis in the local (X1, X2) coordinate system. Defines part of the polygonal
+        boundary of the detector or aperture used for etendue and line-of-sight calculations.
       kind: llm
 - name: flux_of_spectrometer_channel
   kind: scalar
@@ -1205,6 +1609,7 @@
   links:
   - name:spectral_radiance
   - name:spectral_flux_of_spectrometer_channel
+  - name:calibration_factor_of_spectrometer
 - name: hard_xray_brightness
   kind: scalar
   status: active
@@ -1234,6 +1639,7 @@
   unit: m^-2.s^-1.sr^-1
   physics_domain: radiation_measurement_diagnostics
   links:
+  - name:radiance_of_soft_xray_detector
   - name:brightness_of_visible_camera
   sources:
   - dd_path: hard_x_rays/channel/radiance
@@ -1735,6 +2141,7 @@
   unit: eV
   physics_domain: radiation_measurement_diagnostics
   links:
+  - name:neutron_flux
   - name:emissivity_due_to_fusion
   sources:
   - dd_path: neutron_diagnostic/detector/energy_band/energies
@@ -2240,6 +2647,7 @@
   physics_domain: radiation_measurement_diagnostics
   links:
   - name:spectral_radiance_of_soft_xray_detector
+  - name:radiance_of_soft_xray_detector
   sources:
   - dd_path: soft_x_rays/channel/power
     dd_version: 4.1.0
@@ -2578,6 +2986,47 @@
         over a specific emission line, as measured by a grating spectrometer channel.
         Used for passive emission spectroscopy and quantitative line intensity analysis.
       kind: llm
+- name: radiance_of_soft_xray_detector
+  kind: scalar
+  status: active
+  description: Band-integrated electromagnetic radiance incident on a soft X-ray detector,
+    equal to radiant power per projected detector area per incident solid angle over
+    the detector photon-energy acceptance. It names the common non-energy-differential
+    detector radiance, independent of how the accepted band is represented.
+  documentation: 'Radiance of a soft-X-ray detector is the band-integrated electromagnetic
+    radiance incident on the detector aperture over the detector photon-energy acceptance.
+    It is the radiant power carried by accepted soft-X-ray photons per projected detector
+    area normal to the incident ray bundle and per incident solid angle.
+
+
+    The defining differential relation is
+
+
+    $$
+
+    L = \frac{d^2 P_{\mathcal{B}}}{dA_\perp \, d\Omega}
+
+    $$
+
+
+    where $L$ is the detector-incident radiance, $P_{\mathcal{B}}$ is the radiant
+    power in the detector photon-energy acceptance $\mathcal{B}$, $A_\perp$ is the
+    detector area projected perpendicular to the incident ray bundle, and $\Omega$
+    is the incident solid angle.
+
+
+    This quantity is an accepted-band radiance, not a photon-energy-differential spectral
+    density, detector responsivity, count rate, or electronic signal. Related names
+    such as [spectral radiance of a soft-X-ray detector](name:spectral_radiance_of_soft_xray_detector)
+    may indicate that an energy-dependent radiance has been integrated over the detector
+    acceptance; because the detector type is already soft-X-ray, that qualifier is
+    not an additional soft-X-ray specialization.'
+  unit: W.m^-2.sr^-1
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:hard_xray_brightness
+  - name:spectral_radiance_of_soft_xray_detector
+  - name:power_of_soft_xray_detector
 - name: radius_of_bragg_crystal
   kind: scalar
   status: active
@@ -2876,6 +3325,965 @@
         behaviour of the optical surface as a function of wavelength for a visible
         spectrometer channel.
       kind: llm
+- name: second_local_tangential_coordinate_of_bragg_crystal
+  kind: scalar
+  status: active
+  description: Signed coordinate of a Bragg-crystal outline vertex along the second
+    local tangential axis of the crystal-local Cartesian (X1, X2) frame.
+  documentation: 'This quantity is the signed position of a vertex on the Bragg-crystal
+    outline, resolved along the crystal-local second tangential direction. It describes
+    the crystal geometry in the local planar Cartesian frame $(X_1, X_2)$ rather than
+    in the machine cylindrical frame.
+
+
+    For a vertex position vector $\mathbf{r}$ and local-frame origin $\mathbf{r}_0$,
+    the coordinate is defined by:
+
+
+    $$
+
+    x_2 = (\mathbf{r} - \mathbf{r}_0) \cdot \hat{\mathbf{e}}_2
+
+    $$
+
+
+    where $x_2$ is the second local tangential coordinate, $\hat{\mathbf{e}}_2$ is
+    the unit vector along the second local tangential axis, and $\mathbf{r}_0$ is
+    the origin of the crystal-local frame. Together with the [first local tangential
+    coordinate of the Bragg crystal](name:first_local_tangential_coordinate_of_bragg_crystal),
+    it specifies the in-plane location of the outline vertex.
+
+
+    Sign convention: Positive when the vertex displacement from the crystal-local
+    origin has a positive projection along the second local tangential unit vector
+    $\hat{\mathbf{e}}_2$.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_local_tangential_coordinate_of_bragg_crystal
+  sources:
+  - dd_path: spectrometer_x_ray_crystal/channel/crystal/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_x_ray_crystal.html#spectrometer_x_ray_crystal-channel-crystal-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: spectrometer_x_ray_crystal/channel/crystal/outline
+      parent: Irregular outline of the object in the (X1, X2) coordinate system, used
+        only if geometry_type/index=1. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - spectrometer_x_ray_crystal/channel/crystal/outline/x1
+    enhanced_context:
+      description: Positions along the X2 axis defining the irregular outline of the
+        crystal element in an X-ray crystal spectrometer channel, in the local (X1,
+        X2) coordinate system. Together with X1 coordinates, this describes the crystal
+        cross-sectional boundary.
+      kind: llm
+- name: second_local_tangential_coordinate_of_diagnostic_aperture
+  kind: scalar
+  status: active
+  description: Signed position of a vertex on a diagnostic-aperture boundary along
+    the second tangent of the object-local (X1, X2) aperture-plane frame.
+  documentation: 'The quantity is the signed second local tangential coordinate of
+    a vertex on a diagnostic-aperture boundary. It locates the vertex within the aperture
+    plane and, together with the first local tangential coordinate, defines the boundary
+    geometry.
+
+
+    The coordinate is defined by
+
+
+    $$
+
+    x_2 = (\mathbf{r} - \mathbf{r}_0) \cdot \mathbf{e}_2
+
+    $$
+
+
+    where $\mathbf{r}$ is the vertex position, $\mathbf{r}_0$ is the origin of the
+    local aperture frame, and $\mathbf{e}_2$ is the second local tangential unit vector.
+    The right-handed object-local basis $(\mathbf{e}_1, \mathbf{e}_2, \mathbf{e}_3)$
+    uses $\mathbf{e}_3$ as the plasma-facing normal, $\mathbf{e}_1$ as the more-horizontal
+    tangent directed toward increasing toroidal angle $\phi$ in the right-handed cylindrical
+    $(R,\phi,Z)$ frame, and $\mathbf{e}_2 = \mathbf{e}_3 \times \mathbf{e}_1$.
+
+
+    The quantity applies only to the diagnostic-aperture boundary and is distinct
+    from corresponding coordinates of filters, detector outlines, or other optical
+    objects. The same local-axis convention is used by [second local tangential coordinate
+    of filter](name:second_local_tangential_coordinate_of_filter).
+
+
+    Sign convention: Positive when the vertex lies from the local origin in the direction
+    of $\mathbf{e}_2 = \mathbf{e}_3 \times \mathbf{e}_1$.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:second_local_tangential_coordinate_of_filter
+  sources:
+  - dd_path: bolometer/camera/channel/aperture/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/bolometer.html#bolometer-camera-channel-aperture-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: bolometer/camera/channel/aperture/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Repeat the first point since this is a closed contour
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - bolometer/camera/channel/aperture/outline/x1
+    enhanced_context:
+      description: Positions of aperture outline vertices along the X2 axis in the
+        local (X1, X2) coordinate system of a bolometer channel aperture. Defines
+        the cross-sectional geometry for line-of-sight and etendue calculations.
+      kind: llm
+  - dd_path: bolometer/camera/channel/detector/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/bolometer.html#bolometer-camera-channel-detector-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: bolometer/camera/channel/detector/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Repeat the first point since this is a closed contour
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - bolometer/camera/channel/detector/outline/x1
+    enhanced_context:
+      description: Positions along the x2 axis of the irregular outline contour of
+        a bolometer detector element, defined in the local (X1, X2) coordinate system
+        of the detector plane. Used together with x1 to describe the detector geometry.
+      kind: llm
+  - dd_path: camera_ir/fibre_bundle/geometry/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_ir.html#camera_ir-fibre_bundle-geometry-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: camera_ir/fibre_bundle/geometry/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - camera_ir/fibre_bundle/geometry/outline/x1
+    enhanced_context:
+      description: Positions of the fibre bundle entrance outline vertices along the
+        x2 axis of the local (X1, X2) detector coordinate system. Defines the geometry
+        of the fibre bundle aperture for mapping IR camera pixels to plasma-facing
+        component surfaces.
+      kind: llm
+  - dd_path: camera_visible/channel/aperture/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_visible.html#camera_visible-channel-aperture-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: camera_visible/channel/aperture/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - camera_visible/channel/aperture/outline/x1
+    enhanced_context:
+      description: Positions of the aperture outline vertices along the x2 axis in
+        the (X1, X2) local coordinate system of a visible camera channel. Defines
+        the irregular boundary shape of the channel aperture.
+      kind: llm
+  - dd_path: camera_visible/channel/fibre_bundle/geometry/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_visible.html#camera_visible-channel-fibre_bundle-geometry-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: camera_visible/channel/fibre_bundle/geometry/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - camera_visible/channel/fibre_bundle/geometry/outline/x1
+    enhanced_context:
+      description: X2-axis positions of the fibre bundle entrance outline vertices
+        in the local (X1, X2) detector coordinate system. Defines the aperture boundary
+        geometry of the fibre bundle for visible camera channel line-of-sight mapping.
+      kind: llm
+  - dd_path: camera_x_rays/aperture/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_x_rays.html#camera_x_rays-aperture-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: camera_x_rays/aperture/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - camera_x_rays/aperture/outline/x1
+    enhanced_context:
+      description: Positions of the aperture outline vertices along the x2 axis in
+        the local (X1, X2) coordinate system for the X-ray camera collimating aperture.
+        Used with x1 positions to define the irregular aperture shape.
+      kind: llm
+  - dd_path: charge_exchange/aperture/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/charge_exchange.html#charge_exchange-aperture-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: charge_exchange/aperture/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - charge_exchange/aperture/outline/x1
+    enhanced_context:
+      description: Positions of the collimating aperture outline vertices along the
+        x2 axis in the local (X1, X2) coordinate system of the CXRS diagnostic aperture.
+        Defines the 2D shape of the aperture for optical throughput and etendue calculations.
+      kind: llm
+  - dd_path: charge_exchange/channel/aperture/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/charge_exchange.html#charge_exchange-channel-aperture-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: charge_exchange/channel/aperture/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Repeat the first point since this is a closed contour
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - charge_exchange/channel/aperture/outline/x1
+    enhanced_context:
+      description: Positions along the X2 axis of the irregular outline vertices defining
+        the collimating aperture of a charge exchange recombination spectroscopy (CXRS)
+        channel. Forms a closed contour with the corresponding X1 positions in the
+        local (X1, X2) coordinate system.
+      kind: llm
+  - dd_path: hard_x_rays/channel/aperture/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/hard_x_rays.html#hard_x_rays-channel-aperture-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: hard_x_rays/channel/aperture/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - hard_x_rays/channel/aperture/outline/x1
+    enhanced_context:
+      description: Positions of the aperture outline vertices along the x2 axis in
+        the local (X1, X2) coordinate system for a hard X-ray diagnostic channel aperture.
+        Together with x1, defines the 2D polygon bounding the collimating aperture
+        geometry.
+      kind: llm
+  - dd_path: hard_x_rays/channel/filter_window/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/hard_x_rays.html#hard_x_rays-channel-filter_window-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: hard_x_rays/channel/filter_window/outline
+      parent: Irregular outline of the filter in the (X1, X2) coordinate system, used
+        only if geometry_type/index=1. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - hard_x_rays/channel/filter_window/outline/x1
+    enhanced_context:
+      description: Positions of the filter window outline vertices along the X2 axis
+        in the local (X1, X2) coordinate system, defining the irregular boundary of
+        the hard X-ray channel filter window. Used together with X1 positions to specify
+        the full 2D filter aperture shape.
+      kind: llm
+  - dd_path: mse/channel/aperture/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/mse.html#mse-channel-aperture-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: mse/channel/aperture/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - mse/channel/aperture/outline/x1
+    enhanced_context:
+      description: Positions along the X2 axis defining the outline vertices of the
+        MSE aperture in the local (X1, X2) coordinate system. Geometric description
+        of the aperture shape used for MSE diagnostic collimation and etendue calculations.
+      kind: llm
+  - dd_path: mse/channel/detector/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/mse.html#mse-channel-detector-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: mse/channel/detector/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - mse/channel/detector/outline/x1
+    enhanced_context:
+      description: Positions of the MSE detector aperture outline vertices along the
+        X2 axis of the local detector coordinate system. Defines one dimension of
+        the 2D aperture geometry for Motional Stark Effect diagnostic channel characterization.
+      kind: llm
+  - dd_path: neutron_diagnostic/detector/aperture/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/neutron_diagnostic.html#neutron_diagnostic-detector-aperture-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: neutron_diagnostic/detector/aperture/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - neutron_diagnostic/detector/aperture/outline/x1
+    enhanced_context:
+      description: Positions of the aperture outline vertices along the x2 axis in
+        the local (X1, X2) coordinate system for a neutron diagnostic collimating
+        aperture. Defines part of the 2D irregular boundary shape of the aperture.
+      kind: llm
+  - dd_path: reflectometer_fluctuation/channel/antenna_emission_static/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/reflectometer_fluctuation.html#reflectometer_fluctuation-channel-antenna_emission_static-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: reflectometer_fluctuation/channel/antenna_emission_static/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - reflectometer_fluctuation/channel/antenna_emission_static/outline/x1
+    enhanced_context:
+      description: Positions of the emission antenna aperture outline vertices along
+        the x2 axis in the local (X1, X2) coordinate system. Defines the irregular
+        2D aperture shape of the static emission antenna for a fluctuation reflectometer
+        channel.
+      kind: llm
+  - dd_path: soft_x_rays/channel/aperture/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/soft_x_rays.html#soft_x_rays-channel-aperture-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: soft_x_rays/channel/aperture/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - soft_x_rays/channel/aperture/outline/x1
+    enhanced_context:
+      description: Positions of the soft X-ray aperture outline vertices along the
+        X2 axis in the local (X1, X2) coordinate system. Used to define the irregular
+        cross-sectional shape of the collimating aperture.
+      kind: llm
+  - dd_path: spectrometer_uv/channel/aperture/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_uv.html#spectrometer_uv-channel-aperture-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: spectrometer_uv/channel/aperture/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - spectrometer_uv/channel/aperture/outline/x1
+    enhanced_context:
+      description: Positions of the aperture outline vertices along the x2 axis in
+        the local (X1, X2) coordinate system for a UV spectrometer channel aperture.
+        Defines the irregular boundary shape of the collimating aperture used in optical
+        alignment and etendue calculations.
+      kind: llm
+  - dd_path: spectrometer_visible/channel/aperture/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_visible.html#spectrometer_visible-channel-aperture-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: spectrometer_visible/channel/aperture/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - spectrometer_visible/channel/aperture/outline/x1
+    enhanced_context:
+      description: Positions of the aperture outline vertices along the x2 axis in
+        the local (X1, X2) coordinate system for a visible spectrometer channel. Defines
+        the irregular cross-sectional shape of the collimating aperture.
+      kind: llm
+  - dd_path: spectrometer_visible/channel/detector/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_visible.html#spectrometer_visible-channel-detector-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: spectrometer_visible/channel/detector/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - spectrometer_visible/channel/detector/outline/x1
+    enhanced_context:
+      description: Positions of the detector outline vertices along the x2 axis of
+        the local (X1, X2) coordinate system for a visible spectrometer channel. Defines
+        part of the irregular boundary of the detector aperture.
+      kind: llm
+  - dd_path: spectrometer_visible/channel/fibre_bundle/geometry/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_visible.html#spectrometer_visible-channel-fibre_bundle-geometry-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: spectrometer_visible/channel/fibre_bundle/geometry/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - spectrometer_visible/channel/fibre_bundle/geometry/outline/x1
+    enhanced_context:
+      description: Positions of the fibre bundle entrance outline vertices along the
+        x2 axis of the local (X1, X2) detector coordinate system for a visible spectrometer
+        channel. Defines the irregular aperture boundary geometry of the fibre bundle.
+      kind: llm
+  - dd_path: spectrometer_visible/channel/polarizer/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_visible.html#spectrometer_visible-channel-polarizer-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: spectrometer_visible/channel/polarizer/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - spectrometer_visible/channel/polarizer/outline/x1
+    enhanced_context:
+      description: Positions along the x2 axis of the polarizer aperture outline in
+        the (X1, X2) coordinate system for a visible spectrometer channel. Defines
+        the 2D cross-sectional shape of the polarizer component, paired with the x1
+        coordinate array.
+      kind: llm
+  - dd_path: spectrometer_x_ray_crystal/channel/aperture/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_x_ray_crystal.html#spectrometer_x_ray_crystal-channel-aperture-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: spectrometer_x_ray_crystal/channel/aperture/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - spectrometer_x_ray_crystal/channel/aperture/outline/x1
+    enhanced_context:
+      description: Positions of the aperture outline vertices along the x2 axis in
+        the local (X1, X2) coordinate system for an X-ray crystal spectrometer channel
+        aperture. Defines the 2D collimating aperture shape geometry.
+      kind: llm
+- name: second_local_tangential_coordinate_of_filter
+  kind: scalar
+  status: active
+  description: Second local tangential coordinate of a filter boundary point is the
+    signed position of that point along the filter's second in-plane basis direction
+    in the object-local planar frame attached to the filter.
+  documentation: 'Second local tangential coordinate of a filter boundary point is
+    the signed scalar coordinate obtained by projecting the point''s displacement
+    from the filter local-frame origin onto the filter''s second local tangential
+    direction. It is paired with the [first local tangential coordinate of a filter](name:first_local_tangential_coordinate_of_filter)
+    to locate points in the filter plane.
+
+
+    The coordinate is defined by the projection
+
+
+    $$
+
+    u_{2,f} = (\mathbf{r} - \mathbf{r}_{0,f}) \cdot \hat{\mathbf{t}}_{2,f}
+
+    $$
+
+
+    where $u_{2,f}$ is this coordinate, $\mathbf{r}$ is the position vector of the
+    filter boundary point, $\mathbf{r}_{0,f}$ is the filter local-frame origin, and
+    $\hat{\mathbf{t}}_{2,f}$ is the second local tangential unit vector of the filter.
+
+
+    The filter local frame is object-local: $\hat{\mathbf{t}}_{1,f}$ and $\hat{\mathbf{t}}_{2,f}$
+    lie in the filter plane. The first local tangential unit vector is chosen with
+    positive projection along increasing toroidal angle $\phi$ in the right-handed
+    cylindrical $(R, \phi, Z)$ frame; the second local tangential unit vector completes
+    the oriented in-plane basis with the filter normal, so that $\hat{\mathbf{t}}_{1,f}
+    \times \hat{\mathbf{t}}_{2,f}$ points along the positive filter normal. This quantity
+    refers to the filter boundary itself, not to the [second local tangential coordinate
+    of a filter window](name:second_local_tangential_coordinate_of_filter_window).
+
+
+    Sign convention: Positive when the displacement from the filter local-frame origin
+    to the point has positive projection on the second local tangential unit vector
+    of the filter.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_local_tangential_coordinate_of_filter
+  - name:second_local_tangential_coordinate_of_filter_window
+  sources:
+  - dd_path: soft_x_rays/channel/filter_window/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/soft_x_rays.html#soft_x_rays-channel-filter_window-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: soft_x_rays/channel/filter_window/outline
+      parent: Irregular outline of the filter in the (X1, X2) coordinate system, used
+        only if geometry_type/index=1. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - soft_x_rays/channel/filter_window/outline/x1
+    enhanced_context:
+      description: Positions of the soft X-ray filter window outline vertices along
+        the X2 axis in the local (X1, X2) coordinate system. Together with X1 positions,
+        defines the irregular boundary shape of the filter window for a soft X-ray
+        channel.
+      kind: llm
+- name: second_local_tangential_coordinate_of_filter_window
+  kind: scalar
+  status: active
+  description: Signed position of a filter-window outline vertex along the second
+    local tangential axis, which completes the window-local (X1, X2) frame.
+  documentation: 'This quantity is the signed position of a filter-window outline
+    vertex projected onto the second local tangential axis. Together with the [first
+    local tangential coordinate of the filter window](name:first_local_tangential_coordinate_of_filter_window),
+    it specifies the window aperture boundary in the object-local planar $(X_1,X_2)$
+    frame.
+
+
+    The coordinate is defined by
+
+
+    $$
+
+    x_2 = (\mathbf{r}-\mathbf{r}_0)\mathbin{\cdot}\hat{\mathbf{e}}_2
+
+    $$
+
+
+    where $\mathbf{r}$ is the outline-vertex position, $\mathbf{r}_0$ is the origin
+    of the window-local frame, and $\hat{\mathbf{e}}_2$ is the second local tangential
+    unit vector. The vector $\hat{\mathbf{e}}_2$ completes the right-handed window-local
+    triad $(\hat{\mathbf{e}}_1,\hat{\mathbf{e}}_2,\hat{\mathbf{e}}_3)$, with $\hat{\mathbf{e}}_1$
+    the first local tangential direction and $\hat{\mathbf{e}}_3$ the window-normal
+    direction. This quantity describes the filter window rather than the corresponding
+    filter boundary, whose analogous coordinate is [second local tangential coordinate
+    of the filter](name:second_local_tangential_coordinate_of_filter).
+
+
+    Sign convention: Positive when the displacement from $\mathbf{r}_0$ points along
+    $\hat{\mathbf{e}}_2$.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_local_tangential_coordinate_of_filter_window
+  - name:second_local_tangential_coordinate_of_filter
+  sources:
+  - dd_path: camera_x_rays/filter_window/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_x_rays.html#camera_x_rays-filter_window-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: camera_x_rays/filter_window/outline
+      parent: Irregular outline of the filter in the (X1, X2) coordinate system, used
+        only if geometry_type/index=1. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - camera_x_rays/filter_window/outline/x1
+    enhanced_context:
+      description: Positions of the filter window outline vertices along the X2 axis
+        in the local (X1, X2) coordinate system for an X-ray camera filter. Defines
+        part of the irregular 2D boundary shape when geometry_type index = 1.
+      kind: llm
+  - dd_path: hard_x_rays/channel/filter_window/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/hard_x_rays.html#hard_x_rays-channel-filter_window-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: hard_x_rays/channel/filter_window/outline
+      parent: Irregular outline of the filter in the (X1, X2) coordinate system, used
+        only if geometry_type/index=1. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - hard_x_rays/channel/filter_window/outline/x1
+    enhanced_context:
+      description: Positions of the filter window outline vertices along the X2 axis
+        in the local (X1, X2) coordinate system, defining the irregular boundary of
+        the hard X-ray channel filter window. Used together with X1 positions to specify
+        the full 2D filter aperture shape.
+      kind: llm
+  - dd_path: spectrometer_x_ray_crystal/channel/filter_window/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_x_ray_crystal.html#spectrometer_x_ray_crystal-channel-filter_window-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: spectrometer_x_ray_crystal/channel/filter_window/outline
+      parent: Irregular outline of the filter in the (X1, X2) coordinate system, used
+        only if geometry_type/index=1. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - spectrometer_x_ray_crystal/channel/filter_window/outline/x1
+    enhanced_context:
+      description: Positions of the X-ray crystal spectrometer filter window outline
+        vertices along the X2 axis in the local (X1, X2) coordinate system. Together
+        with X1 positions, defines the irregular 2D geometry of the filter aperture.
+      kind: llm
+- name: second_local_tangential_coordinate_of_hard_xray_detector
+  kind: scalar
+  status: active
+  description: Signed coordinate of a hard X-ray detector outline vertex along the
+    second local tangential axis of the right-handed detector-local Cartesian basis
+    (first local tangential, second local tangential, local normal).
+  documentation: 'Second local tangential coordinate of a hard X-ray detector is the
+    signed scalar coordinate of a detector outline vertex along the detector-local
+    second tangential direction. It is defined in the right-handed object-local Cartesian
+    basis $(\hat{\mathbf e}_1, \hat{\mathbf e}_2, \hat{\mathbf e}_3)$, where $\hat{\mathbf
+    e}_1$ is the first local tangential unit vector, $\hat{\mathbf e}_3$ is the detector-local
+    normal unit vector, and $\hat{\mathbf e}_2 = \hat{\mathbf e}_3 \times \hat{\mathbf
+    e}_1$.
+
+
+    The coordinate $q_2$ of a vertex at position $\mathbf r$ is the signed projection
+    of its displacement from the detector-local origin:
+
+
+    $$
+
+    q_2 = (\mathbf r - \mathbf r_0) \cdot \hat{\mathbf e}_2
+
+    $$
+
+
+    where $\mathbf r_0$ is the detector-local origin and $\hat{\mathbf e}_2$ is the
+    second local tangential unit vector.
+
+
+    Only the component along $\hat{\mathbf e}_2$ is included. The companion coordinate
+    along $\hat{\mathbf e}_1$ is the [first local tangential coordinate of a hard
+    X-ray detector]; neither quantity is a radial, toroidal, or vertical component
+    in the right-handed cylindrical $(R, \phi, Z)$ frame.
+
+
+    Sign convention: Positive when the vertex displacement from the detector-local
+    origin is toward $\hat{\mathbf e}_3 \times \hat{\mathbf e}_1$.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links: []
+  sources:
+  - dd_path: hard_x_rays/channel/detector/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/hard_x_rays.html#hard_x_rays-channel-detector-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: hard_x_rays/channel/detector/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - hard_x_rays/channel/detector/outline/x1
+    enhanced_context:
+      description: X2-axis coordinates of the vertices defining the irregular aperture
+        outline of the hard X-ray detector in its local (X1, X2) coordinate system.
+        Used together with x1 to compute the detector geometric etendue and sight-line
+        integrals.
+      kind: llm
+- name: second_local_tangential_coordinate_of_optical_element
+  kind: scalar
+  status: active
+  description: Second local tangential coordinate of an optical element is the signed
+    coordinate of a point on the optical-element surface along the second in-plane
+    tangential axis, measured from the aperture vertex. It belongs to the element-local
+    frame formed by the first local tangential, second local tangential, and plasma-facing
+    surface-normal axes.
+  documentation: 'Second local tangential coordinate of an optical element is the
+    signed coordinate of a point on the optical-element surface along the second in-plane
+    tangential axis, measured from the aperture vertex. It is one of the two surface-tangent
+    coordinates of the optical-element local triad and is distinct from the [first
+    local tangential coordinate of the optical element](name:first_local_tangential_coordinate_of_optical_element).
+
+
+    The coordinate is the projection of the surface-point displacement from the aperture
+    vertex onto the second local tangential unit vector:
+
+
+    $$
+
+    \eta_2 = (\mathbf{r} - \mathbf{r}_\mathrm{v}) \cdot \hat{\mathbf{e}}_2
+
+    $$
+
+
+    where $\eta_2$ is the second local tangential coordinate of the optical element,
+    $\mathbf{r}$ is the position vector of the surface point, $\mathbf{r}_\mathrm{v}$
+    is the position vector of the aperture vertex, and $\hat{\mathbf{e}}_2$ is the
+    second local tangential unit vector.
+
+
+    The object-local triad $(\hat{\mathbf{e}}_1, \hat{\mathbf{e}}_2, \hat{\mathbf{e}}_3)$
+    is right-handed. For a steered optical element, $\hat{\mathbf{e}}_3$ is the plasma-facing
+    surface-normal unit vector, $\hat{\mathbf{e}}_1$ is the first local tangential
+    unit vector oriented with positive projection along increasing toroidal angle
+    $\phi$ in the right-handed cylindrical $(R, \phi, Z)$ frame, where $R$ is major
+    radius, $\phi$ increases counterclockwise when viewed from $+\hat{Z}$, and $Z$
+    is vertical height; the second local tangential unit vector is $\hat{\mathbf{e}}_2
+    = \hat{\mathbf{e}}_3 \times \hat{\mathbf{e}}_1$. This coordinate is not a coordinate
+    along $Z$ in the right-handed cylindrical $(R, \phi, Z)$ frame unless the optical-element
+    orientation makes the second local tangential axis coincide with that direction.
+
+
+    Sign convention: Positive when the displacement from the optical-element aperture
+    vertex has a positive projection in the $\hat{\mathbf{e}}_3 \times \hat{\mathbf{e}}_1$
+    direction.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_local_tangential_coordinate_of_optical_element
+  - name:vertical_coordinate_of_optical_element
+  sources:
+  - dd_path: camera_ir/fibre_bundle/fibre_positions/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_ir.html#camera_ir-fibre_bundle-fibre_positions-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: camera_ir/fibre_bundle/fibre_positions
+      parent: Individual fibres centres positions in the (X1, X2) coordinate system
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - camera_ir/fibre_bundle/fibre_positions/x1
+    enhanced_context:
+      description: Position of individual optical fibre centres along the X2 axis
+        in the fibre bundle's local (X1, X2) coordinate system for an IR camera. Used
+        to map fibre positions to plasma-facing component surface locations.
+      kind: llm
+  - dd_path: camera_ir/optical_element/geometry/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_ir.html#camera_ir-optical_element-geometry-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: camera_ir/optical_element/geometry/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - camera_ir/optical_element/geometry/outline/x1
+    enhanced_context:
+      description: Positions of optical element aperture outline vertices along the
+        x2 axis of the local (X1, X2) coordinate system. Defines part of the 2D outline
+        geometry of the optical element in the IR camera line-of-sight model.
+      kind: llm
+  - dd_path: camera_visible/channel/fibre_bundle/fibre_positions/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_visible.html#camera_visible-channel-fibre_bundle-fibre_positions-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: camera_visible/channel/fibre_bundle/fibre_positions
+      parent: Individual fibres centres positions in the (X1, X2) coordinate system
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - camera_visible/channel/fibre_bundle/fibre_positions/x1
+    enhanced_context:
+      description: Positions of individual fibre centres along the X2 axis of the
+        local (X1, X2) coordinate system describing the fibre bundle in a visible
+        camera channel. Used to map each fibre's spatial location for line-of-sight
+        geometry.
+      kind: llm
+  - dd_path: camera_visible/channel/fibre_bundle/geometry/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_visible.html#camera_visible-channel-fibre_bundle-geometry-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: camera_visible/channel/fibre_bundle/geometry/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - camera_visible/channel/fibre_bundle/geometry/outline/x1
+    enhanced_context:
+      description: X2-axis positions of the fibre bundle entrance outline vertices
+        in the local (X1, X2) detector coordinate system. Defines the aperture boundary
+        geometry of the fibre bundle for visible camera channel line-of-sight mapping.
+      kind: llm
+  - dd_path: camera_visible/channel/optical_element/geometry/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_visible.html#camera_visible-channel-optical_element-geometry-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: camera_visible/channel/optical_element/geometry/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - camera_visible/channel/optical_element/geometry/outline/x1
+    enhanced_context:
+      description: Positions along the X2 axis of the irregular outline of an optical
+        element in the local (X1, X2) coordinate system for a visible camera channel.
+        Defines the aperture or detector shape for line-of-sight geometry calculations.
+      kind: llm
+  - dd_path: spectrometer_uv/channel/detector/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_uv.html#spectrometer_uv-channel-detector-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: spectrometer_uv/channel/detector/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - spectrometer_uv/channel/detector/outline/x1
+    enhanced_context:
+      description: "Positions of the UV spectrometer detector aperture outline vertices\
+        \ along the X2 axis of the local (X1, X2) coordinate system. Defines the detector\
+        \ face geometry for optical calibration and \xE9tendue calculations."
+      kind: llm
+  - dd_path: spectrometer_uv/channel/grating/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_uv.html#spectrometer_uv-channel-grating-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: spectrometer_uv/channel/grating/outline
+      parent: List of the 4 extreme points of the spherical grating in the (X1, X2)
+        coordinate system, using the summit as the origin. Do NOT repeat the first
+        point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - spectrometer_uv/channel/grating/outline/x1
+    enhanced_context:
+      description: Positions of the four extreme outline points of the spherical grating
+        along the x2 axis of the local (X1, X2) coordinate system, with the grating
+        summit as origin. Defines the grating aperture extent in the X2 direction.
+      kind: llm
+  - dd_path: spectrometer_visible/channel/fibre_bundle/fibre_positions/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_visible.html#spectrometer_visible-channel-fibre_bundle-fibre_positions-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: spectrometer_visible/channel/fibre_bundle/fibre_positions
+      parent: Individual fibres centres positions in the (X1, X2) coordinate system
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - spectrometer_visible/channel/fibre_bundle/fibre_positions/x1
+    enhanced_context:
+      description: Positions of individual fibre centres along the X2 axis of the
+        local (X1, X2) coordinate system describing the fibre bundle geometry in a
+        visible spectrometer channel. Used for spatial calibration of the fibre array
+        layout.
+      kind: llm
+  - dd_path: spectrometer_visible/channel/fibre_bundle/geometry/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_visible.html#spectrometer_visible-channel-fibre_bundle-geometry-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: spectrometer_visible/channel/fibre_bundle/geometry/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - spectrometer_visible/channel/fibre_bundle/geometry/outline/x1
+    enhanced_context:
+      description: Positions of the fibre bundle entrance outline vertices along the
+        x2 axis of the local (X1, X2) detector coordinate system for a visible spectrometer
+        channel. Defines the irregular aperture boundary geometry of the fibre bundle.
+      kind: llm
+  - dd_path: spectrometer_visible/channel/optical_element/geometry/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_visible.html#spectrometer_visible-channel-optical_element-geometry-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: spectrometer_visible/channel/optical_element/geometry/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - spectrometer_visible/channel/optical_element/geometry/outline/x1
+    enhanced_context:
+      description: Positions along the x2 axis defining the irregular outline of an
+        optical element in the visible spectrometer diagnostic. Together with x1 coordinates,
+        specifies the aperture or detector boundary in the local (X1, X2) coordinate
+        system.
+      kind: llm
+  - dd_path: spectrometer_x_ray_crystal/channel/reflector/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_x_ray_crystal.html#spectrometer_x_ray_crystal-channel-reflector-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: spectrometer_x_ray_crystal/channel/reflector/outline
+      parent: Irregular outline of the object in the (X1, X2) coordinate system, used
+        only if geometry_type/index=1. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - spectrometer_x_ray_crystal/channel/reflector/outline/x1
+    enhanced_context:
+      description: Positions of the reflector outline vertices along the X2 axis in
+        the local (X1, X2) coordinate system of an X-ray crystal spectrometer. Defines
+        part of the polygonal boundary of the reflector element cross-section.
+      kind: llm
+- name: second_local_tangential_coordinate_of_soft_xray_detector
+  kind: scalar
+  status: active
+  description: Signed coordinate of a soft X-ray detector outline vertex along the
+    second local tangential (X2) axis of the detector-local right-handed Cartesian
+    frame.
+  documentation: "The second local tangential coordinate $x_2$ locates a vertex of\
+    \ the soft X-ray detector outline along the X2 axis of the detector-local frame.\
+    \ In this right-handed Cartesian triad, X3 is the detector's outward plasma-facing\
+    \ surface normal, X1 is the first local tangential axis directed more horizontally\
+    \ toward the direction of increasing toroidal angle $\\phi$, and X2 = X3 $\\times$\
+    \ X1 completes the right-handed triad. The ordered set of $(x_1, x_2)$ vertex\
+    \ pairs defines the detector boundary polygon in the X1\u2013X2 plane; $x_1$ is\
+    \ given by [first local tangential coordinate](name:first_local_tangential_coordinate_of_soft_xray_detector).\
+    \ Together the two tangential coordinates fully specify the detector aperture\
+    \ geometry in the object-local frame, distinct from the aperture outline given\
+    \ by [second local tangential coordinate of a diagnostic aperture](name:second_local_tangential_coordinate_of_diagnostic_aperture)."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:first_local_tangential_coordinate_of_soft_xray_detector
+  - name:second_local_tangential_coordinate_of_diagnostic_aperture
+  sources:
+  - dd_path: soft_x_rays/channel/detector/outline/x2
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/soft_x_rays.html#soft_x_rays-channel-detector-outline-x2
+    dd_documentation:
+      leaf: Positions along x2 axis
+      parent_path: soft_x_rays/channel/detector/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - soft_x_rays/channel/detector/outline/x1
+    enhanced_context:
+      description: Positions of the soft X-ray detector outline vertices along the
+        x2 axis of the local (X1, X2) coordinate system. Defines the aperture geometry
+        of the detector for line-of-sight and etendue calculations.
+      kind: llm
 - name: spectral_absorptivity_of_filter
   kind: scalar
   status: active
@@ -2912,7 +4320,12 @@
   unit: '1'
   physics_domain: radiation_measurement_diagnostics
   links:
+  - name:absorptivity_of_filter
   - name:spectral_efficiency_of_filter
+  arguments:
+  - name: absorptivity_of_filter
+    operator: spectral
+    operator_kind: qualifier
   sources:
   - dd_path: camera_x_rays/filter_window/photon_absorption
     dd_version: 4.1.0
@@ -3018,8 +4431,13 @@
   unit: m^-3.sr^-1
   physics_domain: radiation_measurement_diagnostics
   links:
+  - name:calibration_factor_of_spectrometer
   - name:wavelength_of_spectrometer_channel
   - name:effective_spectral_width_of_spectrometer_channel
+  arguments:
+  - name: calibration_factor_of_spectrometer
+    operator: spectral
+    operator_kind: qualifier
   sources:
   - dd_path: charge_exchange/channel/spectrum/radiance_calibration
     dd_version: 4.1.0
@@ -3393,6 +4811,10 @@
   physics_domain: radiation_measurement_diagnostics
   links:
   - name:power_of_soft_xray_detector
+  arguments:
+  - name: radiance_of_soft_xray_detector
+    operator: spectral
+    operator_kind: qualifier
   sources:
   - dd_path: soft_x_rays/channel/brightness
     dd_version: 4.1.0
@@ -4228,6 +5650,60 @@
         the detector plane. Defines the horizontal angular extent of the camera's
         coverage for mapping surface temperature distributions on plasma-facing components.
       kind: llm
+- name: toroidal_coordinate_of_optical_element
+  kind: scalar
+  status: active
+  description: "Toroidal angular coordinate of an optical element\u2019s geometric\
+    \ reference center, locating it around the machine symmetry axis in the right-handed\
+    \ cylindrical (R, \u03C6, Z) frame."
+  documentation: "The toroidal coordinate $\\phi$ gives the azimuthal location of\
+    \ an optical element\u2019s geometric reference point around the machine symmetry\
+    \ axis. It is defined in the right-handed cylindrical $(R,\\phi,Z)$ frame, where\
+    \ $R$ is major radius and $Z$ is vertical height.\n\nFor a reference point with\
+    \ horizontal Cartesian coordinates $x$ and $y$ in the right-handed $(\\hat{x},\\\
+    hat{y},\\hat{z})$ basis, with the $x$ direction aligned to $\\phi=0$, the angular\
+    \ coordinate is\n\n$$\n\\phi = \\operatorname{atan2}(y,x)\n$$\n\nThe reference\
+    \ point is the geometric center of a circular optical element or the origin of\
+    \ the local coordinate system describing a planar detector or aperture. Its vertical\
+    \ counterpart is the [vertical coordinate of the optical element](name:vertical_coordinate_of_optical_element).\n\
+    \nSign convention: Positive when the reference point lies in the direction of\
+    \ increasing toroidal angle $\\phi$, counter-clockwise when viewed from above\
+    \ along $+\\hat{Z}$."
+  unit: rad
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:vertical_coordinate_of_optical_element
+  sources:
+  - dd_path: camera_ir/optical_element/geometry/centre/phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_ir.html#camera_ir-optical_element-geometry-centre-phi
+    dd_documentation:
+      leaf: Toroidal angle (oriented counter-clockwise when viewing from above)
+      parent_path: camera_ir/optical_element/geometry/centre
+      parent: If geometry_type=2, coordinates of the centre of the circle. If geometry_type=1
+        or 3, coordinates of the origin of the local coordinate system (X1,X2,X3)
+        describing the plane detector/aperture. This origin is located within the
+        detector/aperture area.
+      data_type: FLT_0D
+      unit: rad
+    enhanced_context:
+      description: "Toroidal angle (\u03C6) coordinate of centre."
+      kind: template
+  - dd_path: camera_visible/channel/optical_element/geometry/centre/phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_visible.html#camera_visible-channel-optical_element-geometry-centre-phi
+    dd_documentation:
+      leaf: Toroidal angle (oriented counter-clockwise when viewing from above)
+      parent_path: camera_visible/channel/optical_element/geometry/centre
+      parent: If geometry_type=2, coordinates of the centre of the circle. If geometry_type=1
+        or 3, coordinates of the origin of the local coordinate system (X1,X2,X3)
+        describing the plane detector/aperture. This origin is located within the
+        detector/aperture area.
+      data_type: FLT_0D
+      unit: rad
+    enhanced_context:
+      description: "Toroidal angle (\u03C6) coordinate of centre."
+      kind: template
 - name: total_plasma_radiated_power
   kind: scalar
   status: active
@@ -4466,41 +5942,6 @@
         of the sensitivity window per pixel. Complements the lower energy bound to
         specify the per-pixel spectral bandpass.
       kind: llm
-- name: upper_bound_wavelength_of_camera
-  kind: scalar
-  status: active
-  description: "Long-wavelength boundary of a visible-camera detector channel\u2019\
-    s spectral sensitivity band; photons at longer wavelengths fall outside the defined\
-    \ response interval."
-  documentation: "The red-side cutoff is the long-wavelength boundary of a visible-camera\
-    \ detector channel\u2019s spectral sensitivity band. It identifies the upper endpoint\
-    \ of the characteristic wavelength range represented by [wavelength of camera](name:wavelength_of_camera).\n\
-    \nFor a band with short-wavelength boundary $\\lambda_{\\rm blue}$ and long-wavelength\
-    \ boundary $\\lambda_{\\rm red}$, the sensitivity interval is represented by\n\
-    \n$$\n\\Lambda_{\\rm camera} = [\\lambda_{\\rm blue},\\lambda_{\\rm red}]\n$$\n\
-    \nwhere $\\Lambda_{\\rm camera}$ is the defined vacuum-wavelength sensitivity\
-    \ interval and both boundary wavelengths are measured in m.\n\nThis quantity is\
-    \ a band edge, not a central wavelength or bandwidth. Photons with vacuum wavelength\
-    \ greater than $\\lambda_{\\rm red}$ lie beyond the defined detector response\
-    \ interval."
-  unit: m
-  physics_domain: radiation_measurement_diagnostics
-  links: []
-  sources:
-  - dd_path: camera_visible/channel/detector/wavelength_upper
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_visible.html#camera_visible-channel-detector-wavelength_upper
-    dd_documentation:
-      leaf: Upper bound of the detector wavelength range
-      parent_path: camera_visible/channel/detector
-      parent: Set of detectors
-      data_type: FLT_0D
-      unit: m
-    enhanced_context:
-      description: Upper bound of the detector wavelength sensitivity range for a
-        visible camera channel. Defines the long-wavelength cutoff of the spectral
-        window used for photon detection.
-      kind: llm
 - name: upper_photon_energy
   kind: scalar
   status: active
@@ -4648,6 +6089,73 @@
       description: Vertical angular field of view (FOV) of the infrared camera in
         the detector plane. Defines the angular extent of the camera's imaging coverage
         in the vertical direction.
+      kind: llm
+- name: vertical_back_surface_curvature_of_optical_element
+  kind: scalar
+  status: active
+  description: "Vertical back-surface curvature of an optical element is the signed\
+    \ directional radius of curvature of the rear optical surface along the second\
+    \ local tangential aperture direction. Here vertical means object-local aperture\
+    \ vertical, not the Z direction of the right-handed cylindrical (R, \u03C6, Z)\
+    \ frame."
+  documentation: 'Vertical back-surface curvature of an optical element is the signed
+    directional radius of curvature of the back optical surface in its second local
+    tangential aperture direction. The right-handed local optical-surface frame is
+    $(\hat{\mathbf{e}}_1, \hat{\mathbf{e}}_2, \hat{\mathbf{n}}_b)$ with $\hat{\mathbf{e}}_1
+    \times \hat{\mathbf{e}}_2 = \hat{\mathbf{n}}_b$, where $\hat{\mathbf{e}}_1$ and
+    $\hat{\mathbf{e}}_2$ are the first and second surface-tangential aperture directions
+    and $\hat{\mathbf{n}}_b$ is the positive normal of the back surface; this quantity
+    uses $\hat{\mathbf{e}}_2$, the object-local aperture vertical direction.
+
+
+    The defining relation is the reciprocal of the signed normal curvature of the
+    back-surface normal section tangent to $\hat{\mathbf{e}}_2$:
+
+
+    $$
+
+    R_{b,2} = \frac{1}{\kappa_{n,b}(\hat{\mathbf{e}}_2)}
+
+    $$
+
+
+    where $R_{b,2}$ is the vertical back-surface curvature of the optical element
+    and $\kappa_{n,b}(\hat{\mathbf{e}}_2)$ is the signed normal curvature of the back
+    surface in the $\hat{\mathbf{e}}_2$ direction.
+
+
+    This is a local directional radius, not the scalar parent [optical-element curvature](name:curvature_of_optical_element)
+    and not the direction-agnostic [back-surface curvature](name:back_surface_curvature_of_optical_element).
+    It equals the first-direction radius only for locally spherical or otherwise direction-independent
+    curvature, and it is not a principal, sagittal, or meridional radius unless the
+    surface definition aligns $\hat{\mathbf{e}}_2$ with that direction. Together with
+    an orthogonal directional radius it may characterize simple aligned toroidal curvature,
+    but it does not fully characterize a general aspherical surface.
+
+
+    Sign convention: Positive when the center of curvature of the normal section tangent
+    to $\hat{\mathbf{e}}_2$ lies in the $+\hat{\mathbf{n}}_b$ half-space of the back-surface
+    local frame.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:back_surface_curvature_of_optical_element
+  - name:vertical_front_surface_curvature_of_optical_element
+  sources:
+  - dd_path: spectrometer_visible/channel/optical_element/back_surface/x2_curvature
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_visible.html#spectrometer_visible-channel-optical_element-back_surface-x2_curvature
+    dd_documentation:
+      leaf: Radius of curvature in the X2 direction, to be filled only for curvature_type/index
+        = 3 or 5
+      parent_path: spectrometer_visible/channel/optical_element/back_surface
+      parent: Curvature of the front surface
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Radius of curvature of the back surface of a visible spectrometer
+        optical element in the X2 direction. Applicable only for specific curvature
+        types (index 3 or 5), defining aspherical or toroidal surface geometry.
       kind: llm
 - name: vertical_coordinate_of_bragg_crystal
   kind: scalar
@@ -5134,6 +6642,7 @@
   unit: m
   physics_domain: radiation_measurement_diagnostics
   links:
+  - name:vertical_back_surface_curvature_of_optical_element
   - name:vertical_front_surface_curvature_of_optical_element
   sources:
   - dd_path: spectrometer_x_ray_crystal/channel/reflector/x2_curvature
@@ -5307,7 +6816,8 @@
     calibrated [calibration factor of a spectrometer](name:calibration_factor_of_spectrometer).'
   unit: V
   physics_domain: radiation_measurement_diagnostics
-  links: []
+  links:
+  - name:calibration_factor_of_spectrometer
 - name: width_of_diagnostic_aperture
   kind: scalar
   status: active
@@ -6370,6 +7880,7 @@
   links:
   - name:neutral_velocity
   - name:hot_neutral_velocity
+  - name:neutral_internal_state_velocity
   arguments:
   - name: neutral_velocity
     operator: cold
@@ -6742,6 +8253,7 @@
   unit: W.m^-3
   physics_domain: radiation_measurement_diagnostics
   links:
+  - name:flux_at_wall_due_to_radiation
   - name:power_density
   arguments:
   - name: power_density
@@ -6856,6 +8368,7 @@
   links:
   - name:volume_averaged_neon_density
   - name:volume_averaged_electron_density
+  - name:neon_density
   arguments:
   - name: volume_averaged_neon_density
     operator: ratio
@@ -7102,8 +8615,13 @@
   unit: Hz
   physics_domain: radiation_measurement_diagnostics
   links:
+  - name:neutron_source_rate_due_to_thermal_fusion
   - name:deuterium_deuterium_neutron_source_rate_due_to_thermal_fusion
   - name:tritium_tritium_neutron_source_rate_due_to_thermal_fusion
+  arguments:
+  - name: neutron_source_rate_due_to_thermal_fusion
+    operator: total
+    operator_kind: qualifier
   sources:
   - dd_path: summary/fusion/neutron_rates/thermal/value
     dd_version: 4.1.0
@@ -7121,6 +8639,88 @@
         over all reaction types). Provides the thermally-driven component of total
         neutron production, reflecting the bulk ion temperature and density.
       kind: template
+- name: wavelength_of_camera
+  kind: scalar
+  status: active
+  description: Spectral wavelength characterizing a camera detector channel's optical
+    response band, encompassing characteristic wavelengths such as band-edge cutoffs
+    that define the channel's sensitivity range.
+  documentation: 'Wavelength of a camera is the spectral coordinate, expressed as
+    vacuum wavelength, that identifies a characteristic position within a camera detector
+    channel''s spectral sensitivity band. As a parent quantity, it encompasses any
+    fiducial wavelength associated with the camera''s optical response, including
+    upper and lower sensitivity cutoffs.
+
+
+    For a monochromatic wave in vacuum, wavelength relates to optical frequency by
+
+
+    $$
+
+    \lambda = \frac{c}{\nu}
+
+    $$
+
+
+    where $\lambda$ is the vacuum wavelength in meters, $c$ is the speed of light
+    in vacuum in meters per second, and $\nu$ is the optical frequency in hertz.
+
+
+    The specific instance [upper_bound_wavelength_of_camera](name:upper_bound_wavelength_of_camera)
+    identifies the long-wavelength (red-side) cutoff above which photons fall outside
+    the detector response. This parallels [wavelength_of_filter](name:wavelength_of_filter),
+    which similarly encompasses passband edge and center wavelengths for optical filters;
+    both quantities share the same physical definition of vacuum wavelength but differ
+    in the optical element and response characteristic they describe.'
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:upper_bound_wavelength_of_camera
+  - name:wavelength_of_filter
+  arguments:
+  - name: wavelength
+    operator: camera
+    operator_kind: locus
+- name: upper_bound_wavelength_of_camera
+  kind: scalar
+  status: active
+  description: "Long-wavelength boundary of a visible-camera detector channel\u2019\
+    s spectral sensitivity band; photons at longer wavelengths fall outside the defined\
+    \ response interval."
+  documentation: "The red-side cutoff is the long-wavelength boundary of a visible-camera\
+    \ detector channel\u2019s spectral sensitivity band. It identifies the upper endpoint\
+    \ of the characteristic wavelength range represented by [wavelength of camera](name:wavelength_of_camera).\n\
+    \nFor a band with short-wavelength boundary $\\lambda_{\\rm blue}$ and long-wavelength\
+    \ boundary $\\lambda_{\\rm red}$, the sensitivity interval is represented by\n\
+    \n$$\n\\Lambda_{\\rm camera} = [\\lambda_{\\rm blue},\\lambda_{\\rm red}]\n$$\n\
+    \nwhere $\\Lambda_{\\rm camera}$ is the defined vacuum-wavelength sensitivity\
+    \ interval and both boundary wavelengths are measured in m.\n\nThis quantity is\
+    \ a band edge, not a central wavelength or bandwidth. Photons with vacuum wavelength\
+    \ greater than $\\lambda_{\\rm red}$ lie beyond the defined detector response\
+    \ interval."
+  unit: m
+  physics_domain: radiation_measurement_diagnostics
+  links:
+  - name:wavelength_of_camera
+  arguments:
+  - name: wavelength_of_camera
+    operator: upper_bound
+    operator_kind: qualifier
+  sources:
+  - dd_path: camera_visible/channel/detector/wavelength_upper
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_visible.html#camera_visible-channel-detector-wavelength_upper
+    dd_documentation:
+      leaf: Upper bound of the detector wavelength range
+      parent_path: camera_visible/channel/detector
+      parent: Set of detectors
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Upper bound of the detector wavelength sensitivity range for a
+        visible camera channel. Defines the long-wavelength cutoff of the spectral
+        window used for photon detection.
+      kind: llm
 - name: wavelength_of_detector_pixel
   kind: scalar
   status: active

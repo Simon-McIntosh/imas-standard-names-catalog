@@ -1,5 +1,5 @@
 # Domain: edge_plasma_physics
-# Entries: 209
+# Entries: 239
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -74,6 +74,57 @@
   links:
   - name:line_averaged_carbon_density
   - name:volume_averaged_carbon_density
+- name: charge_at_pedestal_top
+  kind: scalar
+  status: active
+  description: Charge at the pedestal top is a generic ionic charge-state metric for
+    the plasma at the core-side shoulder of the H-mode edge pedestal. The specific
+    child quantity defines which species, charge states, and weighting are included.
+  documentation: 'Charge at the pedestal top is an ionic charge-state metric evaluated
+    at the pedestal top, the core-side shoulder of the steep-gradient H-mode edge
+    transport barrier. It characterizes the local ion mixture or selected ion population
+    according to the aggregation convention specified by the more specific quantity.
+
+
+    This parent quantity defines the pedestal-top locus and the general ionic-charge
+    concept only. It does not prescribe charge-squared weighting, species inclusion,
+    charge-state aggregation, or normalization; those distinctions belong to child
+    quantities such as [effective charge at the pedestal top](name:effective_charge_at_pedestal_top).
+    It is distinct from electric charge density, net charge balance, and analogous
+    charge metrics at other plasma loci.'
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:effective_charge_at_pedestal_top
+  - name:charge_at_plasma_boundary
+  - name:charge_at_internal_transport_barrier
+- name: charge_at_plasma_boundary
+  kind: scalar
+  status: active
+  description: Charge at the plasma boundary is a generic charge measure for the ion
+    mixture evaluated at the plasma boundary. Specific child quantities define the
+    charge moment, normalization, and species aggregation used.
+  documentation: 'Charge at the plasma boundary is a generic charge measure for the
+    plasma composition evaluated at the plasma boundary. It identifies the boundary
+    locus of the charge-related quantity without prescribing a particular charge moment
+    or normalization.
+
+
+    Concrete specializations define the mathematical charge weighting and population
+    scope. For example, [effective charge at the plasma boundary](name:effective_charge_at_plasma_boundary)
+    uses a charge-squared ionic density moment normalized to electron density; other
+    charge measures need not share that weighting or its bounds.
+
+
+    This parent quantity must not be interpreted as a specific effective-charge definition,
+    a signed electric charge density, or a net boundary charge. It is an abstraction
+    over charge-type scalar quantities at the plasma boundary; the defining equation
+    belongs to each child quantity.'
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:effective_charge_at_plasma_boundary
+  - name:effective_charge_at_internal_transport_barrier
 - name: collisionality_at_pedestal_top
   kind: scalar
   status: active
@@ -106,6 +157,8 @@
   unit: '1'
   physics_domain: edge_plasma_physics
   links:
+  - name:electron_collisionality
+  - name:electron_collisionality_at_pedestal_top
   - name:normalized_electron_collisionality_at_pedestal_top
 - name: decay_length_over_scrape_off_layer
   kind: scalar
@@ -163,6 +216,33 @@
         \ gradient of ne. Characterizes the width of the particle transport channel\
         \ in the SOL."
       kind: template
+- name: density_at_launching_position
+  kind: scalar
+  status: active
+  description: Number density of a designated plasma species evaluated at the wave
+    launcher aperture or waveguide mouth, where externally injected electromagnetic
+    waves first encounter the edge plasma.
+  documentation: 'Number density at the launching position is the particle count per
+    unit volume of a designated plasma species at the geometric location of a wave
+    launcher aperture or waveguide mouth.
+
+
+    The launching position identifies the spatial point where an injected wave first
+    contacts the plasma boundary or the adjacent edge region; the local density at
+    this locus sets the plasma frequency and governs accessibility of the injected
+    wave to the plasma interior. The launching-position locus is distinct from the
+    broader [density_at_plasma_boundary](name:density_at_plasma_boundary) concept,
+    which is defined over the entire last closed flux surface rather than a specific
+    aperture geometry.
+
+
+    The species-specific realization [electron_density_at_launching_position](name:electron_density_at_launching_position)
+    gives the electron number density at this locus.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:density_at_plasma_boundary
+  - name:electron_density_at_launching_position
 - name: density_at_pedestal_top
   kind: scalar
   status: active
@@ -555,6 +635,76 @@
   - name:electron_density_over_scrape_off_layer
   - name:density_at_plasma_boundary
   - name:density_at_pedestal_top
+- name: derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_density_at_pedestal_maximum
+  kind: scalar
+  status: active
+  description: Signed derivative of fitted electron density with respect to normalized
+    poloidal flux coordinate, evaluated at the H-mode pedestal location where the
+    absolute derivative is largest.
+  documentation: "Signed derivative of fitted electron density with respect to normalized\
+    \ poloidal flux coordinate, evaluated at the H-mode pedestal location where the\
+    \ absolute derivative is largest, is the algebraically signed slope of the fitted\
+    \ electron-density function of $\x7F\\psi_N$. The normalized poloidal flux coordinate\
+    \ $\x7F\\psi_N$ labels poloidal magnetic-flux surfaces and increases from the\
+    \ magnetic axis toward the plasma boundary.\n\nThe pedestal-maximum derivative\
+    \ is defined by\n\n$$\nG_{n_e,\\mathrm{ped,max}} =\n\\left.\\frac{d n_e}{d\\psi_N}\\\
+    right|_{\\psi_N=\\xi_{\\max}},\n\\qquad\n\\xi_{\\max}=\\operatorname*{arg\\,max}_{\\\
+    xi\\in P_{\\mathrm{ped}}}\n\\left|\\left.\\frac{d n_e}{d\\psi_N}\\right|_{\\psi_N=\\\
+    xi}\\right|\n$$\n\nwhere $G_{n_e,\\mathrm{ped,max}}$ denotes this derivative,\
+    \ $n_e$ is the fitted [electron density](name:electron_density), $\\psi_N=(\\\
+    psi-\\psi_0)/(\\psi_b-\\psi_0)$ is the normalized poloidal flux coordinate, $\\\
+    psi$ is [poloidal magnetic flux](name:poloidal_magnetic_flux), $\\psi_0$ is its\
+    \ value at the magnetic axis, $\\psi_b$ is its value at the plasma boundary, $P_{\\\
+    mathrm{ped}}$ is the H-mode pedestal interval in $\\psi_N$, and $\\xi_{\\max}$\
+    \ is the coordinate value selected by the maximum absolute derivative.\n\nThe\
+    \ maximum qualifier is a locus-selection rule based on absolute derivative, not\
+    \ a statement that the reported derivative is non-negative and not the location\
+    \ of maximum density. This quantity is distinct from [gradient_of_radial_electron_density](name:gradient_of_radial_electron_density),\
+    \ which is the density-gradient quantity associated with the pedestal-top core-side\
+    \ shoulder locus. It is the electron-density counterpart of [gradient_of_electron_pressure](name:gradient_of_electron_pressure),\
+    \ and it differs from [electron-pressure pedestal-top derivative](name:derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_pressure_at_pedestal_top)\
+    \ and [electron-temperature pedestal-top derivative](name:derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_temperature_at_pedestal_top),\
+    \ which fix the evaluation point at the pedestal top rather than at the steepest\
+    \ H-mode pedestal slope.\n\nSign convention: Positive when $n_e$ increases with\
+    \ increasing normalized poloidal flux coordinate $\\psi_N$."
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_pressure_at_pedestal_top
+  - name:derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_temperature_at_pedestal_top
+  sources:
+  - dd_path: summary/pedestal_fits/linear/n_e/d_dpsi_norm_max/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-pedestal_fits-linear-n_e-d_dpsi_norm_max-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/pedestal_fits/linear/n_e/d_dpsi_norm_max
+      parent: Maximum gradient of the parent quantity (with respect to the normalised
+        poloidal flux) in the pedestal
+      data_type: FLT_1D
+      unit: m^-3
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Maximum gradient of the parent quantity (with respect to the normalised
+        poloidal flux) in the pedestal.
+      kind: template
+  - dd_path: summary/pedestal_fits/mtanh/n_e/d_dpsi_norm_max/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-pedestal_fits-mtanh-n_e-d_dpsi_norm_max-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/pedestal_fits/mtanh/n_e/d_dpsi_norm_max
+      parent: Maximum gradient of the parent quantity (with respect to the normalised
+        poloidal flux) in the pedestal
+      data_type: FLT_1D
+      unit: m^-3
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Maximum gradient of the parent quantity (with respect to the normalised
+        poloidal flux) in the pedestal.
+      kind: template
 - name: deuterium_density_at_pedestal_top
   kind: scalar
   status: active
@@ -707,7 +857,12 @@
   unit: '1'
   physics_domain: edge_plasma_physics
   links:
+  - name:charge_at_pedestal_top
   - name:effective_charge_at_internal_transport_barrier
+  arguments:
+  - name: charge_at_pedestal_top
+    operator: effective
+    operator_kind: qualifier
 - name: effective_charge_at_plasma_boundary
   kind: scalar
   status: active
@@ -752,7 +907,13 @@
     the limiter contact location rather than at the plasma boundary.'
   unit: '1'
   physics_domain: edge_plasma_physics
-  links: []
+  links:
+  - name:charge_at_plasma_boundary
+  - name:flux_surface_averaged_effective_charge_at_plasma_boundary
+  arguments:
+  - name: charge_at_plasma_boundary
+    operator: effective
+    operator_kind: qualifier
   sources:
   - dd_path: summary/local/separatrix/zeff/value
     dd_version: 4.1.0
@@ -832,6 +993,46 @@
         along the field line, measured by a reciprocating Langmuir probe during a
         plunge. Provides a spatially averaged Te across the scrape-off layer (SOL).
       kind: llm
+- name: electron_collisionality_at_pedestal_top
+  kind: scalar
+  status: active
+  description: Dimensionless ratio of the electron collision frequency to the characteristic
+    electron bounce frequency at the H-mode pedestal top, governing the neoclassical
+    transport regime of the pedestal electron population.
+  documentation: "Electron collisionality at the pedestal top quantifies the ratio\
+    \ of the electron collision rate to the trapped-electron bounce frequency at the\
+    \ inner shoulder of the H-mode edge transport barrier. It is the electron-specific\
+    \ member of [collisionality_at_pedestal_top](name:collisionality_at_pedestal_top)\
+    \ and determines whether pedestal electrons occupy the banana, plateau, or Pfirsch\u2013\
+    Schl\xFCter transport regime.\n\nThe standard dimensionless electron collisionality\
+    \ is\n\n$$\n\\nu_e^* = \\frac{\\nu_{ei} \\, q R}{\\epsilon^{3/2} \\, v_{\\mathrm{the}}}\n\
+    $$\n\nwhere $\\nu_{ei}$ is the electron\u2013ion collision frequency, $q$ is the\
+    \ local safety factor, $R$ is the major radius, $\\epsilon = r/R$ is the inverse\
+    \ aspect ratio at the pedestal with minor radius $r$, and $v_{\\mathrm{the}} =\
+    \ \\sqrt{2T_e/m_e}$ is the electron thermal speed with electron temperature $T_e$\
+    \ and electron mass $m_e$.\n\nThis parameter is central to pedestal physics: $\\\
+    nu_e^* \\ll 1$ places electrons in the banana regime where trapped particles complete\
+    \ bounce orbits and bootstrap current is substantial, while $\\nu_e^* \\gg 1$\
+    \ suppresses trapping effects and enhances Pfirsch\u2013Schl\xFCter transport.\
+    \ At the pedestal top, electron collisionality enters peeling-ballooning and kinetic-ballooning-mode\
+    \ stability criteria. It is computed from pedestal electron density and temperature\
+    \ profiles, commonly from Thomson scattering, combined with the [coulomb_logarithm_at_pedestal_top](name:coulomb_logarithm_at_pedestal_top)\
+    \ to evaluate $\\nu_{ei}$.\n\nIn H-mode operation, pedestal electron collisionality\
+    \ spans approximately 0.01\u20131 depending on device size, toroidal field, and\
+    \ heating power; projected burning-plasma devices are expected to operate in the\
+    \ low-collisionality banana regime ($\\nu_e^* \\lesssim 0.1$). The child quantity\
+    \ [normalized_electron_collisionality_at_pedestal_top](name:normalized_electron_collisionality_at_pedestal_top)\
+    \ expresses this ratio relative to a reference value for cross-machine comparisons."
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:collisionality_at_pedestal_top
+  - name:coulomb_logarithm_at_pedestal_top
+  - name:normalized_electron_collisionality_at_pedestal_top
+  arguments:
+  - name: collisionality_at_pedestal_top
+    operator: electron
+    operator_kind: qualifier
 - name: electron_decay_length_over_scrape_off_layer
   kind: scalar
   status: active
@@ -917,7 +1118,12 @@
   unit: m^-3
   physics_domain: edge_plasma_physics
   links:
+  - name:density_at_launching_position
   - name:electron_density_at_plasma_boundary
+  arguments:
+  - name: density_at_launching_position
+    operator: electron
+    operator_kind: qualifier
   sources:
   - dd_path: lh_antennas/antenna/n_e
     dd_version: 4.1.0
@@ -1127,47 +1333,6 @@
     enhanced_context:
       description: Offset of the parent quantity in the SOL.
       kind: template
-- name: electron_pressure_at_pedestal_top
-  kind: scalar
-  status: active
-  description: Electron pressure at the pedestal top is the electron kinetic pressure
-    pedestal-height amplitude at the fitted core-side shoulder of the H-mode edge
-    transport barrier. It is the electron partial-pressure contribution, distinct
-    from total plasma pressure at the pedestal top.
-  documentation: 'Electron pressure at the pedestal top is the electron kinetic pressure
-    pedestal-height amplitude at the fitted core-side shoulder of the H-mode edge
-    transport barrier. The quantity represents the electron partial-pressure component
-    assigned to that fitted top.
-
-
-    For scalar electron kinetic pressure, the defining relation to the corresponding
-    pedestal-top electron density and electron temperature is:
-
-
-    $$
-
-    p_{e,\mathrm{ped}} = n_{e,\mathrm{ped}}\, e\, T_{e,\mathrm{ped}}
-
-    $$
-
-
-    where $p_{e,\mathrm{ped}}$ is this quantity, the subscript $\mathrm{ped}$ denotes
-    the pedestal top, $n_{e,\mathrm{ped}}$ is [electron_density_at_pedestal_top](name:electron_density_at_pedestal_top),
-    $T_{e,\mathrm{ped}}$ is [electron_temperature_at_pedestal_top](name:electron_temperature_at_pedestal_top)
-    expressed in electronvolts, and $e$ is the elementary-charge conversion factor
-    satisfying $1\,\mathrm{eV}=e\,\mathrm{J}$.
-
-
-    This quantity is distinct from [pressure_at_pedestal_top](name:pressure_at_pedestal_top),
-    which includes electron and ion pressure components at the same fitted pedestal
-    top. It also excludes separate pedestal-location, width, baseline, and gradient
-    quantities, which characterize the position or shape of the edge transport barrier
-    rather than the electron pressure height.'
-  unit: Pa
-  physics_domain: edge_plasma_physics
-  links:
-  - name:electron_density_at_pedestal_top
-  - name:electron_pressure_over_scrape_off_layer
 - name: energy_diffusion_coefficient
   kind: vector
   status: active
@@ -1470,6 +1635,7 @@
   unit: m^-3
   physics_domain: edge_plasma_physics
   links:
+  - name:flux_surface_averaged_ion_density_at_plasma_boundary
   - name:flux_surface_averaged_hydrogen_density_at_plasma_boundary
   - name:flux_surface_averaged_tritium_density_at_plasma_boundary
   sources:
@@ -1863,6 +2029,7 @@
   unit: m^-3
   physics_domain: edge_plasma_physics
   links:
+  - name:flux_surface_averaged_ion_density_at_plasma_boundary
   - name:volume_averaged_oxygen_density
   sources:
   - dd_path: summary/local/separatrix_average/n_i/oxygen/value
@@ -2107,6 +2274,62 @@
   physics_domain: edge_plasma_physics
   links:
   - name:parallel_heat_flux
+- name: helium_3_density_at_pedestal_top
+  kind: scalar
+  status: active
+  description: Number density of helium-3 ions evaluated at the H-mode pedestal top,
+    where the steep-gradient edge transport barrier meets the flatter core profile,
+    summed over all ionization states.
+  documentation: 'Helium-3 density at the pedestal is the local number density of
+    helium-3 ions ($Z=2$, $A=3$) at the top of the H-mode edge transport barrier,
+    summed over all ionization states from singly ionized $\mathrm{He}^+$ through
+    fully stripped $\mathrm{He}^{2+}$. The pedestal top is the radial position where
+    the steep edge density gradient transitions to the more weakly varying confined-core
+    density; it is distinct from the separatrix or [density_at_plasma_boundary](name:density_at_plasma_boundary)
+    locus.
+
+
+    $$
+
+    n_{\mathrm{He3}}(\xi_{\mathrm{ped,top}}) = \left.\frac{dN_{\mathrm{He3}}}{dV}\right|_{\xi
+    = \xi_{\mathrm{ped,top}}}
+
+    $$
+
+
+    where $N_{\mathrm{He3}}$ is the helium-3 ion count summed over charge states $q
+    = 1$ and $q = 2$, $V$ is physical volume in m$^3$, and $\xi_{\mathrm{ped,top}}$
+    is the radial label of the pedestal-top flux surface (for example $\rho_{\mathrm{tor,norm}}$
+    or $\psi_N$). This name is the helium-3 isotopic member of the [density_at_pedestal_top](name:density_at_pedestal_top)
+    family; the helium-4 isotopic counterpart is [helium_4_density_at_pedestal_top](name:helium_4_density_at_pedestal_top).
+
+
+    Sign convention: Positive when helium-3 ions are present in the pedestal plasma.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:density_at_plasma_boundary
+  - name:density_at_pedestal_top
+  - name:helium_4_density_at_pedestal_top
+  arguments:
+  - name: density_at_pedestal_top
+    operator: helium_3
+    operator_kind: qualifier
+  sources:
+  - dd_path: summary/local/pedestal/n_i/helium_3/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-local-pedestal-n_i-helium_3-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/local/pedestal/n_i/helium_3
+      parent: Helium isotope with 3 nucleons
+      data_type: FLT_1D
+      unit: m^-3
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Helium isotope with 3 nucleons.
+      kind: template
 - name: helium_3_density_at_plasma_boundary
   kind: scalar
   status: active
@@ -2241,6 +2464,7 @@
   physics_domain: edge_plasma_physics
   links:
   - name:density_at_pedestal_top
+  - name:helium_3_density_at_pedestal_top
   arguments:
   - name: density_at_pedestal_top
     operator: helium_4
@@ -2371,10 +2595,73 @@
   links:
   - name:density_at_plasma_boundary
   - name:total_ion_density_at_plasma_boundary
+  - name:flux_surface_averaged_ion_density_at_plasma_boundary
   arguments:
   - name: density_at_plasma_boundary
     operator: ion
     operator_kind: qualifier
+- name: flux_surface_averaged_ion_density_at_plasma_boundary
+  kind: scalar
+  status: active
+  description: Number density of ions at the plasma boundary, averaged over the last
+    closed flux surface to represent the separatrix population rather than a single
+    local value.
+  documentation: 'Ion density at the plasma boundary is the flux-surface-averaged
+    number density of charged ions on the last closed flux surface (LCFS), which separates
+    confined closed-field-line plasma from open-field-line scrape-off-layer plasma.
+    It is the averaged component of [ion density at the plasma boundary](name:ion_density_at_plasma_boundary),
+    rather than the broader all-particle [density at the plasma boundary](name:density_at_plasma_boundary).
+
+
+    For the selected ion population $i$, the boundary flux-surface average is defined
+    by
+
+
+    $$
+
+    \langle n_i\rangle_{\mathrm{b}} = \frac{\displaystyle\int_{\psi=\psi_b} n_i\,\frac{dS}{|\nabla\psi|}}{\displaystyle\int_{\psi=\psi_b}\frac{dS}{|\nabla\psi|}}
+
+    $$
+
+
+    where $n_i$ is the local number density of the selected charged-ion population,
+    $\psi$ is the poloidal magnetic-flux label, $\psi_b$ labels the LCFS, and $dS$
+    is the surface-area element. Species-level values are summed over ionized charge
+    states unless a charge state is explicitly selected; electrons and neutrals are
+    excluded. Unlike the local parent quantity, this value averages variation around
+    the LCFS, as in [flux-surface-averaged hydrogen density at the plasma boundary](name:flux_surface_averaged_hydrogen_density_at_plasma_boundary).
+
+
+    Sign convention: Positive when the selected charged-ion population contributes
+    positively to the number density on the LCFS.'
+  unit: m^-3
+  physics_domain: edge_plasma_physics
+  links:
+  - name:ion_density_at_plasma_boundary
+  - name:density_at_plasma_boundary
+  - name:flux_surface_averaged_hydrogen_density_at_plasma_boundary
+  arguments:
+  - name: ion_density_at_plasma_boundary
+    operator: flux_surface_averaged
+    operator_kind: qualifier
+  sources:
+  - dd_path: summary/local/separatrix_average/n_i
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-local-separatrix_average-n_i
+    dd_documentation:
+      leaf: Ion density per species
+      parent_path: summary/local/separatrix_average
+      parent: Flux surface averaged parameters at separatrix (flux-surface average
+        over the entire core-SOL boundary separatrix)
+      data_type: STRUCTURE
+      unit: m^-3
+      lifecycle_status: active
+    enhanced_context:
+      description: Ion density (ni) per species, flux-surface averaged at the separatrix,
+        with entries for individual ion species. Represents the particle density at
+        the core-SOL boundary and serves as a key input for edge plasma and divertor
+        modelling.
+      kind: llm
 - name: ion_diffusivity
   kind: vector
   status: active
@@ -2918,7 +3205,12 @@
     It is not the unnormalized electron-ion collision frequency $\nu_{ei}$.'
   unit: '1'
   physics_domain: edge_plasma_physics
-  links: []
+  links:
+  - name:electron_collisionality_at_pedestal_top
+  arguments:
+  - name: electron_collisionality_at_pedestal_top
+    operator: normalized
+    operator_kind: qualifier
   sources:
   - dd_path: summary/pedestal_fits/mtanh/nustar_pedestal_top_electron/value
     dd_version: 4.1.0
@@ -3341,6 +3633,7 @@
   physics_domain: edge_plasma_physics
   links:
   - name:parallel_ion_energy_flux
+  - name:effective_thermal_ion_charge_state_energy_velocity_due_to_convection
   - name:parallel_total_ion_energy_convection_velocity
   sources:
   - dd_path: edge_transport/model/ggd/electrons/energy/v_parallel/values
@@ -3387,73 +3680,6 @@
       - 1...N
     enhanced_context:
       description: Array of values for v parallel.
-      kind: template
-- name: parallel_ion_momentum_flux_limiter_coefficient
-  kind: scalar
-  status: active
-  description: Parallel component of the dimensionless ion momentum flux-limiter coefficient
-    that scales the free-streaming bound on parallel ion momentum-flux density.
-  documentation: 'The parallel component of the dimensionless ion momentum-flux limiter
-    coefficient scales the free-streaming upper bound imposed on ion momentum-flux
-    density along the local magnetic-field direction. It is the parallel member of
-    the vector quantity [ion momentum flux limiter coefficient](name:ion_momentum_flux_limiter_coefficient).
-
-
-    The limiting relation is
-
-
-    $$
-
-    \left|\Pi_{\parallel,i}\right| \leq C_{\parallel,i}\,\Pi_{\parallel,\mathrm{fs}}
-
-    $$
-
-
-    where $C_{\parallel,i}$ is this dimensionless coefficient, $\Pi_{\parallel,i}$
-    is the signed parallel ion momentum-flux density, and $\Pi_{\parallel,\mathrm{fs}}$
-    is the nonnegative free-streaming bound; the two flux densities have pressure-equivalent
-    units. The coefficient applies to the parallel direction and is distinct from
-    the [radial ion momentum flux limiter coefficient](name:radial_ion_momentum_flux_limiter_coefficient)
-    and from charge-state-resolved parallel coefficients.
-
-
-    Sign convention: Positive when the associated parallel ion momentum flux is co-directed
-    with the local magnetic-field vector.'
-  unit: '1'
-  physics_domain: edge_plasma_physics
-  links:
-  - name:radial_ion_momentum_flux_limiter_coefficient
-  sources:
-  - dd_path: edge_transport/model/ggd/ion/momentum/flux_limiter/parallel
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_transport.html#edge_transport-model-ggd-ion-momentum-flux_limiter-parallel
-    dd_documentation:
-      leaf: Parallel component, one scalar value is provided per element in the grid
-        subset.
-      parent_path: edge_transport/model/ggd/ion/momentum/flux_limiter
-      parent: Flux limiter coefficient, on various grid subsets
-      data_type: FLT_1D
-      unit: '1'
-      coordinates:
-      - edge_transport/model/ggd/ion/momentum/flux_limiter/radial
-      - 1...N
-    enhanced_context:
-      description: Parallel component of flux limiter.
-      kind: template
-  - dd_path: plasma_transport/model/ggd/momentum/flux_limiter/parallel
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/plasma_transport.html#plasma_transport-model-ggd-momentum-flux_limiter-parallel
-    dd_documentation:
-      leaf: Parallel component, one scalar value is provided per element in the grid
-        subset.
-      parent_path: plasma_transport/model/ggd/momentum/flux_limiter
-      parent: Flux limiter coefficient, on various grid subsets
-      data_type: FLT_1D
-      unit: '1'
-      coordinates:
-      - 1...N
-    enhanced_context:
-      description: Parallel component of flux limiter.
       kind: template
 - name: parallel_neutral_species_particle_diffusivity
   kind: scalar
@@ -3622,6 +3848,7 @@
   physics_domain: edge_plasma_physics
   links:
   - name:parallel_total_ion_energy_convection_velocity
+  - name:parallel_neutral_internal_state_momentum_convection_velocity
   sources:
   - dd_path: edge_transport/model/ggd/ion/momentum/v_parallel/values
     dd_version: 4.1.0
@@ -4011,6 +4238,191 @@
     enhanced_context:
       description: Array of values for d pol.
       kind: template
+- name: power_over_scrape_off_layer
+  kind: scalar
+  status: active
+  description: Total power of a specified physical process integrated over the scrape-off
+    layer, the open-field-line plasma region between the separatrix and the material
+    boundaries.
+  documentation: "Power over the scrape-off layer quantifies the total power contributed\
+    \ by a specified physical process or channel, integrated over the plasma volume\
+    \ occupying open magnetic field lines between the last closed flux surface (separatrix)\
+    \ and the plasma-facing components. This parent concept generalizes over process-specific\
+    \ realizations: the accepted child [radiated_power_over_scrape_off_layer](name:radiated_power_over_scrape_off_layer)\
+    \ gives the total electromagnetic radiation emitted by all plasma species and\
+    \ emission channels within that region. The upstream power boundary condition\
+    \ \u2014 total power crossing the separatrix from the confined plasma into the\
+    \ SOL \u2014 is given by [total_lost_power_over_scrape_off_layer](name:total_lost_power_over_scrape_off_layer),\
+    \ which is distinct from the process-attributed power described here."
+  unit: W
+  physics_domain: edge_plasma_physics
+  links:
+  - name:radiated_power_over_scrape_off_layer
+- name: pressure_at_pedestal_top
+  kind: scalar
+  status: active
+  description: Kinetic plasma pressure evaluated at the core-side shoulder of the
+    H-mode edge transport barrier for a specified population or defined aggregate.
+  documentation: 'Pedestal-top pressure is the kinetic pressure of a specified plasma
+    population or defined aggregate, evaluated at the core-side shoulder of the H-mode
+    edge transport barrier. Its location is defined by the [normalized poloidal flux
+    coordinate of the pedestal](name:normalized_poloidal_flux_coordinate_of_pedestal),
+    and its value represents the fitted pedestal-height amplitude.
+
+
+    For an isotropic kinetic population, pressure is related to its density and temperature
+    by:
+
+
+    $$
+
+    p_{\mathrm{ped}} = n_{\mathrm{ped}} k_B T_{\mathrm{ped}}
+
+    $$
+
+
+    where $p_{\mathrm{ped}}$ is the pedestal-top kinetic pressure, $n_{\mathrm{ped}}$
+    is the corresponding [number density at the pedestal top](name:density_at_pedestal_top),
+    $T_{\mathrm{ped}}$ is the corresponding [average temperature at the pedestal top](name:average_temperature_at_pedestal_top),
+    and $k_B$ is Boltzmann''s constant.
+
+
+    A population-specific value is a partial pressure; an aggregate value is the sum
+    of the included partial pressures. The [electron pressure at the pedestal top](name:electron_pressure_at_pedestal_top)
+    is a concrete population-specific instance. This quantity is distinct from a pressure
+    gradient, a maximum-steepness derivative, or a volume-averaged scrape-off-layer
+    pressure.'
+  unit: Pa
+  physics_domain: edge_plasma_physics
+  links:
+  - name:normalized_poloidal_flux_coordinate_of_pedestal
+  - name:density_at_pedestal_top
+  - name:average_temperature_at_pedestal_top
+  - name:electron_pressure_at_pedestal_top
+- name: electron_pressure_at_pedestal_top
+  kind: scalar
+  status: active
+  description: Electron pressure at the pedestal top is the electron kinetic pressure
+    pedestal-height amplitude at the fitted core-side shoulder of the H-mode edge
+    transport barrier. It is the electron partial-pressure contribution, distinct
+    from total plasma pressure at the pedestal top.
+  documentation: 'Electron pressure at the pedestal top is the electron kinetic pressure
+    pedestal-height amplitude at the fitted core-side shoulder of the H-mode edge
+    transport barrier. The quantity represents the electron partial-pressure component
+    assigned to that fitted top.
+
+
+    For scalar electron kinetic pressure, the defining relation to the corresponding
+    pedestal-top electron density and electron temperature is:
+
+
+    $$
+
+    p_{e,\mathrm{ped}} = n_{e,\mathrm{ped}}\, e\, T_{e,\mathrm{ped}}
+
+    $$
+
+
+    where $p_{e,\mathrm{ped}}$ is this quantity, the subscript $\mathrm{ped}$ denotes
+    the pedestal top, $n_{e,\mathrm{ped}}$ is [electron_density_at_pedestal_top](name:electron_density_at_pedestal_top),
+    $T_{e,\mathrm{ped}}$ is [electron_temperature_at_pedestal_top](name:electron_temperature_at_pedestal_top)
+    expressed in electronvolts, and $e$ is the elementary-charge conversion factor
+    satisfying $1\,\mathrm{eV}=e\,\mathrm{J}$.
+
+
+    This quantity is distinct from [pressure_at_pedestal_top](name:pressure_at_pedestal_top),
+    which includes electron and ion pressure components at the same fitted pedestal
+    top. It also excludes separate pedestal-location, width, baseline, and gradient
+    quantities, which characterize the position or shape of the edge transport barrier
+    rather than the electron pressure height.'
+  unit: Pa
+  physics_domain: edge_plasma_physics
+  links:
+  - name:electron_density_at_pedestal_top
+  - name:pressure_at_pedestal_top
+  - name:electron_pressure_over_scrape_off_layer
+  arguments:
+  - name: pressure_at_pedestal_top
+    operator: electron
+    operator_kind: qualifier
+- name: derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_pressure_at_pedestal_top
+  kind: scalar
+  status: active
+  description: Signed local derivative of fitted electron pressure with respect to
+    the normalized poloidal flux coordinate at the H-mode pedestal top. It describes
+    the core-side pedestal-top variation of the fitted electron-pressure function,
+    not the pressure value or a maximum over a pedestal interval.
+  documentation: 'Signed local derivative of fitted electron pressure with respect
+    to the normalized poloidal flux coordinate at the H-mode pedestal top is the local
+    rate of change of the fitted electron-pressure function with the flux coordinate
+    $\psi_N$ at the pedestal-top locus. It is not the derivative of the scalar [electron
+    pressure at the H-mode pedestal top](name:electron_pressure_at_pedestal_top);
+    that scalar is the pressure value at the same locus.
+
+
+    The derivative is defined by differentiating the fitted electron-pressure function
+    with respect to $\psi_N$ and evaluating the result at the pedestal top:
+
+
+    $$
+
+    D_{p_e,\mathrm{ped\ top}} = \left.\frac{\partial p_e}{\partial \psi_N}\right|_{\mathrm{ped\
+    top}}
+
+    $$
+
+
+    where $D_{p_e,\mathrm{ped\ top}}$ is this quantity, $p_e$ is [electron pressure](name:electron_pressure),
+    and $\psi_N$ is the normalized poloidal flux coordinate, with $\psi_N=0$ at the
+    magnetic axis and $\psi_N=1$ at the plasma boundary.
+
+
+    This quantity is a local pedestal-top derivative. It excludes the steepest pressure-gradient
+    value over a pedestal interval, represented by [gradient of electron pressure](name:gradient_of_electron_pressure),
+    and it is distinct from electron-density derivatives such as [derivative with
+    respect to normalized poloidal flux coordinate of electron density at pedestal
+    maximum](name:derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_density_at_pedestal_maximum).
+
+
+    Sign convention: Positive when electron pressure increases with increasing normalized
+    poloidal flux coordinate $\psi_N$ from the magnetic axis toward the plasma boundary.'
+  unit: Pa
+  physics_domain: edge_plasma_physics
+  links:
+  - name:electron_pressure_at_pedestal_top
+  arguments:
+  - name: electron_pressure_at_pedestal_top
+    operator: derivative_with_respect_to_normalized_poloidal_flux_coordinate
+    operator_kind: unary_prefix
+  sources:
+  - dd_path: summary/pedestal_fits/linear/pressure_electron/d_dpsi_norm/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-pedestal_fits-linear-pressure_electron-d_dpsi_norm-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/pedestal_fits/linear/pressure_electron/d_dpsi_norm
+      parent: Core slope of the parent quantity
+      data_type: FLT_1D
+      unit: Pa
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Core slope of the parent quantity.
+      kind: template
+  - dd_path: summary/pedestal_fits/mtanh/pressure_electron/d_dpsi_norm/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-pedestal_fits-mtanh-pressure_electron-d_dpsi_norm-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/pedestal_fits/mtanh/pressure_electron/d_dpsi_norm
+      parent: Core slope of the parent quantity
+      data_type: FLT_1D
+      unit: Pa
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Core slope of the parent quantity.
+      kind: template
 - name: pressure_at_plasma_boundary
   kind: scalar
   status: active
@@ -4309,62 +4721,6 @@
         the neutral particle inventory at the plasma edge. Relevant for recycling,
         pumping, and divertor detachment studies.
       kind: template
-- name: radial_ion_momentum_flux_limiter_coefficient
-  kind: scalar
-  status: active
-  description: Radial component of the dimensionless ion momentum flux-limiter coefficient
-    that scales the free-streaming bound on radial ion momentum-flux density.
-  documentation: 'The radial component of the dimensionless ion momentum-flux limiter
-    coefficient scales the free-streaming upper bound imposed on ion momentum-flux
-    density in the cylindrical radial direction. It is the radial member of the vector
-    quantity [ion momentum flux limiter coefficient](name:ion_momentum_flux_limiter_coefficient),
-    with radial referring to the $\hat{R}$ component in the right-handed cylindrical
-    $(R, \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and
-    $Z$ is vertical height.
-
-
-    The limiting relation is
-
-
-    $$
-
-    \left|\Pi_{R,i}\right| \leq C_{R,i}\,\Pi_{R,\mathrm{fs}}
-
-    $$
-
-
-    where $C_{R,i}$ is this coefficient, $\Pi_{R,i}$ is the signed radial ion momentum-flux
-    density, and $\Pi_{R,\mathrm{fs}}$ is the nonnegative radial free-streaming bound;
-    the two flux densities have the same pressure-equivalent units.
-
-
-    As a magnitude-limiter coefficient, $C_{R,i}$ is nonnegative and has no independent
-    sign; the sign of any limited radial ion momentum flux is inherited from the associated
-    signed momentum-flux density. The ion-level coefficient applies to charge-state-summed
-    radial ion momentum-flux density and is distinct from the [parallel ion momentum
-    flux limiter coefficient](name:parallel_ion_momentum_flux_limiter_coefficient),
-    the [poloidal ion momentum flux limiter coefficient](name:poloidal_ion_momentum_flux_limiter_coefficient),
-    and the charge-state-resolved [ion charge-state momentum flux limiter coefficient](name:ion_charge_state_momentum_flux_limiter_coefficient).'
-  unit: '1'
-  physics_domain: edge_plasma_physics
-  links:
-  - name:parallel_ion_momentum_flux_limiter_coefficient
-  sources:
-  - dd_path: edge_transport/model/ggd/ion/momentum/flux_limiter/radial
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_transport.html#edge_transport-model-ggd-ion-momentum-flux_limiter-radial
-    dd_documentation:
-      leaf: Radial component, one scalar value is provided per element in the grid
-        subset.
-      parent_path: edge_transport/model/ggd/ion/momentum/flux_limiter
-      parent: Flux limiter coefficient, on various grid subsets
-      data_type: FLT_1D
-      unit: '1'
-      coordinates:
-      - 1...N
-    enhanced_context:
-      description: Radial component of flux limiter.
-      kind: template
 - name: radial_ion_particle_diffusivity
   kind: scalar
   status: active
@@ -4403,6 +4759,7 @@
   physics_domain: edge_plasma_physics
   links:
   - name:radial_ion_diffusion_coefficient
+  - name:radial_ion_charge_state_diffusivity
   sources:
   - dd_path: edge_transport/model/ggd/electrons/particles/d_radial/values
     dd_version: 4.1.0
@@ -4590,6 +4947,10 @@
   links:
   - name:electron_heat_decay_length_over_scrape_off_layer
   - name:ion_heat_decay_length_over_scrape_off_layer
+  arguments:
+  - name: power_over_scrape_off_layer
+    operator: radiated
+    operator_kind: qualifier
   sources:
   - dd_path: summary/global_quantities/power_radiated_outside_lcfs/value
     dd_version: 4.1.0
@@ -4819,6 +5180,7 @@
   links:
   - name:electron_temperature_at_pedestal_top
   - name:average_temperature_at_pedestal_top
+  - name:critical_temperature_at_pedestal_top
 - name: average_temperature_at_pedestal_top
   kind: scalar
   status: active
@@ -6184,6 +6546,7 @@
   physics_domain: edge_plasma_physics
   links:
   - name:toroidal_hydrogen_velocity_at_plasma_boundary
+  - name:toroidal_flux_surface_averaged_ion_velocity_at_plasma_boundary
   sources:
   - dd_path: summary/local/separatrix_average/velocity_phi/hydrogen/value
     dd_version: 4.1.0
@@ -6199,6 +6562,47 @@
     enhanced_context:
       description: Hydrogen (H).
       kind: template
+- name: toroidal_flux_surface_averaged_ion_velocity_at_plasma_boundary
+  kind: scalar
+  status: active
+  description: Flux-surface-averaged toroidal bulk-flow velocity of the total ion
+    fluid at the plasma boundary, representing the density-weighted mean over all
+    ion species and charge states.
+  documentation: "The toroidal component of the ion bulk-flow velocity, flux-surface\
+    \ averaged over the plasma boundary \u2014 the last closed flux surface forming\
+    \ the core\u2013scrape-off-layer interface. For a plasma containing multiple ion\
+    \ species and charge states, the ion velocity is the density-weighted mean\n\n\
+    $$\nv_\\phi = \\frac{\\sum_s n_s \\, v_{\\phi,s}}{\\sum_s n_s}\n$$\n\nwhere $n_s$\
+    \ is the number density and $v_{\\phi,s}$ is the toroidal velocity of species\
+    \ $s$, with the sum running over all ion species and charge states present.\n\n\
+    The flux-surface average is evaluated as $\\langle A \\rangle = \\oint A \\, dl/B_p\
+    \ \\,/\\, \\oint dl/B_p$, where $dl$ is the poloidal arc-length element and $B_p$\
+    \ is the poloidal magnetic field magnitude, integrated along the plasma boundary\
+    \ flux surface. Species-resolved counterparts such as [toroidal_flux_surface_averaged_nitrogen_velocity_at_plasma_boundary](name:toroidal_flux_surface_averaged_nitrogen_velocity_at_plasma_boundary)\
+    \ and [toroidal_flux_surface_averaged_tritium_velocity_at_plasma_boundary](name:toroidal_flux_surface_averaged_tritium_velocity_at_plasma_boundary)\
+    \ give contributions from individual ion species.\n\nSign convention: Positive\
+    \ when $v_\\phi$ points in the direction of increasing toroidal angle $\\phi$."
+  unit: m.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:toroidal_flux_surface_averaged_nitrogen_velocity_at_plasma_boundary
+  - name:toroidal_flux_surface_averaged_tritium_velocity_at_plasma_boundary
+  sources:
+  - dd_path: summary/local/separatrix_average/velocity_phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-local-separatrix_average-velocity_phi
+    dd_documentation:
+      leaf: Ion toroidal rotation velocity, per species
+      parent_path: summary/local/separatrix_average
+      parent: Flux surface averaged parameters at separatrix (flux-surface average
+        over the entire core-SOL boundary separatrix)
+      data_type: STRUCTURE
+      unit: m.s^-1
+    enhanced_context:
+      description: "Ion toroidal rotation velocity (v_\u03C6) per species, flux-surface\
+        \ averaged over the separatrix boundary. Summarizes toroidal rotation of individual\
+        \ ion species at the core-SOL interface."
+      kind: llm
 - name: toroidal_flux_surface_averaged_iron_velocity_at_plasma_boundary
   kind: scalar
   status: active
@@ -6301,6 +6705,7 @@
   unit: m.s^-1
   physics_domain: edge_plasma_physics
   links:
+  - name:toroidal_flux_surface_averaged_ion_velocity_at_plasma_boundary
   - name:toroidal_krypton_velocity_at_magnetic_axis
   sources:
   - dd_path: summary/local/separatrix_average/velocity_phi/krypton/value
@@ -6481,6 +6886,7 @@
   physics_domain: edge_plasma_physics
   links:
   - name:flux_surface_averaged_nitrogen_density_at_plasma_boundary
+  - name:toroidal_flux_surface_averaged_ion_velocity_at_plasma_boundary
   sources:
   - dd_path: summary/local/separatrix_average/velocity_phi/nitrogen/value
     dd_version: 4.1.0
@@ -6535,6 +6941,7 @@
   unit: m.s^-1
   physics_domain: edge_plasma_physics
   links:
+  - name:toroidal_flux_surface_averaged_ion_velocity_at_plasma_boundary
   - name:toroidal_oxygen_velocity_at_plasma_boundary
   sources:
   - dd_path: summary/local/separatrix_average/velocity_phi/oxygen/value
@@ -6652,6 +7059,7 @@
   physics_domain: edge_plasma_physics
   links:
   - name:flux_surface_averaged_tritium_density_at_plasma_boundary
+  - name:toroidal_flux_surface_averaged_ion_velocity_at_plasma_boundary
   sources:
   - dd_path: summary/local/separatrix_average/velocity_phi/tritium/value
     dd_version: 4.1.0
@@ -7614,55 +8022,6 @@
       description: "Total plasma toroidal momentum (L\u03C6), summed over all ion\
         \ species and electrons, evaluated at the pedestal top. Captures the net toroidal\
         \ angular momentum at this key boundary transport layer."
-      kind: template
-- name: toroidal_total_momentum_flux
-  kind: scalar
-  status: active
-  description: Toroidal component of total edge-plasma momentum-flux density, combining
-    advective, pressure, viscous, and turbulent stress contributions.
-  documentation: 'This quantity is the toroidal component of the total edge-plasma
-    momentum-flux density, representing transport of toroidal linear momentum rather
-    than stored momentum or a torque source. It is the toroidal projection of [total
-    momentum flux](name:total_momentum_flux).
-
-
-    The total contribution is defined by
-
-
-    $$
-
-    \Pi_{\phi}^{\mathrm{tot}} = \Pi_{\phi}^{\mathrm{adv}} + \Pi_{\phi}^{\mathrm{pres}}
-    + \Pi_{\phi}^{\mathrm{visc}} + \Pi_{\phi}^{\mathrm{turb}}
-
-    $$
-
-
-    where $\Pi_{\phi}^{\mathrm{tot}}$ is the total toroidal momentum-flux density
-    and the terms represent advective, pressure, viscous, and turbulent-stress contributions,
-    respectively. The toroidal direction is $\hat{\phi}$ in the right-handed cylindrical
-    $(R,\phi,Z)$ frame, with $\hat{R} \times \hat{\phi} = \hat{Z}$.
-
-
-    Sign convention: Positive when the toroidal momentum-flux component points along
-    $\hat{\phi}$, toward increasing toroidal angle $\phi$.'
-  unit: kg.m^-1.s^-2
-  physics_domain: edge_plasma_physics
-  links: []
-  sources:
-  - dd_path: edge_transport/model/ggd/momentum/flux/phi
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_transport.html#edge_transport-model-ggd-momentum-flux-phi
-    dd_documentation:
-      leaf: Toroidal component, one scalar value is provided per element in the grid
-        subset.
-      parent_path: edge_transport/model/ggd/momentum/flux
-      parent: Flux, on various grid subsets
-      data_type: FLT_1D
-      unit: kg.m^-1.s^-2
-      coordinates:
-      - 1...N
-    enhanced_context:
-      description: "Toroidal angle (\u03C6) coordinate of flux."
       kind: template
 - name: toroidal_total_plasma_momentum_at_plasma_boundary
   kind: scalar
@@ -9011,6 +9370,7 @@
   physics_domain: edge_plasma_physics
   links:
   - name:electron_pressure
+  - name:derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_pressure_at_pedestal_top
   arguments:
   - name: electron_pressure
     operator: gradient
@@ -9051,47 +9411,44 @@
 - name: ion_current_density
   kind: vector
   status: active
-  description: Ion current density is the vector charge flux per unit area carried
-    by ions, obtained by charge-weighting their mean flows across all ion species
-    and charge states.
-  documentation: 'Ion current density $\mathbf{J}_i$ characterizes the ion contribution
-    to charge transport per unit area in the plasma. It is a vector quantity formed
-    from the mean motion of all included ion species and charge states, and is a component
-    of the total [current density](name:current_density).
+  description: Ion current density is the vector density of conventional electric
+    charge flux carried by ions, obtained by charge-weighting their directed particle
+    motion across unit area.
+  documentation: 'Ion current density $\mathbf{J}_i$ is the vector density of conventional
+    electric charge flux carried by ions. It represents signed charge transport from
+    all included ion species and charge states.
 
 
-    The defining relation is:
+    The kinetic definition is the charge-weighted first velocity moment of the ion
+    distribution functions:
 
 
     $$
 
-    \mathbf{J}_i = \sum_s q_s n_s \mathbf{u}_s
+    \mathbf{J}_i(\mathbf{x},t) = \sum_{s\in\mathrm{ions}} q_s \int \mathbf{v}\,f_s(\mathbf{x},\mathbf{v},t)\,d^3v
+    = \sum_{s\in\mathrm{ions}} q_s n_s \mathbf{u}_s
 
     $$
 
 
-    where $s$ indexes ion species and charge states, $q_s$ is the signed ion charge
-    in C, $n_s$ is the number density in m$^{-3}$, and $\mathbf{u}_s$ is the mean
-    ion velocity in m s$^{-1}$. The sum is charge-weighted rather than an unweighted
-    average.
+    where $\mathbf{x}$ is position, $t$ is time, $s$ indexes ion species and charge
+    states, $q_s$ is the charge of population $s$, $\mathbf{v}$ is particle velocity,
+    $f_s$ is its velocity-space distribution function, $n_s$ is its number density,
+    and $\mathbf{u}_s$ is its mean velocity.
 
 
-    The common quantity includes distinct instances such as the magnetic-field-aligned
-    [parallel ion current density](name:parallel_ion_current_density), the fluctuation
-    amplitude [fluctuating ion current density](name:fluctuating_ion_current_density),
-    and the sheath-collected [saturated ion current density](name:saturated_ion_current_density).
-    These specialize the ion current by projection, statistical operation, or collection
-    regime without changing its ion-carried charge-flux basis.
+    This quantity includes ion-carried charge flux and excludes electron-carried and
+    displacement-current density. Its qualified instances may select a magnetic-field-aligned
+    projection such as [parallel ion current density](name:parallel_ion_current_density),
+    a temporal fluctuation measure such as [fluctuating ion current density](name:fluctuating_ion_current_density),
+    or an ion-saturation collection condition.
 
 
-    Sign convention: Positive when a signed component of the conventional ion current
-    points along its defined positive direction; for the toroidal direction, positive
-    means increasing toroidal angle $\phi$ in the right-handed cylindrical $(R, \phi,
-    Z)$ frame.'
+    Sign convention: Positive when an ion-carried charge-flux component is aligned
+    with the positive direction of its defining basis vector or oriented surface normal.'
   unit: A.m^-2
   physics_domain: edge_plasma_physics
   links:
-  - name:current_density
   - name:parallel_ion_current_density
   - name:fluctuating_ion_current_density
   arguments:
@@ -9101,42 +9458,44 @@
 - name: fluctuating_ion_current_density
   kind: vector
   status: active
-  description: Fluctuating ion current density is the standard deviation of ion-carried
-    charge-current density about its temporal mean, preserving charge weighting across
-    ion species and charge states.
-  documentation: 'Fluctuating ion current density is the statistical amplitude of
-    departures from the mean ion contribution to charge transport per unit area. It
-    is derived from the signed [ion current density](name:ion_current_density), with
-    the fluctuation operation applied after summing the ion contributions.
+  description: Fluctuating ion current density is the temporal standard deviation
+    of ion-carried vector charge transport per unit area about its mean, with charge
+    weighting across included ion species and charge states.
+  documentation: 'Fluctuating ion current density is the temporal spread of the ion-carried
+    contribution to vector charge transport per unit area, evaluated about its temporal
+    mean. It preserves the charge weighting and species and charge-state aggregation
+    of the [ion current density](name:ion_current_density), while describing variation
+    rather than the mean current.
 
 
-    For each vector direction $k$, the defining relation is:
+    The componentwise temporal standard deviation is defined by
 
 
     $$
 
-    \sigma_{J_i,k} = \left\langle \left[J_{i,k}(t)-\left\langle J_{i,k}\right\rangle_t\right]^2
-    \right\rangle_t^{1/2}, \qquad J_{i,k}(t)=\sum_s q_s n_s(t)u_{s,k}(t)
+    \sigma_{i,k} = \left\langle \left[J_{i,k}(t) - \left\langle J_{i,k}(t) \right\rangle_t\right]^2
+    \right\rangle_t^{1/2}
 
     $$
 
 
-    where $s$ indexes included ion species and charge states, $q_s$ is the signed
-    ion charge in C, $n_s$ is number density in m$^{-3}$, $u_{s,k}$ is the mean ion
-    velocity component in m s$^{-1}$, and $\langle\cdot\rangle_t$ denotes the temporal
-    average. Each standard-deviation component is non-negative.
+    where $J_{i,k}(t)$ is component $k$ of the [ion current density](name:ion_current_density)
+    at time $t$, $\langle\cdot\rangle_t$ denotes temporal averaging, and $\sigma_{i,k}$
+    is the corresponding fluctuation amplitude.
 
 
-    The quantity is charge-weighted rather than an unweighted species average. Its
-    concrete specializations include [parallel fluctuating ion current density](name:parallel_fluctuating_ion_current_density),
-    which projects the fluctuating vector along the magnetic field, and [fluctuating
-    saturated ion current density](name:fluctuating_saturated_ion_current_density),
-    which applies the fluctuation measure to the ion-saturation current.'
+    The vector is formed from the relevant component or projection standard deviations
+    and is not the signed temporal mean current. For example, [parallel fluctuating
+    ion current density](name:parallel_fluctuating_ion_current_density) applies the
+    same fluctuation definition after projection along the local magnetic-field direction,
+    whereas [fluctuating saturated ion current density](name:fluctuating_saturated_ion_current_density)
+    is restricted to ion-saturation current.'
   unit: A.m^-2
   physics_domain: edge_plasma_physics
   links:
   - name:ion_current_density
   - name:parallel_fluctuating_ion_current_density
+  - name:fluctuating_saturated_ion_current_density
   arguments:
   - name: ion_current_density
     operator: fluctuating
@@ -9182,6 +9541,7 @@
   physics_domain: edge_plasma_physics
   links:
   - name:fluctuating_ion_current_density
+  - name:fluctuating_saturated_ion_current_density
   arguments:
   - name: fluctuating_ion_current_density
     operator: component
@@ -9207,47 +9567,39 @@
 - name: parallel_ion_current_density
   kind: scalar
   status: active
-  description: Parallel ion current density is the magnetic-field-aligned projection
-    of the vector charge flux per unit area carried by ions, formed by charge-weighting
-    their mean flows across all ion species and charge states.
-  documentation: 'Parallel ion current density is the magnetic-field-aligned projection
-    of the ion-carried contribution to vector charge transport per unit area in the
-    plasma. It is the component of [ion current density](name:ion_current_density)
-    along the local magnetic-field direction, excluding electron-carried current.
-
-
-    The microscopic relation is
+  description: Parallel ion current density is the projection of charge-weighted ion
+    electric-current density onto the local magnetic-field direction.
+  documentation: 'Parallel ion current density is the magnetic-field-aligned component
+    of the ion contribution to charge transport per unit area. It retains the species
+    and charge-state aggregation of the [ion current density](name:ion_current_density)
+    while selecting only the component along the local magnetic field.
 
 
     $$
 
-    j_{\parallel i} = \mathbf{J}_i \cdot \hat{\mathbf{b}} = \sum_s q_s n_s \mathbf{u}_s
-    \cdot \hat{\mathbf{b}}
+    J_{i\parallel} = \mathbf{J}_i \cdot \mathbf{b}, \qquad \mathbf{b} = \frac{\mathbf{B}}{|\mathbf{B}|}
 
     $$
 
 
-    where $j_{\parallel i}$ is the parallel ion current density, $\mathbf{J}_i$ is
-    the total ion current-density vector, $\hat{\mathbf{b}}=\mathbf{B}/|\mathbf{B}|$
-    is the unit vector along the local magnetic field, $s$ indexes ion species and
-    charge states, $q_s$ is the charge of population $s$, $n_s$ is its number density,
-    and $\mathbf{u}_s$ is its mean flow velocity. The sum is charge-weighted rather
-    than an unweighted particle-flux sum.
+    where $J_{i\parallel}$ is the parallel ion current density, $\mathbf{J}_i$ is
+    [ion current density](name:ion_current_density), $\mathbf{b}$ is the unit vector
+    along the local magnetic field, and $\mathbf{B}$ is the magnetic-field vector.
 
 
-    This quantity is a signed projection of [ion current density](name:ion_current_density),
-    not the magnitude of the ion current-density vector and not a particle flux. It
-    represents the full ion contribution summed over all ion species and charge states
-    unless a species- or charge-state-resolved quantity is explicitly specified.
+    This quantity is distinct from [parallel ion particle flux](name:parallel_ion_particle_flux),
+    which counts ion transport without electric-charge weighting. It represents the
+    aggregate ion contribution rather than only a mechanism-specific component such
+    as [parallel current density due to ion inertia](name:parallel_current_density_due_to_ion_inertia).
 
 
-    Sign convention: Positive when the ion-carried conventional current density has
-    a positive projection along the local magnetic-field direction $\hat{\mathbf{b}}=\mathbf{B}/|\mathbf{B}|$.'
+    Sign convention: Positive when the ion current-density vector has a component
+    in the direction of the local magnetic field.'
   unit: A.m^-2
   physics_domain: edge_plasma_physics
   links:
-  - name:parallel_ion_particle_flux
   - name:ion_current_density
+  - name:parallel_ion_particle_flux
   - name:parallel_current_density_due_to_ion_inertia
   arguments:
   - name: ion_current_density
@@ -9284,6 +9636,148 @@
       description: "Ion parallel current density (j\u2225,i) measured at the collector\
         \ of a reciprocating Langmuir probe during a plunge into the scrape-off layer.\
         \ Characterizes the parallel component of ion current flow at the probe location."
+      kind: llm
+- name: saturated_ion_current_density
+  kind: scalar
+  status: active
+  description: Saturated ion current density is the ion charge flux per collecting
+    area at the ion-saturation limit, when a sufficiently negative bias suppresses
+    electron collection.
+  documentation: 'Saturated ion current density is the ion-carried conventional charge
+    transport per collecting area at the ion-saturation limit of a negatively biased
+    collecting surface. It represents directed ion collection rather than net charge
+    transport at an arbitrary bias.
+
+
+    In a sheath representation, the defining relation is
+
+
+    $$
+
+    J_{i,\mathrm{sat}} = \sum_s q_s\,\Gamma_{s,\mathrm{sat}} = \sum_s q_s\,n_{s,\mathrm{se}}\,u_{s,\mathrm{B}}
+
+    $$
+
+
+    where $J_{i,\mathrm{sat}}$ is the saturated ion current density, $q_s$ is the
+    charge of ion population $s$, $\Gamma_{s,\mathrm{sat}}$ is its particle flux toward
+    the collecting surface, $n_{s,\mathrm{se}}$ is its sheath-edge number density,
+    and $u_{s,\mathrm{B}}$ is its directed Bohm-entry speed.
+
+
+    The quantity preserves charge weighting over the included ion species and charge
+    states and excludes electron current. It is the saturation-limit specialization
+    of [ion current density](name:ion_current_density), distinct from the area-integrated
+    [saturated ion current](name:saturated_ion_current) and from temporal fluctuations
+    represented by [fluctuating saturated ion current density](name:fluctuating_saturated_ion_current_density).
+
+
+    Sign convention: Positive when positive ion charge flows toward the collecting
+    surface.'
+  unit: A.m^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:ion_current_density
+  - name:saturated_ion_current
+  - name:fluctuating_saturated_ion_current_density
+  arguments:
+  - name: ion_current_density
+    operator: saturated
+    operator_kind: qualifier
+  sources:
+  - dd_path: langmuir_probes/embedded/j_i_saturation
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/langmuir_probes.html#langmuir_probes-embedded-j_i_saturation
+    dd_documentation:
+      leaf: Ion saturation current density
+      parent_path: langmuir_probes/embedded
+      parent: Set of embedded (in a plasma facing component) probes or probe pins
+      data_type: STRUCTURE
+      unit: A.m^-2
+    enhanced_context:
+      description: Ion saturation current density (j_i,sat) measured by an embedded
+        Langmuir probe, the maximum ion current collected when the probe is biased
+        sufficiently negative to repel all electrons. A primary measure of local plasma
+        density and particle flux in the SOL and divertor.
+      kind: llm
+  - dd_path: langmuir_probes/reciprocating/plunge/collector/j_i_saturation
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/langmuir_probes.html#langmuir_probes-reciprocating-plunge-collector-j_i_saturation
+    dd_documentation:
+      leaf: Ion saturation current density
+      parent_path: langmuir_probes/reciprocating/plunge/collector
+      parent: Set of probe collectors including measurements specific to each collector
+      data_type: STRUCTURE
+      unit: A.m^-2
+    enhanced_context:
+      description: Ion saturation current density (j_i,sat) measured by a reciprocating
+        Langmuir probe collector, representing the maximum ion current per unit area
+        collected when the probe is biased sufficiently negative. A key scrape-off
+        layer diagnostic quantity for edge plasma characterisation.
+      kind: llm
+- name: fluctuating_saturated_ion_current_density
+  kind: scalar
+  status: active
+  description: Standard deviation of temporal fluctuations in the ion saturation current
+    density collected by a Langmuir probe biased sufficiently negative to repel all
+    electrons, characterizing the amplitude of turbulent transport at the plasma boundary.
+  documentation: "The fluctuating saturated ion current density is the standard deviation\
+    \ of the time-resolved [saturated_ion_current_density](name:saturated_ion_current_density)\
+    \ \u2014 the ion current per unit probe area collected when the probe is biased\
+    \ sufficiently negative to fully repel the electron population. Following the\
+    \ convention of the `fluctuating_` qualifier family established by sibling quantities\
+    \ such as [parallel_fluctuating_ion_current_density](name:parallel_fluctuating_ion_current_density)\
+    \ and [fluctuating_floating_electrostatic_potential](name:fluctuating_floating_electrostatic_potential),\
+    \ the `fluctuating_` prefix denotes the standard deviation over the measurement\
+    \ interval.\n\nThe defining relation is:\n\n$$\n\\sigma_{j_{i,\\mathrm{sat}}}\
+    \ = \\left\\langle \\left( j_{i,\\mathrm{sat}} - \\langle j_{i,\\mathrm{sat}}\
+    \ \\rangle \\right)^{2} \\right\\rangle^{1/2}\n$$\n\nwhere $j_{i,\\mathrm{sat}}$\
+    \ is the instantaneous ion saturation current density and $\\langle \\cdot \\\
+    rangle$ denotes time averaging over the measurement interval.\n\nThis quantity\
+    \ is intrinsically non-negative. It is distinct from the time-mean [saturated_ion_current_density](name:saturated_ion_current_density),\
+    \ which captures the mean ion flux at the probe surface, and from the total collected\
+    \ current [saturated_ion_current](name:saturated_ion_current), which is the area-integrated\
+    \ counterpart."
+  unit: A.m^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:saturated_ion_current_density
+  - name:parallel_fluctuating_ion_current_density
+  - name:saturated_ion_current
+  arguments:
+  - name: saturated_ion_current_density
+    operator: fluctuating
+    operator_kind: qualifier
+  sources:
+  - dd_path: langmuir_probes/embedded/j_i_saturation_sigma
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/langmuir_probes.html#langmuir_probes-embedded-j_i_saturation_sigma
+    dd_documentation:
+      leaf: Standard deviation of the ion saturation current density, corresponding
+        to the fluctuations of the quantity over time
+      parent_path: langmuir_probes/embedded
+      parent: Set of embedded (in a plasma facing component) probes or probe pins
+      data_type: STRUCTURE
+      unit: A.m^-2
+    enhanced_context:
+      description: Standard deviation of the ion saturation current density (j_i,sat)
+        measured by an embedded Langmuir probe, characterising the amplitude of turbulent
+        fluctuations. Used to quantify intermittent transport at the plasma boundary.
+      kind: llm
+  - dd_path: langmuir_probes/reciprocating/plunge/collector/j_i_sigma
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/langmuir_probes.html#langmuir_probes-reciprocating-plunge-collector-j_i_sigma
+    dd_documentation:
+      leaf: Standard deviation of the ion saturation current density, corresponding
+        to the fluctuations of the quantity over time
+      parent_path: langmuir_probes/reciprocating/plunge/collector
+      parent: Set of probe collectors including measurements specific to each collector
+      data_type: STRUCTURE
+      unit: A.m^-2
+    enhanced_context:
+      description: "Standard deviation (\u03C3) of the ion saturation current density\
+        \ (j_i), representing temporal fluctuations measured by a reciprocating Langmuir\
+        \ probe collector during a plunge into the scrape-off layer (SOL)."
       kind: llm
 - name: magnetic_shear_at_pedestal_top
   kind: scalar
@@ -9406,6 +9900,64 @@
   unit: '1'
   physics_domain: edge_plasma_physics
   links: []
+  arguments:
+  - name: flux_limiter_coefficient
+    operator: momentum
+    operator_kind: qualifier
+- name: ion_momentum_flux_limiter_coefficient
+  kind: vector
+  status: active
+  description: Dimensionless ion momentum-flux limiter coefficient that scales the
+    collisionless free-streaming bound component-by-component, capping flux magnitude
+    while preserving its sign.
+  documentation: 'The ion momentum coefficient is a dimensionless flux-limiter parameter
+    for gradient-driven momentum transport, providing one limiter factor for each
+    selected spatial transport component. It is the ion specialization of [momentum_flux_limiter_coefficient](name:momentum_flux_limiter_coefficient),
+    scaling the collisionless free-streaming bound while preserving the direction
+    supplied by the underlying diffusive closure.
+
+
+    For each selected component, the limited momentum-flux density is defined by the
+    harmonic-mean closure:
+
+
+    $$
+
+    \Pi^{\mathrm{lim}} = \frac{\alpha_m \, \Pi^{\mathrm{FS}} \cdot \Pi^{\mathrm{diff}}}{|\Pi^{\mathrm{diff}}|
+    + \alpha_m \, \Pi^{\mathrm{FS}}}
+
+    $$
+
+
+    where $\alpha_m$ is the momentum-flux limiter coefficient, $\Pi^{\mathrm{FS}}$
+    is the collisionless free-streaming reference momentum-flux density, $\Pi^{\mathrm{diff}}$
+    is the collisional diffusive momentum-flux estimate, and $\Pi^{\mathrm{lim}}$
+    is the resulting limited flux density.
+
+
+    The shared quantity spans parallel, poloidal, and radial ion components; [parallel
+    ion momentum-flux limiter coefficient](name:parallel_ion_momentum_flux_limiter_coefficient)
+    and [poloidal ion momentum-flux limiter coefficient](name:poloidal_ion_momentum_flux_limiter_coefficient)
+    are concrete instances. It applies to momentum flux rather than particle, heat,
+    or energy flux, and the coefficient is non-negative.
+
+
+    Sign convention: Positive when the associated limited momentum-flux density points
+    along the selected positive transport direction: along the magnetic field for
+    parallel transport, along increasing poloidal angle $\theta$ in flux coordinates
+    $(\rho,\theta,\phi)$ for poloidal transport, or toward increasing $R$ in the right-handed
+    cylindrical $(R,\phi,Z)$ frame for radial transport; the coefficient does not
+    reverse that direction.'
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:momentum_flux_limiter_coefficient
+  - name:parallel_ion_momentum_flux_limiter_coefficient
+  - name:poloidal_ion_momentum_flux_limiter_coefficient
+  arguments:
+  - name: momentum_flux_limiter_coefficient
+    operator: ion
+    operator_kind: qualifier
 - name: neutral_momentum_flux_limiter_coefficient
   kind: vector
   status: active
@@ -9459,6 +10011,217 @@
   - name: momentum_flux_limiter_coefficient
     operator: neutral
     operator_kind: qualifier
+- name: parallel_ion_momentum_flux_limiter_coefficient
+  kind: scalar
+  status: active
+  description: Parallel component of the dimensionless ion momentum flux-limiter coefficient
+    that scales the free-streaming bound on parallel ion momentum-flux density.
+  documentation: 'The parallel component of the dimensionless ion momentum-flux limiter
+    coefficient scales the free-streaming upper bound imposed on ion momentum-flux
+    density along the local magnetic-field direction. It is the parallel member of
+    the vector quantity [ion momentum flux limiter coefficient](name:ion_momentum_flux_limiter_coefficient).
+
+
+    The limiting relation is
+
+
+    $$
+
+    \left|\Pi_{\parallel,i}\right| \leq C_{\parallel,i}\,\Pi_{\parallel,\mathrm{fs}}
+
+    $$
+
+
+    where $C_{\parallel,i}$ is this dimensionless coefficient, $\Pi_{\parallel,i}$
+    is the signed parallel ion momentum-flux density, and $\Pi_{\parallel,\mathrm{fs}}$
+    is the nonnegative free-streaming bound; the two flux densities have pressure-equivalent
+    units. The coefficient applies to the parallel direction and is distinct from
+    the [radial ion momentum flux limiter coefficient](name:radial_ion_momentum_flux_limiter_coefficient)
+    and from charge-state-resolved parallel coefficients.
+
+
+    Sign convention: Positive when the associated parallel ion momentum flux is co-directed
+    with the local magnetic-field vector.'
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:ion_momentum_flux_limiter_coefficient
+  - name:radial_ion_momentum_flux_limiter_coefficient
+  arguments:
+  - name: ion_momentum_flux_limiter_coefficient
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - dd_path: edge_transport/model/ggd/ion/momentum/flux_limiter/parallel
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_transport.html#edge_transport-model-ggd-ion-momentum-flux_limiter-parallel
+    dd_documentation:
+      leaf: Parallel component, one scalar value is provided per element in the grid
+        subset.
+      parent_path: edge_transport/model/ggd/ion/momentum/flux_limiter
+      parent: Flux limiter coefficient, on various grid subsets
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - edge_transport/model/ggd/ion/momentum/flux_limiter/radial
+      - 1...N
+    enhanced_context:
+      description: Parallel component of flux limiter.
+      kind: template
+  - dd_path: plasma_transport/model/ggd/momentum/flux_limiter/parallel
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/plasma_transport.html#plasma_transport-model-ggd-momentum-flux_limiter-parallel
+    dd_documentation:
+      leaf: Parallel component, one scalar value is provided per element in the grid
+        subset.
+      parent_path: plasma_transport/model/ggd/momentum/flux_limiter
+      parent: Flux limiter coefficient, on various grid subsets
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Parallel component of flux limiter.
+      kind: template
+- name: parallel_neutral_momentum_flux_limiter_coefficient
+  kind: scalar
+  status: active
+  description: Dimensionless parallel momentum flux-limiter coefficient that scales
+    the free-streaming upper bound on neutral-particle momentum-flux density in edge-plasma
+    transport closures.
+  documentation: 'The parallel neutral momentum flux-limiter coefficient is the parallel
+    component of the neutral-particle specialization of the general momentum flux-limiter
+    coefficient vector, providing the dimensionless limiter factor for neutral momentum
+    transport along the magnetic-field direction. It bounds the field-aligned neutral
+    momentum-flux density so that the modeled flux does not exceed the free-streaming
+    momentum-flux-density scale when the neutral mean free path is large relative
+    to macroscopic gradient scales.
+
+
+    The coefficient $\alpha_\parallel$ along the magnetic-field unit vector $\hat{b}$
+    is defined as the ratio of the magnitude of the modeled field-aligned neutral
+    momentum-flux density to its free-streaming upper bound:
+
+
+    $$
+
+    \alpha_\parallel = \frac{|\Pi_\parallel|}{\Pi_\parallel^{\rm free}},\qquad \Pi_\parallel^{\rm
+    free} = m_n n_n \left(u_\parallel^{\rm free}\right)^2
+
+    $$
+
+
+    where $\Pi_\parallel$ is the modeled neutral momentum-flux density component along
+    $\hat{b}$, $m_n$ is the neutral particle mass, $n_n$ is the [neutral number density],
+    and $u_\parallel^{\rm free}$ is the characteristic collisionless neutral speed
+    projected along $\hat{b}$ for the same neutral population. The constraint $\alpha_\parallel
+    \in [0,1]$ makes $\Pi_\parallel^{\rm free}$ an upper bound on $|\Pi_\parallel|$;
+    the sign of the momentum flux is carried by $\Pi_\parallel$, not by the limiter
+    coefficient.
+
+
+    This coefficient is field-aligned and is distinct from the [toroidal](name:toroidal_neutral_momentum_flux_limiter_coefficient)
+    and [vertical](name:vertical_neutral_momentum_flux_limiter_coefficient) components,
+    which apply to fixed directions in the right-handed cylindrical $(R, \phi, Z)$
+    frame, where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical
+    height. It is also distinct from the [parallel neutral internal-state momentum
+    flux-limiter coefficient](name:parallel_neutral_internal_state_momentum_flux_limiter_coefficient),
+    which assigns separate parallel limiter factors to individual neutral internal
+    states.'
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:toroidal_neutral_momentum_flux_limiter_coefficient
+  - name:vertical_neutral_momentum_flux_limiter_coefficient
+  - name:parallel_neutral_internal_state_momentum_flux_limiter_coefficient
+  arguments:
+  - name: neutral_momentum_flux_limiter_coefficient
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - dd_path: edge_transport/model/ggd/neutral/momentum/flux_limiter/parallel
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_transport.html#edge_transport-model-ggd-neutral-momentum-flux_limiter-parallel
+    dd_documentation:
+      leaf: Parallel component, one scalar value is provided per element in the grid
+        subset.
+      parent_path: edge_transport/model/ggd/neutral/momentum/flux_limiter
+      parent: Flux limiter coefficient, on various grid subsets
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - edge_transport/model/ggd/neutral/momentum/flux_limiter/radial
+      - 1...N
+    enhanced_context:
+      description: Parallel component of flux limiter.
+      kind: template
+- name: poloidal_ion_momentum_flux_limiter_coefficient
+  kind: scalar
+  status: active
+  description: Poloidal component of the dimensionless ion momentum flux-limiter coefficient
+    that scales the free-streaming bound on poloidal ion momentum-flux density.
+  documentation: 'The poloidal component of the dimensionless ion momentum-flux limiter
+    coefficient scales the free-streaming upper bound imposed on ion momentum-flux
+    density in the local poloidal direction. It is the poloidal member of the vector
+    quantity [ion momentum flux limiter coefficient](name:ion_momentum_flux_limiter_coefficient),
+    with the poloidal direction tangent to a magnetic flux surface in the right-handed
+    cylindrical $(R, \phi, Z)$ frame.
+
+
+    The limiting relation is
+
+
+    $$
+
+    \left|\Pi_{\theta,i}\right| \leq C_{\theta,i}\,\Pi_{\theta,\mathrm{fs}}
+
+    $$
+
+
+    where $C_{\theta,i}$ is this coefficient, $\Pi_{\theta,i}$ is the signed poloidal
+    ion momentum-flux density, and $\Pi_{\theta,\mathrm{fs}}$ is the nonnegative poloidal
+    free-streaming bound.
+
+
+    The coefficient is nonnegative and applies to ion momentum-flux density summed
+    over charge states. It is distinct from the charge-state-resolved [poloidal ion
+    charge-state momentum flux limiter coefficient](name:poloidal_ion_charge_state_momentum_flux_limiter_coefficient).
+
+
+    Sign convention: Positive when the associated signed poloidal momentum-flux density
+    points in the positive local poloidal direction.'
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:ion_momentum_flux_limiter_coefficient
+  - name:poloidal_ion_charge_state_momentum_flux_limiter_coefficient
+  arguments:
+  - name: ion_momentum_flux_limiter_coefficient
+    operator: component
+    operator_kind: projection
+    axis: poloidal
+    shape: component
+  sources:
+  - dd_path: edge_transport/model/ggd/ion/momentum/flux_limiter/poloidal
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_transport.html#edge_transport-model-ggd-ion-momentum-flux_limiter-poloidal
+    dd_documentation:
+      leaf: Poloidal component, one scalar value is provided per element in the grid
+        subset.
+      parent_path: edge_transport/model/ggd/ion/momentum/flux_limiter
+      parent: Flux limiter coefficient, on various grid subsets
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - edge_transport/model/ggd/ion/momentum/flux_limiter/radial
+      - 1...N
+    enhanced_context:
+      description: Poloidal component of flux limiter.
+      kind: template
 - name: poloidal_momentum_flux_limiter_coefficient
   kind: scalar
   status: active
@@ -9515,6 +10278,69 @@
     operator_kind: projection
     axis: poloidal
     shape: component
+- name: radial_ion_momentum_flux_limiter_coefficient
+  kind: scalar
+  status: active
+  description: Radial component of the dimensionless ion momentum flux-limiter coefficient
+    that scales the free-streaming bound on radial ion momentum-flux density.
+  documentation: 'The radial component of the dimensionless ion momentum-flux limiter
+    coefficient scales the free-streaming upper bound imposed on ion momentum-flux
+    density in the cylindrical radial direction. It is the radial member of the vector
+    quantity [ion momentum flux limiter coefficient](name:ion_momentum_flux_limiter_coefficient),
+    with radial referring to the $\hat{R}$ component in the right-handed cylindrical
+    $(R, \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and
+    $Z$ is vertical height.
+
+
+    The limiting relation is
+
+
+    $$
+
+    \left|\Pi_{R,i}\right| \leq C_{R,i}\,\Pi_{R,\mathrm{fs}}
+
+    $$
+
+
+    where $C_{R,i}$ is this coefficient, $\Pi_{R,i}$ is the signed radial ion momentum-flux
+    density, and $\Pi_{R,\mathrm{fs}}$ is the nonnegative radial free-streaming bound;
+    the two flux densities have the same pressure-equivalent units.
+
+
+    As a magnitude-limiter coefficient, $C_{R,i}$ is nonnegative and has no independent
+    sign; the sign of any limited radial ion momentum flux is inherited from the associated
+    signed momentum-flux density. The ion-level coefficient applies to charge-state-summed
+    radial ion momentum-flux density and is distinct from the [parallel ion momentum
+    flux limiter coefficient](name:parallel_ion_momentum_flux_limiter_coefficient),
+    the [poloidal ion momentum flux limiter coefficient](name:poloidal_ion_momentum_flux_limiter_coefficient),
+    and the charge-state-resolved [ion charge-state momentum flux limiter coefficient](name:ion_charge_state_momentum_flux_limiter_coefficient).'
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:ion_momentum_flux_limiter_coefficient
+  - name:parallel_ion_momentum_flux_limiter_coefficient
+  arguments:
+  - name: ion_momentum_flux_limiter_coefficient
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
+  sources:
+  - dd_path: edge_transport/model/ggd/ion/momentum/flux_limiter/radial
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_transport.html#edge_transport-model-ggd-ion-momentum-flux_limiter-radial
+    dd_documentation:
+      leaf: Radial component, one scalar value is provided per element in the grid
+        subset.
+      parent_path: edge_transport/model/ggd/ion/momentum/flux_limiter
+      parent: Flux limiter coefficient, on various grid subsets
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Radial component of flux limiter.
+      kind: template
 - name: radial_momentum_flux_limiter_coefficient
   kind: scalar
   status: active
@@ -9611,6 +10437,7 @@
   unit: '1'
   physics_domain: edge_plasma_physics
   links:
+  - name:toroidal_neutral_internal_state_momentum_flux_limiter_coefficient
   - name:neutral_momentum_flux_limiter_coefficient
   arguments:
   - name: neutral_momentum_flux_limiter_coefficient
@@ -9633,6 +10460,76 @@
       - 1...N
     enhanced_context:
       description: "Toroidal angle (\u03C6) coordinate of flux limiter."
+      kind: template
+- name: vertical_neutral_momentum_flux_limiter_coefficient
+  kind: scalar
+  status: active
+  description: Dimensionless vertical momentum flux-limiter coefficient that scales
+    the free-streaming upper bound on neutral-particle momentum-flux density in edge-plasma
+    transport closures.
+  documentation: 'The vertical neutral momentum flux-limiter coefficient is the vertical
+    component of the neutral-particle specialization of the general momentum flux-limiter
+    coefficient vector, providing the dimensionless limiter factor for neutral momentum
+    transport along the vertical $Z$ direction of the right-handed cylindrical $(R,
+    \phi, Z)$ frame in multi-fluid edge-plasma models. It bounds the vertical neutral
+    momentum-flux density by the free-streaming limit when the neutral mean free path
+    is large relative to macroscopic gradient scales.
+
+
+    The vertical component $\alpha_Z$ is defined as the ratio of the magnitude of
+    the modeled vertical neutral momentum-flux density to its positive free-streaming
+    upper bound:
+
+
+    $$
+
+    \alpha_Z = \frac{|\Pi_Z|}{\Pi_Z^{\rm free}}, \qquad \Pi_Z^{\rm free} = m_n n_n
+    \left(u_Z^{\rm free}\right)^2
+
+    $$
+
+
+    where $\Pi_Z$ is the modeled vertical neutral momentum-flux density component
+    along $\hat{Z}$, $\Pi_Z^{\rm free}$ is the corresponding free-streaming upper
+    bound, $m_n$ is the neutral particle mass, $n_n$ is the neutral number density,
+    and $u_Z^{\rm free}$ is the nonnegative free-streaming reference speed for neutral
+    motion along $\hat{Z}$. The constraint $\alpha_Z \in [0, 1]$ makes the coefficient
+    a magnitude limiter; any sign of the vertical momentum flux is carried by $\Pi_Z$,
+    not by $\alpha_Z$.
+
+
+    This quantity is the vertical member of the [neutral momentum flux-limiter coefficient](name:neutral_momentum_flux_limiter_coefficient)
+    vector and is distinct from the [parallel neutral momentum flux-limiter coefficient](name:parallel_neutral_momentum_flux_limiter_coefficient),
+    which is taken along the magnetic-field direction, and the [toroidal neutral momentum
+    flux-limiter coefficient](name:toroidal_neutral_momentum_flux_limiter_coefficient),
+    which is taken along $\hat{\phi}$ in the right-handed cylindrical $(R, \phi, Z)$
+    frame. It is a limiter coefficient, not the neutral momentum-flux density itself.'
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:neutral_momentum_flux_limiter_coefficient
+  - name:parallel_neutral_momentum_flux_limiter_coefficient
+  arguments:
+  - name: neutral_momentum_flux_limiter_coefficient
+    operator: component
+    operator_kind: projection
+    axis: vertical
+    shape: component
+  sources:
+  - dd_path: edge_transport/model/ggd/neutral/momentum/flux_limiter/z
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_transport.html#edge_transport-model-ggd-neutral-momentum-flux_limiter-z
+    dd_documentation:
+      leaf: Component along the height axis, one scalar value is provided per element
+        in the grid subset.
+      parent_path: edge_transport/model/ggd/neutral/momentum/flux_limiter
+      parent: Flux limiter coefficient, on various grid subsets
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Vertical (Z) coordinate of flux limiter.
       kind: template
 - name: normalized_poloidal_flux_coordinate_of_pedestal
   kind: scalar
@@ -9929,6 +10826,7 @@
   physics_domain: edge_plasma_physics
   links:
   - name:neutral_diffusivity
+  - name:parallel_neutral_internal_state_energy_diffusivity
   - name:energy_diffusivity
   arguments:
   - name: energy_diffusivity
@@ -9991,6 +10889,8 @@
   physics_domain: edge_plasma_physics
   links:
   - name:ion_charge_state_diffusivity
+  - name:radial_ion_charge_state_diffusivity
+  - name:ion_charge_state_diffusion_coefficient
   arguments:
   - name: ion_charge_state_diffusivity
     operator: component
@@ -10027,6 +10927,195 @@
       - 1...N
     enhanced_context:
       description: Array of values for d parallel.
+      kind: template
+- name: parallel_ion_charge_state_momentum_source
+  kind: scalar
+  status: active
+  description: Parallel ion charge-state momentum source is the parallel projection
+    of the area-normalized momentum source acting on one specified ion charge state.
+    It represents momentum transfer along the local magnetic-field direction.
+  documentation: 'Parallel ion charge-state momentum source is the parallel projection
+    of the area-normalized momentum source acting on one specified ion charge state.
+    It represents directional momentum transfer to or from that charge state resolved
+    along the local magnetic-field direction, rather than summed over charge states.
+
+
+    The parallel projection is defined by projecting the momentum-source vector for
+    that charge state onto the local magnetic-field unit vector:
+
+
+    $$
+
+    S_{\parallel,i,Z} = \mathbf{S}_{i,Z} \cdot \hat{\mathbf{b}}
+
+    $$
+
+
+    where $\mathbf{S}_{i,Z}$ is the area-normalized momentum-source vector acting
+    on ion species $i$ in charge state $Z$, and $\hat{\mathbf{b}} = \mathbf{B}/|\mathbf{B}|$
+    is the unit vector along the local magnetic field.
+
+
+    This quantity is distinct from the [poloidal ion charge-state momentum source](name:poloidal_ion_charge_state_momentum_source)
+    and the [toroidal ion charge-state momentum source](name:toroidal_ion_charge_state_momentum_source),
+    which use poloidal and toroidal projections of the same charge-state-resolved
+    momentum source.
+
+
+    Sign convention: Positive when the momentum-source vector acting on the charge
+    state has a component in the direction of $\hat{\mathbf{b}}$, the local magnetic-field
+    unit vector.'
+  unit: kg.m^-1.s^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:ion_charge_state_momentum_source
+  - name:parallel_net_ion_momentum_source
+  - name:poloidal_ion_charge_state_momentum_source
+  arguments:
+  - name: ion_charge_state_momentum_source
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - dd_path: edge_sources/source/ggd/ion/state/momentum/parallel
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_sources.html#edge_sources-source-ggd-ion-state-momentum-parallel
+    dd_documentation:
+      leaf: Parallel component, one scalar value is provided per element in the grid
+        subset.
+      parent_path: edge_sources/source/ggd/ion/state/momentum
+      parent: Source term for momentum equations, on various grid subsets
+      data_type: FLT_1D
+      unit: kg.m^-1.s^-2
+      coordinates:
+      - edge_sources/source/ggd/ion/state/momentum/radial
+      - 1...N
+    enhanced_context:
+      description: Parallel component of momentum.
+      kind: template
+- name: parallel_neutral_internal_state_momentum_flux_limiter_coefficient
+  kind: scalar
+  status: active
+  description: Parallel flux-limiter coefficient that sets a nonnegative cap on the
+    field-aligned neutral-particle momentum-flux density for a specified internal
+    state as a fraction of its collisionless free-streaming bound, without reversing
+    the signed component.
+  documentation: 'Parallel flux-limiter coefficient that applies to neutral particles
+    occupying a specified internal state is the directional coefficient used to bound
+    the component of the corresponding neutral internal-state momentum-flux density
+    parallel to the magnetic field. The internal state may be an electronic, vibrational,
+    rotational, or other resolved excitation state, and this scalar coefficient applies
+    to the field-aligned projection rather than to the poloidal or toroidal projection.
+
+
+    For the parallel component, the limiter defines the admissible cap:
+
+
+    $$
+
+    |\Pi_{\mathrm{lim},\parallel}| \le \lambda_{\parallel}\,|\Pi_{\mathrm{fs},\parallel}|,\qquad
+    0 \le \lambda_{\parallel} \le 1
+
+    $$
+
+
+    where $\Pi_{\mathrm{lim},\parallel}$ is the limited component of the neutral internal-state
+    momentum-flux density parallel to the magnetic field, $\Pi_{\mathrm{fs},\parallel}$
+    is the corresponding collisionless free-streaming component whose magnitude defines
+    the bound, and $\lambda_{\parallel}$ is this coefficient.
+
+
+    The inequality is a cap on magnitude rather than an equality for the realized
+    momentum-flux density. Because $\lambda_{\parallel}$ is nonnegative, applying
+    the limiter may reduce or bound a signed parallel momentum-flux component but
+    does not reverse its direction; a nonzero limited component retains the sign of
+    the underlying field-aligned component to which the cap is applied. This scalar
+    coefficient is the field-aligned member of the [neutral internal-state momentum-flux
+    limiter coefficient over the edge region](name:neutral_internal_state_momentum_flux_limiter_coefficient_over_edge_region)
+    and is distinct from the [poloidal](name:poloidal_momentum_neutral_internal_state_flux_limiter_coefficient)
+    and [toroidal](name:toroidal_neutral_internal_state_momentum_flux_limiter_coefficient)
+    directional members.'
+  unit: '1'
+  physics_domain: edge_plasma_physics
+  links:
+  - name:neutral_internal_state_momentum_flux_limiter_coefficient_over_edge_region
+  - name:parallel_ion_charge_state_momentum_flux_limiter_coefficient
+  arguments:
+  - name: neutral_internal_state_momentum_flux_limiter_coefficient_over_edge_region
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+- name: parallel_neutral_momentum_source
+  kind: scalar
+  status: active
+  description: Parallel component of the area-normalized momentum source for the neutral
+    population in the edge plasma, summed over all neutral states. Its sign distinguishes
+    momentum transfer along and opposite to the local magnetic-field direction.
+  documentation: 'The parallel component of the area-normalized momentum source for
+    the neutral population in the edge plasma, summed over all neutral states, is
+    the net neutral momentum transfer per unit area resolved along the local magnetic-field
+    direction. It is one component of the aggregate [neutral momentum source](name:neutral_momentum_source)
+    acting in the neutral momentum balance.
+
+
+    The parallel component is defined by projecting the parent source vector onto
+    the magnetic-field unit vector:
+
+
+    $$
+
+    S_{n,\parallel} = \boldsymbol{S}_n \cdot \hat{b}
+
+    $$
+
+
+    where $S_{n,\parallel}$ is the parallel neutral momentum source, $\boldsymbol{S}_n$
+    is the area-normalized neutral momentum source vector, and $\hat{b}$ is the unit
+    vector in the local magnetic-field direction.
+
+
+    The quantity is summed over all neutral states and excludes ion momentum sources.
+    Unlike the [radial neutral momentum source](name:radial_neutral_momentum_source),
+    [poloidal neutral momentum source](name:poloidal_neutral_momentum_source), and
+    [toroidal neutral momentum source](name:toroidal_neutral_momentum_source), it
+    resolves momentum transfer along the magnetic-field direction rather than along
+    a geometric direction such as $\hat{R}$, a poloidal direction, or $\hat{\phi}$
+    in the right-handed cylindrical $(R, \phi, Z)$ frame. Here $R$ is major radius,
+    $\phi$ is toroidal angle, and $Z$ is vertical height.
+
+
+    Sign convention: Positive when the neutral momentum source points in the local
+    magnetic-field direction.'
+  unit: kg.m^-1.s^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:neutral_momentum_source
+  - name:poloidal_neutral_momentum_source
+  arguments:
+  - name: neutral_momentum_source
+    operator: component
+    operator_kind: projection
+    axis: parallel
+    shape: component
+  sources:
+  - dd_path: edge_sources/source/ggd/neutral/momentum/parallel
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_sources.html#edge_sources-source-ggd-neutral-momentum-parallel
+    dd_documentation:
+      leaf: Parallel component, one scalar value is provided per element in the grid
+        subset.
+      parent_path: edge_sources/source/ggd/neutral/momentum
+      parent: Source term for momentum equations (sum over states when multiple states
+        are considered), on various grid subsets
+      data_type: FLT_1D
+      unit: kg.m^-1.s^-2
+      coordinates:
+      - edge_sources/source/ggd/neutral/momentum/radial
+      - 1...N
+    enhanced_context:
+      description: Parallel component of momentum.
       kind: template
 - name: plasma_momentum_diffusion_coefficient
   kind: vector
@@ -10656,6 +11745,76 @@
     enhanced_context:
       description: Array of values for d pol.
       kind: template
+- name: poloidal_ion_charge_state_energy_diffusivity
+  kind: scalar
+  status: active
+  description: "Poloidal ion charge-state energy diffusivity is the poloidal Fickian\
+    \ diffusivity for thermal-energy transport of a specified ion charge state in\
+    \ flux coordinates (\u03C1, \u03B8, \u03C6), defined so the diffusive energy flux\
+    \ along increasing poloidal angle \u03B8 at fixed radial flux label \u03C1 and\
+    \ toroidal angle \u03C6 is proportional to and opposite the corresponding gradient\
+    \ of that state's thermal-energy density."
+  documentation: 'Poloidal ion charge-state energy diffusivity is the effective transport
+    coefficient for local diffusive smoothing of the thermal-energy density of one
+    specified ion charge state along the poloidal direction in flux coordinates $(\rho,
+    \theta, \phi)$. It represents the Fickian part of that charge state''s thermal-energy
+    transport along the poloidal coordinate direction, distinct from convective transport
+    and explicit energy sources, and is the poloidal component of [ion charge-state
+    energy diffusivity](name:ion_charge_state_energy_diffusivity).
+
+
+    The defining closure for the poloidal component is
+
+
+    $$
+
+    \mathbf{q}_{E,z}\cdot\hat{e}_{\mathrm{pol}} = -\chi_{E,z}^{\mathrm{pol}}\,\hat{e}_{\mathrm{pol}}\cdot\nabla
+    w_z
+
+    $$
+
+
+    where $\mathbf{q}_{E,z}$ is the diffusive thermal-energy flux density of ion charge
+    state $z$, $\hat{e}_{\mathrm{pol}}$ is the local unit tangent generated by increasing
+    poloidal angle $\theta$ at fixed radial flux label $\rho$ and fixed toroidal angle
+    $\phi$ in flux coordinates $(\rho, \theta, \phi)$, $\chi_{E,z}^{\mathrm{pol}}$
+    is the poloidal ion charge-state energy diffusivity, $w_z$ is the thermal-energy
+    density of that charge state, and $\hat{e}_{\mathrm{pol}}\cdot\nabla w_z$ is the
+    corresponding poloidal gradient. The minus sign specifies down-gradient transport.
+
+
+    This quantity applies to one specified ion charge state and is not summed over
+    ion species or charge states, unlike [poloidal ion energy diffusivity](name:poloidal_ion_energy_diffusivity).
+    The field-aligned directional counterpart is [parallel ion charge-state energy
+    diffusivity](name:parallel_ion_charge_state_energy_diffusivity). A temperature-gradient
+    form is equivalent only when the relevant density and heat-capacity factors are
+    explicitly included in the coefficient.'
+  unit: m^2.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:ion_charge_state_energy_diffusivity
+  - name:poloidal_electron_energy_diffusivity
+  arguments:
+  - name: ion_charge_state_energy_diffusivity
+    operator: component
+    operator_kind: projection
+    axis: poloidal
+    shape: component
+  sources:
+  - dd_path: edge_transport/model/ggd/ion/state/energy/d_pol/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_transport.html#edge_transport-model-ggd-ion-state-energy-d_pol-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: edge_transport/model/ggd/ion/state/energy/d_pol
+      parent: Effective diffusivity (in the poloidal direction), on various grid subsets
+      data_type: FLT_1D
+      unit: m^2.s^-1
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for d pol.
+      kind: template
 - name: poloidal_ion_energy_diffusivity
   kind: scalar
   status: active
@@ -10708,6 +11867,7 @@
   physics_domain: edge_plasma_physics
   links:
   - name:ion_energy_diffusivity
+  - name:poloidal_ion_charge_state_energy_diffusivity
   - name:parallel_ion_energy_diffusivity
   arguments:
   - name: ion_energy_diffusivity
@@ -10841,6 +12001,7 @@
   physics_domain: edge_plasma_physics
   links:
   - name:neutral_energy_diffusivity
+  - name:poloidal_neutral_internal_state_energy_diffusivity
   arguments:
   - name: neutral_energy_diffusivity
     operator: component
@@ -10854,6 +12015,64 @@
     dd_documentation:
       leaf: One scalar value is provided per element in the grid subset.
       parent_path: edge_transport/model/ggd/neutral/energy/d_pol
+      parent: Effective diffusivity (in the poloidal direction), on various grid subsets
+      data_type: FLT_1D
+      unit: m^2.s^-1
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for d pol.
+      kind: template
+- name: poloidal_neutral_internal_state_energy_diffusivity
+  kind: scalar
+  status: active
+  description: Effective diagonal diffusivity for down-gradient transport of energy
+    carried by neutral particles in a specified internal state along poloidal flux
+    surfaces.
+  documentation: 'The poloidal component of the [effective neutral internal-state
+    energy diffusivity](name:effective_neutral_internal_state_energy_diffusivity)
+    tensor expresses effective Fickian transport of energy carried by neutral particles
+    occupying a specified internal state. It acts along the poloidal tangent to a
+    flux surface, rather than along the magnetic-field direction.
+
+
+    $$
+
+    \Gamma_{E,\theta}=-D^{\mathrm{eff}}_{E,\theta}\left.\frac{\partial e_{n,s}}{\partial
+    \ell_\theta}\right|_{\rho,\phi}
+
+    $$
+
+
+    Here $\Gamma_{E,\theta}$ is the poloidal energy flux, $D^{\mathrm{eff}}_{E,\theta}$
+    is this diffusivity, $e_{n,s}$ is the energy density of neutral particles in internal
+    state $s$, and $\ell_\theta$ is distance along the poloidal tangent. The coordinates
+    $(\rho,\theta,\phi)$ are the flux-surface, poloidal-angle, and toroidal-angle
+    coordinates; the derivative is taken at fixed $\rho$ and $\phi$.
+
+
+    This effective coefficient represents the net phenomenological response, not a
+    single microscopic mechanism. Its directional and state scope is shared by the
+    [poloidal neutral internal-state energy diffusion coefficient](name:poloidal_neutral_internal_state_energy_diffusion_coefficient),
+    while the parallel counterpart resolves transport along magnetic field lines.'
+  unit: m^2.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:effective_neutral_internal_state_energy_diffusivity
+  - name:poloidal_neutral_internal_state_energy_diffusion_coefficient
+  arguments:
+  - name: effective_neutral_internal_state_energy_diffusivity
+    operator: component
+    operator_kind: projection
+    axis: poloidal
+    shape: component
+  sources:
+  - dd_path: edge_transport/model/ggd/neutral/state/energy/d_pol/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_transport.html#edge_transport-model-ggd-neutral-state-energy-d_pol-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: edge_transport/model/ggd/neutral/state/energy/d_pol
       parent: Effective diffusivity (in the poloidal direction), on various grid subsets
       data_type: FLT_1D
       unit: m^2.s^-1
@@ -10908,6 +12127,7 @@
   physics_domain: edge_plasma_physics
   links:
   - name:neutral_momentum_diffusivity
+  - name:poloidal_neutral_internal_state_momentum_diffusion_coefficient
   arguments:
   - name: neutral_momentum_diffusivity
     operator: component
@@ -11221,6 +12441,7 @@
   physics_domain: edge_plasma_physics
   links:
   - name:radial_electron_density
+  - name:derivative_with_respect_to_normalized_poloidal_flux_coordinate_of_electron_density_at_pedestal_maximum
   arguments:
   - name: radial_electron_density
     operator: gradient
@@ -11253,6 +12474,70 @@
       - summary/time
     enhanced_context:
       description: Core slope of the parent quantity.
+      kind: template
+- name: radial_ion_charge_state_diffusivity
+  kind: scalar
+  status: active
+  description: Radial ion charge-state diffusivity is the effective Fickian particle
+    diffusivity for ions in a specified ionization state along the radial direction.
+  documentation: 'Radial ion charge-state diffusivity is the effective Fickian particle
+    diffusivity for ions in a specified ionization state along the radial direction.
+    It is the scalar transport coefficient that relates the radial diffusive particle
+    flux density of that charge state to the negative radial gradient of its number
+    density.
+
+
+    For the radial projection in the right-handed cylindrical $(R,\phi,Z)$ frame,
+    where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height,
+    the defining Fickian relation is:
+
+
+    $$
+
+    \Gamma^{\mathrm{diff}}_{s,R} = -D_{s,R}\,\nabla_R n_s
+
+    $$
+
+
+    where $\Gamma^{\mathrm{diff}}_{s,R}$ is the radial diffusive particle flux density
+    of charge state $s$, $D_{s,R}$ is this diffusivity, $n_s$ is the number density
+    of charge state $s$, and $\nabla_R n_s = \hat{\mathbf{R}}\cdot\nabla n_s$ is its
+    derivative along increasing $R$.
+
+
+    This quantity is charge-state-resolved and applies to one ionization state, unlike
+    the charge-state-averaged [ion diffusivity](name:ion_diffusivity). It is the radial
+    counterpart of [ion charge-state diffusivity](name:ion_charge_state_diffusivity)
+    and is equivalent to [radial ion charge-state diffusion coefficient](name:radial_ion_charge_state_diffusion_coefficient)
+    when the same Fickian closure is used. Radial denotes the cylindrical $\hat{\mathbf{R}}$
+    projection and is not synonymous with a flux-surface-normal projection; convective
+    transport and particle sources or sinks are excluded.'
+  unit: m^2.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:ion_diffusivity
+  - name:ion_charge_state_diffusivity
+  - name:radial_ion_charge_state_diffusion_coefficient
+  arguments:
+  - name: ion_charge_state_diffusivity
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
+  sources:
+  - dd_path: edge_transport/model/ggd/ion/state/particles/d_radial/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_transport.html#edge_transport-model-ggd-ion-state-particles-d_radial-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: edge_transport/model/ggd/ion/state/particles/d_radial
+      parent: Effective diffusivity (in the radial direction), on various grid subsets
+      data_type: FLT_1D
+      unit: m^2.s^-1
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for d radial.
       kind: template
 - name: radial_ion_convection_velocity
   kind: scalar
@@ -11375,6 +12660,72 @@
       - 1...N
     enhanced_context:
       description: Array of values for v radial.
+      kind: template
+- name: radial_neutral_momentum_source
+  kind: scalar
+  status: active
+  description: Radial component of the area-normalized momentum source for the neutral
+    population in the edge plasma, summed over all neutral states. Its sign distinguishes
+    outward from inward neutral momentum transfer.
+  documentation: 'The radial component of the area-normalized momentum source for
+    the neutral population in the edge plasma, summed over all neutral states, is
+    the net neutral momentum transfer per unit area resolved along the radial direction.
+    It is one component of the aggregate [neutral momentum source](name:neutral_momentum_source)
+    acting in the neutral momentum balance.
+
+
+    The radial component is defined by projecting the parent source vector onto the
+    radial unit vector:
+
+
+    $$
+
+    S_{n,R} = \boldsymbol{S}_n \cdot \hat{R}
+
+    $$
+
+
+    where $S_{n,R}$ is the radial neutral momentum source, $\boldsymbol{S}_n$ is the
+    area-normalized neutral momentum source vector, and $\hat{R}$ is the radial unit
+    vector in the right-handed cylindrical $(R, \phi, Z)$ frame. Here $R$ is major
+    radius, $\phi$ is toroidal angle, and $Z$ is vertical height.
+
+
+    The quantity is summed over all neutral states and excludes ion momentum sources.
+    Unlike the [toroidal neutral momentum source](name:toroidal_neutral_momentum_source),
+    it resolves momentum transfer along increasing major radius rather than the toroidal
+    direction.
+
+
+    Sign convention: Positive when the neutral momentum source points in the direction
+    of increasing major radius $R$, away from the cylindrical symmetry axis.'
+  unit: kg.m^-1.s^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:neutral_momentum_source
+  - name:toroidal_neutral_momentum_source
+  arguments:
+  - name: neutral_momentum_source
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
+  sources:
+  - dd_path: edge_sources/source/ggd/neutral/momentum/radial
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_sources.html#edge_sources-source-ggd-neutral-momentum-radial
+    dd_documentation:
+      leaf: Radial component, one scalar value is provided per element in the grid
+        subset.
+      parent_path: edge_sources/source/ggd/neutral/momentum
+      parent: Source term for momentum equations (sum over states when multiple states
+        are considered), on various grid subsets
+      data_type: FLT_1D
+      unit: kg.m^-1.s^-2
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Radial component of momentum.
       kind: template
 - name: radial_total_current_density
   kind: scalar
@@ -11552,6 +12903,116 @@
   - name: safety_factor
     operator: pedestal_top
     operator_kind: locus
+- name: thermal_ion_charge_state_energy_diffusion_coefficient
+  kind: vector
+  status: active
+  description: Directional, charge-state-resolved coefficient for Fickian diffusion
+    of thermal energy carried by a specified ion state, with each component selecting
+    a spatial transport direction.
+  documentation: 'The quantity is the directional, charge-state-resolved energy-diffusion
+    coefficient for thermal energy carried by a specified ion charge state. It generalizes
+    directional components such as the [radial thermal ion charge-state energy diffusion
+    coefficient](name:radial_thermal_ion_charge_state_energy_diffusion_coefficient)
+    without selecting one spatial projection.
+
+
+    For each selected direction $a$, the Fickian relation is
+
+
+    $$
+
+    Q_{E,s}^{(a)}=-n_s\,\chi_{E,s}^{(a)}\,\nabla_a T_s
+
+    $$
+
+
+    where $Q_{E,s}^{(a)}$ is the diffusive thermal-energy flux of charge state $s$,
+    $n_s$ is its number density, $\chi_{E,s}^{(a)}$ is the corresponding directional
+    diffusion coefficient, $\nabla_a$ is the temperature gradient along direction
+    $a$, and $T_s$ is its thermal temperature.
+
+
+    Only the specified ion charge state is included; the coefficient is not summed
+    over charge states or over the total ion population. The minus sign describes
+    flux down the temperature gradient and does not define a signed coefficient. This
+    distinguishes it from the population-aggregated [radial ion energy diffusion coefficient](name:radial_ion_energy_diffusion_coefficient).'
+  unit: m^2.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:radial_thermal_ion_charge_state_energy_diffusion_coefficient
+  - name:radial_ion_energy_diffusion_coefficient
+  arguments:
+  - name: ion_charge_state_energy_diffusion_coefficient
+    operator: thermal
+    operator_kind: qualifier
+  sources:
+  - dd_path: edge_transport/model/ggd/ion/state/energy/d_radial/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_transport.html#edge_transport-model-ggd-ion-state-energy-d_radial-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: edge_transport/model/ggd/ion/state/energy/d_radial
+      parent: Effective diffusivity (in the radial direction), on various grid subsets
+      data_type: FLT_1D
+      unit: m^2.s^-1
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for d radial.
+      kind: template
+- name: radial_thermal_ion_charge_state_energy_diffusion_coefficient
+  kind: scalar
+  status: active
+  description: Radial Fickian diffusion coefficient governing cross-field transport
+    of thermal energy carried by a specified ion charge state.
+  documentation: 'The radial component of the [thermal ion charge-state energy diffusion
+    coefficient](name:thermal_ion_charge_state_energy_diffusion_coefficient) governs
+    the diffusive transport of thermal energy associated with one specified ion charge
+    state. It excludes convective and other non-diffusive transport contributions.
+
+
+    For the thermal-energy density $u_{E,i,z}$ of ion species $i$ in charge state
+    $z$, the radial diffusive energy flux is defined by
+
+
+    $$
+
+    \Gamma_{E,i,z,R} = -D_{E,i,z,R}\frac{\partial u_{E,i,z}}{\partial R}
+
+    $$
+
+
+    where $\Gamma_{E,i,z,R}$ is the radial energy flux, $D_{E,i,z,R}$ is this diffusion
+    coefficient, and $R$ is the radial coordinate in the right-handed cylindrical
+    $(R, \phi, Z)$ frame. Unlike [radial ion energy diffusion coefficient](name:radial_ion_energy_diffusion_coefficient),
+    this quantity is resolved to a specified ion charge state rather than aggregated
+    over the total ion population.'
+  unit: m^2.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:thermal_ion_charge_state_energy_diffusion_coefficient
+  - name:radial_ion_energy_diffusion_coefficient
+  arguments:
+  - name: thermal_ion_charge_state_energy_diffusion_coefficient
+    operator: component
+    operator_kind: projection
+    axis: radial
+    shape: component
+  sources:
+  - dd_path: edge_transport/model/ggd/ion/state/energy/d_radial/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_transport.html#edge_transport-model-ggd-ion-state-energy-d_radial-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: edge_transport/model/ggd/ion/state/energy/d_radial
+      parent: Effective diffusivity (in the radial direction), on various grid subsets
+      data_type: FLT_1D
+      unit: m^2.s^-1
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for d radial.
+      kind: template
 - name: thermal_plasma_pressure
   kind: scalar
   status: active
@@ -11730,6 +13191,71 @@
         B0))) evaluated at the pedestal top position. Provides a radial label for\
         \ the pedestal location in physical (non-normalised) units."
       kind: llm
+- name: toroidal_ion_charge_state_momentum_source
+  kind: scalar
+  status: active
+  description: The toroidal component of the area-normalized momentum source for a
+    specified ion charge state represents directional momentum transfer in an edge
+    plasma.
+  documentation: 'The toroidal component of the area-normalized momentum source for
+    a specified ion charge state represents directional momentum transfer in an edge
+    plasma. It is resolved for one ion species and charge state rather than summed
+    over charge states.
+
+
+    The toroidal component is defined by
+
+
+    $$
+
+    S_{\phi,i,q} = \mathbf{S}_{i,q} \cdot \hat{\phi}
+
+    $$
+
+
+    where $\mathbf{S}_{i,q}$ is the area-normalized momentum source for ion species
+    $i$ in charge state $q$, and $\hat{\phi}$ is the toroidal unit vector in the right-handed
+    cylindrical $(R,\phi,Z)$ frame.
+
+
+    This quantity is the toroidal specialization of the charge-state-resolved vector
+    [ion charge state momentum source](name:ion_charge_state_momentum_source). It
+    represents net momentum transfer associated with ionization, recombination, charge
+    exchange, and related collisional processes; unlike [toroidal ion momentum source](name:toroidal_ion_momentum_source),
+    it is not summed over ion charge states. Its corresponding poloidal projection
+    is [poloidal ion charge state momentum source](name:poloidal_ion_charge_state_momentum_source).
+
+
+    Sign convention: Positive when the sourced momentum points in the direction of
+    increasing toroidal angle $\phi$.'
+  unit: kg.m^-1.s^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:ion_charge_state_momentum_source
+  - name:toroidal_ion_momentum_source
+  - name:poloidal_ion_charge_state_momentum_source
+  arguments:
+  - name: ion_charge_state_momentum_source
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - dd_path: edge_sources/source/ggd/ion/state/momentum/phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_sources.html#edge_sources-source-ggd-ion-state-momentum-phi
+    dd_documentation:
+      leaf: Toroidal component, one scalar value is provided per element in the grid
+        subset.
+      parent_path: edge_sources/source/ggd/ion/state/momentum
+      parent: Source term for momentum equations, on various grid subsets
+      data_type: FLT_1D
+      unit: kg.m^-1.s^-2
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: "Toroidal angle (\u03C6) coordinate of momentum."
+      kind: template
 - name: toroidal_ion_momentum_diffusion_coefficient
   kind: scalar
   status: active
@@ -11799,6 +13325,69 @@
       leaf: Toroidal component, one scalar value is provided per element in the grid
         subset.
       parent_path: edge_transport/model/ggd/ion/momentum/d
+      parent: Effective diffusivity, on various grid subsets
+      data_type: FLT_1D
+      unit: m^2.s^-1
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: "Toroidal angle (\u03C6) coordinate of d."
+      kind: template
+- name: toroidal_neutral_internal_state_momentum_diffusion_coefficient
+  kind: scalar
+  status: active
+  description: Toroidal component of the momentum diffusion coefficient for neutral
+    particles in a resolved neutral-state channel. It governs Fickian redistribution
+    of that state's momentum along the toroidal direction.
+  documentation: 'Toroidal component of the momentum diffusion coefficient for neutral
+    particles in a resolved neutral-state channel. It is the effective kinematic coefficient
+    governing Fickian redistribution of momentum carried by neutrals along the toroidal
+    direction.
+
+
+    Let $\mathbf{D}^{(s)}$ denote the neutral internal-state momentum-diffusion vector
+    for resolved state $s$, and let $\hat{\phi}$ be the toroidal unit vector in the
+    right-handed cylindrical $(R,\phi,Z)$ frame. The toroidal component is defined
+    by:
+
+
+    $$
+
+    D_\phi^{(s)} = \mathbf{D}^{(s)} \cdot \hat{\phi}
+
+    $$
+
+
+    Here $D_\phi^{(s)}$ is the toroidal diffusivity and $s$ identifies the specified
+    electronic, vibrational, or rotational neutral state.
+
+
+    This is the toroidal directional member of the [neutral internal-state momentum
+    diffusion coefficient](name:neutral_internal_state_momentum_diffusion_coefficient).
+    It is distinct from the [poloidal neutral internal-state momentum diffusion coefficient](name:poloidal_neutral_internal_state_momentum_diffusion_coefficient),
+    while the associated [toroidal neutral internal-state momentum flux](name:toroidal_neutral_internal_state_momentum_flux)
+    represents transported momentum rather than the coefficient governing its diffusive
+    redistribution.'
+  unit: m^2.s^-1
+  physics_domain: edge_plasma_physics
+  links:
+  - name:neutral_internal_state_momentum_diffusion_coefficient
+  - name:poloidal_neutral_internal_state_momentum_diffusion_coefficient
+  - name:toroidal_neutral_internal_state_momentum_flux
+  arguments:
+  - name: neutral_internal_state_momentum_diffusion_coefficient
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - dd_path: plasma_transport/model/ggd/neutral/state/momentum/d/phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/plasma_transport.html#plasma_transport-model-ggd-neutral-state-momentum-d-phi
+    dd_documentation:
+      leaf: Toroidal component, one scalar value is provided per element in the grid
+        subset.
+      parent_path: plasma_transport/model/ggd/neutral/state/momentum/d
       parent: Effective diffusivity, on various grid subsets
       data_type: FLT_1D
       unit: m^2.s^-1
@@ -11880,6 +13469,173 @@
       - 1...N
     enhanced_context:
       description: "Toroidal angle (\u03C6) coordinate of d."
+      kind: template
+- name: toroidal_neutral_momentum_source
+  kind: scalar
+  status: active
+  description: "Toroidal component of the area-normalized momentum source for the\
+    \ neutral population in the edge plasma, summed over all neutral states. Its sign\
+    \ distinguishes neutral momentum transfer along increasing versus decreasing toroidal\
+    \ angle in the right-handed cylindrical (R, \u03C6, Z) frame."
+  documentation: 'The toroidal component of the area-normalized momentum source for
+    the neutral population in the edge plasma, summed over all neutral states, is
+    the net neutral momentum transfer per unit area resolved along the toroidal direction.
+    It is one component of the aggregate [neutral momentum source](name:neutral_momentum_source)
+    acting in the neutral momentum balance.
+
+
+    The toroidal component is defined by projecting the parent source vector onto
+    the toroidal unit vector:
+
+
+    $$
+
+    S_{\phi,n} = \boldsymbol{S}_n \cdot \hat{\phi}
+
+    $$
+
+
+    where $S_{\phi,n}$ is the toroidal neutral momentum source, $\boldsymbol{S}_n$
+    is the area-normalized [neutral momentum source](name:neutral_momentum_source)
+    vector, and $\hat{\phi}$ is the toroidal unit vector in the right-handed cylindrical
+    $(R, \phi, Z)$ frame. Here $R$ is major radius, $\phi$ is toroidal angle, and
+    $Z$ is vertical height.
+
+
+    The quantity is summed over all neutral states and excludes ion momentum sources.
+    Unlike the [radial neutral momentum source](name:radial_neutral_momentum_source),
+    [poloidal neutral momentum source](name:poloidal_neutral_momentum_source), and
+    [parallel neutral momentum source](name:parallel_neutral_momentum_source), it
+    resolves momentum transfer along the toroidal direction rather than along major
+    radius, the local poloidal direction, or the local magnetic-field direction.
+
+
+    Sign convention: Positive when the neutral momentum source points in the direction
+    of increasing toroidal angle $\phi$ in the right-handed cylindrical $(R, \phi,
+    Z)$ frame.'
+  unit: kg.m^-1.s^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:neutral_momentum_source
+  - name:poloidal_neutral_momentum_source
+  arguments:
+  - name: neutral_momentum_source
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - dd_path: edge_sources/source/ggd/neutral/momentum/phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_sources.html#edge_sources-source-ggd-neutral-momentum-phi
+    dd_documentation:
+      leaf: Toroidal component, one scalar value is provided per element in the grid
+        subset.
+      parent_path: edge_sources/source/ggd/neutral/momentum
+      parent: Source term for momentum equations (sum over states when multiple states
+        are considered), on various grid subsets
+      data_type: FLT_1D
+      unit: kg.m^-1.s^-2
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: "Toroidal angle (\u03C6) coordinate of momentum."
+      kind: template
+- name: total_momentum_flux
+  kind: vector
+  status: active
+  description: Rate at which linear momentum crosses an oriented surface per unit
+    area in the plasma, combining convective, pressure, viscous, and turbulent stress
+    contributions.
+  documentation: 'The momentum flux describes the rate at which linear momentum crosses
+    a unit area of an oriented surface in the plasma. It encompasses convective ram
+    pressure, isotropic pressure, and viscous or turbulent stress contributions.
+
+
+    The momentum-flux tensor for a plasma fluid is:
+
+
+    $$
+
+    \boldsymbol{\Pi} = \rho\,\mathbf{v}\mathbf{v} + p\,\mathbf{I} + \boldsymbol{\pi}
+
+    $$
+
+
+    where $\rho$ is mass density, $\mathbf{v}$ is bulk flow velocity, $p$ is scalar
+    pressure, $\mathbf{I}$ is the identity tensor, and $\boldsymbol{\pi}$ is viscous
+    stress. The momentum current through an oriented surface is $\boldsymbol{\Pi}\cdot\hat{n}$,
+    where $\hat{n}$ is its outward unit normal.
+
+
+    This general quantity includes species- and direction-resolved forms of [momentum
+    flux](name:momentum_flux); [toroidal total momentum flux](name:toroidal_total_momentum_flux)
+    is one such projection. Its divergence supplies the momentum-transport term in
+    fluid momentum balance.'
+  unit: kg.m^-1.s^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:momentum_flux
+  - name:toroidal_total_momentum_flux
+  arguments:
+  - name: momentum_flux
+    operator: total
+    operator_kind: qualifier
+- name: toroidal_total_momentum_flux
+  kind: scalar
+  status: active
+  description: Toroidal component of total edge-plasma momentum-flux density, combining
+    advective, pressure, viscous, and turbulent stress contributions.
+  documentation: 'This quantity is the toroidal component of the total edge-plasma
+    momentum-flux density, representing transport of toroidal linear momentum rather
+    than stored momentum or a torque source. It is the toroidal projection of [total
+    momentum flux](name:total_momentum_flux).
+
+
+    The total contribution is defined by
+
+
+    $$
+
+    \Pi_{\phi}^{\mathrm{tot}} = \Pi_{\phi}^{\mathrm{adv}} + \Pi_{\phi}^{\mathrm{pres}}
+    + \Pi_{\phi}^{\mathrm{visc}} + \Pi_{\phi}^{\mathrm{turb}}
+
+    $$
+
+
+    where $\Pi_{\phi}^{\mathrm{tot}}$ is the total toroidal momentum-flux density
+    and the terms represent advective, pressure, viscous, and turbulent-stress contributions,
+    respectively. The toroidal direction is $\hat{\phi}$ in the right-handed cylindrical
+    $(R,\phi,Z)$ frame, with $\hat{R} \times \hat{\phi} = \hat{Z}$.
+
+
+    Sign convention: Positive when the toroidal momentum-flux component points along
+    $\hat{\phi}$, toward increasing toroidal angle $\phi$.'
+  unit: kg.m^-1.s^-2
+  physics_domain: edge_plasma_physics
+  links:
+  - name:total_momentum_flux
+  arguments:
+  - name: total_momentum_flux
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
+  sources:
+  - dd_path: edge_transport/model/ggd/momentum/flux/phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/edge_transport.html#edge_transport-model-ggd-momentum-flux-phi
+    dd_documentation:
+      leaf: Toroidal component, one scalar value is provided per element in the grid
+        subset.
+      parent_path: edge_transport/model/ggd/momentum/flux
+      parent: Flux, on various grid subsets
+      data_type: FLT_1D
+      unit: kg.m^-1.s^-2
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: "Toroidal angle (\u03C6) coordinate of flux."
       kind: template
 - name: vertical_current_density_due_to_ion_neutral_friction
   kind: scalar

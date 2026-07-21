@@ -1,8 +1,58 @@
 # Domain: plasma_wall_interactions
-# Entries: 83
+# Entries: 98
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: area_of_optical_element
+  kind: scalar
+  status: active
+  description: Total geometric surface area of the optically active surface of a device
+    component, equal to the actual material area capable of interacting with radiation
+    rather than the projected aperture area.
+  documentation: "Geometric surface area is the integral of the differential area\
+    \ element $dA$ over the full extent of the optically active material surface:\n\
+    \n$$\nA = \\int_{\\mathcal{S}} dA\n$$\n\nwhere $\\mathcal{S}$ denotes the physical\
+    \ surface of the component. This quantity measures the actual curved or planar\
+    \ material area, not the projected cross-sectional aperture seen from a particular\
+    \ viewing direction.\n\nThe scope of integration is the optically active region\
+    \ \u2014 the surface or surfaces that participate in radiation interaction (reflection,\
+    \ transmission, absorption, or scattering). For a component with multiple optically\
+    \ active faces, all contributing faces are included in the total. The [surface\
+    \ area of an optical element](name:surface_area_of_optical_element) is a concrete\
+    \ instance of this quantity, where the surface is the optically active face of\
+    \ a diagnostic or beam-line optical component. This quantity is intrinsically\
+    \ non-negative and is independent of the orientation of any illuminating beam."
+  unit: m^2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:surface_area_of_optical_element
+- name: charge_at_limiter
+  kind: scalar
+  status: active
+  description: Charge at a limiter is a charge-number-related scalar characterizing
+    the ion charge-state composition of plasma immediately adjacent to a plasma-facing
+    limiter surface. This parent quantity covers specifically defined limiter charge
+    measures without fixing a particular charge-state weighting or averaging convention.
+  documentation: 'Charge at a limiter is a charge-number-related scalar for the local
+    ion charge-state composition of plasma immediately adjacent to a plasma-facing
+    limiter surface. It is the parent concept for specifically defined charge measures
+    evaluated at that limiter-adjacent plasma locus.
+
+
+    This parent does not prescribe a charge-state weighting, species aggregation,
+    or normalization; those are defined by its concrete children. For example, [effective
+    charge at limiter](name:effective_charge_at_limiter) is the charge-squared-weighted
+    mean charge number at the same locus, whereas this parent denotes only the shared
+    charge-at-limiter abstraction.
+
+
+    It is not the electrical charge deposited on, stored by, or flowing into the limiter
+    material, and it is not a particle, heat, or current flux to the surface.'
+  unit: '1'
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:effective_charge_at_limiter
+  - name:charge_at_plasma_boundary
 - name: density_at_limiter
   kind: scalar
   status: active
@@ -417,7 +467,12 @@
   unit: '1'
   physics_domain: plasma_wall_interactions
   links:
+  - name:charge_at_limiter
   - name:effective_charge_at_plasma_boundary
+  arguments:
+  - name: charge_at_limiter
+    operator: effective
+    operator_kind: qualifier
   sources:
   - dd_path: summary/local/limiter/zeff/value
     dd_version: 4.1.0
@@ -585,66 +640,6 @@
     enhanced_context:
       description: Array of values for emitted.
       kind: template
-- name: energy_flux_at_wall_due_to_radiation
-  kind: scalar
-  status: active
-  description: Incident photon energy crossing onto a plasma-facing material surface
-    per unit area, before absorption, reflection, or re-emission modifies the radiation.
-  documentation: 'Incident radiative energy flux density is the incoming photon power
-    crossing a plasma-facing material surface, resolved per unit surface area. It
-    is the incident component of [flux at wall due to radiation](name:flux_at_wall_due_to_radiation),
-    not the net energy deposited in the material.
-
-
-    For an incident radiation field, the flux is defined by
-
-
-    $$
-
-    q_{\mathrm{rad}}^{\mathrm{inc}} = \int_{\Omega_{\mathrm{in}}} I_{\mathrm{rad}}(\hat{\mathbf{s}})\,[-\hat{\mathbf{s}}\cdot\hat{\mathbf{n}}]
-    \, d\Omega
-
-    $$
-
-
-    where $I_{\mathrm{rad}}$ is the frequency-integrated radiance, $\hat{\mathbf{s}}$
-    is the photon propagation direction, $\hat{\mathbf{n}}$ is the outward surface
-    normal, $\Omega_{\mathrm{in}}$ is the set of directions propagating toward the
-    surface, and $d\Omega$ is solid angle. The quantity excludes energy removed by
-    absorption, redirected by reflection, or returned by surface re-emission; those
-    effects are not part of the incident flux itself.'
-  unit: W.m^-2
-  physics_domain: plasma_wall_interactions
-  links: []
-  sources:
-  - dd_path: wall/description_ggd/ggd/energy_fluxes/radiation/emitted/values
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-energy_fluxes-radiation-emitted-values
-    dd_documentation:
-      leaf: One scalar value is provided per element in the grid subset.
-      parent_path: wall/description_ggd/ggd/energy_fluxes/radiation/emitted
-      parent: Emitted fluxes for various wall components (grid subsets)
-      data_type: FLT_1D
-      unit: W.m^-2
-      coordinates:
-      - 1...N
-    enhanced_context:
-      description: Array of values for emitted.
-      kind: template
-  - dd_path: wall/description_ggd/ggd/energy_fluxes/radiation/incident/values
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-energy_fluxes-radiation-incident-values
-    dd_documentation:
-      leaf: One scalar value is provided per element in the grid subset.
-      parent_path: wall/description_ggd/ggd/energy_fluxes/radiation/incident
-      parent: Incident fluxes for various wall components (grid subsets)
-      data_type: FLT_1D
-      unit: W.m^-2
-      coordinates:
-      - 1...N
-    enhanced_context:
-      description: Array of values for incident.
-      kind: template
 - name: energy_flux_at_wall_due_to_recombination
   kind: scalar
   status: active
@@ -738,6 +733,10 @@
   physics_domain: plasma_wall_interactions
   links:
   - name:energy_flux_at_wall_due_to_eddy_current
+  arguments:
+  - name: flux_due_to_eddy_current
+    operator: wall
+    operator_kind: locus
 - name: energy_flux_at_wall_due_to_eddy_current
   kind: scalar
   status: active
@@ -862,7 +861,116 @@
   unit: W.m^-2
   physics_domain: plasma_wall_interactions
   links:
+  - name:flux_at_wall_due_to_radiation
   - name:energy_flux
+- name: flux_at_wall_due_to_radiation
+  kind: scalar
+  status: active
+  description: Flux at wall due to radiation is the radiation-caused areal flux incident
+    on a material wall or plasma-facing surface. It is the wall-scoped member of radiation-flux
+    quantities; concrete descendants specify the transported quantity, such as photon-carried
+    energy.
+  documentation: 'Flux at wall due to radiation is the radiation-caused areal flux
+    incident on a material wall or plasma-facing surface. It is the wall-scoped radiation-flux
+    abstraction; concrete descendants specify the transported quantity carried by
+    photons.
+
+
+    For a radiation-carried quantity $Q$, the incident wall flux is defined as the
+    areal rate at which that quantity crosses onto a wall surface element:
+
+
+    $$
+
+    F_{Q,\mathrm{wall}}^{\mathrm{rad}} = \frac{dQ_{\mathrm{rad}\to\mathrm{wall}}}{dA\,dt}
+
+    $$
+
+
+    where $Q_{\mathrm{rad}\to\mathrm{wall}}$ is the amount of $Q$ transported by photons
+    onto the wall surface element, $dA$ is that wall surface element, and $dt$ is
+    the time interval.
+
+
+    This parent standard name does not by itself choose the transported quantity;
+    concrete descendants specify it, such as the [energy flux at wall due to radiation](name:energy_flux_at_wall_due_to_radiation).
+    It describes incident radiative transfer to the wall and excludes non-radiative
+    particle, conductive, convective, and electromagnetic-work contributions, as well
+    as changes after incidence such as absorption, reflection, or re-emission.'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:flux_due_to_radiation
+  - name:energy_flux_at_wall_due_to_radiation
+  arguments:
+  - name: flux_due_to_radiation
+    operator: wall
+    operator_kind: locus
+- name: energy_flux_at_wall_due_to_radiation
+  kind: scalar
+  status: active
+  description: Incident photon energy crossing onto a plasma-facing material surface
+    per unit area, before absorption, reflection, or re-emission modifies the radiation.
+  documentation: 'Incident radiative energy flux density is the incoming photon power
+    crossing a plasma-facing material surface, resolved per unit surface area. It
+    is the incident component of [flux at wall due to radiation](name:flux_at_wall_due_to_radiation),
+    not the net energy deposited in the material.
+
+
+    For an incident radiation field, the flux is defined by
+
+
+    $$
+
+    q_{\mathrm{rad}}^{\mathrm{inc}} = \int_{\Omega_{\mathrm{in}}} I_{\mathrm{rad}}(\hat{\mathbf{s}})\,[-\hat{\mathbf{s}}\cdot\hat{\mathbf{n}}]
+    \, d\Omega
+
+    $$
+
+
+    where $I_{\mathrm{rad}}$ is the frequency-integrated radiance, $\hat{\mathbf{s}}$
+    is the photon propagation direction, $\hat{\mathbf{n}}$ is the outward surface
+    normal, $\Omega_{\mathrm{in}}$ is the set of directions propagating toward the
+    surface, and $d\Omega$ is solid angle. The quantity excludes energy removed by
+    absorption, redirected by reflection, or returned by surface re-emission; those
+    effects are not part of the incident flux itself.'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:flux_at_wall_due_to_radiation
+  arguments:
+  - name: flux_at_wall_due_to_radiation
+    operator: energy
+    operator_kind: qualifier
+  sources:
+  - dd_path: wall/description_ggd/ggd/energy_fluxes/radiation/emitted/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-energy_fluxes-radiation-emitted-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: wall/description_ggd/ggd/energy_fluxes/radiation/emitted
+      parent: Emitted fluxes for various wall components (grid subsets)
+      data_type: FLT_1D
+      unit: W.m^-2
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for emitted.
+      kind: template
+  - dd_path: wall/description_ggd/ggd/energy_fluxes/radiation/incident/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-energy_fluxes-radiation-incident-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: wall/description_ggd/ggd/energy_fluxes/radiation/incident
+      parent: Incident fluxes for various wall components (grid subsets)
+      data_type: FLT_1D
+      unit: W.m^-2
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for incident.
+      kind: template
 - name: flux_due_to_recombination
   kind: scalar
   status: active
@@ -911,6 +1019,7 @@
   physics_domain: plasma_wall_interactions
   links:
   - name:neutral_particle_flux_at_wall_due_to_recombination
+  - name:neutral_internal_state_particle_flux_at_wall_due_to_recombination
 - name: flux_due_to_surface_emission
   kind: scalar
   status: active
@@ -1210,45 +1319,79 @@
     enhanced_context:
       description: Hydrogen.
       kind: template
-- name: incident_neutral_internal_state_particle_flux_at_wall_due_to_recombination
+- name: ion_charge_state_energy_flux_at_wall_due_to_recombination
   kind: scalar
   status: active
-  description: Incident number flux density of neutral recombination products arriving
-    at a plasma-facing wall, resolved by neutral species and internal quantum state.
-  documentation: 'This quantity is the incident number flux density of neutral particles
-    produced by recombination and arriving at a plasma-facing wall, resolved by neutral
-    species and by the internal quantum state of each particle. It is the incident
-    component of the [neutral internal-state particle flux at the wall due to recombination](name:neutral_internal_state_particle_flux_at_wall_due_to_recombination).
+  description: Outgoing energy flux per unit plasma-facing wall area produced when
+    incident plasma ions of a specified species and charge state recombine at the
+    surface, restricted to the ion-associated channel and summed over surface recombination
+    channels and emitted product species and states.
+  documentation: 'Ion charge-state energy flux at the wall due to recombination quantifies
+    the rate at which recombination-associated energy from incident plasma ions of
+    a specified species and charge state leaves a plasma-facing surface per unit area.
+    It is the ion-associated component for that incident-ion population, not the incident
+    plasma energy flux or heat deposited in the wall material.
 
 
-    The defining relation is
+    The ion charge-state recombination energy flux at wall location $\mathbf{x}_w$
+    for incident species $i$ and charge state $\zeta$ is defined as the product-energy
+    moment of the outgoing ion-associated recombination source:
 
 
     $$
 
-    \Gamma^{\mathrm{rec,inc}}_{a,s} = \frac{\mathrm{d}N^{\mathrm{rec,inc}}_{a,s}}{\mathrm{d}A\,\mathrm{d}t}
+    Q^{\mathrm{ion}}_{\mathrm{rec},i,\zeta}(\mathbf{x}_w) = \sum_{c,\,a,\,k}\int E_\mathrm{out}\,\frac{d\Gamma^{\mathrm{ion}}_{i,\zeta,c,a,k}}{dE_\mathrm{out}}(\mathbf{x}_w,E_\mathrm{out})\,dE_\mathrm{out}
 
     $$
 
 
-    where $\Gamma^{\mathrm{rec,inc}}_{a,s}$ is the incident flux density for neutral
-    species $a$ in internal state $s$, $N^{\mathrm{rec,inc}}_{a,s}$ is the number
-    of such particles arriving, $A$ is wall area, and $t$ is time.
+    where $i$ identifies the incident-ion species, $\zeta$ the incident-ion charge
+    state, $c$ an ion-associated surface recombination or neutralization channel,
+    $a$ the emitted product species, $k$ the product internal state or emission class,
+    $E_\mathrm{out}$ the energy carried into the plasma-facing half-space by an emitted
+    product or quantum, and $d\Gamma^{\mathrm{ion}}_{i,\zeta,c,a,k}/dE_\mathrm{out}$
+    the corresponding outgoing recombination-product flux distribution with respect
+    to product energy. For discrete product energies, the integral is replaced by
+    the corresponding sum.
 
 
-    The quantity counts arrivals rather than signed net transport. It excludes neutral
-    particles produced by recycling, sputtering, radiation, or other mechanisms unrelated
-    to recombination.'
-  unit: m^-2.s^-1
+    This quantity resolves the incident-ion species and charge state within the ion-associated
+    recombination energy channel. Summing over incident-ion charge states and incident-ion
+    species gives [ion energy flux at the wall due to recombination](name:ion_energy_flux_at_wall_due_to_recombination);
+    the broader [energy flux at the wall due to recombination](name:energy_flux_at_wall_due_to_recombination)
+    also includes recombination energy channels outside this ion-associated component.
+    It is the energy-weighted counterpart of [particle flux at the wall due to recombination](name:particle_flux_at_wall_due_to_recombination)
+    for the same surface recombination source.'
+  unit: W.m^-2
   physics_domain: plasma_wall_interactions
-  links: []
+  links:
+  - name:ion_energy_flux_at_wall_due_to_recombination
+  - name:energy_flux_at_wall_due_to_recombination
+  arguments:
+  - name: energy_flux_at_wall_due_to_recombination
+    operator: ion_charge_state
+    operator_kind: qualifier
   sources:
-  - dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/neutral/state/incident/values
+  - dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/ion/state/emitted/values
     dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-energy_fluxes-recombination-neutral-state-incident-values
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-energy_fluxes-recombination-ion-state-emitted-values
     dd_documentation:
       leaf: One scalar value is provided per element in the grid subset.
-      parent_path: wall/description_ggd/ggd/energy_fluxes/recombination/neutral/state/incident
+      parent_path: wall/description_ggd/ggd/energy_fluxes/recombination/ion/state/emitted
+      parent: Emitted fluxes for various wall components (grid subsets)
+      data_type: FLT_1D
+      unit: W.m^-2
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for emitted.
+      kind: template
+  - dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/ion/state/incident/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-energy_fluxes-recombination-ion-state-incident-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: wall/description_ggd/ggd/energy_fluxes/recombination/ion/state/incident
       parent: Incident fluxes for various wall components (grid subsets)
       data_type: FLT_1D
       unit: W.m^-2
@@ -1340,6 +1483,7 @@
   unit: W.m^-2
   physics_domain: plasma_wall_interactions
   links:
+  - name:ion_charge_state_energy_flux_at_wall_due_to_recombination
   - name:energy_flux_at_wall_due_to_recombination
   - name:particle_flux_at_wall_due_to_recombination
   - name:ion_kinetic_energy_flux_at_wall
@@ -1361,53 +1505,6 @@
       - 1...N
     enhanced_context:
       description: Array of values for emitted.
-      kind: template
-- name: ion_kinetic_energy_flux_at_wall
-  kind: scalar
-  status: active
-  description: Incident kinetic-energy power flux delivered by all plasma ions striking
-    a plasma-facing wall, summed over ion species and charge states and excluding
-    electrons and neutrals.
-  documentation: 'This quantity is the ion-resolved component of the incident kinetic-energy
-    flux at a plasma-facing wall. It contributes to the parent [kinetic energy flux
-    at wall](name:kinetic_energy_flux_at_wall) and includes all incident ion species
-    and charge states, but excludes electron, neutral-particle, radiative, and electromagnetic
-    contributions.
-
-
-    For an outward wall normal $\hat{n}$ directed from the material into the plasma,
-    the flux is defined by
-
-
-    $$
-
-    q_{i}^{\mathrm{kin}} = \sum_s \int_{\mathbf{v}\cdot\hat{n}<0} \frac{1}{2}m_s |\mathbf{v}|^2
-    (-\mathbf{v}\cdot\hat{n}) f_s(\mathbf{v})\,d^3\mathbf{v}
-
-    $$
-
-
-    where $s$ indexes ion species and charge states, $m_s$ is the ion mass, $\mathbf{v}$
-    is particle velocity, and $f_s$ is the incident velocity distribution. The minus
-    sign converts the inward particle velocity into a positive arrival flux; the resulting
-    quantity is non-negative.'
-  unit: W.m^-2
-  physics_domain: plasma_wall_interactions
-  links: []
-  sources:
-  - dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/ion/incident/values
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-energy_fluxes-kinetic-ion-incident-values
-    dd_documentation:
-      leaf: One scalar value is provided per element in the grid subset.
-      parent_path: wall/description_ggd/ggd/energy_fluxes/kinetic/ion/incident
-      parent: Incident fluxes for various wall components (grid subsets)
-      data_type: FLT_1D
-      unit: W.m^-2
-      coordinates:
-      - 1...N
-    enhanced_context:
-      description: Array of values for incident.
       kind: template
 - name: iron_density_at_limiter
   kind: scalar
@@ -1473,6 +1570,96 @@
     enhanced_context:
       description: Iron (Fe).
       kind: template
+- name: kinetic_energy_flux_at_wall
+  kind: scalar
+  status: active
+  description: Total kinetic power per unit area incident on a plasma-facing wall
+    surface from plasma particles, excluding radiative and electromagnetic contributions.
+  documentation: 'Kinetic energy flux at the wall is the power per unit area incident
+    on a plasma-facing boundary surface from plasma particles, carried by their translational
+    kinetic energy. It is the particle-kinetic contribution to [energy_flux_at_wall](name:energy_flux_at_wall),
+    independent of whether the particles are ions, electrons, or neutrals.
+
+
+    For contributing particle populations $s$, the incident kinetic-energy flux is
+
+
+    $$
+
+    Q_{\mathrm{kin}} = \sum_s \int_{\mathbf{v}\cdot\hat{n}<0} \frac{1}{2}m_s v^2 f_s(\mathbf{v})\,|\mathbf{v}\cdot\hat{n}|\,d^3v
+
+    $$
+
+
+    where $f_s(\mathbf{v})$ is the velocity distribution of population $s$, $m_s$
+    is its particle mass, $\mathbf{v}$ is particle velocity relative to the wall,
+    and $\hat{n}$ is the inward-pointing wall-normal unit vector. The sum and any
+    internal-state aggregation follow the defined particle population; [ion_kinetic_energy_flux_at_wall](name:ion_kinetic_energy_flux_at_wall)
+    is one species-aggregated instance, while [neutral_energy_flux_at_wall](name:neutral_energy_flux_at_wall)
+    represents a neutral-particle instance. Radiative, electromagnetic, and outgoing
+    surface-emission contributions are excluded.'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:energy_flux_at_wall
+  - name:ion_kinetic_energy_flux_at_wall
+  - name:neutral_energy_flux_at_wall
+  arguments:
+  - name: energy_flux_at_wall
+    operator: kinetic
+    operator_kind: qualifier
+- name: ion_kinetic_energy_flux_at_wall
+  kind: scalar
+  status: active
+  description: Incident kinetic-energy power flux delivered by all plasma ions striking
+    a plasma-facing wall, summed over ion species and charge states and excluding
+    electrons and neutrals.
+  documentation: 'This quantity is the ion-resolved component of the incident kinetic-energy
+    flux at a plasma-facing wall. It contributes to the parent [kinetic energy flux
+    at wall](name:kinetic_energy_flux_at_wall) and includes all incident ion species
+    and charge states, but excludes electron, neutral-particle, radiative, and electromagnetic
+    contributions.
+
+
+    For an outward wall normal $\hat{n}$ directed from the material into the plasma,
+    the flux is defined by
+
+
+    $$
+
+    q_{i}^{\mathrm{kin}} = \sum_s \int_{\mathbf{v}\cdot\hat{n}<0} \frac{1}{2}m_s |\mathbf{v}|^2
+    (-\mathbf{v}\cdot\hat{n}) f_s(\mathbf{v})\,d^3\mathbf{v}
+
+    $$
+
+
+    where $s$ indexes ion species and charge states, $m_s$ is the ion mass, $\mathbf{v}$
+    is particle velocity, and $f_s$ is the incident velocity distribution. The minus
+    sign converts the inward particle velocity into a positive arrival flux; the resulting
+    quantity is non-negative.'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:kinetic_energy_flux_at_wall
+  arguments:
+  - name: kinetic_energy_flux_at_wall
+    operator: ion
+    operator_kind: qualifier
+  sources:
+  - dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/ion/incident/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-energy_fluxes-kinetic-ion-incident-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: wall/description_ggd/ggd/energy_fluxes/kinetic/ion/incident
+      parent: Incident fluxes for various wall components (grid subsets)
+      data_type: FLT_1D
+      unit: W.m^-2
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for incident.
+      kind: template
 - name: kinetic_energy_flux_at_wall_due_to_surface_emission
   kind: scalar
   status: active
@@ -1509,10 +1696,69 @@
   physics_domain: plasma_wall_interactions
   links:
   - name:energy_flux_at_wall_due_to_surface_emission
+  - name:ion_charge_state_kinetic_energy_flux_at_wall_due_to_surface_emission
   arguments:
   - name: energy_flux_at_wall_due_to_surface_emission
     operator: kinetic
     operator_kind: qualifier
+- name: ion_charge_state_kinetic_energy_flux_at_wall_due_to_surface_emission
+  kind: scalar
+  status: active
+  description: Kinetic-energy power flux density carried by ions in a specified charge
+    state leaving a plasma-facing surface through sputtering, reflection, or related
+    surface-emission processes.
+  documentation: 'This quantity is the outward kinetic-energy flux density carried
+    by ions in a specified species and charge state emitted from a plasma-facing surface
+    through sputtering, reflection, or related surface-emission processes.
+
+
+    The charge-state-resolved kinetic-energy flux density is defined by
+
+
+    $$
+
+    q_{\mathrm{kin},s} = \int_{\mathbf{v}\cdot\mathbf{n}>0} \frac{1}{2}m_s v^2\,(\mathbf{v}\cdot\mathbf{n})
+    f_s(\mathbf{v})\,d^3v
+
+    $$
+
+
+    where $s$ identifies the selected ion species and charge state, $m_s$ is its particle
+    mass, $\mathbf{v}$ is particle velocity, $v=|\mathbf{v}|$, $\mathbf{n}$ is the
+    outward surface-normal unit vector, and $f_s$ is its emitted-particle velocity
+    distribution. The outward condition excludes particles incident on the surface.
+
+
+    This is one charge-state contribution to [kinetic-energy flux at wall due to surface
+    emission](name:kinetic_energy_flux_at_wall_due_to_surface_emission), excluding
+    other ion charge states, electrons, particle potential energy, photons, and other
+    radiative energy. The ion-aggregated quantity [ion kinetic-energy flux at wall
+    due to surface emission](name:ion_kinetic_energy_flux_at_wall_due_to_surface_emission)
+    sums this contribution over ion species and charge states.'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:kinetic_energy_flux_at_wall_due_to_surface_emission
+  - name:ion_kinetic_energy_flux_at_wall_due_to_surface_emission
+  arguments:
+  - name: kinetic_energy_flux_at_wall_due_to_surface_emission
+    operator: ion_charge_state
+    operator_kind: qualifier
+  sources:
+  - dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/ion/state/emitted/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-energy_fluxes-kinetic-ion-state-emitted-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: wall/description_ggd/ggd/energy_fluxes/kinetic/ion/state/emitted
+      parent: Emitted fluxes for various wall components (grid subsets)
+      data_type: FLT_1D
+      unit: W.m^-2
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for emitted.
+      kind: template
 - name: ion_kinetic_energy_flux_at_wall_due_to_surface_emission
   kind: scalar
   status: active
@@ -1747,6 +1993,106 @@
   - name: mass_of_wall_material
     operator: atomic
     operator_kind: qualifier
+- name: maximum_of_energy_flux_at_first_wall
+  kind: scalar
+  status: active
+  description: Spatial maximum of the total energy flux density over the entire first-wall
+    plasma-facing surface, identifying the peak thermal load point at a given instant.
+  documentation: "The maximum of energy flux at the first wall is the highest value\
+    \ of [energy_flux_at_wall](name:energy_flux_at_wall) sampled over the entire first-wall\
+    \ plasma-facing surface at a given instant.\n\n$$\nq_\\mathrm{max} = \\max_{\\\
+    mathbf{x}\\,\\in\\,\\mathcal{S}_\\mathrm{FW}} q(\\mathbf{x})\n$$\n\nwhere $q(\\\
+    mathbf{x})$ is the local total energy flux and $\\mathcal{S}_\\mathrm{FW}$ denotes\
+    \ the first-wall surface.\n\nThe base quantity $q(\\mathbf{x})$ encompasses all\
+    \ energy-transport channels \u2014 kinetic energy carried by ions, electrons,\
+    \ and neutrals together with radiative and electromagnetic contributions \u2014\
+    \ consistent with [energy_flux_at_wall](name:energy_flux_at_wall). The maximum\
+    \ is taken across the full first-wall geometry at each time point, not area-averaged.\
+    \ It is distinct from [maximum_of_energy_flux_at_divertor_target](name:maximum_of_energy_flux_at_divertor_target),\
+    \ which applies the same spatial-maximum operator to the divertor target surface\
+    \ rather than the first wall."
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:energy_flux_at_wall
+  - name:maximum_of_energy_flux_at_divertor_target
+  arguments:
+  - name: energy_flux_at_wall
+    operator: maximum
+    operator_kind: unary_prefix
+  sources:
+  - dd_path: wall/first_wall_power_flux_peak
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-first_wall_power_flux_peak
+    dd_documentation:
+      leaf: Peak power flux on the first wall
+      data_type: STRUCTURE
+      unit: W.m^-2
+      lifecycle_status: alpha
+    enhanced_context:
+      description: Peak power flux density incident on the first wall of the fusion
+        device. Provides a device-level metric for assessing peak thermal loading
+        of plasma-facing components during plasma operation.
+      kind: llm
+  - dd_path: wall/first_wall_power_flux_peak_outside_divertors
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-first_wall_power_flux_peak_outside_divertors
+    dd_documentation:
+      leaf: Peak power flux on the first wall (excluding the divertors surface)
+      data_type: STRUCTURE
+      unit: W.m^-2
+    enhanced_context:
+      description: Peak power flux on the first wall excluding divertor surfaces,
+        a device-level metric for plasma-wall interaction and thermal loading. Groups
+        time-resolved data and associated uncertainties for the maximum heat load
+        per unit area on the main chamber wall.
+      kind: llm
+- name: maximum_of_energy_flux_at_limiter
+  kind: scalar
+  status: active
+  description: Peak plasma energy deposition per unit area on the plasma-facing surface
+    of a limiter.
+  documentation: 'The quantity is the largest local plasma energy flux deposited on
+    the plasma-facing material surface of a limiter. It represents the peak heat load
+    over the limiter surface rather than an area-integrated power.
+
+
+    $$
+
+    q_{E,\mathrm{max}}^{L} = \max_{\mathbf{x} \in S_L} q_E(\mathbf{x})
+
+    $$
+
+
+    where $q_E$ is the local plasma energy flux deposited on the surface and $S_L$
+    is the set of points comprising the limiter surface.
+
+
+    This is the limiter-surface counterpart of [energy flux at wall](name:energy_flux_at_wall).
+    It denotes the total surface energy deposition and is not restricted to the field-aligned
+    component represented by [parallel heat flux](name:parallel_heat_flux).'
+  unit: W.m^-2
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:energy_flux_at_wall
+  - name:parallel_heat_flux
+  sources:
+  - dd_path: summary/local/limiter/power_flux_peak/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-local-limiter-power_flux_peak-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/local/limiter/power_flux_peak
+      parent: Peak power flux on the divertor target or limiter surface
+      data_type: FLT_1D
+      unit: W.m^-2
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Peak power flux on the limiter surface, the maximum heat load deposited
+        per unit area on the limiter. A key engineering and operational constraint
+        for plasma-facing component protection.
+      kind: template
 - name: neon_density_at_limiter
   kind: scalar
   status: active
@@ -1858,6 +2204,277 @@
     dd_documentation:
       leaf: One scalar value is provided per element in the grid subset.
       parent_path: wall/description_ggd/ggd/energy_fluxes/recombination/neutral/incident
+      parent: Incident fluxes for various wall components (grid subsets)
+      data_type: FLT_1D
+      unit: W.m^-2
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for incident.
+      kind: template
+- name: neutral_internal_state_energy_flux_at_wall
+  kind: scalar
+  status: active
+  description: Incident neutral-particle flux at a plasma-facing wall, resolved to
+    a specified internal quantum state and kinetic-energy channel. It counts neutral
+    atoms or molecules occupying that state, with kinetic energy within the channel,
+    crossing from the plasma side into the material surface. It is an arrival-particle
+    flux, not a kinetic-energy-weighted power flux.
+  documentation: 'Incident neutral-particle flux at a plasma-facing wall, resolved
+    to a specified internal quantum state and kinetic-energy channel, counts the neutral
+    atoms or molecules occupying that state whose kinetic energy lies within the channel
+    as they cross from the plasma-facing region into the material surface, per unit
+    wall area per unit time. Because a bound internal quantum state belongs to a specific
+    neutral species, the state identifier fixes the species; no species sum is implied
+    at the state-resolved level.
+
+
+    Let $\hat{\mathbf{n}}_w$ be the local unit normal directed from the wall into
+    the plasma-facing domain, so incident velocities satisfy $\mathbf{v}\cdot\hat{\mathbf{n}}_w
+    < 0$. For internal state $s$ and kinetic-energy channel $k$ with energy interval
+    $\Delta_k$, the flux is defined by
+
+
+    $$
+
+    \Gamma_{s,k}^{w} = \int_{\substack{\mathbf{v}\cdot\hat{\mathbf{n}}_w < 0 \\ \tfrac{1}{2}
+    m_s |\mathbf{v}|^2 \in \Delta_k}} \left(-\mathbf{v}\cdot\hat{\mathbf{n}}_w\right)
+    f_{s}(\mathbf{v})\, d^3v
+
+    $$
+
+
+    where $f_{s}$ is the velocity distribution of neutral particles in internal state
+    $s$ at the plasma side of the wall and $m_s$ is the mass of the neutral species
+    carrying state $s$.
+
+
+    The kinetic-energy channel resolves the arrival flux by energy without weighting
+    the integrand by kinetic energy, so the quantity remains a particle flux and is
+    distinct from a power flux onto the wall. Summing over all kinetic-energy channels
+    yields the [neutral internal-state particle flux at the wall](name:neutral_internal_state_particle_flux_at_wall).
+    Summing over all internal quantum states, and thereby over neutral species since
+    each state belongs to one species, yields the species-summed [neutral energy flux
+    at the wall](name:neutral_energy_flux_at_wall) in the corresponding kinetic-energy
+    channel. The counterpart not restricted to neutrals is the [internal-state energy
+    flux at the wall](name:internal_state_energy_flux_at_wall). Only the incident
+    half-space contributes: neutrals leaving the surface, such as reflected, recycled,
+    or desorbed particles, are excluded.
+
+
+    Sign convention: Positive when neutral particles move from the plasma-facing region
+    toward the wall surface, that is, when their velocity satisfies $\mathbf{v}\cdot\hat{\mathbf{n}}_w
+    < 0$ with $\hat{\mathbf{n}}_w$ directed from the wall into the plasma-facing domain.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_internal_state_particle_flux_at_wall
+  sources:
+  - dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/neutral/state/incident/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-energy_fluxes-kinetic-neutral-state-incident-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: wall/description_ggd/ggd/energy_fluxes/kinetic/neutral/state/incident
+      parent: Incident fluxes for various wall components (grid subsets)
+      data_type: FLT_1D
+      unit: W.m^-2
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for incident.
+      kind: template
+- name: neutral_internal_state_particle_flux_at_wall
+  kind: scalar
+  status: active
+  description: Incident number flux density of neutral particles arriving at a plasma-facing
+    wall, resolved by a specified electronic, vibrational, or rotational internal
+    state.
+  documentation: 'Incident number flux density of neutral particles arriving at a
+    plasma-facing wall is the rate at which neutral particles in a specified electronic,
+    vibrational, or rotational internal state cross a local wall surface from the
+    plasma-facing side, per surface area. It is an incident scalar at the wall and
+    is not a signed transport-flux component.
+
+
+    The incident flux density is the normal velocity moment of the neutral velocity
+    distribution over the wall-incident half-space:
+
+
+    $$
+
+    \Gamma_{\alpha,w}^{\mathrm{inc}} = -\int_{\mathbf{v}\cdot\hat{\mathbf{n}}_w <
+    0} \left(\mathbf{v}\cdot\hat{\mathbf{n}}_w\right) f_{\alpha}(\mathbf{x}_w,\mathbf{v})\,d^3\mathbf{v}
+
+    $$
+
+
+    where $\Gamma_{\alpha,w}^{\mathrm{inc}}$ is this incident number flux density
+    for internal state $\alpha$ at wall point $\mathbf{x}_w$, $f_{\alpha}$ is the
+    neutral-particle velocity distribution function for that internal state, $\mathbf{v}$
+    is particle velocity, and $\hat{\mathbf{n}}_w$ is the local inward unit normal
+    of the plasma-facing region, directed from the wall into that region. The condition
+    $\mathbf{v}\cdot\hat{\mathbf{n}}_w < 0$ selects particles moving toward the wall,
+    so the leading minus sign makes the incident scalar nonnegative.
+
+
+    This quantity includes wall-incident neutral particles in the specified internal
+    state without separating the physical process that produced them before impact.
+    Process-resolved contributions, such as [incident neutral internal-state particle
+    flux at wall due to recombination](name:incident_neutral_internal_state_particle_flux_at_wall_due_to_recombination),
+    are distinct components; [neutral internal-state particle flux](name:neutral_internal_state_particle_flux)
+    is the corresponding flux quantity not restricted to wall incidence.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_particle_flux_at_wall
+  sources:
+  - dd_path: wall/description_ggd/ggd/energy_fluxes/kinetic/neutral/state/emitted/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-energy_fluxes-kinetic-neutral-state-emitted-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: wall/description_ggd/ggd/energy_fluxes/kinetic/neutral/state/emitted
+      parent: Emitted fluxes for various wall components (grid subsets)
+      data_type: FLT_1D
+      unit: W.m^-2
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for emitted.
+      kind: template
+  - dd_path: wall/description_ggd/ggd/particle_fluxes/neutral/state/emitted/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-particle_fluxes-neutral-state-emitted-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: wall/description_ggd/ggd/particle_fluxes/neutral/state/emitted
+      parent: Emitted fluxes for various wall components (grid subsets)
+      data_type: FLT_1D
+      unit: m^-2.s^-1
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for emitted.
+      kind: template
+  - dd_path: wall/description_ggd/ggd/particle_fluxes/neutral/state/incident/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-particle_fluxes-neutral-state-incident-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: wall/description_ggd/ggd/particle_fluxes/neutral/state/incident
+      parent: Incident fluxes for various wall components (grid subsets)
+      data_type: FLT_1D
+      unit: m^-2.s^-1
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for incident.
+      kind: template
+- name: neutral_internal_state_particle_flux_at_wall_due_to_recombination
+  kind: scalar
+  status: active
+  description: Neutral internal-state particle flux at a wall due to recombination
+    is the outgoing particle flux density of neutral atoms or molecules in a specified
+    internal quantum state produced by ion recombination at a plasma-facing wall surface.
+  documentation: 'Neutral internal-state particle flux at a wall due to recombination
+    is the particle flux density of neutral atoms or molecules in a specified internal
+    quantum state that are produced by ion recombination at a plasma-facing wall surface
+    and cross that surface away from the wall. It is resolved by the neutral product
+    species and by the internal quantum state of that product.
+
+
+    For neutral product species $n$ in internal state $\alpha$, with $\hat{\mathbf
+    n}_w$ the unit normal directed from wall material into the adjacent plasma, the
+    outgoing recombination contribution is defined by
+
+
+    $$
+
+    \Gamma^{\mathrm{rec,out}}_{n,\alpha} = \int_{\mathbf v \cdot \hat{\mathbf n}_w
+    > 0} (\mathbf v \cdot \hat{\mathbf n}_w)\, f^{\mathrm{rec}}_{n,\alpha}(\mathbf
+    v)\, d^3\mathbf v
+
+    $$
+
+
+    where $\mathbf v$ is particle velocity and $f^{\mathrm{rec}}_{n,\alpha}$ is the
+    velocity-space distribution at the wall of neutral products generated by recombination.
+
+
+    This quantity includes only neutral recombination products in the specified internal
+    state. Summing over internal states for the same neutral product species gives
+    the [neutral particle flux at wall due to recombination](name:neutral_particle_flux_at_wall_due_to_recombination);
+    the incident-direction counterpart is [incident neutral internal-state particle
+    flux at wall due to recombination](name:incident_neutral_internal_state_particle_flux_at_wall_due_to_recombination).
+
+
+    Sign convention: Positive when neutral recombination products cross the wall surface
+    along the wall normal directed from the wall material into the plasma.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_particle_flux_at_wall_due_to_recombination
+  - name:incident_neutral_internal_state_particle_flux_at_wall_due_to_recombination
+  sources:
+  - dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/neutral/state/emitted/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-energy_fluxes-recombination-neutral-state-emitted-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: wall/description_ggd/ggd/energy_fluxes/recombination/neutral/state/emitted
+      parent: Emitted fluxes for various wall components (grid subsets)
+      data_type: FLT_1D
+      unit: W.m^-2
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for emitted.
+      kind: template
+- name: incident_neutral_internal_state_particle_flux_at_wall_due_to_recombination
+  kind: scalar
+  status: active
+  description: Incident number flux density of neutral recombination products arriving
+    at a plasma-facing wall, resolved by neutral species and internal quantum state.
+  documentation: 'This quantity is the incident number flux density of neutral particles
+    produced by recombination and arriving at a plasma-facing wall, resolved by neutral
+    species and by the internal quantum state of each particle. It is the incident
+    component of the [neutral internal-state particle flux at the wall due to recombination](name:neutral_internal_state_particle_flux_at_wall_due_to_recombination).
+
+
+    The defining relation is
+
+
+    $$
+
+    \Gamma^{\mathrm{rec,inc}}_{a,s} = \frac{\mathrm{d}N^{\mathrm{rec,inc}}_{a,s}}{\mathrm{d}A\,\mathrm{d}t}
+
+    $$
+
+
+    where $\Gamma^{\mathrm{rec,inc}}_{a,s}$ is the incident flux density for neutral
+    species $a$ in internal state $s$, $N^{\mathrm{rec,inc}}_{a,s}$ is the number
+    of such particles arriving, $A$ is wall area, and $t$ is time.
+
+
+    The quantity counts arrivals rather than signed net transport. It excludes neutral
+    particles produced by recycling, sputtering, radiation, or other mechanisms unrelated
+    to recombination.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_internal_state_particle_flux_at_wall_due_to_recombination
+  arguments:
+  - name: neutral_internal_state_particle_flux_at_wall_due_to_recombination
+    operator: incident
+    operator_kind: qualifier
+  sources:
+  - dd_path: wall/description_ggd/ggd/energy_fluxes/recombination/neutral/state/incident/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-energy_fluxes-recombination-neutral-state-incident-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: wall/description_ggd/ggd/energy_fluxes/recombination/neutral/state/incident
       parent: Incident fluxes for various wall components (grid subsets)
       data_type: FLT_1D
       unit: W.m^-2
@@ -2082,6 +2699,64 @@
     enhanced_context:
       description: Array of values for incident.
       kind: template
+- name: ion_charge_state_particle_flux_at_wall
+  kind: scalar
+  status: active
+  description: Incident particle flux of ions in a specified charge state arriving
+    at the plasma-facing wall per unit area per unit time.
+  documentation: "The ion charge-state particle flux at the wall is the rate per unit\
+    \ area at which ions of a specified charge state impinge on a plasma-facing material\
+    \ surface from the plasma side. It is the charge-state-resolved refinement of\
+    \ [ion_particle_flux_at_wall](name:ion_particle_flux_at_wall), which aggregates\
+    \ this quantity over all ion charge states.\n\nFor ions in charge state $q$ with\
+    \ velocity distribution function $f_q(\\mathbf{v})$, the incident flux is\n\n\
+    $$\n\\Gamma_q = \\int_{\\mathbf{v}\\cdot\\hat{n} < 0} f_q(\\mathbf{v})\\,|\\mathbf{v}\\\
+    cdot\\hat{n}|\\,d^3v\n$$\n\nwhere $\\hat{n}$ is the inward-pointing wall-normal\
+    \ unit vector and the integration extends over velocities directed toward the\
+    \ surface. Summing $\\Gamma_q$ over all charge states recovers [ion_particle_flux_at_wall](name:ion_particle_flux_at_wall);\
+    \ summing further over all species \u2014 including electrons and neutrals \u2014\
+    \ recovers the parent [particle_flux_at_wall](name:particle_flux_at_wall).\n\n\
+    This quantity is non-negative and is distinct from [neutral_particle_flux_at_wall](name:neutral_particle_flux_at_wall),\
+    \ which counts uncharged species arriving at the wall."
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:ion_particle_flux_at_wall
+  - name:particle_flux_at_wall
+  - name:neutral_particle_flux_at_wall
+  arguments:
+  - name: particle_flux_at_wall
+    operator: ion_charge_state
+    operator_kind: qualifier
+  sources:
+  - dd_path: wall/description_ggd/ggd/particle_fluxes/ion/state/emitted/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-particle_fluxes-ion-state-emitted-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: wall/description_ggd/ggd/particle_fluxes/ion/state/emitted
+      parent: Emitted fluxes for various wall components (grid subsets)
+      data_type: FLT_1D
+      unit: m^-2.s^-1
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for emitted.
+      kind: template
+  - dd_path: wall/description_ggd/ggd/particle_fluxes/ion/state/incident/values
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/wall.html#wall-description_ggd-ggd-particle_fluxes-ion-state-incident-values
+    dd_documentation:
+      leaf: One scalar value is provided per element in the grid subset.
+      parent_path: wall/description_ggd/ggd/particle_fluxes/ion/state/incident
+      parent: Incident fluxes for various wall components (grid subsets)
+      data_type: FLT_1D
+      unit: m^-2.s^-1
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Array of values for incident.
+      kind: template
 - name: ion_particle_flux_at_wall
   kind: scalar
   status: active
@@ -2118,6 +2793,7 @@
   physics_domain: plasma_wall_interactions
   links:
   - name:particle_flux_at_wall
+  - name:ion_charge_state_particle_flux_at_wall
   - name:neutral_particle_flux_at_wall
   arguments:
   - name: particle_flux_at_wall
@@ -2193,6 +2869,7 @@
   physics_domain: plasma_wall_interactions
   links:
   - name:particle_flux_at_wall
+  - name:neutral_internal_state_particle_flux_at_wall
   - name:neutral_energy_flux_at_wall
   - name:ion_particle_flux_at_wall
   - name:electron_particle_flux_at_wall
@@ -2322,6 +2999,8 @@
   physics_domain: plasma_wall_interactions
   links:
   - name:particle_flux_at_wall_due_to_recombination
+  - name:neutral_internal_state_particle_flux_at_wall_due_to_recombination
+  - name:incident_neutral_particle_flux_at_wall_due_to_recombination
   arguments:
   - name: particle_flux_at_wall_due_to_recombination
     operator: neutral
@@ -2341,6 +3020,49 @@
     enhanced_context:
       description: Array of values for emitted.
       kind: template
+- name: incident_neutral_particle_flux_at_wall_due_to_recombination
+  kind: scalar
+  status: active
+  description: Incident number flux density of neutral recombination products arriving
+    at a plasma-facing wall, summed over neutral species and internal states.
+  documentation: 'This quantity is the incoming neutral-particle count flux at a wall
+    attributable to recombination, with neutral product species and internal states
+    aggregated. It selects particles arriving at the surface, rather than neutral
+    particles emitted from it.
+
+
+    The incident flux density is defined from the recombination-attributed neutral
+    distribution by
+
+
+    $$
+
+    \Gamma_{\mathrm{inc}}^{\mathrm{rec}}(\mathbf{x}_w)=\int_{\mathbf{v}\cdot\hat{\mathbf{n}}<0}
+    \left|\mathbf{v}\cdot\hat{\mathbf{n}}\right| f_{\mathrm{n,rec}}(\mathbf{x}_w,\mathbf{v})\,d^3\mathbf{v}
+
+    $$
+
+
+    where $\mathbf{x}_w$ is the wall position, $\hat{\mathbf{n}}$ is the outward wall
+    normal, $\mathbf{v}$ is neutral-particle velocity, and $f_{\mathrm{n,rec}}$ is
+    the recombination-attributed neutral distribution summed over species and internal
+    states.
+
+
+    This incident quantity is distinct from the outgoing emission described by [neutral
+    particle flux at the wall due to recombination](name:neutral_particle_flux_at_wall_due_to_recombination).
+    A state-resolved counterpart, [incident neutral internal-state particle flux at
+    the wall due to recombination](name:incident_neutral_internal_state_particle_flux_at_wall_due_to_recombination),
+    retains the internal-state distinction.'
+  unit: m^-2.s^-1
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:neutral_particle_flux_at_wall_due_to_recombination
+  - name:incident_neutral_internal_state_particle_flux_at_wall_due_to_recombination
+  arguments:
+  - name: neutral_particle_flux_at_wall_due_to_recombination
+    operator: incident
+    operator_kind: qualifier
 - name: radial_total_current_density_at_wall
   kind: scalar
   status: active
@@ -2447,6 +3169,7 @@
   physics_domain: plasma_wall_interactions
   links:
   - name:electron_source_rate_due_to_surface_emission
+  - name:particle_flux_of_divertor_due_to_recycling
 - name: electron_source_rate_due_to_surface_emission
   kind: scalar
   status: active
@@ -2548,7 +3271,12 @@
     area.'
   unit: m^2
   physics_domain: plasma_wall_interactions
-  links: []
+  links:
+  - name:area_of_optical_element
+  arguments:
+  - name: area_of_optical_element
+    operator: surface
+    operator_kind: qualifier
   sources:
   - dd_path: camera_ir/fibre_bundle/geometry/surface
     dd_version: 4.1.0
@@ -2702,6 +3430,7 @@
   physics_domain: plasma_wall_interactions
   links:
   - name:energy_flux_at_wall_due_to_surface_emission
+  - name:area_of_optical_element
   sources:
   - dd_path: camera_ir/channel/camera/frame/region_of_interest/emissivity
     dd_version: 4.1.0
@@ -3753,6 +4482,42 @@
     enhanced_context:
       description: X coordinate of target surface center.
       kind: template
+- name: x_direction_unit_vector_of_camera
+  kind: scalar
+  status: active
+  description: X-axis component of the unit vector defining the line-of-sight direction
+    of a camera, resolved in the right-handed Cartesian (x, y, z) frame.
+  documentation: 'The x-component $d_x$ of the unit vector $\hat{d}$ that specifies
+    the line-of-sight (viewing) direction of the camera in the right-handed Cartesian
+    $(x, y, z)$ frame. Together with the [y-component](name:y_direction_unit_vector_of_camera)
+    and [z-component](name:z_direction_unit_vector_of_camera), it fully determines
+    the camera pointing direction as $\hat{d} = (d_x, d_y, d_z)$ with $d_x^2 + d_y^2
+    + d_z^2 = 1$.
+
+
+    This quantity is geometrically distinct from the [x_image_up_unit_vector_of_camera](name:x_image_up_unit_vector_of_camera),
+    which encodes the image-plane vertical orientation rather than the viewing axis.
+
+
+    Sign convention: Positive when the camera''s line-of-sight direction has a component
+    in the $+x$ direction of the right-handed Cartesian $(x, y, z)$ frame.'
+  unit: '1'
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:y_direction_unit_vector_of_camera
+  sources:
+  - dd_path: camera_ir/channel/camera/direction/x
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_ir.html#camera_ir-channel-camera-direction-x
+    dd_documentation:
+      leaf: Component along X axis
+      parent_path: camera_ir/channel/camera/direction
+      parent: Line of sight direction unit vector
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: X coordinate of direction.
+      kind: template
 - name: xenon_density_at_limiter
   kind: scalar
   status: active
@@ -3913,6 +4678,87 @@
       unit: m
     enhanced_context:
       description: Y coordinate of target surface center.
+      kind: template
+- name: y_direction_unit_vector_of_camera
+  kind: scalar
+  status: active
+  description: Y-axis component of the direction unit vector defining the line-of-sight
+    orientation of a camera, resolved in the right-handed Cartesian (x, y, z) frame.
+  documentation: 'The direction unit vector $\hat{d}$ of a camera specifies the orientation
+    of its line of sight in the right-handed Cartesian $(x, y, z)$ frame. This scalar
+    quantity is the projection of $\hat{d}$ onto the $\hat{y}$ axis:
+
+
+    $$
+
+    \hat{d}_y = \hat{d} \cdot \hat{y}
+
+    $$
+
+
+    where $|\hat{d}| = 1$ by construction, bounding $\hat{d}_y \in [-1, 1]$. Together
+    with the [x-axis component](name:x_direction_unit_vector_of_camera) and [z-axis
+    component](name:z_direction_unit_vector_of_camera), it fully determines the three-dimensional
+    camera pointing direction. This quantity is distinct from [y_image_up_unit_vector_of_camera](name:y_image_up_unit_vector_of_camera),
+    which gives the image-plane vertical orientation perpendicular to the viewing
+    direction rather than the viewing direction itself.
+
+
+    Sign convention: Positive when the camera line-of-sight direction has a component
+    in the $+\hat{y}$ direction of the right-handed Cartesian $(x, y, z)$ frame.'
+  unit: '1'
+  physics_domain: plasma_wall_interactions
+  links:
+  - name:x_direction_unit_vector_of_camera
+  - name:y_image_up_unit_vector_of_camera
+  sources:
+  - dd_path: camera_ir/channel/camera/direction/y
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_ir.html#camera_ir-channel-camera-direction-y
+    dd_documentation:
+      leaf: Component along Y axis
+      parent_path: camera_ir/channel/camera/direction
+      parent: Line of sight direction unit vector
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Y coordinate of direction.
+      kind: template
+  - dd_path: camera_ir/channel/camera/up/y
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_ir.html#camera_ir-channel-camera-up-y
+    dd_documentation:
+      leaf: Component along Y axis
+      parent_path: camera_ir/channel/camera/up
+      parent: Detector orientation unit vector
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Y coordinate of up.
+      kind: template
+  - dd_path: operational_instrumentation/sensor/direction/y
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/operational_instrumentation.html#operational_instrumentation-sensor-direction-y
+    dd_documentation:
+      leaf: Component along Y axis
+      parent_path: operational_instrumentation/sensor/direction
+      parent: Direction of the measurement (unit vector)
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Y coordinate of direction.
+      kind: template
+  - dd_path: operational_instrumentation/sensor/direction_second/y
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/operational_instrumentation.html#operational_instrumentation-sensor-direction_second-y
+    dd_documentation:
+      leaf: Component along Y axis
+      parent_path: operational_instrumentation/sensor/direction_second
+      parent: Second direction of measurement, in case of a rosette straing gauge
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Y coordinate of direction second.
       kind: template
 - name: y_image_up_unit_vector_of_camera
   kind: scalar

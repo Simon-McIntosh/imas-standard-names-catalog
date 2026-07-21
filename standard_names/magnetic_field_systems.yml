@@ -1,5 +1,5 @@
 # Domain: magnetic_field_systems
-# Entries: 87
+# Entries: 90
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -95,6 +95,55 @@
         \ cross-sectional geometry of an iron core segment, measured counter-clockwise\
         \ from a reference axis. Part of the geometric parametrisation of transformer\
         \ core elements."
+      kind: llm
+- name: area_of_correction_coil
+  kind: scalar
+  status: active
+  description: Non-negative full geometric area of the conducting material in one
+    correction-coil cross-section, taken perpendicular to the local conductor path
+    and treated as constant along the coil length.
+  documentation: 'Non-negative full geometric area of the conducting material in one
+    correction-coil cross-section is the cross-sectional measure of the electrical
+    conductor on a plane normal to the local conductor path. It is a property of one
+    correction-coil conductor element, not a sum over separate turns or parallel conductor
+    elements.
+
+
+    The area includes the conducting material in that cross-section and excludes voids,
+    insulation, coolant channels, nonconducting supports, and any winding-pack or
+    coil-footprint area outside the conductor material. For hollow or compound conductors,
+    only regions that are part of the electrical conductor are included.
+
+
+    It is distinct from [radius_of_correction_coil](name:radius_of_correction_coil),
+    [inner_radius_of_correction_coil](name:inner_radius_of_correction_coil), and [width_of_correction_coil](name:width_of_correction_coil),
+    which specify particular dimensions of a cross-section; different cross-sectional
+    shapes can have the same area.'
+  unit: m^2
+  physics_domain: magnetic_field_systems
+  links:
+  - name:area_of_poloidal_field_coil
+  - name:inner_radius_of_correction_coil
+  - name:width_of_correction_coil
+  sources:
+  - dd_path: coils_non_axisymmetric/coil/conductor/cross_section/area
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/coils_non_axisymmetric.html#coils_non_axisymmetric-coil-conductor-cross_section-area
+    dd_documentation:
+      leaf: Area of the conductor cross-section, derived from the above geometric
+        data
+      parent_path: coils_non_axisymmetric/coil/conductor/cross_section
+      parent: The cross-section perpendicular to the conductor contour is described
+        by a series of contour points, given by their relative position with respect
+        to the start point of the first element. This cross-section is assumed constant
+        for all elements.
+      data_type: FLT_0D
+      unit: m^2
+    enhanced_context:
+      description: Cross-sectional area of a non-axisymmetric coil conductor, derived
+        from its geometric contour. Characterizes the conductor cross-section, assumed
+        constant along the conductor length, for ELM control, error field, or RMP
+        coils.
       kind: llm
 - name: area_of_passive_loop
   kind: scalar
@@ -402,6 +451,7 @@
   physics_domain: magnetic_field_systems
   links:
   - name:resistance_of_correction_coil
+  - name:area_of_correction_coil
   - name:current_of_passive_loop
   sources:
   - dd_path: coils_non_axisymmetric/coil/current
@@ -923,6 +973,7 @@
   physics_domain: magnetic_field_systems
   links:
   - name:outer_radius_of_ferritic_element
+  - name:radial_coordinate_of_ferritic_element_centroid
   - name:inner_radius_of_iron_core_segment
   sources:
   - dd_path: ferritic/object/axisymmetric/annulus/radius_inner
@@ -1407,6 +1458,10 @@
   physics_domain: magnetic_field_systems
   links:
   - name:fast_neutron_flux_of_correction_coil
+  arguments:
+  - name: flux_of_correction_coil
+    operator: neutron
+    operator_kind: qualifier
 - name: fast_neutron_flux_of_correction_coil
   kind: scalar
   status: active
@@ -1677,6 +1732,7 @@
   physics_domain: magnetic_field_systems
   links:
   - name:inner_radius_of_ferritic_element
+  - name:radial_coordinate_of_ferritic_element_centroid
   sources:
   - dd_path: ferritic/object/axisymmetric/annulus/radius_outer
     dd_version: 4.1.0
@@ -1693,6 +1749,48 @@
         material in the equivalent axisymmetric geometry. Together with the inner
         radius, defines the radial extent of the annulus used in equilibrium solvers.
       kind: llm
+- name: permeability_of_ferritic_element
+  kind: scalar
+  status: active
+  description: Absolute magnetic permeability of a ferritic structural element, quantifying
+    the local slope of its nonlinear B-H characteristic that relates magnetic flux
+    density to applied field strength at a given operating point.
+  documentation: 'The absolute magnetic permeability of a ferritic element characterizes
+    how the magnetic flux density $B$ responds to the applied magnetic field strength
+    $H$ in the ferromagnetic material, capturing its nonlinear magnetization behavior
+    at any point along the B-H curve. Because ferritic steels are strongly nonlinear,
+    the permeability is field-dependent and must be specified at the relevant operating
+    point.
+
+
+    The tangent permeability at a given field amplitude is defined as:
+
+
+    $$
+
+    \mu = \frac{dB}{dH}
+
+    $$
+
+
+    where $B$ is the local magnetic flux density and $H$ is the magnetic field strength
+    at the operating point.
+
+
+    This permeability enters electromagnetic models of fusion devices because ferritic
+    structural elements can significantly distort the equilibrium magnetic field configuration,
+    particularly in the context of non-axisymmetric field correction and passive ferromagnetic
+    compensation. Values are extracted from B-H characterization curves measured for
+    the specific ferritic steel alloy used. In the high-field regime where magnetization
+    has largely reached its saturation value, the tangent permeability converges to
+    a reduced residual slope captured specifically by [saturated_permeability_of_ferritic_element](name:saturated_permeability_of_ferritic_element).
+    The local field driving magnetization at the element''s centroid is given by [radial_magnetic_field_at_ferritic_element_centroid](name:radial_magnetic_field_at_ferritic_element_centroid),
+    and the resulting induced magnetization is described by [toroidal_magnetization_of_ferritic_element](name:toroidal_magnetization_of_ferritic_element).'
+  unit: H.m^-1
+  physics_domain: magnetic_field_systems
+  links:
+  - name:radial_magnetic_field_at_ferritic_element_centroid
+  - name:toroidal_magnetization_of_ferritic_element
 - name: radial_angle_of_poloidal_field_coil
   kind: scalar
   status: active
@@ -1739,6 +1837,63 @@
       description: "First inclination angle (alpha, \u03B1) of the oblique (trapezoidal/parallelogram)\
         \ cross-sectional geometry of an active PF coil element. Part of the oblique\
         \ geometry parameterisation for non-rectangular conductor cross-sections."
+      kind: llm
+- name: radial_coordinate_of_ferritic_element_centroid
+  kind: scalar
+  status: active
+  description: "Non-negative major-radius coordinate locating a ferritic-element geometric\
+    \ centroid in the right-handed cylindrical (R, \u03C6, Z) frame."
+  documentation: 'This quantity is the non-negative major-radius coordinate $R$ of
+    the geometric centroid of a ferritic element. In the right-handed cylindrical
+    $(R,\phi,Z)$ frame, $R$ is measured from the machine symmetry axis and identifies
+    the centroid''s radial location.
+
+
+    For the same centroid, the radial coordinate is related to its Cartesian coordinates
+    by:
+
+
+    $$
+
+    R = \sqrt{x^2+y^2}
+
+    $$
+
+
+    where $x$ and $y$ are the signed Cartesian coordinates of the centroid in the
+    right-handed Cartesian $(x,y,z)$ frame. The corresponding [x coordinate of the
+    ferritic-element centroid](name:x_coordinate_of_ferritic_element_centroid), [y
+    coordinate of the ferritic-element centroid](name:y_coordinate_of_ferritic_element_centroid),
+    and [z coordinate of the ferritic-element centroid](name:z_coordinate_of_ferritic_element_centroid)
+    locate the same geometric point.
+
+
+    This is an absolute major-radius coordinate, not a signed local offset, radial
+    extent, outer radius, or curvature radius.'
+  unit: m
+  physics_domain: magnetic_field_systems
+  links:
+  - name:x_coordinate_of_ferritic_element_centroid
+  - name:y_coordinate_of_ferritic_element_centroid
+  - name:z_coordinate_of_ferritic_element_centroid
+  sources:
+  - dd_path: ferritic/object/axisymmetric/arcs_of_circle/curvature_radii
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/ferritic.html#ferritic-object-axisymmetric-arcs_of_circle-curvature_radii
+    dd_documentation:
+      leaf: Curvature radius of each arc of circle
+      parent_path: ferritic/object/axisymmetric/arcs_of_circle
+      parent: Description of the element contour by a set of arcs of circle. For each
+        of these, the position of the start point is given together with the curvature
+        radius. The end point is given by the start point of the next arc of circle.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - ferritic/object/axisymmetric/arcs_of_circle/r
+    enhanced_context:
+      description: Curvature radius of each arc-of-circle segment defining the axisymmetric
+        contour of a ferritic object. Used to describe the shape of axisymmetric ferritic
+        components such as iron core segments in electromagnetic modelling.
       kind: llm
 - name: radial_coordinate_of_iron_core_segment
   kind: scalar
@@ -1867,6 +2022,7 @@
   unit: T
   physics_domain: magnetic_field_systems
   links:
+  - name:radial_coordinate_of_ferritic_element_centroid
   - name:vertical_magnetic_field_at_ferritic_element_centroid
   - name:toroidal_magnetic_field_at_ferritic_element_centroid
   sources:
@@ -2790,6 +2946,7 @@
   physics_domain: magnetic_field_systems
   links:
   - name:current_of_correction_coil
+  - name:area_of_correction_coil
   sources:
   - dd_path: coils_non_axisymmetric/coil/conductor/resistance
     dd_version: 4.1.0
@@ -4237,6 +4394,7 @@
   unit: m
   physics_domain: magnetic_field_systems
   links:
+  - name:radial_coordinate_of_ferritic_element_centroid
   - name:width_of_iron_core_segment
   sources:
   - dd_path: ferritic/object/axisymmetric/rectangle/width
@@ -4505,6 +4663,7 @@
   links:
   - name:y_coordinate_of_ferritic_element_centroid
   - name:z_coordinate_of_ferritic_element_centroid
+  - name:radial_coordinate_of_ferritic_element_centroid
   sources:
   - dd_path: ferritic/object/centroid/x
     dd_version: 4.1.0
@@ -4556,6 +4715,7 @@
   unit: m
   physics_domain: magnetic_field_systems
   links:
+  - name:radial_coordinate_of_ferritic_element_centroid
   - name:x_coordinate_of_ferritic_element_centroid
   - name:y_coordinate_of_ferritic_element_centroid
   sources:
@@ -4780,6 +4940,7 @@
   physics_domain: magnetic_field_systems
   links:
   - name:poloidal_current_function
+  - name:vacuum_magnetic_field
   arguments:
   - name: poloidal_current_function
     operator: vacuum

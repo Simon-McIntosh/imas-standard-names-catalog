@@ -1,5 +1,5 @@
 # Domain: particle_measurement_diagnostics
-# Entries: 72
+# Entries: 80
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -64,6 +64,34 @@
         Langmuir probe pin. Used for computing current density and ion saturation
         current density from raw probe current measurements.
       kind: llm
+- name: area_of_neutron_detector
+  kind: scalar
+  status: active
+  description: Geometric area of a particle-detector sensitive surface that can intercept
+    the relevant particles, independent of projection, solid-angle weighting, and
+    detector response.
+  documentation: 'Geometric surface area is the physical extent of the detector surface
+    designated as sensitive to the relevant particles. It applies to planar, curved,
+    or segmented sensitive surfaces, with segmented areas combined into one total.
+
+
+    $$
+
+    A = \int_{S_{\mathrm{sens}}} dS
+
+    $$
+
+
+    where $A$ is the geometric surface area, $S_{\mathrm{sens}}$ is the sensitive-surface
+    domain, and $dS$ is its differential area element. The area includes only the
+    sensitive surface and excludes passive housing, shielding, supports, and electronics.
+    It is not projected area, solid-angle-weighted area, or response-weighted effective
+    area. The representative [neutron-detector surface area](name:surface_area_of_neutron_detector)
+    is an instance of this quantity.'
+  unit: m^2
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:surface_area_of_neutron_detector
 - name: beryllium_density
   kind: scalar
   status: active
@@ -138,6 +166,7 @@
   physics_domain: particle_measurement_diagnostics
   links:
   - name:ion_current_of_mass_spectrometer_channel
+  - name:ion_current
 - name: diameter_of_diagnostic_aperture
   kind: scalar
   status: active
@@ -346,6 +375,43 @@
         of incident neutron energy. Gives the probability that a neutron impacting
         the detector within the specified energy interval is recorded as a count.
       kind: llm
+- name: energy_at_launching_position
+  kind: scalar
+  status: active
+  description: Energy at launching position is the total energy carried by a launched
+    beam or pulse at its launch reference position, before downstream interaction,
+    absorption, or transport loss changes that energy.
+  documentation: 'Energy at launching position is the total energy carried by a launched
+    beam, pulse, or directed emission at the specified launching locus along its trajectory.
+    It is defined at the launch reference position, not after propagation through
+    or interaction with a target medium.
+
+
+    When represented through the instantaneous power carried through the launch reference
+    position, the launch energy is
+
+
+    $$
+
+    E_\mathrm{launch} = \int_{t_1}^{t_2} P_\mathrm{launch}(t)\,dt
+
+    $$
+
+
+    where $E_\mathrm{launch}$ is the energy at launching position, $P_\mathrm{launch}(t)$
+    is the instantaneous power carried by the launched beam or pulse through that
+    position, and $t_1$ and $t_2$ bound the launch interval.
+
+
+    This parent quantity is independent of the physical carrier or beam species. The
+    [wave-beam energy at launching position](name:wave_beam_energy_at_launching_position)
+    is the specialization for coherent electromagnetic wave beams; this parent also
+    excludes energy stored in the source, energy absorbed in the target, and energy
+    evaluated at downstream positions.'
+  unit: J
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:wave_beam_energy_at_launching_position
 - name: energy_of_neutron_detector
   kind: scalar
   status: active
@@ -443,6 +509,67 @@
       description: Calibrated radiance of the fast ion charge exchange (FICX) spectrum,
         integrated over the sightline crossing the neutral beam. The spectral shape
         is assumed pre-defined, e.g., by the Fokker-Planck slowing-down function.
+      kind: llm
+- name: first_local_tangential_coordinate_of_neutron_detector
+  kind: scalar
+  status: active
+  description: Signed coordinate of a neutron-detector outline vertex along the first
+    local tangential axis of the right-handed local basis (e1, e2, e3), paired with
+    the second coordinate to define the detector cross section.
+  documentation: 'Signed coordinate of a neutron-detector outline vertex along the
+    first local tangential axis is the scalar displacement of that vertex from the
+    detector cross-section local origin projected onto $\hat{e}_1$. The right-handed
+    local detector basis $(\hat{e}_1,\hat{e}_2,\hat{e}_3)$ has $\hat{e}_3$ as the
+    plasma-facing normal to the detector cross section, $\hat{e}_1$ as the tangential
+    axis whose positive sense is toward increasing toroidal angle $\phi$ in the right-handed
+    cylindrical $(R,\phi,Z)$ frame, and $\hat{e}_2 = \hat{e}_3 \times \hat{e}_1$.
+
+
+    The coordinate is defined by the local tangent-plane projection:
+
+
+    $$
+
+    \ell_1 = (\mathbf{r}_v - \mathbf{r}_0) \cdot \hat{e}_1
+
+    $$
+
+
+    where $\ell_1$ is this first local tangential coordinate, $\mathbf{r}_v$ is the
+    position vector of the outline vertex, $\mathbf{r}_0$ is the position vector of
+    the detector cross-section local origin, and $\hat{e}_1$ is the first local tangential
+    unit vector.
+
+
+    Together with the [second local tangential coordinate of the neutron detector](name:second_local_tangential_coordinate_of_neutron_detector),
+    this coordinate specifies the in-plane position of an outline vertex of the detector
+    cross section. It is not a cylindrical $R$, $\phi$, or $Z$ position in the right-handed
+    cylindrical $(R,\phi,Z)$ frame and does not denote displacement normal to the
+    detector cross section.
+
+
+    Sign convention: Positive when the outline vertex is displaced from the local
+    origin in the $+\hat{e}_1$ direction.'
+  unit: m
+  physics_domain: particle_measurement_diagnostics
+  links: []
+  sources:
+  - dd_path: neutron_diagnostic/detector/geometry/outline/x1
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/neutron_diagnostic.html#neutron_diagnostic-detector-geometry-outline-x1
+    dd_documentation:
+      leaf: Positions along x1 axis
+      parent_path: neutron_diagnostic/detector/geometry/outline
+      parent: Irregular outline of the detector/aperture in the (X1, X2) coordinate
+        system. Do NOT repeat the first point.
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - 1...N
+    enhanced_context:
+      description: Positions of the neutron detector or aperture outline vertices
+        along the X1 axis of the local (X1, X2) coordinate system. Used to specify
+        the cross-sectional geometry of the detector for neutron diagnostic systems.
       kind: llm
 - name: flux_of_neutron_detector
   kind: scalar
@@ -667,6 +794,37 @@
   - name:volume_averaged_helium_4_density
   - name:flux_surface_averaged_helium_4_density_at_plasma_boundary
   - name:ratio_of_volume_averaged_helium_4_density_to_volume_averaged_electron_density
+- name: ion_current
+  kind: scalar
+  status: active
+  description: Electric current carried by positive ions, representing the net charge
+    transport attributable to ion species flow across a defined surface or through
+    a circuit element.
+  documentation: 'Ion current is the net charge transport rate due to positive ions.
+    For a multi-species plasma the ion current through a surface $S$ is
+
+
+    $$
+
+    I_i = \sum_s Z_s e \int_S n_s \mathbf{v}_s \cdot d\mathbf{A}
+
+    $$
+
+
+    where $Z_s$ is the charge number of species $s$, $e$ is the elementary charge,
+    $n_s$ is the number density, and $\mathbf{v}_s$ is the mean drift velocity of
+    species $s$. In probe diagnostics, progressively increasing the negative bias
+    on a collector reduces the electron current until only the ion contribution remains;
+    this limiting value is the [saturated_ion_current](name:saturated_ion_current),
+    reached when electron collection is fully suppressed.
+
+
+    Sign convention: Positive when positive ions flow from the plasma toward the collecting
+    surface, constituting conventional current in the direction of ion transport.'
+  unit: A
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:saturated_ion_current
 - name: ion_current_of_mass_spectrometer_channel
   kind: scalar
   status: active
@@ -787,6 +945,7 @@
   unit: m^-3
   physics_domain: particle_measurement_diagnostics
   links:
+  - name:ion_charge_state_density
   - name:ratio_of_volume_averaged_krypton_density_to_volume_averaged_electron_density
   - name:krypton_density_at_magnetic_axis
   - name:krypton_density_at_divertor_target
@@ -1136,6 +1295,7 @@
   links:
   - name:rate_of_neutron_detector
   - name:flux_of_neutron_detector
+  - name:area_of_neutron_detector
   arguments:
   - name: flux_of_neutron_detector
     operator: neutron
@@ -1405,6 +1565,7 @@
   unit: Pa
   physics_domain: particle_measurement_diagnostics
   links:
+  - name:ion_charge_state_pressure
   - name:neutral_pressure_of_mass_spectrometer_channel
   - name:ion_current_of_mass_spectrometer_channel
 - name: neutral_pressure_of_mass_spectrometer_channel
@@ -1853,6 +2014,82 @@
         uncertainty, representing the target bias voltage as opposed to the measured
         output voltage.
       kind: llm
+- name: saturated_ion_current
+  kind: scalar
+  status: active
+  description: Ion charge flux collected by a Langmuir probe at the ion-saturation
+    limit, expressed as the non-negative magnitude of the area-integrated ion current
+    when electron collection is suppressed.
+  documentation: 'Ion charge flux collected by a Langmuir probe at the ion-saturation
+    limit is the non-negative magnitude of the current due to ions reaching the collecting
+    surface when the probe bias is sufficiently negative that electron collection
+    is suppressed and the ion branch is in its saturation regime. It represents the
+    area-integrated counterpart of the local saturated ion current density.
+
+
+    The saturated ion current is defined by integration of the saturated ion current
+    density over the effective collecting surface:
+
+
+    $$
+
+    I_{\mathrm{sat},i} = \int_{A_{\mathrm{eff}}} j_{\mathrm{sat},i}(\mathbf{x})\,
+    dA
+
+    $$
+
+
+    where $j_{\mathrm{sat},i}$ is the [saturated ion current density](name:saturated_ion_current_density),
+    $A_{\mathrm{eff}}$ is the [effective area of a Langmuir probe](name:effective_area_of_langmuir_probe),
+    $\mathbf{x}$ labels position on the collecting surface, and $dA$ is a surface-area
+    element.
+
+
+    Any sheath-expansion factor, incidence-angle correction, ion-species assumption,
+    or Bohm-speed estimate is model dependent and belongs to the evaluation of $j_{\mathrm{sat},i}$
+    or $A_{\mathrm{eff}}$, not to the definition of this quantity. This quantity excludes
+    electron current and does not encode a signed electrode-current convention.'
+  unit: A
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:effective_area_of_langmuir_probe
+  - name:saturated_ion_current_density
+  - name:fluctuating_saturated_ion_current_density
+  arguments:
+  - name: ion_current
+    operator: saturated
+    operator_kind: qualifier
+  sources:
+  - dd_path: langmuir_probes/embedded/ion_saturation_current
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/langmuir_probes.html#langmuir_probes-embedded-ion_saturation_current
+    dd_documentation:
+      leaf: Ion saturation current measured by the probe
+      parent_path: langmuir_probes/embedded
+      parent: Set of embedded (in a plasma facing component) probes or probe pins
+      data_type: STRUCTURE
+      unit: A
+    enhanced_context:
+      description: Ion saturation current (I_sat) measured by an embedded Langmuir
+        probe. Proportional to the product of electron density and the Bohm velocity,
+        used to infer local plasma density and heat flux at the plasma-facing target
+        surface.
+      kind: llm
+  - dd_path: langmuir_probes/reciprocating/plunge/collector/ion_saturation_current
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/langmuir_probes.html#langmuir_probes-reciprocating-plunge-collector-ion_saturation_current
+    dd_documentation:
+      leaf: Ion saturation current measured by the probe
+      parent_path: langmuir_probes/reciprocating/plunge/collector
+      parent: Set of probe collectors including measurements specific to each collector
+      data_type: STRUCTURE
+      unit: A
+    enhanced_context:
+      description: Ion saturation current (Isat) measured by a reciprocating Langmuir
+        probe collector during a plunge. Isat is the limiting current at large negative
+        bias, proportional to local plasma density and electron temperature at the
+        probe tip.
+      kind: llm
 - name: solid_angle_of_neutron_detector
   kind: scalar
   status: active
@@ -1875,6 +2112,7 @@
   unit: sr
   physics_domain: particle_measurement_diagnostics
   links:
+  - name:area_of_neutron_detector
   - name:radius_of_neutron_detector
   - name:efficiency_of_neutron_detector
   sources:
@@ -1926,7 +2164,12 @@
     solid angle.'
   unit: m^2
   physics_domain: particle_measurement_diagnostics
-  links: []
+  links:
+  - name:area_of_neutron_detector
+  arguments:
+  - name: area_of_neutron_detector
+    operator: surface
+    operator_kind: qualifier
   sources:
   - dd_path: neutron_diagnostic/detector/geometry/surface
     dd_version: 4.1.0
@@ -3050,7 +3293,12 @@
     an additional component of that quantity.'
   unit: J
   physics_domain: particle_measurement_diagnostics
-  links: []
+  links:
+  - name:energy_at_launching_position
+  arguments:
+  - name: energy_at_launching_position
+    operator: wave_beam
+    operator_kind: qualifier
   sources:
   - dd_path: thomson_scattering/laser/energy_in
     dd_version: 4.1.0
@@ -3337,6 +3585,69 @@
         and vertical directions. Characterizes the spatial extent of the beam cross-section
         in beam tracing calculations.
       kind: llm
+- name: x_direction_unit_vector_of_neutron_detector
+  kind: scalar
+  status: active
+  description: X component of the neutron-detector direction unit vector is the direction
+    cosine along the x axis of the right-handed Cartesian (x, y, z) frame, from a
+    field-of-view voxel center toward the detector center. It is a component of a
+    normalized pointing direction, not a position coordinate.
+  documentation: 'X component of the neutron-detector direction unit vector is the
+    projection of the normalized direction from a field-of-view voxel center to the
+    neutron-detector center onto the positive $\hat{x}$ axis. The component is resolved
+    in the right-handed Cartesian $(\hat{x}, \hat{y}, \hat{z})$ basis and is a direction
+    cosine, not a Cartesian position coordinate.
+
+
+    The normalized pointing component is defined by
+
+
+    $$
+
+    d_x = \left(\frac{\mathbf r_{\rm det}-\mathbf r_{\rm vox}}{\left\lVert \mathbf
+    r_{\rm det}-\mathbf r_{\rm vox}\right\rVert}\right)\cdot\hat{\mathbf x}
+
+    $$
+
+
+    where $d_x$ is the x component of the neutron-detector direction unit vector,
+    $\mathbf r_{\rm det}$ is the detector-center position, $\mathbf r_{\rm vox}$ is
+    the voxel-center position, and $\hat{\mathbf x}$ is the positive x basis vector.
+
+
+    Together with the [y component](name:y_direction_unit_vector_of_neutron_detector)
+    and [z component](name:z_direction_unit_vector_of_neutron_detector), $d_x$ specifies
+    the full normalized direction from the voxel center toward the detector center;
+    for nonzero separation the components satisfy $d_x^2+d_y^2+d_z^2=1$.
+
+
+    Sign convention: Positive when the normalized direction from the voxel center
+    to the detector center has a component in the $+\hat{x}$ direction.'
+  unit: m
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:y_direction_unit_vector_of_neutron_detector
+  - name:z_direction_unit_vector_of_neutron_detector
+  sources:
+  - dd_path: neutron_diagnostic/detector/field_of_view/direction_to_detector/x
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/neutron_diagnostic.html#neutron_diagnostic-detector-field_of_view-direction_to_detector-x
+    dd_documentation:
+      leaf: Components along X axis for each voxel
+      parent_path: neutron_diagnostic/detector/field_of_view/direction_to_detector
+      parent: Vector that points from the centre of the voxel to the centre of the
+        detector, described in the (X,Y,Z) coordinate system, where X is the major
+        radius axis for phi = 0, Y is the major radius axis for phi = pi/2, and Z
+        is the height axis.
+      data_type: FLT_3D
+      unit: m
+      coordinates:
+      - neutron_diagnostic/detector/field_of_view/emission_grid/z
+      - neutron_diagnostic/detector/field_of_view/emission_grid/phi
+      - neutron_diagnostic/detector/field_of_view/emission_grid/r
+    enhanced_context:
+      description: X coordinate of direction to detector.
+      kind: template
 - name: xenon_density
   kind: scalar
   status: active
@@ -3431,6 +3742,72 @@
     enhanced_context:
       description: Xenon.
       kind: template
+- name: y_direction_unit_vector_of_neutron_detector
+  kind: scalar
+  status: active
+  description: Y direction unit-vector component of a neutron detector is the y direction
+    cosine, in the right-handed Cartesian (x, y, z) basis, of the unit vector from
+    a field-of-view voxel center toward the detector center.
+  documentation: 'Y direction unit-vector component of a neutron detector is the signed
+    projection, in the right-handed Cartesian $(\hat{x}, \hat{y}, \hat{z})$ basis,
+    of the unit vector directed from a field-of-view voxel center toward the detector
+    center. It is the y direction cosine of that line-of-sight direction.
+
+
+    The component is defined by projecting the detector-directed unit vector onto
+    the $\hat{y}$ basis vector:
+
+
+    $$
+
+    u_y = \hat{\mathbf{u}}_{\mathrm{det}} \cdot \hat{y} = \frac{(\mathbf{r}_{\mathrm{det}}
+    - \mathbf{r}_{\mathrm{vox}}) \cdot \hat{y}}{\lVert \mathbf{r}_{\mathrm{det}} -
+    \mathbf{r}_{\mathrm{vox}} \rVert}
+
+    $$
+
+
+    where $\hat{\mathbf{u}}_{\mathrm{det}}$ is the unit vector from the field-of-view
+    voxel center to the detector center, $\mathbf{r}_{\mathrm{det}}$ is the detector-center
+    position, $\mathbf{r}_{\mathrm{vox}}$ is the field-of-view voxel-center position,
+    and $\hat{y}$ is the y basis vector of the right-handed Cartesian $(\hat{x}, \hat{y},
+    \hat{z})$ frame.
+
+
+    This quantity is a signed direction-cosine component, not a position coordinate,
+    distance, or unnormalized displacement component. Together with the corresponding
+    x and z components it satisfies $u_x^2 + u_y^2 + u_z^2 = 1$ when the field-of-view
+    voxel center and detector center are distinct.
+
+
+    Sign convention: Positive when the direction from the field-of-view voxel center
+    toward the detector center has a component in the $+\hat{y}$ direction of the
+    right-handed Cartesian $(\hat{x}, \hat{y}, \hat{z})$ frame.'
+  unit: m
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:x_direction_unit_vector_of_neutron_detector
+  - name:z_direction_unit_vector_of_neutron_detector
+  sources:
+  - dd_path: neutron_diagnostic/detector/field_of_view/direction_to_detector/y
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/neutron_diagnostic.html#neutron_diagnostic-detector-field_of_view-direction_to_detector-y
+    dd_documentation:
+      leaf: Component along Y axis  for each voxel
+      parent_path: neutron_diagnostic/detector/field_of_view/direction_to_detector
+      parent: Vector that points from the centre of the voxel to the centre of the
+        detector, described in the (X,Y,Z) coordinate system, where X is the major
+        radius axis for phi = 0, Y is the major radius axis for phi = pi/2, and Z
+        is the height axis.
+      data_type: FLT_3D
+      unit: m
+      coordinates:
+      - neutron_diagnostic/detector/field_of_view/emission_grid/z
+      - neutron_diagnostic/detector/field_of_view/emission_grid/r
+      - neutron_diagnostic/detector/field_of_view/emission_grid/phi
+    enhanced_context:
+      description: Y coordinate of direction to detector.
+      kind: template
 - name: z_direction_unit_vector_of_neutron_detector
   kind: scalar
   status: active
@@ -3476,7 +3853,9 @@
     right-handed Cartesian $(\hat{x}, \hat{y}, \hat{z})$ basis.'
   unit: m
   physics_domain: particle_measurement_diagnostics
-  links: []
+  links:
+  - name:x_direction_unit_vector_of_neutron_detector
+  - name:y_direction_unit_vector_of_neutron_detector
   sources:
   - dd_path: neutron_diagnostic/detector/field_of_view/direction_to_detector/z
     dd_version: 4.1.0
@@ -4153,6 +4532,53 @@
       - summary/time
     enhanced_context:
       description: Lithium.
+      kind: template
+- name: line_averaged_total_ion_density
+  kind: scalar
+  status: active
+  description: Total ion number density averaged along a specified plasma chord, summing
+    all ion species and charge states, including thermal and non-thermal ions.
+  documentation: 'The line-averaged total ion density is the chord average of the
+    local [total ion density](name:total_ion_density), including all ion species,
+    resolved charge states, and thermal and non-thermal ion populations. It excludes
+    electron density.
+
+
+    $$
+
+    n_{\mathrm{i,line}} = \frac{1}{L}\int_0^L n_{\mathrm{i,total}}(l)\,dl
+
+    $$
+
+
+    where $l$ is distance along the chord, $L$ is chord length, $n_{\mathrm{i,total}}(l)$
+    is local total ion density, and $n_{\mathrm{i,line}}$ is the resulting line average.
+    Unlike the [volume-averaged total ion density](name:volume_averaged_total_ion_density),
+    it averages along a chord rather than throughout a volume.'
+  unit: m^-3
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:total_ion_density
+  - name:volume_averaged_total_ion_density
+  arguments:
+  - name: total_ion_density
+    operator: line_averaged
+    operator_kind: qualifier
+  sources:
+  - dd_path: summary/line_average/n_i_total/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-line_average-n_i_total-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/line_average/n_i_total
+      parent: Total ion density (sum over species)
+      data_type: FLT_1D
+      unit: m^-3
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Line-averaged total ion density (ni,tot), summed over all ion species.
+        Represents the integral ion particle content along a chord through the plasma.
       kind: template
 - name: line_averaged_tritium_density
   kind: scalar

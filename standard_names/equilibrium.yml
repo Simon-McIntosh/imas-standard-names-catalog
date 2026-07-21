@@ -1,5 +1,5 @@
 # Domain: equilibrium
-# Entries: 110
+# Entries: 116
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
@@ -664,6 +664,7 @@
   unit: m
   physics_domain: equilibrium
   links:
+  - name:radius_of_plasma_boundary
   - name:electron_density_at_plasma_boundary
   sources:
   - dd_path: equilibrium/time_slice/boundary/closest_wall_point/distance
@@ -921,7 +922,9 @@
   physics_domain: equilibrium
   links:
   - name:magnetic_vector_potential
+  - name:vacuum_magnetic_field
   - name:plasma_magnetic_field
+  - name:maximum_magnetic_field
   sources:
   - dd_path: magnetics/b_field_phi_probe/non_linear_response/b_field_non_linear
     dd_version: 4.1.0
@@ -1162,6 +1165,48 @@
         \ metric coefficient used in flux-surface-averaged transport equations. Represents\
         \ the mean major radius over a flux surface."
       kind: llm
+- name: maximum_magnetic_field
+  kind: scalar
+  status: active
+  description: The maximum magnetic field is the scalar upper extremum of total magnetic-field
+    strength over a specified magnetic locus, with qualifiers selecting the locus
+    or concrete realization. It is not a signed vector component and is paired with
+    the minimum magnetic field in mirror-ratio concepts.
+  documentation: 'The maximum magnetic field $B_{\max}$ is the largest value of the
+    total [magnetic induction](name:magnetic_field) strength selected by the quantity''s
+    qualifying context. It is a scalar upper extremum of $|\mathbf{B}|$, not a magnetic-field
+    vector and not a signed component.
+
+
+    For a specified evaluation set $S$, the abstract extremum is
+
+
+    $$
+
+    B_{\max}(S) = \sup_{\mathbf{x}\in S} |\mathbf{B}(\mathbf{x})|
+
+    $$
+
+
+    where $S$ is the selected magnetic locus, $\mathbf{x}$ is position on that locus,
+    and $\mathbf{B}$ is the total magnetic induction vector.
+
+
+    A concrete child such as the [maximum magnetic-field magnitude](name:maximum_magnetic_field_magnitude)
+    fixes the selected locus to a nested toroidal magnetic flux surface and realizes
+    the value as a surface extremum. The paired [minimum magnetic field](name:minimum_magnetic_field)
+    is the corresponding lower extremum; mirror-ratio quantities derived from the
+    two are not part of this definition.'
+  unit: T
+  physics_domain: equilibrium
+  links:
+  - name:magnetic_field
+  - name:minimum_magnetic_field
+  - name:maximum_magnetic_field_magnitude
+  arguments:
+  - name: magnetic_field
+    operator: maximum
+    operator_kind: qualifier
 - name: maximum_magnetic_field_magnitude
   kind: scalar
   status: active
@@ -1204,7 +1249,12 @@
   physics_domain: equilibrium
   links:
   - name:poloidal_magnetic_flux_at_flux_surface
+  - name:maximum_magnetic_field
   - name:minimum_magnetic_field_magnitude
+  arguments:
+  - name: maximum_magnetic_field
+    operator: magnitude
+    operator_kind: unary_postfix
   sources:
   - dd_path: equilibrium/time_slice/profiles_1d/b_field_max
     dd_version: 4.1.0
@@ -1257,6 +1307,48 @@
         surface (B_max). A critical engineering constraint for superconducting coil
         operation limits and quench protection.
       kind: llm
+- name: minimum_magnetic_field
+  kind: scalar
+  status: active
+  description: The minimum magnetic field is the smallest total magnetic-field strength
+    attained on a given nested toroidal flux surface. It is paired with the maximum
+    magnetic field and defines the weak-field endpoint used in magnetic-mirror and
+    trapped-particle conditions.
+  documentation: 'The minimum magnetic field $B_{\min}$ is the smallest value of the
+    total [magnetic_field](name:magnetic_field) strength attained anywhere on a specified
+    nested toroidal flux surface. It is a scalar extremum of $|\mathbf{B}|$ on that
+    surface, not a signed component of the magnetic-field vector.
+
+
+    For a flux surface $S_\lambda$ labeled by a scalar flux label $\lambda$, the defining
+    relation is
+
+
+    $$
+
+    B_{\min}(\lambda) = \min_{\mathbf{x} \in S_\lambda} |\mathbf{B}(\mathbf{x})|
+
+    $$
+
+
+    where $\mathbf{B}(\mathbf{x})$ is the total magnetic-field vector at position
+    $\mathbf{x}$ and $S_\lambda$ is the corresponding closed toroidal flux surface.
+
+
+    This quantity is the lower field-strength bound paired with [maximum_magnetic_field](name:maximum_magnetic_field),
+    and the two extrema define mirror-ratio quantities such as $B_{\max}/B_{\min}$.
+    The explicitly magnitude-named form [minimum_magnetic_field_magnitude](name:minimum_magnetic_field_magnitude)
+    refers to this same flux-surface minimum of $|\mathbf{B}|$.'
+  unit: T
+  physics_domain: equilibrium
+  links:
+  - name:magnetic_field
+  - name:minimum_magnetic_field_magnitude
+  - name:maximum_magnetic_field
+  arguments:
+  - name: magnetic_field
+    operator: minimum
+    operator_kind: qualifier
 - name: minimum_magnetic_field_magnitude
   kind: scalar
   status: active
@@ -1297,6 +1389,10 @@
   physics_domain: equilibrium
   links:
   - name:maximum_magnetic_field_magnitude
+  arguments:
+  - name: minimum_magnetic_field
+    operator: magnitude
+    operator_kind: unary_postfix
   sources:
   - dd_path: equilibrium/time_slice/profiles_1d/b_field_min
     dd_version: 4.1.0
@@ -1316,69 +1412,6 @@
         a 1D radial profile in the MHD equilibrium. Always positive and used in trapped
         particle fraction calculations and bounce-averaged transport models.
       kind: llm
-- name: minor_radius_of_plasma_boundary
-  kind: scalar
-  status: active
-  description: Minor radius of the last closed plasma-boundary contour, obtained from
-    its maximum and minimum major-radius coordinates.
-  documentation: 'The minor radius of the plasma boundary is the radial half-width
-    of the last closed plasma-boundary contour in a poloidal cross-section at fixed
-    toroidal angle. In the right-handed cylindrical $(R,\phi,Z)$ frame, $R$ is major
-    radius, $\phi$ is toroidal angle, and $Z$ is vertical height. It is the component-specific
-    radial measure represented by [radius of plasma boundary](name:radius_of_plasma_boundary).
-
-
-    The minor radius is defined by
-
-
-    $$
-
-    a = \frac{R_{\max} - R_{\min}}{2}
-
-    $$
-
-
-    where $a$ is the minor radius, and $R_{\max}$ and $R_{\min}$ are the maximum and
-    minimum values of the major-radius coordinate along the complete boundary contour,
-    measured in m. The definition excludes vertical extent, contour perimeter, and
-    shaping parameters.'
-  unit: m
-  physics_domain: equilibrium
-  links: []
-  sources:
-  - dd_path: equilibrium/time_slice/boundary/minor_radius
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-boundary-minor_radius
-    dd_documentation:
-      leaf: Minor radius of the plasma boundary (defined as (Rmax-Rmin) / 2 of the
-        boundary)
-      parent_path: equilibrium/time_slice/boundary
-      parent: Description of the plasma boundary used by fixed-boundary codes and
-        typically chosen at psi_norm = 99.x% of the separatrix
-      data_type: FLT_0D
-      unit: m
-    enhanced_context:
-      description: "Minor radius (a) of the plasma boundary, defined as (R_max \u2212\
-        \ R_min)/2 of the boundary contour. A primary geometric parameter characterizing\
-        \ the radial extent of the plasma cross-section."
-      kind: llm
-  - dd_path: summary/boundary/minor_radius/value
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-boundary-minor_radius-value
-    dd_documentation:
-      leaf: Value
-      parent_path: summary/boundary/minor_radius
-      parent: Minor radius of the plasma boundary (defined as (Rmax-Rmin) / 2 of the
-        boundary)
-      data_type: FLT_1D
-      unit: m
-      coordinates:
-      - summary/time
-    enhanced_context:
-      description: Minor radius (a) of the plasma boundary, defined as half the difference
-        between the maximum and minimum major radii of the last closed flux surface.
-        A primary geometric parameter characterizing the plasma cross-section size.
-      kind: template
 - name: non_axisymmetric_magnetic_field
   kind: vector
   status: active
@@ -5499,6 +5532,103 @@
         error fields or intentional non-axisymmetric perturbations at each spatial
         point.
       kind: llm
+- name: radius_of_plasma_boundary
+  kind: scalar
+  status: active
+  description: "Radius of plasma boundary is a scalar radius measure characterizing\
+    \ the size of the plasma-boundary contour in a poloidal cross-section. Specializations\
+    \ define the particular radius descriptor, such as the minor-radius half-width\
+    \ in the right-handed cylindrical (R, \u03C6, Z) frame."
+  documentation: 'Radius of plasma boundary is a scalar radius measure assigned to
+    the closed contour that represents the plasma boundary in a poloidal cross-section.
+    It defines the common boundary-radius concept; concrete specializations determine
+    which radius descriptor is used, while the locus remains the plasma-boundary contour.
+
+
+    For the representative [minor radius of plasma boundary](name:minor_radius_of_plasma_boundary)
+    specialization, the descriptor is the half difference between the maximum and
+    minimum major radius of the same boundary contour in the right-handed cylindrical
+    $(R, \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal angle, and
+    $Z$ is vertical height: $a = (R_{\max} - R_{\min})/2$. Other specializations preserve
+    the same boundary locus and differ only in the radius descriptor.
+
+
+    This quantity excludes coordinates of individual boundary points, boundary perimeter,
+    enclosed area, and flux-surface labels; those describe boundary geometry or labeling
+    rather than a scalar radius descriptor.'
+  unit: m
+  physics_domain: equilibrium
+  links:
+  - name:minor_radius_of_plasma_boundary
+  - name:elongation_of_plasma_boundary
+- name: minor_radius_of_plasma_boundary
+  kind: scalar
+  status: active
+  description: Minor radius of the last closed plasma-boundary contour, obtained from
+    its maximum and minimum major-radius coordinates.
+  documentation: 'The minor radius of the plasma boundary is the radial half-width
+    of the last closed plasma-boundary contour in a poloidal cross-section at fixed
+    toroidal angle. In the right-handed cylindrical $(R,\phi,Z)$ frame, $R$ is major
+    radius, $\phi$ is toroidal angle, and $Z$ is vertical height. It is the component-specific
+    radial measure represented by [radius of plasma boundary](name:radius_of_plasma_boundary).
+
+
+    The minor radius is defined by
+
+
+    $$
+
+    a = \frac{R_{\max} - R_{\min}}{2}
+
+    $$
+
+
+    where $a$ is the minor radius, and $R_{\max}$ and $R_{\min}$ are the maximum and
+    minimum values of the major-radius coordinate along the complete boundary contour,
+    measured in m. The definition excludes vertical extent, contour perimeter, and
+    shaping parameters.'
+  unit: m
+  physics_domain: equilibrium
+  links:
+  - name:radius_of_plasma_boundary
+  arguments:
+  - name: radius_of_plasma_boundary
+    operator: minor
+    operator_kind: qualifier
+  sources:
+  - dd_path: equilibrium/time_slice/boundary/minor_radius
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-boundary-minor_radius
+    dd_documentation:
+      leaf: Minor radius of the plasma boundary (defined as (Rmax-Rmin) / 2 of the
+        boundary)
+      parent_path: equilibrium/time_slice/boundary
+      parent: Description of the plasma boundary used by fixed-boundary codes and
+        typically chosen at psi_norm = 99.x% of the separatrix
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: "Minor radius (a) of the plasma boundary, defined as (R_max \u2212\
+        \ R_min)/2 of the boundary contour. A primary geometric parameter characterizing\
+        \ the radial extent of the plasma cross-section."
+      kind: llm
+  - dd_path: summary/boundary/minor_radius/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-boundary-minor_radius-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/boundary/minor_radius
+      parent: Minor radius of the plasma boundary (defined as (Rmax-Rmin) / 2 of the
+        boundary)
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Minor radius (a) of the plasma boundary, defined as half the difference
+        between the maximum and minimum major radii of the last closed flux surface.
+        A primary geometric parameter characterizing the plasma cross-section size.
+      kind: template
 - name: radius_of_plasma_filament
   kind: scalar
   status: active
@@ -6240,6 +6370,7 @@
   unit: '1'
   physics_domain: equilibrium
   links:
+  - name:upper_inner_squareness_of_plasma_boundary
   - name:lower_inner_squareness_of_plasma_boundary
   - name:squareness_of_plasma_boundary
   arguments:
@@ -9115,6 +9246,669 @@
         \ Represents the toroidal projection of the 3D perturbation field at each\
         \ grid point."
       kind: llm
+- name: triangularity_of_flux_surface
+  kind: scalar
+  status: active
+  description: Dimensionless triangularity shape parameter for a nested magnetic flux
+    surface, given by the normalized inward radial displacement of its upper or lower
+    vertical extremum.
+  documentation: "Flux-surface triangularity is the signed shaping parameter that\
+    \ measures the horizontal displacement of a flux surface\u2019s vertical extremum\
+    \ from its geometric center, normalized by the surface\u2019s minor radius. It\
+    \ characterizes triangular shaping in a poloidal cross-section.\n\nFor the relevant\
+    \ upper or lower vertical extremum, the defining relation is:\n\n$$\n\\delta =\
+    \ \\frac{R_c - R_{\\mathrm{ext}}}{a}\n$$\n\nwhere $\\delta$ is triangularity,\
+    \ $R_c$ is the major-radius coordinate of the geometric center, $R_{\\mathrm{ext}}$\
+    \ is the major-radius coordinate of the vertical extremum, and $a$ is the flux-surface\
+    \ minor radius; $R_c$, $R_{\\mathrm{ext}}$, and $a$ are lengths in meters. These\
+    \ quantities are defined in the right-handed cylindrical $(R, \\phi, Z)$ frame,\
+    \ where $R$ is major radius, $\\phi$ is toroidal angle, and $Z$ is vertical height.\n\
+    \nThe parent quantity is not restricted to one vertical extremum. When the lower\
+    \ extremum is resolved separately, it is represented by [lower triangularity of\
+    \ a flux surface](name:lower_triangularity_of_flux_surface). Triangularity is\
+    \ distinct from [elongation of a flux surface](name:elongation_of_flux_surface),\
+    \ which measures aspect ratio, and [squareness of a flux surface](name:squareness_of_flux_surface),\
+    \ which measures non-elliptical corner shaping.\n\nSign convention: Positive when\
+    \ the relevant vertical extremum lies at smaller major radius $R$ than the geometric\
+    \ center, corresponding to an inward displacement."
+  unit: '1'
+  physics_domain: equilibrium
+  links:
+  - name:lower_triangularity_of_flux_surface
+  - name:elongation_of_flux_surface
+  sources:
+  - dd_path: equilibrium/time_slice/profiles_1d/triangularity_lower
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-profiles_1d-triangularity_lower
+    dd_documentation:
+      leaf: Lower triangularity w.r.t. magnetic axis
+      parent_path: equilibrium/time_slice/profiles_1d
+      parent: Equilibrium profiles (1D radial grid) as a function of the poloidal
+        flux
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - equilibrium/time_slice/profiles_1d/psi
+    enhanced_context:
+      description: "Lower triangularity (\u03B4_lower) of nested flux surfaces as\
+        \ a function of the poloidal flux coordinate in the MHD equilibrium. Characterizes\
+        \ asymmetric shaping of the lower plasma cross-section, influencing MHD stability\
+        \ and confinement."
+      kind: llm
+- name: lower_triangularity_of_flux_surface
+  kind: scalar
+  status: active
+  description: Lower triangularity of a flux surface is the dimensionless triangularity
+    shape parameter defined at the lower vertical extremum of a nested magnetic flux
+    surface, using the flux-surface geometric center as the radial reference.
+  documentation: 'Lower triangularity of a flux surface is the dimensionless triangularity
+    shape parameter defined at the lower vertical extremum of a nested magnetic flux
+    surface. It is the normalized inward radial displacement of that lower extremum
+    relative to the flux-surface geometric center in a poloidal cross-section.
+
+
+    In the right-handed cylindrical $(R, \phi, Z)$ frame, with $R$ major radius, $\phi$
+    toroidal angle, and $Z$ vertical height, the lower triangularity is defined as:
+
+
+    $$
+
+    \delta_\mathrm{lower} = \frac{R_\mathrm{c} - R_\mathrm{lower}}{a}
+
+    $$
+
+
+    where $R_\mathrm{c} = (R_\mathrm{out}+R_\mathrm{in})/2$ is the major radius of
+    the flux-surface geometric center, $R_\mathrm{lower}$ is the major radius of the
+    point on the same flux surface with minimum $Z$, and $a = (R_\mathrm{out}-R_\mathrm{in})/2$
+    is the minor radius of that flux surface. Here $R_\mathrm{out}$ and $R_\mathrm{in}$
+    are the largest and smallest major radii of the poloidal contour.
+
+
+    This definition is a flux-surface shape parameter, not a displacement from the
+    magnetic axis; a radially shifted but geometrically elliptical flux surface has
+    zero lower triangularity by this definition. It distinguishes lower shaping from
+    [upper triangularity of a flux surface]; for an up-down symmetric flux surface
+    the upper and lower triangularities are equal.'
+  unit: '1'
+  physics_domain: equilibrium
+  links: []
+  arguments:
+  - name: triangularity_of_flux_surface
+    operator: lower
+    operator_kind: qualifier
+  sources:
+  - dd_path: equilibrium/time_slice/profiles_1d/triangularity_lower
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-profiles_1d-triangularity_lower
+    dd_documentation:
+      leaf: Lower triangularity w.r.t. magnetic axis
+      parent_path: equilibrium/time_slice/profiles_1d
+      parent: Equilibrium profiles (1D radial grid) as a function of the poloidal
+        flux
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - equilibrium/time_slice/profiles_1d/psi
+    enhanced_context:
+      description: "Lower triangularity (\u03B4_lower) of nested flux surfaces as\
+        \ a function of the poloidal flux coordinate in the MHD equilibrium. Characterizes\
+        \ asymmetric shaping of the lower plasma cross-section, influencing MHD stability\
+        \ and confinement."
+      kind: llm
+- name: triangularity_of_plasma_boundary
+  kind: scalar
+  status: active
+  description: Dimensionless shaping parameter equal to the mean normalized inward
+    radial displacement of the upper and lower plasma-boundary extrema from the geometric
+    center.
+  documentation: 'Triangularity of the plasma boundary is a signed dimensionless measure
+    of the horizontal displacement of its upper and lower poloidal extrema relative
+    to the geometric center. The parent quantity averages the upper and lower contributions
+    rather than selecting either extremum alone.
+
+
+    $$
+
+    \delta = \frac{1}{2}\left[\frac{R_0-R_u}{a}+\frac{R_0-R_l}{a}\right]
+
+    $$
+
+
+    Here, $\delta$ is the average triangularity; $R_0$ is the major-radius coordinate
+    of the geometric center; $R_u$ and $R_l$ are the major-radius coordinates of the
+    upper and lower vertical extrema; and $a$ is the plasma-boundary minor radius,
+    with all lengths measured in m in the right-handed cylindrical $(R, \phi, Z)$
+    frame. The component quantities [upper triangularity](name:upper_triangularity_of_plasma_boundary)
+    and [lower triangularity](name:lower_triangularity_of_plasma_boundary) provide
+    the two terms, while the normalization uses the boundary radius defined by [radius
+    of plasma boundary](name:radius_of_plasma_boundary).
+
+
+    Sign convention: Positive when the upper and lower extrema are displaced inward,
+    toward decreasing major radius $R$, relative to the geometric center.'
+  unit: '1'
+  physics_domain: equilibrium
+  links:
+  - name:upper_triangularity_of_plasma_boundary
+  - name:lower_triangularity_of_plasma_boundary
+  - name:radius_of_plasma_boundary
+  sources:
+  - dd_path: equilibrium/time_slice/boundary/triangularity
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-boundary-triangularity
+    dd_documentation:
+      leaf: Triangularity of the plasma boundary
+      parent_path: equilibrium/time_slice/boundary
+      parent: Description of the plasma boundary used by fixed-boundary codes and
+        typically chosen at psi_norm = 99.x% of the separatrix
+      data_type: FLT_0D
+      unit: '1'
+    enhanced_context:
+      description: "Triangularity (\u03B4) of the plasma boundary, a shape parameter\
+        \ quantifying the asymmetry of the poloidal cross-section relative to the\
+        \ midplane. A key geometric descriptor for plasma confinement and MHD stability\
+        \ characterisation."
+      kind: llm
+- name: lower_triangularity_of_plasma_boundary
+  kind: scalar
+  status: active
+  description: Lower triangularity is a dimensionless shape parameter measuring the
+    inward radial displacement of the lower plasma-boundary extremum from the geometric
+    center, normalized by the plasma minor radius.
+  documentation: 'Lower triangularity $\delta_L$ quantifies triangular shaping of
+    the lower half of the plasma boundary in the right-handed cylindrical $(R, \phi,
+    Z)$ frame, where $R$ is major radius and $Z$ is vertical height.
+
+
+    It is defined from the lower vertical extremum of the last closed magnetic-flux-surface
+    contour:
+
+
+    $$
+
+    \delta_L = \frac{R_\mathrm{geo} - R_L}{a}
+
+    $$
+
+
+    where $R_\mathrm{geo} = (R_\mathrm{max} + R_\mathrm{min})/2$ is the major radius
+    of the geometric center, $R_L$ is the major radius at the boundary point of minimum
+    $Z$, and $a = (R_\mathrm{max} - R_\mathrm{min})/2$ is the plasma minor radius.
+
+
+    This lower component combines with [upper_triangularity_of_plasma_boundary](name:upper_triangularity_of_plasma_boundary)
+    to form the average [triangularity_of_plasma_boundary](name:triangularity_of_plasma_boundary).
+    It applies to the plasma boundary, whereas [lower_triangularity_of_flux_surface](name:lower_triangularity_of_flux_surface)
+    describes a nested interior flux surface.
+
+
+    Sign convention: Positive when the lower boundary extremum is displaced inward,
+    toward smaller major radius $R$, relative to the geometric center.'
+  unit: '1'
+  physics_domain: equilibrium
+  links:
+  - name:upper_triangularity_of_plasma_boundary
+  - name:triangularity_of_plasma_boundary
+  - name:lower_triangularity_of_flux_surface
+  arguments:
+  - name: triangularity_of_plasma_boundary
+    operator: lower
+    operator_kind: qualifier
+  sources:
+  - dd_path: equilibrium/time_slice/boundary/triangularity_lower
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-boundary-triangularity_lower
+    dd_documentation:
+      leaf: Lower triangularity of the plasma boundary
+      parent_path: equilibrium/time_slice/boundary
+      parent: Description of the plasma boundary used by fixed-boundary codes and
+        typically chosen at psi_norm = 99.x% of the separatrix
+      data_type: FLT_0D
+      unit: '1'
+    enhanced_context:
+      description: "Lower triangularity (\u03B4_lower) of the plasma boundary, describing\
+        \ the asymmetric shaping of the lower half of the plasma cross-section. A\
+        \ key plasma shape parameter for MHD stability and confinement optimization."
+      kind: llm
+  - dd_path: summary/boundary/triangularity_lower/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-boundary-triangularity_lower-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/boundary/triangularity_lower
+      parent: Lower triangularity of the plasma boundary
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Lower triangularity of the plasma boundary.
+      kind: template
+- name: upper_inner_squareness_of_flux_surface
+  kind: scalar
+  status: active
+  description: The upper-inner squareness of a flux surface is the dimensionless Luce
+    (2013) shape coefficient that characterizes how the upper, high-field-side quadrant
+    of a nested toroidal magnetic flux surface departs from a reference ellipse; positive
+    values are boxier and negative values are more diamond-like or indented.
+  documentation: 'The upper-inner squareness of a flux surface is the dimensionless
+    Luce (2013) shape coefficient that characterizes how the upper, high-field-side
+    quadrant of a nested toroidal magnetic flux surface departs from a reference ellipse
+    sharing the same center, horizontal half-width, and [elongation](name:elongation_of_flux_surface).
+    It is the upper quadrant-resolved component of [inner_squareness_of_flux_surface](name:inner_squareness_of_flux_surface),
+    complementing [lower_inner_squareness_of_flux_surface](name:lower_inner_squareness_of_flux_surface).
+    The upper-inner quadrant is the segment from the top of the surface to the inner
+    midplane, on the high-field side at smaller major radius in the right-handed cylindrical
+    $(R, \phi, Z)$ frame, where $R$ is major radius and $Z$ is vertical height.
+
+
+    The coefficient $\zeta_\mathrm{ui}$ enters the Luce parametric flux-surface shape
+    model as an additional harmonic beyond elongation $\kappa$ and [triangularity](name:triangularity_of_flux_surface):
+
+
+    $$
+
+    Z(\theta)-Z_c = a\kappa\sin\!\left[\theta + \zeta_\mathrm{ui}\sin(2\theta)\right],
+    \qquad \pi/2 \le \theta \le \pi
+
+    $$
+
+
+    where $Z(\theta)$ is the vertical coordinate of the contour, $Z_c$ is the vertical
+    coordinate of the surface center, $a$ is the horizontal half-width, $\theta$ is
+    the geometric poloidal angle measured about the surface center in the $(R,Z)$
+    cross-section with $\theta=0$ at the outboard midplane and increasing toward $+Z$,
+    and $\zeta_\mathrm{ui}$ is the upper-inner squareness coefficient. Setting $\zeta_\mathrm{ui}=0$
+    recovers the corresponding reference ellipse for this quadrant.
+
+
+    This quantity is a quadrant-local squareness coefficient, not an average over
+    the two inner quadrants and not an outboard squareness coefficient in the broader
+    [squareness_of_flux_surface](name:squareness_of_flux_surface) family. It describes
+    corner shaping not represented by elongation or triangularity alone.
+
+
+    Sign convention: Positive when the upper high-field-side corner of the flux-surface
+    cross-section is boxier than the reference ellipse; negative values indicate a
+    more diamond-like or indented corner.'
+  unit: '1'
+  physics_domain: equilibrium
+  links:
+  - name:elongation_of_flux_surface
+  - name:inner_squareness_of_flux_surface
+  - name:lower_inner_squareness_of_flux_surface
+  arguments:
+  - name: inner_squareness_of_flux_surface
+    operator: upper
+    operator_kind: qualifier
+  sources:
+  - dd_path: equilibrium/time_slice/profiles_1d/squareness_upper_inner
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-profiles_1d-squareness_upper_inner
+    dd_documentation:
+      leaf: Upper inner squareness (definition from T. Luce, Plasma Phys. Control.
+        Fusion 55 (2013) 095009)
+      parent_path: equilibrium/time_slice/profiles_1d
+      parent: Equilibrium profiles (1D radial grid) as a function of the poloidal
+        flux
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - equilibrium/time_slice/profiles_1d/psi
+      lifecycle_status: alpha
+      lifecycle_version: 3.18.0
+    enhanced_context:
+      description: "Upper inner squareness (\u03B6_ui) of flux surface shapes as a\
+        \ 1D radial profile, defined according to T. Luce (PPCF 55, 2013). Quantifies\
+        \ the deviation of the upper inner plasma boundary from a pure elliptical\
+        \ shape."
+      kind: llm
+- name: upper_inner_squareness_of_plasma_boundary
+  kind: scalar
+  status: active
+  description: "Upper-inner squareness of the plasma boundary is the dimensionless\
+    \ Luce shape coefficient measuring the upper high-field-side corner\u2019s signed\
+    \ departure from a reference ellipse."
+  documentation: 'The upper-inner squareness of the plasma boundary is the dimensionless
+    Luce shape coefficient quantifying the departure of the upper inboard corner of
+    the last closed flux surface from a reference ellipse. It is the upper-quadrant
+    component of the [inner squareness of the plasma boundary](name:inner_squareness_of_plasma_boundary),
+    paired with the [lower-inner squareness of the plasma boundary](name:lower_inner_squareness_of_plasma_boundary).
+
+
+    In a poloidal cross-section at fixed toroidal angle $\phi$ of the right-handed
+    cylindrical $(R, \phi, Z)$ frame, the coefficient is
+
+
+    $$
+
+    \zeta_{\mathrm{UI}} = \frac{\overline{OD} - \overline{OE}}{\overline{OF} - \overline{OE}}
+
+    $$
+
+
+    where $O$ is the reference-ellipse center, $D$ is the upper-inner boundary intersection
+    along the corner diagonal, $E$ is the corresponding ellipse intersection, and
+    $F$ is the corner of the circumscribing rectangle. The reference ellipse is determined
+    by the boundary size and shaping parameters.
+
+
+    Sign convention: Positive when the upper-inner boundary corner lies outward from
+    the reference ellipse toward the corresponding corner of the circumscribing rectangle.'
+  unit: '1'
+  physics_domain: equilibrium
+  links:
+  - name:inner_squareness_of_plasma_boundary
+  - name:lower_inner_squareness_of_plasma_boundary
+  arguments:
+  - name: inner_squareness_of_plasma_boundary
+    operator: upper
+    operator_kind: qualifier
+  sources:
+  - dd_path: equilibrium/time_slice/boundary/squareness_upper_inner
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-boundary-squareness_upper_inner
+    dd_documentation:
+      leaf: Upper inner squareness of the plasma boundary (definition from T. Luce,
+        Plasma Phys. Control. Fusion 55 (2013) 095009)
+      parent_path: equilibrium/time_slice/boundary
+      parent: Description of the plasma boundary used by fixed-boundary codes and
+        typically chosen at psi_norm = 99.x% of the separatrix
+      data_type: FLT_0D
+      unit: '1'
+      lifecycle_status: alpha
+      lifecycle_version: 3.18.0
+    enhanced_context:
+      description: "Upper inner squareness (\u03B6_UI) of the plasma boundary shape,\
+        \ quantifying the deviation of the plasma cross-section from an ellipse in\
+        \ the upper inner quadrant, as defined by T. Luce (PPCF 55, 2013)."
+      kind: llm
+- name: upper_outer_squareness_of_flux_surface
+  kind: scalar
+  status: active
+  description: Dimensionless Luce shape coefficient for the upper outboard quadrant
+    of each nested flux surface, measuring the departure of that corner from a reference
+    ellipse with the same center, horizontal half-width, and elongation.
+  documentation: "The upper outer squareness $\\zeta_{uo}$ is the dimensionless Luce\
+    \ (2013) shape coefficient for the upper outboard ($+Z$, large-$R$) corner of\
+    \ each nested magnetic flux surface, measuring how much that quadrant departs\
+    \ from a reference ellipse sharing the same geometric center, horizontal half-width,\
+    \ and elongation. It is one of four quadrant-resolved squareness parameters \u2014\
+    \ alongside the [lower outer squareness](name:lower_outer_squareness_of_flux_surface),\
+    \ [upper inner squareness](name:upper_inner_squareness_of_flux_surface), and [lower\
+    \ inner squareness](name:lower_inner_squareness_of_flux_surface) \u2014 extending\
+    \ the standard elongation-triangularity shape description to higher order.\n\n\
+    In the right-handed cylindrical $(R, \\phi, Z)$ frame, the flux-surface boundary\
+    \ in the upper outer quadrant is described by the Luce parameterization as:\n\n\
+    $$\nR = R_\\mathrm{geo} + a\\cos\\!\\bigl(\\theta + \\delta_{uo}\\sin\\theta +\
+    \ \\zeta_{uo}\\sin 2\\theta\\bigr)\n$$\n\nwith $Z = Z_\\mathrm{geo} + \\kappa\\\
+    , a\\sin\\theta$, where $R_\\mathrm{geo}$ and $Z_\\mathrm{geo}$ are the coordinates\
+    \ of the flux-surface geometric center, $a$ is the minor radius, $\\kappa$ is\
+    \ the elongation, $\\delta_{uo}$ is the upper outer triangularity, and $\\theta\
+    \ \\in [0, \\pi/2]$ is the geometric poloidal angle spanning the upper outboard\
+    \ quadrant.\n\nValues near zero indicate an approximately elliptic corner; positive\
+    \ values are characteristic of D-shaped cross-sections with a squared-off outboard\
+    \ corner, while negative values correspond to a more concave or helmet-shaped\
+    \ upper outer region. The coefficient is extracted from equilibrium reconstruction\
+    \ by fitting computed flux-surface contours to the Luce parameterization in the\
+    \ upper outboard region. The symmetric combination of upper and lower outer quadrant\
+    \ values constitutes the aggregate [outer_squareness_of_flux_surface](name:outer_squareness_of_flux_surface),\
+    \ and the value at the outermost flux surface corresponds to [upper_outer_squareness_of_plasma_boundary](name:upper_outer_squareness_of_plasma_boundary).\n\
+    \nSign convention: Positive when the upper outer corner of the flux surface protrudes\
+    \ beyond the reference ellipse, giving the cross-section a more rectangular (D-shaped)\
+    \ outboard corner."
+  unit: '1'
+  physics_domain: equilibrium
+  links:
+  - name:lower_outer_squareness_of_flux_surface
+  - name:upper_inner_squareness_of_flux_surface
+  - name:lower_inner_squareness_of_flux_surface
+  - name:outer_squareness_of_flux_surface
+  - name:upper_outer_squareness_of_plasma_boundary
+  arguments:
+  - name: outer_squareness_of_flux_surface
+    operator: upper
+    operator_kind: qualifier
+  sources:
+  - dd_path: equilibrium/time_slice/profiles_1d/squareness_upper_outer
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-profiles_1d-squareness_upper_outer
+    dd_documentation:
+      leaf: Upper outer squareness (definition from T. Luce, Plasma Phys. Control.
+        Fusion 55 (2013) 095009)
+      parent_path: equilibrium/time_slice/profiles_1d
+      parent: Equilibrium profiles (1D radial grid) as a function of the poloidal
+        flux
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - equilibrium/time_slice/profiles_1d/psi
+      lifecycle_status: alpha
+      lifecycle_version: 3.18.0
+    enhanced_context:
+      description: "Upper outer squareness (\u03B6_uo) of plasma flux surfaces as\
+        \ a 1D radial profile, following the definition of T. Luce (PPCF 55, 095009,\
+        \ 2013). Quantifies the deviation of the upper outer quadrant of the plasma\
+        \ boundary from a reference ellipse."
+      kind: llm
+- name: upper_outer_squareness_of_plasma_boundary
+  kind: scalar
+  status: active
+  description: Dimensionless Luce shape coefficient measuring how the upper outboard
+    (low-field-side) corner of the plasma boundary departs from the reference ellipse
+    defined by boundary minor radius, upper elongation, and upper triangularity.
+  documentation: 'The upper outer squareness $\zeta_{uo}$ is one of four corner-specific
+    shape parameters in the Luce (2013) plasma boundary parameterization, describing
+    how much the upper outer quadrant of the plasma cross-section boundary deviates
+    from the reference ellipse defined by the boundary minor radius $a$, upper elongation
+    $\kappa_u$, and upper triangularity $\delta_u$. In the poloidal cross-section
+    expressed in the right-handed cylindrical $(R, \phi, Z)$ frame where $R$ is major
+    radius and $Z$ is vertical height, this quadrant is the large-$R$, larger-$Z$
+    corner relative to the boundary shape center.
+
+
+    With poloidal parameter $\theta$ increasing from the outboard midplane point to
+    the top point, the upper-outboard Luce boundary segment is parameterized by
+
+
+    $$
+
+    \begin{aligned}
+
+    R(\theta) &= R_0 + a\cos\left[\theta + \arcsin(\delta_u)\sin\theta - \zeta_{uo}\sin(2\theta)\right],\\
+
+    Z(\theta) &= Z_0 + \kappa_u a\sin\left[\theta + \zeta_{uo}\sin(2\theta)\right],\quad
+    0 \le \theta \le \frac{\pi}{2}.
+
+    \end{aligned}
+
+    $$
+
+
+    where $(R(\theta), Z(\theta))$ is the boundary point in the poloidal cross-section,
+    $R_0$ and $Z_0$ are the shape-center coordinates, $a$ is the boundary minor radius,
+    $\kappa_u$ is the upper elongation, and $\delta_u$ is the upper triangularity.
+
+
+    The value $\zeta_{uo}=0$ is the reference-ellipse case for the upper-outboard
+    quadrant after $a$, $\kappa_u$, and $\delta_u$ have been fixed; nonzero values
+    describe residual corner shaping rather than minor radius, elongation, or triangularity.
+    Together with [lower_outer_squareness_of_plasma_boundary](name:lower_outer_squareness_of_plasma_boundary),
+    [upper_inner_squareness_of_plasma_boundary](name:upper_inner_squareness_of_plasma_boundary),
+    and [lower_inner_squareness_of_plasma_boundary](name:lower_inner_squareness_of_plasma_boundary),
+    it forms the four-corner boundary squareness decomposition; [outer_squareness_of_plasma_boundary](name:outer_squareness_of_plasma_boundary)
+    combines the two outboard corner contributions, while [squareness_of_plasma_boundary](name:squareness_of_plasma_boundary)
+    is the single-coefficient boundary summary.
+
+
+    Sign convention: Positive when the upper outer boundary corner lies outside the
+    reference ellipse at the same poloidal parameter, i.e., toward larger $R$ and
+    larger $Z$ relative to the shape center in the right-handed cylindrical $(R, \phi,
+    Z)$ frame where $R$ is major radius and $Z$ is vertical height.'
+  unit: '1'
+  physics_domain: equilibrium
+  links:
+  - name:outer_squareness_of_plasma_boundary
+  - name:lower_outer_squareness_of_plasma_boundary
+  arguments:
+  - name: outer_squareness_of_plasma_boundary
+    operator: upper
+    operator_kind: qualifier
+  sources:
+  - dd_path: equilibrium/time_slice/boundary/squareness_upper_outer
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-boundary-squareness_upper_outer
+    dd_documentation:
+      leaf: Upper outer squareness of the plasma boundary (definition from T. Luce,
+        Plasma Phys. Control. Fusion 55 (2013) 095009)
+      parent_path: equilibrium/time_slice/boundary
+      parent: Description of the plasma boundary used by fixed-boundary codes and
+        typically chosen at psi_norm = 99.x% of the separatrix
+      data_type: FLT_0D
+      unit: '1'
+      lifecycle_status: alpha
+      lifecycle_version: 3.18.0
+    enhanced_context:
+      description: "Upper outer squareness (\u03B6_UO) of the plasma boundary, a shape\
+        \ parameter quantifying the deviation of the upper outer quadrant from an\
+        \ elliptical cross-section. Defined following the Luce (2013) convention for\
+        \ boundary shape characterisation."
+      kind: llm
+- name: upper_triangularity_of_plasma_boundary
+  kind: scalar
+  status: active
+  description: Upper triangularity is a dimensionless shape parameter measuring the
+    inward radial displacement of the upper plasma-boundary extremum from the geometric
+    center, normalized by the plasma minor radius.
+  documentation: 'Upper triangularity $\delta_U$ quantifies triangular shaping of
+    the upper half of the plasma boundary in the right-handed cylindrical $(R, \phi,
+    Z)$ frame, where $R$ is major radius and $Z$ is vertical height. It measures the
+    inward displacement of the boundary point at maximum $Z$ relative to the geometric
+    center, normalized by the plasma minor radius.
+
+
+    The upper triangularity is defined as:
+
+
+    $$
+
+    \delta_U = \frac{R_{\rm geo} - R_U}{a}
+
+    $$
+
+
+    where $R_U$ is the major radius at the uppermost boundary point, $R_{\rm geo}
+    = (R_{\rm max} + R_{\rm min})/2$ is the major radius of the geometric center,
+    and $a = (R_{\rm max} - R_{\rm min})/2$ is the plasma minor radius.
+
+
+    This directional component contributes to [triangularity of plasma boundary](name:triangularity_of_plasma_boundary),
+    whose average combines the upper and [lower triangularity of plasma boundary](name:lower_triangularity_of_plasma_boundary).'
+  unit: '1'
+  physics_domain: equilibrium
+  links:
+  - name:triangularity_of_plasma_boundary
+  - name:lower_triangularity_of_plasma_boundary
+  arguments:
+  - name: triangularity_of_plasma_boundary
+    operator: upper
+    operator_kind: qualifier
+  sources:
+  - dd_path: equilibrium/time_slice/boundary/triangularity_upper
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-boundary-triangularity_upper
+    dd_documentation:
+      leaf: Upper triangularity of the plasma boundary
+      parent_path: equilibrium/time_slice/boundary
+      parent: Description of the plasma boundary used by fixed-boundary codes and
+        typically chosen at psi_norm = 99.x% of the separatrix
+      data_type: FLT_0D
+      unit: '1'
+    enhanced_context:
+      description: "Upper triangularity (\u03B4_u) of the plasma boundary, measuring\
+        \ the asymmetry of the upper half of the plasma cross-section relative to\
+        \ the geometric axis. A key shape parameter for MHD stability and confinement."
+      kind: llm
+  - dd_path: equilibrium/time_slice/profiles_1d/triangularity_upper
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-profiles_1d-triangularity_upper
+    dd_documentation:
+      leaf: Upper triangularity w.r.t. magnetic axis
+      parent_path: equilibrium/time_slice/profiles_1d
+      parent: Equilibrium profiles (1D radial grid) as a function of the poloidal
+        flux
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - equilibrium/time_slice/profiles_1d/psi
+    enhanced_context:
+      description: "Upper triangularity (\u03B4_u) of nested flux surfaces as a function\
+        \ of the poloidal flux coordinate, measured with respect to the magnetic axis.\
+        \ Describes the shape of the upper part of flux surface cross-sections in\
+        \ the 1D equilibrium profile."
+      kind: llm
+  - dd_path: summary/boundary/triangularity_upper/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-boundary-triangularity_upper-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/boundary/triangularity_upper
+      parent: Upper triangularity of the plasma boundary
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Upper triangularity of the plasma boundary.
+      kind: template
+- name: vacuum_magnetic_field
+  kind: vector
+  status: active
+  description: Magnetic field in current-free regions, generalizing over equilibrium
+    and perturbed configurations generated by external coil currents with plasma-current
+    contributions omitted.
+  documentation: 'The vacuum magnetic field designates the magnetic-induction vector
+    generated by external coil currents when plasma-current contributions are omitted.
+    It is the current-free counterpart of the total [magnetic field](name:magnetic_field),
+    covering both equilibrium and perturbation fields.
+
+
+    In any region containing no modeled current density, the vacuum field satisfies
+
+
+    $$
+
+    \nabla \times \mathbf{B}_{\mathrm{vac}} = \mathbf{0}
+
+    $$
+
+
+    where $\mathbf{B}_{\mathrm{vac}}$ is the vacuum magnetic induction, $\nabla$ is
+    the spatial differential operator, and $\mathbf{0}$ is the zero vector. The field
+    is also solenoidal, so $\nabla \cdot \mathbf{B}_{\mathrm{vac}} = 0$. Its toroidal
+    component is represented by [toroidal vacuum magnetic field](name:toroidal_vacuum_magnetic_field),
+    while a first-order vacuum perturbation is represented by [perturbed vacuum magnetic
+    field](name:perturbed_vacuum_magnetic_field). The corresponding [vacuum magnetic
+    vector potential](name:vacuum_magnetic_vector_potential) is gage-dependent, but
+    its curl yields this field.
+
+
+    Sign convention: Positive when a resolved component of $\mathbf{B}_{\mathrm{vac}}$
+    points along the corresponding positive basis vector in the right-handed cylindrical
+    $(R, \phi, Z)$ frame, where $R$ is major radius, $\phi$ increases in the toroidal
+    direction, and $Z$ is vertical height.'
+  unit: T
+  physics_domain: equilibrium
+  links:
+  - name:magnetic_field
+  - name:toroidal_vacuum_magnetic_field
+  - name:perturbed_vacuum_magnetic_field
+  - name:vacuum_magnetic_vector_potential
+  arguments:
+  - name: magnetic_field
+    operator: vacuum
+    operator_kind: qualifier
 - name: toroidal_vacuum_magnetic_field
   kind: scalar
   status: active
@@ -9158,8 +9952,15 @@
   unit: T
   physics_domain: equilibrium
   links:
+  - name:vacuum_magnetic_field
   - name:toroidal_reference_magnetic_field
   - name:vacuum_poloidal_current_function
+  arguments:
+  - name: vacuum_magnetic_field
+    operator: component
+    operator_kind: projection
+    axis: toroidal
+    shape: component
   sources:
   - dd_path: core_profiles/vacuum_toroidal_field/b0
     dd_version: 4.1.0
@@ -9521,561 +10322,6 @@
         \ R0, time-resolved. Positive sign indicates anti-clockwise direction viewed\
         \ from above. The product R0\xB7B0 must be consistent with the tf IDS."
       kind: llm
-- name: triangularity_of_flux_surface
-  kind: scalar
-  status: active
-  description: Dimensionless triangularity shape parameter for a nested magnetic flux
-    surface, given by the normalized inward radial displacement of its upper or lower
-    vertical extremum.
-  documentation: "Flux-surface triangularity is the signed shaping parameter that\
-    \ measures the horizontal displacement of a flux surface\u2019s vertical extremum\
-    \ from its geometric center, normalized by the surface\u2019s minor radius. It\
-    \ characterizes triangular shaping in a poloidal cross-section.\n\nFor the relevant\
-    \ upper or lower vertical extremum, the defining relation is:\n\n$$\n\\delta =\
-    \ \\frac{R_c - R_{\\mathrm{ext}}}{a}\n$$\n\nwhere $\\delta$ is triangularity,\
-    \ $R_c$ is the major-radius coordinate of the geometric center, $R_{\\mathrm{ext}}$\
-    \ is the major-radius coordinate of the vertical extremum, and $a$ is the flux-surface\
-    \ minor radius; $R_c$, $R_{\\mathrm{ext}}$, and $a$ are lengths in meters. These\
-    \ quantities are defined in the right-handed cylindrical $(R, \\phi, Z)$ frame,\
-    \ where $R$ is major radius, $\\phi$ is toroidal angle, and $Z$ is vertical height.\n\
-    \nThe parent quantity is not restricted to one vertical extremum. When the lower\
-    \ extremum is resolved separately, it is represented by [lower triangularity of\
-    \ a flux surface](name:lower_triangularity_of_flux_surface). Triangularity is\
-    \ distinct from [elongation of a flux surface](name:elongation_of_flux_surface),\
-    \ which measures aspect ratio, and [squareness of a flux surface](name:squareness_of_flux_surface),\
-    \ which measures non-elliptical corner shaping.\n\nSign convention: Positive when\
-    \ the relevant vertical extremum lies at smaller major radius $R$ than the geometric\
-    \ center, corresponding to an inward displacement."
-  unit: '1'
-  physics_domain: equilibrium
-  links:
-  - name:lower_triangularity_of_flux_surface
-  - name:elongation_of_flux_surface
-  sources:
-  - dd_path: equilibrium/time_slice/profiles_1d/triangularity_lower
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-profiles_1d-triangularity_lower
-    dd_documentation:
-      leaf: Lower triangularity w.r.t. magnetic axis
-      parent_path: equilibrium/time_slice/profiles_1d
-      parent: Equilibrium profiles (1D radial grid) as a function of the poloidal
-        flux
-      data_type: FLT_1D
-      unit: '1'
-      coordinates:
-      - equilibrium/time_slice/profiles_1d/psi
-    enhanced_context:
-      description: "Lower triangularity (\u03B4_lower) of nested flux surfaces as\
-        \ a function of the poloidal flux coordinate in the MHD equilibrium. Characterizes\
-        \ asymmetric shaping of the lower plasma cross-section, influencing MHD stability\
-        \ and confinement."
-      kind: llm
-- name: lower_triangularity_of_flux_surface
-  kind: scalar
-  status: active
-  description: Lower triangularity of a flux surface is the dimensionless triangularity
-    shape parameter defined at the lower vertical extremum of a nested magnetic flux
-    surface, using the flux-surface geometric center as the radial reference.
-  documentation: 'Lower triangularity of a flux surface is the dimensionless triangularity
-    shape parameter defined at the lower vertical extremum of a nested magnetic flux
-    surface. It is the normalized inward radial displacement of that lower extremum
-    relative to the flux-surface geometric center in a poloidal cross-section.
-
-
-    In the right-handed cylindrical $(R, \phi, Z)$ frame, with $R$ major radius, $\phi$
-    toroidal angle, and $Z$ vertical height, the lower triangularity is defined as:
-
-
-    $$
-
-    \delta_\mathrm{lower} = \frac{R_\mathrm{c} - R_\mathrm{lower}}{a}
-
-    $$
-
-
-    where $R_\mathrm{c} = (R_\mathrm{out}+R_\mathrm{in})/2$ is the major radius of
-    the flux-surface geometric center, $R_\mathrm{lower}$ is the major radius of the
-    point on the same flux surface with minimum $Z$, and $a = (R_\mathrm{out}-R_\mathrm{in})/2$
-    is the minor radius of that flux surface. Here $R_\mathrm{out}$ and $R_\mathrm{in}$
-    are the largest and smallest major radii of the poloidal contour.
-
-
-    This definition is a flux-surface shape parameter, not a displacement from the
-    magnetic axis; a radially shifted but geometrically elliptical flux surface has
-    zero lower triangularity by this definition. It distinguishes lower shaping from
-    [upper triangularity of a flux surface]; for an up-down symmetric flux surface
-    the upper and lower triangularities are equal.'
-  unit: '1'
-  physics_domain: equilibrium
-  links: []
-  arguments:
-  - name: triangularity_of_flux_surface
-    operator: lower
-    operator_kind: qualifier
-  sources:
-  - dd_path: equilibrium/time_slice/profiles_1d/triangularity_lower
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-profiles_1d-triangularity_lower
-    dd_documentation:
-      leaf: Lower triangularity w.r.t. magnetic axis
-      parent_path: equilibrium/time_slice/profiles_1d
-      parent: Equilibrium profiles (1D radial grid) as a function of the poloidal
-        flux
-      data_type: FLT_1D
-      unit: '1'
-      coordinates:
-      - equilibrium/time_slice/profiles_1d/psi
-    enhanced_context:
-      description: "Lower triangularity (\u03B4_lower) of nested flux surfaces as\
-        \ a function of the poloidal flux coordinate in the MHD equilibrium. Characterizes\
-        \ asymmetric shaping of the lower plasma cross-section, influencing MHD stability\
-        \ and confinement."
-      kind: llm
-- name: triangularity_of_plasma_boundary
-  kind: scalar
-  status: active
-  description: Dimensionless shaping parameter equal to the mean normalized inward
-    radial displacement of the upper and lower plasma-boundary extrema from the geometric
-    center.
-  documentation: 'Triangularity of the plasma boundary is a signed dimensionless measure
-    of the horizontal displacement of its upper and lower poloidal extrema relative
-    to the geometric center. The parent quantity averages the upper and lower contributions
-    rather than selecting either extremum alone.
-
-
-    $$
-
-    \delta = \frac{1}{2}\left[\frac{R_0-R_u}{a}+\frac{R_0-R_l}{a}\right]
-
-    $$
-
-
-    Here, $\delta$ is the average triangularity; $R_0$ is the major-radius coordinate
-    of the geometric center; $R_u$ and $R_l$ are the major-radius coordinates of the
-    upper and lower vertical extrema; and $a$ is the plasma-boundary minor radius,
-    with all lengths measured in m in the right-handed cylindrical $(R, \phi, Z)$
-    frame. The component quantities [upper triangularity](name:upper_triangularity_of_plasma_boundary)
-    and [lower triangularity](name:lower_triangularity_of_plasma_boundary) provide
-    the two terms, while the normalization uses the boundary radius defined by [radius
-    of plasma boundary](name:radius_of_plasma_boundary).
-
-
-    Sign convention: Positive when the upper and lower extrema are displaced inward,
-    toward decreasing major radius $R$, relative to the geometric center.'
-  unit: '1'
-  physics_domain: equilibrium
-  links:
-  - name:upper_triangularity_of_plasma_boundary
-  - name:lower_triangularity_of_plasma_boundary
-  sources:
-  - dd_path: equilibrium/time_slice/boundary/triangularity
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-boundary-triangularity
-    dd_documentation:
-      leaf: Triangularity of the plasma boundary
-      parent_path: equilibrium/time_slice/boundary
-      parent: Description of the plasma boundary used by fixed-boundary codes and
-        typically chosen at psi_norm = 99.x% of the separatrix
-      data_type: FLT_0D
-      unit: '1'
-    enhanced_context:
-      description: "Triangularity (\u03B4) of the plasma boundary, a shape parameter\
-        \ quantifying the asymmetry of the poloidal cross-section relative to the\
-        \ midplane. A key geometric descriptor for plasma confinement and MHD stability\
-        \ characterisation."
-      kind: llm
-- name: lower_triangularity_of_plasma_boundary
-  kind: scalar
-  status: active
-  description: Lower triangularity is a dimensionless shape parameter measuring the
-    inward radial displacement of the lower plasma-boundary extremum from the geometric
-    center, normalized by the plasma minor radius.
-  documentation: 'Lower triangularity $\delta_L$ quantifies triangular shaping of
-    the lower half of the plasma boundary in the right-handed cylindrical $(R, \phi,
-    Z)$ frame, where $R$ is major radius and $Z$ is vertical height.
-
-
-    It is defined from the lower vertical extremum of the last closed magnetic-flux-surface
-    contour:
-
-
-    $$
-
-    \delta_L = \frac{R_\mathrm{geo} - R_L}{a}
-
-    $$
-
-
-    where $R_\mathrm{geo} = (R_\mathrm{max} + R_\mathrm{min})/2$ is the major radius
-    of the geometric center, $R_L$ is the major radius at the boundary point of minimum
-    $Z$, and $a = (R_\mathrm{max} - R_\mathrm{min})/2$ is the plasma minor radius.
-
-
-    This lower component combines with [upper_triangularity_of_plasma_boundary](name:upper_triangularity_of_plasma_boundary)
-    to form the average [triangularity_of_plasma_boundary](name:triangularity_of_plasma_boundary).
-    It applies to the plasma boundary, whereas [lower_triangularity_of_flux_surface](name:lower_triangularity_of_flux_surface)
-    describes a nested interior flux surface.
-
-
-    Sign convention: Positive when the lower boundary extremum is displaced inward,
-    toward smaller major radius $R$, relative to the geometric center.'
-  unit: '1'
-  physics_domain: equilibrium
-  links:
-  - name:upper_triangularity_of_plasma_boundary
-  - name:triangularity_of_plasma_boundary
-  - name:lower_triangularity_of_flux_surface
-  arguments:
-  - name: triangularity_of_plasma_boundary
-    operator: lower
-    operator_kind: qualifier
-  sources:
-  - dd_path: equilibrium/time_slice/boundary/triangularity_lower
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-boundary-triangularity_lower
-    dd_documentation:
-      leaf: Lower triangularity of the plasma boundary
-      parent_path: equilibrium/time_slice/boundary
-      parent: Description of the plasma boundary used by fixed-boundary codes and
-        typically chosen at psi_norm = 99.x% of the separatrix
-      data_type: FLT_0D
-      unit: '1'
-    enhanced_context:
-      description: "Lower triangularity (\u03B4_lower) of the plasma boundary, describing\
-        \ the asymmetric shaping of the lower half of the plasma cross-section. A\
-        \ key plasma shape parameter for MHD stability and confinement optimization."
-      kind: llm
-  - dd_path: summary/boundary/triangularity_lower/value
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-boundary-triangularity_lower-value
-    dd_documentation:
-      leaf: Value
-      parent_path: summary/boundary/triangularity_lower
-      parent: Lower triangularity of the plasma boundary
-      data_type: FLT_1D
-      unit: '1'
-      coordinates:
-      - summary/time
-    enhanced_context:
-      description: Lower triangularity of the plasma boundary.
-      kind: template
-- name: upper_inner_squareness_of_flux_surface
-  kind: scalar
-  status: active
-  description: The upper-inner squareness of a flux surface is the dimensionless Luce
-    (2013) shape coefficient that characterizes how the upper, high-field-side quadrant
-    of a nested toroidal magnetic flux surface departs from a reference ellipse; positive
-    values are boxier and negative values are more diamond-like or indented.
-  documentation: 'The upper-inner squareness of a flux surface is the dimensionless
-    Luce (2013) shape coefficient that characterizes how the upper, high-field-side
-    quadrant of a nested toroidal magnetic flux surface departs from a reference ellipse
-    sharing the same center, horizontal half-width, and [elongation](name:elongation_of_flux_surface).
-    It is the upper quadrant-resolved component of [inner_squareness_of_flux_surface](name:inner_squareness_of_flux_surface),
-    complementing [lower_inner_squareness_of_flux_surface](name:lower_inner_squareness_of_flux_surface).
-    The upper-inner quadrant is the segment from the top of the surface to the inner
-    midplane, on the high-field side at smaller major radius in the right-handed cylindrical
-    $(R, \phi, Z)$ frame, where $R$ is major radius and $Z$ is vertical height.
-
-
-    The coefficient $\zeta_\mathrm{ui}$ enters the Luce parametric flux-surface shape
-    model as an additional harmonic beyond elongation $\kappa$ and [triangularity](name:triangularity_of_flux_surface):
-
-
-    $$
-
-    Z(\theta)-Z_c = a\kappa\sin\!\left[\theta + \zeta_\mathrm{ui}\sin(2\theta)\right],
-    \qquad \pi/2 \le \theta \le \pi
-
-    $$
-
-
-    where $Z(\theta)$ is the vertical coordinate of the contour, $Z_c$ is the vertical
-    coordinate of the surface center, $a$ is the horizontal half-width, $\theta$ is
-    the geometric poloidal angle measured about the surface center in the $(R,Z)$
-    cross-section with $\theta=0$ at the outboard midplane and increasing toward $+Z$,
-    and $\zeta_\mathrm{ui}$ is the upper-inner squareness coefficient. Setting $\zeta_\mathrm{ui}=0$
-    recovers the corresponding reference ellipse for this quadrant.
-
-
-    This quantity is a quadrant-local squareness coefficient, not an average over
-    the two inner quadrants and not an outboard squareness coefficient in the broader
-    [squareness_of_flux_surface](name:squareness_of_flux_surface) family. It describes
-    corner shaping not represented by elongation or triangularity alone.
-
-
-    Sign convention: Positive when the upper high-field-side corner of the flux-surface
-    cross-section is boxier than the reference ellipse; negative values indicate a
-    more diamond-like or indented corner.'
-  unit: '1'
-  physics_domain: equilibrium
-  links:
-  - name:elongation_of_flux_surface
-  - name:inner_squareness_of_flux_surface
-  - name:lower_inner_squareness_of_flux_surface
-  arguments:
-  - name: inner_squareness_of_flux_surface
-    operator: upper
-    operator_kind: qualifier
-  sources:
-  - dd_path: equilibrium/time_slice/profiles_1d/squareness_upper_inner
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-profiles_1d-squareness_upper_inner
-    dd_documentation:
-      leaf: Upper inner squareness (definition from T. Luce, Plasma Phys. Control.
-        Fusion 55 (2013) 095009)
-      parent_path: equilibrium/time_slice/profiles_1d
-      parent: Equilibrium profiles (1D radial grid) as a function of the poloidal
-        flux
-      data_type: FLT_1D
-      unit: '1'
-      coordinates:
-      - equilibrium/time_slice/profiles_1d/psi
-      lifecycle_status: alpha
-      lifecycle_version: 3.18.0
-    enhanced_context:
-      description: "Upper inner squareness (\u03B6_ui) of flux surface shapes as a\
-        \ 1D radial profile, defined according to T. Luce (PPCF 55, 2013). Quantifies\
-        \ the deviation of the upper inner plasma boundary from a pure elliptical\
-        \ shape."
-      kind: llm
-- name: upper_outer_squareness_of_flux_surface
-  kind: scalar
-  status: active
-  description: Dimensionless Luce shape coefficient for the upper outboard quadrant
-    of each nested flux surface, measuring the departure of that corner from a reference
-    ellipse with the same center, horizontal half-width, and elongation.
-  documentation: "The upper outer squareness $\\zeta_{uo}$ is the dimensionless Luce\
-    \ (2013) shape coefficient for the upper outboard ($+Z$, large-$R$) corner of\
-    \ each nested magnetic flux surface, measuring how much that quadrant departs\
-    \ from a reference ellipse sharing the same geometric center, horizontal half-width,\
-    \ and elongation. It is one of four quadrant-resolved squareness parameters \u2014\
-    \ alongside the [lower outer squareness](name:lower_outer_squareness_of_flux_surface),\
-    \ [upper inner squareness](name:upper_inner_squareness_of_flux_surface), and [lower\
-    \ inner squareness](name:lower_inner_squareness_of_flux_surface) \u2014 extending\
-    \ the standard elongation-triangularity shape description to higher order.\n\n\
-    In the right-handed cylindrical $(R, \\phi, Z)$ frame, the flux-surface boundary\
-    \ in the upper outer quadrant is described by the Luce parameterization as:\n\n\
-    $$\nR = R_\\mathrm{geo} + a\\cos\\!\\bigl(\\theta + \\delta_{uo}\\sin\\theta +\
-    \ \\zeta_{uo}\\sin 2\\theta\\bigr)\n$$\n\nwith $Z = Z_\\mathrm{geo} + \\kappa\\\
-    , a\\sin\\theta$, where $R_\\mathrm{geo}$ and $Z_\\mathrm{geo}$ are the coordinates\
-    \ of the flux-surface geometric center, $a$ is the minor radius, $\\kappa$ is\
-    \ the elongation, $\\delta_{uo}$ is the upper outer triangularity, and $\\theta\
-    \ \\in [0, \\pi/2]$ is the geometric poloidal angle spanning the upper outboard\
-    \ quadrant.\n\nValues near zero indicate an approximately elliptic corner; positive\
-    \ values are characteristic of D-shaped cross-sections with a squared-off outboard\
-    \ corner, while negative values correspond to a more concave or helmet-shaped\
-    \ upper outer region. The coefficient is extracted from equilibrium reconstruction\
-    \ by fitting computed flux-surface contours to the Luce parameterization in the\
-    \ upper outboard region. The symmetric combination of upper and lower outer quadrant\
-    \ values constitutes the aggregate [outer_squareness_of_flux_surface](name:outer_squareness_of_flux_surface),\
-    \ and the value at the outermost flux surface corresponds to [upper_outer_squareness_of_plasma_boundary](name:upper_outer_squareness_of_plasma_boundary).\n\
-    \nSign convention: Positive when the upper outer corner of the flux surface protrudes\
-    \ beyond the reference ellipse, giving the cross-section a more rectangular (D-shaped)\
-    \ outboard corner."
-  unit: '1'
-  physics_domain: equilibrium
-  links:
-  - name:lower_outer_squareness_of_flux_surface
-  - name:upper_inner_squareness_of_flux_surface
-  - name:lower_inner_squareness_of_flux_surface
-  - name:outer_squareness_of_flux_surface
-  - name:upper_outer_squareness_of_plasma_boundary
-  arguments:
-  - name: outer_squareness_of_flux_surface
-    operator: upper
-    operator_kind: qualifier
-  sources:
-  - dd_path: equilibrium/time_slice/profiles_1d/squareness_upper_outer
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-profiles_1d-squareness_upper_outer
-    dd_documentation:
-      leaf: Upper outer squareness (definition from T. Luce, Plasma Phys. Control.
-        Fusion 55 (2013) 095009)
-      parent_path: equilibrium/time_slice/profiles_1d
-      parent: Equilibrium profiles (1D radial grid) as a function of the poloidal
-        flux
-      data_type: FLT_1D
-      unit: '1'
-      coordinates:
-      - equilibrium/time_slice/profiles_1d/psi
-      lifecycle_status: alpha
-      lifecycle_version: 3.18.0
-    enhanced_context:
-      description: "Upper outer squareness (\u03B6_uo) of plasma flux surfaces as\
-        \ a 1D radial profile, following the definition of T. Luce (PPCF 55, 095009,\
-        \ 2013). Quantifies the deviation of the upper outer quadrant of the plasma\
-        \ boundary from a reference ellipse."
-      kind: llm
-- name: upper_outer_squareness_of_plasma_boundary
-  kind: scalar
-  status: active
-  description: Dimensionless Luce shape coefficient measuring how the upper outboard
-    (low-field-side) corner of the plasma boundary departs from the reference ellipse
-    defined by boundary minor radius, upper elongation, and upper triangularity.
-  documentation: 'The upper outer squareness $\zeta_{uo}$ is one of four corner-specific
-    shape parameters in the Luce (2013) plasma boundary parameterization, describing
-    how much the upper outer quadrant of the plasma cross-section boundary deviates
-    from the reference ellipse defined by the boundary minor radius $a$, upper elongation
-    $\kappa_u$, and upper triangularity $\delta_u$. In the poloidal cross-section
-    expressed in the right-handed cylindrical $(R, \phi, Z)$ frame where $R$ is major
-    radius and $Z$ is vertical height, this quadrant is the large-$R$, larger-$Z$
-    corner relative to the boundary shape center.
-
-
-    With poloidal parameter $\theta$ increasing from the outboard midplane point to
-    the top point, the upper-outboard Luce boundary segment is parameterized by
-
-
-    $$
-
-    \begin{aligned}
-
-    R(\theta) &= R_0 + a\cos\left[\theta + \arcsin(\delta_u)\sin\theta - \zeta_{uo}\sin(2\theta)\right],\\
-
-    Z(\theta) &= Z_0 + \kappa_u a\sin\left[\theta + \zeta_{uo}\sin(2\theta)\right],\quad
-    0 \le \theta \le \frac{\pi}{2}.
-
-    \end{aligned}
-
-    $$
-
-
-    where $(R(\theta), Z(\theta))$ is the boundary point in the poloidal cross-section,
-    $R_0$ and $Z_0$ are the shape-center coordinates, $a$ is the boundary minor radius,
-    $\kappa_u$ is the upper elongation, and $\delta_u$ is the upper triangularity.
-
-
-    The value $\zeta_{uo}=0$ is the reference-ellipse case for the upper-outboard
-    quadrant after $a$, $\kappa_u$, and $\delta_u$ have been fixed; nonzero values
-    describe residual corner shaping rather than minor radius, elongation, or triangularity.
-    Together with [lower_outer_squareness_of_plasma_boundary](name:lower_outer_squareness_of_plasma_boundary),
-    [upper_inner_squareness_of_plasma_boundary](name:upper_inner_squareness_of_plasma_boundary),
-    and [lower_inner_squareness_of_plasma_boundary](name:lower_inner_squareness_of_plasma_boundary),
-    it forms the four-corner boundary squareness decomposition; [outer_squareness_of_plasma_boundary](name:outer_squareness_of_plasma_boundary)
-    combines the two outboard corner contributions, while [squareness_of_plasma_boundary](name:squareness_of_plasma_boundary)
-    is the single-coefficient boundary summary.
-
-
-    Sign convention: Positive when the upper outer boundary corner lies outside the
-    reference ellipse at the same poloidal parameter, i.e., toward larger $R$ and
-    larger $Z$ relative to the shape center in the right-handed cylindrical $(R, \phi,
-    Z)$ frame where $R$ is major radius and $Z$ is vertical height.'
-  unit: '1'
-  physics_domain: equilibrium
-  links:
-  - name:outer_squareness_of_plasma_boundary
-  - name:lower_outer_squareness_of_plasma_boundary
-  arguments:
-  - name: outer_squareness_of_plasma_boundary
-    operator: upper
-    operator_kind: qualifier
-  sources:
-  - dd_path: equilibrium/time_slice/boundary/squareness_upper_outer
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-boundary-squareness_upper_outer
-    dd_documentation:
-      leaf: Upper outer squareness of the plasma boundary (definition from T. Luce,
-        Plasma Phys. Control. Fusion 55 (2013) 095009)
-      parent_path: equilibrium/time_slice/boundary
-      parent: Description of the plasma boundary used by fixed-boundary codes and
-        typically chosen at psi_norm = 99.x% of the separatrix
-      data_type: FLT_0D
-      unit: '1'
-      lifecycle_status: alpha
-      lifecycle_version: 3.18.0
-    enhanced_context:
-      description: "Upper outer squareness (\u03B6_UO) of the plasma boundary, a shape\
-        \ parameter quantifying the deviation of the upper outer quadrant from an\
-        \ elliptical cross-section. Defined following the Luce (2013) convention for\
-        \ boundary shape characterisation."
-      kind: llm
-- name: upper_triangularity_of_plasma_boundary
-  kind: scalar
-  status: active
-  description: Upper triangularity is a dimensionless shape parameter measuring the
-    inward radial displacement of the upper plasma-boundary extremum from the geometric
-    center, normalized by the plasma minor radius.
-  documentation: 'Upper triangularity $\delta_U$ quantifies triangular shaping of
-    the upper half of the plasma boundary in the right-handed cylindrical $(R, \phi,
-    Z)$ frame, where $R$ is major radius and $Z$ is vertical height. It measures the
-    inward displacement of the boundary point at maximum $Z$ relative to the geometric
-    center, normalized by the plasma minor radius.
-
-
-    The upper triangularity is defined as:
-
-
-    $$
-
-    \delta_U = \frac{R_{\rm geo} - R_U}{a}
-
-    $$
-
-
-    where $R_U$ is the major radius at the uppermost boundary point, $R_{\rm geo}
-    = (R_{\rm max} + R_{\rm min})/2$ is the major radius of the geometric center,
-    and $a = (R_{\rm max} - R_{\rm min})/2$ is the plasma minor radius.
-
-
-    This directional component contributes to [triangularity of plasma boundary](name:triangularity_of_plasma_boundary),
-    whose average combines the upper and [lower triangularity of plasma boundary](name:lower_triangularity_of_plasma_boundary).'
-  unit: '1'
-  physics_domain: equilibrium
-  links:
-  - name:triangularity_of_plasma_boundary
-  - name:lower_triangularity_of_plasma_boundary
-  arguments:
-  - name: triangularity_of_plasma_boundary
-    operator: upper
-    operator_kind: qualifier
-  sources:
-  - dd_path: equilibrium/time_slice/boundary/triangularity_upper
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-boundary-triangularity_upper
-    dd_documentation:
-      leaf: Upper triangularity of the plasma boundary
-      parent_path: equilibrium/time_slice/boundary
-      parent: Description of the plasma boundary used by fixed-boundary codes and
-        typically chosen at psi_norm = 99.x% of the separatrix
-      data_type: FLT_0D
-      unit: '1'
-    enhanced_context:
-      description: "Upper triangularity (\u03B4_u) of the plasma boundary, measuring\
-        \ the asymmetry of the upper half of the plasma cross-section relative to\
-        \ the geometric axis. A key shape parameter for MHD stability and confinement."
-      kind: llm
-  - dd_path: equilibrium/time_slice/profiles_1d/triangularity_upper
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-profiles_1d-triangularity_upper
-    dd_documentation:
-      leaf: Upper triangularity w.r.t. magnetic axis
-      parent_path: equilibrium/time_slice/profiles_1d
-      parent: Equilibrium profiles (1D radial grid) as a function of the poloidal
-        flux
-      data_type: FLT_1D
-      unit: '1'
-      coordinates:
-      - equilibrium/time_slice/profiles_1d/psi
-    enhanced_context:
-      description: "Upper triangularity (\u03B4_u) of nested flux surfaces as a function\
-        \ of the poloidal flux coordinate, measured with respect to the magnetic axis.\
-        \ Describes the shape of the upper part of flux surface cross-sections in\
-        \ the 1D equilibrium profile."
-      kind: llm
-  - dd_path: summary/boundary/triangularity_upper/value
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-boundary-triangularity_upper-value
-    dd_documentation:
-      leaf: Value
-      parent_path: summary/boundary/triangularity_upper
-      parent: Upper triangularity of the plasma boundary
-      data_type: FLT_1D
-      unit: '1'
-      coordinates:
-      - summary/time
-    enhanced_context:
-      description: Upper triangularity of the plasma boundary.
-      kind: template
 - name: vertical_coordinate_of_active_limiter_point
   kind: scalar
   status: active
@@ -12236,6 +12482,7 @@
   physics_domain: equilibrium
   links:
   - name:safety_factor
+  - name:safety_factor_at_plasma_boundary
   arguments:
   - name: safety_factor
     operator: normalized_poloidal_magnetic_flux
@@ -12268,4 +12515,80 @@
       - summary/time
     enhanced_context:
       description: q at the 95% poloidal flux surface.
+      kind: template
+- name: safety_factor_at_plasma_boundary
+  kind: scalar
+  status: active
+  description: Safety factor at the plasma boundary is the field-line winding number
+    on the boundary flux surface, giving toroidal turns during one complete poloidal
+    turn.
+  documentation: 'The safety factor at the plasma boundary is the value of the [safety
+    factor](name:safety_factor) on the outermost closed magnetic flux surface, identified
+    with the plasma boundary. It characterizes magnetic-field-line winding by the
+    number of toroidal turns per complete poloidal turn.
+
+
+    The boundary value is defined from neighboring nested flux surfaces by
+
+
+    $$
+
+    q_{\mathrm{b}} = \left.\frac{d\Phi_{\mathrm{tor}}}{d\left(\Phi_{\mathrm{pol}}/2\pi\right)}\right|_{\mathrm{plasma\
+    boundary}}
+
+    $$
+
+
+    where $q_{\mathrm{b}}$ is the boundary safety factor, $\Phi_{\mathrm{tor}}$ is
+    the toroidal magnetic flux enclosed by a flux surface, $\Phi_{\mathrm{pol}}$ is
+    the poloidal magnetic flux linked by that surface, and the derivative is taken
+    across the nested-flux-surface label.
+
+
+    This is a flux-surface boundary value, not a local magnetic pitch angle or field-direction
+    component. Unlike the [safety factor at the magnetic axis](name:safety_factor_at_magnetic_axis),
+    it is evaluated at the outermost closed surface; it is the reciprocal of rotational
+    transform on the same surface.
+
+
+    Sign convention: Positive when the toroidal magnetic-field direction and the toroidal
+    plasma-current direction are parallel in the right-handed cylindrical $(R, \phi,
+    Z)$ frame.'
+  unit: '1'
+  physics_domain: equilibrium
+  links:
+  - name:safety_factor
+  - name:safety_factor_at_magnetic_axis
+  arguments:
+  - name: safety_factor
+    operator: plasma_boundary
+    operator_kind: locus
+  sources:
+  - dd_path: summary/local/separatrix/q/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-local-separatrix-q-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/local/separatrix/q
+      parent: Safety factor
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Safety factor.
+      kind: template
+  - dd_path: summary/local/separatrix_average/q/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-local-separatrix_average-q-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/local/separatrix_average/q
+      parent: Safety factor
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Safety factor.
       kind: template

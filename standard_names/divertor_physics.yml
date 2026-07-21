@@ -1,8 +1,57 @@
 # Domain: divertor_physics
-# Entries: 64
+# Entries: 75
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
+- name: absorbed_radiated_power_at_divertor_target
+  kind: scalar
+  status: active
+  description: Net photon power deposited on one divertor target surface after subtracting
+    radiative power reflected from that surface.
+  documentation: 'Absorbed radiated power at a divertor target is the net photon-energy
+    rate deposited on one specified target surface. It includes incident radiative
+    energy absorbed by the target and excludes the reflected portion.
+
+
+    The net absorbed radiative power is defined by
+
+
+    $$
+
+    P_{\mathrm{abs,rad}} = P_{\mathrm{inc,rad}} - P_{\mathrm{ref,rad}}
+
+    $$
+
+
+    where $P_{\mathrm{abs,rad}}$ is the absorbed radiated power, $P_{\mathrm{inc,rad}}$
+    is the incident radiative power reaching the target, and $P_{\mathrm{ref,rad}}$
+    is the radiative power reflected from the target.
+
+
+    This quantity applies to one divertor target and excludes conductive, convective,
+    charged-particle, and other nonradiative deposition channels. Summation over all
+    divertor targets gives [power of the divertor due to radiation](name:power_of_divertor_due_to_radiation);
+    the broader radiative deposition concept is described by [power due to radiation](name:power_due_to_radiation).'
+  unit: W
+  physics_domain: divertor_physics
+  links:
+  - name:power_of_divertor_due_to_radiation
+  - name:power_due_to_radiation
+  sources:
+  - dd_path: divertors/divertor/target/power_radiated
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/divertors.html#divertors-divertor-target-power_radiated
+    dd_documentation:
+      leaf: Net radiated power on this divertor target (incident - reflected)
+      parent_path: divertors/divertor/target
+      parent: Set of divertor targets
+      data_type: STRUCTURE
+      unit: W
+    enhanced_context:
+      description: Net radiated power deposited on a divertor target, defined as incident
+        radiative power minus the reflected fraction. Used in divertor power balance
+        and radiation load assessments.
+      kind: llm
 - name: charge_at_divertor_target
   kind: scalar
   status: active
@@ -270,6 +319,64 @@
   - name:ion_density_at_divertor_target
   - name:electron_density_at_divertor_target
   - name:total_ion_density_at_divertor_target
+- name: argon_density_at_divertor_target
+  kind: scalar
+  status: active
+  description: Argon density at the divertor target is the local number density of
+    argon ions in the plasma immediately adjacent to a divertor target surface, evaluated
+    at the entrance to the electrostatic sheath. It is summed over Ar1+ through Ar18+
+    and excludes neutral argon atoms.
+  documentation: 'Argon density at the divertor target is the local number density
+    of argon ions in the plasma immediately adjacent to a divertor target surface,
+    evaluated at the entrance to the electrostatic sheath. It is the argon-specific
+    member of [density_at_divertor_target](name:density_at_divertor_target).
+
+
+    The local number density is defined by the differential particle count summed
+    over argon charge states:
+
+
+    $$
+
+    n_{\mathrm{Ar}} = \sum_{q=1}^{18} \frac{dN_{\mathrm{Ar}^{q+}}}{dV}
+
+    $$
+
+
+    where $N_{\mathrm{Ar}^{q+}}$ is the number of argon ions in charge state $q+$
+    in a small plasma volume $V$ whose center approaches the sheath entrance from
+    the plasma side at the divertor target.
+
+
+    This quantity includes the positive argon ionization stages $\mathrm{Ar}^{1+}$
+    through $\mathrm{Ar}^{18+}$ and excludes neutral argon atoms. It is a particle
+    number density, not a charge density; charge states are counted by particles rather
+    than weighted by ionic charge.'
+  unit: m^-3
+  physics_domain: divertor_physics
+  links:
+  - name:density_at_divertor_target
+  - name:boron_density_at_divertor_target
+  - name:total_ion_density_at_divertor_target
+  arguments:
+  - name: density_at_divertor_target
+    operator: argon
+    operator_kind: qualifier
+  sources:
+  - dd_path: summary/local/divertor_target/n_i/argon/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-local-divertor_target-n_i-argon-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/local/divertor_target/n_i/argon
+      parent: Argon (Ar)
+      data_type: FLT_1D
+      unit: m^-3
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Argon (Ar).
+      kind: template
 - name: beryllium_density_at_divertor_target
   kind: scalar
   status: active
@@ -301,6 +408,7 @@
   physics_domain: divertor_physics
   links:
   - name:density_at_divertor_target
+  - name:boron_density_at_divertor_target
   - name:beryllium_density
   arguments:
   - name: density_at_divertor_target
@@ -320,6 +428,65 @@
       - summary/time
     enhanced_context:
       description: Beryllium (Be).
+      kind: template
+- name: boron_density_at_divertor_target
+  kind: scalar
+  status: active
+  description: Number density of boron ions at the divertor target is the local particle
+    count per volume immediately upstream of the sheath, summed over all positive
+    ionization states and excluding neutral boron.
+  documentation: 'Number density of boron ions at the divertor target is the local
+    particle count per volume at the sheath entrance immediately upstream of the target-facing
+    plasma boundary. It is the boron-specific instance of [density_at_divertor_target](name:density_at_divertor_target).
+
+
+    The local number density is defined by the differential particle count:
+
+
+    $$
+
+    n_{\mathrm{B}} = \frac{dN_{\mathrm{B}}}{dV}
+
+    $$
+
+
+    where $N_{\mathrm{B}}$ is the number of boron ions in all positive ionization
+    states and $V$ is a small plasma volume whose center approaches the sheath entrance
+    from the plasma side at the divertor target.
+
+
+    Neutral boron atoms are excluded, and the quantity does not include other ion
+    species. This species-specific scope distinguishes it from [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target);
+    the same target-locus convention is used by [argon_density_at_divertor_target](name:argon_density_at_divertor_target)
+    for argon ions.
+
+
+    Sign convention: Positive when the local boron ion population contributes particles
+    to the plasma volume.'
+  unit: m^-3
+  physics_domain: divertor_physics
+  links:
+  - name:density_at_divertor_target
+  - name:total_ion_density_at_divertor_target
+  - name:argon_density_at_divertor_target
+  arguments:
+  - name: density_at_divertor_target
+    operator: boron
+    operator_kind: qualifier
+  sources:
+  - dd_path: summary/local/divertor_target/n_i/boron/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-local-divertor_target-n_i-boron-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/local/divertor_target/n_i/boron
+      parent: Boron (B)
+      data_type: FLT_1D
+      unit: m^-3
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Boron (B).
       kind: template
 - name: carbon_density_at_divertor_target
   kind: scalar
@@ -701,6 +868,116 @@
         quantity characterizing the plasma conditions at the plasma-facing divertor
         target for power exhaust and plasma-wall interaction assessment.
       kind: template
+- name: fluence_at_divertor_target
+  kind: scalar
+  status: active
+  description: Cumulative particle dose delivered to a divertor target surface over
+    a specified time interval, equal to the time integral of the incident normal particle
+    flux density summed over all contributing particle species.
+  documentation: "Fluence at the divertor target is the total accumulated particle\
+    \ dose on the target surface over a time interval $[t_1, t_2]$, defined as:\n\n\
+    $$\n\\Phi = \\int_{t_1}^{t_2} \\Gamma_\\perp \\, dt\n$$\n\nwhere $\\Gamma_\\perp$\
+    \ is the particle flux density incident normal to the target surface and $t_1$,\
+    \ $t_2$ are the start and end of the exposure window. The result represents the\
+    \ total number of particles arriving per unit target area during that interval.\n\
+    \n[Ion fluence at the divertor target](name:ion_fluence_at_divertor_target) is\
+    \ the primary child quantity, accumulating the ion particle dose summed over all\
+    \ ion species and charge states. Other particle populations \u2014 electrons and\
+    \ fast neutrals \u2014 constitute additional child quantities within this parent\
+    \ scope.\n\nThis quantity is a surface-normal-integrated particle dose and carries\
+    \ no energy weighting; for instantaneous energy deposition per unit area see [energy_flux_at_divertor_target](name:energy_flux_at_divertor_target)."
+  unit: m^-2
+  physics_domain: divertor_physics
+  links:
+  - name:ion_fluence_at_divertor_target
+  - name:energy_flux_at_divertor_target
+- name: flux_at_divertor_target
+  kind: scalar
+  status: active
+  description: Flux at a divertor target is the local scalar surface density of power
+    deposited on a divertor target surface, independent of how the incident energy
+    carriers are decomposed.
+  documentation: 'Flux at a divertor target is the local scalar surface density of
+    power deposited on a divertor target surface. It represents the target-surface
+    load itself, without assigning that load to a particular carrier species, radiation
+    component, or transport mechanism.
+
+
+    The target-surface flux is defined as the surface-area density of deposited power:
+
+
+    $$
+
+    F_{\mathrm{t}}(\mathbf{x}) = \frac{dP_{\mathrm{dep}}}{dA_{\mathrm{t}}}
+
+    $$
+
+
+    where $F_{\mathrm{t}}$ is the flux at surface point $\mathbf{x}$, $P_{\mathrm{dep}}$
+    is the power deposited into the divertor target material, and $A_{\mathrm{t}}$
+    is area on the divertor target surface.
+
+
+    This name is an umbrella for scalar divertor-target deposited-flux quantities;
+    the explicit energy-load specialization is [energy flux at divertor target](name:energy_flux_at_divertor_target).
+    It excludes upstream fluxes, volume power densities, and signed vector flux components.
+    Channel-resolved contributions are distinct quantities unless a more specific
+    standard name states that decomposition.'
+  unit: W.m^-2
+  physics_domain: divertor_physics
+  links:
+  - name:energy_flux_at_divertor_target
+  - name:parallel_heat_flux_at_divertor_target
+- name: energy_flux_at_divertor_target
+  kind: scalar
+  status: active
+  description: Energy flux at the divertor target is the local energy deposition rate
+    per unit target-surface area from electron and ion conductive heat transport,
+    charged-particle convective enthalpy, neutral-particle bombardment, and locally
+    absorbed radiation.
+  documentation: 'Energy flux at the divertor target is the local rate of energy deposition
+    per unit area on a divertor target surface by incident particles and radiation.
+    It combines electron and ion conductive heat transfer, charged-particle convective
+    enthalpy, neutral-particle energy deposition, and radiation absorbed locally at
+    the surface.
+
+
+    The total deposited energy flux is the algebraic sum of the contributing surface
+    energy-flux channels:
+
+
+    $$
+
+    q_\mathrm{tgt} = q_\mathrm{cond} + q_\mathrm{conv} + q_\mathrm{neut} + q_{\mathrm{rad},\mathrm{abs}}
+
+    $$
+
+
+    where $q_\mathrm{tgt}$ is the energy flux at the divertor target, $q_\mathrm{cond}$
+    is the [conductive contribution], $q_\mathrm{conv}$ is the [convective contribution],
+    $q_\mathrm{neut}$ is the neutral-particle bombardment contribution, and $q_{\mathrm{rad},\mathrm{abs}}$
+    is the [locally absorbed radiation contribution].
+
+
+    This quantity is a local surface flux density, not an area-integrated divertor-target
+    power; integration over a specified target surface gives [power at the divertor
+    target](name:power_at_divertor_target), and the largest local value is [maximum
+    energy flux at the divertor target](name:maximum_of_energy_flux_at_divertor_target).
+    It excludes energy lost before reaching the target and incident particles or radiation
+    that do not transfer energy to the target material.
+
+
+    Sign convention: Positive when the surface-normal energy flux points along the
+    target-surface normal directed from the incident plasma toward the target material.'
+  unit: W.m^-2
+  physics_domain: divertor_physics
+  links:
+  - name:power_at_divertor_target
+  - name:maximum_of_energy_flux_at_divertor_target
+  arguments:
+  - name: flux_at_divertor_target
+    operator: energy
+    operator_kind: qualifier
 - name: flux_of_divertor_due_to_recycling
   kind: scalar
   status: active
@@ -732,7 +1009,12 @@
     total recycling rate summed over all divertor targets.'
   unit: s^-1
   physics_domain: divertor_physics
-  links: []
+  links:
+  - name:particle_flux_of_divertor_due_to_recycling
+  arguments:
+  - name: flux_due_to_recycling
+    operator: divertor
+    operator_kind: locus
 - name: helium_3_density_at_divertor_target
   kind: scalar
   status: active
@@ -953,7 +1235,12 @@
     target surface. Neutral atoms, molecules, and nonparticle channels are excluded.'
   unit: m^-2
   physics_domain: divertor_physics
-  links: []
+  links:
+  - name:fluence_at_divertor_target
+  arguments:
+  - name: fluence_at_divertor_target
+    operator: ion
+    operator_kind: qualifier
   sources:
   - dd_path: langmuir_probes/embedded/fluence
     dd_version: 4.1.0
@@ -1092,6 +1379,134 @@
       - summary/time
     enhanced_context:
       description: Krypton (Kr).
+      kind: template
+- name: lithium_density_at_divertor_target
+  kind: scalar
+  status: active
+  description: Number density of lithium ions at the divertor target is the local
+    particle count per volume in the plasma at the sheath entrance immediately upstream
+    of the target-facing plasma boundary. It is summed over Li+, Li2+, and Li3+; neutral
+    lithium is excluded.
+  documentation: 'Number density of lithium ions at the divertor target is the local
+    particle count per volume in the plasma at the sheath entrance immediately upstream
+    of the target-facing plasma boundary. It is the lithium-specific member of [density_at_divertor_target](name:density_at_divertor_target).
+
+
+    The local lithium ion number density is defined by the differential particle count:
+
+
+    $$
+
+    n_{\mathrm{Li}} = \frac{dN_{\mathrm{Li}}}{dV}
+
+    $$
+
+
+    where $N_{\mathrm{Li}}$ is the number of lithium ions in a small plasma volume
+    $V$ whose center approaches the sheath entrance from the plasma side at the divertor
+    target.
+
+
+    For this ionic species-level quantity, $N_{\mathrm{Li}}$ is summed over the positive
+    ionization states $\mathrm{Li}^{+}$, $\mathrm{Li}^{2+}$, and $\mathrm{Li}^{3+}$;
+    neutral lithium atoms and lithium-bearing neutral molecules are excluded. This
+    quantity is a non-negative particle number density, not a charge density or a
+    charge-state-resolved lithium density.'
+  unit: m^-3
+  physics_domain: divertor_physics
+  links:
+  - name:density_at_divertor_target
+  - name:boron_density_at_divertor_target
+  arguments:
+  - name: density_at_divertor_target
+    operator: lithium
+    operator_kind: qualifier
+  sources:
+  - dd_path: summary/local/divertor_target/n_i/lithium/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-local-divertor_target-n_i-lithium-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/local/divertor_target/n_i/lithium
+      parent: Lithium (Li)
+      data_type: FLT_1D
+      unit: m^-3
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Lithium (Li).
+      kind: template
+- name: maximum_of_energy_flux_at_divertor_target
+  kind: scalar
+  status: active
+  description: Peak local total energy deposition rate per unit area on the divertor
+    target, obtained by maximizing energy flux over the target surface.
+  documentation: 'The maximum energy flux at a divertor target is the greatest local
+    rate of energy deposition per unit target-surface area over the specified divertor-target
+    surface. It is the peak of the total [energy flux at the divertor target](name:energy_flux_at_divertor_target),
+    not an integrated deposited power.
+
+
+    The quantity is defined by
+
+
+    $$
+
+    q_{E,max} = \max_{\mathbf{x}\in S_{\mathrm{DT}}} q_E(\mathbf{x})
+
+    $$
+
+
+    where $q_E(\mathbf{x})$ is the local energy flux at position $\mathbf{x}$ and
+    $S_{\mathrm{DT}}$ is the divertor-target surface included in the maximization.
+
+
+    The energy flux includes conductive and convective charged-particle energy transport,
+    neutral-particle energy deposition, and locally absorbed radiation. Unlike [parallel
+    heat flux at the divertor target](name:parallel_heat_flux_at_divertor_target),
+    this maximum represents the total incident energy flux rather than only its field-aligned
+    component. Its surface-maximum role parallels [maximum of energy flux at first
+    wall](name:maximum_of_energy_flux_at_first_wall).'
+  unit: W.m^-2
+  physics_domain: divertor_physics
+  links:
+  - name:energy_flux_at_divertor_target
+  - name:parallel_heat_flux_at_divertor_target
+  - name:maximum_of_energy_flux_at_first_wall
+  arguments:
+  - name: energy_flux_at_divertor_target
+    operator: maximum
+    operator_kind: unary_prefix
+  sources:
+  - dd_path: divertors/divertor/target/power_flux_peak
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/divertors.html#divertors-divertor-target-power_flux_peak
+    dd_documentation:
+      leaf: Peak power flux on the divertor target surface
+      parent_path: divertors/divertor/target
+      parent: Set of divertor targets
+      data_type: STRUCTURE
+      unit: W.m^-2
+    enhanced_context:
+      description: Peak power flux density on the divertor target surface, representing
+        the maximum local heat load per unit area deposited on the target. A critical
+        engineering and physics parameter for plasma-facing component design.
+      kind: llm
+  - dd_path: summary/local/divertor_target/power_flux_peak/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-local-divertor_target-power_flux_peak-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/local/divertor_target/power_flux_peak
+      parent: Peak power flux on the divertor target or limiter surface
+      data_type: FLT_1D
+      unit: W.m^-2
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Peak power flux (heat flux) incident on the divertor target or
+        limiter surface. A critical engineering and physics parameter for plasma-facing
+        component design and divertor performance assessment.
       kind: template
 - name: neon_density_at_divertor_target
   kind: scalar
@@ -1289,7 +1704,9 @@
     line toward the divertor target.'
   unit: W.m^-2
   physics_domain: divertor_physics
-  links: []
+  links:
+  - name:energy_flux_at_divertor_target
+  - name:flux_at_divertor_target
   sources:
   - dd_path: camera_ir/frame_analysis/power_flux_parallel
     dd_version: 4.1.0
@@ -1309,6 +1726,36 @@
         \ separatrix at the outboard midplane. Used to characterize power exhaust\
         \ in the scrape-off layer."
       kind: llm
+- name: particle_flux_of_divertor_due_to_recycling
+  kind: scalar
+  status: active
+  description: Rate at which recycling processes at divertor plasma-facing surfaces
+    return particles to the plasma, encompassing neutral re-emission, molecular gas
+    release, desorption, and ion reflection across the divertor assembly.
+  documentation: 'The particle flux of the divertor due to recycling is the global
+    rate, in particles per second, at which recycling at divertor plasma-facing surfaces
+    replenishes the edge plasma particle inventory. Recycling mechanisms include neutral
+    re-emission, molecular gas release, desorption from the target material, and ion
+    reflection, followed by dissociation or ionization that re-introduces particles
+    into the plasma.
+
+
+    This quantity is the particle-channel specialization of the broader [flux_of_divertor_due_to_recycling](name:flux_of_divertor_due_to_recycling),
+    which covers energy, momentum, and other transported channels in addition to particle
+    content. It covers all divertor targets collectively; the fully aggregated instance
+    summed over all divertor targets is [total_particle_flux_of_divertor_due_to_recycling](name:total_particle_flux_of_divertor_due_to_recycling).
+    It excludes particle injection from wall or limiter surfaces, which is described
+    by [source_rate_due_to_surface_emission](name:source_rate_due_to_surface_emission).'
+  unit: s^-1
+  physics_domain: divertor_physics
+  links:
+  - name:flux_of_divertor_due_to_recycling
+  - name:total_particle_flux_of_divertor_due_to_recycling
+  - name:source_rate_due_to_surface_emission
+  arguments:
+  - name: flux_of_divertor_due_to_recycling
+    operator: particle
+    operator_kind: qualifier
 - name: power_at_divertor_target
   kind: scalar
   status: active
@@ -1357,6 +1804,7 @@
   unit: W
   physics_domain: divertor_physics
   links:
+  - name:energy_flux_at_divertor_target
   - name:neutral_power_at_divertor_target
   - name:power_at_divertor_target_due_to_convection
   sources:
@@ -1480,6 +1928,8 @@
   physics_domain: divertor_physics
   links:
   - name:electron_power_at_inner_divertor_target
+  - name:ion_power_at_inner_divertor_target
+  - name:energy_flux_at_divertor_target
   - name:maximum_power_at_inner_divertor_target
 - name: electron_power_at_inner_divertor_target
   kind: scalar
@@ -1512,6 +1962,7 @@
   physics_domain: divertor_physics
   links:
   - name:power_at_inner_divertor_target
+  - name:ion_power_at_inner_divertor_target
   arguments:
   - name: power_at_inner_divertor_target
     operator: electron
@@ -1535,6 +1986,45 @@
         global quantity characterising the electron energy flux reaching the inner
         strike point region. Used in power exhaust and divertor heat load analysis.
       kind: llm
+- name: ion_power_at_inner_divertor_target
+  kind: scalar
+  status: active
+  description: Ion power deposited on the inner, high-field-side divertor target is
+    the rate at which incident ion energy is deposited over the wetted target surface.
+  documentation: 'Ion power at the inner divertor target is the rate at which energy
+    carried by incident ions is deposited on the high-field-side target surface. It
+    is the ion-channel contribution to [power at the inner divertor target](name:power_at_inner_divertor_target),
+    distinct from electron, neutral, and radiative contributions.
+
+
+    A common definition is the surface integral of the ion-deposited heat-flux density
+    over the wetted inner-target area:
+
+
+    $$
+
+    P_{i,\mathrm{inner}} = \int_{A_{\mathrm{wet,inner}}} q_{i,\mathrm{dep}}(\mathbf{x})\,dA
+
+    $$
+
+
+    where $A_{\mathrm{wet,inner}}$ is the wetted inner-target area, $q_{i,\mathrm{dep}}$
+    is the ion contribution to the deposited heat-flux density, and $dA$ is an element
+    of target surface area. When species resolution is not retained, the ion contribution
+    is summed over the contributing ion species and charge states. The related [total
+    ion power at the inner divertor target](name:total_ion_power_at_inner_divertor_target)
+    is a concrete specialization, while [electron power at the inner divertor target](name:electron_power_at_inner_divertor_target)
+    represents the complementary electron channel.'
+  unit: W
+  physics_domain: divertor_physics
+  links:
+  - name:power_at_inner_divertor_target
+  - name:total_ion_power_at_inner_divertor_target
+  - name:electron_power_at_inner_divertor_target
+  arguments:
+  - name: power_at_inner_divertor_target
+    operator: ion
+    operator_kind: qualifier
 - name: maximum_power_at_inner_divertor_target
   kind: scalar
   status: active
@@ -1570,6 +2060,7 @@
   physics_domain: divertor_physics
   links:
   - name:power_at_inner_divertor_target
+  - name:ion_power_at_inner_divertor_target
   arguments:
   - name: power_at_inner_divertor_target
     operator: maximum
@@ -1638,6 +2129,7 @@
   links:
   - name:electron_power_at_outer_divertor_target
   - name:maximum_power_at_outer_divertor_target
+  - name:energy_flux_at_divertor_target
 - name: electron_power_at_outer_divertor_target
   kind: scalar
   status: active
@@ -1801,6 +2293,7 @@
   physics_domain: divertor_physics
   links:
   - name:power_at_divertor_target_due_to_conduction
+  - name:energy_flux_at_divertor_target
 - name: power_at_divertor_target_due_to_conduction
   kind: scalar
   status: active
@@ -1999,6 +2492,7 @@
   physics_domain: divertor_physics
   links:
   - name:power_density_due_to_fusion
+  - name:neutron_power
   - name:power_of_divertor_due_to_fusion
 - name: power_due_to_radiation
   kind: scalar
@@ -2186,6 +2680,7 @@
   unit: W
   physics_domain: divertor_physics
   links:
+  - name:plasma_power_at_divertor_target_due_to_recombination
   - name:power_at_divertor_target_due_to_recombination
   arguments:
   - name: power_at_divertor_target_due_to_recombination
@@ -2206,6 +2701,64 @@
       description: Thermal power deposited on a divertor target due to recombination
         of neutral particles into their ground state (e.g., molecule formation). One
         component of the total power load on the target plate.
+      kind: llm
+- name: plasma_power_at_divertor_target_due_to_recombination
+  kind: scalar
+  status: active
+  description: Plasma-ion power deposited on a divertor target by recombination processes
+    at the plasma-material interface, excluding the neutral-particle recombination
+    channel.
+  documentation: 'This quantity captures the plasma-ion recombination power delivered
+    to a single divertor target, representing energy deposited when plasma ions recombine
+    at or near the plasma-material interface. It excludes the neutral-particle recombination
+    channel quantified by [neutral-particle recombination power](name:neutral_power_at_divertor_target_due_to_recombination).
+
+
+    The plasma-ion contribution is obtained from the total target recombination power
+    by subtracting the neutral-particle contribution:
+
+
+    $$
+
+    P_{\rm plasma,target} = P_{\rm rec,target} - P_{\rm neutral,target}
+
+    $$
+
+
+    where $P_{\rm plasma,target}$ is this plasma-ion recombination power, $P_{\rm
+    rec,target}$ is the [total recombination power at the divertor target](name:power_at_divertor_target_due_to_recombination),
+    and $P_{\rm neutral,target}$ is the neutral-particle contribution.
+
+
+    This is the single-target plasma-ion component of recombination power, distinct
+    from [total divertor recombination power](name:power_of_divertor_due_to_recombination),
+    which aggregates over all divertor target surfaces and includes both plasma-ion
+    and neutral-particle channels.'
+  unit: W
+  physics_domain: divertor_physics
+  links:
+  - name:neutral_power_at_divertor_target_due_to_recombination
+  - name:power_at_divertor_target_due_to_recombination
+  - name:power_of_divertor_due_to_recombination
+  arguments:
+  - name: power_at_divertor_target_due_to_recombination
+    operator: plasma
+    operator_kind: qualifier
+  sources:
+  - dd_path: divertors/divertor/target/power_recombination_plasma
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/divertors.html#divertors-divertor-target-power_recombination_plasma
+    dd_documentation:
+      leaf: Power deposited on this divertor target due to recombination of plasma
+        ions
+      parent_path: divertors/divertor/target
+      parent: Set of divertor targets
+      data_type: STRUCTURE
+      unit: W
+    enhanced_context:
+      description: Power deposited on a divertor target due to plasma ion recombination.
+        Quantifies the recombination power component of the divertor heat load, relevant
+        for detachment and power exhaust studies.
       kind: llm
 - name: power_of_divertor
   kind: scalar
@@ -2711,6 +3264,7 @@
   links:
   - name:power_of_divertor_due_to_recombination
   - name:neutral_power_of_divertor_due_to_recombination
+  - name:plasma_power_at_divertor_target_due_to_recombination
   arguments:
   - name: power_of_divertor_due_to_recombination
     operator: plasma
@@ -2812,6 +3366,7 @@
   unit: m^2
   physics_domain: divertor_physics
   links:
+  - name:energy_flux_at_divertor_target
   - name:wetted_area_of_divertor_target
   sources:
   - dd_path: divertors/divertor/target/tile/surface_area
@@ -3034,6 +3589,7 @@
   physics_domain: divertor_physics
   links:
   - name:ion_density_at_divertor_target
+  - name:ion_charge_state_density
   arguments:
   - name: ion_density_at_divertor_target
     operator: total
@@ -3087,7 +3643,12 @@
   unit: W
   physics_domain: divertor_physics
   links:
+  - name:ion_power_at_inner_divertor_target
   - name:power_at_inner_divertor_target
+  arguments:
+  - name: ion_power_at_inner_divertor_target
+    operator: total
+    operator_kind: qualifier
   sources:
   - dd_path: wall/global_quantities/power_inner_target_ion_total
     dd_version: 4.1.0
@@ -3157,7 +3718,12 @@
     from the divertor target material surface toward the plasma.'
   unit: s^-1
   physics_domain: divertor_physics
-  links: []
+  links:
+  - name:particle_flux_of_divertor_due_to_recycling
+  arguments:
+  - name: particle_flux_of_divertor_due_to_recycling
+    operator: total
+    operator_kind: qualifier
   sources:
   - dd_path: divertors/divertor/particle_flux_recycled_total
     dd_version: 4.1.0
