@@ -1,22 +1,25 @@
 # Domain: magnetic_field_diagnostics
-# Entries: 21
+# Entries: 18
 # Ordering: structural traversal
 #   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
 #    alphabetic tie-break)
 - name: area_of_flux_loop
   kind: scalar
-  status: draft
-  description: Non-negative effective sensing area of a flux loop diagnostic. It combines
-    the loop aperture, number of turns, and calibration factors relating magnetic
-    flux threading the loop to the spatially averaged magnetic-field component normal
-    to the loop aperture.
+  status: active
+  description: The effective area of a flux loop is the non-negative field-to-flux
+    sensitivity area of the sensor, including the aperture enclosed by each turn,
+    the number of turns, and calibration factors. It converts a spatially averaged
+    magnetic-field component normal to the loop aperture into total linked magnetic
+    flux.
   documentation: 'The effective area of a flux loop is the non-negative field-to-flux
-    sensitivity factor of the sensor. It represents the aperture area, winding count,
-    and calibration corrections that make the total linked magnetic flux equivalent
-    to a spatially averaged normal magnetic field over an effective aperture.
+    sensitivity factor of the sensor. It represents the aperture area enclosed by
+    each turn, the number of turns, and calibration corrections that make the total
+    linked magnetic flux equivalent to a spatially averaged magnetic-field component
+    normal to the loop aperture.
 
 
-    The defining relation is
+    The effective area $A_\mathrm{eff}$ is defined by the relation between linked
+    flux and averaged normal field:
 
 
     $$
@@ -26,609 +29,632 @@
     $$
 
 
-    where $\Phi$ is the signed magnetic flux threading the loop in Wb, $\bar{B}_n$
-    is the spatial average of the magnetic-field component normal to the loop aperture
-    in T, and $A_\mathrm{eff}$ is the effective area in m$^2$. For a specified loop
-    normal and terminal polarity, Faraday''s law gives the flux-loop voltage as $V
-    = -d\Phi/dt = -A_\mathrm{eff}\,d\bar{B}_n/dt$ when $A_\mathrm{eff}$ is constant;
-    reversing the winding direction or terminal polarity reverses the signs of $V$
-    and $\Phi$ but not the non-negative area.
+    where $\Phi$ is the signed magnetic flux threading the loop and $\bar{B}_n$ is
+    the spatial average of the magnetic-field component along the chosen loop normal.
 
 
-    The effective area is obtained from the constructed winding geometry or from calibration
-    in a known applied magnetic field. It is the flux-loop analog of the sensitivity
-    area used for [area_of_poloidal_magnetic_field_probe](name:area_of_poloidal_magnetic_field_probe),
-    while [area_of_rogowski_coil](name:area_of_rogowski_coil) describes coupling to
-    enclosed current rather than linked magnetic flux. It is used with [voltage_of_flux_loop](name:voltage_of_flux_loop)
-    or time-integrated voltage to infer [poloidal_magnetic_flux_of_flux_loop](name:poloidal_magnetic_flux)
-    or an equivalent averaged field.
+    For a specified loop normal and terminal polarity, Faraday''s law gives $V = -d\Phi/dt
+    = -A_\mathrm{eff}\,d\bar{B}_n/dt$ when $A_\mathrm{eff}$ is constant. Reversing
+    the winding direction or terminal polarity reverses the signed quantities $\Phi$
+    and $V$, not the non-negative effective area.
 
 
-    Typical values span several orders of magnitude. Compact local or saddle-loop
-    sensors may have effective areas around $10^{-3}$-$10^{-1}$ m$^2$, while large
-    multi-turn or vessel-encircling loops in major-radius-scale devices can have effective
-    areas of order 1-100 m$^2$.'
+    This quantity is the flux-loop analog of [area_of_poloidal_magnetic_field_probe](name:area_of_poloidal_magnetic_field_probe)
+    for magnetic-field probes. It differs from [area_of_rogowski_coil](name:area_of_rogowski_coil),
+    which describes coupling to enclosed current rather than linked magnetic flux;
+    the corresponding signed circuit response is [voltage_of_flux_loop](name:voltage_of_flux_loop).'
   unit: m^2
   physics_domain: magnetic_field_diagnostics
   links:
   - name:area_of_poloidal_magnetic_field_probe
   - name:area_of_rogowski_coil
   - name:voltage_of_flux_loop
-  - name:poloidal_magnetic_flux
+  sources:
+  - dd_path: magnetics/flux_loop/area
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/magnetics.html#magnetics-flux_loop-area
+    dd_documentation:
+      leaf: Effective area (ratio between flux and average magnetic field over the
+        loop)
+      parent_path: magnetics/flux_loop
+      parent: Flux loops; partial flux loops can be described
+      data_type: FLT_0D
+      unit: m^2
+    enhanced_context:
+      description: Effective area of a flux loop sensor, defined as the ratio of the
+        magnetic flux through the loop to the average magnetic field over the loop.
+        Used to convert measured flux to equivalent field in magnetics diagnostics.
+      kind: llm
 - name: area_of_poloidal_magnetic_field_probe
   kind: scalar
-  status: draft
-  description: Cross-sectional area of each turn of a poloidal magnetic field probe
-    coil, which together with the turn count determines the effective flux-sensing
-    area of the pickup coil.
-  documentation: "The cross-sectional area of each individual turn of a poloidal magnetic\
-    \ field probe coil is the geometric enclosed area of the wire loop in the plane\
-    \ perpendicular to the probe's sensitive axis. Combined with the number of turns\
-    \ $N$, it determines the total effective flux-sensing area $NA$ that links induced\
-    \ voltage to the local magnetic field component.\n\nThe induced terminal voltage\
-    \ follows Faraday's induction law:\n\n$$\nV = -N A \\frac{dB_n}{dt}\n$$\n\nwhere\
-    \ $V$ is the terminal voltage, $N$ is the turn count, $A$ is the cross-sectional\
-    \ area per turn, and $B_n$ is the magnetic field component normal to the coil\
-    \ plane. Integrating the [voltage_of_poloidal_magnetic_field_probe](name:voltage_of_poloidal_magnetic_field_probe)\
-    \ signal and dividing by $NA$ recovers the local poloidal field time trace.\n\n\
-    The area is established during probe fabrication and verified by calibration in\
-    \ a known applied field. It plays the same fundamental role for the poloidal sensing\
-    \ channel as [area_of_toroidal_magnetic_field_probe](name:area_of_toroidal_magnetic_field_probe)\
-    \ plays for the toroidal channel. Typical values for tokamak pickup coils range\
-    \ from $10^{-5}$ to $10^{-4}$ m\xB2, reflecting a balance between sensitivity\
-    \ and spatial resolution.\n\nSign convention: Positive when measured as the geometric\
-    \ cross-section of the coil loop enclosed by the windings in the plane perpendicular\
-    \ to the probe's sensitive axis."
+  status: active
+  description: "Geometric area enclosed by one turn of a poloidal magnetic-field probe\
+    \ coil, setting the winding\u2019s flux sensitivity together with its turn count."
+  documentation: 'The poloidal magnetic-field probe area is the geometric surface
+    area enclosed by one sensing turn of the coil. It determines the magnetic flux
+    coupled to that turn when the field is approximately uniform and normal to the
+    enclosed surface.
+
+
+    The area is defined by
+
+
+    $$
+
+    A_p = \int_{S_p} dS
+
+    $$
+
+
+    where $S_p$ is the surface bounded by one coil turn and $dS$ is its differential
+    area element. For a uniform normal poloidal field, the linked flux is proportional
+    to $N A_p B_p$, where $N$ is the dimensionless turn count and $B_p$ is the poloidal
+    magnetic-field component normal to the turn surface.
+
+
+    This is a one-turn geometric area and does not include the turn-count factor or
+    other calibration factors. It is the area parameter underlying the induced [voltage
+    of a poloidal magnetic field probe](name:voltage_of_poloidal_magnetic_field_probe)
+    and is analogous to the one-turn area of a [toroidal magnetic field probe](name:area_of_toroidal_magnetic_field_probe).'
   unit: m^2
   physics_domain: magnetic_field_diagnostics
   links:
   - name:voltage_of_poloidal_magnetic_field_probe
   - name:area_of_toroidal_magnetic_field_probe
+  sources:
+  - dd_path: magnetics/b_field_pol_probe/area
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/magnetics.html#magnetics-b_field_pol_probe-area
+    dd_documentation:
+      leaf: Area of each turn of the coil
+      parent_path: magnetics/b_field_pol_probe
+      parent: Poloidal field probes
+      data_type: FLT_0D
+      unit: m^2
+    enhanced_context:
+      description: Cross-sectional area of each turn of a poloidal field (Bp) probe
+        coil. Used together with the number of turns to compute the effective flux-sensing
+        area of the magnetic pick-up coil for converting measured voltage to magnetic
+        field.
+      kind: llm
 - name: area_of_rogowski_coil
   kind: scalar
-  status: draft
-  description: Effective cross-sectional area linked by the turns of a Rogowski coil.
-    It is the flux-coupling area per turn that, together with winding turn density,
-    sets the voltage sensitivity to a time-varying enclosed current.
+  status: active
+  description: Area of a Rogowski coil is the effective cross-sectional area linked
+    by one sensing turn of the closed winding. It is a geometric area factor; with
+    winding turn density it determines the ideal current-sensing sensitivity.
   documentation: 'Area of a Rogowski coil is the effective cross-sectional area linked
-    by its sensing winding. It represents the flux-coupling area per turn for the
-    magnetic field generated by current enclosed by the closed coil. In a real coil
-    it is a calibrated effective quantity that includes finite winding pitch, cross-section
-    variation, and placement tolerances.
+    by one sensing turn of a closed Rogowski winding. It is a scalar geometry factor
+    of the winding, not the signed current threaded by the coil or the measured coil
+    voltage.
 
 
-    For an ideal uniformly wound Rogowski coil that fully encloses the primary conductor,
-    the current recovered from the coil voltage is
+    In the ideal uniformly wound limit, the area appears as the non-negative sensitivity
+    factor in the linear constitutive relation between coil voltage and enclosed-current
+    time derivative:
 
 
     $$
 
-    I(t)-I(t_0) = \frac{1}{\mu_0 n A}\int_{t_0}^{t} V_R(t'')\,dt''
+    V_R(t) = \sigma \mu_0 n A \frac{d I_\mathrm{enc}}{dt}
 
     $$
 
 
-    where $A$ is the Rogowski-coil area, $n$ is the winding turn density in turns
-    per meter along the closed winding path, $\mu_0$ is the vacuum permeability, and
-    $V_R$ is the [Rogowski-coil voltage] after applying the chosen terminal polarity
-    and integrator calibration. Equivalently, the ideal differential sensitivity is
-    $V_R = \mu_0 n A\,dI/dt$ for the same polarity convention.
+    where $A$ is the Rogowski-coil area, $n$ is the winding turn density along the
+    closed winding path, $\mu_0$ is the vacuum permeability, $I_\mathrm{enc}$ is the
+    signed [Rogowski-coil current](name:current_of_rogowski_coil) threaded by the
+    coil, $V_R$ is the [Rogowski-coil voltage], and $\sigma$ is the sign set by winding
+    orientation and terminal polarity.
 
 
-    In practice, $A$ may be estimated from mechanical dimensions for simple windings,
-    but precision use normally determines it by calibration with a known pulsed current.
-    The ideal relation assumes uniform turn density, a nonmagnetic core, complete
-    enclosure of the measured current, negligible pickup from external fields, and
-    a return conductor routed along the coil centerline so it does not form an additional
-    single-turn pickup loop. The [major radius of the Rogowski coil] helps set the
-    mean winding path length used to convert total turns to turn density.
-
-
-    Typical effective areas for installed Rogowski coils are about $10^{-4}$-$10^{-2}$
-    m$^2$ (1-100 cm$^2$), with compact in-vessel coils near the lower end and large
-    air-core or calibration coils near the upper end. The overall current sensitivity
-    is set by the product $\mu_0 n A$, so coils with the same area can produce different
-    voltage signals if their winding densities differ.'
+    The effective area may represent a calibrated equivalent for a real winding with
+    finite pitch or nonuniform cross-section, but it remains a per-turn area factor.
+    It is in the same geometric-coil-area family as [area of a poloidal magnetic field
+    probe](name:area_of_poloidal_magnetic_field_probe) and [area of a toroidal magnetic
+    field probe](name:area_of_toroidal_magnetic_field_probe); multiplying by turn
+    density, turn number, or path length gives related sensitivity factors, not this
+    quantity.'
   unit: m^2
   physics_domain: magnetic_field_diagnostics
-  links: []
+  links:
+  - name:current_of_rogowski_coil
+  - name:area_of_poloidal_magnetic_field_probe
+  - name:area_of_toroidal_magnetic_field_probe
+  sources:
+  - dd_path: magnetics/rogowski_coil/area
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/magnetics.html#magnetics-rogowski_coil-area
+    dd_documentation:
+      leaf: Effective area of the loop wrapped around the guiding center. In case
+        of multiple layers, sum of the areas of each layer
+      parent_path: magnetics/rogowski_coil
+      parent: Set of Rogowski coils
+      data_type: FLT_0D
+      unit: m^2
+    enhanced_context:
+      description: Effective cross-sectional area of a Rogowski coil loop wound around
+        a current-carrying conductor. For multi-layer coils, this is the sum of individual
+        layer areas, determining the coil's sensitivity to enclosed current.
+      kind: llm
 - name: area_of_toroidal_magnetic_field_probe
   kind: scalar
-  status: draft
-  description: Cross-sectional area of each turn of a toroidal magnetic field probe
-    coil, which together with the number of turns sets the total effective flux pickup
-    area for converting induced voltage to the toroidal magnetic field.
-  documentation: 'The cross-sectional area of a single winding turn of a toroidal
-    magnetic field probe determines how much toroidal magnetic flux threads each loop
-    of the coil. The product of this area with the turn count gives the total effective
-    pickup area that governs the coil''s voltage response to changes in the toroidal
-    field component $B_\phi$.
+  status: active
+  description: Cross-sectional area enclosed by one turn of a toroidal magnetic-field
+    probe coil, determining its flux sensitivity with the winding turn count.
+  documentation: 'The per-turn cross-sectional area of a toroidal magnetic-field probe
+    is the geometric area enclosed by one sensing turn and threaded by the local toroidal
+    magnetic-field component. It is a non-negative geometric parameter, distinct from
+    the total effective area of the complete winding.
 
 
-    The induced terminal voltage follows Faraday''s law:
+    For $N$ identical turns, the ideal effective flux-pickup area is
 
 
     $$
 
-    V = -N A \frac{dB_\phi}{dt}
+    A_{\mathrm{eff}} = N A_{\mathrm{turn}}
 
     $$
 
 
-    where $V$ is the [terminal voltage](name:voltage_of_toroidal_magnetic_field_probe),
-    $N$ is the algebraic turn count (see [count_of_toroidal_magnetic_field_probe](name:count_of_toroidal_magnetic_field_probe)),
-    $A$ is the per-turn cross-sectional area, and $B_\phi$ is the local toroidal magnetic
-    field component in the right-handed cylindrical $(R, \phi, Z)$ frame.
-
-
-    The area is determined from the coil''s physical dimensions during fabrication
-    or verified by laboratory calibration; time-integrating the measured voltage and
-    dividing by $NA$ recovers the absolute field $B_\phi$. The corresponding quantity
-    for poloidal pickup coils is [area_of_poloidal_magnetic_field_probe](name:area_of_poloidal_magnetic_field_probe).
-
-
-    Typical single-turn cross-sectional areas in tokamak magnetics diagnostics range
-    from $10^{-5}$ to $10^{-3}$ m$^2$, depending on probe dimensions and required
-    sensitivity.'
+    where $A_{\mathrm{turn}}$ is the area enclosed by one turn, $N$ is the dimensionless
+    number of turns, and $A_{\mathrm{eff}}$ is the total linked area. The induced
+    [voltage of the toroidal magnetic-field probe](name:voltage_of_toroidal_magnetic_field_probe)
+    is proportional to the time derivative of the magnetic flux coupled through this
+    effective area. The quantity is analogous to the per-turn area of a [poloidal
+    magnetic-field probe](name:area_of_poloidal_magnetic_field_probe), but applies
+    to toroidal-field sensing.'
   unit: m^2
   physics_domain: magnetic_field_diagnostics
   links:
   - name:voltage_of_toroidal_magnetic_field_probe
-  - name:count_of_toroidal_magnetic_field_probe
   - name:area_of_poloidal_magnetic_field_probe
+  sources:
+  - dd_path: magnetics/b_field_phi_probe/area
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/magnetics.html#magnetics-b_field_phi_probe-area
+    dd_documentation:
+      leaf: Area of each turn of the sensor; becomes effective area when multiplied
+        by the turns
+      parent_path: magnetics/b_field_phi_probe
+      parent: Toroidal field probes
+      data_type: FLT_0D
+      unit: m^2
+    enhanced_context:
+      description: "Physical cross-sectional area of a single turn of a toroidal field\
+        \ (B_\u03C6) probe coil in the magnetics diagnostic. Multiplied by the number\
+        \ of turns, yields the effective area for converting measured voltage to magnetic\
+        \ field."
+      kind: llm
 - name: breakdown_stray_magnetic_field_magnitude
   kind: scalar
-  status: draft
-  description: Magnitude of the residual magnetic field at the plasma position during
-    the breakdown phase of plasma initiation. It quantifies the all-direction stray
-    field from imperfect cancelation of external coil fields that can impede electron
-    avalanche formation.
-  documentation: 'Breakdown stray magnetic field magnitude is the scalar magnitude
-    of the residual magnetic field present at the plasma position during the initial
-    electron-avalanche phase. It is the breakdown-specific form of [stray_magnetic_field_magnitude](name:breakdown_stray_magnetic_field_magnitude)
-    and includes residual field in all spatial directions, not only the poloidal component.
+  status: active
+  description: Breakdown stray magnetic field magnitude is the scalar Euclidean magnitude
+    of the stray magnetic-field vector at the plasma position during plasma initiation.
+    It includes residual field in all spatial directions and carries no directional
+    information.
+  documentation: 'Breakdown stray magnetic field magnitude is the scalar Euclidean
+    magnitude of the stray magnetic-field vector at the plasma position during plasma
+    initiation. It represents the local residual magnetic field at the breakdown location
+    without retaining vector direction.
 
 
-    For a stray-field vector $\mathbf{B}_\mathrm{stray}$ with components in the right-handed
-    cylindrical $(R, \phi, Z)$ frame, where $R$ is major radius, $\phi$ is toroidal
-    angle, and $Z$ is vertical height, the magnitude is
+    For a stray magnetic-field vector $\mathbf{B}_\mathrm{stray}$ with components
+    in the right-handed cylindrical $(R, \phi, Z)$ frame with basis $(\hat{R}, \hat{\phi},
+    \hat{Z})$, where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical
+    height, the magnitude is defined by:
 
 
     $$
 
-    B_\mathrm{stray} = \sqrt{B_R^2 + B_\phi^2 + B_Z^2}
+    B_\mathrm{stray} = |\mathbf{B}_\mathrm{stray}| = \sqrt{B_R^2 + B_\phi^2 + B_Z^2}
 
     $$
 
 
-    where $B_R$, $B_\phi$, and $B_Z$ are the radial, toroidal, and vertical components
-    of $\mathbf{B}_\mathrm{stray}$, all expressed in tesla; $B_\mathrm{stray}$ is
-    also reported in tesla.
+    where $B_R$, $B_\phi$, and $B_Z$ are respectively the $\hat{R}$, $\hat{\phi}$,
+    and $\hat{Z}$ components of the stray magnetic-field vector, and $B_\mathrm{stray}$
+    is the scalar magnitude.
 
 
-    In practice this quantity is estimated from magnetic-field calculations for the
-    breakdown scenario, including external-coil currents and relevant residual or
-    induced fields. It may be constrained or checked using magnetic measurements when
-    suitable diagnostics and timing are available, but the definition is the local
-    magnetic-field magnitude at the intended breakdown location.
-
-
-    Optimized breakdown conditions commonly require residual fields at the millitesla
-    scale, for example about 0.001-0.005 T in many tokamak scenarios. This range is
-    device- and scenario-dependent rather than a universal acceptance criterion, because
-    the tolerable stray field also depends on electric field, neutral pressure, vessel
-    size, connection length, toroidal field, and pre-ionization conditions; poorly
-    nulled configurations can reach several millitesla to tens of millitesla.'
+    This quantity is the breakdown-specific counterpart of [stray_magnetic_field_magnitude](name:breakdown_stray_magnetic_field_magnitude)
+    and the scalar magnitude corresponding to breakdown_stray_magnetic_field. It differs
+    from poloidal_breakdown_stray_magnetic_field_magnitude, which uses only the projection
+    onto the $(\hat{R}, \hat{Z})$ poloidal plane of the right-handed cylindrical $(R,
+    \phi, Z)$ frame; it also differs from directional component quantities because
+    it contains no sign or orientation information.'
   unit: T
   physics_domain: magnetic_field_diagnostics
   links: []
   sources:
-  - id: dd:plasma_initiation/global_quantities/b_field_stray
-    dd_path: plasma_initiation/global_quantities/b_field_stray
-    status: composed
-  - id: dd:plasma_initiation/global_quantities/b_field_stray/data
-    dd_path: plasma_initiation/global_quantities/b_field_stray/data
-    status: composed
-- name: count_of_toroidal_magnetic_field_probe
+  - dd_path: plasma_initiation/global_quantities/b_field_stray
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/plasma_initiation.html#plasma_initiation-global_quantities-b_field_stray
+    dd_documentation:
+      leaf: Stray magnetic field at plasma position
+      parent_path: plasma_initiation/global_quantities
+      parent: Global quantities
+      data_type: FLT_1D
+      unit: T
+      coordinates:
+      - plasma_initiation/time
+      lifecycle_status: alpha
+    enhanced_context:
+      description: Stray magnetic field (Bstray) at the plasma position during plasma
+        initiation. Residual fields from imperfect cancellation of external coil fields
+        can inhibit electron avalanche breakdown.
+      kind: llm
+  - dd_path: plasma_initiation/global_quantities/b_field_stray/data
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/plasma_initiation.html#plasma_initiation-global_quantities-b_field_stray-data
+    dd_documentation:
+      leaf: Data
+      parent_path: plasma_initiation/global_quantities/b_field_stray
+      parent: Stray magnetic field at plasma position
+      data_type: FLT_1D
+      unit: T
+      coordinates:
+      - plasma_initiation/global_quantities/b_field_stray/time
+    enhanced_context:
+      description: Data array for b field stray.
+      kind: template
+- name: current_of_rogowski_coil
   kind: scalar
-  status: draft
-  description: "Number of turns in a toroidal magnetic-field probe coil; the sign\
-    \ indicates whether the winding and terminal polarity give a signed area normal\
-    \ in the direction of increasing toroidal angle \u03C6 in the right-handed cylindrical\
-    \ (R, \u03C6, Z) frame."
-  documentation: 'The signed turn count of a toroidal magnetic-field probe is the
-    number of conductor turns linked by the probe aperture, including the orientation
-    imposed by the winding sense and the chosen terminal polarity. Its magnitude multiplies
-    the magnetic flux coupled into the coil, while its sign records whether the coil''s
-    signed area normal corresponds to the positive or negative $\hat{\phi}$ direction
-    in the right-handed cylindrical $(R, \phi, Z)$ frame.
+  status: active
+  description: Signed conventional current threading a Rogowski-coil winding contour,
+    with orientation set by the coil's assigned normal.
+  documentation: 'Signed conventional current threading a Rogowski-coil winding contour
+    is the net conventional electric current crossing an oriented surface bounded
+    by that contour. The surface orientation is specified by the coil''s assigned
+    normal and the associated right-hand rule for the contour.
 
 
-    The electromagnetic calibration follows the flux-linkage form of Faraday''s law:
+    The enclosed current is defined by the surface integral of conventional current
+    density:
 
 
     $$
 
-    V = -\frac{d\Lambda}{dt}, \qquad \Lambda = N\Phi_+ = N\int_{S_+} \mathbf{B}\cdot
-    d\mathbf{S}_+ \simeq N A B_\phi
+    I_{\mathrm{enc}} = \int_S \mathbf{J} \cdot \hat{\mathbf{n}}\, dS
 
     $$
 
 
-    where $V$ is the open-circuit [terminal voltage](name:voltage_of_toroidal_magnetic_field_probe)
-    in volts, $\Lambda$ is the flux linkage in webers, $N$ is this signed turn count,
-    $\Phi_+$ is the flux through a reference turn, and $d\mathbf{S}_+$ is the vector
-    area element in square meters with normal chosen along increasing $\phi$ in the
-    right-handed cylindrical $(R, \phi, Z)$ frame. The approximation uses the effective
-    [probe area](name:area_of_toroidal_magnetic_field_probe) $A$ in m$^2$ and a locally
-    uniform toroidal magnetic-field component $B_\phi$ in tesla.
+    where $S$ is any surface whose boundary is the Rogowski-coil contour, $\hat{\mathbf{n}}$
+    is the assigned unit normal to that surface, and $\mathbf{J}$ is the conventional
+    electric current density.
 
 
-    The magnitude of $N$ is assigned from winding records and checked by magnetic
-    calibration with a known time-varying $B_\phi$ in the right-handed cylindrical
-    $(R, \phi, Z)$ frame. The sign is determined from the documented terminal polarity
-    and the right-hand rule for the coil winding; calibration verifies it by comparing
-    the measured terminal-voltage polarity with that predicted by Faraday''s law.
-    The [toroidal angle](name:toroidal_angle_of_toroidal_magnetic_field_probe) specifies
-    the sensitive-axis orientation, and the [probe length] characterizes finite spatial
-    sampling rather than multiplying the flux pickup factor $N A$.
+    This is an enclosed-current quantity, not the electrical current carried by the
+    Rogowski-coil sensor winding. In the Rogowski-coil principle, the induced winding
+    voltage is proportional to $dI_{\mathrm{enc}}/dt$; $I_{\mathrm{enc}}$ is the current
+    whose time variation drives that signal.
 
 
-    Typical magnitudes are 1-10 turns for high-bandwidth probes and 10-500 turns for
-    higher-sensitivity or low-noise coils. Larger magnitude increases induced voltage
-    for a given $dB_\phi/dt$ but generally increases winding resistance, self-inductance,
-    and capacitance, so the selected count reflects a trade-off between sensitivity
-    and frequency response.
-
-
-    Sign convention: Positive when the winding and terminal polarity define a signed
-    area normal pointing in the direction of increasing toroidal angle $\phi$ in the
-    right-handed cylindrical $(R, \phi, Z)$ frame.'
-  unit: '1'
-  physics_domain: magnetic_field_diagnostics
-  links:
-  - name:voltage_of_toroidal_magnetic_field_probe
-  - name:area_of_toroidal_magnetic_field_probe
-  - name:toroidal_angle_of_toroidal_magnetic_field_probe
-- name: magnetic_field_at_magnetic_axis_magnitude
-  kind: scalar
-  status: draft
-  description: Euclidean norm of the total magnetic field vector evaluated at the
-    magnetic axis, where the poloidal flux reaches its extremum and poloidal field
-    components vanish in an axisymmetric equilibrium.
-  documentation: "The magnetic axis is the unique interior point where the poloidal\
-    \ flux function $\\psi$ attains its extremum, defining the center of the nested\
-    \ flux-surface topology. In an axisymmetric equilibrium, the poloidal field components\
-    \ vanish there by symmetry, so the field magnitude is dominated by the toroidal\
-    \ contribution.\n\nThe on-axis field magnitude is defined as:\n\n$$\nB_0 = |\\\
-    mathbf{B}|_{\\rm axis} = \\sqrt{B_R^2 + B_\\phi^2 + B_Z^2}\\bigg|_{R=R_{\\rm axis},\\\
-    , Z=Z_{\\rm axis}}\n$$\n\nwhere $B_R$, $B_\\phi$, and $B_Z$ are the radial, toroidal,\
-    \ and vertical components of $\\mathbf{B}$ in the right-handed cylindrical $(R,\
-    \ \\phi, Z)$ frame, evaluated at the axis position $(R_{\\rm axis}, Z_{\\rm axis})$.\n\
-    \nThis quantity serves as the conventional reference field $B_0$ for normalizing\
-    \ plasma parameters, and is obtained from equilibrium reconstruction combining\
-    \ external magnetic diagnostics with pressure profile constraints. Its value closely\
-    \ tracks [toroidal_magnetic_field_at_magnetic_axis](name:toroidal_magnetic_field_at_magnetic_axis)\
-    \ because the poloidal field contribution is negligible at the axis. Typical on-axis\
-    \ values range from 1\u20136 T in medium to large tokamaks; the corresponding\
-    \ flux-surface extremal counterparts are [maximum_magnetic_field_magnitude](name:maximum_magnetic_field_magnitude)\
-    \ and [minimum_magnetic_field_magnitude](name:minimum_magnetic_field_magnitude)."
-  unit: T
-  physics_domain: magnetic_field_diagnostics
-  links:
-  - name:toroidal_magnetic_field_at_magnetic_axis
-  - name:maximum_magnetic_field_magnitude
-  - name:minimum_magnetic_field_magnitude
-- name: radial_coordinate_of_flux_loop
-  kind: scalar
-  status: draft
-  description: "Major radius R coordinate of a flux loop diagnostic position, giving\
-    \ the perpendicular distance from the toroidal symmetry axis to the loop center\
-    \ in the right-handed cylindrical (R, \u03C6, Z) frame."
-  documentation: "The radial coordinate $R$ gives the position of a flux loop diagnostic\
-    \ in the major-radius direction of the right-handed cylindrical $(R, \\phi, Z)$\
-    \ frame, where $R$ is the perpendicular distance from the toroidal symmetry axis.\
-    \ Flux loops are closed conducting loops whose terminal voltage obeys Faraday's\
-    \ law, $V = -d\\Psi/dt$, where $\\Psi$ is the total poloidal magnetic flux enclosed\
-    \ by the loop; the loop's $(R, Z)$ position is essential for mapping the measured\
-    \ flux to the equilibrium geometry during reconstruction. Typical major-radius\
-    \ positions for flux loops span from values near the inner wall to the outer vacuum\
-    \ vessel structure, covering roughly 0.5\u201312 m across current and planned\
-    \ tokamak devices.\n\nThe radial position is obtained from engineering survey\
-    \ data or the design geometry of the magnetic diagnostic assembly and is treated\
-    \ as a fixed calibration parameter for each measurement campaign. Together with\
-    \ the [terminal loop voltage](name:voltage_of_flux_loop) and the [effective sensing\
-    \ area](name:area_of_flux_loop), this coordinate fully characterizes the spatial\
-    \ contribution of each flux loop to the equilibrium constraint set. The identical\
-    \ spatial registration convention is used for the [radial coordinate of a poloidal\
-    \ magnetic field probe](name:radial_coordinate_of_poloidal_magnetic_field_probe).\n\
-    \nSign convention: Positive when directed away from the toroidal symmetry axis\
-    \ in the direction of increasing $R$."
-  unit: m
-  physics_domain: magnetic_field_diagnostics
-  links:
-  - name:voltage_of_flux_loop
-  - name:area_of_flux_loop
-  - name:radial_coordinate_of_poloidal_magnetic_field_probe
-- name: radial_coordinate_of_poloidal_magnetic_field_probe
-  kind: scalar
-  status: draft
-  description: "Major radius R coordinate of the physical location of a poloidal magnetic\
-    \ field probe in the right-handed cylindrical (R, \u03C6, Z) frame."
-  documentation: 'The radial coordinate $R$ gives the major-radius position of a poloidal
-    magnetic field probe, measured from the machine symmetry axis in the right-handed
-    cylindrical $(R, \phi, Z)$ frame, where $R$ is the major radius, $\phi$ is the
-    toroidal angle, and $Z$ is the vertical height.
-
-
-    Poloidal magnetic field probes are distributed around the poloidal cross-section
-    of the vessel to sample the local poloidal field component; their radial positions
-    span from the inboard wall to the outboard wall and are established by physical
-    survey of the installed hardware. Together with [radial_coordinate_of_flux_loop](name:radial_coordinate_of_flux_loop)
-    and [radial_coordinate_of_toroidal_magnetic_field_probe](name:radial_coordinate_of_toroidal_magnetic_field_probe),
-    this value maps the complete primary magnetics diagnostic array onto the poloidal
-    cross-section for equilibrium reconstruction. The [area_of_poloidal_magnetic_field_probe](name:area_of_poloidal_magnetic_field_probe)
-    and [voltage_of_poloidal_magnetic_field_probe](name:voltage_of_poloidal_magnetic_field_probe)
-    characterize the flux-sensing area and measured signal of the same probe at this
-    radial location.
-
-
-    Typical values range from roughly 0.5-2 m for compact devices to 4-10 m for large
-    tokamaks.
-
-
-    Sign convention: Positive when measured outward from the machine symmetry axis
-    in the direction of increasing major radius $R$.'
-  unit: m
-  physics_domain: magnetic_field_diagnostics
-  links:
-  - name:radial_coordinate_of_flux_loop
-  - name:radial_coordinate_of_toroidal_magnetic_field_probe
-  - name:area_of_poloidal_magnetic_field_probe
-  - name:voltage_of_poloidal_magnetic_field_probe
-- name: radial_coordinate_of_rogowski_coil
-  kind: scalar
-  status: draft
-  description: "Major-radius coordinate of the designated reference point of a Rogowski\
-    \ coil, measured from the toroidal symmetry axis in the right-handed cylindrical\
-    \ (R, \u03C6, Z) frame. The reference point is typically the coil center or calibration\
-    \ fiducial used to locate the winding assembly."
-  documentation: 'The radial coordinate of a Rogowski coil is the major radius $R$
-    of the coil''s designated reference point in the right-handed cylindrical $(R,
-    \phi, Z)$ frame, where $R$ is measured from the toroidal symmetry axis and $Z$
-    is vertical height. The reference point is the fiducial used to locate the coil
-    in geometry surveys, commonly the geometric center or calibration point of the
-    winding assembly.
-
-
-    For a right-handed Cartesian $(x, y, z)$ frame with origin on the toroidal symmetry
-    axis and $\hat{z}=\hat{Z}$, the major radius of the reference point is
-
-
-    $$
-
-    R = \sqrt{x^2 + y^2}
-
-    $$
-
-
-    where $x$ and $y$ are the horizontal Cartesian coordinates of the same reference
-    point.
-
-
-    In practice, this coordinate is obtained from mechanical drawings, metrology surveys,
-    or diagnostic geometry calibration. Together with the toroidal angle $\phi$, vertical
-    coordinate $Z$, and the coil orientation and winding path, it defines the physical
-    placement of the Rogowski coil; the full coil geometry, rather than $R$ alone,
-    determines the aperture and current sensitivity.
-
-
-    Typical values are set by the vessel and diagnostic layout. Rogowski coil reference
-    points in medium-size and large tokamaks commonly lie at major radii of 0.5-10
-    m.'
-  unit: m
+    Sign convention: Positive when the net conventional current crosses the oriented
+    surface in the direction of the assigned normal.'
+  unit: A
   physics_domain: magnetic_field_diagnostics
   links:
   - name:area_of_rogowski_coil
-  - name:radial_coordinate_of_flux_loop
-  - name:radial_coordinate_of_poloidal_magnetic_field_probe
-- name: radial_coordinate_of_toroidal_magnetic_field_probe
+  sources:
+  - dd_path: magnetics/rogowski_coil/current
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/magnetics.html#magnetics-rogowski_coil-current
+    dd_documentation:
+      leaf: 'Measured current inside the Rogowski coil contour. The normal direction
+        to the Rogowski coil is defined by the order of points in the list of guiding
+        centre positions. The current is positive when oriented in the same direction
+        as the normal. '
+      parent_path: magnetics/rogowski_coil
+      parent: Set of Rogowski coils
+      data_type: STRUCTURE
+      unit: A
+    enhanced_context:
+      description: Measured current enclosed within a Rogowski coil contour, used
+        to determine the net current (e.g., plasma current) threading the coil loop.
+        The sign convention follows the right-hand rule relative to the coil's normal
+        direction.
+      kind: llm
+- name: radial_coordinate_of_flux_loop
   kind: scalar
-  status: draft
-  description: "Major radius R coordinate of the physical location of a toroidal magnetic\
-    \ field probe in the right-handed cylindrical (R, \u03C6, Z) frame, measured from\
-    \ the toroidal symmetry axis to the probe center."
-  documentation: "The radial position of a toroidal magnetic field probe specifies\
-    \ how far the sensing coil is located from the machine symmetry axis, measured\
-    \ along the major radial direction $\\hat{R}$ in the right-handed cylindrical\
-    \ $(R, \\phi, Z)$ frame where $R$ is the distance from the toroidal symmetry axis\
-    \ and $Z$ is the vertical height.\n\nTogether with the [vertical coordinate](name:vertical_coordinate_of_toroidal_magnetic_field_probe)\
-    \ and the [toroidal angle](name:toroidal_angle_of_toroidal_magnetic_field_probe),\
-    \ this coordinate fully determines the three-dimensional position of the probe\
-    \ in the device. These three coordinates enter directly into equilibrium reconstruction\
-    \ algorithms, which weight magnetic field measurements by their geometric location\
-    \ relative to the plasma column. The analogous coordinate for poloidal-field sensing\
-    \ coils is the [radial coordinate of a poloidal magnetic field probe](name:radial_coordinate_of_poloidal_magnetic_field_probe).\n\
-    \nThe coordinate is obtained from engineering survey data or computer-aided design\
-    \ models of the diagnostic hardware. Typical values range from approximately 1\
-    \ m at the inner wall to 10 m at the outer wall for large-scale devices, with\
-    \ medium-sized tokamaks spanning roughly 1.5\u20135 m.\n\nSign convention: Positive\
-    \ when the probe position is displaced outward from the toroidal symmetry axis\
-    \ in the $+\\hat{R}$ direction of the right-handed cylindrical $(R, \\phi, Z)$\
-    \ frame."
+  status: active
+  description: "Radial coordinate of a flux loop is the major-radius coordinate of\
+    \ the flux-loop center in the right-handed cylindrical (R, \u03C6, Z) frame, equal\
+    \ to its non-negative perpendicular distance from the toroidal symmetry axis."
+  documentation: 'Radial coordinate of a flux loop is the major-radius coordinate
+    of the flux-loop center in the right-handed cylindrical $(R, \phi, Z)$ frame,
+    where $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height.
+    It is the non-negative perpendicular distance of the loop center from the toroidal
+    symmetry axis.
+
+
+    For a flux-loop center with Cartesian coordinates in a right-handed Cartesian
+    basis $(\hat{x}, \hat{y}, \hat{z})$ with $\hat{z}=\hat{Z}$ and origin on the toroidal
+    symmetry axis, the radial coordinate is
+
+
+    $$
+
+    R_\mathrm{loop} = \sqrt{x_\mathrm{loop}^2 + y_\mathrm{loop}^2}
+
+    $$
+
+
+    where $R_\mathrm{loop}$ is the radial coordinate of the flux-loop center, and
+    $x_\mathrm{loop}$ and $y_\mathrm{loop}$ are its transverse Cartesian coordinates.
+
+
+    This coordinate is distinct from [vertical_coordinate_of_flux_loop](name:vertical_coordinate_of_flux_loop)
+    and toroidal_angle_of_flux_loop. It locates the loop center associated with flux-loop
+    electromagnetic quantities, but does not denote the magnetic flux, terminal voltage,
+    effective sensing area, or local orientation of the loop.'
   unit: m
   physics_domain: magnetic_field_diagnostics
   links:
-  - name:vertical_coordinate_of_toroidal_magnetic_field_probe
-  - name:toroidal_angle_of_toroidal_magnetic_field_probe
-  - name:radial_coordinate_of_poloidal_magnetic_field_probe
+  - name:vertical_coordinate_of_flux_loop
+  sources:
+  - dd_path: magnetics/flux_loop/position/r
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/magnetics.html#magnetics-flux_loop-position-r
+    dd_documentation:
+      leaf: Major radius
+      parent_path: magnetics/flux_loop/position
+      parent: List of (R,Z,phi) points defining the position of the loop (see data
+        structure documentation FLUXLOOPposition.pdf)
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Major radius (R) coordinate of position.
+      kind: template
+- name: radial_coordinate_of_rogowski_coil
+  kind: scalar
+  status: active
+  description: "Major-radius coordinate of the Rogowski-coil reference point, measured\
+    \ as its perpendicular distance from the toroidal symmetry axis in the right-handed\
+    \ cylindrical (R, \u03C6, Z) frame."
+  documentation: 'This quantity is the major-radius coordinate of the geometric reference
+    point assigned to a Rogowski coil. It locates the coil relative to the toroidal
+    symmetry axis, independently of the coil''s toroidal angle.
+
+
+    The defining relation is
+
+
+    $$
+
+    R_{\mathrm{coil}} = \operatorname{dist}(\mathbf{r}_{\mathrm{coil}},\mathcal{A})
+
+    $$
+
+
+    where $R_{\mathrm{coil}}$ is the major-radius coordinate, $\mathbf{r}_{\mathrm{coil}}$
+    is the position vector of the reference point, and $\mathcal{A}$ is the toroidal
+    symmetry axis. In the right-handed cylindrical $(R, \phi, Z)$ frame, $R$ is the
+    perpendicular distance from that axis.
+
+
+    The reference point is the designated geometric location for the coil and is distinct
+    from the coil''s area, winding length, or electrical current. Together with the
+    [vertical coordinate of the Rogowski coil](name:vertical_coordinate_of_rogowski_coil),
+    it specifies the coil position in the poloidal plane.'
+  unit: m
+  physics_domain: magnetic_field_diagnostics
+  links:
+  - name:vertical_coordinate_of_rogowski_coil
+  sources:
+  - dd_path: magnetics/rogowski_coil/position/r
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/magnetics.html#magnetics-rogowski_coil-position-r
+    dd_documentation:
+      leaf: Major radius
+      parent_path: magnetics/rogowski_coil/position
+      parent: List of (R,Z,phi) points defining the position of the coil guiding center
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Major radius (R) coordinate of position.
+      kind: template
 - name: toroidal_angle_of_magnetic_field_probe
   kind: scalar
-  status: draft
-  description: "Toroidal angle of a magnetic-field probe is the signed tilt of the\
-    \ coil sensitive axis out of the local poloidal plane in the right-handed cylindrical\
-    \ (R, \u03C6, Z) frame. It specifies the toroidal component of the unit sensitivity\
-    \ direction used to project the local magnetic field onto the measured component."
-  documentation: 'Toroidal angle of a magnetic-field probe is the signed angle between
-    the probe sensitive axis and its projection onto the local poloidal plane. The
-    local poloidal plane is spanned by $\hat{R}$ and $\hat{Z}$ in the right-handed
-    cylindrical $(R,\phi,Z)$ frame with basis $(\hat{R},\hat{\phi},\hat{Z})$, where
-    $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height. The
-    angle is commonly represented on the principal branch $-\pi/2 \leq \alpha \leq
-    \pi/2$, with $\alpha=0$ for a sensitive axis lying in the local poloidal plane.
+  status: active
+  description: "Toroidal angle of a magnetic-field probe is the signed azimuthal orientation\
+    \ of the probe sensitive-axis normal in the right-handed cylindrical (R, \u03C6\
+    , Z) frame."
+  documentation: 'Toroidal angle of a magnetic-field probe is the signed azimuthal
+    angle of the probe sensitive-axis normal about the toroidal symmetry axis. It
+    is defined in the right-handed cylindrical $(R, \phi, Z)$ frame with basis $(\hat{R},
+    \hat{\phi}, \hat{Z})$, where $\hat{R} \times \hat{\phi}=\hat{Z}$, $R$ is major
+    radius, $\phi$ increases counter-clockwise when viewed from above $+\hat{Z}$,
+    and $Z$ is vertical height.
 
 
-    The local magnetic-field component measured along the sensitive axis is obtained
-    from the angular projection:
+    The angle is defined by the principal branch of the two-argument arctangent applied
+    to the radial and toroidal components of that normal:
 
 
     $$
 
-    \hat{n}=\cos\alpha\,\hat{p}+\sin\alpha\,\hat{\phi}, \qquad B_n=\mathbf{B}\cdot\hat{n}=\cos\alpha\,B_{p,\mathrm{loc}}+\sin\alpha\,B_\phi
+    \alpha_\phi = \operatorname{atan2}(n_\phi, n_R)
 
     $$
 
 
-    where $\alpha$ is the toroidal angle, $\hat{n}$ is the unit sensitive-axis direction,
-    $\hat{p}$ is the unit projection of $\hat{n}$ onto the local poloidal plane, $B_n$
-    is the field component sensed by the probe, $B_{p,\mathrm{loc}}=(B_R\hat{R}+B_Z\hat{Z})\cdot\hat{p}$
-    is the local scalar projection of the poloidal magnetic field onto $\hat{p}$,
-    and $B_\phi$ is the toroidal magnetic-field component. Thus a zero toroidal angle
-    means the probe responds to the local poloidal-field projection selected by its
-    in-plane orientation, not to all poloidal components simultaneously.
+    where $\alpha_\phi$ is the scalar angle represented by this standard name, $\hat{\mathbf
+    n}$ is the dimensionless unit vector along the probe sensitive-axis normal, $n_R=\hat{\mathbf
+    n}\cdot\hat{R}$, $n_\phi=\hat{\mathbf n}\cdot\hat{\phi}$, and $\operatorname{atan2}(y,x)$
+    returns the signed principal angle from $+x$ toward $+y$.
 
 
-    The angle is determined from probe design geometry, mechanical metrology, installation
-    survey, or magnetic calibration. For an induction coil, it enters the conversion
-    from coil voltage to field through the projected component, for example with the
-    voltage proportional to $-N A_\mathrm{eff}\,dB_n/dt$ for $N$ turns and effective
-    area $A_\mathrm{eff}$. A major-radius coordinate $R$ fixes only distance from
-    the symmetry axis in the right-handed cylindrical $(R,\phi,Z)$ frame; it does
-    not by itself specify the full probe location or the sensitive-axis projection
-    direction $\hat{p}$.
+    This quantity is a probe-geometry orientation coordinate, distinct from magnetic-field
+    components and from probe-position coordinates such as [vertical coordinate of
+    a poloidal magnetic-field probe](name:vertical_coordinate_of_poloidal_magnetic_field_probe).
+    The more specific [toroidal angle of a toroidal magnetic-field probe](name:toroidal_angle_of_toroidal_magnetic_field_probe)
+    uses the same azimuthal definition for a probe classified by its intended field
+    component. If $n_R=n_\phi=0$, the sensitive-axis normal is parallel to $\hat{Z}$
+    and this azimuthal angle is undefined.
 
 
-    For probes intended to measure poloidal magnetic field, $|\alpha|$ is usually
-    small, often 0-0.1 rad after alignment and calibration. Deliberately oblique installations
-    or constrained mounting geometries may use 0.1-0.5 rad, while values approaching
-    $\pm\pi/2$ rad correspond to an axis that is predominantly toroidal-field sensitive.
-
-
-    Sign convention: Positive when the sensitive axis is tilted from its projection
-    in the local poloidal plane toward the direction of increasing toroidal angle
-    $\phi$ in the right-handed cylindrical $(R,\phi,Z)$ frame.'
+    Sign convention: Positive when the projection of the probe sensitive-axis normal
+    onto the plane spanned by $\hat{R}$ and $\hat{\phi}$ rotates from $+\hat{R}$ toward
+    $+\hat{\phi}$ in the right-handed cylindrical $(R, \phi, Z)$ frame.'
   unit: rad
   physics_domain: magnetic_field_diagnostics
-  links:
-  - name:area_of_poloidal_magnetic_field_probe
-  - name:toroidal_angle_of_toroidal_magnetic_field_probe
+  links: []
+  sources:
+  - dd_path: magnetics/b_field_pol_probe/toroidal_angle
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/magnetics.html#magnetics-b_field_pol_probe-toroidal_angle
+    dd_documentation:
+      leaf: 'Toroidal angle of coil orientation (0 if fully in the poloidal plane) '
+      parent_path: magnetics/b_field_pol_probe
+      parent: Poloidal field probes
+      data_type: FLT_0D
+      unit: rad
+    enhanced_context:
+      description: Toroidal angle of the sensitive axis of a poloidal field (Bp) probe
+        coil, describing the deviation of the coil orientation from a purely poloidal
+        plane. Used to project the measured field component onto the correct direction.
+      kind: llm
 - name: toroidal_angle_of_toroidal_magnetic_field_probe
   kind: scalar
-  status: draft
-  description: "Toroidal angle of the horizontal projection of a toroidal magnetic\
-    \ field probe's sensitive-axis normal vector, defining the probe's azimuthal orientation\
-    \ in the right-handed cylindrical (R, \u03C6, Z) frame."
-  documentation: 'The toroidal angle $\phi_\mathrm{probe}$ specifies the azimuthal
-    orientation of a toroidal magnetic field probe''s sensitive axis, defined as the
-    angle of the horizontal projection of the probe''s normal vector measured from
-    the outward major-radius direction $+\hat{R}$ in the right-handed cylindrical
-    $(R, \phi, Z)$ frame where $\hat{R} \times \hat{\phi} = \hat{Z}$.
-
-
-    Together with the poloidal orientation angle, this quantity fully determines the
-    three-dimensional pointing direction of the pickup coil, which is essential for
-    correctly projecting the raw inductive voltage signal onto the toroidal field
-    component during signal interpretation. The analogous orientation angle for non-type-specific
-    magnetic probes is captured by [toroidal_angle_of_magnetic_field_probe](name:toroidal_angle_of_magnetic_field_probe).
-
-
-    The value is determined from mechanical design drawings and installation surveys
-    of the magnetics diagnostic system. Combined with the major_radius_of_toroidal_magnetic_field_probe
-    and [vertical_coordinate_of_toroidal_magnetic_field_probe](name:vertical_coordinate_of_toroidal_magnetic_field_probe),
-    it fully localizes the probe in three-dimensional space. For probes distributed
-    around the machine, values span the range $0$ to $2\pi$ rad.
-
-
-    Sign convention: Positive when the horizontal projection of the probe''s normal
-    vector points in the direction of increasing toroidal angle $\phi$ (counter-clockwise
-    when viewed from above $+\hat{Z}$).'
+  status: active
+  description: "Signed azimuthal orientation of a toroidal magnetic-field probe\u2019\
+    s horizontal sensitive-axis normal, measured from the outward radial direction\
+    \ toward increasing toroidal angle."
+  documentation: "This quantity is the signed azimuthal orientation of the horizontal\
+    \ projection of a toroidal magnetic-field probe\u2019s sensitive-axis normal vector.\
+    \ It describes probe orientation rather than the probe\u2019s spatial location\
+    \ or its poloidal tilt.\n\nThe angle is defined from the radial and toroidal components\
+    \ of the normal vector:\n\n$$\n\\alpha_\\phi = \\operatorname{atan2}(n_\\phi,n_R)\n\
+    $$\n\nwhere $\\alpha_\\phi$ is the toroidal orientation angle, and $n_R$ and $n_\\\
+    phi$ are the radial and toroidal components of the sensitive-axis normal vector\
+    \ in the right-handed cylindrical $(R,\\phi,Z)$ frame. The angle convention is\
+    \ complementary to the [poloidal angle of the toroidal magnetic-field probe](name:poloidal_angle_of_toroidal_magnetic_field_probe)\
+    \ and differs from the [toroidal angle](name:toroidal_angle), which locates a\
+    \ point rather than specifying an orientation.\n\nSign convention: Positive when\
+    \ the horizontal projection rotates from the outward radial direction toward increasing\
+    \ toroidal angle $\\phi$."
   unit: rad
   physics_domain: magnetic_field_diagnostics
-  links:
-  - name:toroidal_angle_of_magnetic_field_probe
-  - name:vertical_coordinate_of_toroidal_magnetic_field_probe
+  links: []
+  sources:
+  - dd_path: magnetics/b_field_phi_probe/toroidal_angle
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/magnetics.html#magnetics-b_field_phi_probe-toroidal_angle
+    dd_documentation:
+      leaf: Angle of the projection of the sensor normal vector (n) in the horizontal
+        plane with the increasing R direction (i.e. grad(R)) (angle is counter-clockwise
+        from above as in cocos=11 phi-like angle). Values should be taken modulo pi
+        with values within (-pi/2,pi/2]. Zero if projected sensor normal is parallel
+        to grad(R), pi/2 if it is parallel to grad(phi).
+      parent_path: magnetics/b_field_phi_probe
+      parent: Toroidal field probes
+      data_type: FLT_0D
+      unit: rad
+    enhanced_context:
+      description: "Toroidal angle of the projection of a toroidal field (B_\u03C6\
+        ) probe's normal vector onto the horizontal plane, measured counter-clockwise\
+        \ from the outward major radius direction. Defines the in-plane orientation\
+        \ of the probe sensor."
+      kind: llm
 - name: vertical_coordinate_of_flux_loop
   kind: scalar
-  status: draft
-  description: "Vertical Z coordinate of a flux loop diagnostic in the right-handed\
-    \ cylindrical (R, \u03C6, Z) frame, giving the height of the loop above or below\
-    \ the machine midplane."
-  documentation: "The vertical coordinate $Z$ locates a flux loop diagnostic along\
-    \ the direction parallel to the toroidal symmetry axis in the right-handed cylindrical\
-    \ $(R, \\phi, Z)$ frame, where $R$ is the major radius, $\\phi$ is the toroidal\
-    \ angle increasing counter-clockwise when viewed from above $+\\hat{Z}$, and $Z$\
-    \ increases upward from the geometric midplane. Together with the [radial coordinate](name:radial_coordinate_of_flux_loop)\
-    \ $R$, it fixes the poloidal-plane position of the loop, which is essential for\
-    \ mapping the induced voltage signal to the local poloidal magnetic flux distribution\
-    \ used in equilibrium reconstruction.\n\nThe $Z$ coordinate is determined during\
-    \ installation by precision engineering surveys and is fixed hardware metadata\
-    \ characterizing the diagnostic geometry. Knowing the full $(R, Z)$ position enables\
-    \ forward-model calculations of the expected flux threading each loop for a given\
-    \ equilibrium, which are compared against [measured voltage signals](name:voltage_of_flux_loop)\
-    \ integrated over time; the [effective sensing area](name:area_of_flux_loop) must\
-    \ also be known to complete this calibration.\n\nTypical $Z$ values span from\
-    \ the machine midplane ($Z = 0$) to $\\pm 1$\u2013$\\pm 4$ m in medium to large\
-    \ tokamaks, placing flux loops on the inboard wall, outboard wall, and top or\
-    \ bottom regions of the vacuum vessel. The analogous vertical-position quantity\
-    \ for Rogowski coil diagnostics is [vertical coordinate of the Rogowski coil](name:vertical_coordinate_of_rogowski_coil).\n\
-    \nSign convention: Positive when the flux loop position is located above the machine\
-    \ midplane in the $+Z$ direction of the right-handed cylindrical $(R, \\phi, Z)$\
-    \ frame."
+  status: active
+  description: "Signed vertical position of the flux-loop reference point in the right-handed\
+    \ cylindrical (R, \u03C6, Z) frame, measured relative to the machine midplane."
+  documentation: 'The vertical coordinate of a flux loop is the height of its reference
+    point along the machine symmetry axis in the right-handed cylindrical $(R, \phi,
+    Z)$ frame. It locates the loop geometrically and does not describe its enclosed
+    area, orientation, or induced voltage.
+
+
+    $$
+
+    Z_{\mathrm{loop}} = \mathbf{r}_{\mathrm{loop}} \cdot \hat{Z}
+
+    $$
+
+
+    where $Z_{\mathrm{loop}}$ is the vertical coordinate, $\mathbf{r}_{\mathrm{loop}}$
+    is the position vector of the flux-loop reference point relative to the coordinate
+    origin, and $\hat{Z}$ is the upward vertical unit vector. The corresponding radial
+    location is given by the [radial coordinate of the flux loop](name:radial_coordinate_of_flux_loop).
+
+
+    Sign convention: Positive when the flux-loop reference point lies in the $+Z$
+    direction, above the machine midplane.'
   unit: m
   physics_domain: magnetic_field_diagnostics
   links:
   - name:radial_coordinate_of_flux_loop
-  - name:voltage_of_flux_loop
-  - name:area_of_flux_loop
-  - name:vertical_coordinate_of_rogowski_coil
+  sources:
+  - dd_path: magnetics/flux_loop/position/z
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/magnetics.html#magnetics-flux_loop-position-z
+    dd_documentation:
+      leaf: Height
+      parent_path: magnetics/flux_loop/position
+      parent: List of (R,Z,phi) points defining the position of the loop (see data
+        structure documentation FLUXLOOPposition.pdf)
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Vertical (Z) coordinate of position.
+      kind: template
 - name: vertical_coordinate_of_poloidal_magnetic_field_probe
   kind: scalar
-  status: draft
-  description: "Vertical Z coordinate of a poloidal magnetic field probe in the right-handed\
-    \ cylindrical (R, \u03C6, Z) frame, measuring the probe's height relative to the\
-    \ machine midplane."
-  documentation: 'The vertical coordinate $Z$ locates a poloidal magnetic field probe
-    along the machine symmetry axis in the right-handed cylindrical $(R, \phi, Z)$
-    frame, where $R$ is the major radius measured from the toroidal symmetry axis,
-    $\phi$ is the toroidal angle, and $Z$ increases upward from the machine midplane.
+  status: active
+  description: "Vertical Z coordinate of a poloidal magnetic-field probe position\
+    \ in the right-handed cylindrical (R, \u03C6, Z) frame, locating the probe above\
+    \ or below the machine midplane."
+  documentation: 'The vertical coordinate of a poloidal magnetic-field probe is the
+    signed height of the probe position relative to the machine midplane. It describes
+    the probe location, not the orientation of its sensitive axis or the measured
+    magnetic-field component.
 
 
-    Poloidal field probes measure the poloidal component of the magnetic field and
-    are deployed around the vacuum vessel to support equilibrium reconstruction; their
-    precise spatial position is essential because the poloidal field pattern sensitively
-    reflects the plasma current distribution. Together with [radial_coordinate_of_poloidal_magnetic_field_probe](name:radial_coordinate_of_poloidal_magnetic_field_probe),
-    the $Z$ coordinate fully defines the probe location in the poloidal cross-section.
-    The analogous coordinate for toroidal probes is given by [vertical_coordinate_of_toroidal_magnetic_field_probe](name:vertical_coordinate_of_toroidal_magnetic_field_probe),
-    and the equivalent geometry for flux loop diagnostics is described by [vertical_coordinate_of_flux_loop](name:vertical_coordinate_of_flux_loop).
+    In the right-handed cylindrical $(R, \phi, Z)$ frame, the coordinate is defined
+    by
 
 
-    Probe positions are established by mechanical survey during installation or from
-    engineering drawings, with positional uncertainties of order 1 mm or less for
-    precision installations. Values range from approximately $-2$ m to $+2$ m in medium-sized
-    tokamaks, and up to several meters in larger devices.
+    $$
+
+    Z_{\mathrm{probe}} = \mathbf{r}_{\mathrm{probe}} \cdot \hat{Z}
+
+    $$
 
 
-    Sign convention: Positive when the probe position is above the machine midplane,
-    in the direction of increasing $Z$.'
+    where $\mathbf{r}_{\mathrm{probe}}$ is the probe position vector and $\hat{Z}$
+    is the vertical unit vector. The coordinate is the positional counterpart of the
+    [vertical coordinate of a toroidal magnetic-field probe](name:vertical_coordinate_of_toroidal_magnetic_field_probe)
+    and is distinct from the [vertical coordinate of a flux loop](name:vertical_coordinate_of_flux_loop).
+
+
+    Sign convention: Positive when the probe position lies above the machine midplane
+    in the $+Z$ direction.'
   unit: m
   physics_domain: magnetic_field_diagnostics
   links:
-  - name:radial_coordinate_of_poloidal_magnetic_field_probe
   - name:vertical_coordinate_of_toroidal_magnetic_field_probe
   - name:vertical_coordinate_of_flux_loop
+  sources:
+  - dd_path: magnetics/b_field_pol_probe/position/z
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/magnetics.html#magnetics-b_field_pol_probe-position-z
+    dd_documentation:
+      leaf: Height
+      parent_path: magnetics/b_field_pol_probe/position
+      parent: R, Z, Phi position of the coil centre
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Vertical (Z) coordinate of position.
+      kind: template
 - name: vertical_coordinate_of_rogowski_coil
   kind: scalar
-  status: draft
+  status: active
   description: "Vertical Z coordinate of the Rogowski coil position in the right-handed\
     \ cylindrical (R, \u03C6, Z) frame, measured along the machine symmetry axis."
   documentation: 'The vertical Z coordinate locates the Rogowski coil along the machine
@@ -654,28 +680,52 @@
   - name:radial_coordinate_of_rogowski_coil
   - name:vertical_coordinate_of_flux_loop
   - name:vertical_coordinate_of_coil_conductor
+  sources:
+  - dd_path: magnetics/rogowski_coil/position/z
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/magnetics.html#magnetics-rogowski_coil-position-z
+    dd_documentation:
+      leaf: Height
+      parent_path: magnetics/rogowski_coil/position
+      parent: List of (R,Z,phi) points defining the position of the coil guiding center
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Vertical (Z) coordinate of position.
+      kind: template
 - name: vertical_coordinate_of_toroidal_magnetic_field_probe
   kind: scalar
-  status: draft
-  description: "Vertical Z coordinate of the toroidal magnetic field probe position\
-    \ in the right-handed cylindrical (R, \u03C6, Z) frame, giving the probe's height\
-    \ relative to the machine midplane."
-  documentation: 'The vertical coordinate $Z$ locates a toroidal magnetic field probe
-    along the machine symmetry axis in the right-handed cylindrical $(R, \phi, Z)$
-    frame, where $Z$ increases upward from the machine midplane and $R$ is the perpendicular
-    distance from that axis.
+  status: active
+  description: "Vertical coordinate of a toroidal magnetic-field probe is the Z position\
+    \ of the probe in the right-handed cylindrical (R, \u03C6, Z) frame, measured\
+    \ above or below the machine midplane."
+  documentation: 'Vertical coordinate of a toroidal magnetic-field probe is the $Z$
+    position of the probe in the right-handed cylindrical $(R, \phi, Z)$ frame, where
+    $R$ is major radius, $\phi$ is toroidal angle, and $Z$ is vertical height. It
+    locates the probe along the vertical direction relative to the machine midplane.
 
 
-    Together with the major-radius coordinate [radial_coordinate_of_toroidal_magnetic_field_probe](name:radial_coordinate_of_toroidal_magnetic_field_probe)
-    and the azimuthal orientation [toroidal_angle_of_toroidal_magnetic_field_probe](name:toroidal_angle_of_toroidal_magnetic_field_probe),
-    this value fully specifies the three-dimensional position of the probe within
-    the vacuum vessel. Probe positions are established from engineering drawings and
-    verified by in-vessel survey or photogrammetry during installation and maintenance
-    campaigns. The analogous vertical coordinate for the poloidal probe is given by
-    [vertical_coordinate_of_poloidal_magnetic_field_probe](name:vertical_coordinate_of_poloidal_magnetic_field_probe),
-    which follows the same frame convention. Typical values span the vertical extent
-    of the vacuum vessel, ranging from approximately $-2$ to $+2$ m in medium-sized
-    tokamaks, with symmetric upper and lower probe arrays straddling the midplane.
+    For a probe position vector $\mathbf{r}_{\mathrm{probe}}$ and the vertical unit
+    vector $\hat{Z}$, the coordinate is the signed projection onto $\hat{Z}$:
+
+
+    $$
+
+    Z_{\mathrm{probe}} = \mathbf{r}_{\mathrm{probe}} \cdot \hat{Z}
+
+    $$
+
+
+    where $Z_{\mathrm{probe}}$ is the vertical coordinate of the toroidal magnetic-field
+    probe.
+
+
+    Together with the [radial coordinate of a toroidal magnetic-field probe] and the
+    [toroidal angle of a toroidal magnetic-field probe](name:toroidal_angle_of_toroidal_magnetic_field_probe),
+    this coordinate specifies the probe position in the right-handed cylindrical $(R,
+    \phi, Z)$ frame. This quantity is a position coordinate, not a magnetic-field
+    component or a probe response; the corresponding coordinate for a poloidal magnetic-field
+    probe is [vertical coordinate of a poloidal magnetic-field probe](name:vertical_coordinate_of_poloidal_magnetic_field_probe).
 
 
     Sign convention: Positive when the probe is located above the machine midplane
@@ -683,58 +733,71 @@
   unit: m
   physics_domain: magnetic_field_diagnostics
   links:
-  - name:radial_coordinate_of_toroidal_magnetic_field_probe
   - name:toroidal_angle_of_toroidal_magnetic_field_probe
   - name:vertical_coordinate_of_poloidal_magnetic_field_probe
+  sources:
+  - dd_path: magnetics/b_field_phi_probe/position/z
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/magnetics.html#magnetics-b_field_phi_probe-position-z
+    dd_documentation:
+      leaf: Height
+      parent_path: magnetics/b_field_phi_probe/position
+      parent: R, Z, Phi position of the coil centre
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Vertical (Z) coordinate of position.
+      kind: template
 - name: vertical_outline_of_fiber_optic_current_sensor
   kind: scalar
-  status: draft
-  description: "Vertical Z coordinate of an outline point defining the geometric boundary\
-    \ of a Fiber Optic Current Sensor in a poloidal cross-section, expressed in the\
-    \ right-handed cylindrical (R, \u03C6, Z) frame where Z is vertical height."
-  documentation: 'The vertical outline of a Fiber Optic Current Sensor is the $Z$
-    coordinate of an indexed point on the sensor''s geometric boundary in a poloidal
-    cross-section. It is expressed in the right-handed cylindrical $(R, \phi, Z)$
-    frame, with $R$ the major radius, $\phi$ the toroidal angle, and $Z$ the vertical
-    height.
-
-
-    For outline vertex $i$, the vertical coordinate is paired with the corresponding
-    major-radius coordinate to define the point in the poloidal $(R,Z)$ plane of the
-    right-handed cylindrical $(R, \phi, Z)$ frame:
+  status: active
+  description: "Signed vertical Z coordinate of a contour point defining the geometric\
+    \ boundary of a fiber-optic current sensor in the right-handed cylindrical (R,\
+    \ \u03C6, Z) frame."
+  documentation: 'The vertical outline coordinate is the signed height of a point
+    on the geometric boundary of a fiber-optic current sensor, represented in a poloidal
+    cross-section. It describes the sensor boundary geometry, not the sensed current
+    or the optical path.
 
 
     $$
 
-    P_i = (R_i, Z_i)
+    Z = \mathbf{r} \cdot \hat{Z}
 
     $$
 
 
-    where $P_i$ is the outline vertex, $R_i$ is the companion [major-radius outline
-    coordinate], and $Z_i$ is this vertical outline quantity.
+    where $\mathbf{r}$ is the point position relative to the coordinate origin and
+    $\hat{Z}$ is the vertical unit vector of the right-handed cylindrical $(R, \phi,
+    Z)$ frame. The quantity is geometrically analogous to the contour coordinate used
+    for [vertical outline of wall material](name:vertical_outline_of_wall_material),
+    but applies to the fiber-optic current sensor boundary.
 
 
-    In practice, $Z_i$ is obtained from the sensor design geometry, mechanical survey,
-    or alignment model using the same vertical datum as the companion $R_i$ coordinates.
-    The paired coordinates trace the sensor boundary used to locate the fiber optic
-    current sensor relative to surrounding hardware and magnetic-field geometry.
-
-
-    No device-independent numeric range applies; values are expressed in meters and
-    are bounded by the vertical extent and reference plane of the installed sensor
-    geometry.
-
-
-    Sign convention: Positive when the outline point is displaced in the $+\hat{Z}$
-    direction of the right-handed cylindrical $(R, \phi, Z)$ frame relative to the
-    chosen $Z=0$ reference plane.'
+    Sign convention: Positive when the outline point lies in the direction of increasing
+    vertical coordinate $Z$.'
   unit: m
   physics_domain: magnetic_field_diagnostics
-  links: []
+  links:
+  - name:vertical_outline_of_wall_material
+  sources:
+  - dd_path: focs/outline/z
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/focs.html#focs-outline-z
+    dd_documentation:
+      leaf: Height
+      parent_path: focs/outline
+      parent: FOCS outline
+      data_type: FLT_1D
+      unit: m
+      coordinates:
+      - focs/outline/r
+    enhanced_context:
+      description: Vertical (Z) coordinate of outline.
+      kind: template
 - name: voltage_of_flux_loop
   kind: scalar
-  status: draft
+  status: active
   description: Voltage of a flux loop is the direct, unintegrated terminal voltage
     measured across the sensor. It is induced by the time rate of change of the oriented
     magnetic flux threading the loop and is related to that flux by Faraday's law.
@@ -795,9 +858,25 @@
   - name:area_of_flux_loop
   - name:voltage_of_poloidal_magnetic_field_probe
   - name:voltage_of_toroidal_magnetic_field_probe
+  sources:
+  - dd_path: magnetics/flux_loop/voltage
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/magnetics.html#magnetics-flux_loop-voltage
+    dd_documentation:
+      leaf: Measured voltage between the loop terminals
+      parent_path: magnetics/flux_loop
+      parent: Flux loops; partial flux loops can be described
+      data_type: STRUCTURE
+      unit: V
+    enhanced_context:
+      description: "Measured voltage between the terminals of a flux loop sensor in\
+        \ the magnetics diagnostic. This raw signal is time-integrated to obtain the\
+        \ magnetic flux (\u03A6) through the loop, used in equilibrium reconstruction\
+        \ and plasma shape control."
+      kind: llm
 - name: voltage_of_poloidal_magnetic_field_probe
   kind: scalar
-  status: draft
+  status: active
   description: Terminal voltage induced at the terminals of a poloidal magnetic field
     probe coil by the time variation of the local poloidal magnetic field component
     threading the coil windings.
@@ -841,9 +920,24 @@
   - name:area_of_poloidal_magnetic_field_probe
   - name:voltage_of_toroidal_magnetic_field_probe
   - name:voltage_of_flux_loop
+  sources:
+  - dd_path: magnetics/b_field_pol_probe/voltage
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/magnetics.html#magnetics-b_field_pol_probe-voltage
+    dd_documentation:
+      leaf: Voltage on the coil terminals
+      parent_path: magnetics/b_field_pol_probe
+      parent: Poloidal field probes
+      data_type: STRUCTURE
+      unit: V
+    enhanced_context:
+      description: Voltage measured at the terminals of a poloidal field (Bp) probe
+        coil. The raw electrical signal from which the local magnetic field is derived
+        after accounting for coil geometry and turns.
+      kind: llm
 - name: voltage_of_toroidal_magnetic_field_probe
   kind: scalar
-  status: draft
+  status: active
   description: Terminal voltage of a toroidal magnetic field probe coil, induced by
     the time variation of the local toroidal magnetic field component threading the
     coil windings.
@@ -866,8 +960,7 @@
     where $N$ is the number of turns and $A$ is the effective cross-sectional area
     per turn. Time-integrating the voltage signal and dividing by the coil sensitivity
     $NA$ recovers the local toroidal field value; the geometric parameters are provided
-    by [count_of_toroidal_magnetic_field_probe](name:count_of_toroidal_magnetic_field_probe)
-    and [area_of_toroidal_magnetic_field_probe](name:area_of_toroidal_magnetic_field_probe).
+    by count_of_toroidal_magnetic_field_probe and [area_of_toroidal_magnetic_field_probe](name:area_of_toroidal_magnetic_field_probe).
 
 
     Probes are mounted on the vacuum vessel wall or plasma-facing surfaces and sampled
@@ -881,6 +974,21 @@
   unit: V
   physics_domain: magnetic_field_diagnostics
   links:
-  - name:count_of_toroidal_magnetic_field_probe
   - name:area_of_toroidal_magnetic_field_probe
   - name:voltage_of_poloidal_magnetic_field_probe
+  sources:
+  - dd_path: magnetics/b_field_phi_probe/voltage
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/magnetics.html#magnetics-b_field_phi_probe-voltage
+    dd_documentation:
+      leaf: Voltage on the coil terminals
+      parent_path: magnetics/b_field_phi_probe
+      parent: Toroidal field probes
+      data_type: STRUCTURE
+      unit: V
+    enhanced_context:
+      description: "Voltage measured at the terminals of a toroidal magnetic field\
+        \ (B_\u03C6) probe coil in the magnetics diagnostic. The raw coil voltage\
+        \ is integrated and calibrated to derive the local toroidal magnetic field\
+        \ component."
+      kind: llm
