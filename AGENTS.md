@@ -62,8 +62,8 @@ dev = [
 
 **Do not** revert this to a pinned RC tag, and **do not** add `uv.lock`
 to git. If a specific upstream version is required for a one-off
-investigation, override locally with `uv pip install …@v0.8.0rcN`
-without modifying `pyproject.toml`.
+investigation, ask the user to provision it in the repository-root `.venv`;
+agents must not mutate that environment or `pyproject.toml`.
 
 ## CI/CD
 
