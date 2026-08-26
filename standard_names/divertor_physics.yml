@@ -1,8 +1,6 @@
 # Domain: divertor_physics
 # Entries: 75
-# Ordering: structural traversal
-#   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
-#    alphabetic tie-break)
+# Ordering: approved baseline followed by fresh review entries
 - name: absorbed_radiated_power_at_divertor_target
   kind: scalar
   status: active
@@ -322,46 +320,46 @@
 - name: argon_density_at_divertor_target
   kind: scalar
   status: active
-  description: Argon density at the divertor target is the local number density of
-    argon ions in the plasma immediately adjacent to a divertor target surface, evaluated
-    at the entrance to the electrostatic sheath. It is summed over Ar1+ through Ar18+
-    and excludes neutral argon atoms.
-  documentation: 'Argon density at the divertor target is the local number density
-    of argon ions in the plasma immediately adjacent to a divertor target surface,
-    evaluated at the entrance to the electrostatic sheath. It is the argon-specific
-    member of [density_at_divertor_target](name:density_at_divertor_target).
+  description: Number density of argon ions at the divertor target is the local particle
+    count per volume at the sheath entrance, summed over positive ionization states
+    and excluding neutral argon.
+  documentation: 'Number density of argon ions at the divertor target is the local
+    particle count per volume at the sheath entrance immediately upstream of the target-facing
+    plasma boundary. It is the argon-specific member of [density_at_divertor_target](name:density_at_divertor_target).
 
 
-    The local number density is defined by the differential particle count summed
-    over argon charge states:
+    The charge-state-summed argon number density is defined by
 
 
     $$
 
-    n_{\mathrm{Ar}} = \sum_{q=1}^{18} \frac{dN_{\mathrm{Ar}^{q+}}}{dV}
+    n_{\mathrm{Ar}} = \sum_{q=1}^{18} n_{\mathrm{Ar}^{q+}}
 
     $$
 
 
-    where $N_{\mathrm{Ar}^{q+}}$ is the number of argon ions in charge state $q+$
-    in a small plasma volume $V$ whose center approaches the sheath entrance from
-    the plasma side at the divertor target.
+    where $n_{\mathrm{Ar}}$ is the total argon-ion number density, $n_{\mathrm{Ar}^{q+}}$
+    is the local number density of argon ions with positive charge state $q$, and
+    $q$ is the integer argon charge-state index.
 
 
-    This quantity includes the positive argon ionization stages $\mathrm{Ar}^{1+}$
-    through $\mathrm{Ar}^{18+}$ and excludes neutral argon atoms. It is a particle
-    number density, not a charge density; charge states are counted by particles rather
-    than weighted by ionic charge.'
+    This quantity applies to the argon-ion population immediately upstream of the
+    electrostatic sheath at a divertor target and is summed over all positive argon
+    charge states from singly ionized through fully stripped argon. Neutral argon
+    atoms and other neutral argon forms are excluded, as are electrons and ions of
+    other elements.
+
+
+    This is a local species density rather than a density integrated over the target
+    surface or summed over all plasma species. The corresponding argon quantity at
+    a limiter, [argon density at the limiter](name:argon_density_at_limiter), has
+    the same charge-state aggregation but a different evaluation locus; unlike [electron
+    density at the divertor target](name:electron_density_at_divertor_target), this
+    quantity describes argon ions rather than free electrons.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:density_at_divertor_target
-  - name:boron_density_at_divertor_target
-  - name:total_ion_density_at_divertor_target
-  arguments:
-  - name: density_at_divertor_target
-    operator: argon
-    operator_kind: qualifier
+  - name:electron_density_at_divertor_target
   sources:
   - dd_path: summary/local/divertor_target/n_i/argon/value
     dd_version: 4.1.0
@@ -380,40 +378,44 @@
 - name: beryllium_density_at_divertor_target
   kind: scalar
   status: active
-  description: Local number density of beryllium ions evaluated in the plasma adjacent
-    to the divertor target surface, summed over Be1+ through Be4+ and excluding neutral
-    beryllium atoms.
-  documentation: 'Beryllium density at the divertor target is the local number density
-    of beryllium ions in the plasma immediately adjacent to the divertor target surface,
-    evaluated at the entrance to the electrostatic sheath. It is a species-specific
-    component of [density_at_divertor_target](name:density_at_divertor_target), with
-    neutral beryllium excluded.
+  description: Number density of beryllium ions at the divertor target is the local
+    particle count per volume at the sheath entrance immediately upstream of the target-facing
+    plasma boundary, summed over all positive ionization states.
+  documentation: 'Number density of beryllium ions at the divertor target is the local
+    particle count per volume at the sheath entrance immediately upstream of the target-facing
+    plasma boundary. It is the beryllium-specific member of [density_at_divertor_target](name:density_at_divertor_target).
 
 
-    The charge-state-summed density is defined by
+    The local beryllium-ion number density is defined by the differential particle
+    count:
 
 
     $$
 
-    n_{\mathrm{Be}} = \sum_{Z=1}^{4} n_{\mathrm{Be}^{Z+}}
+    n_{\mathrm{Be}} = \frac{dN_{\mathrm{Be}}}{dV}
 
     $$
 
 
-    where $n_{\mathrm{Be}}$ is the total beryllium-ion number density and $n_{\mathrm{Be}^{Z+}}$
-    is the number density of beryllium ions with charge state $Z+$; the sum includes
-    Be1+ through Be4+. This species-specific quantity complements [boron_density_at_divertor_target](name:boron_density_at_divertor_target)
-    and the local [beryllium_density](name:beryllium_density).'
+    where $n_{\mathrm{Be}}$ is the beryllium-ion number density, $N_{\mathrm{Be}}$
+    is the number of beryllium ions in the volume, and $V$ is a small plasma volume
+    centered at the sheath entrance.
+
+
+    This quantity applies to the ionized beryllium population immediately adjacent
+    to the divertor target and is summed over all positive beryllium ionization states,
+    with each ion counted once regardless of charge state. Neutral beryllium atoms
+    are excluded; the quantity is a local number density, not an areal particle flux,
+    integrated inventory, or charge density.
+
+
+    Compared with [beryllium_density](name:beryllium_density), this quantity specifies
+    the divertor-target sheath-entrance locus. It is distinct from [electron_density_at_divertor_target](name:electron_density_at_divertor_target),
+    which counts free electrons rather than beryllium ions.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:density_at_divertor_target
-  - name:boron_density_at_divertor_target
-  - name:beryllium_density
-  arguments:
-  - name: density_at_divertor_target
-    operator: beryllium
-    operator_kind: qualifier
+  - name:electron_density_at_divertor_target
   sources:
   - dd_path: summary/local/divertor_target/n_i/beryllium/value
     dd_version: 4.1.0
@@ -432,47 +434,43 @@
 - name: boron_density_at_divertor_target
   kind: scalar
   status: active
-  description: Number density of boron ions at the divertor target is the local particle
-    count per volume immediately upstream of the sheath, summed over all positive
-    ionization states and excluding neutral boron.
-  documentation: 'Number density of boron ions at the divertor target is the local
-    particle count per volume at the sheath entrance immediately upstream of the target-facing
-    plasma boundary. It is the boron-specific instance of [density_at_divertor_target](name:density_at_divertor_target).
+  description: Boron density at the divertor target is the local number density of
+    boron ions immediately upstream of the electrostatic sheath at the target-facing
+    plasma boundary.
+  documentation: 'Boron density at the divertor target is the local number density
+    of boron ions in the plasma immediately adjacent to the divertor target surface,
+    evaluated at the entrance to the electrostatic sheath. It is the boron-specific
+    member of [density_at_divertor_target](name:density_at_divertor_target).
 
 
-    The local number density is defined by the differential particle count:
+    The charge-state-summed boron ion density is defined by
 
 
     $$
 
-    n_{\mathrm{B}} = \frac{dN_{\mathrm{B}}}{dV}
+    n_{\mathrm{B}} = \sum_{q=1}^{5} n_{\mathrm{B}^{q+}}
 
     $$
 
 
-    where $N_{\mathrm{B}}$ is the number of boron ions in all positive ionization
-    states and $V$ is a small plasma volume whose center approaches the sheath entrance
-    from the plasma side at the divertor target.
+    where $n_{\mathrm{B}}$ is the boron ion number density and $n_{\mathrm{B}^{q+}}$
+    is the number density of boron ions with positive charge state $q$.
 
 
-    Neutral boron atoms are excluded, and the quantity does not include other ion
-    species. This species-specific scope distinguishes it from [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target);
-    the same target-locus convention is used by [argon_density_at_divertor_target](name:argon_density_at_divertor_target)
-    for argon ions.
+    This quantity applies to the boron-ion population immediately upstream of the
+    sheath at a divertor target and aggregates all positive boron ionization states,
+    from singly ionized through fully stripped boron. Each boron ion is counted once;
+    neutral boron atoms are excluded.
 
 
-    Sign convention: Positive when the local boron ion population contributes particles
-    to the plasma volume.'
+    Relative to the parent [density_at_divertor_target](name:density_at_divertor_target),
+    this quantity selects boron ions rather than an unspecified species or species
+    group. It is parallel to [beryllium_density_at_divertor_target](name:beryllium_density_at_divertor_target),
+    differing in the selected ion species and its allowed charge states.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:density_at_divertor_target
-  - name:total_ion_density_at_divertor_target
-  - name:argon_density_at_divertor_target
-  arguments:
-  - name: density_at_divertor_target
-    operator: boron
-    operator_kind: qualifier
+  - name:beryllium_density_at_divertor_target
   sources:
   - dd_path: summary/local/divertor_target/n_i/boron/value
     dd_version: 4.1.0
@@ -491,47 +489,41 @@
 - name: carbon_density_at_divertor_target
   kind: scalar
   status: active
-  description: Carbon density at the divertor target is the local number density of
-    carbon ions in the plasma immediately adjacent to a divertor target surface, evaluated
-    at the entrance to the electrostatic sheath. It is summed over C1+ through C6+
-    and excludes neutral carbon atoms and carbon-bearing neutral molecules.
-  documentation: 'Carbon density at the divertor target is the local number density
-    of carbon ions in the plasma immediately adjacent to a divertor target surface,
-    evaluated at the entrance to the electrostatic sheath. It is the carbon-specific
-    member of [density_at_divertor_target](name:density_at_divertor_target) and the
-    carbon ionic specialization of [ion_density_at_divertor_target](name:ion_density_at_divertor_target).
+  description: Number density of the carbon species at the divertor target is the
+    local particle count per volume for carbon ions at the sheath entrance immediately
+    upstream of the target-facing plasma boundary.
+  documentation: 'Number density of the carbon species at the divertor target is the
+    local particle count per volume at the sheath entrance immediately upstream of
+    the target-facing plasma boundary. It is the carbon-specific member of [density_at_divertor_target](name:density_at_divertor_target).
 
 
-    The charge-state-summed carbon ion density is defined by summing the densities
-    of the positive carbon ionization states:
+    The local carbon-ion number density is defined by the differential particle count:
 
 
     $$
 
-    n_{\mathrm{C},t} = \sum_{q=1}^{6} n_{\mathrm{C}^{q+},t}
+    n_{\mathrm{C}^{+}} = \frac{dN_{\mathrm{C}^{+}}}{dV}
 
     $$
 
 
-    where $n_{\mathrm{C},t}$ is the carbon ion density at the divertor target, $n_{\mathrm{C}^{q+},t}$
-    is the density of carbon ions with charge state $q$ at the same locus, and $q=1$
-    and $q=6$ denote singly ionized and fully stripped carbon, respectively.
+    where $n_{\mathrm{C}^{+}}$ is the carbon-ion number density, $N_{\mathrm{C}^{+}}$
+    is the number of carbon ions in all positive ionization states, and $V$ is a small
+    plasma volume whose center approaches the sheath entrance from the plasma side.
 
 
-    The sum includes carbon ions from $\mathrm{C}^{1+}$ through $\mathrm{C}^{6+}$,
-    excludes neutral carbon atoms and carbon-bearing neutral molecules, and counts
-    particles rather than ionic charge. It contributes as a species-resolved component
-    of [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target),
-    which aggregates ion particle densities over species without charge-state weighting.'
+    This quantity applies to carbon ions immediately upstream of the electrostatic
+    sheath at a divertor target and is summed over all positive carbon ionization
+    states, from singly ionized through fully stripped carbon. Neutral carbon atoms,
+    carbon-bearing neutral molecules, electrons, and ions of other elements are excluded.
+
+
+    Unlike [carbon_density](name:carbon_density), which has the broader elemental-carbon
+    scope including neutral carbon, this quantity is restricted to the charge-state-summed
+    positive-ion population at the divertor target.'
   unit: m^-3
   physics_domain: divertor_physics
-  links:
-  - name:density_at_divertor_target
-  - name:ion_density_at_divertor_target
-  arguments:
-  - name: density_at_divertor_target
-    operator: carbon
-    operator_kind: qualifier
+  links: []
   sources:
   - dd_path: summary/local/divertor_target/n_i/carbon/value
     dd_version: 4.1.0
@@ -632,16 +624,15 @@
 - name: deuterium_density_at_divertor_target
   kind: scalar
   status: active
-  description: Deuterium density at the divertor target is the local number density
-    of deuterium ions in the plasma adjacent to the target surface, summed over positive
-    atomic charge states and excluding neutral deuterium.
-  documentation: 'Deuterium density at the divertor target is the local number density
-    of deuterium ions in the plasma immediately adjacent to a divertor target surface,
-    evaluated at the entrance to the electrostatic sheath. It is the deuterium-specific
-    member of [density_at_divertor_target](name:density_at_divertor_target).
+  description: Number density of deuterium ions at the divertor target is the local
+    particle count per volume at the sheath entrance immediately upstream of the target-facing
+    plasma boundary.
+  documentation: 'Number density of deuterium ions at the divertor target is the local
+    particle count per volume at the sheath entrance immediately upstream of the target-facing
+    plasma boundary. It is the deuterium-specific member of [density_at_divertor_target](name:density_at_divertor_target).
 
 
-    The local number density is defined by the differential particle count:
+    The local deuterium number density is defined by the differential particle count:
 
 
     $$
@@ -652,20 +643,22 @@
 
 
     where $N_D$ is the number of deuterium ions in a small plasma volume $V$ whose
-    center approaches the sheath entrance from the plasma side. The deuterium ion
-    population is summed over positive atomic deuterium charge states, which reduces
-    to the singly charged D+ population; neutral deuterium atoms and molecules are
-    excluded. [hydrogen_density_at_divertor_target](name:hydrogen_density_at_divertor_target)
-    provides the analogous hydrogen-isotope quantity.'
+    center approaches the sheath entrance from the plasma side at the divertor target.
+
+
+    This quantity applies to the deuterium-ion population immediately adjacent to
+    the divertor target and is summed over all positive atomic deuterium ionization
+    states, counting each ion once regardless of charge state. Neutral deuterium atoms
+    and molecules, electrons, and ions of other species are excluded.
+
+
+    Unlike [deuterium_tritium_density_at_divertor_target](name:deuterium_tritium_density_at_divertor_target),
+    which includes both fuel-ion species, this quantity contains deuterium ions only.
+    It is the divertor-target-localized counterpart of [deuterium_density](name:deuterium_density).'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:density_at_divertor_target
-  - name:hydrogen_density_at_divertor_target
-  arguments:
-  - name: density_at_divertor_target
-    operator: deuterium
-    operator_kind: qualifier
+  - name:deuterium_tritium_density_at_divertor_target
   sources:
   - dd_path: summary/local/divertor_target/n_i/deuterium/value
     dd_version: 4.1.0
@@ -684,55 +677,47 @@
 - name: deuterium_tritium_density_at_divertor_target
   kind: scalar
   status: active
-  description: Deuterium-tritium density at the divertor target is the local number
-    density of deuterium and tritium fuel ions in the plasma immediately adjacent
-    to a divertor target surface, evaluated at the entrance to the electrostatic sheath.
-    It is summed over the positive atomic ionization states of both isotopes, D+ and
-    T+, and excludes neutral atoms and molecules.
-  documentation: 'Deuterium-tritium density at the divertor target is the local number
-    density of deuterium and tritium fuel ions in the plasma immediately adjacent
-    to a divertor target surface, evaluated at the entrance to the electrostatic sheath.
-    It is the deuterium-tritium-specific member of [density at the divertor target](name:density_at_divertor_target)
-    and the corresponding species-group instance of [ion density at the divertor target](name:ion_density_at_divertor_target).
+  description: Number density of the effective deuterium-tritium fuel-ion pseudo-species
+    at the divertor target is the local particle count per volume at the plasma-side
+    sheath entrance.
+  documentation: 'Number density of the deuterium-tritium fuel-ion pseudo-species
+    at the divertor target is the local particle count per volume at the sheath entrance
+    immediately upstream of the target-facing plasma boundary. It is the deuterium-tritium-specific
+    member of [density_at_divertor_target](name:density_at_divertor_target).
 
 
-    The combined target fuel-ion density is defined by the differential particle count
-    of the deuterium and tritium atomic ion populations at the same target location:
+    The local deuterium-tritium number density is defined by the differential particle
+    count:
 
 
     $$
 
-    n_{\mathrm{DT},t} = \frac{d\left(N_{\mathrm{D}^+}+N_{\mathrm{T}^+}\right)}{dV}
-    = n_{\mathrm{D}^+,t}+n_{\mathrm{T}^+,t}
+    n_{DT} = \frac{dN_{DT}}{dV}
 
     $$
 
 
-    where $N_{\mathrm{D}^+}$ and $N_{\mathrm{T}^+}$ are the numbers of deuterium and
-    tritium atomic ions in a small plasma volume $V$ whose center approaches the sheath
-    entrance from the plasma side at the divertor target, $n_{\mathrm{D}^+,t}$ is
-    the [deuterium density at the divertor target](name:deuterium_density_at_divertor_target),
-    and $n_{\mathrm{T}^+,t}$ is the [tritium density at the divertor target](name:tritium_density_at_divertor_target).
+    where $N_{DT}$ is the number of particles represented by the effective deuterium-tritium
+    fuel-ion pseudo-species, and $V$ is a small plasma volume whose center approaches
+    the sheath entrance from the plasma side at the divertor target.
 
 
-    For the atomic deuterium and tritium species, summing over all positive ionization
-    states reduces to the singly ionized states $\mathrm{D}^+$ and $\mathrm{T}^+$.
-    Neutral deuterium or tritium atoms, neutral molecules, and explicitly molecule-specific
-    populations are excluded. This quantity contributes additively to [total ion density
-    at the divertor target](name:total_ion_density_at_divertor_target) together with
-    other positive-ion species, and it is a particle number density rather than a
-    charge density. Its limiter counterpart is [deuterium-tritium density at the limiter](name:deuterium_tritium_density_at_limiter).'
+    This quantity applies to the ion population represented as one effective deuterium-tritium
+    fuel species, rather than to separately resolved deuterium and tritium populations.
+    It includes the positive ionic states represented by that pseudo-species and excludes
+    neutral deuterium-tritium atoms or molecules, electrons, and other ion species.
+
+
+    The localized quantity is the divertor-target counterpart of [deuterium_tritium_density](name:deuterium_tritium_density).
+    Unlike [deuterium_density_at_divertor_target](name:deuterium_density_at_divertor_target)
+    and [tritium_density_at_divertor_target](name:tritium_density_at_divertor_target),
+    which describe the separately resolved isotope populations, this quantity uses
+    the prescribed effective deuterium-tritium pseudo-species.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:density_at_divertor_target
   - name:deuterium_density_at_divertor_target
   - name:tritium_density_at_divertor_target
-  - name:ion_density_at_divertor_target
-  arguments:
-  - name: density_at_divertor_target
-    operator: deuterium_tritium
-    operator_kind: qualifier
   sources:
   - dd_path: summary/local/divertor_target/n_i/deuterium_tritium/value
     dd_version: 4.1.0
@@ -801,12 +786,12 @@
 - name: electron_density_at_divertor_target
   kind: scalar
   status: active
-  description: Electron density at the divertor target is the local number density
-    of free electrons in the plasma immediately upstream of the electrostatic sheath.
-  documentation: 'Electron density at the divertor target is the local number density
-    of free electrons in the plasma immediately adjacent to a divertor target surface,
-    evaluated at the entrance to the electrostatic sheath. It is the electron-specific
-    member of [density_at_divertor_target](name:density_at_divertor_target).
+  description: Number density of the electron species at the divertor target is the
+    local particle count per volume for free electrons at the sheath entrance immediately
+    upstream of the target-facing plasma boundary.
+  documentation: 'Number density of the electron species at the divertor target is
+    the local particle count per volume at the sheath entrance immediately upstream
+    of the target-facing plasma boundary. It is the electron-specific member of [density_at_divertor_target](name:density_at_divertor_target).
 
 
     The local electron number density is defined by the differential particle count:
@@ -819,23 +804,21 @@
     $$
 
 
-    where $N_e$ is the number of free electrons and $V$ is the enclosing plasma volume.
-    The volume approaches the sheath entrance from the plasma side.
+    where $N_e$ is the number of free electrons in a small plasma volume $V$ whose
+    center approaches the sheath entrance from the plasma side at the divertor target.
 
 
-    This quantity includes free electrons in the plasma and excludes electrons bound
-    in neutral atoms or molecules and electrons in the target material. It complements
-    [electron_temperature_at_divertor_target](name:electron_temperature_at_divertor_target),
-    which characterizes the electron energy distribution at the same sheath entrance.'
+    This quantity applies to the free-electron population immediately adjacent to
+    the divertor target and counts each free electron once, without charge-state weighting.
+    Electrons bound in atoms or molecules, ions, and other neutral particles are excluded.
+
+
+    Unlike [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target),
+    which sums positive-ion densities over ion species and charge states, this quantity
+    describes the electron population and is not an ionic density or a charge density.'
   unit: m^-3
   physics_domain: divertor_physics
-  links:
-  - name:density_at_divertor_target
-  - name:electron_temperature_at_divertor_target
-  arguments:
-  - name: density_at_divertor_target
-    operator: electron
-    operator_kind: qualifier
+  links: []
   sources:
   - dd_path: divertors/divertor/target/two_point_model/n_e_target
     dd_version: 4.1.0
@@ -1018,37 +1001,43 @@
 - name: helium_3_density_at_divertor_target
   kind: scalar
   status: active
-  description: Number density of helium-3 ions in the plasma immediately adjacent
-    to a divertor target, summed over both ionization stages (singly ionized and fully
-    stripped) and excluding neutral helium-3 atoms.
-  documentation: "Helium-3 density at a divertor target is the local number density\
-    \ of ionized helium-3 in the plasma adjacent to a plasma-facing divertor surface.\
-    \ It covers both helium-3 ionization stages \u2014 the singly ionized ($\\mathrm{He3}^{1+}$)\
-    \ and the fully stripped ($\\mathrm{He3}^{2+}$) \u2014 and excludes neutral helium-3\
-    \ atoms. This quantity is a species-resolved instance of the [density_at_divertor_target](name:density_at_divertor_target)\
-    \ family, which abstracts over all species present at the target.\n\nThe total\
-    \ helium-3 ion density is defined as:\n\n$$\nn_{\\mathrm{He3}} = \\sum_{z=1}^{2}\
-    \ n_{\\mathrm{He3}}^{z+}\n$$\n\nwhere $n_{\\mathrm{He3}}^{z+}$ is the local density\
-    \ of helium-3 in charge state $z+$ in the plasma layer immediately upstream of\
-    \ the electrostatic sheath entrance at the target surface.\n\nThis quantity is\
-    \ inferred from spectroscopic measurements of characteristic helium-3 line emission\
-    \ combined with local ionization-balance calculations, or from edge-transport\
-    \ simulations constrained by particle-balance diagnostics. Helium-3 reaches the\
-    \ divertor target following transport through the scrape-off layer, originating\
-    \ either from advanced D-He3 fuel-cycle scenarios or from injected tracer gas.\
-    \ The helium-4 analog is [helium_4_density_at_divertor_target](name:helium_4_density_at_divertor_target);\
-    \ the spatial profile of the same species across the confined plasma is represented\
-    \ by [helium_3_density](name:helium_3_density)."
+  description: Number density of helium-3 ions at the divertor target is the local
+    particle count per volume at the sheath entrance immediately upstream of the target-facing
+    plasma boundary, summed over positive ionization states and excluding neutral
+    helium-3 atoms.
+  documentation: 'Number density of helium-3 ions at the divertor target is the local
+    particle count per volume at the sheath entrance immediately upstream of the target-facing
+    plasma boundary. It is the helium-3-specific member of [density_at_divertor_target](name:density_at_divertor_target).
+
+
+    The local helium-3 number density is defined by the differential particle count:
+
+
+    $$
+
+    n_3 = \frac{dN_3}{dV}
+
+    $$
+
+
+    where $n_3$ is the helium-3 ion number density, $N_3$ is the number of helium-3
+    ions in a small plasma volume, and $V$ is that plasma volume. The count $N_3$
+    includes singly ionized and fully stripped helium-3 ions.
+
+
+    This quantity applies to the helium-3 ion population immediately upstream of the
+    electrostatic sheath at a divertor target. It is summed over the positive ionization
+    states of helium-3, excludes neutral helium-3 atoms, and excludes electrons and
+    all other ion species.
+
+
+    Unlike [helium_4_density_at_divertor_target](name:helium_4_density_at_divertor_target),
+    this quantity describes the isotope with three nucleons. Unlike [helium_3_density_at_limiter](name:helium_3_density_at_limiter),
+    it is evaluated at a divertor target rather than at a limiter surface.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:density_at_divertor_target
   - name:helium_4_density_at_divertor_target
-  - name:helium_3_density
-  arguments:
-  - name: density_at_divertor_target
-    operator: helium_3
-    operator_kind: qualifier
   sources:
   - dd_path: summary/local/divertor_target/n_i/helium_3/value
     dd_version: 4.1.0
@@ -1067,38 +1056,44 @@
 - name: helium_4_density_at_divertor_target
   kind: scalar
   status: active
-  description: Number density of helium-4 ions in the plasma immediately adjacent
-    to a divertor target, summed over singly and doubly ionized helium-4 charge states
-    and excluding neutral helium-4 atoms.
-  documentation: "Helium-4 density at the divertor target is the local number density\
-    \ of ionized helium with mass number 4 in the plasma immediately adjacent to the\
-    \ material target surface. It is summed over the two ionization stages \u2014\
-    \ singly ionized $\\text{He}^{1+}$ and fully stripped $\\text{He}^{2+}$ \u2014\
-    \ and excludes neutral helium-4 atoms, consistent with the [density_at_divertor_target](name:density_at_divertor_target)\
-    \ convention that ionic species are summed over all charge states.\n\nThe charge-state-summed\
-    \ density is defined as:\n\n$$\nn_{\\text{He-4}} = n_{\\text{He}^{1+}} + n_{\\\
-    text{He}^{2+}}\n$$\n\nwhere $n_{\\text{He}^{1+}}$ and $n_{\\text{He}^{2+}}$ are\
-    \ the number densities of the individual charge states. In deuterium\u2013tritium\
-    \ burning plasmas, helium-4 is the dominant fusion ash originating from thermalized\
-    \ alpha particles; its concentration at the divertor target directly reflects\
-    \ the efficiency of ash exhaust by the divertor pumping system. Insufficient helium\
-    \ removal causes ash accumulation and progressive fuel dilution in the core. The\
-    \ quantity is inferred from spectroscopic or charge-exchange recombination measurements\
-    \ in the divertor region. The analogous helium isotope quantity at this surface\
-    \ is [helium_3_density_at_divertor_target](name:helium_3_density_at_divertor_target);\
-    \ complementary helium-4 profiles at other locations are given by [helium_4_density_at_magnetic_axis](name:helium_4_density_at_magnetic_axis)\
-    \ and [helium_4_density_at_plasma_boundary](name:flux_surface_averaged_helium_4_density_at_plasma_boundary)."
+  description: Number density of helium-4 ions at the divertor target is the local
+    particle count per volume at the sheath entrance, summed over singly and doubly
+    ionized states and excluding neutral helium-4.
+  documentation: 'Number density of helium-4 ions at the divertor target is the local
+    particle count per volume at the sheath entrance immediately upstream of the target-facing
+    plasma boundary. It is the helium-4-specific member of [density_at_divertor_target](name:density_at_divertor_target).
+
+
+    The helium-4 ion number density is defined by the differential particle count:
+
+
+    $$
+
+    n_{\mathrm{He4}} = \frac{dN_{\mathrm{He4}}}{dV}
+
+    $$
+
+
+    where $n_{\mathrm{He4}}$ is the helium-4 ion number density, $N_{\mathrm{He4}}$
+    is the number of helium-4 ions, and $V$ is a small plasma volume whose center
+    approaches the sheath entrance from the plasma side.
+
+
+    This quantity applies to the ionized helium-4 population immediately adjacent
+    to the divertor target and is summed over the singly and doubly ionized charge
+    states, with each ion counted once. Neutral helium-4 atoms are excluded, so this
+    quantity is not the total helium-4 particle density including neutrals or a charge
+    density.
+
+
+    As a species-specific specialization, this quantity contributes to the broader
+    [density_at_divertor_target](name:density_at_divertor_target) family without including
+    other ion species. The isotope distinction from [helium_3_density_at_divertor_target](name:helium_3_density_at_divertor_target)
+    is maintained; the two quantities describe different helium isotopes.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:density_at_divertor_target
   - name:helium_3_density_at_divertor_target
-  - name:helium_4_density_at_magnetic_axis
-  - name:flux_surface_averaged_helium_4_density_at_plasma_boundary
-  arguments:
-  - name: density_at_divertor_target
-    operator: helium_4
-    operator_kind: qualifier
   sources:
   - dd_path: summary/local/divertor_target/n_i/helium_4/value
     dd_version: 4.1.0
@@ -1117,43 +1112,46 @@
 - name: hydrogen_density_at_divertor_target
   kind: scalar
   status: active
-  description: Local number density of hydrogen ions evaluated in the plasma adjacent
-    to the divertor target surface, summed over all positive hydrogen ionization charge
-    states and excluding neutral hydrogen atoms and molecules.
-  documentation: 'Hydrogen density at the divertor target is the local number density
-    of hydrogen ions in the plasma immediately adjacent to a divertor target surface,
-    evaluated at the entrance to the electrostatic sheath. It is the hydrogen-specific
-    member of [density at the divertor target](name:density_at_divertor_target), with
-    an isotope-specific scope analogous to [deuterium density at the divertor target](name:deuterium_density_at_divertor_target).
+  description: Number density of the hydrogen species at the divertor target is the
+    local particle count per volume for hydrogen ions at the sheath entrance, summed
+    over positive charge states and excluding neutral hydrogen atoms and molecules.
+  documentation: 'Number density of the hydrogen species at the divertor target is
+    the local particle count per volume at the sheath entrance immediately upstream
+    of the target-facing plasma boundary. It is the hydrogen-specific member of [density_at_divertor_target](name:density_at_divertor_target).
 
 
-    The charge-state-summed density is defined by
+    The local hydrogen-ion number density is defined by the differential particle
+    count:
 
 
     $$
 
-    n_{\mathrm{H}} = \sum_{Z>0} n_{\mathrm{H}}^{(Z)}
+    n_{\mathrm{H}} = \frac{dN_{\mathrm{H}}}{dV}
 
     $$
 
 
-    where $n_{\mathrm{H}}$ is the hydrogen-ion density and $n_{\mathrm{H}}^{(Z)}$
-    is the density of hydrogen ions with positive ionization charge number $Z$. For
-    hydrogen, the sum contains only the singly ionized state $\mathrm{H}^{+}$.
+    where $N_{\mathrm{H}}$ is the number of free hydrogen ions in a small plasma volume
+    $V$ whose center approaches the sheath entrance from the plasma side at the divertor
+    target, and $n_{\mathrm{H}}$ is the corresponding local hydrogen-ion number density.
 
 
-    Neutral hydrogen atoms and hydrogen molecules are excluded; consequently, this
-    quantity is not the total density of hydrogen nuclei in all charge and molecular
-    states.'
+    This quantity applies to the free hydrogen-ion population immediately adjacent
+    to the divertor target. It is summed over all positive hydrogen ionization charge
+    states, counting each ion once without charge weighting; neutral hydrogen atoms
+    and molecules, electrons, and other ion species are excluded.
+
+
+    As a species-specific local component, it uses the same sheath-entrance locus
+    and charge-state-summed convention as [deuterium density at the divertor target](name:deuterium_density_at_divertor_target),
+    but represents hydrogen ions rather than deuterium ions. Unlike the flux-surface-averaged
+    [hydrogen density at the plasma boundary](name:flux_surface_averaged_hydrogen_density_at_plasma_boundary),
+    it is evaluated locally at the divertor target rather than averaged over a flux
+    surface.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:density_at_divertor_target
   - name:deuterium_density_at_divertor_target
-  arguments:
-  - name: density_at_divertor_target
-    operator: hydrogen
-    operator_kind: qualifier
   sources:
   - dd_path: summary/local/divertor_target/n_i/hydrogen/value
     dd_version: 4.1.0
@@ -1260,16 +1258,16 @@
 - name: iron_density_at_divertor_target
   kind: scalar
   status: active
-  description: Iron density at the divertor target is the local number density of
-    iron ions at the sheath entrance, summed over all positive ionization states and
-    excluding neutral iron.
-  documentation: 'Iron density at the divertor target is the local number density
-    of iron ions in the plasma immediately adjacent to a divertor target surface,
-    evaluated at the entrance to the electrostatic sheath. It is the iron-specific
-    member of [density_at_divertor_target](name:density_at_divertor_target).
+  description: Number density of the iron species at the divertor target is the particle
+    count per volume for iron ions at the sheath entrance immediately upstream of
+    the target-facing plasma boundary. Positive charge states are summed; neutral
+    iron is excluded.
+  documentation: 'Number density of the iron species at the divertor target is the
+    local particle count per volume at the sheath entrance immediately upstream of
+    the target-facing plasma boundary. It is the iron-specific member of [density_at_divertor_target](name:density_at_divertor_target).
 
 
-    The local iron number density is defined by the differential particle count:
+    The local iron-ion number density is defined by the differential particle count:
 
 
     $$
@@ -1279,24 +1277,26 @@
     $$
 
 
-    where $N_{\mathrm{Fe}}$ is the number of iron ions and $V$ is a small plasma volume
-    whose center approaches the sheath entrance from the plasma side.
+    where $n_{\mathrm{Fe}}$ is the iron-ion number density, $\mathrm{Fe}$ denotes
+    iron, $N_{\mathrm{Fe}}$ is the number of free iron ions, and $V$ is a small plasma
+    volume whose center approaches the sheath entrance from the plasma side.
 
 
-    All positive iron ionization states are included in $N_{\mathrm{Fe}}$, while neutral
-    iron atoms are excluded. [ion_density_at_divertor_target](name:ion_density_at_divertor_target)
-    is the corresponding general positive-ion quantity, whereas [iron_density_at_magnetic_axis](name:iron_density_at_magnetic_axis)
-    specifies the same iron population at the magnetic axis.'
+    This quantity applies to the free iron-ion population immediately adjacent to
+    the divertor target and is summed over all positive iron charge states, counting
+    each iron ion once without charge-state weighting. Neutral iron atoms, electrons,
+    other ion species, and charge density are excluded.
+
+
+    It is a species-resolved component of [density_at_divertor_target](name:density_at_divertor_target),
+    whereas [electron_density_at_divertor_target](name:electron_density_at_divertor_target)
+    describes the free-electron population and [carbon_density_at_divertor_target](name:carbon_density_at_divertor_target)
+    applies the same target-locus and charge-state-summed convention to carbon ions.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:density_at_divertor_target
-  - name:ion_density_at_divertor_target
-  - name:iron_density_at_magnetic_axis
-  arguments:
-  - name: density_at_divertor_target
-    operator: iron
-    operator_kind: qualifier
+  - name:electron_density_at_divertor_target
+  - name:carbon_density_at_divertor_target
   sources:
   - dd_path: summary/local/divertor_target/n_i/iron/value
     dd_version: 4.1.0
@@ -1315,56 +1315,43 @@
 - name: krypton_density_at_divertor_target
   kind: scalar
   status: active
-  description: Number density of krypton ions in the plasma immediately adjacent to
-    a divertor target, summed over all krypton ionization charge states from Kr1+
-    through Kr36+ and excluding neutral krypton atoms.
-  documentation: 'Krypton density at the divertor target is the local number density
-    of ionized krypton in the plasma immediately adjacent to the material target surface,
-    evaluated upstream of the electrostatic sheath entrance. It is the charge-state-summed
-    krypton ion population at that location, excluding neutral krypton atoms, and
-    is a species-resolved instance of [density_at_divertor_target](name:density_at_divertor_target).
+  description: Number density of the krypton species at the divertor target is the
+    local particle count per volume for krypton ions at the sheath entrance, summed
+    over positive ionization states and excluding neutral krypton atoms.
+  documentation: 'Number density of the krypton species at the divertor target is
+    the local particle count per volume for krypton ions at the sheath entrance immediately
+    upstream of the target-facing plasma boundary. It is the krypton-specific member
+    of [density_at_divertor_target](name:density_at_divertor_target).
 
 
-    The total krypton ion number density aggregates all 36 bound-electron configurations:
+    The local krypton-ion number density is defined by the differential particle count:
 
 
     $$
 
-    n_{\mathrm{Kr}} = \sum_{z=1}^{36} n_{\mathrm{Kr}^{z+}}
+    n_{\mathrm{Kr}} = \frac{dN_{\mathrm{Kr}}}{dV}
 
     $$
 
 
-    where $n_{\mathrm{Kr}^{z+}}$ is the local number density of krypton ions carrying
-    charge state $z$.
+    where $n_{\mathrm{Kr}}$ is the krypton-ion number density, $N_{\mathrm{Kr}}$ is
+    the number of krypton ions, and $V$ is the local plasma volume.
 
 
-    Krypton (atomic number 36) is a noble gas used as a heavy radiative seeding impurity;
-    it radiates efficiently across a broad electron temperature range, redistributing
-    power away from the strike zone and facilitating plasma detachment. The local
-    density at the target reflects the balance between krypton injection, ionization
-    and recombination, cross-field diffusion in the scrape-off layer, parallel transport
-    along field lines, and surface recycling. In attached divertor conditions the
-    krypton ion population peaks farther upstream; in detached conditions, reduced
-    parallel transport can concentrate the ionized fraction closer to the target.
-    This quantity complements [krypton_density](name:krypton_density), which gives
-    the radially resolved density profile, and [carbon_density_at_divertor_target](name:carbon_density_at_divertor_target)
-    for the analogous charge-state-summed carbon species.
+    This quantity applies to the krypton-ion population immediately adjacent to a
+    divertor target, evaluated at the plasma-side entrance to the electrostatic sheath.
+    It is summed over all positive krypton ionization states, counting each ion once;
+    neutral krypton atoms, electrons, and ions of other species are excluded.
 
 
-    The quantity is inferred from vacuum ultraviolet or extreme ultraviolet emission
-    spectroscopy in the divertor volume, or from edge plasma transport simulations
-    benchmarked against spectroscopic line-ratio diagnostics.'
+    As a species-specific target-locus quantity, it specializes the broader [krypton_density](name:krypton_density)
+    by restricting the evaluation point to the divertor target. Its locus and charge-state
+    aggregation follow the corresponding [neon_density_at_divertor_target](name:neon_density_at_divertor_target),
+    while the species is krypton rather than neon.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:density_at_divertor_target
-  - name:krypton_density
-  - name:carbon_density_at_divertor_target
-  arguments:
-  - name: density_at_divertor_target
-    operator: krypton
-    operator_kind: qualifier
+  - name:neon_density_at_divertor_target
   sources:
   - dd_path: summary/local/divertor_target/n_i/krypton/value
     dd_version: 4.1.0
@@ -1383,16 +1370,16 @@
 - name: lithium_density_at_divertor_target
   kind: scalar
   status: active
-  description: Number density of lithium ions at the divertor target is the local
-    particle count per volume in the plasma at the sheath entrance immediately upstream
-    of the target-facing plasma boundary. It is summed over Li+, Li2+, and Li3+; neutral
-    lithium is excluded.
-  documentation: 'Number density of lithium ions at the divertor target is the local
-    particle count per volume in the plasma at the sheath entrance immediately upstream
-    of the target-facing plasma boundary. It is the lithium-specific member of [density_at_divertor_target](name:density_at_divertor_target).
+  description: Number density of the lithium species at the divertor target is the
+    local particle count per volume for ionized lithium at the sheath entrance, summed
+    over positive ionization states and excluding neutral lithium.
+  documentation: 'Number density of the lithium species at the divertor target is
+    the local particle count per volume for ionized lithium at the sheath entrance
+    immediately upstream of the target-facing plasma boundary. It is the lithium-specific
+    member of [density_at_divertor_target](name:density_at_divertor_target).
 
 
-    The local lithium ion number density is defined by the differential particle count:
+    The local lithium-ion number density is defined by the differential particle count:
 
 
     $$
@@ -1402,25 +1389,22 @@
     $$
 
 
-    where $N_{\mathrm{Li}}$ is the number of lithium ions in a small plasma volume
-    $V$ whose center approaches the sheath entrance from the plasma side at the divertor
-    target.
+    where $N_{\mathrm{Li}}$ is the number of ionized lithium ions in the local plasma
+    volume $V$, with the count summed over all positive lithium ionization states.
 
 
-    For this ionic species-level quantity, $N_{\mathrm{Li}}$ is summed over the positive
-    ionization states $\mathrm{Li}^{+}$, $\mathrm{Li}^{2+}$, and $\mathrm{Li}^{3+}$;
-    neutral lithium atoms and lithium-bearing neutral molecules are excluded. This
-    quantity is a non-negative particle number density, not a charge density or a
-    charge-state-resolved lithium density.'
+    This quantity applies to the ionized lithium population immediately adjacent to
+    the divertor target and uses a charge-state-summed aggregation. Neutral lithium
+    atoms, electrons, and ions of other elements are excluded.
+
+
+    Unlike [lithium_density_at_limiter](name:lithium_density_at_limiter), which is
+    evaluated at a limiter, this quantity is evaluated at the divertor-target sheath
+    entrance. It therefore represents the divertor-target member of the lithium-density
+    family rather than a limiter or general plasma-boundary value.'
   unit: m^-3
   physics_domain: divertor_physics
-  links:
-  - name:density_at_divertor_target
-  - name:boron_density_at_divertor_target
-  arguments:
-  - name: density_at_divertor_target
-    operator: lithium
-    operator_kind: qualifier
+  links: []
   sources:
   - dd_path: summary/local/divertor_target/n_i/lithium/value
     dd_version: 4.1.0
@@ -1439,44 +1423,46 @@
 - name: maximum_of_energy_flux_at_divertor_target
   kind: scalar
   status: active
-  description: Peak local total energy deposition rate per unit area on the divertor
-    target, obtained by maximizing energy flux over the target surface.
-  documentation: 'The maximum energy flux at a divertor target is the greatest local
-    rate of energy deposition per unit target-surface area over the specified divertor-target
-    surface. It is the peak of the total [energy flux at the divertor target](name:energy_flux_at_divertor_target),
-    not an integrated deposited power.
+  description: Maximum local energy deposition rate per unit area on a divertor target,
+    combining all incident particle and radiation channels and selecting the highest
+    value over the target surface.
+  documentation: 'Peak energy flux at a divertor target is the largest local rate
+    of energy deposition per unit target-surface area on one divertor-target surface.
+    It represents the maximum local heat load rather than the total power deposited
+    on the target.
 
 
-    The quantity is defined by
+    The peak is defined from the local [energy flux at the divertor target](name:energy_flux_at_divertor_target)
+    $q_E(\mathbf{x})$ as
 
 
     $$
 
-    q_{E,max} = \max_{\mathbf{x}\in S_{\mathrm{DT}}} q_E(\mathbf{x})
+    q_{E,\max} = \max_{\mathbf{x}\in\Gamma_{\rm target}} q_E(\mathbf{x})
 
     $$
 
 
-    where $q_E(\mathbf{x})$ is the local energy flux at position $\mathbf{x}$ and
-    $S_{\mathrm{DT}}$ is the divertor-target surface included in the maximization.
+    where $q_{E,\max}$ is the peak energy flux, $\mathbf{x}$ is a position on the
+    target surface, $\Gamma_{\rm target}$ is the set of positions on that target surface,
+    and $q_E(\mathbf{x})$ is the local total energy flux at that position.
 
 
-    The energy flux includes conductive and convective charged-particle energy transport,
-    neutral-particle energy deposition, and locally absorbed radiation. Unlike [parallel
-    heat flux at the divertor target](name:parallel_heat_flux_at_divertor_target),
-    this maximum represents the total incident energy flux rather than only its field-aligned
-    component. Its surface-maximum role parallels [maximum of energy flux at first
-    wall](name:maximum_of_energy_flux_at_first_wall).'
+    The quantity applies to one divertor target surface and combines electron and
+    ion conductive heat transport, charged-particle convective enthalpy, neutral-particle
+    bombardment, and locally absorbed radiation. These contributions are summed into
+    the local total energy flux before the maximum is taken; no individual species
+    or transport channel is selected.
+
+
+    It is the maximum transformation of [energy flux at the divertor target](name:energy_flux_at_divertor_target).
+    Unlike [power at a divertor target](name:power_at_divertor_target), it is not
+    an integral over the target surface, and unlike [flux at a divertor target](name:flux_at_divertor_target),
+    it reports only the largest local value rather than the value at an arbitrary
+    target position.'
   unit: W.m^-2
   physics_domain: divertor_physics
-  links:
-  - name:energy_flux_at_divertor_target
-  - name:parallel_heat_flux_at_divertor_target
-  - name:maximum_of_energy_flux_at_first_wall
-  arguments:
-  - name: energy_flux_at_divertor_target
-    operator: maximum
-    operator_kind: unary_prefix
+  links: []
   sources:
   - dd_path: divertors/divertor/target/power_flux_peak
     dd_version: 4.1.0
@@ -1511,41 +1497,45 @@
 - name: neon_density_at_divertor_target
   kind: scalar
   status: active
-  description: Number density of neon ions in the plasma immediately adjacent to a
-    divertor target, summed over all ionization states Ne1+ through Ne10+ and excluding
-    neutral neon atoms.
-  documentation: "Neon density at the divertor target is the local number density\
-    \ of neon ions in the plasma immediately adjacent to the divertor target surface,\
-    \ covering all ionization stages from Ne1+ through Ne10+ and excluding neutral\
-    \ neon atoms. It is a species-resolved member of the [density_at_divertor_target](name:density_at_divertor_target)\
-    \ family, evaluated just upstream of the electrostatic sheath entrance at the\
-    \ plasma\u2013material interface.\n\nThe charge-state-summed density is defined\
-    \ as:\n\n$$\nn_{\\text{Ne}} = \\sum_{q=1}^{10} n_{\\text{Ne}^{q+}}\n$$\n\nwhere\
-    \ $n_{\\text{Ne}^{q+}}$ is the local number density of neon ions in charge state\
-    \ $q+$ at the near-target measurement position.\n\nNeon is injected as a seeding\
-    \ impurity to drive radiative energy dissipation in the divertor volume, lowering\
-    \ the peak heat flux on plasma-facing surfaces. The near-target neon ion density\
-    \ reflects the balance between the seeding source rate, parallel and cross-field\
-    \ transport in the scrape-off layer, ionization, and recombination. In high-recycling\
-    \ or detached regimes the ionization balance shifts toward lower charge states\
-    \ and the sheath-entrance density can differ substantially from the upstream separatrix\
-    \ value. Analogous quantities for alternative seeding species are [nitrogen_density_at_divertor_target](name:nitrogen_density_at_divertor_target)\
-    \ and [xenon_density_at_divertor_target](name:xenon_density_at_divertor_target);\
-    \ the overall impurity content at the target is captured by [effective_charge_at_divertor_target](name:effective_charge_at_divertor_target),\
-    \ and the local [electron_temperature_at_divertor_target](name:electron_temperature_at_divertor_target)\
-    \ governs which neon charge states dominate the ionization distribution."
+  description: Number density of neon ions at the divertor target is the local particle
+    count per volume at the sheath entrance, summed over Ne1+ through Ne10+ and excluding
+    neutral neon.
+  documentation: 'Number density of neon ions at the divertor target is the local
+    particle count per volume at the sheath entrance immediately upstream of the target-facing
+    plasma boundary. It is the neon-specific member of [density_at_divertor_target](name:density_at_divertor_target).
+
+
+    The local neon-ion number density is defined by
+
+
+    $$
+
+    n_{\mathrm{Ne}} = \sum_{q=1}^{10} \frac{dN_{\mathrm{Ne}^{q+}}}{dV}
+
+    $$
+
+
+    where $n_{\mathrm{Ne}}$ is the neon-ion number density, $N_{\mathrm{Ne}^{q+}}$
+    is the number of neon ions in charge state $q+$ within the local plasma volume
+    $V$, $V$ is the local plasma volume, and $q$ is the positive integer neon charge-state
+    number. The upper limit 10 denotes fully stripped neon.
+
+
+    This quantity applies to the free neon-ion population immediately adjacent to
+    the divertor target on the plasma side of the electrostatic sheath. It is summed
+    over all positive neon charge states from Ne1+ through Ne10+, counting each ion
+    once; neutral neon atoms are excluded. It is not the density of all ion species
+    or the free-electron population represented by [electron_density_at_divertor_target](name:electron_density_at_divertor_target).
+
+
+    This member specializes [density_at_divertor_target](name:density_at_divertor_target)
+    by selecting neon ions while retaining the same target-sheath evaluation locus.
+    It is the species-specific counterpart of related quantities such as [oxygen_density_at_divertor_target](name:oxygen_density_at_divertor_target).'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:density_at_divertor_target
-  - name:nitrogen_density_at_divertor_target
-  - name:xenon_density_at_divertor_target
-  - name:effective_charge_at_divertor_target
-  - name:electron_temperature_at_divertor_target
-  arguments:
-  - name: density_at_divertor_target
-    operator: neon
-    operator_kind: qualifier
+  - name:electron_density_at_divertor_target
+  - name:oxygen_density_at_divertor_target
   sources:
   - dd_path: summary/local/divertor_target/n_i/neon/value
     dd_version: 4.1.0
@@ -1564,16 +1554,17 @@
 - name: nitrogen_density_at_divertor_target
   kind: scalar
   status: active
-  description: Nitrogen density at the divertor target is the local number density
-    of nitrogen ions immediately upstream of the sheath, summed over all positive
-    ionization states and excluding neutral nitrogen.
-  documentation: 'Nitrogen density at the divertor target is the local number density
-    of nitrogen ions in the plasma immediately adjacent to a divertor target surface,
-    evaluated at the entrance to the electrostatic sheath. It is the nitrogen-specific
-    member of [density_at_divertor_target](name:density_at_divertor_target).
+  description: Number density of the nitrogen species at the divertor target is the
+    local particle count per volume for nitrogen ions at the sheath entrance immediately
+    upstream of the target-facing plasma boundary.
+  documentation: 'Number density of the nitrogen species at the divertor target is
+    the local particle count per volume for nitrogen ions at the sheath entrance immediately
+    upstream of the target-facing plasma boundary. It is the nitrogen-specific member
+    of [density_at_divertor_target](name:density_at_divertor_target).
 
 
-    The local nitrogen number density is defined by the differential particle count:
+    The local nitrogen-ion number density is defined by the differential particle
+    count:
 
 
     $$
@@ -1585,19 +1576,27 @@
 
     where $N_N$ is the number of nitrogen ions in a small plasma volume $V$ whose
     center approaches the sheath entrance from the plasma side at the divertor target.
-    The count includes nitrogen ions from N1+ through N7+, summed over all positive
-    ionization states, and excludes neutral nitrogen atoms and nitrogen-bearing neutral
-    molecules. Its target-local scope distinguishes it from [nitrogen_density_at_magnetic_axis](name:nitrogen_density_at_magnetic_axis),
-    and it is a particle number density rather than a charge density.'
+
+
+    This quantity applies to the nitrogen-ion population immediately adjacent to the
+    divertor target and is summed over all positive nitrogen ionization states. The
+    aggregation counts each nitrogen ion once, regardless of its charge state.
+
+
+    Neutral nitrogen atoms are excluded, as are nitrogen-bearing particles that are
+    not represented as nitrogen ions. This quantity is distinct from [electron_density_at_divertor_target](name:electron_density_at_divertor_target),
+    which counts free electrons, and from [neon_density_at_divertor_target](name:neon_density_at_divertor_target),
+    which applies the same target-local density definition to neon ions.
+
+
+    As a species-specific component, this quantity is one member of [density_at_divertor_target](name:density_at_divertor_target);
+    the parent represents the same target-local number-density concept for a specified
+    species or species group.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:density_at_divertor_target
-  - name:nitrogen_density_at_magnetic_axis
-  arguments:
-  - name: density_at_divertor_target
-    operator: nitrogen
-    operator_kind: qualifier
+  - name:electron_density_at_divertor_target
+  - name:neon_density_at_divertor_target
   sources:
   - dd_path: summary/local/divertor_target/n_i/nitrogen/value
     dd_version: 4.1.0
@@ -1616,46 +1615,44 @@
 - name: oxygen_density_at_divertor_target
   kind: scalar
   status: active
-  description: Number density of oxygen ions in the plasma immediately adjacent to
-    a divertor target, summed over all ionization charge states O1+ through O8+ and
-    excluding neutral oxygen atoms.
-  documentation: 'Oxygen density at the divertor target is the local number density
-    of ionized oxygen in the plasma next to a divertor target surface. It is the charge-state-summed
-    oxygen ion population per unit volume at the plasma-material interface, spanning
-    all ionization stages from singly ionized O$^{1+}$ through fully stripped O$^{8+}$,
-    and excludes neutral oxygen atoms. As a species-resolved component of [density_at_divertor_target](name:density_at_divertor_target),
-    it quantifies the oxygen impurity content at the sheath entrance of the divertor.
+  description: Number density of the oxygen species at the divertor target is the
+    local particle count per volume for oxygen ions at the sheath entrance, summed
+    over all positive ionization states and excluding neutral oxygen.
+  documentation: 'Number density of the oxygen species at the divertor target is the
+    local particle count per volume at the sheath entrance immediately upstream of
+    the target-facing plasma boundary. It is the oxygen-specific member of [density_at_divertor_target](name:density_at_divertor_target).
 
 
-    Oxygen is a low-Z impurity in fusion plasmas, entering through outgassing of vacuum
-    vessel walls, residual water vapor, or erosion of oxide-forming plasma-facing
-    components. Elevated oxygen density at the target enhances radiative power dissipation
-    through line emission from partially stripped ions and raises [effective_charge_at_divertor_target](name:effective_charge_at_divertor_target)
-    above unity, degrading fuel-ion purity. In strongly radiating or detached divertor
-    regimes, distributed oxygen line radiation can partially detach the plasma and
-    redistribute heat loads away from the target surface.
+    The local oxygen-ion number density is defined by the differential particle count:
 
 
-    The oxygen ion density at the target is inferred from visible and vacuum-ultraviolet
-    spectroscopy of oxygen emission lines near the divertor, combined with collisional-radiative
-    modeling to relate observed line intensities to the total ion population across
-    charge states. This interpretation requires concurrent knowledge of the local
-    electron temperature and electron density to resolve the charge-state distribution.
-    The oxygen contribution sums into [total_ion_density_at_divertor_target](name:total_ion_density_at_divertor_target)
-    alongside fuel species such as [hydrogen_density_at_divertor_target](name:hydrogen_density_at_divertor_target);
-    the volume-averaged confined-plasma counterpart is [volume_averaged_oxygen_density](name:volume_averaged_oxygen_density).'
+    $$
+
+    n_{\rm O} = \frac{dN_{\rm O}}{dV}
+
+    $$
+
+
+    where $N_{\rm O}$ is the total number of oxygen ions in a small plasma volume
+    $V$ centered at the sheath entrance on the plasma side of the divertor target.
+
+
+    This quantity applies to the oxygen-ion population at the specified divertor target
+    and sums the number densities of all positive oxygen ionization states, counting
+    each ion once. Neutral oxygen atoms are excluded; therefore, it is distinct from
+    [oxygen_density](name:oxygen_density), which includes neutral oxygen as well as
+    charged oxygen states.
+
+
+    The target-specific quantity has the same charge-state-summed convention as [neon_density_at_divertor_target](name:neon_density_at_divertor_target),
+    while [oxygen_density_at_plasma_boundary](name:oxygen_density_at_plasma_boundary)
+    represents the corresponding oxygen-ion density at the plasma boundary without
+    this divertor-target locus.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:density_at_divertor_target
-  - name:effective_charge_at_divertor_target
-  - name:total_ion_density_at_divertor_target
-  - name:hydrogen_density_at_divertor_target
-  - name:volume_averaged_oxygen_density
-  arguments:
-  - name: density_at_divertor_target
-    operator: oxygen
-    operator_kind: qualifier
+  - name:neon_density_at_divertor_target
+  - name:oxygen_density_at_plasma_boundary
   sources:
   - dd_path: summary/local/divertor_target/n_i/oxygen/value
     dd_version: 4.1.0
@@ -3426,48 +3423,46 @@
   kind: scalar
   status: active
   description: Electron temperature at the divertor target is the thermal energy per
-    particle of the electron population at the sheath entrance adjacent to a divertor
-    target. It is a plasma kinetic temperature, not the material surface temperature
-    of the target.
+    particle of the electron population evaluated at the plasma side of a divertor-target
+    sheath, distinct from the target material temperature.
   documentation: 'Electron temperature at the divertor target is the thermal energy
-    per particle of the electron population at the sheath entrance adjacent to a divertor
-    target. It is a plasma kinetic temperature on the plasma side of the sheath, not
-    the material surface temperature of the target.
+    per particle of the electron population evaluated at the plasma side of a divertor-target
+    sheath. It is a plasma boundary quantity for electrons at the downstream end of
+    the scrape-off layer, not a thermodynamic property of the solid target material.
 
 
-    For a scalar electron temperature, the defining pressure-density relation is:
+    For the electron population, the target temperature is the one-third trace of
+    the kinetic thermal-energy moment at the sheath edge:
 
 
     $$
 
-    T_{e,t} = \frac{p_{e,t}}{e\,n_{e,t}}
+    T_{e,t} = \frac{m_e}{3 n_{e,t}} \int |\mathbf{v} - \mathbf{u}_{e,t}|^2 f_{e,t}(\mathbf{v})\,d^3v
 
     $$
 
 
-    where $T_{e,t}$ is the electron temperature at the divertor target, $p_{e,t}$
-    is the scalar electron kinetic pressure at the sheath entrance, $n_{e,t}$ is the
-    [electron density at the divertor target](name:electron_density_at_divertor_target),
-    and $e$ is the elementary charge used as the energy conversion factor.
+    where $T_{e,t}$ is the electron temperature at the divertor target, $m_e$ is the
+    electron mass, $n_{e,t}$ is the free-electron number density at the sheath edge,
+    $\mathbf{v}$ is electron velocity, $\mathbf{u}_{e,t}$ is the mean electron flow
+    velocity at the sheath edge, $f_{e,t}(\mathbf{v})$ is the electron velocity distribution
+    there, and $d^3v$ is the velocity-space volume element.
 
 
-    This quantity is population-resolved: it is the electron member of [temperature
-    at the divertor target](name:temperature_at_divertor_target), and the corresponding
-    ion quantity is [ion temperature at the divertor target](name:ion_temperature_at_divertor_target).
-    It must not be interpreted as an electron-ion average, a target heat flux, or
-    a full electron energy distribution; for a non-isotropic or non-Maxwellian electron
-    population it denotes the scalar kinetic temperature associated with the electron
-    pressure in the defining relation.'
+    This quantity applies exclusively to the free-electron population at a specified
+    divertor target and represents a density-weighted per-particle thermal energy
+    scale rather than an extensive sum. It excludes ion, neutral-particle, and solid-target
+    temperatures, and it is not an average over multiple plasma populations.
+
+
+    It is the electron-specific component of [temperature at the divertor target](name:temperature_at_divertor_target).
+    The electron density at the same locus, [electron density at divertor target](name:electron_density_at_divertor_target),
+    supplies the local population density appearing in the defining moment but is
+    a distinct quantity.'
   unit: eV
   physics_domain: divertor_physics
   links:
-  - name:temperature_at_divertor_target
-  - name:ion_temperature_at_divertor_target
-  - name:electron_temperature_at_wall
-  arguments:
-  - name: temperature_at_divertor_target
-    operator: electron
-    operator_kind: qualifier
+  - name:electron_density_at_divertor_target
   sources:
   - dd_path: divertors/divertor/target/two_point_model/t_e_target
     dd_version: 4.1.0
@@ -3503,42 +3498,50 @@
 - name: ion_temperature_at_divertor_target
   kind: scalar
   status: active
-  description: Thermal energy per particle of the ion population in the region immediately
-    adjacent to a divertor target, averaged over ion species at the sheath entrance
-    where the Bohm criterion governs ion entry.
-  documentation: 'Ion temperature at the divertor target characterizes the mean kinetic
-    energy scale of the ionic plasma population in the narrow layer adjacent to the
-    target, evaluated at the sheath entrance where ions satisfy the Bohm condition.
-    It is the ion-specific realization of [temperature at the divertor target](name:temperature_at_divertor_target).
+  description: Ion temperature at the divertor target is the thermal energy per particle
+    of the ion population averaged over ion species and evaluated at the plasma side
+    of a divertor-target sheath, distinct from the target material temperature.
+  documentation: 'Ion temperature at the divertor target is the thermal energy per
+    particle of the ion population averaged over ion species and evaluated at the
+    plasma side of a divertor-target sheath. It is a plasma boundary quantity for
+    ions at the downstream end of the scrape-off layer, not a thermodynamic property
+    of the solid target material.
 
 
-    The density-weighted ion temperature is defined by
+    For the ion population, the species-averaged target temperature is defined from
+    the ion kinetic thermal-energy moments by:
 
 
     $$
 
-    T_i = \frac{\sum_s n_s T_s}{\sum_s n_s}
+    T_{i,t} = \left\langle \frac{m_s}{3 n_{s,t}} \int \lvert \mathbf{v} - \mathbf{u}_{s,t}
+    \rvert^2 f_{s,t}(\mathbf{v})\,d^3v \right\rangle_s
 
     $$
 
 
-    where $s$ indexes the included ion species, $n_s$ is the number density of species
-    $s$, and $T_s$ is its kinetic temperature expressed in the same energy convention
-    as $T_i$.
+    where $T_{i,t}$ is the ion temperature at the divertor target, $i$ identifies
+    the ion population, $t$ identifies the divertor-target sheath-edge locus, $s$
+    indexes the included ion species, $m_s$ is the mass of species $s$, $n_{s,t}$
+    is its number density at the target sheath edge, $\mathbf{v}$ is ion velocity,
+    $\mathbf{u}_{s,t}$ is the mean flow velocity of species $s$ there, $f_{s,t}(\mathbf{v})$
+    is its velocity distribution, $d^3v$ is the velocity-space volume element, and
+    angle brackets denote averaging over the included ion species.
 
 
-    This aggregate excludes electrons and neutral particles. It is distinct from [electron
-    temperature at the divertor target](name:electron_temperature_at_divertor_target),
-    which characterizes the electron population at the same sheath entrance.'
+    This quantity applies exclusively to the ion population immediately upstream of
+    a specified divertor target and represents an intensive, per-particle thermal-energy
+    scale averaged over ion species. It is not an extensive sum of ion energies or
+    densities, and it excludes electron, neutral-particle, and solid-target temperatures.
+
+
+    It is the ion-specific component of [temperature at the divertor target](name:temperature_at_divertor_target).
+    Unlike [electron temperature at the divertor target](name:electron_temperature_at_divertor_target),
+    it describes ion kinetic thermal energy at the same plasma-side target locus.'
   unit: eV
   physics_domain: divertor_physics
   links:
-  - name:temperature_at_divertor_target
   - name:electron_temperature_at_divertor_target
-  arguments:
-  - name: temperature_at_divertor_target
-    operator: ion
-    operator_kind: qualifier
   sources:
   - dd_path: summary/local/divertor_target/t_i_average/value
     dd_version: 4.1.0
@@ -3743,42 +3746,43 @@
 - name: tritium_density_at_divertor_target
   kind: scalar
   status: active
-  description: Tritium density at the divertor target is the local number density
-    of T+ ions immediately upstream of the electrostatic sheath, excluding neutral
-    tritium atoms and molecules.
-  documentation: 'Tritium density at the divertor target is the local number density
-    of tritium ions in the plasma immediately adjacent to a divertor target surface,
-    evaluated at the entrance to the electrostatic sheath. It is the tritium-specific
-    member of [density_at_divertor_target](name:density_at_divertor_target).
+  description: Number density of the tritium species at the divertor target is the
+    local particle count per volume for tritium ions at the sheath entrance immediately
+    upstream of the target-facing plasma boundary.
+  documentation: 'Number density of the tritium species at the divertor target is
+    the local particle count per volume at the sheath entrance immediately upstream
+    of the target-facing plasma boundary. It is the tritium-specific member of [density_at_divertor_target](name:density_at_divertor_target).
 
 
-    The local number density is defined by the differential particle count:
+    The local tritium ion number density is defined by the positive-ion count:
 
 
     $$
 
-    n_{\mathrm{T}} = \frac{dN_{\mathrm{T}^+}}{dV}
+    n_T = n_{T^+} = \frac{dN_T}{dV}
 
     $$
 
 
-    where $N_{\mathrm{T}^+}$ is the number of atomic tritium ions in a small plasma
-    volume $V$ whose center approaches the sheath entrance from the plasma side.
+    where $n_T$ is the tritium ion number density, $n_{T^+}$ is the number density
+    of singly ionized tritium ions, $N_T$ is the number of tritium ions in a small
+    plasma volume, and $V$ is that plasma volume as its center approaches the sheath
+    entrance from the plasma side.
 
 
-    Because atomic tritium has one positive ionization state, this quantity represents
-    the T+ population only. Neutral tritium atoms and molecules are excluded; [tritium_density_at_plasma_boundary](name:tritium_density_at_plasma_boundary)
-    refers instead to the corresponding quantity at the last closed magnetic flux
-    surface.'
+    This quantity applies to the tritium ion population immediately adjacent to the
+    divertor target and is summed over all positive atomic ionization states; for
+    tritium, the included atomic ion is $T^+$. Neutral tritium atoms and molecules,
+    electrons, deuterium ions, and other ion species are excluded.
+
+
+    It specializes [density_at_divertor_target](name:density_at_divertor_target) by
+    selecting only tritium ions. Unlike [deuterium_tritium_density_at_divertor_target](name:deuterium_tritium_density_at_divertor_target),
+    it does not aggregate the deuterium and tritium fuel-ion populations.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:density_at_divertor_target
-  - name:tritium_density_at_plasma_boundary
-  arguments:
-  - name: density_at_divertor_target
-    operator: tritium
-    operator_kind: qualifier
+  - name:deuterium_tritium_density_at_divertor_target
   sources:
   - dd_path: summary/local/divertor_target/n_i/tritium/value
     dd_version: 4.1.0
@@ -3797,54 +3801,43 @@
 - name: tungsten_density_at_divertor_target
   kind: scalar
   status: active
-  description: Number density of tungsten ions in the plasma immediately adjacent
-    to a divertor target, summed over all ionization stages W1+ through W74+ and excluding
-    neutral tungsten atoms.
-  documentation: 'Tungsten density at the divertor target is the local number density
-    of tungsten ions in the plasma adjacent to a divertor target surface, summed over
-    all ionization stages W$^{1+}$ through W$^{74+}$ and excluding neutral tungsten
-    atoms. As a fully charge-state-summed impurity ion density, it follows the convention
-    of the parent [density_at_divertor_target](name:density_at_divertor_target) and
-    is evaluated at the plasma-material interface immediately upstream of the electrostatic
-    sheath entrance.
+  description: Number density of tungsten ions at the divertor target is the local
+    particle count per volume at the sheath entrance immediately upstream of the target-facing
+    plasma boundary, summed over positive ionization states and excluding neutral
+    tungsten.
+  documentation: 'Number density of tungsten ions at the divertor target is the local
+    particle count per volume at the sheath entrance immediately upstream of the target-facing
+    plasma boundary. It is the tungsten-specific member of [density_at_divertor_target](name:density_at_divertor_target).
 
 
-    Tungsten is a high-Z refractory metal with atomic number $Z = 74$. The total ion
-    number density is defined as:
+    The charge-state-summed tungsten number density is defined by
 
 
     $$
 
-    n_W = \sum_{z=1}^{74} n_{W^{z+}}
+    n_W = \sum_{Z=1}^{74} n_{W^{Z+}}
 
     $$
 
 
-    where $n_{W^{z+}}$ is the local number density of tungsten ions in charge state
-    $z$. Tungsten ions at the divertor target arise primarily from physical sputtering
-    of tungsten plasma-facing components by energetic incident hydrogenic and impurity
-    ions.
+    where $n_W$ is the total local number density of tungsten ions, $n_{W^{Z+}}$ is
+    the local number density of tungsten ions with positive charge state $Z$, and
+    $Z$ is the integer tungsten ionization state from 1 through 74.
 
 
-    Even trace tungsten concentrations that migrate from the divertor region into
-    the core can produce severe radiative power losses at electron temperatures above
-    a few keV, making this near-target density a critical diagnostic quantity for
-    impurity transport and divertor detachment studies. It is distinct from the bulk
-    plasma content captured by [tungsten_density](name:tungsten_density) and from
-    the separatrix-averaged value given by [tungsten_density_at_plasma_boundary](name:flux_surface_averaged_tungsten_density_at_plasma_boundary).
-    Near-target tungsten ion densities are inferred from vacuum-ultraviolet and optical
-    emission spectroscopy of tungsten line radiation combined with impurity transport
-    modeling.'
+    This quantity applies only to tungsten ions immediately upstream of the electrostatic
+    sheath at a divertor target. It includes every positive tungsten ionization state
+    once, without charge-state weighting, and excludes neutral tungsten atoms and
+    ions of all other elements.
+
+
+    The charge-state sum makes this the species-level tungsten component of [density_at_divertor_target](name:density_at_divertor_target).
+    Its divertor-target locus distinguishes it from [tungsten_density_at_limiter](name:tungsten_density_at_limiter),
+    which describes tungsten ion density at a limiter, and from [tungsten_density_at_plasma_boundary](name:tungsten_density_at_plasma_boundary),
+    which applies at the plasma boundary.'
   unit: m^-3
   physics_domain: divertor_physics
-  links:
-  - name:density_at_divertor_target
-  - name:tungsten_density
-  - name:flux_surface_averaged_tungsten_density_at_plasma_boundary
-  arguments:
-  - name: density_at_divertor_target
-    operator: tungsten
-    operator_kind: qualifier
+  links: []
   sources:
   - dd_path: summary/local/divertor_target/n_i/tungsten/value
     dd_version: 4.1.0
@@ -4007,54 +4000,45 @@
 - name: xenon_density_at_divertor_target
   kind: scalar
   status: active
-  description: Number density of xenon ions in the plasma immediately adjacent to
-    a divertor target, summed over all ionization charge states Xe1+ through Xe54+
-    and excluding neutral xenon atoms.
-  documentation: 'Xenon density at the divertor target is the local number density
-    of ionized xenon in the plasma immediately adjacent to the divertor target surface.
-    It represents all occupied ionization stages in the thin plasma layer upstream
-    of the electrostatic sheath entrance, excluding neutral xenon atoms, and is a
-    species-resolved member of the [density_at_divertor_target](name:density_at_divertor_target)
-    family.
+  description: Number density of the xenon species at the divertor target is the local
+    particle count per volume for xenon ions at the sheath entrance immediately upstream
+    of the target-facing plasma boundary.
+  documentation: 'Number density of the xenon species at the divertor target is the
+    local particle count per volume for xenon ions at the sheath entrance immediately
+    upstream of the target-facing plasma boundary. It is the xenon-specific member
+    of [density_at_divertor_target](name:density_at_divertor_target).
 
 
-    The total xenon ion density is the sum over all occupied charge states:
+    The local xenon ion number density is defined by the differential particle count:
 
 
     $$
 
-    n_{\mathrm{Xe}} = \sum_{q=1}^{54} n_{\mathrm{Xe}^{q+}}
+    n_{\mathrm{Xe}} = \frac{dN_{\mathrm{Xe}}}{dV}
 
     $$
 
 
-    where $n_{\mathrm{Xe}^{q+}}$ is the local number density of xenon ions in charge
-    state $q$, summed from singly ionized Xe$^{1+}$ through fully stripped Xe$^{54+}$.
+    where $n_{\mathrm{Xe}}$ is the xenon ion number density, $N_{\mathrm{Xe}}$ is
+    the number of included xenon ions, and $V$ is a local plasma volume whose center
+    approaches the sheath entrance from the plasma side.
 
 
-    Xenon is introduced as a high-Z noble-gas seeding impurity to enhance radiative
-    power dissipation in the divertor region, reducing peak target heat loads during
-    high-power operation. At near-target plasma temperatures of a few to tens of eV,
-    lower charge states dominate the local xenon ion population; higher charge states
-    become significant only further upstream where the electron temperature is substantially
-    greater. The near-target xenon density is inferred from spectroscopic line-emission
-    measurements combined with impurity transport modeling.
+    This quantity applies to the xenon-ion population immediately adjacent to one
+    divertor target and is summed over all positive xenon ionization states, from
+    singly ionized through fully stripped xenon. Neutral xenon atoms are excluded;
+    this is a local sheath-entrance density, not a volume-averaged density or a density
+    at a general plasma location.
 
 
-    For comparison, [neon_density_at_divertor_target](name:neon_density_at_divertor_target)
-    gives the analogous quantity for the lighter noble-gas seeding species neon, and
-    [xenon_density_at_limiter](name:xenon_density_at_limiter) provides the corresponding
-    xenon ion density at a limiter surface rather than a divertor target.'
+    Compared with [xenon_density](name:xenon_density), which denotes xenon ion density
+    at a general plasma point, this quantity is specialized to the divertor-target
+    sheath entrance. Its charge-state-summed species convention parallels [oxygen_density_at_divertor_target](name:oxygen_density_at_divertor_target),
+    with xenon replacing oxygen.'
   unit: m^-3
   physics_domain: divertor_physics
   links:
-  - name:density_at_divertor_target
-  - name:neon_density_at_divertor_target
-  - name:xenon_density_at_limiter
-  arguments:
-  - name: density_at_divertor_target
-    operator: xenon
-    operator_kind: qualifier
+  - name:oxygen_density_at_divertor_target
   sources:
   - dd_path: summary/local/divertor_target/n_i/xenon/value
     dd_version: 4.1.0

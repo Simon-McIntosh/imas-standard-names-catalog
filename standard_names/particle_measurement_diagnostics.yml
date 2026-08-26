@@ -1,8 +1,6 @@
 # Domain: particle_measurement_diagnostics
-# Entries: 80
-# Ordering: structural traversal
-#   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
-#    alphabetic tie-break)
+# Entries: 83
+# Ordering: approved baseline followed by fresh review entries
 - name: area_of_langmuir_probe
   kind: scalar
   status: active
@@ -828,49 +826,50 @@
 - name: ion_current_of_mass_spectrometer_channel
   kind: scalar
   status: active
-  description: Ion current of a mass spectrometer channel is the signed electrical
-    current attributable to ions within the acceptance of one mass-discriminated channel,
-    with magnitude set by the charge and arrival rate of those ions.
-  documentation: 'Ion current of a mass spectrometer channel is the electrical current
-    carried by ions whose mass-to-charge ratio lies within that channel''s acceptance.
-    The channel acceptance defines which ions contribute; unresolved ion species or
-    charge states admitted by the same channel contribute together according to their
-    charge arrival rates.
+  description: Collected conventional electrical current carried by the ion population
+    assigned to one mass-resolved channel.
+  documentation: 'The collected ion current is the conventional electrical current
+    delivered to a detector by ions assigned to one selected atomic-mass or mass-to-charge
+    channel. It represents the channel-specific ion population rather than the complete
+    detector signal across all mass channels.
 
 
-    The defining charge-rate relation is:
+    The defining charge-collection relation is
 
 
     $$
 
-    I_{\mathrm{ion},\mathrm{ch}} = \sum_{s \in \mathcal{S}_{\mathrm{ch}}} q_s \, \dot{N}_s
+    I_{\mathrm{ion}} = \frac{dQ_{\mathrm{ion}}}{dt} = \sum_{k \in \mathcal{C}} q_k\frac{dN_k}{dt}
 
     $$
 
 
-    where $I_{\mathrm{ion},\mathrm{ch}}$ is the ion current of the channel, $\mathcal{S}_{\mathrm{ch}}$
-    is the set of ion species or charge states admitted by the channel, $q_s$ is the
-    electric charge of ion type $s$, and $\dot{N}_s$ is its collection rate at the
-    channel detector.
+    where $I_{\mathrm{ion}}$ is the collected ion current, $Q_{\mathrm{ion}}$ is the
+    charge delivered by collected ions, $t$ is time, $\mathcal{C}$ is the set of ion
+    populations assigned to the selected channel, $q_k$ is the charge carried by an
+    ion in population $k$, and $N_k$ is the cumulative number of ions from population
+    $k$ collected by the detector.
 
 
-    This quantity excludes neutral pressure or partial-pressure quantities derived
-    from spectrometer sensitivity factors and excludes detector offset, dark current,
-    leakage current, and displacement current. For positive-ion collection, [current_of_mass_spectrometer_channel](name:current_of_mass_spectrometer_channel)
-    denotes the corresponding channel current without separating the ion carrier explicitly;
-    it is not a total of ion and non-ion residual currents.
+    The aggregation is over all ion arrivals assigned to the selected channel and
+    species, including any charge states represented by that channel; it is not an
+    aggregate over the full mass spectrum or over unrelated channels. The quantity
+    excludes neutral-gas pressure and the detector-bias potential represented by the
+    [voltage of a mass-spectrometer channel](name:voltage_of_mass_spectrometer_channel).
 
 
-    Sign convention: Positive when positive ion charge admitted by the channel is
-    collected at the channel detector.'
+    Unlike [ion current density](name:ion_current_density), which is a local vector
+    charge flux per area, this quantity is the total collected current associated
+    with one channel. Its channel-specific value can therefore contribute to determining
+    the corresponding species abundance, while remaining distinct from a current density.
+
+
+    Sign convention: Positive when positive ion charge is collected by the detector
+    channel.'
   unit: A
   physics_domain: particle_measurement_diagnostics
   links:
-  - name:current_of_mass_spectrometer_channel
-  arguments:
-  - name: current_of_mass_spectrometer_channel
-    operator: ion
-    operator_kind: qualifier
+  - name:voltage_of_mass_spectrometer_channel
   sources:
   - dd_path: spectrometer_mass/channel/current
     dd_version: 4.1.0
@@ -3092,46 +3091,50 @@
 - name: voltage_of_mass_spectrometer_channel
   kind: scalar
   status: active
-  description: Voltage of mass spectrometer channel is the signed detector-bias potential
-    difference between the electron-multiplying detector electrode of one mass-discriminated
-    channel and that channel's electronics reference. It establishes the channel-specific
+  description: Signed bias potential applied between the photomultiplier detector
+    electrode and its electronics reference for one mass-resolved channel, setting
     ion-signal gain.
-  documentation: 'Voltage of mass spectrometer channel is the signed detector-bias
-    potential difference between the electron-multiplying detector electrode assigned
-    to one mass-discriminated channel and that channel''s electronics reference. It
-    sets the channel-specific detector gain that converts collected ions into an electron
-    signal.
+  documentation: 'The mass-spectrometer channel voltage is the detector-bias potential
+    difference associated with one channel assigned to a selected atomic mass. It
+    is an instrumental operating parameter of the photomultiplier detector that controls
+    the gain applied to the collected ion signal, rather than a plasma thermodynamic
+    or field quantity.
 
 
-    The channel bias voltage is defined by the electrode potential difference:
+    The defining potential difference is
 
 
     $$
 
-    V_\mathrm{ch} = \Phi_{\mathrm{det},\mathrm{ch}} - \Phi_{\mathrm{ref},\mathrm{ch}}
+    V_{\mathrm{ch}} = \phi_{\mathrm{det}} - \phi_{\mathrm{ref}}
 
     $$
 
 
-    where $V_\mathrm{ch}$ is the channel voltage, $\Phi_{\mathrm{det},\mathrm{ch}}$
-    is the electric potential of the biased detector electrode, and $\Phi_{\mathrm{ref},\mathrm{ch}}$
-    is the electric potential of the electronics reference for the same channel.
+    where $V_{\mathrm{ch}}$ is the channel detector-bias voltage, $\phi_{\mathrm{det}}$
+    is the electric potential of the photomultiplier detector electrode, and $\phi_{\mathrm{ref}}$
+    is the electronics reference potential.
 
 
-    This quantity is channel-specific and excludes the instrument-level detector bias
-    [voltage_of_mass_spectrometer](name:voltage_of_mass_spectrometer). It also excludes
-    the resulting signal [ion_current_of_mass_spectrometer_channel](name:ion_current_of_mass_spectrometer_channel),
-    which denotes the channel ion current rather than the applied detector potential
-    difference.
+    This quantity applies to one mass-resolved channel and its associated detector
+    circuit. It is not summed or averaged across channels, mass assignments, detector
+    electrodes, or ion populations, and it does not represent a local plasma voltage.
 
 
-    Sign convention: Positive when the detector-bias electrode of the channel is at
-    a higher electric potential than the channel''s electronics reference.'
+    The channel-level quantity specializes the device-level [mass-spectrometer detector
+    bias voltage](name:voltage_of_mass_spectrometer) to one channel. It is distinct
+    from the [ion current of a mass-spectrometer channel](name:ion_current_of_mass_spectrometer_channel),
+    which is the collected electrical signal, and from the [voltage of a spectrometer
+    channel](name:voltage_of_spectrometer_channel), which denotes an electrical output
+    signal rather than the detector-bias potential.
+
+
+    Sign convention: Positive when the detector electrode potential exceeds the electronics
+    reference potential.'
   unit: V
   physics_domain: particle_measurement_diagnostics
   links:
   - name:ion_current_of_mass_spectrometer_channel
-  - name:voltage_of_mass_spectrometer
   sources:
   - dd_path: spectrometer_mass/channel/photomultiplier_voltage
     dd_version: 4.1.0
@@ -4275,29 +4278,43 @@
 - name: line_averaged_effective_charge
   kind: scalar
   status: active
-  description: Line-averaged effective charge of the plasma, equal to the chord-length
-    average of local effective ionic charge along a specified viewing path.
-  documentation: 'The line-averaged effective charge is the chord-length mean of the
-    local effective ionic charge encountered along a specified plasma-crossing path.
-    It characterizes the impurity content weighted along that path rather than at
-    a single location.
+  description: Dimensionless line-averaged effective ionic charge of a plasma mixture,
+    obtained by averaging local effective charge along a prescribed plasma line of
+    sight.
+  documentation: 'Line-averaged effective ionic charge characterizes the charge composition
+    of a plasma mixture through the average of its local effective charge along a
+    prescribed line of sight.
 
 
-    The defining relation is:
+    The line average is defined by
 
 
     $$
 
-    \langle Z_\text{eff} \rangle_L = \frac{1}{L} \int_\mathcal{L} Z_\text{eff}(l)\,dl
+    \overline{Z}_{\mathrm{eff}} = \frac{1}{L} \int_{0}^{L} Z_{\mathrm{eff}}(\ell)\,d\ell
 
     $$
 
 
-    where $Z_\text{eff}(l)$ is the local effective charge at path coordinate $l$,
-    $\mathcal{L}$ is the chord, and $L$ is its total length. The parent [effective
-    charge](name:effective_charge) defines the local quantity being averaged. This
-    path average is distinct from the [volume-averaged effective charge](name:volume_averaged_effective_charge),
-    which weights the plasma volume rather than a chord.'
+    where $\overline{Z}_{\mathrm{eff}}$ is the line-averaged effective ionic charge,
+    $L$ is the total path length through the plasma, $\ell$ is distance along the
+    line of sight, and $Z_{\mathrm{eff}}(\ell)$ is the local effective charge at position
+    $\ell$.
+
+
+    This quantity applies to the complete included ion mixture along the line of sight.
+    At each position, the ionic contribution is summed over all represented ion species
+    and charge states, while the line aggregation is a uniform average over physical
+    path length.
+
+
+    The local integrand is the [effective charge](name:effective_charge), defined
+    from the second ionic charge moment divided by free-electron density. This quantity
+    is distinct from a local effective charge at a single position and from the [volume-averaged
+    effective charge](name:volume_averaged_effective_charge), which uses volume weighting
+    rather than line-of-sight path-length weighting; it also differs from the [flux-surface-averaged
+    effective charge at the plasma boundary](name:flux_surface_averaged_effective_charge_at_plasma_boundary),
+    which averages over a boundary surface.'
   unit: '1'
   physics_domain: particle_measurement_diagnostics
   links:
@@ -4308,6 +4325,31 @@
     operator: line_averaged
     operator_kind: qualifier
   sources:
+  - dd_path: bremsstrahlung_visible/channel/zeff_line_average
+    dd_version: 4.1.1
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.1/generated/ids/bremsstrahlung_visible.html#bremsstrahlung_visible-channel-zeff_line_average
+    dd_documentation:
+      leaf: Average effective charge along the line of sight
+      parent_path: bremsstrahlung_visible/channel
+      parent: Set of channels (detector or pixel of a camera)
+      data_type: STRUCTURE
+      unit: '1'
+  - dd_path: charge_exchange/channel/zeff_line_average
+    dd_version: 4.1.1
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.1/generated/ids/charge_exchange.html#charge_exchange-channel-zeff_line_average
+    dd_documentation:
+      leaf: Ionic effective charge, line average along the channel line-of-sight
+      parent_path: charge_exchange/channel
+      parent: Set of channels (lines-of-sight). The line-of-sight is defined by the
+        centre of the collimating aperture and the position of the measurements.
+      data_type: STRUCTURE
+      unit: '1'
+    enhanced_context:
+      description: Line-averaged effective ionic charge (Zeff) along the line of sight
+        of a charge exchange spectroscopy (CXRS) channel. Provides a chord-integrated
+        measure of plasma impurity content complementing the local Zeff at the active
+        beam-crossing point.
+      kind: llm
   - dd_path: summary/line_average/zeff/value
     dd_version: 4.1.0
     dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-line_average-zeff-value
@@ -4325,33 +4367,40 @@
 - name: line_averaged_electron_temperature
   kind: scalar
   status: active
-  description: Energy-equivalent measure of the mean random kinetic energy of the
-    bulk electron population, averaged uniformly along a specified plasma chord.
+  description: Thermal energy of the bulk electron population expressed as an energy-equivalent
+    temperature, averaged along a plasma chord.
   documentation: 'Line-averaged electron temperature is the energy-equivalent measure
-    of the mean random kinetic energy of the bulk electron population, averaged uniformly
-    along a specified plasma chord. It is a spatially averaged form of the local [electron
-    temperature](name:electron_temperature).
+    of the mean random kinetic energy of the bulk electron population, averaged along
+    a plasma chord.
 
 
-    For a chord of length $L$, the defining relation is
+    The defining path-length average is:
 
 
     $$
 
-    T_{e,\mathrm{line}} = \frac{1}{L}\int_0^L T_e(\ell)\,d\ell
+    T_{e,\mathrm{line}} = \frac{1}{L}\int_0^L T_e(l)\,dl
 
     $$
 
 
-    where $T_e(\ell)$ is the local electron temperature at path coordinate $\ell$,
-    $L$ is the chord length, and $T_{e,\mathrm{line}}$ is the resulting line average.
+    where $T_{e,\mathrm{line}}$ is the line-averaged electron temperature, $T_e(l)$
+    is the local [electron temperature](name:electron_temperature) at path coordinate
+    $l$, and $L$ is the total chord length. The coordinate $l$ measures distance along
+    the specified plasma chord, and the averaging is uniform with respect to path
+    length.
 
 
-    The average is uniform with respect to distance along the specified chord and
-    characterizes the bulk electron population. It differs from the [volume-averaged
-    electron temperature](name:volume_averaged_electron_temperature), which averages
-    over a confined plasma volume. Fast or suprathermal electrons are excluded unless
-    explicitly included in the population being characterized.'
+    This is an intensive quantity for the bulk electron population, aggregated along
+    the chord rather than summed over electron energies or particle populations. It
+    excludes ion temperatures and differs from the local electron temperature because
+    it combines values along the entire chord.
+
+
+    The line average is a chord-integrated representation of the parent [electron_temperature](name:electron_temperature),
+    whereas [volume_averaged_electron_temperature](name:volume_averaged_electron_temperature)
+    applies a volume average over the confined plasma and is therefore a distinct
+    spatial aggregation.'
   unit: eV
   physics_domain: particle_measurement_diagnostics
   links:
@@ -4381,36 +4430,42 @@
 - name: line_averaged_hydrogen_density
   kind: scalar
   status: active
-  description: Number density of hydrogen (protium) ions averaged along a specified
-    chord through the plasma, representing path-normalized ion content.
-  documentation: 'The line-averaged hydrogen density quantifies the chord-averaged
-    concentration of protium ions along a specified path through the plasma. It is
-    derived from the local [hydrogen density](name:hydrogen_density) and excludes
-    neutral atomic hydrogen and heavier hydrogen isotopes.
+  description: Line-averaged number density of hydrogen (protium) ions in the plasma,
+    giving the path-length-normalized H+ concentration along a specified chord.
+  documentation: 'The line-averaged hydrogen density quantifies the mean concentration
+    of protium ions along a specified chord through the plasma. It represents the
+    path-integrated hydrogen ion content normalized by the chord length.
 
 
-    The line-averaged density $\overline{n}_H$ is defined as
+    The line average is defined as
 
 
     $$
 
-    \overline{n}_H = \frac{1}{L}\int_0^L n_H(l)\,dl
+    \overline{n}_H = \frac{1}{L}\int_{\mathcal{C}} n_H(\mathbf{r}(l))\,dl
 
     $$
 
 
-    where $n_H(l)$ is the local hydrogen-ion number density at path coordinate $l$,
-    and $L$ is the chord length. The average is over path length rather than plasma
-    volume; the corresponding volume average is [volume_averaged_hydrogen_density](name:volume_averaged_hydrogen_density).'
+    where $\overline{n}_H$ is the line-averaged hydrogen density, $n_H(\mathbf{r}(l))$
+    is the local protium-ion number density at position $\mathbf{r}(l)$ along the
+    chord, $l$ is the path-length coordinate, $\mathcal{C}$ is the specified chord,
+    and $L$ is its total length.
+
+
+    The quantity applies to charged protium ions, with any included protium ion charge
+    states summed before the line average; neutral atomic hydrogen and heavier hydrogenic
+    isotopes are excluded. It is a chord average rather than the local [hydrogen density](name:hydrogen_density)
+    at a point or the volume average represented by [volume_averaged_hydrogen_density](name:volume_averaged_hydrogen_density).
+
+
+    Unlike [line_averaged_total_ion_density](name:line_averaged_total_ion_density),
+    it does not include other ion species or hydrogen isotopes. The path-length normalization
+    preserves the same density meaning as the parent local quantity while replacing
+    its pointwise value with an average along the chord.'
   unit: m^-3
   physics_domain: particle_measurement_diagnostics
-  links:
-  - name:hydrogen_density
-  - name:volume_averaged_hydrogen_density
-  arguments:
-  - name: hydrogen_density
-    operator: line_averaged
-    operator_kind: qualifier
+  links: []
   sources:
   - dd_path: summary/line_average/n_i/hydrogen/value
     dd_version: 4.1.0
@@ -4796,3 +4851,302 @@
         A key global thermal parameter representing the mean ion thermal energy along
         a chord through the plasma.
       kind: template
+- name: toroidal_coordinate_of_aperture
+  kind: scalar
+  status: active
+  description: "Azimuthal angle locating the geometric center of an aperture about\
+    \ the machine symmetry axis in the right-handed cylindrical (R, \u03C6, Z) frame."
+  documentation: "The toroidal coordinate of an aperture is the azimuthal angle locating\
+    \ the aperture\u2019s geometric center around the machine symmetry axis. It identifies\
+    \ the center\u2019s toroidal position in the right-handed cylindrical $(R,\\phi,Z)$\
+    \ frame, where $R$ is major radius, $\\phi$ is toroidal angle, and $Z$ is vertical\
+    \ height.\n\nThis quantity applies specifically to the geometric center of the\
+    \ aperture as a diagnostic component. It is a point coordinate, not the toroidal\
+    \ coordinate of the aperture boundary, an angular extent, or an average over the\
+    \ aperture or any plasma region.\n\nTogether with the [vertical coordinate of\
+    \ the aperture](name:vertical_coordinate_of_aperture), it locates the aperture\
+    \ center in the cylindrical frame. It is the aperture-specific member of the geometric-center\
+    \ coordinate family represented by the [toroidal coordinate of an optical element](name:toroidal_coordinate_of_optical_element)."
+  unit: rad
+  physics_domain: particle_measurement_diagnostics
+  links: []
+  sources:
+  - dd_path: bolometer/camera/channel/aperture/centre/phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/bolometer.html#bolometer-camera-channel-aperture-centre-phi
+    dd_documentation:
+      leaf: Toroidal angle (oriented counter-clockwise when viewing from above)
+      parent_path: bolometer/camera/channel/aperture/centre
+      parent: If geometry_type=2, coordinates of the centre of the circle. If geometry_type=1
+        or 3, coordinates of the origin of the local coordinate system (X1,X2,X3)
+        describing the plane detector/aperture. This origin is located within the
+        detector/aperture area.
+      data_type: FLT_0D
+      unit: rad
+    enhanced_context:
+      description: "Toroidal angle (\u03C6) coordinate of centre."
+      kind: template
+  - dd_path: camera_visible/channel/aperture/centre/phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_visible.html#camera_visible-channel-aperture-centre-phi
+    dd_documentation:
+      leaf: Toroidal angle (oriented counter-clockwise when viewing from above)
+      parent_path: camera_visible/channel/aperture/centre
+      parent: If geometry_type=2, coordinates of the centre of the circle. If geometry_type=1
+        or 3, coordinates of the origin of the local coordinate system (X1,X2,X3)
+        describing the plane detector/aperture. This origin is located within the
+        detector/aperture area.
+      data_type: FLT_0D
+      unit: rad
+    enhanced_context:
+      description: "Toroidal angle (\u03C6) coordinate of centre."
+      kind: template
+  - dd_path: camera_x_rays/aperture/centre/phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/camera_x_rays.html#camera_x_rays-aperture-centre-phi
+    dd_documentation:
+      leaf: Toroidal angle (oriented counter-clockwise when viewing from above)
+      parent_path: camera_x_rays/aperture/centre
+      parent: If geometry_type=2, coordinates of the centre of the circle. If geometry_type=1
+        or 3, coordinates of the origin of the local coordinate system (X1,X2,X3)
+        describing the plane detector/aperture. This origin is located within the
+        detector/aperture area.
+      data_type: FLT_0D
+      unit: rad
+      lifecycle_status: alpha
+    enhanced_context:
+      description: "Toroidal angle (\u03C6) coordinate of centre."
+      kind: template
+  - dd_path: charge_exchange/aperture/centre/phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/charge_exchange.html#charge_exchange-aperture-centre-phi
+    dd_documentation:
+      leaf: Toroidal angle (oriented counter-clockwise when viewing from above)
+      parent_path: charge_exchange/aperture/centre
+      parent: If geometry_type=2, coordinates of the center of the circle. If geometry_type=1,
+        coordinates of the origin of the local coordinate system (X1,X2,X3) describing
+        the plane detector/aperture. This origin is located within the detector/aperture
+        area.
+      data_type: FLT_0D
+      unit: rad
+      lifecycle_status: alpha
+    enhanced_context:
+      description: "Toroidal angle (\u03C6) coordinate of centre."
+      kind: template
+  - dd_path: charge_exchange/channel/aperture/centre/phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/charge_exchange.html#charge_exchange-channel-aperture-centre-phi
+    dd_documentation:
+      leaf: Toroidal angle (oriented counter-clockwise when viewing from above)
+      parent_path: charge_exchange/channel/aperture/centre
+      parent: If geometry_type=2, coordinates of the centre of the circle. If geometry_type=1
+        or 3, coordinates of the origin of the local coordinate system (X1,X2,X3)
+        describing the plane detector/aperture. This origin is located within the
+        detector/aperture area.
+      data_type: FLT_0D
+      unit: rad
+    enhanced_context:
+      description: "Toroidal angle (\u03C6) coordinate of centre."
+      kind: template
+  - dd_path: hard_x_rays/channel/aperture/centre/phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/hard_x_rays.html#hard_x_rays-channel-aperture-centre-phi
+    dd_documentation:
+      leaf: Toroidal angle (oriented counter-clockwise when viewing from above)
+      parent_path: hard_x_rays/channel/aperture/centre
+      parent: If geometry_type=2, coordinates of the center of the circle. If geometry_type=1,
+        coordinates of the origin of the local coordinate system (X1,X2,X3) describing
+        the plane detector/aperture. This origin is located within the detector/aperture
+        area.
+      data_type: FLT_0D
+      unit: rad
+    enhanced_context:
+      description: "Toroidal angle (\u03C6) coordinate of centre."
+      kind: template
+  - dd_path: mse/channel/aperture/centre/phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/mse.html#mse-channel-aperture-centre-phi
+    dd_documentation:
+      leaf: Toroidal angle (oriented counter-clockwise when viewing from above)
+      parent_path: mse/channel/aperture/centre
+      parent: If geometry_type=2, coordinates of the center of the circle. If geometry_type=1,
+        coordinates of the origin of the local coordinate system (X1,X2,X3) describing
+        the plane detector/aperture. This origin is located within the detector/aperture
+        area.
+      data_type: FLT_0D
+      unit: rad
+    enhanced_context:
+      description: "Toroidal angle (\u03C6) coordinate of centre."
+      kind: template
+  - dd_path: neutron_diagnostic/detector/aperture/centre/phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/neutron_diagnostic.html#neutron_diagnostic-detector-aperture-centre-phi
+    dd_documentation:
+      leaf: Toroidal angle (oriented counter-clockwise when viewing from above)
+      parent_path: neutron_diagnostic/detector/aperture/centre
+      parent: If geometry_type=2, coordinates of the centre of the circle. If geometry_type=1
+        or 3, coordinates of the origin of the local coordinate system (X1,X2,X3)
+        describing the plane detector/aperture. This origin is located within the
+        detector/aperture area.
+      data_type: FLT_0D
+      unit: rad
+    enhanced_context:
+      description: "Toroidal angle (\u03C6) coordinate of centre."
+      kind: template
+  - dd_path: soft_x_rays/channel/aperture/centre/phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/soft_x_rays.html#soft_x_rays-channel-aperture-centre-phi
+    dd_documentation:
+      leaf: Toroidal angle (oriented counter-clockwise when viewing from above)
+      parent_path: soft_x_rays/channel/aperture/centre
+      parent: If geometry_type=2, coordinates of the center of the circle. If geometry_type=1,
+        coordinates of the origin of the local coordinate system (X1,X2,X3) describing
+        the plane detector/aperture. This origin is located within the detector/aperture
+        area.
+      data_type: FLT_0D
+      unit: rad
+    enhanced_context:
+      description: "Toroidal angle (\u03C6) coordinate of centre."
+      kind: template
+  - dd_path: spectrometer_uv/channel/aperture/centre/phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_uv.html#spectrometer_uv-channel-aperture-centre-phi
+    dd_documentation:
+      leaf: Toroidal angle (oriented counter-clockwise when viewing from above)
+      parent_path: spectrometer_uv/channel/aperture/centre
+      parent: If geometry_type=2, coordinates of the centre of the circle. If geometry_type=1
+        or 3, coordinates of the origin of the local coordinate system (X1,X2,X3)
+        describing the plane detector/aperture. This origin is located within the
+        detector/aperture area.
+      data_type: FLT_0D
+      unit: rad
+    enhanced_context:
+      description: "Toroidal angle (\u03C6) coordinate of centre."
+      kind: template
+  - dd_path: spectrometer_x_ray_crystal/channel/aperture/centre/phi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spectrometer_x_ray_crystal.html#spectrometer_x_ray_crystal-channel-aperture-centre-phi
+    dd_documentation:
+      leaf: Toroidal angle (oriented counter-clockwise when viewing from above)
+      parent_path: spectrometer_x_ray_crystal/channel/aperture/centre
+      parent: If geometry_type=2, coordinates of the centre of the circle. If geometry_type=1
+        or 3, coordinates of the origin of the local coordinate system (X1,X2,X3)
+        describing the plane detector/aperture. This origin is located within the
+        detector/aperture area.
+      data_type: FLT_0D
+      unit: rad
+    enhanced_context:
+      description: "Toroidal angle (\u03C6) coordinate of centre."
+      kind: template
+- name: radial_coordinate_of_thomson_scattering_laser
+  kind: scalar
+  status: active
+  description: "Major-radius location of the Thomson-scattering laser endpoint, measured\
+    \ as perpendicular distance from the toroidal symmetry axis in the right-handed\
+    \ cylindrical (R, \u03C6, Z) frame."
+  documentation: 'The radial coordinate of a Thomson-scattering laser is the major-radius
+    position of its laser-beam endpoint, measured from the toroidal symmetry axis
+    in the right-handed cylindrical $(R,\phi,Z)$ frame.
+
+
+    $$
+
+    R_{\mathrm{end}} = \sqrt{x_{\mathrm{end}}^2+y_{\mathrm{end}}^2}
+
+    $$
+
+
+    where $R_{\mathrm{end}}$ is the endpoint major-radius coordinate, and $x_{\mathrm{end}}$
+    and $y_{\mathrm{end}}$ are the endpoint coordinates along the two horizontal axes
+    of the right-handed Cartesian basis $(\hat{x},\hat{y},\hat{z})$, with $\hat{z}$
+    aligned with the vertical direction $\hat{Z}$.
+
+
+    This quantity applies to one laser endpoint and is a geometric point coordinate,
+    not a path average, scattering-volume coordinate, beam attribute, or plasma-population
+    quantity. It is neither summed nor averaged over lasers, endpoints, or plasma
+    regions.
+
+
+    It is the Thomson-scattering-laser-specific realization of [radial coordinate](name:radial_coordinate),
+    providing the $R$ coordinate of the endpoint. It is distinct from the [toroidal
+    coordinate of the Thomson-scattering laser](name:toroidal_coordinate_of_thomson_scattering_laser),
+    which specifies the endpoint''s toroidal angle $\phi$.'
+  unit: m
+  physics_domain: particle_measurement_diagnostics
+  links: []
+  sources:
+  - dd_path: thomson_scattering/laser/end_point/r
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/thomson_scattering.html#thomson_scattering-laser-end_point-r
+    dd_documentation:
+      leaf: Major radius
+      parent_path: thomson_scattering/laser/end_point
+      parent: Position of the laser end point
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Major radius (R) coordinate of end point.
+      kind: template
+- name: ratio_of_ion_density_to_electron_density
+  kind: scalar
+  status: active
+  description: Local ion concentration relative to the electron population, defined
+    as the number-density ratio for a specified impurity or fuel ion species.
+  documentation: 'This quantity is the local abundance of a specified impurity or
+    fuel ion species relative to the free-electron population. It compares particle
+    populations rather than electric charge density or mass density.
+
+
+    The local ion-to-electron concentration ratio is defined by
+
+
+    $$
+
+    \mathcal{R}_{i/e} = \frac{n_i}{n_e}
+
+    $$
+
+
+    where $\mathcal{R}_{i/e}$ is the ion-to-electron concentration ratio, $n_i$ is
+    the local number density of the specified ion species, $n_e$ is the local free-electron
+    number density, $i$ identifies the selected ion species, and $e$ identifies the
+    electron population.
+
+
+    Both densities are evaluated at the same local plasma point. For a species-level
+    numerator without an explicitly selected charge state, $n_i$ is summed over all
+    ionization states of that species; a charge-state-resolved numerator applies only
+    to the selected state. No spatial average or line integration is implied.
+
+
+    The numerator is supplied by the corresponding [ion density](name:ion_density),
+    while [ion charge state density](name:ion_charge_state_density) represents the
+    density when one charge state is isolated. A named-species example of the same
+    construction is the [ratio of iron density to electron density](name:ratio_of_iron_density_to_electron_density).
+    This quantity is distinct from an ion charge-state fraction, electric charge-density
+    ratio, or mass-density ratio.'
+  unit: '1'
+  physics_domain: particle_measurement_diagnostics
+  links:
+  - name:ratio_of_iron_density_to_electron_density
+  sources:
+  - dd_path: charge_exchange/channel/ion/n_i_over_n_e
+    dd_version: 4.1.1
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.1/generated/ids/charge_exchange.html#charge_exchange-channel-ion-n_i_over_n_e
+    dd_documentation:
+      leaf: Ion concentration (ratio of the ion density over the electron density)
+        at the channel measurement point
+      parent_path: charge_exchange/channel/ion
+      parent: Physical quantities related to ion species and charge stage (H+, D+,
+        T+, He+2, Li+3, Be+4, C+6, N+7, O+8, Ne+10, Si+14, Ar+16 or Ar+18) derived
+        from the measured charge exchange emission of each species, at the position
+        of the measurement
+      data_type: STRUCTURE
+      unit: '1'
+    enhanced_context:
+      description: Ion concentration of a given impurity or fuel species expressed
+        as the ratio of ion density (ni) to electron density (ne) at the CXRS channel
+        measurement point. Quantifies fractional abundance of the species relative
+        to the electron population.
+      kind: llm

@@ -1,85 +1,6 @@
 # Domain: electromagnetic_wave_diagnostics
-# Entries: 54
-# Ordering: structural traversal
-#   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
-#    alphabetic tie-break)
-- name: faraday_angle
-  kind: scalar
-  status: active
-  description: Angular rotation of the polarization plane of a polarimeter probe beam
-    induced by circular birefringence of the magnetized plasma, proportional to the
-    line-integrated product of electron density and the parallel magnetic field.
-  documentation: 'The Faraday rotation angle is the net signed angular displacement
-    of the plane of linear polarization of a probe beam that accumulates as the beam
-    traverses a magnetized plasma along a polarimeter line of sight. Left- and right-hand
-    circularly polarized components of the beam propagate at different phase velocities
-    in the magnetized medium, producing a rotation whose magnitude and sign depend
-    on the line-integrated product of electron number density and the magnetic-field
-    component parallel to the beam.
-
-
-    The defining relation is:
-
-
-    $$
-
-    \Psi_F = \frac{e^3 \lambda^2}{8\pi^2 \varepsilon_0 m_e^2 c^3} \int n_e B_\parallel
-    \, dl
-
-    $$
-
-
-    where $e$ is the elementary charge, $\lambda$ is the vacuum probing wavelength,
-    $\varepsilon_0$ is the permittivity of free space, $m_e$ is the electron mass,
-    $c$ is the speed of light, $n_e$ is the local electron number density, $B_\parallel$
-    is the component of the equilibrium magnetic field along the beam propagation
-    direction, and the integral is taken along the line of sight through the plasma.
-
-
-    This quantity represents the variation induced by the plasma alone, excluding
-    any initial polarization offset or instrumental offset at launch. It is sensitive
-    to $\int n_e B_\parallel \, dl$, combining constraints from both the magnetic
-    geometry and the electron density, and complements [line_averaged_electron_density](name:line_averaged_electron_density)
-    in equilibrium reconstruction by adding explicit magnetic-field sensitivity.
-
-
-    Sign convention: Positive when the net line-integrated product $\int n_e B_\parallel
-    \, dl$ is positive, with $B_\parallel$ taken as the projection of the magnetic
-    field onto the beam propagation direction.'
-  unit: rad
-  physics_domain: electromagnetic_wave_diagnostics
-  links:
-  - name:line_averaged_electron_density
-  sources:
-  - dd_path: equilibrium/time_slice/constraints/faraday_angle/measured
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-constraints-faraday_angle-measured
-    dd_documentation:
-      leaf: Measured value
-      parent_path: equilibrium/time_slice/constraints/faraday_angle
-      parent: Set of faraday angles
-      data_type: FLT_0D
-      unit: rad
-    enhanced_context:
-      description: Measured value of faraday angle.
-      kind: template
-    semantic_facet: measured
-  - dd_path: polarimeter/channel/faraday_angle
-    dd_version: 4.1.0
-    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/polarimeter.html#polarimeter-channel-faraday_angle
-    dd_documentation:
-      leaf: 'Faraday angle (variation of the Faraday angle induced by crossing the
-        plasma) '
-      parent_path: polarimeter/channel
-      parent: Set of channels (lines-of-sight)
-      data_type: STRUCTURE
-      unit: rad
-    enhanced_context:
-      description: "Faraday rotation angle induced by passage of the probing beam\
-        \ through the magnetized plasma in a polarimeter channel. Sensitive to the\
-        \ line-integrated product of electron density and parallel magnetic field\
-        \ (\u222Bn_e\xB7B\u2225 dl), used as a constraint in equilibrium reconstruction."
-      kind: llm
+# Entries: 62
+# Ordering: approved baseline followed by fresh review entries
 - name: first_local_tangential_coordinate_of_reflectometer_antenna
   kind: scalar
   status: active
@@ -230,16 +151,14 @@
 - name: frequency_of_diagnostic_antenna
   kind: scalar
   status: active
-  description: Temporal frequency of the coherent electromagnetic wave associated
-    with a diagnostic antenna channel, whether transmitted, received, or selected
-    for tuning.
-  documentation: 'This quantity specifies the oscillation rate of the coherent electromagnetic
-    wave associated with a diagnostic antenna channel. It applies to the channel''s
-    transmitted, received, or selected wave and does not by itself identify a plasma
-    location.
+  description: Temporal oscillation frequency assigned to a coherent electromagnetic
+    probing wave, defining the wave-frequency coordinate for plasma interaction.
+  documentation: 'This quantity is the temporal oscillation rate of a coherent electromagnetic
+    wave used to probe a plasma. It characterizes the selected probing wave itself
+    rather than the amplitude or phase of the associated signal.
 
 
-    The temporal frequency $f$ is related to angular frequency by
+    The temporal frequency is related to angular frequency by
 
 
     $$
@@ -249,21 +168,26 @@
     $$
 
 
-    where $\omega$ is the wave angular frequency in radians per second and $f$ is
-    the temporal frequency in hertz.
+    where $f$ is the temporal frequency, $\omega$ is the angular frequency of the
+    wave, and $\pi$ is the mathematical circle constant.
 
 
-    This channel-associated frequency is distinct from the local electron plasma frequency,
-    which is determined by electron density at a measurement position as described
-    by [frequency at measurement position](name:frequency_at_measurement_position).
-    It is also distinct from the launch-referenced spectral framework of [launched
-    wave frequency](name:launched_wave_frequency) and from the general [wave frequency](name:wave_frequency).'
+    The quantity applies to the probing-wave frequency associated with an electromagnetic
+    diagnostic channel. During a frequency sweep, each value identifies one probing
+    frequency and therefore one frequency-dependent plasma interaction; for electron-cyclotron
+    emission it identifies the frequency associated with the probed cyclotron harmonic,
+    while for reflectometry it determines the corresponding cutoff-layer condition.
+    It is a frequency value, not a sweep duration, frequency bandwidth, or fluctuation
+    amplitude.
+
+
+    The quantity is the channel-associated form of [wave_frequency](name:wave_frequency);
+    [reference_frequency_of_wave_beam](name:reference_frequency_of_wave_beam) denotes
+    a reference carrier frequency specified before frequency conversion or mode-specific
+    processing.'
   unit: Hz
   physics_domain: electromagnetic_wave_diagnostics
-  links:
-  - name:frequency_at_measurement_position
-  - name:launched_wave_frequency
-  - name:wave_frequency
+  links: []
   sources:
   - dd_path: ece/channel/frequency
     dd_version: 4.1.0
@@ -2186,40 +2110,29 @@
   kind: scalar
   status: active
   description: "Fringe-jump-corrected phase angle of a probing electromagnetic signal\
-    \ at a selected wavelength, retaining the channel\u2019s defined phase reference."
-  documentation: 'The wave phase is the angular position of the complex probing-signal
-    amplitude associated with a selected wavelength. Fringe-jump correction removes
-    artificial integer-cycle discontinuities while preserving the physical phase evolution.
-
-
-    The corrected phase is represented by
-
-
-    $$
-
-    \phi_{\mathrm{corr}}(\lambda)=\operatorname{unwrap}\!\left[\arg \tilde{S}(\lambda)\right]
-
-    $$
-
-
-    where $\lambda$ is the selected probing wavelength, $\tilde{S}$ is the complex
-    signal amplitude, $\arg$ gives its angular argument, and $\operatorname{unwrap}$
-    applies the integer-cycle correction.
-
-
-    The phase origin and reference are those defined for the wavelength channel; this
-    quantity is not necessarily a phase difference relative to launch. Phase variation
-    along the probing chord provides information related to line-integrated electron
-    density and [line-averaged electron density](name:line_averaged_electron_density).
-
-
-    Phase convention: Positive phase denotes increasing argument of the complex signal
-    under the adopted phasor convention; the phase is defined modulo $2\pi$ before
-    fringe-jump correction.'
+    \ at a selected wavelength, referenced to the channel\u2019s defined launch phase."
+  documentation: "This quantity is the continuous phase angle of a probing electromagnetic\
+    \ signal at one selected wavelength, with integer-cycle discontinuities caused\
+    \ by fringe jumps removed. It represents the phase accumulated along the signal\u2019\
+    s propagation chord relative to the channel\u2019s defined launch-phase reference.\n\
+    \nThe corrected phase is related to the measured wrapped phase by\n\n$$\n\\phi_{\\\
+    mathrm{corr}} = \\phi_{\\mathrm{meas}} + 2\\pi N_{\\mathrm{fj}}\n$$\n\nwhere $\\\
+    phi_{\\mathrm{corr}}$ is the fringe-jump-corrected phase, $\\phi_{\\mathrm{meas}}$\
+    \ is the measured wrapped phase, and $N_{\\mathrm{fj}}$ is the signed integer\
+    \ number of full-cycle fringe-jump corrections. The factor $2\\pi$ represents\
+    \ one complete phase revolution.\n\nThe quantity applies to a single probing wavelength\
+    \ and represents the phase accumulated over the complete propagation chord, rather\
+    \ than a local phase at one point. It is referenced to the channel\u2019s defined\
+    \ launch phase; it is not an absolute electromagnetic phase and does not include\
+    \ an uncorrected fringe discontinuity.\n\nThe corrected phase is the phase observable\
+    \ used to obtain the [line-integrated electron number density](name:line_integrated_electron_number_density)\
+    \ through the wavelength-dependent plasma refractive index. It is distinct from\
+    \ the general [reference phase](name:reference_phase), which establishes a phase\
+    \ origin without specifying fringe-jump correction or a propagation chord."
   unit: rad
   physics_domain: electromagnetic_wave_diagnostics
   links:
-  - name:line_averaged_electron_density
+  - name:line_integrated_electron_number_density
   sources:
   - dd_path: interferometer/channel/wavelength/phase_corrected
     dd_version: 4.1.0
@@ -2605,15 +2518,16 @@
 - name: line_averaged_electron_density
   kind: scalar
   status: active
-  description: Number density of free electrons per unit volume averaged along a plasma
-    chord, obtained by dividing the electron-density path integral by chord length.
-  documentation: 'Number density of free electrons per unit volume averaged along
-    a specified chord through a plasma is the path-length mean of the local unbound-electron
-    density.
+  description: Number density of free electrons per physical volume averaged along
+    a complete plasma propagation chord, equal to the path integral divided by chord
+    length.
+  documentation: 'Number density of free electrons per physical volume averaged along
+    a complete propagation chord is the path-normalized continuum count density of
+    the unqualified free-electron population along that chord.
 
 
-    For a chord coordinate $l$ extending from $0$ to its total length $L$, the line-averaged
-    electron density is defined by:
+    For local [electron density](name:electron_density) $n_e(l)$, the defining relation
+    is:
 
 
     $$
@@ -2623,17 +2537,29 @@
     $$
 
 
-    where $n_e(l)$ is the local electron number density, [electron_density](name:electron_density),
-    $l$ is distance along the chord in m, $L$ is the chord length in m, and $\bar{n}_e$
-    is the resulting line average. The quantity is distinct from the unnormalized
-    line integral and from the local density; it represents their path-length-normalized
-    value. The same averaging operation can be applied to other local plasma quantities,
-    such as [line-averaged_electron_temperature](name:line_averaged_electron_temperature).'
+    where $\bar{n}_e$ is the line-averaged electron density, $n_e(l)$ is the local
+    free-electron density at path coordinate $l$, $l$ is distance along the complete
+    propagation chord, and $L$ is the full chord length.
+
+
+    This quantity applies to the complete unqualified free-electron population along
+    the chord, aggregating all contributing free-electron populations rather than
+    selecting thermal or fast electrons. It is a path average over the chord and is
+    not a pointwise [electron density](name:electron_density) or a line-integrated
+    column density.
+
+
+    The numerator in the defining relation is the [line-integrated electron number
+    density](name:line_integrated_electron_number_density); dividing it by the chord
+    length produces this path-normalized quantity. The same line-averaging construction
+    applies to species-specific quantities such as [line-averaged hydrogen density](name:line_averaged_hydrogen_density),
+    while this quantity remains specific to free electrons.'
   unit: m^-3
   physics_domain: electromagnetic_wave_diagnostics
   links:
   - name:electron_density
-  - name:line_averaged_electron_temperature
+  - name:line_integrated_electron_number_density
+  - name:line_averaged_hydrogen_density
   arguments:
   - name: electron_density
     operator: line_averaged
@@ -2748,44 +2674,61 @@
 - name: normalized_toroidal_flux_coordinate_at_measurement_position
   kind: scalar
   status: active
-  description: Dimensionless radial flux-surface label based on normalized toroidal
-    magnetic flux, evaluated at a measurement position to identify its corresponding
-    nested flux surface.
+  description: Dimensionless toroidal magnetic-surface label assigned to a physical
+    measurement position, locating that position relative to the magnetic axis and
+    equilibrium boundary.
   documentation: 'The normalized toroidal flux coordinate at a measurement position
-    is the dimensionless radial label assigned to the nested flux surface passing
-    through that position. It is the [normalized toroidal flux coordinate](name:normalized_toroidal_flux_coordinate)
-    evaluated at the measurement position, with the origin at the magnetic axis and
-    the outer normalization reference at the plasma boundary or last closed flux surface.
+    identifies the nested magnetic surface intersecting that physical location. It
+    is a geometric flux label, independent of the measured plasma quantity.
 
 
-    The coordinate is defined from the toroidal flux of the flux surface passing through
-    the measurement position:
+    The coordinate is defined by
 
 
     $$
 
-    \rho_{\mathrm{tor,norm}}(\mathbf{x}_{\mathrm{meas}}) = \sqrt{\frac{\Phi(\mathbf{x}_{\mathrm{meas}})
-    - \Phi_0}{\Phi_b - \Phi_0}}
+    \rho_{\mathrm{tor,norm}} = \sqrt{\frac{\Phi_{\mathrm{tor}} - \Phi_{\mathrm{tor,axis}}}{\Phi_{\mathrm{tor,boundary}}
+    - \Phi_{\mathrm{tor,axis}}}}
 
     $$
 
 
-    where $\mathbf{x}_{\mathrm{meas}}$ identifies the measurement position, $\Phi(\mathbf{x}_{\mathrm{meas}})$
-    is the toroidal magnetic flux of the corresponding flux surface, $\Phi_0$ is the
-    magnetic-axis toroidal magnetic flux, and $\Phi_b$ is the boundary toroidal magnetic
-    flux. The square root gives a nonnegative radial coordinate that runs from zero
-    at the magnetic axis toward unity at the boundary.
+    where $\rho_{\mathrm{tor,norm}}$ is the normalized toroidal flux coordinate, $\Phi_{\mathrm{tor}}$
+    is the toroidal magnetic flux enclosed by the magnetic surface through the measurement
+    position, $\Phi_{\mathrm{tor,axis}}$ is its value at the magnetic axis, and $\Phi_{\mathrm{tor,boundary}}$
+    is its value at the equilibrium boundary.
 
 
-    This quantity is a flux-surface coordinate evaluated at a measurement position,
-    not a measurement signal or a toroidal-flux value. It is distinct from the [normalized
-    toroidal flux coordinate at the magnetic axis](name:normalized_toroidal_flux_coordinate_at_magnetic_axis),
-    which is exactly zero by definition.'
+    This quantity is evaluated at one physical measurement position and is not a population-dependent
+    value, spatial average, cylindrical radial distance, or local vector component.
+    It maps that position to a magnetic-surface label rather than identifying the
+    measured signal itself.
+
+
+    It is the measurement-position evaluation of the parent [normalized toroidal flux
+    coordinate](name:normalized_toroidal_flux_coordinate). Unlike [normalized_poloidal_flux_coordinate_at_measurement_position](name:normalized_poloidal_flux_coordinate_at_measurement_position),
+    it is based on toroidal rather than poloidal magnetic flux.'
   unit: '1'
   physics_domain: electromagnetic_wave_diagnostics
   links:
-  - name:normalized_toroidal_flux_coordinate_at_magnetic_axis
+  - name:normalized_toroidal_flux_coordinate
+  - name:normalized_poloidal_flux_coordinate_at_measurement_position
+  arguments:
+  - name: normalized_toroidal_flux_coordinate
+    operator: measurement_position
+    operator_kind: locus
   sources:
+  - dd_path: ece/channel/position/rho_tor_norm
+    dd_version: 4.1.1
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.1/generated/ids/ece.html#ece-channel-position-rho_tor_norm
+    dd_documentation:
+      leaf: Normalised toroidal flux coordinate
+      parent_path: ece/channel/position
+      parent: Position of the measurements
+      data_type: STRUCTURE
+      unit: '1'
+      coordinates:
+      - ece/channel/time
   - dd_path: ece/t_radiation_central_x/rho_tor_norm
     dd_version: 4.1.0
     dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/ece.html#ece-t_radiation_central_x-rho_tor_norm
@@ -2802,6 +2745,42 @@
       description: "Normalised toroidal flux coordinate (\u03C1_tor_norm) of the ECE\
         \ measurement channel closest to the magnetic axis, mapping the radiation\
         \ temperature measurement to a flux surface label."
+      kind: llm
+  - dd_path: hard_x_rays/emissivity_profile_1d/peak_position
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/hard_x_rays.html#hard_x_rays-emissivity_profile_1d-peak_position
+    dd_documentation:
+      leaf: Normalised toroidal flux coordinate position at which the emissivity peaks
+      parent_path: hard_x_rays/emissivity_profile_1d
+      parent: Emissivity profile per energy band (assumed common to all channels used
+        in the profile reconstruction)
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - hard_x_rays/emissivity_profile_1d/time
+    enhanced_context:
+      description: "Normalised toroidal flux coordinate (\u03C1_tor,norm) at which\
+        \ the hard X-ray emissivity profile peaks for a given energy band. Locates\
+        \ the radial position of the fast electron population responsible for bremsstrahlung\
+        \ emission."
+      kind: llm
+  - dd_path: reflectometer_profile/channel/position/rho_tor_norm
+    dd_version: 4.1.1
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.1/generated/ids/reflectometer_profile.html#reflectometer_profile-channel-position-rho_tor_norm
+    dd_documentation:
+      leaf: Normalised toroidal flux coordinate
+      parent_path: reflectometer_profile/channel/position
+      parent: Position of the density measurements
+      data_type: FLT_2D
+      unit: '1'
+      coordinates:
+      - reflectometer_profile/channel/n_e/time
+      - 1...N
+    enhanced_context:
+      description: "Normalised toroidal flux coordinate (\u03C1tor,norm) of reflectometer\
+        \ density profile measurement positions. Maps physical measurement locations\
+        \ to flux-surface coordinates for comparison with profile data and equilibrium-based\
+        \ analyses."
       kind: llm
 - name: perpendicular_wave_vector
   kind: scalar
@@ -2926,41 +2905,48 @@
 - name: poloidal_angle_of_measurement_position
   kind: scalar
   status: active
-  description: "Poloidal angle of a diagnostic measurement position in the poloidal\
-    \ cross-section of the right-handed cylindrical (R, \u03C6, Z) frame, measured\
-    \ clockwise from the outward radial direction about the magnetic axis."
-  documentation: 'The poloidal angle of a diagnostic measurement position is the angular
-    coordinate of that point about the magnetic axis in a poloidal cross-section of
-    the right-handed cylindrical $(R,\phi,Z)$ frame, where $R$ is major radius, $\phi$
-    is toroidal angle, and $Z$ is vertical height. It is the measurement-position
-    form of [poloidal angle](name:poloidal_angle).
+  description: "Geometric poloidal angle locating a measurement position around the\
+    \ magnetic axis in the right-handed cylindrical (R, \u03C6, Z) cross-section,\
+    \ increasing clockwise."
+  documentation: 'The poloidal angle of a measurement position is the geometric angular
+    coordinate of a physical point about the magnetic axis in the poloidal cross-section
+    of the right-handed cylindrical $(R,\phi,Z)$ frame. It identifies the point''s
+    position around the magnetic axis, rather than a field-line or toroidal angle.
 
 
-    For a measurement position with coordinates $(R,Z)$ and magnetic-axis coordinates
-    $(R_\mathrm{ax},Z_\mathrm{ax})$, the angle is
+    Taking zero on the outward radial direction from the magnetic axis, the angle
+    is defined by
 
 
     $$
 
-    \theta=\operatorname{atan2}(Z_\mathrm{ax}-Z,\,R-R_\mathrm{ax})\pmod{2\pi}
+    \theta_{\mathrm{meas}} = \operatorname{atan2}\!\left[-\left(Z_{\mathrm{meas}}-Z_{\mathrm{axis}}\right),\,R_{\mathrm{meas}}-R_{\mathrm{axis}}\right]
 
     $$
 
 
-    where $\theta$ is the poloidal angle, $R$ and $R_\mathrm{ax}$ are major-radius
-    coordinates in meters, $Z$ and $Z_\mathrm{ax}$ are vertical coordinates in meters,
-    and $\operatorname{atan2}$ returns the quadrant-resolved angle. Unlike [poloidal
-    angle of a flux-surface point](name:poloidal_angle_of_flux_surface), this quantity
-    applies to a diagnostic measurement position and does not require the position
-    to be identified as a point on a flux surface.
+    where $\theta_{\mathrm{meas}}$ is the poloidal angle of the measurement position,
+    $\operatorname{atan2}$ is the two-argument arctangent that preserves the angular
+    quadrant, $R_{\mathrm{meas}}$ and $Z_{\mathrm{meas}}$ are the major-radius and
+    vertical coordinates of the measurement position, and $R_{\mathrm{axis}}$ and
+    $Z_{\mathrm{axis}}$ are the corresponding coordinates of the magnetic axis.
 
 
-    Sign convention: Positive when the measurement position lies clockwise from the
-    outward $+R$ direction when viewed from the $+\phi$ direction.'
+    This quantity is evaluated pointwise at the designated measurement position and
+    is not a line average, flux-surface average, or signal-weighted aggregate. It
+    is the measurement-position specialization of [poloidal_angle](name:poloidal_angle_of_flux_surface),
+    and it is distinct from [toroidal_angle_of_measurement_position](name:toroidal_angle_of_measurement_position),
+    which locates the same point around the symmetry axis.
+
+
+    Sign convention: Positive when the position advances clockwise from the outward
+    radial direction in the poloidal cross-section, viewed from the right-hand side
+    of the symmetry axis.'
   unit: rad
   physics_domain: electromagnetic_wave_diagnostics
   links:
   - name:poloidal_angle_of_flux_surface
+  - name:toroidal_angle_of_measurement_position
   sources:
   - dd_path: ece/channel/beam_tracing/beam/position/theta
     dd_version: 4.1.0
@@ -2979,6 +2965,25 @@
       description: "Poloidal angle (\u03B8) of the ECE beam or ray position along\
         \ its propagation path, oriented clockwise when viewing the poloidal cross-section\
         \ from the right-hand side with origin at the magnetic axis."
+      kind: llm
+  - dd_path: ece/channel/position/theta
+    dd_version: 4.1.1
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.1/generated/ids/ece.html#ece-channel-position-theta
+    dd_documentation:
+      leaf: Poloidal angle (oriented clockwise when viewing the poloidal cross section
+        on the right hand side of the tokamak axis of symmetry, with the origin placed
+        on the plasma magnetic axis)
+      parent_path: ece/channel/position
+      parent: Position of the measurements
+      data_type: STRUCTURE
+      unit: rad
+      coordinates:
+      - ece/channel/time
+    enhanced_context:
+      description: "Poloidal angle (\u03B8) structure grouping the ECE measurement\
+        \ position, oriented clockwise when viewing the poloidal cross-section from\
+        \ the right-hand side of the tokamak axis, with origin at the plasma magnetic\
+        \ axis."
       kind: llm
   - dd_path: reflectometer_fluctuation/channel/doppler/position/theta
     dd_version: 4.1.0
@@ -3060,46 +3065,53 @@
 - name: radiative_temperature_at_magnetic_axis
   kind: scalar
   status: active
-  description: Radiative temperature at the magnetic axis is the blackbody-equivalent
-    brightness temperature of electron cyclotron emission from the resonance layer
-    nearest the magnetic axis.
-  documentation: 'Radiative temperature at the magnetic axis is the local blackbody-equivalent
-    brightness temperature assigned to electron cyclotron emission from the resonance
-    layer nearest the central singular point of the confined plasma. It is the radiative
-    component of [temperature_at_magnetic_axis](name:temperature_at_magnetic_axis),
-    rather than a direct definition of the local kinetic electron temperature.
+  description: Temperature-equivalent radiation energy scale of electron-cyclotron
+    emission, evaluated at the magnetic axis, the degenerate innermost magnetic surface
+    where the poloidal magnetic-flux gradient vanishes. It is a brightness-temperature
+    quantity, not necessarily the local kinetic electron temperature.
+  documentation: 'Temperature-equivalent radiation energy scale of electron-cyclotron
+    emission, evaluated at the magnetic axis. The magnetic axis is the degenerate
+    innermost magnetic surface of the equilibrium, the locus in the poloidal cross-section
+    where the gradient of the [poloidal magnetic flux](name:poloidal_magnetic_flux)
+    vanishes; evaluation at this locus does not imply that the radiative temperature
+    has an extremum there.
 
 
-    The energy-equivalent brightness temperature is defined by the blackbody relation
+    The blackbody-equivalent radiation energy scale is defined by matching the radiation
+    field''s specific intensity to the Planck spectral intensity:
 
 
     $$
 
-    I_\nu = \frac{2h\nu^3}{c^2\left[\exp\left(h\nu/\Theta_{\rm rad}\right)-1\right]}
+    I_\nu = \frac{2 h \nu^3}{c^2}\left[\exp\!\left(\frac{h\nu}{T_\mathrm{rad}}\right)-1\right]^{-1}
 
     $$
 
 
-    where $I_\nu$ is the specific intensity, $\nu$ is frequency, $h$ is Planck''s
-    constant, $c$ is the speed of light, and $\Theta_{\rm rad}$ is the radiative temperature
-    expressed as energy. The magnetic-axis locus is defined by $\nabla\psi=0$, where
-    $\psi$ is poloidal magnetic flux.
+    where $I_\nu$ is the radiation specific intensity, $\nu$ is the radiation frequency,
+    $h$ is the Planck constant, $c$ is the speed of light, and $T_\mathrm{rad}$ is
+    the [radiative temperature].
 
 
-    For optically thick thermal emission, this quantity approaches the local electron
-    kinetic temperature represented by [electron_temperature_at_magnetic_axis](name:electron_temperature_at_magnetic_axis);
-    it remains a brightness-temperature proxy and can differ when the emission is
-    not optically thick. The corresponding non-local radiative quantity is [radiative_temperature](name:radiative_temperature).'
+    This quantity is restricted to the radiation field associated with electron-cyclotron
+    emission at the magnetic-axis locus. For layer-resolved electron-cyclotron emission,
+    the axis value is the radiative temperature of the resonance layer whose effective
+    emission location is closest to the magnetic axis; the aggregation convention
+    is nearest-layer selection, not a spatial average over neighboring layers. Ordinary-mode
+    and extraordinary-mode electron-cyclotron emission are polarization-specific variants;
+    the unqualified quantity does not select a polarization mode and is not a sum
+    or mean over modes.
+
+
+    It is the radiation-field member of [temperature at the magnetic axis](name:temperature_at_magnetic_axis)
+    and the magnetic-axis counterpart of [radiative temperature]. It must not be identified
+    with the local kinetic [electron temperature at the magnetic axis](name:electron_temperature_at_magnetic_axis)
+    except in the limiting case of optically thick thermal emission, where the brightness
+    temperature approaches the electron thermal energy scale.'
   unit: eV
   physics_domain: electromagnetic_wave_diagnostics
   links:
-  - name:temperature_at_magnetic_axis
   - name:electron_temperature_at_magnetic_axis
-  - name:radiative_temperature
-  arguments:
-  - name: temperature_at_magnetic_axis
-    operator: radiative
-    operator_kind: qualifier
   sources:
   - dd_path: ece/t_radiation_central
     dd_version: 4.1.0
@@ -3844,48 +3856,27 @@
 - name: wavelength_of_wave_beam
   kind: scalar
   status: active
-  description: Wavelength of a wave beam is the spectral coordinate, expressed as
-    vacuum wavelength, that identifies one phase period of a probing electromagnetic
-    beam along its propagation direction.
-  documentation: 'Wavelength of a wave beam is the spectral coordinate, expressed
-    as vacuum wavelength, that identifies one phase period of a probing electromagnetic
-    beam along its propagation direction. It is a property of the launched or incident
-    wave component and not of a detector response that may observe radiation produced
-    by the beam interaction.
-
-
-    For a monochromatic plane-wave component in vacuum, wavelength is related to vacuum
-    wave-vector magnitude and frequency by
-
-
-    $$
-
-    \lambda_0 = \frac{2\pi}{|\mathbf{k}_0|} = \frac{c}{\nu}
-
-    $$
-
-
-    where $\lambda_0$ is the vacuum wavelength, $\mathbf{k}_0$ is the vacuum wave
-    vector, $|\mathbf{k}_0|$ is its magnitude, $c$ is the speed of light in vacuum,
-    and $\nu$ is the ordinary frequency. The angular frequency satisfies $\omega =
-    2\pi\nu = c|\mathbf{k}_0|$ for the same wave component.
-
-
-    For finite-bandwidth or pulsed beams, this quantity denotes the specified central
-    or carrier vacuum wavelength. Propagation through plasma or material media changes
-    the local wavelength through the refractive index, but does not change this vacuum
-    reference wavelength. It is the wavelength counterpart of [launched_wave_frequency](name:launched_wave_frequency),
-    is related to [wave_vector](name:wave_vector) and [wave_phase_of_wave_beam](name:wave_phase_of_wave_beam),
-    and is distinct from detection-side spectral coordinates such as [wavelength_of_spectrometer_channel](name:wavelength_of_spectrometer_channel).'
+  description: Vacuum spatial period of a probing electromagnetic wave propagating
+    as a diagnostic beam, defining its spectral wavelength.
+  documentation: "Vacuum wavelength of a wave beam is the spatial period of its electromagnetic\
+    \ phase in vacuum, assigned to the beam\u2019s carrier radiation. It characterizes\
+    \ the beam itself rather than a spectral transition or an instrument-response\
+    \ feature.\n\nThe vacuum wavelength $\\lambda_0$ is related to the beam\u2019\
+    s temporal frequency $f$ by:\n\n$$\n\\lambda_0 = \\frac{c}{f}\n$$\n\nwhere $c$\
+    \ is the speed of light in vacuum and $f$ is the temporal oscillation frequency\
+    \ of the electromagnetic wave.\n\nThis quantity applies to a probing electromagnetic\
+    \ wave beam and describes its vacuum propagation property, independent of plasma-induced\
+    \ changes in phase velocity. It is assigned to the beam as a whole and is not\
+    \ a sum, average, or integral over beams, paths, channels, or spectral components.\
+    \ It excludes the in-medium wavelength and wavelengths associated with filters,\
+    \ detector pixels, or spectral transitions.\n\nThis beam-specific specialization\
+    \ of [vacuum electromagnetic wavelength] supplies the wavelength used to characterize\
+    \ the beam\u2019s propagation and its interaction with plasma. For a vacuum plane\
+    \ wave, the magnitude of its [wave vector] satisfies the equivalent relation $|\\\
+    mathbf{k}| = 2\\pi/\\lambda_0$, where $\\mathbf{k}$ is the vacuum wave vector."
   unit: m
   physics_domain: electromagnetic_wave_diagnostics
-  links:
-  - name:wavelength
-  - name:wavelength_of_spectrometer_channel
-  arguments:
-  - name: wavelength
-    operator: wave_beam
-    operator_kind: locus
+  links: []
   sources:
   - dd_path: interferometer/channel/wavelength/value
     dd_version: 4.1.0
@@ -3926,4 +3917,764 @@
       description: Laser wavelength of a Thomson scattering diagnostic probe beam.
         Determines the spectral range of the scattered light and is used in the calibration
         and interpretation of electron temperature and density measurements.
+      kind: llm
+- name: line_integrated_electron_number_density
+  kind: scalar
+  status: active
+  description: Free-electron column density accumulated along a complete electromagnetic
+    propagation path, including both forward and return segments when present.
+  documentation: 'The quantity is the column density of free electrons encountered
+    along a specified electromagnetic propagation path. It represents the total free-electron
+    content accumulated along the path, rather than the local electron population
+    at a point.
+
+
+    For the complete propagation path, the line-integrated electron density is defined
+    by
+
+
+    $$
+
+    N_{e,\mathrm{line}} = \int_{\Gamma_{\mathrm{full}}} n_e(\ell)\,d\ell
+
+    $$
+
+
+    where $N_{e,\mathrm{line}}$ is the line-integrated electron density, $n_e(\ell)$
+    is the local free-electron number density at path position $\ell$, $\ell$ is arclength
+    along the path, and $\Gamma_{\mathrm{full}}$ is the complete propagation path.
+
+
+    The integral applies to the free-electron population along the full line of sight
+    and aggregates the local number density over arclength. For a reflected propagation
+    channel, the path includes both forward and return segments, with no factor-of-two
+    correction. The quantity excludes neutral or bound electrons and is distinct from
+    the local [electron density](name:electron_density) and from a path average.
+
+
+    For a path with total arclength $L$, this quantity relates to the [line-averaged
+    electron density](name:line_averaged_electron_density) through $N_{e,\mathrm{line}}
+    = L\bar{n}_e$, where $L$ is the total path arclength and $\bar{n}_e$ is the path-averaged
+    free-electron number density.'
+  unit: m^-2
+  physics_domain: electromagnetic_wave_diagnostics
+  links:
+  - name:electron_density
+  - name:line_averaged_electron_density
+  sources:
+  - dd_path: equilibrium/time_slice/constraints/n_e_line/measured
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-constraints-n_e_line-measured
+    dd_documentation:
+      leaf: Measured value
+      parent_path: equilibrium/time_slice/constraints/n_e_line
+      parent: Set of line integrated density measurements
+      data_type: FLT_0D
+      unit: m^-2
+    enhanced_context:
+      description: Measured value of n e line.
+      kind: template
+    semantic_facet: measured
+  - dd_path: equilibrium/time_slice/constraints/n_e_line/reconstructed
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/equilibrium.html#equilibrium-time_slice-constraints-n_e_line-reconstructed
+    dd_documentation:
+      leaf: Value calculated from the reconstructed equilibrium
+      parent_path: equilibrium/time_slice/constraints/n_e_line
+      parent: Set of line integrated density measurements
+      data_type: FLT_0D
+      unit: m^-2
+    enhanced_context:
+      description: Reconstructed value of n e line.
+      kind: template
+    semantic_facet: reconstructed
+  - dd_path: interferometer/channel/n_e_line
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/interferometer.html#interferometer-channel-n_e_line
+    dd_documentation:
+      leaf: 'Line integrated density, possibly obtained by a combination of multiple
+        interferometry wavelengths. Corresponds to the density integrated along the
+        full line-of-sight (i.e. forward AND return for a reflected channel: NO dividing
+        by 2 correction)'
+      parent_path: interferometer/channel
+      parent: Set of channels (lines-of-sight)
+      data_type: STRUCTURE
+      unit: m^-2
+    enhanced_context:
+      description: Line-integrated electron density (ne_line) along the full interferometer
+        line-of-sight, including both forward and return paths for reflected channels
+        without a factor-of-2 correction. A primary interferometry observable used
+        for density feedback and profile reconstruction.
+      kind: llm
+  - dd_path: refractometer/channel/bandwidth/n_e_line
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/refractometer.html#refractometer-channel-bandwidth-n_e_line
+    dd_documentation:
+      leaf: Integral of the electron density along the line of sight, deduced from
+        the envelope phase measurements
+      parent_path: refractometer/channel/bandwidth
+      parent: Set of frequency bandwidths
+      data_type: STRUCTURE
+      unit: m^-2
+    enhanced_context:
+      description: "Line-integrated electron density (\u222Bne dl) along the refractometer\
+        \ line of sight, deduced from envelope phase measurements. Provides the column-integrated\
+        \ electron content used for density monitoring or profile reconstruction."
+      kind: llm
+  - dd_path: refractometer/channel/n_e_line
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/refractometer.html#refractometer-channel-n_e_line
+    dd_documentation:
+      leaf: Integral of the electron density along the line of sight, deduced from
+        the envelope phase measurements
+      parent_path: refractometer/channel
+      parent: Set of channels, e.g. different reception antennas or frequency bandwidths
+        of the refractometer
+      data_type: STRUCTURE
+      unit: m^-2
+    enhanced_context:
+      description: "Line-integrated electron density (ne\xB7dl) along the refractometer\
+        \ line of sight, deduced from the envelope phase shift of the swept microwave\
+        \ signal. Provides an integrated measure of electron content for density monitoring\
+        \ and profile reconstruction."
+      kind: llm
+- name: polarization_ellipticity_of_polarimeter_beam
+  kind: scalar
+  status: active
+  description: Signed ratio of the minor to major semiaxes of the polarization ellipse
+    of a polarimeter beam after propagation through magnetized plasma. It describes
+    the beam's post-propagation transverse polarization state, not the incident state
+    or the ellipse orientation.
+  documentation: 'Signed ratio of the minor to major semiaxes of the polarization
+    ellipse of a polarimeter beam after propagation through magnetized plasma is the
+    ellipticity of that beam. It characterizes the relative electric-field semiamplitudes
+    of the post-propagation transverse polarization ellipse.
+
+
+    The ellipticity is defined by
+
+
+    $$
+
+    \varepsilon = \frac{b}{a}
+
+    $$
+
+
+    where $\varepsilon$ is the polarization ellipticity, $a$ is the major-axis semiamplitude
+    of the electric-field polarization ellipse, and $b$ is the signed minor-axis semiamplitude
+    of that ellipse. The magnitude satisfies $|\varepsilon| \leq 1$.
+
+
+    This quantity applies to the polarimeter beam after it has traversed the magnetized
+    plasma and is therefore distinct from the [initial polarization ellipticity](name:initial_polarization_ellipticity_of_polarimeter_beam).
+    It is a polarization-shape parameter and excludes the orientation of the ellipse;
+    rotation of that orientation is represented by the [Faraday angle](name:faraday_angle).
+    The quantity refers to a single beam polarization state, with no aggregation over
+    distinct beam paths.
+
+
+    Magnetized-plasma birefringence can transform the [initial polarization ellipticity](name:initial_polarization_ellipticity_of_polarimeter_beam)
+    into this post-propagation ellipticity by changing the polarization ellipse during
+    propagation; that change is distinct from Faraday rotation of the ellipse orientation.
+
+
+    Sign convention: Positive when the electric-field vector rotates in a right-handed
+    sense about the beam-propagation direction.'
+  unit: '1'
+  physics_domain: electromagnetic_wave_diagnostics
+  links:
+  - name:faraday_angle
+  - name:initial_polarization_ellipticity_of_polarimeter_beam
+  sources:
+  - dd_path: polarimeter/channel/ellipticity
+    dd_version: 4.1.1
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.1/generated/ids/polarimeter.html#polarimeter-channel-ellipticity
+    dd_documentation:
+      leaf: Ellipticity
+      parent_path: polarimeter/channel
+      parent: Set of channels (lines-of-sight)
+      data_type: STRUCTURE
+      unit: '1'
+    enhanced_context:
+      description: Ellipticity of the polarization state of the probing electromagnetic
+        wave after propagation through magnetized plasma, measured per polarimeter
+        channel. Changes arise from the birefringent nature of the magnetized plasma
+        medium.
+      kind: llm
+- name: initial_polarization_ellipticity_of_polarimeter_beam
+  kind: scalar
+  status: active
+  description: Signed ratio of the minor to major semiaxes of the electric-field polarization
+    ellipse of a polarimeter probing beam in its incident state, before plasma entry.
+    It gives only the ellipticity component of the initial polarization vector, not
+    the ellipse orientation.
+  documentation: 'Signed ratio of the minor to major semiaxes of the electric-field
+    polarization ellipse of a polarimeter probing beam in its incident state, before
+    plasma entry, is the initial polarization ellipticity of that beam. It is the
+    ellipticity component of the beam''s initial polarization vector and specifies
+    the shape and handedness of the incident polarization ellipse, not its orientation.
+
+
+    For an incident electric-field polarization ellipse with major semiaxis amplitude
+    $a_0$ and minor semiaxis amplitude $b_0$, the initial ellipticity $\epsilon_0$
+    is defined by:
+
+
+    $$
+
+    \epsilon_0 = \sigma_0 \frac{b_0}{a_0}
+
+    $$
+
+
+    where $\epsilon_0$ is the initial polarization ellipticity, $a_0$ is the major
+    semiaxis amplitude, $b_0$ is the minor semiaxis amplitude with $0 \le b_0 \le
+    a_0$, and $\sigma_0$ is the handedness sign of the incident polarization state.
+
+
+    This quantity applies to a single polarimeter probing beam along a specified line
+    of sight in its pre-plasma state. It is not averaged or summed over multiple lines
+    of sight, and it does not describe the full polarization vector, beam intensity,
+    wavelength, path geometry, path-integrated ellipticity, or any post-plasma polarization
+    state.
+
+
+    It provides the reference value for Cotton-Mouton ellipticity changes induced
+    during traversal of magnetized plasma. It is the incident-state counterpart of
+    [polarization ellipticity of a polarimeter beam](name:polarization_ellipticity_of_polarimeter_beam),
+    which denotes the polarization ellipticity after plasma traversal; it is distinct
+    from the [Faraday angle](name:faraday_angle), which describes rotation of the
+    polarization-ellipse orientation rather than the semiaxis ratio.
+
+
+    Sign convention: Positive when, in the right-handed beam-local basis $(\hat{e}_1,
+    \hat{e}_2, \hat{k})$ with $\hat{k}$ along beam propagation, $\hat{e}_1$ along
+    the major semiaxis, and $\hat{e}_2 = \hat{k} \times \hat{e}_1$, the electric-field
+    vector rotates from $+\hat{e}_1$ toward $+\hat{e}_2$ as time increases.'
+  unit: m
+  physics_domain: electromagnetic_wave_diagnostics
+  links:
+  - name:polarization_ellipticity_of_polarimeter_beam
+  - name:faraday_angle
+  arguments:
+  - name: polarization_ellipticity_of_polarimeter_beam
+    operator: initial
+    operator_kind: qualifier
+  sources:
+  - dd_path: polarimeter/channel/ellipticity_initial
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/polarimeter.html#polarimeter-channel-ellipticity_initial
+    dd_documentation:
+      leaf: Initial ellipticity before entering the plasma
+      parent_path: polarimeter/channel
+      parent: Set of channels (lines-of-sight)
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Initial ellipticity of the probing beam polarization state before
+        entering the plasma, serving as the reference baseline for Cotton-Mouton effect
+        measurements. Defined per polarimeter channel line-of-sight.
+      kind: llm
+  - dd_path: polarimeter/channel/polarization_initial
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/polarimeter.html#polarimeter-channel-polarization_initial
+    dd_documentation:
+      leaf: Initial polarization vector before entering the plasma
+      parent_path: polarimeter/channel
+      parent: Set of channels (lines-of-sight)
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Initial polarization vector of the probing wave before entering
+        the plasma in a polarimeter channel. Defines the reference polarization state
+        used to measure Faraday rotation and Cotton-Mouton ellipticity induced by
+        the magnetized plasma.
+      kind: llm
+- name: poloidal_magnetic_flux_at_measurement_position
+  kind: scalar
+  status: active
+  description: Signed equilibrium poloidal magnetic-flux function evaluated at a diagnostic
+    measurement location, identifying the nested magnetic surface intersecting that
+    location.
+  documentation: 'The signed poloidal magnetic flux $\psi$ is the equilibrium flux
+    function evaluated at a physical measurement position. It labels the nested magnetic
+    surface passing through that position in the right-handed cylindrical $(R, \phi,
+    Z)$ frame.
+
+
+    For an axisymmetric equilibrium, the poloidal magnetic-flux function is defined
+    by
+
+
+    $$
+
+    \psi(R,Z) = \int_0^R B_Z(R'',Z)\,2\pi R''\,dR''
+
+    $$
+
+
+    where $\psi(R,Z)$ is the poloidal magnetic flux at cylindrical coordinates $(R,Z)$,
+    $B_Z(R'',Z)$ is the vertical magnetic-field component, $R$ and $R''$ are major-radius
+    coordinates, $Z$ is vertical height, and $\pi$ is the circle constant. The toroidal
+    angle $\phi$ completes the right-handed cylindrical frame; axisymmetry makes $\psi$
+    independent of $\phi$.
+
+
+    This quantity applies to the equilibrium magnetic field at one physical measurement
+    position and has no species or population restriction. It is a point evaluation,
+    not a sum, average, or integral over multiple measurement positions. It is not
+    a normalized flux coordinate and does not represent a perturbation or fluctuation
+    of the equilibrium flux.
+
+
+    The same flux-function definition is used for [poloidal magnetic flux at a beam-tracing
+    point](name:poloidal_magnetic_flux_at_beam_tracing_point), but that quantity differs
+    in evaluation locus. A normalized surface label at the same type of location is
+    [normalized poloidal flux coordinate at a measurement position](name:normalized_poloidal_flux_coordinate_at_measurement_position),
+    which is derived by applying axis and boundary references to the signed flux value.
+
+
+    Sign convention: Positive when the net vertical magnetic flux through the defining
+    horizontal disk is directed in the $+Z$ direction of the right-handed cylindrical
+    $(R, \phi, Z)$ frame.'
+  unit: Wb
+  physics_domain: electromagnetic_wave_diagnostics
+  links:
+  - name:normalized_poloidal_flux_coordinate_at_measurement_position
+  sources:
+  - dd_path: ece/channel/beam_tracing/beam/position/psi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/ece.html#ece-channel-beam_tracing-beam-position-psi
+    dd_documentation:
+      leaf: Poloidal flux
+      parent_path: ece/channel/beam_tracing/beam/position
+      parent: Position of the ray/beam along its path
+      data_type: FLT_1D
+      unit: Wb
+      coordinates:
+      - ece/channel/beam_tracing/beam/length
+    enhanced_context:
+      description: "Poloidal magnetic flux (\u03C8) at each position along the ECE\
+        \ beam/ray path. Used to map measurement locations to flux surfaces for electron\
+        \ temperature profile reconstruction from cyclotron emission data."
+      kind: llm
+  - dd_path: ece/channel/position/psi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/ece.html#ece-channel-position-psi
+    dd_documentation:
+      leaf: Poloidal flux
+      parent_path: ece/channel/position
+      parent: Position of the measurements
+      data_type: STRUCTURE
+      unit: W
+      coordinates:
+      - ece/channel/time
+    enhanced_context:
+      description: "Poloidal magnetic flux (\u03C8, psi) at the ECE channel measurement\
+        \ position, as a function of time. Maps the channel location to a flux surface\
+        \ coordinate for profile reconstruction."
+      kind: llm
+  - dd_path: reflectometer_fluctuation/channel/doppler/position/psi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/reflectometer_fluctuation.html#reflectometer_fluctuation-channel-doppler-position-psi
+    dd_documentation:
+      leaf: Poloidal flux
+      parent_path: reflectometer_fluctuation/channel/doppler/position
+      parent: Measurement position
+      data_type: FLT_1D
+      unit: W
+      coordinates:
+      - reflectometer_fluctuation/channel/doppler/time
+    enhanced_context:
+      description: "Poloidal magnetic flux (\u03C8) at the Doppler reflectometer measurement\
+        \ position. Provides the flux-surface coordinate of the probed location for\
+        \ mapping to equilibrium geometry."
+      kind: llm
+  - dd_path: reflectometer_fluctuation/channel/fluctuations_level/position/psi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/reflectometer_fluctuation.html#reflectometer_fluctuation-channel-fluctuations_level-position-psi
+    dd_documentation:
+      leaf: Poloidal flux
+      parent_path: reflectometer_fluctuation/channel/fluctuations_level/position
+      parent: Array of positions at which the fluctuation level is computed
+      data_type: FLT_2D
+      unit: W
+      coordinates:
+      - reflectometer_fluctuation/channel/fluctuations_level/time
+      - 1...N
+    enhanced_context:
+      description: "Poloidal magnetic flux (\u03C8) at positions where fluctuation\
+        \ levels are reconstructed in a fluctuation reflectometer channel. Provides\
+        \ the flux-surface mapping context for each measurement location."
+      kind: llm
+  - dd_path: reflectometer_profile/position/psi
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/reflectometer_profile.html#reflectometer_profile-position-psi
+    dd_documentation:
+      leaf: Poloidal flux
+      parent_path: reflectometer_profile/position
+      parent: Position associated to the density reconstruction from multiple channels
+      data_type: FLT_2D
+      unit: Wb
+      coordinates:
+      - reflectometer_profile/n_e/time
+      - 1...N
+    enhanced_context:
+      description: "Poloidal magnetic flux (\u03C8) at the reflectometer density profile\
+        \ measurement positions. Links the reconstructed spatial positions to flux-surface\
+        \ coordinates, enabling mapping onto the equilibrium flux grid."
+      kind: llm
+- name: spectral_calibration_factor_at_line_of_sight
+  kind: scalar
+  status: active
+  description: Wavelength-specific interferometric conversion coefficient that converts
+    a signed phase change along a line of sight into electron column density.
+  documentation: 'The spectral calibration factor is the wavelength-specific proportionality
+    that maps an interferometric phase change along one line of sight to the electron
+    column density on that optical path.
+
+
+    The conversion is defined by
+
+
+    $$
+
+    N_{e,\mathrm{line}} = K_{\mathrm{spec}}\,\Delta\varphi
+
+    $$
+
+
+    where $N_{e,\mathrm{line}}$ is the [line-integrated electron number density](name:line_integrated_electron_number_density),
+    $K_{\mathrm{spec}}$ is this spectral calibration factor, and $\Delta\varphi$ is
+    the signed interferometric phase change.
+
+
+    The factor applies to the complete electron-density integral along the associated
+    line of sight and to its corresponding probing wavelength. It represents the electron
+    contribution only and is not a local density, a line-averaged density, or an optical
+    phase itself.
+
+
+    Applying this factor produces the line-integrated electron number density; dividing
+    that result by the optical chord length gives [line-averaged electron density](name:line_averaged_electron_density).
+    The associated wavelength is the spectral parameter of the probing electromagnetic
+    wave, related to [wavelength of wave beam](name:wavelength_of_wave_beam).'
+  unit: m^-2.rad^-1
+  physics_domain: electromagnetic_wave_diagnostics
+  links:
+  - name:line_integrated_electron_number_density
+  - name:line_averaged_electron_density
+  - name:wavelength_of_wave_beam
+  sources:
+  - dd_path: interferometer/channel/wavelength/phase_to_n_e_line
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/interferometer.html#interferometer-channel-wavelength-phase_to_n_e_line
+    dd_documentation:
+      leaf: Conversion factor to be used to convert phase into line density for this
+        wavelength
+      parent_path: interferometer/channel/wavelength
+      parent: Set of wavelengths used for interferometry
+      data_type: FLT_0D
+      unit: m^-2.rad^-1
+    enhanced_context:
+      description: "Conversion factor from measured interferometric phase to line-integrated\
+        \ electron density (\u222Bne\xB7dl) for a given wavelength channel. Applied\
+        \ to translate raw phase shifts into physically meaningful line density values."
+      kind: llm
+- name: variation_of_length_of_interferometer_beam
+  kind: scalar
+  status: active
+  description: Signed change in the effective optical path length accumulated along
+    an interferometer beam, caused by plasma relative to the corresponding no-plasma
+    reference path.
+  documentation: 'The quantity is the signed plasma-induced change in effective optical
+    path length accumulated along one interferometer-beam line of sight. It captures
+    the integrated refractive effect of the plasma along that path rather than a local
+    geometric displacement.
+
+
+    The defining difference is
+
+
+    $$
+
+    \Delta L = L_{\mathrm{plasma}} - L_{\mathrm{ref}}
+
+    $$
+
+
+    where $\Delta L$ is the plasma-induced optical path-length variation, $L_{\mathrm{plasma}}$
+    is the effective optical path length with the plasma contribution present, and
+    $L_{\mathrm{ref}}$ is the corresponding effective optical path length for the
+    same beam path with the plasma contribution removed.
+
+
+    The quantity applies to all plasma encountered along the complete propagation
+    path of a single interferometer beam, with distributed contributions aggregated
+    into one path-length difference. It has no local spatial, species-resolved, or
+    charge-state-resolved meaning. It excludes the unvaried reference path length
+    and is not the total [effective optical path length](name:length_of_interferometer_beam)
+    of the beam.
+
+
+    This variation is the optical-path quantity associated with the interferometric
+    phase shift and is used to relate the propagation path to the [line-integrated
+    electron number density](name:line_integrated_electron_number_density). It remains
+    a path-length difference and must not be identified with the electron column density
+    itself.
+
+
+    Sign convention: Positive when the plasma increases the effective optical path
+    length relative to the corresponding no-plasma reference path.'
+  unit: m
+  physics_domain: electromagnetic_wave_diagnostics
+  links:
+  - name:line_integrated_electron_number_density
+  sources:
+  - dd_path: interferometer/channel/path_length_variation
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/interferometer.html#interferometer-channel-path_length_variation
+    dd_documentation:
+      leaf: Optical path length variation due to the plasma
+      parent_path: interferometer/channel
+      parent: Set of channels (lines-of-sight)
+      data_type: STRUCTURE
+      unit: m
+    enhanced_context:
+      description: "Optical path length variation (\u0394L) due to the plasma along\
+        \ an interferometer channel's line-of-sight. This quantity encodes the phase\
+        \ shift from which the line-integrated electron density is derived."
+      kind: llm
+- name: normalized_poloidal_flux_coordinate_at_measurement_position
+  kind: scalar
+  status: active
+  description: Dimensionless radial label that maps a physical measurement position
+    to a nested magnetic surface using the square root of normalized poloidal magnetic
+    flux.
+  documentation: 'The normalized poloidal flux coordinate at a measurement position
+    assigns the physical point to a nested closed magnetic surface through its radial
+    position between the magnetic axis and the last closed flux surface. It is the
+    pointwise value of the [normalized poloidal flux coordinate](name:normalized_poloidal_flux_coordinate)
+    at that measurement location.
+
+
+    The defining normalization is
+
+
+    $$
+
+    \rho_{\mathrm{pol,norm}}(\mathbf{x}_{\mathrm{meas}})=\sqrt{\frac{\psi(\mathbf{x}_{\mathrm{meas}})-\psi_{\mathrm{axis}}}{\psi_{\mathrm{LCFS}}-\psi_{\mathrm{axis}}}}
+
+    $$
+
+
+    where $\rho_{\mathrm{pol,norm}}$ is the normalized poloidal flux coordinate, $\mathbf{x}_{\mathrm{meas}}$
+    is the physical measurement position, $\psi(\mathbf{x}_{\mathrm{meas}})$ is the
+    poloidal magnetic flux at that position, $\psi_{\mathrm{axis}}$ is the poloidal
+    magnetic flux at the magnetic axis, and $\psi_{\mathrm{LCFS}}$ is the poloidal
+    magnetic flux at the last closed flux surface.
+
+
+    This quantity applies to one physical measurement position and has no population
+    or region aggregation: it is evaluated pointwise rather than averaged along a
+    path or over a region. It is a normalized surface label, not a poloidal magnetic-flux
+    value or a toroidal-flux coordinate.
+
+
+    The transformation preserves the parent coordinate''s normalization: it is zero
+    at the magnetic axis and one at the last closed flux surface, with intermediate
+    values identifying nested surfaces between those boundaries.'
+  unit: '1'
+  physics_domain: electromagnetic_wave_diagnostics
+  links: []
+  sources:
+  - dd_path: reflectometer_fluctuation/channel/doppler/position/rho_pol_norm
+    dd_version: 4.1.1
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.1/generated/ids/reflectometer_fluctuation.html#reflectometer_fluctuation-channel-doppler-position-rho_pol_norm
+    dd_documentation:
+      leaf: Normalised poloidal flux coordinate = sqrt((psi(rho)-psi(magnetic_axis))
+        / (psi(LCFS)-psi(magnetic_axis)))
+      parent_path: reflectometer_fluctuation/channel/doppler/position
+      parent: Measurement position
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - reflectometer_fluctuation/channel/doppler/time
+    enhanced_context:
+      description: "Normalised poloidal flux coordinate (\u03C1_pol_norm = sqrt((\u03C8\
+        \u2212\u03C8_axis)/(\u03C8_LCFS\u2212\u03C8_axis))) of the Doppler reflectometer\
+        \ measurement position. Maps the backscattering location to a flux surface\
+        \ coordinate."
+      kind: llm
+  - dd_path: reflectometer_fluctuation/channel/fluctuations_level/position/rho_pol_norm
+    dd_version: 4.1.1
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.1/generated/ids/reflectometer_fluctuation.html#reflectometer_fluctuation-channel-fluctuations_level-position-rho_pol_norm
+    dd_documentation:
+      leaf: Normalised poloidal flux coordinate = sqrt((psi(rho)-psi(magnetic_axis))
+        / (psi(LCFS)-psi(magnetic_axis)))
+      parent_path: reflectometer_fluctuation/channel/fluctuations_level/position
+      parent: Array of positions at which the fluctuation level is computed
+      data_type: FLT_2D
+      unit: '1'
+      coordinates:
+      - reflectometer_fluctuation/channel/fluctuations_level/time
+      - 1...N
+    enhanced_context:
+      description: "Normalised poloidal flux coordinate (\u03C1_pol_norm = \u221A\
+        [(\u03C8\u2212\u03C8_axis)/(\u03C8_LCFS\u2212\u03C8_axis)]) at the reflectometer\
+        \ fluctuation measurement position. Maps the reflectometer cutoff layer location\
+        \ to a flux surface label."
+      kind: llm
+  - dd_path: reflectometer_profile/channel/position/rho_pol_norm
+    dd_version: 4.1.1
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.1/generated/ids/reflectometer_profile.html#reflectometer_profile-channel-position-rho_pol_norm
+    dd_documentation:
+      leaf: Normalised poloidal flux coordinate = sqrt((psi(rho)-psi(magnetic_axis))
+        / (psi(LCFS)-psi(magnetic_axis)))
+      parent_path: reflectometer_profile/channel/position
+      parent: Position of the density measurements
+      data_type: FLT_2D
+      unit: '1'
+      coordinates:
+      - reflectometer_profile/channel/n_e/time
+      - 1...N
+    enhanced_context:
+      description: "Normalised poloidal flux coordinate (\u03C1_pol,norm = \u221A\
+        [(\u03C8\u2212\u03C8_axis)/(\u03C8_LCFS\u2212\u03C8_axis)]) at the reflectometer\
+        \ density profile measurement positions. Maps measurement points to flux-surface\
+        \ coordinates for profile reconstruction."
+      kind: llm
+- name: normalized_toroidal_flux_coordinate_at_beam_tracing_point
+  kind: scalar
+  status: active
+  description: Dimensionless magnetic-surface label obtained from normalized enclosed
+    toroidal flux, evaluated at each beam-tracing point to map the propagation path
+    onto nested plasma surfaces.
+  documentation: 'This quantity assigns the magnetic surface intersected by each beam-tracing
+    point a dimensionless, radial-like toroidal-flux label. It describes the location
+    of the propagation point in nested equilibrium flux surfaces, not a physical distance
+    or a local vector component.
+
+
+    The normalized toroidal flux coordinate is defined by
+
+
+    $$
+
+    \rho_{\mathrm{tor,norm}} = \sqrt{\frac{\Phi_{\mathrm{tor}} - \Phi_{\mathrm{tor,axis}}}{\Phi_{\mathrm{tor,boundary}}
+    - \Phi_{\mathrm{tor,axis}}}}
+
+    $$
+
+
+    where $\rho_{\mathrm{tor,norm}}$ is the normalized toroidal flux coordinate, $\Phi_{\mathrm{tor}}$
+    is the enclosed toroidal magnetic flux of the magnetic surface through the beam-tracing
+    point, $\Phi_{\mathrm{tor,axis}}$ is its value at the magnetic axis, and $\Phi_{\mathrm{tor,boundary}}$
+    is its value at the equilibrium boundary.
+
+
+    The quantity is evaluated pointwise at each beam-tracing position for which the
+    nested equilibrium flux surfaces define the coordinate. It applies to the magnetic
+    surface associated with each propagation point and is not aggregated over the
+    beam path, nor does it represent a particle-population property.
+
+
+    This is the beam-tracing-point evaluation of the [normalized toroidal flux coordinate](name:normalized_toroidal_flux_coordinate).
+    It differs from [normalized toroidal flux coordinate at a measurement position](name:normalized_toroidal_flux_coordinate_at_measurement_position),
+    which assigns the same magnetic-surface coordinate to a specified physical measurement
+    location rather than to a beam-tracing point.'
+  unit: '1'
+  physics_domain: electromagnetic_wave_diagnostics
+  links:
+  - name:normalized_toroidal_flux_coordinate
+  - name:normalized_toroidal_flux_coordinate_at_measurement_position
+  arguments:
+  - name: normalized_toroidal_flux_coordinate
+    operator: beam_tracing_point
+    operator_kind: locus
+  sources:
+  - dd_path: ece/channel/beam_tracing/beam/position/rho_tor_norm
+    dd_version: 4.1.1
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.1/generated/ids/ece.html#ece-channel-beam_tracing-beam-position-rho_tor_norm
+    dd_documentation:
+      leaf: Normalised toroidal flux coordinate
+      parent_path: ece/channel/beam_tracing/beam/position
+      parent: Position of the ray/beam along its path
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - ece/channel/beam_tracing/beam/length
+    enhanced_context:
+      description: "Normalised toroidal flux coordinate (\u03C1_tor_norm) along the\
+        \ ECE beam or ray path, mapping each propagation position to a flux surface.\
+        \ Used to relate beam-tracing positions to plasma radial structure for Te\
+        \ profile reconstruction."
+      kind: llm
+- name: normalized_toroidal_flux_coordinate_of_measurement_position
+  kind: scalar
+  status: active
+  description: Dimensionless magnetic-surface label assigning the Doppler reflectometer
+    measurement location to a normalized toroidal-flux surface between the magnetic
+    axis and boundary.
+  documentation: 'This quantity is the normalized toroidal-flux coordinate of the
+    physical position at which the Doppler reflectometer measurement is associated.
+    It maps that measurement location to a nested magnetic surface rather than describing
+    a cylindrical distance or a local vector component.
+
+
+    The coordinate is defined by
+
+
+    $$
+
+    \rho_{\mathrm{tor,norm}}(\mathbf{x}_{\mathrm{m}}) = \left[\frac{\Phi_{\mathrm{tor}}(\mathbf{x}_{\mathrm{m}})-\Phi_{\mathrm{axis}}}{\Phi_{\mathrm{boundary}}-\Phi_{\mathrm{axis}}}\right]^{1/2}
+
+    $$
+
+
+    where $\rho_{\mathrm{tor,norm}}(\mathbf{x}_{\mathrm{m}})$ is the normalized toroidal-flux
+    coordinate at the measurement position, $\mathbf{x}_{\mathrm{m}}$ is that physical
+    measurement position, $\Phi_{\mathrm{tor}}(\mathbf{x}_{\mathrm{m}})$ is the toroidal
+    magnetic flux enclosed by the magnetic surface passing through the position, $\Phi_{\mathrm{axis}}$
+    is its value at the magnetic axis, and $\Phi_{\mathrm{boundary}}$ is its value
+    at the last closed flux surface.
+
+
+    The scope is one local magnetic-surface label evaluated at the Doppler reflectometer
+    measurement position; it is not an average, integral, or aggregate over a propagation
+    path, channel set, or plasma region. Within the region between the magnetic axis
+    and the last closed flux surface, the value is zero at the axis and one at the
+    boundary. It excludes the toroidal angle of the position and any signed displacement
+    from a reference location.
+
+
+    This is the measurement-position specialization of the [normalized toroidal flux
+    coordinate](name:normalized_toroidal_flux_coordinate); the parent defines the
+    same surface label independently of the measurement locus.'
+  unit: '1'
+  physics_domain: electromagnetic_wave_diagnostics
+  links:
+  - name:normalized_toroidal_flux_coordinate
+  arguments:
+  - name: normalized_toroidal_flux_coordinate
+    operator: measurement_position
+    operator_kind: locus
+  sources:
+  - dd_path: reflectometer_fluctuation/channel/doppler/position/rho_tor_norm
+    dd_version: 4.1.1
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.1/generated/ids/reflectometer_fluctuation.html#reflectometer_fluctuation-channel-doppler-position-rho_tor_norm
+    dd_documentation:
+      leaf: Normalised toroidal flux coordinate
+      parent_path: reflectometer_fluctuation/channel/doppler/position
+      parent: Measurement position
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - reflectometer_fluctuation/channel/doppler/time
+    enhanced_context:
+      description: "Normalised toroidal flux coordinate (\u03C1_tor_norm) of the Doppler\
+        \ reflectometer measurement position. Maps the measurement location to a flux\
+        \ surface label, where 0 is the magnetic axis and 1 is the last closed flux\
+        \ surface."
       kind: llm

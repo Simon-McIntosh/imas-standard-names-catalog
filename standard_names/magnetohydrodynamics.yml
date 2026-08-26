@@ -1,8 +1,6 @@
 # Domain: magnetohydrodynamics
-# Entries: 73
-# Ordering: structural traversal
-#   (HAS_PARENT-incoming + HAS_ERROR-outgoing, Kahn topo sort,
-#    alphabetic tie-break)
+# Entries: 75
+# Ordering: approved baseline followed by fresh review entries
 - name: accumulated_radiated_energy_due_to_impurity_radiation
   kind: scalar
   status: active
@@ -202,23 +200,25 @@
 - name: alfven_time
   kind: scalar
   status: active
-  description: "Reference shear-Alfv\xE9n transit time across the magnetic-axis major-radius\
-    \ scale, used to normalize ideal-magnetohydrodynamic dynamics."
-  documentation: "The Alfv\xE9n time is the shear-Alfv\xE9n transit time across the\
-    \ magnetic-axis major-radius scale. It is a nonnegative reference timescale for\
-    \ ideal-magnetohydrodynamic dynamics, distinct from the oscillation period or\
-    \ damping time of a particular mode.\n\n$$\n\\tau_A = \\frac{R_{\\rm axis}}{v_A}\
-    \ = \\frac{R_{\\rm axis}\\sqrt{\\mu_0\\rho_i}}{\\left|B_{\\phi,\\rm axis}\\right|}\n\
-    $$\n\nwhere $R_{\\rm axis}$ is the magnetic-axis major radius, $v_A$ is the reference\
-    \ shear-Alfv\xE9n speed, $\\mu_0$ is the vacuum permeability, $\\rho_i$ is the\
-    \ ion mass density at the specified reference location, and $B_{\\phi,\\rm axis}$\
-    \ is the toroidal magnetic-field component on the magnetic axis. The magnitude\
-    \ makes the timescale independent of magnetic-field orientation. The resulting\
-    \ reference timescale is distinct from the local complex [Alfv\xE9n frequency](name:alfven_frequency)."
+  description: "Characteristic shear-Alfv\xE9n transit time across the magnetic-axis\
+    \ major-radius scale, set by local ion inertia and the reference magnetic-field\
+    \ strength."
+  documentation: "The Alfv\xE9n time is the characteristic shear-Alfv\xE9n propagation\
+    \ time across a reference major-radius scale in the confined plasma. It is a physical\
+    \ MHD timescale, not an event timestamp or a growth rate.\n\nIts defining relation\
+    \ is\n\n$$\n\\tau_A(\\rho) = \\frac{R_0\\sqrt{m_i n_i(\\rho)}}{B_0}\n$$\n\nwhere\
+    \ $\\tau_A(\\rho)$ is the local Alfv\xE9n time, $R_0$ is the magnetic-axis major-radius\
+    \ scale, $m_i$ is the mass of the reference ion population, $n_i(\\rho)$ is its\
+    \ number density at radial coordinate $\\rho$, and $B_0$ is the reference magnetic-field\
+    \ strength.\n\nThe quantity applies locally at each radial coordinate in the confined\
+    \ plasma; it is not a radial average or radial integral, and it does not represent\
+    \ a charge-state-resolved time unless the reference ion population is so specified.\
+    \ As a timescale, it is distinct from the frequency represented by [alfven_frequency](name:alfven_frequency)\
+    \ and from the general temporal quantity [time](name:time). It provides the characteristic\
+    \ time used to normalize MHD growth rates and other dynamical rates."
   unit: s
   physics_domain: magnetohydrodynamics
-  links:
-  - name:alfven_frequency
+  links: []
   sources:
   - dd_path: mhd_linear/time_slice/toroidal_mode/plasma/tau_alfven
     dd_version: 4.1.0
@@ -357,33 +357,44 @@
 - name: effective_charge
   kind: scalar
   status: active
-  description: Dimensionless effective ionic charge of an ion mixture, equal to the
-    electron-density-normalized sum of squared ionic charge numbers.
-  documentation: 'Effective ionic charge characterizes the charge composition of an
-    ion mixture through the second moment of its ionic charge distribution. It is
-    defined locally and may subsequently be averaged along a viewing path or over
-    a plasma volume.
+  description: Dimensionless effective ionic charge of a plasma mixture, given by
+    the second ionic charge moment divided by free-electron density and indicating
+    impurity content.
+  documentation: 'Effective charge $Z_\mathrm{eff}$ is the charge-weighted mean ionic
+    charge of a plasma mixture, formed from the second moment of the ionic charge
+    distribution and normalized by the free-electron density.
 
 
-    For a quasineutral plasma, the effective ionic charge is
+    The defining relation is
 
 
     $$
 
-    Z_{\mathrm{eff}} = \frac{\sum_s n_s Z_s^2}{n_e}
+    Z_\mathrm{eff} = \frac{\sum_s n_s Z_s^2}{n_e}
 
     $$
 
 
-    where $n_s$ is the number density of ion species $s$, $Z_s$ is the positive ionic
-    charge number of that species, and $n_e$ is the electron number density. Quasineutrality
-    gives $n_e = \sum_s n_s Z_s$ when electron inertia and charge separation are negligible.
+    where $n_s$ is the number density of ions in species and charge-state category
+    $s$, $Z_s$ is the positive ionic charge number for that category, and $n_e$ is
+    the free-electron number density. For a quasineutral mixture, $n_e$ equals the
+    sum of $n_s Z_s$ over the same ion population.
 
 
-    The quantity is distinct from a first-moment mean ionic charge because it weights
-    each species by the square of its charge. Path and volume reductions are represented
-    by [line-averaged effective charge](name:line_averaged_effective_charge) and [volume-averaged
-    effective charge](name:volume_averaged_effective_charge), respectively.'
+    This quantity applies to the complete included ion mixture, with contributions
+    summed over all represented ion species and charge states; it is not restricted
+    to one species, charge state, plasma region, or spatial averaging geometry. A
+    local value and a prescribed spatially averaged value share this same charge aggregation
+    convention.
+
+
+    Effective charge is distinct from the charge number of an individual ion and from
+    the [square of an ion charge number](name:square_of_ion_charge_number), which
+    describes a single-species charge moment rather than the mixture-level ratio.
+    Spatially averaged instances retain the local definition: [line-averaged effective
+    charge](name:line_averaged_effective_charge) averages this quantity along a line,
+    whereas [volume-averaged effective charge](name:volume_averaged_effective_charge)
+    averages it over a plasma volume.'
   unit: '1'
   physics_domain: magnetohydrodynamics
   links:
@@ -572,41 +583,44 @@
 - name: electron_temperature
   kind: scalar
   status: active
-  description: Energy-equivalent measure of the mean random kinetic energy of the
-    bulk electron population, defined locally or after a prescribed spatial average.
+  description: Thermal energy of the bulk electron population expressed as an energy-equivalent
+    temperature determined by its random kinetic-energy distribution.
   documentation: 'Electron temperature is the energy-equivalent measure of the mean
-    random kinetic energy of the bulk electron population. It characterizes the second
-    moment of the electron velocity distribution and may be defined locally or after
-    a prescribed spatial average.
+    random kinetic energy of the bulk electron population.
 
 
-    For an isotropic electron population, the defining relation is
+    For an isotropic electron population, the defining relation is:
 
 
     $$
 
-    \langle E_e \rangle = \frac{3}{2} T_e
+    T_e = \frac{2}{3}\langle E_e \rangle
 
     $$
 
 
-    where $\langle E_e \rangle$ is the mean random kinetic energy per electron and
-    $T_e$ is the energy-equivalent electron temperature.
+    where $T_e$ is the electron temperature expressed as energy, and $\langle E_e
+    \rangle$ is the mean random kinetic energy per electron.
 
 
-    The definition applies to local values and to specified line or volume averages,
-    including the [line-averaged electron temperature](name:line_averaged_electron_temperature)
-    and [volume-averaged electron temperature](name:volume_averaged_electron_temperature).
-    A ratio of two such temperatures, such as the [ratio of electron temperature to
-    volume-averaged electron temperature](name:ratio_of_electron_temperature_to_volume_averaged_electron_temperature_over_inside_flux_surface),
-    is a derived comparison rather than a separate temperature definition. A separately
-    defined fast or suprathermal population is excluded unless explicitly included
-    in the population being characterized.'
+    This is an intensive quantity for the electron population, not a sum of electron
+    energies. It may be defined locally or after a specified spatial average, including
+    the chord average represented by [line-averaged electron temperature](name:line_averaged_electron_temperature)
+    and the confined-volume average represented by [volume-averaged electron temperature](name:volume_averaged_electron_temperature).
+    It excludes ion populations and does not itself represent total electron energy
+    or electron pressure.
+
+
+    Electron temperature is related to [total electron pressure](name:total_electron_pressure)
+    through the electron velocity-space moments; pressure additionally includes the
+    electron number-density weighting. It is distinct from [ion charge-state temperature](name:ion_charge_state_temperature),
+    which characterizes ions in a specified charge state.'
   unit: eV
   physics_domain: magnetohydrodynamics
   links:
   - name:line_averaged_electron_temperature
   - name:volume_averaged_electron_temperature
+  - name:total_electron_pressure
   sources:
   - dd_path: core_profiles/profiles_1d/electrons/temperature
     dd_version: 4.1.0
@@ -3161,37 +3175,28 @@
 - name: toroidal_flux_coordinate_of_neoclassical_tearing_mode_center
   kind: scalar
   status: active
-  description: Toroidal-flux radius of the rational magnetic surface at the center
-    of a neoclassical tearing-mode island.
-  documentation: 'The toroidal-flux radius at a neoclassical tearing-mode center is
-    the nonnegative radial flux-surface coordinate of the resonant rational surface
-    about which the magnetic island is centered. It identifies the island location
-    and is distinct from the island''s radial width.
-
-
-    The coordinate is defined by
-
-
-    $$
-
-    \rho_{\mathrm{tor}} = \sqrt{\frac{\Phi_{\mathrm{tor}}}{\pi B_0}}
-
-    $$
-
-
-    where $\Phi_{\mathrm{tor}}$ is the toroidal magnetic flux enclosed by the resonant
-    surface, and $B_0$ is the reference toroidal magnetic-field strength used for
-    the flux-radius definition. The value is evaluated at the neoclassical tearing-mode
-    center and is measured outward from the magnetic axis through nested magnetic
-    flux surfaces. It is the locus-specific counterpart of the general [toroidal flux
-    radius](name:toroidal_flux_radius), whereas [radial width of a neoclassical tearing
-    mode](name:radial_width_of_neoclassical_tearing_mode) describes the island''s
-    radial extent.'
+  description: Non-normalized toroidal-flux radius locating the magnetic surface and
+    radial position of a neoclassical tearing-mode island center.
+  documentation: "This quantity is the toroidal-flux coordinate of the magnetic surface\
+    \ passing through the center of a neoclassical tearing-mode island. It provides\
+    \ a radius-like magnetic-surface label for the island\u2019s radial location,\
+    \ rather than a geometric distance.\n\nIt is a non-negative, dimensional coordinate\
+    \ evaluated at the neoclassical tearing-mode center. The value represents a single\
+    \ locus on the nested magnetic surfaces; it is neither a surface average nor a\
+    \ volume average.\n\nThe quantity is the locus-specific instance of the parent\
+    \ [toroidal flux coordinate](name:toroidal_flux_coordinate). Unlike the [normalized\
+    \ toroidal flux coordinate at the neoclassical tearing-mode center](name:normalized_toroidal_flux_coordinate_of_neoclassical_tearing_mode_center),\
+    \ it retains the dimensional toroidal-flux-radius scale rather than mapping the\
+    \ location to a normalized interval."
   unit: m
   physics_domain: magnetohydrodynamics
   links:
-  - name:toroidal_flux_radius
-  - name:radial_width_of_neoclassical_tearing_mode
+  - name:toroidal_flux_coordinate
+  - name:normalized_toroidal_flux_coordinate_of_neoclassical_tearing_mode_center
+  arguments:
+  - name: toroidal_flux_coordinate
+    operator: neoclassical_tearing_mode_center
+    operator_kind: locus
   sources:
   - dd_path: ntms/time_slice/mode/detailed_evolution/rho_tor
     dd_version: 4.1.0
@@ -4104,47 +4109,53 @@
 - name: normalized_toroidal_flux_coordinate_at_sawtooth_inversion_radius
   kind: scalar
   status: active
-  description: Dimensionless radial flux-surface label based on normalized toroidal
-    magnetic flux, evaluated at the sawtooth inversion radius where a crash-induced
-    electron-temperature perturbation changes sign.
-  documentation: 'The normalized toroidal flux coordinate at the sawtooth inversion
-    radius is the dimensionless radial label assigned to the nested flux surface where
-    a crash-induced electron-temperature perturbation changes sign. It is the [normalized
-    toroidal flux coordinate](name:normalized_toroidal_flux_coordinate) evaluated
-    at that surface, with the origin at the magnetic axis and the outer normalization
-    reference at the plasma boundary or last closed flux surface.
+  description: Dimensionless magnetic-surface label locating the sawtooth inversion
+    radius, where the electron-temperature perturbation changes sign during a crash.
+  documentation: 'The quantity is the normalized toroidal magnetic-flux label of the
+    magnetic surface passing through the sawtooth inversion radius. This radius is
+    the location at which the electron-temperature perturbation reverses sign during
+    a sawtooth crash.
 
 
-    The coordinate is defined from the toroidal magnetic flux difference between the
-    sawtooth inversion surface and the magnetic axis:
+    The value is defined by the normalized toroidal flux relation
 
 
     $$
 
-    \rho_{\mathrm{tor,norm}}(r_{\mathrm{inv}}) = \sqrt{\frac{\Phi_{\mathrm{inv}} -
-    \Phi_0}{\Phi_b - \Phi_0}}
+    \rho_{\mathrm{tor,norm}}(r_{\mathrm{inv}})=\left[\frac{\Phi_{\mathrm{tor}}(r_{\mathrm{inv}})-\Phi_{\mathrm{tor,axis}}}{\Phi_{\mathrm{tor,boundary}}-\Phi_{\mathrm{tor,axis}}}\right]^{1/2}
 
     $$
 
 
-    where $r_{\mathrm{inv}}$ identifies the sawtooth inversion radius, $\Phi_{\mathrm{inv}}$
-    is the toroidal magnetic flux of its flux surface, $\Phi_0$ is the magnetic-axis
-    toroidal magnetic flux, and $\Phi_b$ is the boundary toroidal magnetic flux. The
-    square root gives a nonnegative radial label that spans from zero at the magnetic
-    axis to unity at the normalization boundary.
+    where $\rho_{\mathrm{tor,norm}}(r_{\mathrm{inv}})$ is the normalized toroidal
+    flux coordinate at the inversion radius, $r_{\mathrm{inv}}$ is the sawtooth inversion
+    radius, $\Phi_{\mathrm{tor}}(r_{\mathrm{inv}})$ is the toroidal magnetic flux
+    enclosed by the magnetic surface at that radius, $\Phi_{\mathrm{tor,axis}}$ is
+    the toroidal magnetic flux at the magnetic axis, and $\Phi_{\mathrm{tor,boundary}}$
+    is the toroidal magnetic flux at the equilibrium boundary.
 
 
-    This quantity identifies the sawtooth inversion surface rather than the temperature
-    perturbation or its amplitude. It is distinct from the [normalized toroidal flux
-    coordinate at the magnetic axis](name:normalized_toroidal_flux_coordinate_at_magnetic_axis),
-    which is the zero-valued reference coordinate, and from [magnetic shear at the
-    sawtooth inversion radius](name:magnetic_shear_at_sawtooth_inversion_radius),
-    which describes the safety-factor gradient at the same surface.'
+    The quantity applies to the plasma magnetic surface at the sawtooth inversion
+    radius and is a point evaluation of the parent [normalized toroidal flux coordinate](name:normalized_toroidal_flux_coordinate),
+    not a volume or surface average and not a population-weighted quantity. It is
+    not the inversion radius itself, a cylindrical radial distance, or a local vector
+    component.
+
+
+    It is the parent normalized toroidal flux coordinate evaluated specifically at
+    the inversion locus. It therefore differs from the corresponding value at the
+    [sawtooth mixing radius](name:normalized_toroidal_flux_coordinate_at_sawtooth_mixing_radius),
+    which identifies the magnetic surface associated with sawtooth mixing rather than
+    the surface where the electron-temperature perturbation changes sign.'
   unit: '1'
   physics_domain: magnetohydrodynamics
   links:
-  - name:normalized_toroidal_flux_coordinate_at_magnetic_axis
-  - name:magnetic_shear_at_sawtooth_inversion_radius
+  - name:normalized_toroidal_flux_coordinate
+  - name:normalized_toroidal_flux_coordinate_at_sawtooth_mixing_radius
+  arguments:
+  - name: normalized_toroidal_flux_coordinate
+    operator: sawtooth_inversion_radius
+    operator_kind: locus
   sources:
   - dd_path: sawteeth/diagnostics/rho_tor_norm_inversion
     dd_version: 4.1.0
@@ -4183,45 +4194,49 @@
 - name: normalized_toroidal_flux_coordinate_at_sawtooth_mixing_radius
   kind: scalar
   status: active
-  description: Dimensionless radial flux-surface label based on normalized toroidal
-    magnetic flux, evaluated at the sawtooth mixing radius. It identifies the outer
-    boundary of the region homogenized during a sawtooth crash, with 0 at the magnetic
-    axis and 1 at the plasma boundary.
-  documentation: 'The normalized toroidal flux coordinate at the sawtooth mixing radius
-    is the dimensionless radial label assigned to the nested flux surface defining
-    the outer boundary of the region homogenized during a sawtooth crash. It is the
-    [normalized toroidal flux coordinate](name:normalized_toroidal_flux_coordinate)
-    evaluated at that surface, with the origin at the magnetic axis and the outer
-    normalization reference at the plasma boundary or last closed flux surface.
+  description: Normalized toroidal-flux surface label evaluated at the sawtooth mixing
+    radius, marking the outer boundary of the plasma region homogenized during a sawtooth
+    crash.
+  documentation: 'This quantity is the normalized toroidal magnetic-flux label of
+    the magnetic surface passing through the sawtooth mixing radius. It identifies
+    the outer boundary of the plasma region homogenized during a sawtooth crash.
 
 
-    The coordinate is defined from the toroidal magnetic flux at the sawtooth mixing
-    radius:
+    The coordinate is defined by
 
 
     $$
 
-    \rho_{\mathrm{tor,norm}}(r_{\mathrm{mix}}) = \sqrt{\frac{\Phi_{\mathrm{mix}} -
-    \Phi_0}{\Phi_b - \Phi_0}}
+    \rho_{\mathrm{tor,norm}}(r_{\mathrm{mix}}) = \left(\frac{\Phi_{\mathrm{tor}}(r_{\mathrm{mix}})
+    - \Phi_{\mathrm{tor,axis}}}{\Phi_{\mathrm{tor,boundary}} - \Phi_{\mathrm{tor,axis}}}\right)^{1/2}
 
     $$
 
 
-    where $r_{\mathrm{mix}}$ is the sawtooth mixing radius, $\Phi_{\mathrm{mix}}$
-    is the toroidal magnetic flux of its flux surface, $\Phi_0$ is the magnetic-axis
-    toroidal flux, and $\Phi_b$ is the boundary toroidal flux. The square root gives
-    a nonnegative radial label that increases outward for a valid nested-flux-surface
-    mapping.
+    where $\rho_{\mathrm{tor,norm}}(r_{\mathrm{mix}})$ is the normalized toroidal
+    flux coordinate at the mixing radius, $r_{\mathrm{mix}}$ is the sawtooth mixing
+    radius, $\Phi_{\mathrm{tor}}(r_{\mathrm{mix}})$ is the toroidal magnetic flux
+    enclosed by the mixing surface, $\Phi_{\mathrm{tor,axis}}$ is the toroidal magnetic
+    flux at the magnetic axis, and $\Phi_{\mathrm{tor,boundary}}$ is the toroidal
+    magnetic flux at the equilibrium boundary.
 
 
-    This quantity identifies the mixing boundary, not the sawtooth inversion surface,
-    where the crash-induced electron-temperature perturbation changes sign; that distinct
-    locus is represented by the [normalized toroidal flux coordinate at the sawtooth
-    inversion radius](name:normalized_toroidal_flux_coordinate_at_sawtooth_inversion_radius).'
+    The scope is the single magnetic surface at the sawtooth mixing radius within
+    the plasma region affected by the crash. This is a locus-specific evaluation of
+    the broader [normalized toroidal flux coordinate](name:normalized_toroidal_flux_coordinate),
+    not a coordinate assigned to every magnetic surface, a volume average, or a flux-surface
+    average. It is distinct from the corresponding coordinate at the [sawtooth inversion
+    radius](name:normalized_toroidal_flux_coordinate_at_sawtooth_inversion_radius),
+    because the mixing radius and inversion radius represent different sawtooth characteristics.'
   unit: '1'
   physics_domain: magnetohydrodynamics
   links:
+  - name:normalized_toroidal_flux_coordinate
   - name:normalized_toroidal_flux_coordinate_at_sawtooth_inversion_radius
+  arguments:
+  - name: normalized_toroidal_flux_coordinate
+    operator: sawtooth_mixing_radius
+    operator_kind: locus
   sources:
   - dd_path: sawteeth/diagnostics/rho_tor_norm_mixing
     dd_version: 4.1.0
@@ -5096,4 +5111,140 @@
       description: Volume-averaged tritium beta-decay contribution to the runaway
         electron density source rate (dn_RE/dt|tritium). Represents runaway electron
         generation from energetic electrons produced by tritium beta decay.
+      kind: llm
+- name: total_power_due_to_ohmic_dissipation
+  kind: scalar
+  status: active
+  description: Aggregate rate of irreversible electrical-energy conversion into heat
+    by resistive current flow across the applicable conducting plasma or structure.
+  documentation: 'Total ohmic-dissipation power is the rate of irreversible conversion
+    of electrical work into heat by finite-resistivity currents. The total aggregation
+    covers the complete applicable conducting domain rather than one selected surface,
+    component, or region.
+
+
+    For a conducting domain $V$, the power is defined by
+
+
+    $$
+
+    P_{\mathrm{ohm}} = \int_V \mathbf{J} \cdot \mathbf{E}_{\mathrm{res}}\,dV
+
+    $$
+
+
+    where $P_{\mathrm{ohm}}$ is the total ohmic-dissipation power, $\mathbf{J}$ is
+    electric-current density, $\mathbf{E}_{\mathrm{res}}$ is the resistive electric
+    field, and $V$ is the conducting volume over which dissipation is aggregated.
+
+
+    For the global plasma quantity, the domain is the full plasma region and the result
+    includes the total resistive heating associated with the plasma current, not only
+    a local contribution or the halo-region contribution. The same physical definition
+    applies to an explicitly named conducting locus: [power at the wall](name:power_at_wall_due_to_ohmic_dissipation)
+    restricts the domain to wall and vessel structures, while [power of the divertor](name:power_of_divertor_due_to_ohmic_dissipation)
+    restricts it to all divertor targets. These locus-specific quantities are distinct
+    from the global total and exclude radiated or externally launched power.'
+  unit: W
+  physics_domain: magnetohydrodynamics
+  links: []
+  sources:
+  - dd_path: disruption/global_quantities/power_ohm
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/disruption.html#disruption-global_quantities-power_ohm
+    dd_documentation:
+      leaf: Total ohmic power
+      parent_path: disruption/global_quantities
+      parent: Global quantities
+      data_type: FLT_1D
+      unit: W
+      coordinates:
+      - disruption/time
+    enhanced_context:
+      description: Total ohmic power (P_ohm) deposited in the plasma during a disruption,
+        representing resistive heating from the plasma current. Contributes to thermal
+        energy deposition during the thermal and current quench phases.
+      kind: llm
+  - dd_path: disruption/global_quantities/power_ohm_halo
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/disruption.html#disruption-global_quantities-power_ohm_halo
+    dd_documentation:
+      leaf: Ohmic power in the halo region
+      parent_path: disruption/global_quantities
+      parent: Global quantities
+      data_type: FLT_1D
+      unit: W
+      coordinates:
+      - disruption/time
+    enhanced_context:
+      description: Ohmic power dissipated in the halo region (P_ohm,halo) during a
+        disruption, arising from resistive heating by halo currents. Contributes to
+        thermal loads on plasma-facing components during the current quench.
+      kind: llm
+  - dd_path: summary/global_quantities/power_ohm/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-global_quantities-power_ohm-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/global_quantities/power_ohm
+      parent: Ohmic power
+      data_type: FLT_1D
+      unit: W
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Ohmic heating power (P_ohm), the resistive power dissipated in
+        the plasma by the toroidal plasma current flowing through the plasma resistance.
+        A primary intrinsic heating channel in tokamak operation.
+      kind: template
+- name: normalized_toroidal_flux_coordinate_of_neoclassical_tearing_mode_center
+  kind: scalar
+  status: active
+  description: Dimensionless magnetic-surface label locating the resonant flux surface
+    at the center of a neoclassical tearing-mode magnetic island.
+  documentation: "This quantity is the normalized toroidal-flux label of the magnetic\
+    \ surface passing through the center of a neoclassical tearing-mode magnetic island.\
+    \ It identifies the island\u2019s resonant surface rather than describing the\
+    \ island\u2019s helical phase or radial extent.\n\nAt the island center, the normalized\
+    \ toroidal-flux coordinate is defined by\n\n$$\n\\rho_{\\mathrm{tor,norm}} = \\\
+    left(\\frac{\\Phi_{\\mathrm{tor}} - \\Phi_{\\mathrm{tor,axis}}}{\\Phi_{\\mathrm{tor,boundary}}\
+    \ - \\Phi_{\\mathrm{tor,axis}}}\\right)^{1/2}\n$$\n\nwhere $\\rho_{\\mathrm{tor,norm}}$\
+    \ is the normalized toroidal-flux coordinate, $\\Phi_{\\mathrm{tor}}$ is the enclosed\
+    \ toroidal magnetic flux at the island center, $\\Phi_{\\mathrm{tor,axis}}$ is\
+    \ its value at the magnetic axis, and $\\Phi_{\\mathrm{tor,boundary}}$ is its\
+    \ value at the equilibrium boundary.\n\nThe quantity applies to the center, or\
+    \ resonant-surface location, of one specified neoclassical tearing-mode island\
+    \ and is a pointwise magnetic-surface label, not an average over the island or\
+    \ a sum over modes. It is not a cylindrical radial distance, a local vector component,\
+    \ or the unnormalized toroidal-flux radius represented by [toroidal flux coordinate\
+    \ at the neoclassical tearing-mode center](name:toroidal_flux_coordinate_of_neoclassical_tearing_mode_center).\n\
+    \nIt is the locus-specific evaluation of the parent [normalized toroidal flux\
+    \ coordinate](name:normalized_toroidal_flux_coordinate) at the neoclassical tearing-mode\
+    \ center. The island\u2019s helical orientation is described separately by its\
+    \ [neoclassical tearing-mode phase](name:neoclassical_tearing_mode_phase)."
+  unit: '1'
+  physics_domain: magnetohydrodynamics
+  links:
+  - name:toroidal_flux_coordinate_of_neoclassical_tearing_mode_center
+  - name:normalized_toroidal_flux_coordinate
+  arguments:
+  - name: normalized_toroidal_flux_coordinate
+    operator: neoclassical_tearing_mode_center
+    operator_kind: locus
+  sources:
+  - dd_path: ntms/time_slice/mode/rho_tor_norm
+    dd_version: 4.1.1
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.1/generated/ids/ntms.html#ntms-time_slice-mode-rho_tor_norm
+    dd_documentation:
+      leaf: Normalised flux coordinate on which the mode is centred
+      parent_path: ntms/time_slice/mode
+      parent: List of the various NTM modes appearing during the simulation. If a
+        mode appears several times, use several indices in this array of structure
+        with the same m,n values.
+      data_type: FLT_0D
+      unit: '1'
+    enhanced_context:
+      description: "Normalised toroidal flux coordinate (\u03C1_tor,norm) at which\
+        \ a neoclassical tearing mode (NTM) magnetic island is centred. Identifies\
+        \ the resonant flux surface location within the plasma for the given mode."
       kind: llm
