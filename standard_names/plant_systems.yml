@@ -1,0 +1,586 @@
+# Domain: plant_systems
+# Entries: 9
+# Ordering: approved baseline followed by fresh review entries
+- name: accumulated_total_particle_count_due_to_gas_injection
+  kind: scalar
+  status: active
+  description: Cumulative equivalent-electron inventory of all gas particles delivered
+    since plasma breakdown, summed over every injected species and injection location.
+  documentation: 'This quantity is the cumulative inventory of gas delivered after
+    plasma breakdown, expressed as equivalent electrons. Each injected atom or molecule
+    contributes according to its total nuclear charge, so the quantity represents
+    delivered gas inventory rather than the free-electron population currently present
+    in the plasma.
+
+
+    $$
+
+    N_{\mathrm{eq}} = \sum_s Z_s N_s
+
+    $$
+
+
+    where $N_{\mathrm{eq}}$ is the cumulative equivalent-electron inventory, $s$ indexes
+    the injected gas species, $Z_s$ is the total nuclear charge per particle of species
+    $s$, and $N_s$ is the cumulative number of particles of species $s$ delivered
+    after breakdown.
+
+
+    The aggregation includes all injected gas species and all injection locations,
+    producing one total inventory rather than a per-species or per-inlet value. It
+    excludes gas introduced during prefill before plasma breakdown and does not represent
+    the number of free electrons remaining in the plasma or the ionization-state-resolved
+    plasma content.
+
+
+    Species-specific accumulated inventories, such as [accumulated_neon_count](name:accumulated_neon_count),
+    contribute to this total under the same equivalent-electron convention. The post-breakdown
+    quantity is distinct from [accumulated_total_prefill_gas_count](name:accumulated_total_prefill_gas_count),
+    which accounts for gas introduced before plasma breakdown.'
+  unit: '1'
+  physics_domain: plant_systems
+  links: []
+  sources:
+  - dd_path: summary/gas_injection_accumulated/total/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-gas_injection_accumulated-total-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/gas_injection_accumulated/total
+      parent: Total accumulated injected gas (sum over species)
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Total accumulated injected gas (sum over species).
+      kind: template
+- name: coolant_temperature_at_inlet
+  kind: scalar
+  status: active
+  description: Absolute thermodynamic temperature of coolant entering a cooling loop
+    or plant component, establishing the upstream state for enthalpy-based heat-transfer
+    balances.
+  documentation: 'The coolant inlet temperature is the absolute thermodynamic temperature
+    of the coolant or working fluid at the entrance to a cooling loop, plant component,
+    or cooling module. It specifies the upstream thermal state of the fluid before
+    heat transfer through the associated cooled volume.
+
+
+    The quantity is a local boundary value at the relevant inlet and is not an average
+    or aggregate over multiple components, loops, or inlet streams. It applies to
+    the coolant population crossing that inlet, rather than to the cooled solid or
+    the plasma.
+
+
+    It is distinct from the downstream [coolant temperature at outlet](name:coolant_temperature_at_outlet)
+    and does not represent the temperature change across the cooled component or loop.
+
+
+    In an enthalpy balance, the inlet temperature supplies the upstream thermal state
+    and is used with the outlet temperature and [coolant mass flow rate](name:ratio_of_coolant_mass_to_time)
+    to determine thermal power transferred to the coolant. The quantity itself is
+    a temperature, not a power or a coolant-flow measurement.'
+  unit: K
+  physics_domain: plant_systems
+  links:
+  - name:coolant_temperature_at_outlet
+  - name:ratio_of_coolant_mass_to_time
+  sources:
+  - dd_path: breeding_blanket/module/cooling/time_slice/temperature_inlet
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/breeding_blanket.html#breeding_blanket-module-cooling-time_slice-temperature_inlet
+    dd_documentation:
+      leaf: Inlet coolant temperature
+      parent_path: breeding_blanket/module/cooling/time_slice
+      parent: Dynamic quantities at various time slices
+      data_type: FLT_0D
+      unit: K
+    enhanced_context:
+      description: Inlet coolant temperature at the entrance of a breeding blanket
+        module cooling system for a given time slice. Upstream thermal boundary condition
+        used to assess coolant thermodynamics and blanket thermal performance.
+      kind: llm
+  - dd_path: calorimetry/cooling_loop/temperature_in
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/calorimetry.html#calorimetry-cooling_loop-temperature_in
+    dd_documentation:
+      leaf: Temperature of the coolant when entering the loop
+      parent_path: calorimetry/cooling_loop
+      parent: Set of cooling loops
+      data_type: STRUCTURE
+      unit: K
+    enhanced_context:
+      description: Temperature of the coolant at the inlet of a cooling loop. Used
+        together with the outlet temperature and mass flow rate to calculate deposited
+        thermal power via enthalpy balance.
+      kind: llm
+  - dd_path: calorimetry/group/component/temperature_in
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/calorimetry.html#calorimetry-group-component-temperature_in
+    dd_documentation:
+      leaf: Temperature of the coolant when entering the component
+      parent_path: calorimetry/group/component
+      parent: Set of components on which calorimetry measurements are carried out
+      data_type: STRUCTURE
+      unit: K
+    enhanced_context:
+      description: Temperature of the coolant fluid at the inlet of a calorimetry
+        component (T_in). Used with the outlet temperature and mass flow rate to compute
+        deposited thermal power via enthalpy balance in tokamak cooling circuits.
+      kind: llm
+- name: coolant_temperature_at_outlet
+  kind: scalar
+  status: active
+  description: "Absolute thermodynamic temperature of coolant leaving a cooling component\
+    \ or loop, specifying the fluid\u2019s outlet thermal state for enthalpy-based\
+    \ heat balance."
+  documentation: 'This quantity is the absolute thermodynamic temperature of the coolant
+    fluid at the outlet of a cooling component, cooling loop, or comparable coolant
+    circuit. It describes the bulk fluid state at the exit boundary.
+
+
+    The scope is limited to coolant at an outlet and does not represent the inlet
+    temperature, a wall temperature, or an aggregate temperature over the entire cooling
+    system. It is an outlet state value for the selected cooling path, not a mass-flow
+    rate or a deposited-power quantity.
+
+
+    Together with the [coolant temperature at the inlet](name:coolant_temperature_at_inlet)
+    and the [coolant mass flow rate](name:ratio_of_coolant_mass_to_time), this temperature
+    determines the coolant enthalpy change used to assess heat transferred into the
+    fluid. The enthalpy balance distinguishes thermal power deposited in the coolant
+    from the outlet temperature itself.'
+  unit: K
+  physics_domain: plant_systems
+  links:
+  - name:coolant_temperature_at_inlet
+  - name:ratio_of_coolant_mass_to_time
+  sources:
+  - dd_path: breeding_blanket/module/cooling/time_slice/temperature_outlet
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/breeding_blanket.html#breeding_blanket-module-cooling-time_slice-temperature_outlet
+    dd_documentation:
+      leaf: Outlet coolant temperature
+      parent_path: breeding_blanket/module/cooling/time_slice
+      parent: Dynamic quantities at various time slices
+      data_type: FLT_0D
+      unit: K
+    enhanced_context:
+      description: Outlet coolant temperature at the exit of a breeding blanket module
+        cooling system at a given time slice. Represents the thermal state of the
+        coolant leaving the module and is used together with inlet temperature for
+        heat balance assessment.
+      kind: llm
+  - dd_path: calorimetry/cooling_loop/temperature_out
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/calorimetry.html#calorimetry-cooling_loop-temperature_out
+    dd_documentation:
+      leaf: Temperature of the coolant when exiting the loop
+      parent_path: calorimetry/cooling_loop
+      parent: Set of cooling loops
+      data_type: STRUCTURE
+      unit: K
+    enhanced_context:
+      description: Temperature of the coolant at the outlet of a cooling loop. Used
+        together with the inlet temperature and mass flow rate to compute the deposited
+        thermal power via calorimetric enthalpy balance.
+      kind: llm
+  - dd_path: calorimetry/group/component/temperature_out
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/calorimetry.html#calorimetry-group-component-temperature_out
+    dd_documentation:
+      leaf: Temperature of the coolant when exiting the component
+      parent_path: calorimetry/group/component
+      parent: Set of components on which calorimetry measurements are carried out
+      data_type: STRUCTURE
+      unit: K
+    enhanced_context:
+      description: Temperature of the coolant fluid at the outlet of a calorimetry
+        component. Used together with the inlet temperature and mass flow rate to
+        derive deposited thermal power via enthalpy balance.
+      kind: llm
+- name: gas_flow
+  kind: scalar
+  status: active
+  description: Pressure-volume throughput of a gas stream, expressed as the product
+    of gas pressure and volumetric flow rate at a flow boundary.
+  documentation: 'Gas flow is the pressure-volume throughput of a gas stream crossing
+    a defined flow boundary. It represents the aggregate gas stream rather than a
+    particular molecular species, charge state, mass flow, or particle-number rate.
+
+
+    The defining pressure-volume throughput is
+
+
+    $$
+
+    Q_g = p_g \frac{dV_g}{dt}
+
+    $$
+
+
+    where $Q_g$ is gas pressure-volume throughput, $p_g$ is the gas pressure at the
+    flow boundary, $V_g$ is the volume of gas crossing that boundary, and $t$ is time.
+
+
+    This quantity applies to the gas stream delivered through an injection system
+    and is not itself restricted to an upper or lower operating limit. The [maximum
+    gas flow](name:maximum_gas_flow) is the largest reliably deliverable value of
+    this throughput, while the [minimum gas flow](name:minimum_gas_flow) is the smallest
+    reliably deliverable value; both are limiting instances of the general quantity.'
+  unit: Pa.m^3.s^-1
+  physics_domain: plant_systems
+  links:
+  - name:maximum_gas_flow
+  - name:minimum_gas_flow
+  sources:
+  - dd_path: gas_injection/pipe/flow_rate
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/gas_injection.html#gas_injection-pipe-flow_rate
+    dd_documentation:
+      leaf: Flow rate at the exit of the pipe
+      parent_path: gas_injection/pipe
+      parent: Set of gas injection pipes
+      data_type: STRUCTURE
+      unit: Pa.m^3.s^-1
+    enhanced_context:
+      description: Gas flow rate at the exit of a gas injection pipe, representing
+        the particle flux delivered to the vacuum vessel. A primary actuator quantity
+        for plasma density and impurity control.
+      kind: llm
+  - dd_path: gas_injection/valve/flow_rate
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/gas_injection.html#gas_injection-valve-flow_rate
+    dd_documentation:
+      leaf: Flow rate at the exit of the valve
+      parent_path: gas_injection/valve
+      parent: Set of valves connecting a gas bottle to pipes
+      data_type: STRUCTURE
+      unit: Pa.m^3.s^-1
+    enhanced_context:
+      description: Volumetric flow rate of gas at the exit of an injection valve.
+        Primary actuator quantity for plasma fuelling, impurity seeding, and density
+        control in the gas injection system.
+      kind: llm
+  - dd_path: gas_injection/valve/response_curve/flow_rate
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/gas_injection.html#gas_injection-valve-response_curve-flow_rate
+    dd_documentation:
+      leaf: Flow rate at the exit of the valve
+      parent_path: gas_injection/valve/response_curve
+      parent: Response curve of the valve, i.e. gas flow rate obtained as a function
+        of the applied voltage.
+      data_type: FLT_1D
+      unit: Pa.m^3.s^-1
+      coordinates:
+      - gas_injection/valve/response_curve/voltage
+    enhanced_context:
+      description: Gas flow rate at the exit of a valve as a function of applied voltage,
+        forming the valve response curve. Characterizes the valve's gas throughput
+        versus control voltage relationship used for flow calibration and density
+        control.
+      kind: llm
+  - dd_path: gas_pumping/duct/flow_rate
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/gas_pumping.html#gas_pumping-duct-flow_rate
+    dd_documentation:
+      leaf: Total pumping flow rate via this duct
+      parent_path: gas_pumping/duct
+      parent: Set of gas pumping ducts
+      data_type: STRUCTURE
+      unit: Pa.m^3.s^-1
+    enhanced_context:
+      description: Total pumping flow rate through a gas pumping duct, quantifying
+        the volumetric throughput of gas removed from the plasma vessel. A primary
+        measurement for particle exhaust monitoring and plasma density control.
+      kind: llm
+  - dd_path: spi/injector/fragmentation_gas/flow_rate
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spi.html#spi-injector-fragmentation_gas-flow_rate
+    dd_documentation:
+      leaf: Flow rate of the gas at the injector exit
+      parent_path: spi/injector/fragmentation_gas
+      parent: Description of the gas produced during fragmentation
+      data_type: FLT_1D
+      unit: Pa.m^3.s^-1
+      coordinates:
+      - spi/time
+    enhanced_context:
+      description: Flow rate of gas produced during pellet fragmentation in a shattered
+        pellet injector (SPI). Characterizes the gas component of the fragment cloud
+        released during the shattering process for disruption mitigation.
+      kind: llm
+- name: maximum_gas_flow
+  kind: scalar
+  status: active
+  description: Maximum gas flow is the largest pressure-volume throughput that a gas
+    injection valve can reliably deliver, defining the upper bound of its controllable
+    range.
+  documentation: 'Maximum gas flow is the upper reliable operating limit of the pressure-volume
+    throughput delivered by a gas injection valve. It represents the aggregate gas
+    stream rather than a particular molecular species, charge state, mass flow, or
+    particle-number rate.
+
+
+    The defining pressure-volume throughput at the upper delivery limit is
+
+
+    $$
+
+    Q_g^{\max} = p_g \frac{dV_g}{dt}
+
+    $$
+
+
+    where $Q_g^{\max}$ is the maximum gas pressure-volume throughput, $p_g$ is the
+    gas pressure at the flow boundary, $V_g$ is the volume of gas crossing that boundary,
+    and $t$ is time.
+
+
+    This quantity applies to gas delivered through a gas injection valve for fueling,
+    impurity seeding, or disruption mitigation. The maximum qualifier denotes a reliable
+    upper delivery limit for the aggregate gas stream, not a species-resolved flow,
+    mass-flow rate, or particle-number rate.
+
+
+    The quantity is the upper-bound member of the [gas flow](name:gas_flow) family:
+    gas flow denotes the same pressure-volume throughput without an upper-limit restriction,
+    while [minimum gas flow](name:minimum_gas_flow) denotes its lower reliable operating
+    limit.'
+  unit: Pa.m^3.s^-1
+  physics_domain: plant_systems
+  links:
+  - name:gas_flow
+  - name:minimum_gas_flow
+  arguments:
+  - name: gas_flow
+    operator: maximum
+    operator_kind: qualifier
+  sources:
+  - dd_path: gas_injection/valve/flow_rate_max
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/gas_injection.html#gas_injection-valve-flow_rate_max
+    dd_documentation:
+      leaf: Maximum flow rate of the valve
+      parent_path: gas_injection/valve
+      parent: Set of valves connecting a gas bottle to pipes
+      data_type: FLT_0D
+      unit: Pa.m^3.s^-1
+    enhanced_context:
+      description: Maximum volumetric flow rate of a gas injection valve. An engineering
+        limit parameter defining the peak throughput capacity of the valve for fuelling,
+        impurity seeding, or disruption mitigation.
+      kind: llm
+- name: minimum_gas_flow
+  kind: scalar
+  status: active
+  description: Minimum gas flow is the smallest pressure-volume gas throughput that
+    a gas injection valve can reliably deliver, defining the lower bound of its controllable
+    range.
+  documentation: 'Minimum gas flow is the lower reliable operating limit of the pressure-volume
+    throughput delivered by a gas injection valve. It identifies the smallest controllable
+    value of the aggregate gas stream throughput, rather than a molecular-species
+    flow or particle-number rate.
+
+
+    The pressure-volume throughput represented by this quantity is defined as
+
+
+    $$
+
+    Q_g = p_g \frac{dV_g}{dt}
+
+    $$
+
+
+    where $Q_g$ is gas pressure-volume throughput, $p_g$ is gas pressure at the flow
+    boundary, $V_g$ is the volume of gas crossing that boundary, and $t$ is time.
+
+
+    This quantity applies to the aggregate gas stream delivered through an injection
+    system across a defined flow boundary. The stream is not restricted to a particular
+    molecular species or charge state, and this quantity is distinct from mass flow
+    and particle-number rate. Its defining distinction is the lower reliable operating
+    bound, rather than an unrestricted instantaneous throughput.
+
+
+    The [gas flow](name:gas_flow) quantity defines the same pressure-volume throughput
+    without imposing a lower-limit condition; minimum gas flow is its lower reliable
+    operating bound. Conversely, [maximum gas flow](name:maximum_gas_flow) is the
+    upper reliable operating bound, so the two quantities delimit the controllable
+    range rather than represent different throughput definitions.'
+  unit: Pa.m^3.s^-1
+  physics_domain: plant_systems
+  links:
+  - name:gas_flow
+  - name:maximum_gas_flow
+  arguments:
+  - name: gas_flow
+    operator: minimum
+    operator_kind: qualifier
+  sources:
+  - dd_path: gas_injection/valve/flow_rate_min
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/gas_injection.html#gas_injection-valve-flow_rate_min
+    dd_documentation:
+      leaf: Minimum flow rate of the valve
+      parent_path: gas_injection/valve
+      parent: Set of valves connecting a gas bottle to pipes
+      data_type: FLT_0D
+      unit: Pa.m^3.s^-1
+    enhanced_context:
+      description: Minimum volumetric flow rate of a gas injection valve, specifying
+        the lower operational bound on gas throughput. Used as an engineering constraint
+        in density control and gas injection system design.
+      kind: llm
+- name: total_neutral_source_rate_due_to_gas_injection
+  kind: scalar
+  status: active
+  description: Instantaneous equivalent-electron source rate of neutral gas introduced
+    into the vessel by gas injection, summed over all injected species.
+  documentation: 'This quantity is the instantaneous neutral-gas throughput supplied
+    to the vessel by gas injection, expressed as an equivalent-electron rate. It combines
+    all injected neutral species rather than representing one gas species.
+
+
+    For the set of injected species, the equivalent-electron rate is defined by:
+
+
+    $$
+
+    \dot{N}_{\mathrm{eq}} = \sum_{s \in \mathcal{S}} Z_s\,\dot{N}_s
+
+    $$
+
+
+    where $\dot{N}_{\mathrm{eq}}$ is the total equivalent-electron source rate, $\mathcal{S}$
+    is the set of injected neutral gas species, $\dot{N}_s$ is the particle injection
+    rate of species $s$, and $Z_s$ is the equivalent-electron weighting per injected
+    particle. For an atomic species, $Z_s$ is its atomic number; for a molecule, it
+    is the sum of the atomic numbers of its constituent atoms.
+
+
+    The quantity applies to the vessel-level gas input and is aggregated by summing
+    over all injected neutral species. It is an instantaneous rate, not a time-integrated
+    inventory, and excludes ionization and subsequent plasma particle sources. Species-resolved
+    rates such as the [hydrogen source rate due to gas injection](name:hydrogen_source_rate_due_to_gas_injection)
+    provide individual contributions to this total. Unlike the [total lower gas source
+    rate of the vacuum vessel due to gas injection](name:total_lower_gas_source_rate_of_vacuum_vessel_due_to_gas_injection),
+    it is not restricted to the lower vessel region.
+
+
+    The corresponding accumulated quantity, such as the [accumulated hydrogen count
+    due to gas injection](name:accumulated_hydrogen_count_due_to_gas_injection), is
+    obtained by time integration and represents delivered inventory rather than instantaneous
+    throughput.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links: []
+  sources:
+  - dd_path: summary/gas_injection_rates/total/value
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/summary.html#summary-gas_injection_rates-total-value
+    dd_documentation:
+      leaf: Value
+      parent_path: summary/gas_injection_rates/total
+      parent: Total gas injection rate (sum over species)
+      data_type: FLT_1D
+      unit: s^-1
+      coordinates:
+      - summary/time
+    enhanced_context:
+      description: Total gas injection rate (sum over species).
+      kind: template
+- name: normalized_toroidal_flux_coordinate_at_pellet_path
+  kind: scalar
+  status: active
+  description: "Normalized toroidal magnetic-flux surface label assigned to each pellet\
+    \ location, identifying the nested magnetic surface reached along the pellet\u2019\
+    s in-plasma ablation trajectory."
+  documentation: "This quantity identifies the nested magnetic surface containing\
+    \ the pellet at a specified location along its in-plasma ablation trajectory.\
+    \ It is a magnetic-surface coordinate, not a cylindrical distance or a local vector\
+    \ component.\n\nAt pellet position $\\mathbf{x}_{\\mathrm p}$, the normalized\
+    \ toroidal flux coordinate is defined by\n\n$$\n\\rho_{\\mathrm{tor,norm}}(\\\
+    mathbf{x}_{\\mathrm p}) = \\left[\\frac{\\Phi_{\\mathrm{tor}}(\\mathbf{x}_{\\\
+    mathrm p}) - \\Phi_{\\mathrm{tor,axis}}}{\\Phi_{\\mathrm{tor,boundary}} - \\Phi_{\\\
+    mathrm{tor,axis}}}\\right]^{1/2}\n$$\n\nwhere $\\rho_{\\mathrm{tor,norm}}$ is\
+    \ the normalized toroidal flux coordinate, $\\mathbf{x}_{\\mathrm p}$ is the pellet\
+    \ position, $\\Phi_{\\mathrm{tor}}(\\mathbf{x}_{\\mathrm p})$ is the toroidal\
+    \ magnetic flux labeling the magnetic surface through that position, $\\Phi_{\\\
+    mathrm{tor,axis}}$ is its value at the magnetic axis, and $\\Phi_{\\mathrm{tor,boundary}}$\
+    \ is its value at the equilibrium boundary. The position is interpreted in the\
+    \ right-handed cylindrical $(R,\\phi,Z)$ frame, where $R$ is major radius, $\\\
+    phi$ is toroidal angle, and $Z$ is vertical height.\n\nThe scope is the pellet\u2019\
+    s in-plasma ablation trajectory, with the coordinate evaluated pointwise at each\
+    \ pellet location. It does not represent distance traveled along the path, a path\
+    \ integral, an average over the trajectory, or an aggregate over multiple pellets.\n\
+    \nThis is the locus-specific realization of the [normalized toroidal flux coordinate](name:normalized_toroidal_flux_coordinate).\
+    \ The axis and boundary references set the coordinate endpoints, so the value\
+    \ increases outward across nested magnetic surfaces while remaining distinct from\
+    \ a cylindrical radial coordinate."
+  unit: '1'
+  physics_domain: plant_systems
+  links:
+  - name:normalized_toroidal_flux_coordinate
+  arguments:
+  - name: normalized_toroidal_flux_coordinate
+    operator: pellet_path
+    operator_kind: locus
+  sources:
+  - dd_path: pellets/time_slice/pellet/path_profiles/rho_tor_norm
+    dd_version: 4.1.1
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.1/generated/ids/pellets.html#pellets-time_slice-pellet-path_profiles-rho_tor_norm
+    dd_documentation:
+      leaf: 'Normalised toroidal coordinate along the pellet path '
+      parent_path: pellets/time_slice/pellet/path_profiles
+      parent: '1-D profiles of plasma and pellet along the pellet path '
+      data_type: FLT_1D
+      unit: '1'
+      coordinates:
+      - pellets/time_slice/pellet/path_profiles/distance
+    enhanced_context:
+      description: "Normalised toroidal flux coordinate (\u03C1_tor_norm) sampled\
+        \ along the pellet ablation path as a 1D profile. Maps each pellet position\
+        \ to the corresponding flux surface label, indicating the radial location\
+        \ of the pellet as it ablates."
+      kind: llm
+- name: radial_coordinate_of_shatter_cone
+  kind: scalar
+  status: active
+  description: Major-radius coordinate of the shatter-cone origin, locating its reference
+    point by perpendicular distance from the toroidal symmetry axis.
+  documentation: 'The radial coordinate of a shatter-cone origin is the major-radius
+    location of that geometric reference point relative to the toroidal symmetry axis.
+    It is the $R$ coordinate in the right-handed cylindrical $(R, \phi, Z)$ frame,
+    with basis vectors $(\hat{R}, \hat{\phi}, \hat{Z})$ satisfying $\hat{R} \times
+    \hat{\phi} = \hat{Z}$.
+
+
+    This quantity applies specifically to the origin of the elliptic shatter cone.
+    It denotes one geometric coordinate of that reference point, with no averaging,
+    integration, or aggregation over the cone surface, its axis, or injected fragments;
+    it is distinct from radial coordinates assigned to other injector features or
+    positions.
+
+
+    It is a locus-specific specialization of [radial coordinate](name:radial_coordinate):
+    the parent defines the major-radius coordinate generally, while this quantity
+    evaluates it at the shatter-cone origin.'
+  unit: m
+  physics_domain: plant_systems
+  links: []
+  sources:
+  - dd_path: spi/injector/shatter_cone/origin/r
+    dd_version: 4.1.0
+    dd_documentation_url: https://imas-data-dictionary.readthedocs.io/en/4.1.0/generated/ids/spi.html#spi-injector-shatter_cone-origin-r
+    dd_documentation:
+      leaf: Major radius
+      parent_path: spi/injector/shatter_cone/origin
+      parent: Coordinates of the origin of the shatter cone
+      data_type: FLT_0D
+      unit: m
+    enhanced_context:
+      description: Major radius (R) coordinate of origin.
+      kind: template
