@@ -74,6 +74,12 @@ jobs:
       - name: Build and deploy catalog site
         if: github.event_name != 'pull_request'
         run: |
+          shopt -s globstar nullglob
+          catalog_files=(standard_names/**/*.yml)
+          if (( ${#catalog_files[@]} == 0 )); then
+            echo "::notice title=Blank catalog baseline::No standard name YAML files are present; catalog site deployment is skipped."
+            exit 0
+          fi
           git fetch origin gh-pages --depth=1 || echo "No gh-pages branch yet"
           VERSION="${{ steps.version.outputs.version }}"
           TAGGED="${{ steps.version.outputs.tagged }}"
