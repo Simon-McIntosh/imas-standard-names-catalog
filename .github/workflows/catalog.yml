@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: "catalog-deploy"
@@ -27,10 +28,23 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Fetch immutable review refs
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.clone_url }}
+        run: |
+          git fetch --no-tags origin "$BASE_SHA"
+          git fetch --no-tags "$HEAD_REPOSITORY" "$HEAD_SHA"
+          git cat-file -e "$BASE_SHA^{commit}"
+          git cat-file -e "$HEAD_SHA^{commit}"
+
       - name: Checkout ISN site source
         uses: actions/checkout@v4
         with:
           repository: Simon-McIntosh/imas-standard-names
+          ref: 1c63ad0320e72f336429d5353406590793c3d9f7
           path: _isn
           sparse-checkout: site
           sparse-checkout-cone-mode: true
@@ -98,3 +112,78 @@ jobs:
           uv run standard-names site-deploy standard_names/ $DEPLOY_ARGS
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and deploy review preview
+        if: >-
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          git fetch origin gh-pages --depth=1 || echo "No gh-pages branch yet"
+          uv run standard-names site-deploy standard_names/ \
+            --version "pr-${{ github.event.pull_request.number }}" \
+            --push \
+            --remote origin \
+            --site-dir _isn/site \
+            --review-base "${{ github.event.pull_request.base.sha }}" \
+            --review-head "${{ github.event.pull_request.head.sha }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build external review preview artifact
+        if: >-
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          git fetch origin gh-pages --depth=1 || echo "No gh-pages branch yet"
+          uv run standard-names site-deploy standard_names/ \
+            --version "pr-${{ github.event.pull_request.number }}" \
+            --remote origin \
+            --site-dir _isn/site \
+            --review-base "${{ github.event.pull_request.base.sha }}" \
+            --review-head "${{ github.event.pull_request.head.sha }}"
+          mkdir -p review-preview
+          git archive "gh-pages:pr-${{ github.event.pull_request.number }}" | tar -x -C review-preview
+
+      - name: Upload external review preview
+        if: >-
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name != github.repository
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalog-preview-pr-${{ github.event.pull_request.number }}
+          path: review-preview
+          if-no-files-found: error
+
+      - name: Link review preview from pull request
+        if: >-
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v7
+        env:
+          PREVIEW_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.pull_request.number }}/
+        with:
+          script: |
+            const marker = '<!-- catalog-review-preview -->';
+            const body = `${marker}\nCatalog preview: ${process.env.PREVIEW_URL}\n\nThis preview contains only entries added or edited by this pull request.`;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            });
+            const existing = comments.find((comment) => comment.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
