@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+  workflow_call:
   workflow_dispatch:
 
 jobs:
@@ -20,4 +21,15 @@ jobs:
         uses: astral-sh/setup-uv@v5
       
       - name: Validate catalog
-        run: uv run validate_catalog standard_names/ --summary text
+        # Run in verbose mode (no --summary): on failure the summary modes emit
+        # only an aggregate count and swallow the per-issue detail, so a broken
+        # build gives no diagnostic in the CI log. The default output lists every
+        # structural / semantic / quality issue and still exits non-zero on error.
+        run: |
+          shopt -s globstar nullglob
+          catalog_files=(standard_names/**/*.yml)
+          if (( ${#catalog_files[@]} == 0 )); then
+            echo "::notice title=Blank catalog baseline::No standard name YAML files are present; the intentional additive baseline is valid."
+            exit 0
+          fi
+          uv run validate_catalog standard_names/

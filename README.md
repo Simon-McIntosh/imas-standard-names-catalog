@@ -1,6 +1,12 @@
 # IMAS Standard Names Catalog
 
+[![Catalog Site](https://github.com/Simon-McIntosh/imas-standard-names-catalog/actions/workflows/catalog.yml/badge.svg)](https://github.com/Simon-McIntosh/imas-standard-names-catalog/actions/workflows/catalog.yml)
+[![Validate](https://github.com/Simon-McIntosh/imas-standard-names-catalog/actions/workflows/validate.yml/badge.svg)](https://github.com/Simon-McIntosh/imas-standard-names-catalog/actions/workflows/validate.yml)
+[![Docs](https://img.shields.io/badge/docs-catalog%20site-blue)](https://simon-mcintosh.github.io/imas-standard-names-catalog/)
+
 YAML source files and pre-built SQLite database for IMAS Standard Names.
+
+Generated from the [imas-codex](https://github.com/Simon-McIntosh/imas-codex) knowledge graph via `imas-codex sn export`.
 
 ## Installation
 
@@ -29,7 +35,7 @@ Download from [releases](https://github.com/iterorganization/imas-standard-names
 ```bash
 git clone https://github.com/iterorganization/imas-standard-names-catalog.git
 cd imas-standard-names-catalog
-export STANDARD_NAMES_CATALOG_ROOT=$(pwd)/standard_names
+uv sync
 ```
 
 **Build catalog locally:**
@@ -40,28 +46,47 @@ uv run standard-names build standard_names/
 
 **Preview documentation site:**
 ```bash
-uv run standard-names catalog-site serve standard_names/
+uv run standard-names site-serve standard_names/
 # Serves at http://localhost:8000
 ```
-
-**CI/CD Workflows:**
-
-| Workflow | Trigger | Action |
-|----------|---------|--------|
-| `validate.yml` | PR, push to main | Validates YAML syntax |
-| `catalog.yml` | Push to main/tags | Deploys versioned docs site |
-| `release.yml` | Tag `v*` | Builds `catalog.db`, `standard_names.zip`, Python wheel |
 
 ## Structure
 
 ```
-standard_names/     # YAML files by domain
-src/                # Python package (catalog.db in wheel)
+standard_names/
+  <physics_domain>.yml       # One file per physics domain (list of entries)
+catalog.yml                  # Export metadata (provenance, quality gates)
+src/                         # Python package (catalog.db bundled in wheel)
 ```
+
+Each domain YAML file contains a list of `StandardNameEntry` objects with: name,
+description, documentation, unit, kind, tags, links, grammar fields, COCOS
+metadata, and provenance (origin, status, scores).
+
+## CI/CD Workflows
+
+| Workflow | Trigger | Action |
+|----------|---------|--------|
+| `validate.yml` | PR, push to main | Validates YAML syntax and catalog consistency |
+| `catalog.yml` | Push to main/tags | Builds versioned docs site via mike → gh-pages |
+| `release.yml` | Tag `v*` | Builds `catalog.db`, `standard_names.zip`, Python wheel |
 
 ## Editing
 
-Use MCP tools from [imas-standard-names](https://github.com/iterorganization/imas-standard-names). Never edit YAML directly.
+Edit YAML files via pull request. The PR workflow:
+
+1. Edit `standard_names/<domain>.yml` — change description, documentation,
+   tags, kind, links, or status
+2. Open a PR against `main`
+3. CI validates YAML syntax
+4. Reviewer approves and merges
+5. From imas-codex: `imas-codex sn import --isnc <path>` reads the merged
+   changes, detects edits to protected fields, and flips `origin=catalog_edit`
+   on modified names. Subsequent pipeline runs preserve these edits.
+
+**Quality gates:** Only names passing `reviewer_score >= 0.65` and a valid
+`description_score` are exported from imas-codex to this catalog. Names below
+threshold are regenerated in the pipeline before export.
 
 ## License
 

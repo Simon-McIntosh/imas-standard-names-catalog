@@ -10,41 +10,113 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      pull-request-number:
+        description: Pull request number whose catalog preview should be rebuilt
+        required: false
+        type: string
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
+  pull-requests: write
 
 concurrency:
-  group: "catalog-${{ github.ref }}"
-  cancel-in-progress: true
+  group: "catalog-deploy"
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-      tagged: ${{ steps.version.outputs.tagged }}
-    
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
+      - name: Resolve review context
+        id: review
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const suppliedNumber = `${{ inputs['pull-request-number'] }}`.trim();
+            let pullRequest = context.payload.pull_request;
+
+            if (context.eventName === 'workflow_dispatch' && suppliedNumber) {
+              const pullNumber = Number(suppliedNumber);
+              if (!Number.isInteger(pullNumber) || pullNumber <= 0) {
+                core.setFailed(`Invalid pull request number: ${suppliedNumber}`);
+                return;
+              }
+              const response = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pullNumber,
+              });
+              pullRequest = response.data;
+            }
+
+            if (!pullRequest) {
+              core.setOutput('enabled', 'false');
+              return;
+            }
+
+            core.setOutput('enabled', 'true');
+            core.setOutput('number', String(pullRequest.number));
+            core.setOutput('base_sha', pullRequest.base.sha);
+            core.setOutput('head_sha', pullRequest.head.sha);
+            core.setOutput('head_repository', pullRequest.head.repo.full_name);
+            core.setOutput('head_clone_url', pullRequest.head.repo.clone_url);
+
+      - name: Fetch immutable review refs
+        if: steps.review.outputs.enabled == 'true'
+        env:
+          BASE_SHA: ${{ steps.review.outputs.base_sha }}
+          HEAD_SHA: ${{ steps.review.outputs.head_sha }}
+          HEAD_REPOSITORY: ${{ steps.review.outputs.head_clone_url }}
+        run: |
+          git fetch --no-tags origin "$BASE_SHA"
+          git fetch --no-tags "$HEAD_REPOSITORY" "$HEAD_SHA"
+          git cat-file -e "$BASE_SHA^{commit}"
+          git cat-file -e "$HEAD_SHA^{commit}"
+          git checkout --detach "$HEAD_SHA"
+
+      - name: Checkout ISN site source
+        uses: actions/checkout@v4
+        with:
+          repository: Simon-McIntosh/imas-standard-names
+          ref: 1c63ad0320e72f336429d5353406590793c3d9f7
+          path: _isn
+          sparse-checkout: site
+          sparse-checkout-cone-mode: true
+
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-      
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Configure git
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email github-actions[bot]@users.noreply.github.com
+
       - id: version
         run: |
           ref_name="${{ github.ref_name }}"
           clean_name="${ref_name#v}"
-          
+
           if [[ $clean_name =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            # Stable release (e.g., v0.1.0) — use major.minor
             version="v$(echo $clean_name | cut -d. -f1-2)"
             tagged=true
-          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            version="pr-${{ github.event.pull_request.number }}"
+          elif [[ $clean_name =~ ^[0-9]+\.[0-9]+\.[0-9]+rc[0-9]+$ ]]; then
+            # RC release (e.g., v0.1.0rc7) — use full version
+            version="v${clean_name}"
+            tagged=true
+          elif [[ "${{ steps.review.outputs.enabled }}" == "true" ]]; then
+            version="pr-${{ steps.review.outputs.number }}"
             tagged=false
           else
             version=${{ github.ref_name }}
@@ -52,46 +124,109 @@ jobs:
           fi
           echo "version=$version" >> $GITHUB_OUTPUT
           echo "tagged=$tagged" >> $GITHUB_OUTPUT
-      
-      - name: Configure git
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email github-actions[bot]@users.noreply.github.com
-      
+
       - name: Build and deploy catalog site
-        if: github.event_name != 'pull_request'
+        if: steps.review.outputs.enabled != 'true'
         run: |
+          shopt -s globstar nullglob
+          catalog_files=(standard_names/**/*.yml)
+          if (( ${#catalog_files[@]} == 0 )); then
+            echo "::notice title=Blank catalog baseline::No standard name YAML files are present; catalog site deployment is skipped."
+            exit 0
+          fi
           git fetch origin gh-pages --depth=1 || echo "No gh-pages branch yet"
           VERSION="${{ steps.version.outputs.version }}"
           TAGGED="${{ steps.version.outputs.tagged }}"
+          DEPLOY_ARGS="--version $VERSION --push --site-dir _isn/site"
+          # Only tagged releases carry the `latest` alias and the root
+          # index.html redirect. Pushes to `main` still publish a
+          # `main/` preview build but must not outrank tagged versions
+          # in the selector — otherwise users land on an unreleased
+          # build by default.
           if [[ "$TAGGED" == "true" ]]; then
-            uv run standard-names catalog-site deploy standard_names/ \
-              --version "$VERSION" --push --set-default
-          else
-            uv run standard-names catalog-site deploy standard_names/ \
-              --version "$VERSION" --push
+            DEPLOY_ARGS="$DEPLOY_ARGS --set-default"
           fi
+          # ISN v0.8.0rc26 dropped `--include-draft`; lifecycle is now
+          # first-class in the SPA (per-row decoration + a Lifecycle
+          # filter group), so every status is emitted unconditionally.
+          uv run standard-names site-deploy standard_names/ $DEPLOY_ARGS
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
-  deploy:
-    if: github.event_name != 'pull_request'
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    
-    steps:
-      - uses: actions/checkout@v4
+
+      - name: Build and deploy review preview
+        if: >-
+          steps.review.outputs.enabled == 'true' &&
+          steps.review.outputs.head_repository == github.repository
+        run: |
+          git fetch origin gh-pages --depth=1 || echo "No gh-pages branch yet"
+          uv run standard-names site-deploy standard_names/ \
+            --version "pr-${{ steps.review.outputs.number }}" \
+            --push \
+            --remote origin \
+            --site-dir _isn/site \
+            --review-base "${{ steps.review.outputs.base_sha }}" \
+            --review-head "${{ steps.review.outputs.head_sha }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build external review preview artifact
+        if: >-
+          steps.review.outputs.enabled == 'true' &&
+          steps.review.outputs.head_repository != github.repository
+        run: |
+          git fetch origin gh-pages --depth=1 || echo "No gh-pages branch yet"
+          uv run standard-names site-deploy standard_names/ \
+            --version "pr-${{ steps.review.outputs.number }}" \
+            --remote origin \
+            --site-dir _isn/site \
+            --review-base "${{ steps.review.outputs.base_sha }}" \
+            --review-head "${{ steps.review.outputs.head_sha }}"
+          mkdir -p review-preview
+          git archive "gh-pages:pr-${{ steps.review.outputs.number }}" | tar -x -C review-preview
+
+      - name: Upload external review preview
+        if: >-
+          steps.review.outputs.enabled == 'true' &&
+          steps.review.outputs.head_repository != github.repository
+        uses: actions/upload-artifact@v4
         with:
-          ref: gh-pages
-      
-      - uses: actions/upload-pages-artifact@v3
+          name: catalog-preview-pr-${{ steps.review.outputs.number }}
+          path: review-preview
+          if-no-files-found: error
+
+      - name: Link review preview from pull request
+        if: >-
+          steps.review.outputs.enabled == 'true' &&
+          steps.review.outputs.head_repository == github.repository
+        uses: actions/github-script@v7
+        env:
+          PREVIEW_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ steps.review.outputs.number }}/
+          PULL_REQUEST_NUMBER: ${{ steps.review.outputs.number }}
         with:
-          path: .
-          retention-days: 1
-      
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          script: |
+            const marker = '<!-- catalog-review-preview -->';
+            const pullNumber = Number(process.env.PULL_REQUEST_NUMBER);
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = `${marker}\nCatalog preview: ${process.env.PREVIEW_URL}\n\nThis preview contains only entries added or edited by this pull request. Refreshed by [workflow run ${context.runId}, attempt ${process.env.GITHUB_RUN_ATTEMPT}](${runUrl}).`;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pullNumber,
+              per_page: 100,
+            });
+            const existing = comments.find((comment) => comment.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pullNumber,
+                body,
+              });
+            }
