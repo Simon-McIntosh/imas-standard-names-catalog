@@ -17,6 +17,25 @@ approved as proposed. Every entry that a reviewer edited goes back through
 the naming and review checks before it can be approved. If an edit fails
 those checks, it is marked contested and resolved separately.
 
+## What reviewers may change
+
+You are invited to change the standard name itself and its description and
+documentation prose. These are the parts that carry the physics judgement the
+review exists to capture, so make them scientifically correct and complete.
+
+Other fields are machine-owned and must not be edited by hand. The unit is
+taken from the Data Dictionary, never from an author. The entry kind and status
+are assigned by the catalog tools. Every source binding field is also
+machine-owned: its kind, ref, and version preserve the exact source of the
+entry. The identity roles are generated from the name. The file's structure
+and formatting are generated too.
+That includes entry ordering, blank-line separation, and key order.
+
+If a machine-owned field is changed anyway, continuous integration flags the
+pull request and the change is not carried into the graph. This protects you
+from silently breaking provenance; it does not restrict your judgement about
+the physics expressed by the standard name or its prose.
+
 Keep commit subjects and the pull-request title short and human-readable: name
 what the batch is in words. Use a brief prose body for its scope and review
 intent. Do not paste an entry list into either surface; the diff is the
