@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 MODULE_PATH = Path(__file__).with_name("review_edit_guard.py")
 SPEC = importlib.util.spec_from_file_location("review_edit_guard", MODULE_PATH)
@@ -70,6 +72,20 @@ class ReviewEditGuardTests(unittest.TestCase):
 
     def test_new_entry_is_allowed(self):
         self.assertEqual(self.compare("", catalog(ENTRY)), [])
+
+    def test_changed_catalog_paths_selects_yaml_below_standard_names(self):
+        result = subprocess.CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout="standard_names/equilibrium.yml\nstandard_names/README.md\n",
+            stderr="",
+        )
+        with patch.object(guard, "_git", return_value=result) as git:
+            self.assertEqual(
+                guard.changed_catalog_paths("base", "head"),
+                ["standard_names/equilibrium.yml"],
+            )
+        self.assertEqual(git.call_args.args[-1], "standard_names")
 
     def test_unit_change_names_identity_field_and_values(self):
         violations = self.compare(
