@@ -32,38 +32,35 @@ them as `origin=catalog_edit` so the pipeline preserves human edits.
 
 ## Dependency Pinning
 
-The single `imas-standard-names` dependency in `pyproject.toml` MUST track
-the **`@main` branch**, not a pinned RC tag. This is a deliberate design
-choice:
+The single `imas-standard-names` dependency in `pyproject.toml` MUST pin a
+published stable release from PyPI:
 
 ```toml
 [dependency-groups]
 dev = [
-    "imas-standard-names[quality,docs] @ git+https://.../imas-standard-names.git@main",
+    "imas-standard-names[quality,docs]==0.8.0",
 ]
 ```
 
-**Why `@main` and not `@vX.Y.ZrcN`:**
+**Release update rule:**
 
-- This is a **data repository**. Bumping a Python pin on every upstream
-  RC is friction that does not belong here — the catalog should churn
-  on data updates, not tool-version metadata.
-- `uv.lock` is **gitignored** (see `.gitignore`). CI workflows run
-  `uv run …` which re-resolves the git dependency every invocation, so
-  there is no cache to invalidate and no lock to keep in sync.
+- This is a **data repository**. Do not churn the dependency for upstream
+  release candidates; prerelease validation belongs upstream.
+- Each new published stable release requires a deliberate version bump here so
+  catalog builds use a reviewed, immutable tool release.
+- `uv.lock` is **gitignored** (see `.gitignore`). The version constraint in
+  `pyproject.toml` is therefore the repository's dependency record.
 - The catalog-site CI (`catalog.yml`) already checks out
   `Simon-McIntosh/imas-standard-names` separately under `_isn/site` to
-  bundle the SPA source — the dep pin only governs which `standard-names`
-  CLI is used at build time. Tracking `@main` means CI always uses the
-  same code that ships the SPA.
+  bundle the SPA source. This dependency pin governs the `standard-names` CLI
+  used to validate and build catalog data.
 - Reproducibility for **tagged releases** is delivered by the tag on
-  THIS repo (e.g. `v0.2.0rc6`) plus the git SHA of `imas-standard-names`
-  resolved at release time — both are visible in the Actions run.
+  THIS repo plus the published `imas-standard-names` version recorded here.
 
-**Do not** revert this to a pinned RC tag, and **do not** add `uv.lock`
-to git. If a specific upstream version is required for a one-off
-investigation, ask the user to provision it in the repository-root `.venv`;
-agents must not mutate that environment or `pyproject.toml`.
+**Do not** replace the stable version with a release candidate, branch, or
+direct git reference, and **do not** add `uv.lock` to git. If a different
+upstream version is required for a one-off investigation, keep that override
+outside `pyproject.toml`.
 
 ## CI/CD
 
