@@ -1,0 +1,337 @@
+# Domain: plant_systems
+# Entries: 7
+# Ordering: approved baseline followed by fresh review entries
+- name: accumulated_total_particle_count_due_to_gas_injection
+  kind: scalar
+  status: active
+  description: Cumulative equivalent-electron inventory of all gas particles delivered
+    since plasma breakdown, summed over every injected species and injection location.
+  documentation: 'This quantity is the cumulative inventory of gas delivered after
+    plasma breakdown, expressed as equivalent electrons. Each injected atom or molecule
+    contributes according to its total nuclear charge, so the quantity represents
+    delivered gas inventory rather than the free-electron population currently present
+    in the plasma.
+
+
+    $$
+
+    N_{\mathrm{eq}} = \sum_s Z_s N_s
+
+    $$
+
+
+    where $N_{\mathrm{eq}}$ is the cumulative equivalent-electron inventory, $s$ indexes
+    the injected gas species, $Z_s$ is the total nuclear charge per particle of species
+    $s$, and $N_s$ is the cumulative number of particles of species $s$ delivered
+    after breakdown.
+
+
+    The aggregation includes all injected gas species and all injection locations,
+    producing one total inventory rather than a per-species or per-inlet value. It
+    excludes gas introduced during prefill before plasma breakdown and does not represent
+    the number of free electrons remaining in the plasma or the ionization-state-resolved
+    plasma content.
+
+
+    Species-specific accumulated inventories, such as [accumulated_neon_count](name:accumulated_neon_count),
+    contribute to this total under the same equivalent-electron convention. The post-breakdown
+    quantity is distinct from [accumulated_total_prefill_gas_count](name:accumulated_total_prefill_gas_count),
+    which accounts for gas introduced before plasma breakdown.'
+  unit: '1'
+  physics_domain: plant_systems
+  links: []
+  sources:
+  - kind: imas-dd
+    ref: summary/gas_injection_accumulated/total/value
+    version: 4.1.0
+  roles:
+  - quantity
+- name: coolant_temperature_at_inlet
+  kind: scalar
+  status: active
+  description: Absolute thermodynamic temperature of coolant entering a cooling loop
+    or plant component, establishing the upstream state for enthalpy-based heat-transfer
+    balances.
+  documentation: 'The coolant inlet temperature is the absolute thermodynamic temperature
+    of the coolant or working fluid at the entrance to a cooling loop, plant component,
+    or cooling module. It specifies the upstream thermal state of the fluid before
+    heat transfer through the associated cooled volume.
+
+
+    The quantity is a local boundary value at the relevant inlet and is not an average
+    or aggregate over multiple components, loops, or inlet streams. It applies to
+    the coolant population crossing that inlet, rather than to the cooled solid or
+    the plasma.
+
+
+    It is distinct from the downstream [coolant temperature at outlet](name:coolant_temperature_at_outlet)
+    and does not represent the temperature change across the cooled component or loop.
+
+
+    In an enthalpy balance, the inlet temperature supplies the upstream thermal state
+    and is used with the outlet temperature and [coolant mass flow rate](name:ratio_of_coolant_mass_to_time)
+    to determine thermal power transferred to the coolant. The quantity itself is
+    a temperature, not a power or a coolant-flow measurement.'
+  unit: K
+  physics_domain: plant_systems
+  links:
+  - name:coolant_temperature_at_outlet
+  - name:ratio_of_coolant_mass_to_time
+  sources:
+  - kind: imas-dd
+    ref: breeding_blanket/module/cooling/time_slice/temperature_inlet
+    version: 4.1.0
+  - kind: imas-dd
+    ref: calorimetry/cooling_loop/temperature_in
+    version: 4.1.0
+  - kind: imas-dd
+    ref: calorimetry/group/component/temperature_in
+    version: 4.1.0
+  roles:
+  - quantity
+- name: coolant_temperature_at_outlet
+  kind: scalar
+  status: active
+  description: "Absolute thermodynamic temperature of coolant leaving a cooling component\
+    \ or loop, specifying the fluid\u2019s outlet thermal state for enthalpy-based\
+    \ heat balance."
+  documentation: 'This quantity is the absolute thermodynamic temperature of the coolant
+    fluid at the outlet of a cooling component, cooling loop, or comparable coolant
+    circuit. It describes the bulk fluid state at the exit boundary.
+
+
+    The scope is limited to coolant at an outlet and does not represent the inlet
+    temperature, a wall temperature, or an aggregate temperature over the entire cooling
+    system. It is an outlet state value for the selected cooling path, not a mass-flow
+    rate or a deposited-power quantity.
+
+
+    Together with the [coolant temperature at the inlet](name:coolant_temperature_at_inlet)
+    and the [coolant mass flow rate](name:ratio_of_coolant_mass_to_time), this temperature
+    determines the coolant enthalpy change used to assess heat transferred into the
+    fluid. The enthalpy balance distinguishes thermal power deposited in the coolant
+    from the outlet temperature itself.'
+  unit: K
+  physics_domain: plant_systems
+  links:
+  - name:coolant_temperature_at_inlet
+  - name:ratio_of_coolant_mass_to_time
+  sources:
+  - kind: imas-dd
+    ref: breeding_blanket/module/cooling/time_slice/temperature_outlet
+    version: 4.1.0
+  - kind: imas-dd
+    ref: calorimetry/cooling_loop/temperature_out
+    version: 4.1.0
+  - kind: imas-dd
+    ref: calorimetry/group/component/temperature_out
+    version: 4.1.0
+  roles:
+  - quantity
+- name: gas_flow
+  kind: scalar
+  status: active
+  description: Pressure-volume throughput of a gas stream, expressed as the product
+    of gas pressure and volumetric flow rate at a flow boundary.
+  documentation: 'Gas flow is the pressure-volume throughput of a gas stream crossing
+    a defined flow boundary. It represents the aggregate gas stream rather than a
+    particular molecular species, charge state, mass flow, or particle-number rate.
+
+
+    The defining pressure-volume throughput is
+
+
+    $$
+
+    Q_g = p_g \frac{dV_g}{dt}
+
+    $$
+
+
+    where $Q_g$ is gas pressure-volume throughput, $p_g$ is the gas pressure at the
+    flow boundary, $V_g$ is the volume of gas crossing that boundary, and $t$ is time.
+
+
+    This quantity applies to the gas stream delivered through an injection system
+    and is not itself restricted to an upper or lower operating limit. The [maximum
+    gas flow](name:maximum_gas_flow) is the largest reliably deliverable value of
+    this throughput, while the [minimum gas flow](name:minimum_gas_flow) is the smallest
+    reliably deliverable value; both are limiting instances of the general quantity.'
+  unit: Pa.m^3.s^-1
+  physics_domain: plant_systems
+  links:
+  - name:maximum_gas_flow
+  - name:minimum_gas_flow
+  sources:
+  - kind: imas-dd
+    ref: gas_injection/pipe/flow_rate
+    version: 4.1.0
+  - kind: imas-dd
+    ref: gas_injection/valve/flow_rate
+    version: 4.1.0
+  - kind: imas-dd
+    ref: gas_injection/valve/response_curve/flow_rate
+    version: 4.1.0
+  - kind: imas-dd
+    ref: gas_pumping/duct/flow_rate
+    version: 4.1.0
+  - kind: imas-dd
+    ref: spi/injector/fragmentation_gas/flow_rate
+    version: 4.1.0
+  roles:
+  - quantity
+  - parent
+- name: maximum_gas_flow
+  kind: scalar
+  status: active
+  description: Maximum gas flow is the largest pressure-volume throughput that a gas
+    injection valve can reliably deliver, defining the upper bound of its controllable
+    range.
+  documentation: 'Maximum gas flow is the upper reliable operating limit of the pressure-volume
+    throughput delivered by a gas injection valve. It represents the aggregate gas
+    stream rather than a particular molecular species, charge state, mass flow, or
+    particle-number rate.
+
+
+    The defining pressure-volume throughput at the upper delivery limit is
+
+
+    $$
+
+    Q_g^{\max} = p_g \frac{dV_g}{dt}
+
+    $$
+
+
+    where $Q_g^{\max}$ is the maximum gas pressure-volume throughput, $p_g$ is the
+    gas pressure at the flow boundary, $V_g$ is the volume of gas crossing that boundary,
+    and $t$ is time.
+
+
+    This quantity applies to gas delivered through a gas injection valve for fueling,
+    impurity seeding, or disruption mitigation. The maximum qualifier denotes a reliable
+    upper delivery limit for the aggregate gas stream, not a species-resolved flow,
+    mass-flow rate, or particle-number rate.
+
+
+    The quantity is the upper-bound member of the [gas flow](name:gas_flow) family:
+    gas flow denotes the same pressure-volume throughput without an upper-limit restriction,
+    while [minimum gas flow](name:minimum_gas_flow) denotes its lower reliable operating
+    limit.'
+  unit: Pa.m^3.s^-1
+  physics_domain: plant_systems
+  links:
+  - name:gas_flow
+  - name:minimum_gas_flow
+  arguments:
+  - name: gas_flow
+    operator: maximum
+    operator_kind: qualifier
+  sources:
+  - kind: imas-dd
+    ref: gas_injection/valve/flow_rate_max
+    version: 4.1.0
+  roles:
+  - quantity
+- name: minimum_gas_flow
+  kind: scalar
+  status: active
+  description: Minimum gas flow is the smallest pressure-volume gas throughput that
+    a gas injection valve can reliably deliver, defining the lower bound of its controllable
+    range.
+  documentation: 'Minimum gas flow is the lower reliable operating limit of the pressure-volume
+    throughput delivered by a gas injection valve. It identifies the smallest controllable
+    value of the aggregate gas stream throughput, rather than a molecular-species
+    flow or particle-number rate.
+
+
+    The pressure-volume throughput represented by this quantity is defined as
+
+
+    $$
+
+    Q_g = p_g \frac{dV_g}{dt}
+
+    $$
+
+
+    where $Q_g$ is gas pressure-volume throughput, $p_g$ is gas pressure at the flow
+    boundary, $V_g$ is the volume of gas crossing that boundary, and $t$ is time.
+
+
+    This quantity applies to the aggregate gas stream delivered through an injection
+    system across a defined flow boundary. The stream is not restricted to a particular
+    molecular species or charge state, and this quantity is distinct from mass flow
+    and particle-number rate. Its defining distinction is the lower reliable operating
+    bound, rather than an unrestricted instantaneous throughput.
+
+
+    The [gas flow](name:gas_flow) quantity defines the same pressure-volume throughput
+    without imposing a lower-limit condition; minimum gas flow is its lower reliable
+    operating bound. Conversely, [maximum gas flow](name:maximum_gas_flow) is the
+    upper reliable operating bound, so the two quantities delimit the controllable
+    range rather than represent different throughput definitions.'
+  unit: Pa.m^3.s^-1
+  physics_domain: plant_systems
+  links:
+  - name:gas_flow
+  - name:maximum_gas_flow
+  arguments:
+  - name: gas_flow
+    operator: minimum
+    operator_kind: qualifier
+  sources:
+  - kind: imas-dd
+    ref: gas_injection/valve/flow_rate_min
+    version: 4.1.0
+  roles:
+  - quantity
+- name: total_neutral_source_rate_due_to_gas_injection
+  kind: scalar
+  status: active
+  description: Instantaneous equivalent-electron source rate of neutral gas introduced
+    into the vessel by gas injection, summed over all injected species.
+  documentation: 'This quantity is the instantaneous neutral-gas throughput supplied
+    to the vessel by gas injection, expressed as an equivalent-electron rate. It combines
+    all injected neutral species rather than representing one gas species.
+
+
+    For the set of injected species, the equivalent-electron rate is defined by:
+
+
+    $$
+
+    \dot{N}_{\mathrm{eq}} = \sum_{s \in \mathcal{S}} Z_s\,\dot{N}_s
+
+    $$
+
+
+    where $\dot{N}_{\mathrm{eq}}$ is the total equivalent-electron source rate, $\mathcal{S}$
+    is the set of injected neutral gas species, $\dot{N}_s$ is the particle injection
+    rate of species $s$, and $Z_s$ is the equivalent-electron weighting per injected
+    particle. For an atomic species, $Z_s$ is its atomic number; for a molecule, it
+    is the sum of the atomic numbers of its constituent atoms.
+
+
+    The quantity applies to the vessel-level gas input and is aggregated by summing
+    over all injected neutral species. It is an instantaneous rate, not a time-integrated
+    inventory, and excludes ionization and subsequent plasma particle sources. Species-resolved
+    rates such as the [hydrogen source rate due to gas injection](name:hydrogen_source_rate_due_to_gas_injection)
+    provide individual contributions to this total. Unlike the [total lower gas source
+    rate of the vacuum vessel due to gas injection](name:total_lower_gas_source_rate_of_vacuum_vessel_due_to_gas_injection),
+    it is not restricted to the lower vessel region.
+
+
+    The corresponding accumulated quantity, such as the [accumulated hydrogen count
+    due to gas injection](name:accumulated_hydrogen_count_due_to_gas_injection), is
+    obtained by time integration and represents delivered inventory rather than instantaneous
+    throughput.'
+  unit: s^-1
+  physics_domain: plant_systems
+  links: []
+  sources:
+  - kind: imas-dd
+    ref: summary/gas_injection_rates/total/value
+    version: 4.1.0
+  roles:
+  - quantity
