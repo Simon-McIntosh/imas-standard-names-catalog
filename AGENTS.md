@@ -50,10 +50,10 @@ dev = [
   catalog builds use a reviewed, immutable tool release.
 - `uv.lock` is **gitignored** (see `.gitignore`). The version constraint in
   `pyproject.toml` is therefore the repository's dependency record.
-- The catalog-site CI (`catalog.yml`) already checks out
-  `Simon-McIntosh/imas-standard-names` separately under `_isn/site` to
-  bundle the SPA source. This dependency pin governs the `standard-names` CLI
-  used to validate and build catalog data.
+- The catalog-site CI (`catalog.yml`) derives `v<version>` from this pin and
+  checks out `Simon-McIntosh/imas-standard-names` at that tag under `_isn/site`.
+  The same pin therefore governs both the `standard-names` validation/build CLI
+  and the bundled SPA source.
 - Reproducibility for **tagged releases** is delivered by the tag on
   THIS repo plus the published `imas-standard-names` version recorded here.
 
