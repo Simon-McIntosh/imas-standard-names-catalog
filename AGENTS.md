@@ -38,7 +38,7 @@ published stable release from PyPI:
 ```toml
 [dependency-groups]
 dev = [
-    "imas-standard-names[quality,docs]==0.8.0",
+    "imas-standard-names[quality,docs]==0.8.1",
 ]
 ```
 
@@ -69,6 +69,9 @@ outside `pyproject.toml`.
 | `validate.yml` | PR, push to main | Validates YAML syntax and catalog consistency |
 | `catalog.yml` | Push to main/tags | Builds versioned docs site via mike → gh-pages |
 | `release.yml` | Tag `v*` | Builds `catalog.db`, `standard_names.zip`, Python wheel |
+
+For same-repository review PRs, the PR body must contain its deployed `pr-<number>/` URL; that body link is the reviewer's pointer and CI fails if it is absent.
+External-fork reviews cannot publish a page, so CI uploads the preview and comments with the artifact link instead.
 
 ## Git Workflow
 

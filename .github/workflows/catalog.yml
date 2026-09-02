@@ -200,20 +200,40 @@ jobs:
           path: review-preview
           if-no-files-found: error
 
-      - name: Link review preview from pull request
+      - name: Require deployed preview link in pull request body
         if: >-
           steps.review.outputs.enabled == 'true' &&
           steps.review.outputs.head_repository == github.repository
         uses: actions/github-script@v7
         env:
-          PREVIEW_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ steps.review.outputs.number }}/
+          EXPECTED_PREVIEW_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ steps.review.outputs.number }}/
+          PULL_REQUEST_NUMBER: ${{ steps.review.outputs.number }}
+        with:
+          script: |
+            const pullNumber = Number(process.env.PULL_REQUEST_NUMBER);
+            const response = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullNumber,
+            });
+            const expectedAddress = process.env.EXPECTED_PREVIEW_URL;
+            if (!(response.data.body ?? '').includes(expectedAddress)) {
+              core.setFailed(`Pull request body is missing deployed preview address: ${expectedAddress}`);
+            }
+
+      - name: Link external review preview artifact
+        if: >-
+          steps.review.outputs.enabled == 'true' &&
+          steps.review.outputs.head_repository != github.repository
+        uses: actions/github-script@v7
+        env:
           PULL_REQUEST_NUMBER: ${{ steps.review.outputs.number }}
         with:
           script: |
             const marker = '<!-- catalog-review-preview -->';
             const pullNumber = Number(process.env.PULL_REQUEST_NUMBER);
-            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            const body = `${marker}\nCatalog preview: ${process.env.PREVIEW_URL}\n\nThis preview contains only entries added or edited by this pull request. Refreshed by [workflow run ${context.runId}, attempt ${process.env.GITHUB_RUN_ATTEMPT}](${runUrl}).`;
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}#artifacts`;
+            const body = `${marker}\nCatalog preview artifact: [download from workflow run ${context.runId}](${runUrl}).`;
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
               repo: context.repo.repo,
