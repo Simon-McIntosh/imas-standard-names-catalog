@@ -1,0 +1,150 @@
+# Domain: mechanical_measurement_diagnostics
+# Entries: 3
+# Ordering: approved baseline followed by fresh review entries
+- name: accumulated_deposited_energy_of_plasma_facing_component
+  kind: scalar
+  status: active
+  description: Pulse-integrated heat deposited in a plasma-facing component, including
+    heat recovered during post-discharge cooling as the component returns toward thermal
+    equilibrium.
+  documentation: 'Accumulated deposited energy is the total heat energy transferred
+    to a plasma-facing component during a complete plasma discharge and its post-discharge
+    return toward thermal equilibrium. It represents a component-level thermal load
+    rather than the plasma''s stored thermal energy.
+
+
+    The accumulated quantity is defined by integrating the deposition-associated power
+    over the full interval:
+
+
+    $$
+
+    E_{\mathrm{dep}} = \int_{t_{\mathrm{start}}}^{t_{\mathrm{end}}} P_{\mathrm{dep}}(t)\,\mathrm{d}t
+
+    $$
+
+
+    where $E_{\mathrm{dep}}$ is the accumulated deposited energy, $P_{\mathrm{dep}}(t)$
+    is the power associated with heat deposited in the component at time $t$, and
+    $t_{\mathrm{start}}$ and $t_{\mathrm{end}}$ define an interval covering the discharge
+    and subsequent thermal return.
+
+
+    The quantity applies to the complete plasma-facing component and aggregates all
+    deposited contributions into one total; it is not resolved by particle species
+    or population. The accumulation includes heat recovered after the plasma pulse
+    and excludes instantaneous power, local energy flux density, and plasma stored
+    energy.
+
+
+    A mechanism-specific rate such as [power due to convection](name:power_due_to_convection)
+    may contribute to the integral, but it is not itself the accumulated component-level
+    energy.'
+  unit: J
+  links: []
+  sources:
+  - kind: imas-dd
+    ref: calorimetry/group/component/energy_total/data
+    version: 4.1.0
+- name: coolant_transit_time_of_plant_component_port
+  kind: scalar
+  status: active
+  description: Elapsed time for coolant to traverse the associated plant component
+    from inlet to outlet, defining the thermal delay between the two coolant states.
+  documentation: 'Coolant transit time is the elapsed travel time for the coolant
+    stream to pass through the plant component associated with the specified port,
+    from its inlet to its outlet. It represents the transport delay between the inlet
+    and outlet thermal states.
+
+
+    The transit time is defined as
+
+
+    $$
+
+    \tau_{\mathrm{c}} = t_{\mathrm{out}} - t_{\mathrm{in}}
+
+    $$
+
+
+    where $\tau_{\mathrm{c}}$ is the coolant transit time, $t_{\mathrm{in}}$ is the
+    instant when the coolant crosses the component inlet, and $t_{\mathrm{out}}$ is
+    the instant when the same coolant stream crosses the component outlet.
+
+
+    The quantity applies to the coolant path through one associated plant component
+    and uses the inlet-to-outlet interval as its aggregation convention. It is not
+    a plant-wide sum over components or ports, and it excludes transport outside the
+    component, instrumentation or network latency, and a thermal time constant of
+    the component material.
+
+
+    The transit time establishes the temporal correspondence between inlet conditions
+    and the delayed outlet state represented by the [coolant temperature at outlet](name:coolant_temperature_at_outlet).
+    It is distinct from the [coolant mass flow rate](name:ratio_of_coolant_mass_to_time),
+    which describes transported mass per time rather than travel duration, and it
+    provides the thermal-delay correction relevant to [total thermal coolant absorbed
+    power at wall](name:total_thermal_coolant_absorbed_power_at_wall).'
+  unit: s
+  links:
+  - name:coolant_temperature_at_outlet
+  - name:ratio_of_coolant_mass_to_time
+  sources:
+  - kind: imas-dd
+    ref: calorimetry/group/component/transit_time
+    version: 4.1.0
+- name: ratio_of_coolant_mass_to_time
+  kind: scalar
+  status: active
+  description: Net coolant mass throughput per unit time across a flow boundary, applicable
+    to cooling loops and plant-component fluid ports.
+  documentation: 'Coolant mass flow rate is the net rate at which coolant crosses
+    a defined flow boundary. It represents fluid throughput rather than a thermodynamic
+    state or an energy-transfer quantity.
+
+
+    The instantaneous rate is defined by
+
+
+    $$
+
+    \dot{m}_c(t) = \frac{dM_c(t)}{dt}
+
+    $$
+
+
+    where $\dot{m}_c(t)$ is the coolant mass flow rate, $M_c(t)$ is the cumulative
+    net coolant mass that has crossed the boundary, $t$ is time, and the subscript
+    $c$ denotes coolant.
+
+
+    The quantity applies to the coolant stream as a whole, with its mass contributions
+    aggregated into one net rate. It is generic with respect to the flow boundary:
+    no particular inlet, outlet, cooling loop, or plant component is implied. It excludes
+    coolant temperature, enthalpy change, transit time, and deposited thermal power.
+
+
+    This quantity is the time-rate derivative of [coolant mass](name:coolant_mass),
+    so it describes transport of mass rather than the amount of coolant present. When
+    inlet and outlet states are specified, [coolant_temperature_at_inlet](name:coolant_temperature_at_inlet)
+    and [coolant_temperature_at_outlet](name:coolant_temperature_at_outlet) provide
+    the corresponding thermal states for an enthalpy balance; the mass flow rate itself
+    is not that balance or its resulting power.
+
+
+    Sign convention: Positive when net coolant transport is in the adopted positive
+    flow direction across the defined boundary.'
+  unit: kg.s^-1
+  links:
+  - name:coolant_temperature_at_inlet
+  - name:coolant_temperature_at_outlet
+  sources:
+  - kind: imas-dd
+    ref: balance_of_plant/power_plant/system/component/port/mass_flow
+    version: 4.1.0
+  - kind: imas-dd
+    ref: calorimetry/cooling_loop/mass_flow
+    version: 4.1.0
+  - kind: imas-dd
+    ref: calorimetry/group/component/mass_flow
+    version: 4.1.0
