@@ -125,13 +125,24 @@ You are invited to change the standard name itself and its description and
 documentation prose. These are the parts that carry the physics judgement the
 review exists to capture, so make them scientifically correct and complete.
 
-Other fields are machine-owned and must not be edited by hand. The unit is
-taken from the Data Dictionary, never from an author. The entry kind and
-status are assigned by the catalog tools. Every source binding field is also
-machine-owned: its kind, ref, and version preserve the exact source of the
-entry. The identity roles are generated from the name. The file's structure
-and formatting are generated too. That includes entry ordering, blank-line
-separation, and key order.
+The entry you are reading holds four fields and no more: the name, the
+description, the documentation, and the unit. Three of them are yours. The
+unit is machine-owned — it is taken from the Data Dictionary, never from an
+author — and it is in the file so that you can judge the prose against the
+physical quantity it describes.
+
+Every other field the catalog holds about a name is machine-owned, and none of
+it is in the file you edit. It is carried per name in the `catalog.yml` sidecar
+beside the domain files: the entry kind and its lifecycle status, its physics
+domain, its source bindings (whose kind, ref, and version preserve the exact
+source of the entry), its cross-reference links, and the identity roles
+generated from the name. The sidecar is regenerated in full by every export, so
+a hand edit to it is overwritten rather than reviewed. If one of those values
+looks wrong, say so in a comment: the reply names the authority that owns the
+value and the objection is carried there.
+
+The domain file's structure and formatting are generated too. That includes
+entry ordering, blank-line separation, and key order.
 
 If a machine-owned field is changed anyway, continuous integration flags the
 pull request and the change is not carried into the graph — the check that
