@@ -132,14 +132,20 @@ author — and it is in the file so that you can judge the prose against the
 physical quantity it describes.
 
 Every other field the catalog holds about a name is machine-owned, and none of
-it is in the file you edit. It is carried per name in the `catalog.yml` sidecar
-beside the domain files: the entry kind and its lifecycle status, its physics
+it is in the file you edit. It is carried in the `catalog.yml` manifest at the
+repository root, beside the `standard_names/` directory — the root catalog
+manifest of the whole export. This manifest is excluded from human review: it
+is machine-owned (it carries the derived per-name fields the entry no longer
+holds), every export rewrites it in full, and the review-edit guard refuses an
+edit to it, so anything you would change there is overwritten or rejected. Do
+not spend review time on it.
+
+Its per-name block holds the entry kind and its lifecycle status, its physics
 domain, its source bindings (whose kind, ref, and version preserve the exact
 source of the entry), its cross-reference links, and the identity roles
-generated from the name. The sidecar is regenerated in full by every export, so
-a hand edit to it is overwritten rather than reviewed. If one of those values
-looks wrong, say so in a comment: the reply names the authority that owns the
-value and the objection is carried there.
+generated from the name. If one of those values looks wrong, say so in a
+comment — do not edit the manifest: the reply names the authority that owns
+the value and the objection is carried there.
 
 The domain file's structure and formatting are generated too. That includes
 entry ordering, blank-line separation, and key order.
