@@ -55,13 +55,17 @@ uv run standard-names site-serve standard_names/
 ```
 standard_names/
   <physics_domain>.yml       # One file per physics domain (list of entries)
-catalog.yml                  # Export metadata (provenance, quality gates)
+catalog.yml                  # Export metadata and the per-name machine-owned block
 src/                         # Python package (catalog.db bundled in wheel)
 ```
 
-Each domain YAML file contains a list of `StandardNameEntry` objects with: name,
-description, documentation, unit, kind, tags, links, grammar fields, COCOS
-metadata, and provenance (origin, status, scores).
+Each domain YAML file contains a list of entries, and each entry carries only
+the four review fields: the standard name, its description, its documentation,
+and its unit. Everything the pipeline owns — the entry kind, its lifecycle
+status, its physics domain, its Data Dictionary source bindings, its
+cross-reference links, and its generated identity roles — is carried per name in
+the `catalog.yml` sidecar, alongside the export provenance and the quality
+gates. The catalog site reads both files and renders one page per name.
 
 ## CI/CD Workflows
 
@@ -75,8 +79,9 @@ metadata, and provenance (origin, status, scores).
 
 Edit YAML files via pull request. The PR workflow:
 
-1. Edit `standard_names/<domain>.yml` — change description, documentation,
-   tags, kind, links, or status
+1. Edit `standard_names/<domain>.yml` — change the standard name, its
+   description, or its documentation. The sidecar is machine-owned; a hand edit
+   to it is rejected by CI
 2. Open a PR against `main`
 3. CI validates YAML syntax
 4. Reviewer approves and merges
