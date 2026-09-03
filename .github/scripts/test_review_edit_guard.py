@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import importlib.util
+import io
 import subprocess
 import sys
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
+from typing import ClassVar
 from unittest.mock import patch
 
 MODULE_PATH = Path(__file__).with_name("review_edit_guard.py")
@@ -17,6 +20,49 @@ SPEC.loader.exec_module(guard)
 
 def catalog(*entries: str) -> str:
     return "\n\n".join(entry.strip() for entry in entries) + "\n"
+
+
+def completed(stdout: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.CompletedProcess(args=[], returncode=0, stdout=stdout, stderr="")
+
+
+def fake_git(trees: dict[str, dict[str, str]]):
+    """Answer the diff and show calls a run makes from an in-memory revision map.
+
+    The diff honours the pathspecs it is given, the way git does, so a file the
+    caller never asks about stays invisible to the comparator.
+    """
+
+    changed = sorted(
+        {path for tree in trees.values() for path in tree},
+        key=lambda path: (path.count("/"), path),
+    )
+
+    def call(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
+        if args[0] == "diff":
+            pathspecs = args[args.index("--") + 1 :]
+            selected = [
+                path
+                for path in changed
+                if any(
+                    path == spec or path.startswith(f"{spec}/") for spec in pathspecs
+                )
+            ]
+            return completed("".join(f"{path}\n" for path in selected))
+        if args[0] == "show":
+            revision, path = args[1].split(":", 1)
+            text = trees[revision].get(path)
+            if text is None:
+                return subprocess.CompletedProcess(
+                    args=[],
+                    returncode=128,
+                    stdout="",
+                    stderr=f"fatal: path {path!r} does not exist in {revision!r}",
+                )
+            return completed(text)
+        raise AssertionError(f"unexpected git call: {args}")
+
+    return call
 
 
 ENTRY_PATH = "standard_names/equilibrium.yml"
@@ -80,18 +126,22 @@ class ReviewEditGuardTests(unittest.TestCase):
         self.assertEqual(self.compare("", catalog(ENTRY)), [])
 
     def test_changed_catalog_paths_selects_yaml_below_standard_names(self):
-        result = subprocess.CompletedProcess(
-            args=[],
-            returncode=0,
-            stdout="standard_names/equilibrium.yml\nstandard_names/README.md\n",
-            stderr="",
-        )
+        result = completed("standard_names/equilibrium.yml\nstandard_names/README.md\n")
         with patch.object(guard, "_git", return_value=result) as git:
             self.assertEqual(
                 guard.changed_catalog_paths("base", "head"),
                 ["standard_names/equilibrium.yml"],
             )
-        self.assertEqual(git.call_args.args[-1], "standard_names")
+        self.assertEqual(git.call_args.args[-2:], ("standard_names", SIDECAR_PATH))
+
+    def test_changed_catalog_paths_selects_the_root_sidecar(self):
+        result = completed(f"{SIDECAR_PATH}\n{ENTRY_PATH}\n")
+        with patch.object(guard, "_git", return_value=result) as git:
+            self.assertEqual(
+                guard.changed_catalog_paths("base", "head"),
+                [SIDECAR_PATH, ENTRY_PATH],
+            )
+        self.assertIn(SIDECAR_PATH, git.call_args.args)
 
     def test_unit_change_names_identity_field_and_values(self):
         violations = self.compare(
@@ -177,6 +227,50 @@ class ReviewEditGuardTests(unittest.TestCase):
         )
         violations = self.compare(catalog(ENTRY), catalog(after))
         self.assertEqual([item.field for item in violations], ["<entry>.<key-order>"])
+
+
+class GuardRunTests(unittest.TestCase):
+    """Drive the whole guard, so the path selector and the comparator are both live."""
+
+    BASE: ClassVar[dict[str, str]] = {
+        ENTRY_PATH: catalog(ENTRY),
+        SIDECAR_PATH: catalog(SIDECAR_ENTRY),
+    }
+
+    def guard_run(self, head: dict[str, str]):
+        trees = {"base": dict(self.BASE), "head": head}
+        with patch.object(guard, "_git", side_effect=fake_git(trees)):
+            return guard.run("base", "head")
+
+    def exit_status(self, head: dict[str, str]) -> int:
+        trees = {"base": dict(self.BASE), "head": head}
+        argv = ["review_edit_guard.py", "--base", "base", "--head", "head"]
+        with (
+            patch.object(guard, "_git", side_effect=fake_git(trees)),
+            patch.object(sys, "argv", argv),
+            redirect_stdout(io.StringIO()),
+        ):
+            return guard.main()
+
+    def test_machine_owned_sidecar_edit_is_rejected(self):
+        head = dict(self.BASE)
+        head[SIDECAR_PATH] = catalog(
+            SIDECAR_ENTRY.replace("physics_domain: equilibrium", "physics_domain: mhd")
+        )
+        violations = self.guard_run(head)
+        self.assertEqual(
+            [(item.path, item.identity, item.field) for item in violations],
+            [(SIDECAR_PATH, "electron_density", "physics_domain")],
+        )
+        self.assertEqual(self.exit_status(head), 1)
+
+    def test_reviewable_prose_edit_in_a_domain_file_is_accepted(self):
+        head = dict(self.BASE)
+        head[ENTRY_PATH] = catalog(
+            ENTRY.replace("Electron density.", "Density of free electrons.")
+        )
+        self.assertEqual(self.guard_run(head), [])
+        self.assertEqual(self.exit_status(head), 0)
 
 
 if __name__ == "__main__":
